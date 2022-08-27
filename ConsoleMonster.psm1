@@ -1,21 +1,26 @@
 #Get public and private function definition files.
 $Public = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue -Recurse )
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+$Classes = @( Get-ChildItem -Path $PSScriptRoot\Classes\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+$Enums = @( Get-ChildItem -Path $PSScriptRoot\Enums\*.ps1 -ErrorAction SilentlyContinue -Recurse )
 
 $AssemblyFolders = Get-ChildItem -Path $PSScriptRoot\Lib -Directory -ErrorAction SilentlyContinue
-if ($AssemblyFolders.BaseName -contains 'Standard') {
-    $Assembly = @( Get-ChildItem -Path $PSScriptRoot\Lib\Standard\*.dll -ErrorAction SilentlyContinue )
-} else {
+$Assembly = @(
     if ($PSEdition -eq 'Core') {
-        $Assembly = @( Get-ChildItem -Path $PSScriptRoot\Lib\Core\*.dll -ErrorAction SilentlyContinue )
+        @( Get-ChildItem -Path $PSScriptRoot\Lib\Core\*.dll -ErrorAction SilentlyContinue -Recurse )
     } else {
-        $Assembly = @( Get-ChildItem -Path $PSScriptRoot\Lib\Default\*.dll -ErrorAction SilentlyContinue )
+        @( Get-ChildItem -Path $PSScriptRoot\Lib\Default\*.dll -ErrorAction SilentlyContinue -Recurse )
     }
-}
+    if ($AssemblyFolders.BaseName -contains 'Standard') {
+        @( Get-ChildItem -Path $PSScriptRoot\Lib\Standard\*.dll -ErrorAction SilentlyContinue -Recurse)
+    }
+)
 $FoundErrors = @(
     Foreach ($Import in @($Assembly)) {
         try {
+            Write-Verbose -Message $Import.FullName
             Add-Type -Path $Import.Fullname -ErrorAction Stop
+            #  }
         } catch [System.Reflection.ReflectionTypeLoadException] {
             Write-Warning "Processing $($Import.Name) Exception: $($_.Exception.Message)"
             $LoaderExceptions = $($_.Exception.LoaderExceptions) | Sort-Object -Unique
@@ -35,7 +40,7 @@ $FoundErrors = @(
         }
     }
     #Dot source the files
-    Foreach ($Import in @($Private + $Public)) {
+    Foreach ($Import in @($Private + $Public + $Classes + $Enums)) {
         Try {
             . $Import.Fullname
         } Catch {
