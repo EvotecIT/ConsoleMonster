@@ -23,9 +23,6 @@ for ($i = 0; $i -lt 30; $i++) {
     $win.Add($Check)
 }
 
-[terminal.gui.sc]
-
-
 # $btn = [Terminal.Gui.Button] @{
 #     X    = [Terminal.Gui.Pos]::Center()
 #     Y    = [Terminal.Gui.Pos]::Center() + 1
