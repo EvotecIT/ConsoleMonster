@@ -3,16 +3,16 @@ Import-Module "C:\Support\GitHub\PSPublishModule\PSPublishModule.psd1" -Force
 
 $Configuration = @{
     Information = @{
-        ModuleName           = 'ConsoleMonster'
-        DirectoryProjects    = 'C:\Support\GitHub'
+        ModuleName        = 'ConsoleMonster'
+        DirectoryProjects = 'C:\Support\GitHub'
 
-        DirectoryModulesCore = "$Env:USERPROFILE\Documents\PowerShell\Modules"
-        DirectoryModules     = "$Env:USERPROFILE\Documents\WindowsPowerShell\Modules"
+        #DirectoryModulesCore = "$Env:USERPROFILE\Documents\PowerShell\Modules"
+        #DirectoryModules     = "$Env:USERPROFILE\Documents\WindowsPowerShell\Modules"
 
-        LibrariesCore        = 'Lib\Standard'
-        LibrariesDefault     = 'Lib\Standard'
+        #LibrariesCore        = 'Lib\Core'
+        #LibrariesDefault     = 'Lib\Default'
 
-        Manifest             = @{
+        Manifest          = @{
             # Version number of this module.
             ModuleVersion              = '0.0.1'
             # Supported PSEditions
@@ -26,18 +26,18 @@ $Configuration = @{
             # Copyright statement for this module
             Copyright                  = "(c) 2011 - $((Get-Date).Year) Przemyslaw Klys @ Evotec. All rights reserved."
             # Description of the functionality provided by this module
-            Description                = 'Console Monster'
+            Description                = 'Console Monster is a PowerShell module to build cool GUI applications using Spectre Console and Terminal GUI'
             # Minimum version of the Windows PowerShell engine required by this module
             PowerShellVersion          = '5.1'
             # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
             Tags                       = @('Windows', 'MacOS', 'Linux')
 
-            #IconUri                    = 'https://evotec.xyz/wp-content/uploads/2018/12/PSWriteHTML.png'
+            IconUri                    = 'https://evotec.xyz/wp-content/uploads/2022/08/ConsoleMonster-1.png'
 
-            #ProjectUri                 = 'https://github.com/EvotecIT/PSWriteHTML'
+            ProjectUri                 = 'https://github.com/EvotecIT/ConsoleMonster'
 
             RequiredModules            = @(
-                @{ ModuleName = 'PSSharedGoods'; ModuleVersion = "Latest"; Guid = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe' }
+                #@{ ModuleName = 'PSSharedGoods'; ModuleVersion = "Latest"; Guid = 'ee272aa8-baaa-4edf-9f45-b6d6f7d844fe' }
             )
             ExternalModuleDependencies = @(
                 #"ActiveDirectory"
@@ -146,28 +146,28 @@ $Configuration = @{
         }
     }
     Steps       = @{
-        BuildModule        = @{  # requires Enable to be on to process all of that
-            Enable              = $true
-            DeleteBefore        = $true
-            Merge               = $true
-            MergeMissing        = $true
-            LibrarySeparateFile = $true
-            LibraryDotSource    = $false
-            ClassesDotSource    = $false
-            SignMerged          = $true
-            CreateFileCatalog   = $false # not working
-            Releases            = $true
-            ReleasesUnpacked    = $false
-            RefreshPSD1Only     = $false
-        }
         BuildLibraries     = @{
-            Enable        = $true
+            Enable        = $false # build once every time nuget gets updated
             Configuration = 'Release'
-            
+        }
+        BuildModule        = @{  # requires Enable to be on to process all of that
+            Enable                 = $true
+            DeleteBefore           = $true
+            Merge                  = $true
+            MergeMissing           = $true
+            LibrarySeparateFile    = $true
+            LibraryDotSource       = $true
+            ClassesDotSource       = $false
+            SignMerged             = $true
+            CreateFileCatalog      = $false # not working
+            Releases               = $false
+            ReleasesUnpacked       = $false
+            RefreshPSD1Only        = $false
+            ResolveBinaryConflicts = $true # mostly for memory and other libraries
         }
         BuildDocumentation = $false
         ImportModules      = @{
-            Self            = $true
+            Self            = $false
             RequiredModules = $false
             Verbose         = $false
         }
