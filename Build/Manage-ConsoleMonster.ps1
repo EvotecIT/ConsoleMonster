@@ -163,11 +163,12 @@ $Configuration = @{
             Releases               = $false
             ReleasesUnpacked       = $false
             RefreshPSD1Only        = $false
+            DebugDLL               = $false
             ResolveBinaryConflicts = $true # mostly for memory and other libraries
         }
         BuildDocumentation = $false
         ImportModules      = @{
-            Self            = $false
+            Self            = $true
             RequiredModules = $false
             Verbose         = $false
         }
