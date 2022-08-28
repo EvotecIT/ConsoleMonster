@@ -1,50 +1,41 @@
-#Get public and private function definition files.
-$Public = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue -Recurse )
-$Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue -Recurse )
-$Classes = @( Get-ChildItem -Path $PSScriptRoot\Classes\*.ps1 -ErrorAction SilentlyContinue -Recurse )
-$Enums = @( Get-ChildItem -Path $PSScriptRoot\Enums\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+# Get library name, from the PSM1 file name
+$Library = $myInvocation.MyCommand.Name.Replace(".psm1", '.dll')
+$Class = 'ConsoleMonster.SpectreImage'
 
-$AssemblyFolders = Get-ChildItem -Path $PSScriptRoot\Lib -Directory -ErrorAction SilentlyContinue
-$Assembly = @(
-    if ($PSEdition -eq 'Core') {
-        @( Get-ChildItem -Path $PSScriptRoot\Lib\Core\*.dll -ErrorAction SilentlyContinue -Recurse )
-    } else {
-        @( Get-ChildItem -Path $PSScriptRoot\Lib\Default\*.dll -ErrorAction SilentlyContinue -Recurse )
-    }
-    if ($AssemblyFolders.BaseName -contains 'Standard') {
-        @( Get-ChildItem -Path $PSScriptRoot\Lib\Standard\*.dll -ErrorAction SilentlyContinue -Recurse)
-    }
-)
+# This is special way of importing DLL if multiple frameworks are in use
 $FoundErrors = @(
-    Foreach ($Import in @($Assembly)) {
-        try {
-            Write-Verbose -Message $Import.FullName
-            Add-Type -Path $Import.Fullname -ErrorAction Stop
-            #  }
-        } catch [System.Reflection.ReflectionTypeLoadException] {
-            Write-Warning "Processing $($Import.Name) Exception: $($_.Exception.Message)"
-            $LoaderExceptions = $($_.Exception.LoaderExceptions) | Sort-Object -Unique
-            foreach ($E in $LoaderExceptions) {
-                Write-Warning "Processing $($Import.Name) LoaderExceptions: $($E.Message)"
-            }
-            $true
-            #Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
-        } catch {
-            Write-Warning "Processing $($Import.Name) Exception: $($_.Exception.Message)"
-            $LoaderExceptions = $($_.Exception.LoaderExceptions) | Sort-Object -Unique
-            foreach ($E in $LoaderExceptions) {
-                Write-Warning "Processing $($Import.Name) LoaderExceptions: $($E.Message)"
-            }
-            $true
-            #Write-Error -Message "StackTrace: $($_.Exception.StackTrace)"
+    # this is to prevent import library over and over again
+
+    try {
+        $ImportModule = Get-Command -Name Import-Module -Module Microsoft.PowerShell.Core
+        $Framework = if ($PSVersionTable.PSVersion.Major -eq 5) {
+            'Default'
+        } else {
+            'Core'
         }
+        if (-not $Class -as [type]) {
+            & $ImportModule ([IO.Path]::Combine($PSScriptRoot, 'Lib', $Framework, $Library)) -ErrorAction Stop
+        } else {
+            $Type = "$Class" -as [Type]
+            &$importModule -Force -Assembly ($Type.Assembly)
+        }
+    } catch {
+        Write-Warning -Message "Importing module $Library failed. Fix errors before continuing. Error: $($_.Exception.Message)"
+        $true
     }
+
+    #Get public and private function definition files.
+    $Public = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+    $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+    $Classes = @( Get-ChildItem -Path $PSScriptRoot\Classes\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+    $Enums = @( Get-ChildItem -Path $PSScriptRoot\Enums\*.ps1 -ErrorAction SilentlyContinue -Recurse )
+
     #Dot source the files
-    Foreach ($Import in @($Private + $Public + $Classes + $Enums)) {
+    Foreach ($Import in @($Private + $Classes + $Enums + $Public)) {
         Try {
             . $Import.Fullname
         } Catch {
-            Write-Error -Message "Failed to import functions from $($import.Fullname): $_"
+            Write-Warning -Message "Failed to import functions from $($import.Fullname).Error: $($_.Exception.Message)"
             $true
         }
     }
@@ -56,4 +47,4 @@ if ($FoundErrors.Count -gt 0) {
     break
 }
 
-Export-ModuleMember -Function '*' -Alias '*'
+Export-ModuleMember -Function '*' -Alias '*' -Cmdlet '*'
