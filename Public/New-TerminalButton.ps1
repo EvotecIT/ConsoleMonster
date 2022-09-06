@@ -1,12 +1,17 @@
 ﻿function New-TerminalButton {
     [cmdletBinding()]
     param(
-        [string] $Text
+        [scriptblock] $Command,
+        [string] $Text,
+        [int] $X,
+        [int] $Y,
+        [switch] $DisableAutosize
     )
 
     $Button = [Terminal.Gui.Button]::new()
-    $Button.X = [Terminal.Gui.Pos]::Center()
-    $Button.Y = [Terminal.Gui.Pos]::Center() + 1
+    $Button.X = $X
+    $Button.Y = $Y
     $Button.Text = $Text
+    $Button.AutoSize = -not $DisableAutosize.IsPresent
     $Button
 }

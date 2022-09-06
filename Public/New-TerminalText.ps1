@@ -4,21 +4,17 @@
         [int] $X,
         [int] $Y,
         [int] $Width,
-        [string] $Text
+        [Parameter(Mandatory)][string] $Text
     )
 
     $TextField = [Terminal.Gui.TextField]::new()
-    #if ($X) {
-        $TextField.X = [Terminal.Gui.Pos]::Center()
-    #}
-    #if ($Y) {
-        $TextField.Y = [Terminal.Gui.Pos]::Center()
-    #}
+    $TextField.X = $X
+    $TextField.Y = $Y
     if ($Width) {
-        $TextField.Width = 20
+        $TextField.Width = $Width
     }
     if ($Text) {
-        $TextField.Text = 'This text will be returned'
+        $TextField.Text = $Text
     }
     $TextField
 }
