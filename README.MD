@@ -20,4 +20,4 @@
   <a href="https://www.linkedin.com/in/pklys"><img src="https://img.shields.io/badge/LinkedIn-pklys-0077B5.svg?logo=LinkedIn&style=flat-square"></a>
 </p>
 
-`ConsoleMonster` Console Monster is a PowerShell module to build cool GUI applications using Spectre Console and Terminal GUI.
+`ConsoleMonster` is a PowerShell module to build cool GUI applications using Spectre Console and Terminal GUI.
