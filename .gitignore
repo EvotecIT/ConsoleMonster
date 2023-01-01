@@ -1,7 +1,7 @@
 Ignore/*
-Publish/*
 .vs/*
 .vscode/*
+Examples/Output/*
 Releases/*
 Artefacts/*
 ReleasedUnpacked/*
@@ -11,3 +11,7 @@ Sources/*/obj
 Sources/*/bin
 Sources/*/*/obj
 Sources/*/*/bin
+Sources/packages/*
+Lib/Default/*
+Lib/Standard/*
+Lib/Core/*
