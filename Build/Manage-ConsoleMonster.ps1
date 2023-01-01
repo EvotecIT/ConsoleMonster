@@ -1,10 +1,10 @@
 ﻿Clear-Host
-Import-Module "C:\Support\GitHub\PSPublishModule\PSPublishModule.psd1" -Force
+Import-Module "PSPublishModule" -Force
 
 $Configuration = @{
     Information = @{
         ModuleName        = 'ConsoleMonster'
-        DirectoryProjects = 'C:\Support\GitHub'
+        #DirectoryProjects = 'C:\Support\GitHub'
 
         #DirectoryModulesCore = "$Env:USERPROFILE\Documents\PowerShell\Modules"
         #DirectoryModules     = "$Env:USERPROFILE\Documents\WindowsPowerShell\Modules"
@@ -14,7 +14,7 @@ $Configuration = @{
 
         Manifest          = @{
             # Version number of this module.
-            ModuleVersion              = '0.0.1'
+            ModuleVersion              = '0.0.X'
             # Supported PSEditions
             CompatiblePSEditions       = @('Desktop', 'Core')
             # ID used to uniquely identify this module
@@ -147,15 +147,17 @@ $Configuration = @{
     }
     Steps       = @{
         BuildLibraries     = @{
-            Enable        = $false # build once every time nuget gets updated
+            Enable        = $true # build once every time nuget gets updated
             Configuration = 'Release'
+            Framework     = 'netstandard2.0', 'net472'
+            ProjectName   = 'ConsoleMonster'
         }
         BuildModule        = @{  # requires Enable to be on to process all of that
             Enable                 = $true
             DeleteBefore           = $true
             Merge                  = $true
             MergeMissing           = $true
-            LibrarySeparateFile    = $true
+            LibrarySeparateFile    = $false
             LibraryDotSource       = $true
             ClassesDotSource       = $false
             SignMerged             = $true
@@ -164,7 +166,10 @@ $Configuration = @{
             ReleasesUnpacked       = $false
             RefreshPSD1Only        = $false
             DebugDLL               = $false
-            ResolveBinaryConflicts = $true # mostly for memory and other libraries
+            #ResolveBinaryConflicts = $true # mostly for memory and other libraries
+            ResolveBinaryConflicts = @{
+                ProjectName = 'ConsoleMonster'
+            }
         }
         BuildDocumentation = $false
         ImportModules      = @{
