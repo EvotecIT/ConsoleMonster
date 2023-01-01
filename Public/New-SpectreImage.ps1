@@ -23,5 +23,8 @@
     if ($MaxWidth) {
         $Image.MaxWidth = $MaxWidth
     }
+   # $Image = [Spectre.Console.CanvasImageExtensions]::BicubicResampler($Image)
+   # $Image
+
     [Spectre.Console.AnsiConsole]::Write($Image)
 }
