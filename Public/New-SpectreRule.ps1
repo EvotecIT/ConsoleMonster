@@ -3,7 +3,7 @@
     param(
         [Array] $Text,
         [Array] $Color,
-        [Spectre.Console.Justify] $Align,
+        [Alias('Justification')][Spectre.Console.Justify] $Align,
         [validateSet('bold', 'dim', 'italic', 'underline', 'invert', 'conceal', 'slowblink', 'rapidblink', 'strikethrough')][string] $RuleStyle,
         [string] $RuleColor
     )
@@ -19,8 +19,8 @@
             }
         }
     }
-    $rule = [Spectre.Console.Rule]::new($PreparedText);
-    $rule.Alignment = $Align
+    $rule = [Spectre.Console.Rule]::new($PreparedText)
+    $rule.Justification = $Align
     if ($RuleColor -and $Style) {
         $rule.Style = "$RuleColor $style"
     } elseif ($RuleColor) {
@@ -28,5 +28,5 @@
     } elseif ($Style) {
         $Rule.Style = $Style
     }
-    [Spectre.Console.AnsiConsole]::Render($rule);
+    [Spectre.Console.AnsiConsole]::Render($rule)
 }
