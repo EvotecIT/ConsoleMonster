@@ -37,7 +37,7 @@ PS C:\> {{ Add example code here }}
 ```yaml
 Type: Justify
 Parameter Sets: (All)
-Aliases:
+Aliases: Justification
 Accepted values: Left, Right, Center
 
 Required: False
