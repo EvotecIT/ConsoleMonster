@@ -1,4 +1,4 @@
-﻿Import-Module .\ConsoleMonster.psd1 -Force
+﻿Import-Module $PSScriptRoot\..\ConsoleMonster.psd1 -Force
 
 New-SpectreImage -FilePath "$PSScriptRoot\Images\Kulek.jpg"
 New-SpectreImage -FilePath "$PSScriptRoot\Images\PrzemyslawKlysAndKulkozaurr.jpg"
