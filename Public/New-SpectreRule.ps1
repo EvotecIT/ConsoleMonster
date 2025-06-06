@@ -21,12 +21,12 @@
     }
     $rule = [Spectre.Console.Rule]::new($PreparedText)
     $rule.Justification = $Align
-    if ($RuleColor -and $Style) {
-        $rule.Style = "$RuleColor $style"
+    if ($RuleColor -and $RuleStyle) {
+        $rule.Style = "$RuleColor $RuleStyle"
     } elseif ($RuleColor) {
-        $Rule.Style = $RuleColor
-    } elseif ($Style) {
-        $Rule.Style = $Style
+        $rule.Style = $RuleColor
+    } elseif ($RuleStyle) {
+        $rule.Style = $RuleStyle
     }
     [Spectre.Console.AnsiConsole]::Render($rule)
 }
