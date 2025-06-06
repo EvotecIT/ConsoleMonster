@@ -18,6 +18,5 @@
         }
     }
 
-    $Window.Add($btn)
     $Window
 }
