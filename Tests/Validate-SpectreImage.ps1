@@ -55,7 +55,46 @@ try {
     if ($Canvas.Width -ne 6 -or $Canvas.Height -ne 3) {
         throw 'The image does not fit a compact terminal.'
     }
+    New-SpectreImage -FilePath $ImagePath
+    $CompactOutput = $Writer.ToString()
+    $CompactPlain = [regex]::Replace($CompactOutput, [string][char]27 + '\[[0-9;]*m', '')
+    $CompactLines = @($CompactPlain -split '\r?\n' | Where-Object { $_.Length -gt 0 })
+    if ($CompactLines.Count -ne 2 -or $CompactLines[0].Length -ne 6 -or $CompactLines[1].Length -ne 6) {
+        throw 'A compact terminal did not render the expected six-cell image rows.'
+    }
+    [IO.File]::WriteAllText((Join-Path $TemporaryDirectory 'terminal-compact.ansi'), $CompactOutput)
+    $Writer.GetStringBuilder().Clear() | Out-Null
     $Console.Profile.Width = 40
+    $Console.Profile.Capabilities.Unicode = $false
+    $Canvas = [ConsoleMonster.SpectreImageRenderer]::Load($ImagePath, 8)
+    if ($Canvas.Width -ne 8 -or $Canvas.Height -ne 4) {
+        throw 'The non-Unicode canvas does not preserve image dimensions.'
+    }
+    New-SpectreImage -FilePath $ImagePath -MaxWidth 8
+    $AsciiOutput = $Writer.ToString()
+    $AsciiPlain = [regex]::Replace($AsciiOutput, [string][char]27 + '\[[0-9;]*m', '')
+    $AsciiLines = @($AsciiPlain -split '\r?\n' | Where-Object { $_.Length -gt 0 })
+    if ($AsciiLines.Count -ne 4 -or @($AsciiLines | Where-Object { $_.Length -ne 16 }).Count -gt 0 -or $AsciiPlain -match '[^\x00-\x7F]') {
+        throw 'A non-Unicode terminal did not render four sixteen-cell ASCII rows.'
+    }
+    [IO.File]::WriteAllText((Join-Path $TemporaryDirectory 'terminal-ascii.ansi'), $AsciiOutput)
+    $Writer.GetStringBuilder().Clear() | Out-Null
+    $Console.Profile.Capabilities.Unicode = $true
+    $JpegPath = Join-Path $TemporaryDirectory 'fixture.jpg'
+    [IO.File]::WriteAllBytes($JpegPath, [OfficeIMO.Drawing.OfficeJpegCodec]::Encode($Source))
+    $Canvas = [ConsoleMonster.SpectreImageRenderer]::Load($JpegPath, 8)
+    if ($Canvas.Width -ne 8 -or $Canvas.Height -ne 4) {
+        throw 'A JPEG image does not preserve dimensions when resized.'
+    }
+    New-SpectreImage -FilePath $JpegPath -MaxWidth 8
+    $JpegOutput = $Writer.ToString()
+    $JpegPlain = [regex]::Replace($JpegOutput, [string][char]27 + '\[[0-9;]*m', '')
+    $JpegLines = @($JpegPlain -split '\r?\n' | Where-Object { $_.Length -gt 0 })
+    if ($JpegLines.Count -ne 2 -or $JpegLines[0].Length -ne 8 -or $JpegLines[1].Length -ne 8) {
+        throw 'A JPEG image did not render the expected eight-cell image rows.'
+    }
+    [IO.File]::WriteAllText((Join-Path $TemporaryDirectory 'terminal-jpeg.ansi'), $JpegOutput)
+    $Writer.GetStringBuilder().Clear() | Out-Null
     $InvalidPath = Join-Path $TemporaryDirectory 'invalid.bin'
     [IO.File]::WriteAllText($InvalidPath, 'This is not an image.')
     $Rejected = $false
@@ -112,7 +151,7 @@ try {
     New-SpectreImage -Uri "http://localhost:$Port/missing" -WarningVariable DownloadWarning
     if (-not $DownloadWarning) { throw 'Failed image download did not report a warning.' }
     $Files = @(Get-ChildItem -LiteralPath $TemporaryDirectory -File)
-    if ($Files.Count -ne 3) { throw 'An image download left a temporary file behind.' }
+    if ($Files.Count -ne 7) { throw 'An image download left a temporary file behind.' }
     Write-Output "Spectre image artifact validation passed on PowerShell $($PSVersionTable.PSVersion)."
 } finally {
     [Spectre.Console.AnsiConsole]::Console = $PreviousConsole
