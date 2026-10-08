@@ -92,6 +92,7 @@ Invoke-ModuleBuild -ModuleName 'ConsoleMonster' {
         DotSourceLibraries                = $true
         DeleteTargetModuleBeforeBuild     = $true
         NETHandleAssemblyWithSameName     = $true
+        NETIgnoreLibraryOnLoad            = @('Microsoft.Bcl.AsyncInterfaces.dll')
     }
 
     New-ConfigurationBuild @newConfigurationBuildSplat
