@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using OfficeIMO.Drawing;
 using Spectre.Console;
 
@@ -16,7 +17,15 @@ public static class SpectreImageRenderer {
     /// <param name="filePath">The raster image to decode.</param>
     /// <param name="maxWidth">Optional maximum image width in pixels.</param>
     /// <returns>A canvas resized to fit the terminal and the requested maximum width.</returns>
-    public static Canvas Load(string filePath, int? maxWidth) {
+    public static Canvas Load(string filePath, int? maxWidth) => Load(filePath, maxWidth, CancellationToken.None);
+
+    /// <summary>Loads and fits an image while observing cancellation during decoding, resizing, and canvas population.</summary>
+    /// <param name="filePath">The raster image to decode.</param>
+    /// <param name="maxWidth">Optional maximum width, further limited by the terminal.</param>
+    /// <param name="cancellationToken">Cancels preparation before the complete canvas is returned.</param>
+    /// <returns>A complete terminal canvas.</returns>
+    public static Canvas Load(string filePath, int? maxWidth, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
         if (filePath == null) {
             throw new ArgumentNullException(nameof(filePath));
         }
@@ -24,18 +33,21 @@ public static class SpectreImageRenderer {
             throw new ArgumentOutOfRangeException(nameof(maxWidth));
         }
         using var stream = File.OpenRead(filePath);
-        if (!OfficeRasterImageDecoder.TryDecode(stream, out var image) || image == null) {
-            throw new InvalidDataException("The image format or encoding is not supported by the managed raster decoder.");
-        }
+        var image = OfficeRasterImageDecoder.Decode(stream,
+            new OfficeRasterDecodeOptions { CancellationToken = cancellationToken });
         var terminalWidth = Math.Max(1, AnsiConsole.Profile.Width / (AnsiConsole.Profile.Capabilities.Unicode ? 1 : 2));
         var width = Math.Min(image.Width, Math.Min(maxWidth ?? image.Width, terminalWidth));
         if (width != image.Width) {
-            var height = Math.Max(1, (int)((long)image.Height * width / image.Width));
-            image = OfficeRasterResampler.Resize(image, width, height, OfficeRasterResamplingMode.Bicubic);
+            image = OfficeRasterResampler.Resize(image,
+                new OfficeRasterResizeOptions { Width = width, Fit = OfficeImageFit.Contain }, cancellationToken);
         }
         var canvas = new Canvas(image.Width, image.Height);
         for (var y = 0; y < image.Height; y++) {
+            cancellationToken.ThrowIfCancellationRequested();
             for (var x = 0; x < image.Width; x++) {
+                if ((x & 1023) == 0) {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
                 var pixel = image.GetPixel(x, y);
                 if (pixel.A != 0) {
                     canvas.SetPixel(x, y, new Color(pixel.R, pixel.G, pixel.B));
