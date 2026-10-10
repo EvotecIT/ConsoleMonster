@@ -14,7 +14,7 @@
 	<ItemGroup>
 		<PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
 		<PackageReference Include="Spectre.Console" Version="0.57.2" />
-		<PackageReference Include="OfficeIMO.Core" Version="3.4.4" Condition="'$(OfficeIMOCoreProjectPath)' == ''" />
+		<PackageReference Include="OfficeIMO.Core" Version="3.4.5" Condition="'$(OfficeIMOCoreProjectPath)' == ''" />
 		<PackageReference Include="Terminal.Gui" Version="1.19.0" />
 		<PackageReference Include="System.Memory" Version="4.6.3" />
 		<PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
