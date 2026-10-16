@@ -114,7 +114,11 @@ namespace ConsoleMonster.Widgets {
             if (!Min.HasValue && min > 0) {
                 min = 0;
             }
-            if (max <= min) {
+            // A non-finite fixed bound would turn every point into NaN; fall back to the data range.
+            if (!NumberFormat.IsFinite(min)) {
+                min = 0;
+            }
+            if (!NumberFormat.IsFinite(max) || max <= min) {
                 max = min + 1;
             }
             string top = NumberFormat.Compact(max) + (Unit ?? string.Empty);
@@ -143,6 +147,10 @@ namespace ConsoleMonster.Widgets {
                 for (int i = 0; i < count; i++) {
                     int px = count == 1 ? pw - 1 : (int)Math.Round((double)i / (count - 1) * (pw - 1));
                     double norm = (values[start + i] - min) / (max - min);
+                    if (double.IsNaN(norm)) {
+                        // A range wider than double can represent (max - min overflowed).
+                        norm = 0;
+                    }
                     int py = (ph - 1) - (int)Math.Round(Math.Max(0, Math.Min(1, norm)) * (ph - 1));
                     if (Scatter || prevX < 0) {
                         canvas.Set(px, py, color);

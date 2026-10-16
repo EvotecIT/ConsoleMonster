@@ -140,7 +140,7 @@ namespace ConsoleMonster.Widgets {
         private int[] SegmentWidths(int width) {
             double total = 0;
             foreach (ChartItem segment in _segments) {
-                total += Math.Max(0, segment.Value);
+                total += NumberFormat.PositiveOrZero(segment.Value);
             }
             int[] widths = new int[_segments.Count];
             if (total <= 0) {
@@ -149,9 +149,9 @@ namespace ConsoleMonster.Widgets {
             double[] remainders = new double[_segments.Count];
             int used = 0;
             for (int i = 0; i < _segments.Count; i++) {
-                double exact = Math.Max(0, _segments[i].Value) / total * width;
+                double exact = NumberFormat.PositiveOrZero(_segments[i].Value) / total * width;
                 widths[i] = (int)Math.Floor(exact);
-                if (widths[i] == 0 && _segments[i].Value > 0) {
+                if (widths[i] == 0 && NumberFormat.PositiveOrZero(_segments[i].Value) > 0) {
                     widths[i] = 1;
                 }
                 remainders[i] = exact - Math.Floor(exact);
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Widgets {
             while (used < width) {
                 int best = -1;
                 for (int i = 0; i < remainders.Length; i++) {
-                    if (_segments[i].Value > 0 && (best < 0 || remainders[i] > remainders[best])) {
+                    if (NumberFormat.PositiveOrZero(_segments[i].Value) > 0 && (best < 0 || remainders[i] > remainders[best])) {
                         best = i;
                     }
                 }
@@ -187,7 +187,7 @@ namespace ConsoleMonster.Widgets {
         private List<StyledLine> LegendLines(int width, RenderContext context) {
             double total = 0;
             foreach (ChartItem segment in _segments) {
-                total += Math.Max(0, segment.Value);
+                total += NumberFormat.PositiveOrZero(segment.Value);
             }
             List<StyledLine> lines = new List<StyledLine>();
             if (_segments.Count == 0) {
@@ -200,7 +200,7 @@ namespace ConsoleMonster.Widgets {
             int countWidth = 0;
             foreach (ChartItem segment in _segments) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(segment.Label));
-                countWidth = Math.Max(countWidth, DisplayWidth.Measure(NumberFormat.Compact(segment.Value)));
+                countWidth = Math.Max(countWidth, DisplayWidth.Measure(Count(segment.Value, context)));
             }
             for (int i = 0; i < _segments.Count; i++) {
                 markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(FillGlyph(i, context)));
@@ -231,14 +231,21 @@ namespace ConsoleMonster.Widgets {
                 string label = TextWrapper.Truncate(segment.Label, labelWidth, context.Ellipsis);
                 current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Token ?? ThemeToken.Series1)));
                 current.Add(new TextSpan(" " + StatColumn.Pad(label, labelWidth, LabelColumn.Alignment), context.Style(ThemeToken.Text)));
-                current.Add(new TextSpan(" " + StatColumn.Pad(NumberFormat.Compact(segment.Value), countWidth, CountColumn.Alignment), context.Style(ThemeToken.Text)));
+                current.Add(new TextSpan(" " + StatColumn.Pad(Count(segment.Value, context), countWidth, CountColumn.Alignment), context.Style(ThemeToken.Text)));
                 if (percentWidth > 0) {
-                    current.Add(new TextSpan(" " + StatColumn.Pad(NumberFormat.Percent(segment.Value / total), percentWidth, PercentColumn.Alignment), context.Style(ThemeToken.Muted)));
+                    string percent = NumberFormat.IsFinite(segment.Value) ? NumberFormat.Percent(NumberFormat.PositiveOrZero(segment.Value) / total) : NumberFormat.Missing(context.Glyphs.Tier);
+                    current.Add(new TextSpan(" " + StatColumn.Pad(percent, percentWidth, PercentColumn.Alignment), context.Style(ThemeToken.Muted)));
                 }
             }
             if (current.Count > 0) {
                 lines.Add(new StyledLine(current));
             }
             return lines;
-        }    }
+        }
+
+        // NaN or infinite segments (a rate over zero elapsed time) take no width and show a dash.
+        private static string Count(double value, RenderContext context) {
+            return NumberFormat.IsFinite(value) ? NumberFormat.Compact(value) : NumberFormat.Missing(context.Glyphs.Tier);
+        }
+    }
 }

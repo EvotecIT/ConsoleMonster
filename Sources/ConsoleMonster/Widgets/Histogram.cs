@@ -47,6 +47,9 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">The value.</param>
         /// <returns>This instance.</returns>
         public Histogram Add(double value) {
+            if (!NumberFormat.IsFinite(value)) {
+                return this;
+            }
             int bucket = _counts.Length - 1;
             for (int i = 1; i < _edges.Length; i++) {
                 if (value < _edges[i]) {

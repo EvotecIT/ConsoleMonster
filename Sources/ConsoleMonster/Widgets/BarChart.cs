@@ -95,8 +95,8 @@ namespace ConsoleMonster.Widgets {
             double max = Max ?? 0;
             foreach (ChartItem item in _items) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
-                valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(FormatValue(item.Value)));
-                if (!Max.HasValue) {
+                valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(FormatValue(item.Value, context)));
+                if (!Max.HasValue && NumberFormat.IsFinite(item.Value)) {
                     max = Math.Max(max, item.Value);
                 }
             }
@@ -110,14 +110,18 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < _items.Count && i < region.Height; i++) {
                 ChartItem item = _items[i];
                 region.Write(0, i, TextWrapper.Truncate(item.Label, labelWidth, context.Ellipsis), context.Style(ThemeToken.Text));
-                BarDrawer.Draw(region, barX, i, barWidth, max <= 0 ? 0 : item.Value / max, context.Style(item.Token ?? BarToken), context, false, Shape);
+                double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
+                BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(item.Token ?? BarToken), context, false, Shape);
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value), muted, ValueColumn.Alignment);
+                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value, context), muted, ValueColumn.Alignment);
                 }
             }
         }
 
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
+
+        // NaN and infinite values draw no bar and show a dash instead of "InfinityM".
+        private string FormatValue(double value, RenderContext context) => NumberFormat.IsFinite(value) ? FormatValue(value) : NumberFormat.Missing(context.Glyphs.Tier);
 
         private ChartItem? Find(string label) {
             foreach (ChartItem item in _items) {

@@ -49,9 +49,14 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">The value.</param>
         /// <returns>This instance.</returns>
         public Sparkline Add(double value) {
+            if (!NumberFormat.IsFinite(value)) {
+                // NaN and infinities (a rate over zero elapsed time) are skipped rather than drawn.
+                return this;
+            }
             _values.Add(value);
-            if (_values.Count > Math.Max(1, Capacity)) {
-                _values.RemoveRange(0, _values.Count - Capacity);
+            int capacity = Math.Max(1, Capacity);
+            if (_values.Count > capacity) {
+                _values.RemoveRange(0, _values.Count - capacity);
             }
             return this;
         }
@@ -102,8 +107,10 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             int start = Math.Max(0, _values.Count - width);
-            double max = Max ?? 0;
-            if (!Max.HasValue) {
+            // A non-finite fixed maximum would make every fraction NaN; use the data maximum instead.
+            bool fixedMax = Max.HasValue && NumberFormat.IsFinite(Max.Value);
+            double max = fixedMax ? Max!.Value : 0;
+            if (!fixedMax) {
                 for (int i = start; i < _values.Count; i++) {
                     max = Math.Max(max, _values[i]);
                 }

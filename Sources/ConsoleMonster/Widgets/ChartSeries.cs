@@ -27,6 +27,10 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">The value.</param>
         /// <param name="capacity">How many values to keep.</param>
         public void Add(double value, int capacity) {
+            if (!NumberFormat.IsFinite(value)) {
+                // NaN and infinities (a rate over zero elapsed time) are gaps, not points.
+                return;
+            }
             _values.Add(value);
             if (capacity > 0 && _values.Count > capacity) {
                 _values.RemoveRange(0, _values.Count - capacity);
