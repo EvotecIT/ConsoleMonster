@@ -15,6 +15,21 @@ Adds a value to a chart in a running dashboard.
 
 Appends to a sparkline or line-chart series (-Key names the series), counts a value in a histogram, or adds to a bar or stacked-bar segment (-Key names it).
 
+### [Format-ConsoleList](Format-ConsoleList.md)
+Formats pipeline objects as record views (labelled values) and writes them to the host.
+
+Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Format-ConsoleTable. Redirected output is plain text.
+
+### [Format-ConsoleTable](Format-ConsoleTable.md)
+Formats pipeline objects as a width-aware table and writes it to the host.
+
+Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards; a single object becomes a record view. Redirected output is plain text without escape codes.
+
+### [Format-ConsoleTree](Format-ConsoleTree.md)
+Shows the structure of pipeline objects as a tree (or an inspector view) and writes it to the host.
+
+Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries, nested to -Depth levels. Collections list up to -MaxItems items followed by "+N more"; reference cycles and the depth limit are marked instead of recursing forever. -Include and -Exclude filter member names (wildcards). With -AsInspector the object is shown as a record view: nested objects as indented sections and uniform collections as nested tables. Redirected output is plain text.
+
 ### [Get-ConsoleCapability](Get-ConsoleCapability.md)
 Shows what ConsoleMonster detected about the current terminal.
 

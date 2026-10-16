@@ -35,9 +35,10 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             List<TreeRow> rows = Flatten(context);
+            Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             int width = 0;
             foreach (TreeRow row in rows) {
-                width = Math.Max(width, row.Width(context));
+                width = Math.Max(width, row.Width(context) + ValueWidth(row.Node, presenter));
             }
             int height = constraints.IsHeightUnbounded ? rows.Count : Math.Min(rows.Count, constraints.MaxHeight);
             return new Size(Math.Min(width, constraints.MaxWidth), height);
@@ -46,6 +47,7 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
             List<TreeRow> rows = Flatten(context);
+            Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             Style guide = context.Style(ThemeToken.Border);
             Style muted = context.Style(ThemeToken.Muted);
             for (int i = 0; i < rows.Count && i < region.Height; i++) {
@@ -58,11 +60,24 @@ namespace ConsoleMonster.Widgets {
                 }
                 StyledLine label = TextWrapper.Truncate(context.Markup(node.Label).Lines[0], Math.Max(1, region.Width - x), context.Ellipsis);
                 x = region.Write(x, i, label);
+                if (node.Value != null) {
+                    StyledLine value = CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
+                    if (region.Width - x - 2 >= 4) {
+                        x = region.Write(x + 2, i, TextWrapper.Truncate(value, region.Width - x - 2, context.Ellipsis));
+                    }
+                }
                 int noteSpace = region.Width - x - 2;
                 if (!string.IsNullOrEmpty(node.Note) && noteSpace >= 4) {
                     region.Write(x + 2, i, TextWrapper.Truncate(node.Note!, noteSpace, context.Ellipsis), muted);
                 }
             }
+        }
+
+        /// <summary>Culture, clock and time zone for node values.</summary>
+        public Presenters.PresentationOptions Presentation { get; set; } = new Presenters.PresentationOptions();
+
+        private static int ValueWidth(TreeNode node, Presenters.PresenterContext presenter) {
+            return node.Value == null ? 0 : 2 + CellRendering.Content(node.Value, node.Presenter, null, presenter).TextWidth;
         }
 
         private List<TreeRow> Flatten(RenderContext context) {

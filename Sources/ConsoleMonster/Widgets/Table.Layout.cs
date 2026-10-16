@@ -165,7 +165,7 @@ namespace ConsoleMonster.Widgets {
             minimum[c] = Math.Max(1, Math.Min(minimum[c], desired[c]));
         }
 
-        private const int KeyComfortWidth = 24;
+        private const int KeyComfortWidth = 32;
 
         private int PickHidden(List<int> visible) {
             int key = KeyColumn;

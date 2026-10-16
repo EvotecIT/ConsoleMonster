@@ -1,25 +1,25 @@
  evotec.xyz · DNS records via Cloudflare DoH
-+------------------------------+-------+-----------------------+---------------+
-| Name                         | Type  | Data                  |       Latency |
-+------------------------------+-------+-----------------------+---------------+
-| evotec.xyz                   | A     | 104.21.48.12          |         12 ms |
-| evotec.xyz                   | AAAA  | 2606:4700:3036::6815: |         14 ms |
-|                              |       | 300c                  |               |
-| evotec.xyz                   | MX    | 10                    |         18 ms |
-|                              |       | evotec-xyz.mail.prote |               |
-|                              |       | ction.outlook.com     |               |
-| evotec.xyz                   | TXT   | v=spf1                |         21 ms |
-|                              |       | include:spf.protectio |               |
-|                              |       | n.outlook.com...      |               |
-| _dmarc.evotec.xyz            | TXT   | v=DMARC1; p=reject;   | [WARN] 133 ms |
-|                              |       | rua=mailto:dmarc@evot |               |
-|                              |       | ec.xyz;...            |               |
-| selector1._do...y.evotec.xyz | CNAME | selector1-evotec-xyz. |         16 ms |
-|                              |       | _domainkey.evotecpl.o |               |
-|                              |       | nmicrosoft.com        |               |
-| evotec.xyz                   | CAA   | 0 issue               |         15 ms |
-|                              |       | "letsencrypt.org"     |               |
-+------------------------------+-------+-----------------------+---------------+
++---------------------------------+-------+--------------------+---------------+
+| Name                            | Type  | Data               |       Latency |
++---------------------------------+-------+--------------------+---------------+
+| evotec.xyz                      | A     | 104.21.48.12       |         12 ms |
+| evotec.xyz                      | AAAA  | 2606:4700:3036::68 |         14 ms |
+|                                 |       | 15:300c            |               |
+| evotec.xyz                      | MX    | 10                 |         18 ms |
+|                                 |       | evotec-xyz.mail.pr |               |
+|                                 |       | otection.outloo... |               |
+| evotec.xyz                      | TXT   | v=spf1             |         21 ms |
+|                                 |       | include:spf.protec |               |
+|                                 |       | tion.outlook.co... |               |
+| _dmarc.evotec.xyz               | TXT   | v=DMARC1;          | [WARN] 133 ms |
+|                                 |       | p=reject;          |               |
+|                                 |       | rua=mailto:dmar... |               |
+| selector1._domainkey.evotec.xyz | CNAME | selector1-evotec-x |         16 ms |
+|                                 |       | yz._domainkey.evot |               |
+|                                 |       | ecpl.onmicrosof... |               |
+| evotec.xyz                      | CAA   | 0 issue            |         15 ms |
+|                                 |       | "letsencrypt.org"  |               |
++---------------------------------+-------+--------------------+---------------+
  +2 columns (TTL, Cache file)
 
  evotec.xyz · DomainDetective checks

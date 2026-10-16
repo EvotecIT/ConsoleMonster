@@ -24,6 +24,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A muted note shown after the label (counts, values), or <c>null</c>.</summary>
         public string? Note { get; set; }
 
+        /// <summary>A value shown after the label through <see cref="Presenter"/> (dates, sizes, statuses...), or null.</summary>
+        public TableCell? Value { get; set; }
+
+        /// <summary>The presenter for <see cref="Value"/>, or null for automatic.</summary>
+        public Presenters.ICellPresenter? Presenter { get; set; }
+
         /// <summary>The children.</summary>
         public IReadOnlyList<TreeNode> Children => _children;
 

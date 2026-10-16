@@ -21,5 +21,14 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>An optional status marker.</summary>
         public StatusKind? Status { get; }
+
+        /// <summary>A raw value shown through <see cref="Presenter"/> instead of <see cref="Value"/>, or null.</summary>
+        public TableCell? Cell { get; internal set; }
+
+        /// <summary>The presenter for <see cref="Cell"/>, or null for automatic.</summary>
+        public Presenters.ICellPresenter? Presenter { get; internal set; }
+
+        /// <summary>Tone rules for <see cref="Cell"/>, or null.</summary>
+        public System.Collections.Generic.IReadOnlyList<Presenters.ToneRule>? Rules { get; internal set; }
     }
 }

@@ -1,26 +1,26 @@
  evotec.xyz · DNS records via Cloudflare DoH
-┌───────────────────────────┬───────┬──────────┬────────────────────┬──────────┐
-│ Name                      │ Type  │      TTL │ Data               │  Latency │
-├───────────────────────────┼───────┼──────────┼────────────────────┼──────────┤
-│ evotec.xyz                │ A     │ 5 m 00 s │ 104.21.48.12       │    12 ms │
-│ evotec.xyz                │ AAAA  │ 5 m 00 s │ 2606:4700:3036::68 │    14 ms │
-│                           │       │          │ 15:300c            │          │
-│ evotec.xyz                │ MX    │ 1 h 00 m │ 10                 │    18 ms │
-│                           │       │          │ evotec-xyz.mail.pr │          │
-│                           │       │          │ otection.outlook.… │          │
-│ evotec.xyz                │ TXT   │ 1 h 00 m │ v=spf1             │    21 ms │
-│                           │       │          │ include:spf.protec │          │
-│                           │       │          │ tion.outlook.com…  │          │
-│ _dmarc.evotec.xyz         │ TXT   │ 1 h 00 m │ v=DMARC1;          │ ! 133 ms │
-│                           │       │          │ p=reject;          │          │
-│                           │       │          │ rua=mailto:dmarc@… │          │
-│ selector1._d…y.evotec.xyz │ CNAME │ 1 h 00 m │ selector1-evotec-x │    16 ms │
-│                           │       │          │ yz._domainkey.evot │          │
-│                           │       │          │ ecpl.onmicrosoft.… │          │
-│ evotec.xyz                │ CAA   │ 1 h 00 m │ 0 issue            │    15 ms │
-│                           │       │          │ "letsencrypt.org"  │          │
-└───────────────────────────┴───────┴──────────┴────────────────────┴──────────┘
- +1 column (Cache file)
+┌─────────────────────────────────┬───────┬─────────────────────────┬──────────┐
+│ Name                            │ Type  │ Data                    │  Latency │
+├─────────────────────────────────┼───────┼─────────────────────────┼──────────┤
+│ evotec.xyz                      │ A     │ 104.21.48.12            │    12 ms │
+│ evotec.xyz                      │ AAAA  │ 2606:4700:3036::6815:30 │    14 ms │
+│                                 │       │ 0c                      │          │
+│ evotec.xyz                      │ MX    │ 10                      │    18 ms │
+│                                 │       │ evotec-xyz.mail.protect │          │
+│                                 │       │ ion.outlook.com         │          │
+│ evotec.xyz                      │ TXT   │ v=spf1                  │    21 ms │
+│                                 │       │ include:spf.protection. │          │
+│                                 │       │ outlook.com…            │          │
+│ _dmarc.evotec.xyz               │ TXT   │ v=DMARC1; p=reject;     │ ! 133 ms │
+│                                 │       │ rua=mailto:dmarc@evotec │          │
+│                                 │       │ .xyz;…                  │          │
+│ selector1._domainkey.evotec.xyz │ CNAME │ selector1-evotec-xyz._d │    16 ms │
+│                                 │       │ omainkey.evotecpl.onmic │          │
+│                                 │       │ rosoft.com              │          │
+│ evotec.xyz                      │ CAA   │ 0 issue                 │    15 ms │
+│                                 │       │ "letsencrypt.org"       │          │
+└─────────────────────────────────┴───────┴─────────────────────────┴──────────┘
+ +2 columns (TTL, Cache file)
 
  evotec.xyz · DomainDetective checks
 ┌─────────┬────────┬───────────────────────────────────────────┬────────┬──────┐

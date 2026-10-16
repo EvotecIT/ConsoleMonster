@@ -61,6 +61,24 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Adds or replaces a pair whose value is formatted by a presenter (sizes, durations, dates, statuses...).</summary>
+        /// <param name="key">The key (plain text).</param>
+        /// <param name="value">The raw value.</param>
+        /// <param name="presenter">The presenter, or null for automatic.</param>
+        /// <param name="rules">Tone rules, or null.</param>
+        /// <returns>This instance.</returns>
+        public KeyValueList AddValue(string key, object? value, Presenters.ICellPresenter? presenter = null, IReadOnlyList<Presenters.ToneRule>? rules = null) {
+            Add(key, string.Empty);
+            KeyValueItem item = _items[_index[key]];
+            item.Cell = TableCell.FromValue(value);
+            item.Presenter = presenter;
+            item.Rules = rules;
+            return this;
+        }
+
+        /// <summary>Culture, clock and time zone for values added with <see cref="AddValue"/>.</summary>
+        public Presenters.PresentationOptions Presentation { get; set; } = new Presenters.PresentationOptions();
+
         /// <summary>Adds a pair with a number formatted with thousands separators.</summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The number.</param>
@@ -89,7 +107,7 @@ namespace ConsoleMonster.Widgets {
             int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - Gap);
             int height = 0;
             int width = 0;
-            int numberWidth = NumberWidth();
+            int numberWidth = NumberWidth(context);
             foreach (KeyValueItem item in _items) {
                 IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 height += Math.Max(1, lines.Count);
@@ -105,7 +123,7 @@ namespace ConsoleMonster.Widgets {
             int keyWidth = KeyWidth(region.Width);
             int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
             Style keyStyle = context.Style(ThemeToken.Muted);
-            int numberWidth = NumberWidth();
+            int numberWidth = NumberWidth(context);
             int y = 0;
             foreach (KeyValueItem item in _items) {
                 if (y >= region.Height) {
@@ -132,13 +150,13 @@ namespace ConsoleMonster.Widgets {
             return Math.Min(longest, cap);
         }
 
-        private int NumberWidth() {
+        private int NumberWidth(RenderContext context) {
             if (NumberColumn.Alignment == HorizontalAlignment.Left) {
                 return 0;
             }
             int widest = 0;
             foreach (KeyValueItem item in _items) {
-                widest = Math.Max(widest, DisplayWidth.Measure(LeadingNumber(item.Value)));
+                widest = Math.Max(widest, DisplayWidth.Measure(LeadingNumber(TextOf(item, context))));
             }
             return widest == 0 ? 0 : _numberColumn.Resolve(widest);
         }
@@ -169,6 +187,14 @@ namespace ConsoleMonster.Widgets {
             return token;
         }
 
+        private CellContent Present(KeyValueItem item, RenderContext context) {
+            return CellRendering.Content(item.Cell!, item.Presenter, item.Rules, Presentation.CreateContext(context));
+        }
+
+        private string TextOf(KeyValueItem item, RenderContext context) {
+            return item.Cell != null ? Markup.Escape(Present(item, context).Lines[0].PlainText) : item.Value;
+        }
+
         private static bool IsNumberSeparator(string token, int index) {
             char c = token[index];
             bool between = index > 0 && index + 1 < token.Length && char.IsDigit(token[index - 1]) && char.IsDigit(token[index + 1]);
@@ -182,12 +208,12 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> result = new List<StyledLine>();
             string prefix = item.Status.HasValue ? context.Glyphs.StatusMarker(item.Status.Value) + " " : string.Empty;
             Style markerStyle = item.Status.HasValue ? context.Style(item.Status.Value) : Style.Plain;
-            string number = numberWidth > 0 ? LeadingNumber(item.Value) : string.Empty;
+            string number = numberWidth > 0 ? LeadingNumber(TextOf(item, context)) : string.Empty;
             int pad = number.Length > 0 ? numberWidth - DisplayWidth.Measure(number) : 0;
             if (pad > 0 && NumberColumn.Alignment == HorizontalAlignment.Center) {
                 pad /= 2;
             }
-            StyledText text = context.Markup(item.Value);
+            StyledText text = item.Cell != null ? new StyledText(new[] { Present(item, context).Lines[0] }) : context.Markup(item.Value);
             bool first = true;
             foreach (StyledLine line in text.Lines) {
                 StyledLine full = line;
