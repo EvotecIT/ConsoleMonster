@@ -58,7 +58,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(12, 2)]
         public void Dashboard_EachWindowSize_MatchesGolden(int width, int height) {
             string text = Compose(MidRun(), width, height);
-            Golden.Match("resize." + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + ".txt", text);
+            // The frame always has exactly one line per row; the golden stores it without trailing empty rows (and with
+            // one final newline) so the fixture stays clean under `git diff --check`.
+            Assert.Equal(height, text.Split('\n').Length);
+            Golden.Match("resize." + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + ".txt", text.TrimEnd('\n') + "\n");
         }
 
         [Fact]
