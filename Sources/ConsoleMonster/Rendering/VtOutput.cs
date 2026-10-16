@@ -39,6 +39,9 @@ namespace ConsoleMonster.Rendering {
         /// <inheritdoc />
         public bool SupportsLiveFrames => true;
 
+        // OSC 8 is emitted only where it is known to work; other terminals would print the sequence or ignore it unevenly.
+        private bool Hyperlinks => Profile.Kind == TerminalKind.WindowsTerminal || Profile.Kind == TerminalKind.VisualStudioCode;
+
         /// <summary>Number of bytes (UTF-16 code units) written by the last frame; useful for benchmarks.</summary>
         public int LastFrameLength { get; private set; }
 
@@ -98,7 +101,7 @@ namespace ConsoleMonster.Rendering {
                 for (int y = 0; y < frame.Height; y++) {
                     MoveTo(0, y);
                     current = null;
-                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current, true);
+                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current, true, Hyperlinks);
                 }
             } else {
                 List<DiffRun> runs = FrameDiff.Compute(_previous!, frame);
@@ -108,7 +111,7 @@ namespace ConsoleMonster.Rendering {
                         continue;
                     }
                     MoveTo(run.Start, run.Row);
-                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current, true);
+                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current, true, Hyperlinks);
                 }
             }
             if (depth != ColorDepth.None) {
@@ -165,7 +168,7 @@ namespace ConsoleMonster.Rendering {
             ColorDepth depth = Profile.ColorDepth;
             int end = CellEncoder.ContentEnd(buffer, y, depth);
             Style? current = null;
-            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, true);
+            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, true, Hyperlinks);
             if (depth != ColorDepth.None && end > 0) {
                 _sb.Append(SgrEncoder.Reset);
             }

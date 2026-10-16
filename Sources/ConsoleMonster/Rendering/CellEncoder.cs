@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Text;
 using ConsoleMonster.Canvas;
@@ -17,12 +18,18 @@ namespace ConsoleMonster.Rendering {
         /// (<c>CHA</c>), and an untrusted wide glyph is written over two blanks. If the terminal draws such a glyph wider or
         /// narrower than measured, only that glyph's own cells are affected; the rest of the row stays in its columns.
         /// </remarks>
-        public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false) {
+        public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false, bool hyperlinks = false) {
             bool drifting = false;
+            string? link = null;
             for (int x = start; x < endExclusive; x++) {
                 Cell cell = buffer[x, y];
                 if (cell.IsContinuation) {
                     continue;
+                }
+                if (hyperlinks && !string.Equals(link, cell.Style.Link, StringComparison.Ordinal)) {
+                    // OSC 8: open (or close, with an empty target) a hyperlink around the following cells.
+                    sb.Append('\u001b').Append("]8;;").Append(cell.Style.Link ?? string.Empty).Append('\u001b').Append('\\');
+                    link = cell.Style.Link;
                 }
                 if (depth != ColorDepth.None && (!current.HasValue || !current.Value.Equals(cell.Style))) {
                     SgrEncoder.Append(sb, cell.Style, depth);
@@ -44,6 +51,9 @@ namespace ConsoleMonster.Rendering {
                 }
                 sb.Append(cell.Glyph);
                 drifting = !trusted;
+            }
+            if (link != null) {
+                sb.Append('\u001b').Append("]8;;").Append('\u001b').Append('\\');
             }
         }
 
