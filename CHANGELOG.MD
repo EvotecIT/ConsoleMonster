@@ -13,6 +13,8 @@
 - `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree`: Format-Table style `-Property` (calculated properties, column option hashtables), DefaultDisplayPropertySet, `-GroupBy`, `-Total`, `-Top`, `-Width`, `-PassThru`.
 - Live sessions handle window resizes (full redraw, coalesced while dragging), viewport scrolling, font changes (conhost font polling, width re-probe after Windows Terminal resizes) and windows that are too small (reduced layout by panel priority, then a one-line status).
 - Light/dark background detection in conhost and `CONSOLEMONSTER_THEME=light|dark|auto`.
+- Wrapping breaks after spaces, then after separators (path, list and query separators before dots, dashes and colons), then by character; `LogRegion.Wrap` wraps long log entries.
+- Explicit culture for numbers and dates: `CONSOLEMONSTER_CULTURE`, `TerminalProfile.WithCulture`, `LiveSessionOptions.Culture` and `-Culture` on the Format cmdlets (default: the current culture).
 - 45 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
 
 #### Breaking changes

@@ -24,7 +24,7 @@ Each layer can be used without the ones above it.
 
 | Layer | What it does |
 |---|---|
-| L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE`, `CONSOLEMONSTER_THEME` and `NO_COLOR` overrides; light/dark background detection; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
+| L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE`, `CONSOLEMONSTER_THEME`, `CONSOLEMONSTER_CULTURE` and `NO_COLOR` overrides; light/dark background detection; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
 | L1 Text and style | Display-width measurement (Unicode 17), Spectre-compatible markup (`[bold red]text[/]`, `[pass]`), semantic themes mapped to 24-bit, 256 and 16 colours, glyph sets (Full, Basic, ASCII). |
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
 | L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
@@ -85,6 +85,13 @@ Tables negotiate their width instead of overflowing it:
 
 - Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
   `TruncateMiddle` (paths, DNS names) or `Never`.
+- Wrapped text breaks after spaces first, then after separators, and only then by character. Path, list and query
+  separators (`\ / ; , | & ?`) win over the dots, dashes and colons inside a name (`. - : =`) when the next segment fits
+  on one line, so a line ends with its separator: `evotec-xyz.mail.protection.` / `outlook.com`,
+  `Artefacts\Packed\` / `ConsoleMonster.2.0.0.nupkg`. Tables, cards, record views, key/value lists, text blocks and
+  log regions (with `LogRegion.Wrap`) all use the same rules.
+- The header row is separated from the data by one rule row (`├──┼──┤`), drawn by the font at mid-height. There is
+  no padding row. `HeaderSeparator = false` (`-NoHeaderSeparator`) underlines the header instead.
 - When the columns don't fit, the lowest-priority columns hide first and a footer names them:
   `+2 columns (TTL, Cache file)`. The key column never hides.
 - Column widths only grow in a live table, so values don't jump between frames.
@@ -139,8 +146,8 @@ built-in Format cmdlets:
   (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`, ...)
   configures that column.
 - Without `-Property`, an object's DefaultDisplayPropertySet is used.
-- `-GroupBy`, `-Total`, `-Top N` and `-Width` work as their names say. `-PassThru` returns the widget instead of
-  writing it.
+- `-GroupBy`, `-Total`, `-Top N`, `-Width` and `-Culture` work as their names say. `-PassThru` also writes the input
+  objects to the pipeline.
 - Redirected output is plain text.
 
 ```powershell
@@ -155,6 +162,22 @@ Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
 
 `Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DnsClientX, DomainDetective,
 TestimoX and PSPublishModule style data at any width.
+
+## Culture
+
+Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a
+table shows `71,5 %`, `1,41 MB` and `Showing 5 of 1 234` next to English labels. To fix the culture:
+
+- `CONSOLEMONSTER_CULTURE=en-US` (any culture name, `invariant`, or `current`). An unknown name is ignored and noted in
+  the profile's decisions.
+- `TerminalProfile.WithCulture(culture)` for `Terminal.Write`, `LiveSessionOptions.Culture` for a live session, and
+  `PresentationOptions.Culture` for one table, record view, key/value list or tree.
+- `-Culture en-US` on `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree`.
+
+The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
+the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Labels stay English. Live dashboard counters (lanes,
+rates, clocks) and the inspector's item counts use invariant digits regardless, because they are compact status text
+rather than data.
 
 ## Window size, fonts and themes
 
