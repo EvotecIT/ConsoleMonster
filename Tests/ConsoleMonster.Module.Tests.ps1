@@ -81,6 +81,19 @@ $result = Start-ConsoleDashboard $d {
         $text | Should -Match 'RESULT=script output'
     }
 
+    It 'reports updates to an unknown widget name once, through the host, after the dashboard ends' {
+        $text = Invoke-ConsoleChild -Script @'
+$d = New-ConsoleDashboard -Title 'Typos' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
+Start-ConsoleDashboard $d -WarningVariable dashboardWarnings -WarningAction SilentlyContinue {
+    1..5 | ForEach-Object { Update-ConsoleLane -Name lanez -Key one -Result Pass }
+}
+"WARNINGS=$(@($dashboardWarnings).Count)"
+$dashboardWarnings | ForEach-Object { "W: $_" }
+'@
+        $text | Should -Match 'WARNINGS=1'
+        $text | Should -Match "W: The console dashboard has no widget named 'lanez'; 5 update\(s\) for it were ignored\. Widget names: .*lanes"
+    }
+
     It 'processes every input item with -Parallel' {
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Parallel' { New-ConsoleLanes }

@@ -38,6 +38,7 @@ namespace ConsoleMonster.Live {
                 }
             } catch (Exception ex) {
                 Error(ex);
+                Volatile.Write(ref _failure, ex);
                 RequestCancellation();
             } finally {
                 bool finish;
@@ -62,6 +63,7 @@ namespace ConsoleMonster.Live {
         private void ApplyOne(LiveEvent liveEvent) {
             if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
                 Interlocked.Increment(ref _eventsDropped);
+                _unknownTargets.AddOrUpdate(liveEvent.Target ?? string.Empty, 1, (name, count) => count + 1);
                 return;
             }
             try {

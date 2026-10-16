@@ -115,6 +115,9 @@ namespace ConsoleMonster.PowerShell {
             } finally {
                 Finish();
             }
+            if (_session != null) {
+                ReportProblems(_session);
+            }
             if (_host == null) {
                 return;
             }
@@ -132,6 +135,27 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void StopProcessing() {
             _stopping = true;
+        }
+
+        // Problems that happened behind the live screen are reported through the host once the screen is restored.
+        private void ReportProblems(LiveSession session) {
+            LiveSessionCounters counters = session.GetCounters();
+            if (counters.Failure != null) {
+                ErrorRecord record = new ErrorRecord(counters.Failure, "ConsoleMonsterDashboardRenderFailed", ErrorCategory.WriteError, null) {
+                    ErrorDetails = new ErrorDetails("The console dashboard stopped early because drawing failed: " + counters.Failure.Message)
+                };
+                WriteError(record);
+            }
+            foreach (System.Collections.Generic.KeyValuePair<string, long> unknown in counters.UnknownTargets) {
+                WriteWarning(LiveCmdlet.UnknownTargetMessage(session, unknown.Key, unknown.Value));
+            }
+            if (counters.ApplyErrors > 0) {
+                string last = counters.LastError == null ? string.Empty : " Last error: " + counters.LastError.Message;
+                WriteWarning(counters.ApplyErrors.ToString(System.Globalization.CultureInfo.InvariantCulture) + " dashboard update(s) failed and were skipped." + last);
+            }
+            if (counters.RenderErrors > 0) {
+                WriteWarning(counters.RenderErrors.ToString(System.Globalization.CultureInfo.InvariantCulture) + " frame(s) could not be laid out at the window size and showed an error line instead.");
+            }
         }
 
         /// <summary>Stops the session and releases runspaces; PowerShell calls it even when the pipeline is stopped.</summary>

@@ -50,6 +50,8 @@ namespace ConsoleMonster.Live {
         private long _renderErrors;
         private Output.ConsoleFontWatcher? _fontWatcher;
         private bool _began; // BeginLive succeeded: only then may stopping draw a final frame and summary.
+        private Exception? _failure; // The render-thread exception that ended the session early.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, long> _unknownTargets = new System.Collections.Concurrent.ConcurrentDictionary<string, long>(StringComparer.Ordinal);
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
         private int _admission; // Sign bit closes admission; the remaining bits count admitted publications.
         private int _invalidate;
@@ -151,6 +153,19 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Most recent target, rendering, recording or cleanup exception.</summary>
         public Exception? LastError => Volatile.Read(ref _lastError);
+
+        /// <summary>The exception that ended the session early (the render thread failed, for example on a broken output), or null.</summary>
+        public Exception? Failure => Volatile.Read(ref _failure);
+
+        /// <summary>
+        /// A snapshot of the session's counters, the target names that received updates but do not exist, and the errors,
+        /// so hosts can report problems that would otherwise disappear behind the live screen.
+        /// </summary>
+        /// <returns>The snapshot.</returns>
+        public LiveSessionCounters GetCounters() {
+            return new LiveSessionCounters(EventsPosted, EventsApplied, EventsDropped, ApplyErrors, RenderErrors, FramesRendered, Resizes,
+                new Dictionary<string, long>(_unknownTargets, StringComparer.Ordinal), LastError, Failure);
+        }
 
         /// <summary>A snapshot of registered target names.</summary>
         public IReadOnlyCollection<string> TargetNames => new List<string>(_targets.Keys);
