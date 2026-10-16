@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -43,15 +42,7 @@ namespace ConsoleMonster.Presenters {
             }));
         }
 
-        // Control characters would terminate or corrupt the OSC 8 sequence.
-        private static string Clean(string address) {
-            StringBuilder sb = new StringBuilder(address.Length);
-            foreach (char c in address) {
-                if (c >= 0x20 && c != 0x7F) {
-                    sb.Append(c);
-                }
-            }
-            return sb.ToString();
-        }
+        // Control characters (C0, DEL, C1 including ST U+009C) and embedded escapes would terminate or corrupt the OSC 8 sequence.
+        private static string Clean(string address) => Rendering.TextSanitizer.Clean(address);
     }
 }

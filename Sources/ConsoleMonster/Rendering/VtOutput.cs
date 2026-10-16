@@ -66,7 +66,7 @@ namespace ConsoleMonster.Rendering {
             ColorDepth depth = Profile.ColorDepth;
             foreach (TextSpan span in line) {
                 SgrEncoder.Append(_sb, span.Style, depth);
-                _sb.Append(span.Text);
+                TextSanitizer.Append(_sb, span.Text);
             }
             if (depth != ColorDepth.None) {
                 _sb.Append(SgrEncoder.Reset);
