@@ -1,0 +1,27 @@
+── Report ──────────────────────────────────────────────────
+
+Domain  evotec.xyz
+DNSSEC  ▲ not signed
+
+ Records
+╭───────────────────┬──────┬──────┬────────────────────────╮
+│ Name              │ Type │  TTL │ Data                   │
+├───────────────────┼──────┼──────┼────────────────────────┤
+│ evotec.xyz        │ A    │  300 │ 104.21.48.12           │
+│ evotec.xyz        │ MX   │ 3600 │ 10                     │
+│                   │      │      │ evotec-xyz.mail.protec │
+│                   │      │      │ tion.outlook.com       │
+│ evotec.xyz        │ TXT  │ 3600 │ v=spf1                 │
+│                   │      │      │ include:spf.protection │
+│                   │      │      │ .outlook.com           │
+│                   │      │      │ include:_spf.google.co │
+│                   │      │      │ m -all                 │
+│ _dmarc.evotec.xyz │ TXT  │ 3600 │ ✓ p=reject             │
+╰───────────────────┴──────┴──────┴────────────────────────╯
+
+╭─ Tree ────────────────────╮ ╭─ Checks ───────── 3 items ─╮
+│ root                      │ │ ✓ SPF            9 lookups │
+│ └── xyz.  2 servers       │ │ ▲ MTA-STS          missing │
+│     ├── ✓ dana.ns.cloudf… │ │ – BIMI                     │
+│     └── ✗ kirk.ns.cloudf… │ │                            │
+╰───────────────────────────╯ ╰────────────────────────────╯

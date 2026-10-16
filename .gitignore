@@ -12,6 +12,9 @@ Sources/*/bin
 Sources/*/*/obj
 Sources/*/*/bin
 Sources/packages/*
+Sources/*/TestResults/
 Lib/Default/*
 Lib/Standard/*
 Lib/Core/*
+.nuget
+*.user
