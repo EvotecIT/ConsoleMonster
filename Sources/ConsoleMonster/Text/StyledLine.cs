@@ -5,6 +5,7 @@ using System.Text;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>One line of styled spans (no line breaks). Immutable once created.</summary>
     public sealed class StyledLine : IReadOnlyList<TextSpan> {
         private static readonly TextSpan[] NoSpans = new TextSpan[0];

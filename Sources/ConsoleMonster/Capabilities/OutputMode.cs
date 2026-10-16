@@ -1,8 +1,10 @@
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>
     /// How output reaches the user. Every widget renders in every mode; authors never special-case it.
     /// </summary>
     public enum OutputMode {
+
         /// <summary>A real VT terminal: cursor movement, alternate screen and live redraw.</summary>
         Interactive = 0,
 

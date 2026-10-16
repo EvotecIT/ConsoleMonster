@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>Deterministic Unicode 17.0 cell widths and terminal grapheme segmentation across all supported runtimes.</summary>
     public static class DisplayWidth {
+
         /// <summary>Returns 0 for combining/format/control characters, 2 for wide or default emoji characters, otherwise 1.</summary>
         /// <param name="codePoint">Unicode scalar value. Invalid values occupy one replacement cell.</param>
         /// <returns>0, 1 or 2.</returns>
@@ -149,10 +151,18 @@ namespace ConsoleMonster.Text {
         }
 
         private static int HangulClass(int cp) {
-            if ((cp >= 0x1100 && cp <= 0x115F) || (cp >= 0xA960 && cp <= 0xA97C)) { return 1; }
-            if ((cp >= 0x1160 && cp <= 0x11A7) || (cp >= 0xD7B0 && cp <= 0xD7C6)) { return 2; }
-            if ((cp >= 0x11A8 && cp <= 0x11FF) || (cp >= 0xD7CB && cp <= 0xD7FB)) { return 3; }
-            if (cp >= 0xAC00 && cp <= 0xD7A3) { return (cp - 0xAC00) % 28 == 0 ? 4 : 5; }
+            if ((cp >= 0x1100 && cp <= 0x115F) || (cp >= 0xA960 && cp <= 0xA97C)) {
+                return 1;
+            }
+            if ((cp >= 0x1160 && cp <= 0x11A7) || (cp >= 0xD7B0 && cp <= 0xD7C6)) {
+                return 2;
+            }
+            if ((cp >= 0x11A8 && cp <= 0x11FF) || (cp >= 0xD7CB && cp <= 0xD7FB)) {
+                return 3;
+            }
+            if (cp >= 0xAC00 && cp <= 0xD7A3) {
+                return (cp - 0xAC00) % 28 == 0 ? 4 : 5;
+            }
             return 0;
         }
     }

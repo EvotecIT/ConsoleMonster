@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>Resolves terminal capabilities and explicit overrides from a captured environment.</summary>
     public sealed class CapabilityDetector : ICapabilityProvider {
         private readonly TerminalEnvironment _environment;
@@ -41,20 +42,39 @@ namespace ConsoleMonster.Capabilities {
             OutputMode mode = DetectMode(ci, vt, out string modeReason);
             switch (Get("CONSOLEMONSTER_MODE").ToLowerInvariant()) {
                 case "interactive":
-                case "live": mode = OutputMode.Interactive; modeReason = "CONSOLEMONSTER_MODE"; break;
-                case "stream": mode = OutputMode.Stream; modeReason = "CONSOLEMONSTER_MODE"; break;
-                case "plain": mode = OutputMode.Plain; modeReason = "CONSOLEMONSTER_MODE"; break;
+                case "live":
+                    mode = OutputMode.Interactive;
+                    modeReason = "CONSOLEMONSTER_MODE";
+                    break;
+                case "stream":
+                    mode = OutputMode.Stream;
+                    modeReason = "CONSOLEMONSTER_MODE";
+                    break;
+                case "plain":
+                    mode = OutputMode.Plain;
+                    modeReason = "CONSOLEMONSTER_MODE";
+                    break;
             }
             ColorDepth color = DetectColor(ci, vt, out string colorReason);
             GlyphTier glyphs = DetectGlyphs(mode, ci, out string glyphReason);
             bool explicitColor = true;
             switch (Get("CONSOLEMONSTER_COLOR").ToLowerInvariant()) {
-                case "none": color = ColorDepth.None; break;
-                case "16": color = ColorDepth.Ansi16; break;
-                case "256": color = ColorDepth.Ansi256; break;
+                case "none":
+                    color = ColorDepth.None;
+                    break;
+                case "16":
+                    color = ColorDepth.Ansi16;
+                    break;
+                case "256":
+                    color = ColorDepth.Ansi256;
+                    break;
                 case "truecolor":
-                case "24bit": color = ColorDepth.TrueColor; break;
-                default: explicitColor = false; break;
+                case "24bit":
+                    color = ColorDepth.TrueColor;
+                    break;
+                default:
+                    explicitColor = false;
+                    break;
             }
             if (explicitColor) {
                 colorReason = "CONSOLEMONSTER_COLOR";
@@ -63,9 +83,18 @@ namespace ConsoleMonster.Capabilities {
                 colorReason = "NO_COLOR";
             }
             switch (Get("CONSOLEMONSTER_GLYPHS").ToLowerInvariant()) {
-                case "full": glyphs = GlyphTier.Full; glyphReason = "CONSOLEMONSTER_GLYPHS"; break;
-                case "basic": glyphs = GlyphTier.Basic; glyphReason = "CONSOLEMONSTER_GLYPHS"; break;
-                case "ascii": glyphs = GlyphTier.Ascii; glyphReason = "CONSOLEMONSTER_GLYPHS"; break;
+                case "full":
+                    glyphs = GlyphTier.Full;
+                    glyphReason = "CONSOLEMONSTER_GLYPHS";
+                    break;
+                case "basic":
+                    glyphs = GlyphTier.Basic;
+                    glyphReason = "CONSOLEMONSTER_GLYPHS";
+                    break;
+                case "ascii":
+                    glyphs = GlyphTier.Ascii;
+                    glyphReason = "CONSOLEMONSTER_GLYPHS";
+                    break;
             }
             if (mode == OutputMode.Plain) {
                 color = ColorDepth.None;
@@ -86,61 +115,119 @@ namespace ConsoleMonster.Capabilities {
         }
 
         private OutputMode DetectMode(bool ci, bool vt, out string reason) {
-            if (Equal(Get("TERM"), "dumb")) { reason = "TERM=dumb"; return OutputMode.Plain; }
-            if (ci) { reason = "CI environment"; return OutputMode.Stream; }
-            if (_environment.IsOutputRedirected) { reason = "redirected stdout"; return OutputMode.Stream; }
-            if (!vt) { reason = _environment.IsConsoleHandle ? "VT unavailable" : "no console handle/tty"; return OutputMode.Stream; }
+            if (Equal(Get("TERM"), "dumb")) {
+                reason = "TERM=dumb";
+                return OutputMode.Plain;
+            }
+            if (ci) {
+                reason = "CI environment";
+                return OutputMode.Stream;
+            }
+            if (_environment.IsOutputRedirected) {
+                reason = "redirected stdout";
+                return OutputMode.Stream;
+            }
+            if (!vt) {
+                reason = _environment.IsConsoleHandle ? "VT unavailable" : "no console handle/tty";
+                return OutputMode.Stream;
+            }
             reason = "VT terminal";
             return OutputMode.Interactive;
         }
 
         private ColorDepth DetectColor(bool ci, bool vt, out string reason) {
-            if (ci) { reason = "CI ANSI log support"; return ColorDepth.Ansi16; }
-            if (_environment.IsOutputRedirected) { reason = "redirected stdout"; return ColorDepth.None; }
-            if (!vt) { reason = "VT unavailable"; return ColorDepth.None; }
-            if (Get("WT_SESSION").Length > 0) { reason = "WT_SESSION"; return ColorDepth.TrueColor; }
-            if (Equal(Get("COLORTERM"), "truecolor") || Equal(Get("COLORTERM"), "24bit")) { reason = "COLORTERM"; return ColorDepth.TrueColor; }
-            if (Equal(Get("TERM_PROGRAM"), "vscode")) { reason = "VS Code terminal"; return ColorDepth.TrueColor; }
-            if (_environment.IsWindows && _environment.IsConsoleHandle) {
-                if (_environment.WindowsBuild >= 14931) { reason = "Windows build >=14931"; return ColorDepth.TrueColor; }
-                if (_environment.WindowsBuild >= 10586) { reason = "Windows build >=10586"; return ColorDepth.Ansi16; }
+            if (ci) {
+                reason = "CI ANSI log support";
+                return ColorDepth.Ansi16;
             }
-            if (Contains(Get("TERM"), "256color")) { reason = "TERM 256color"; return ColorDepth.Ansi256; }
+            if (_environment.IsOutputRedirected) {
+                reason = "redirected stdout";
+                return ColorDepth.None;
+            }
+            if (!vt) {
+                reason = "VT unavailable";
+                return ColorDepth.None;
+            }
+            if (Get("WT_SESSION").Length > 0) {
+                reason = "WT_SESSION";
+                return ColorDepth.TrueColor;
+            }
+            if (Equal(Get("COLORTERM"), "truecolor") || Equal(Get("COLORTERM"), "24bit")) {
+                reason = "COLORTERM";
+                return ColorDepth.TrueColor;
+            }
+            if (Equal(Get("TERM_PROGRAM"), "vscode")) {
+                reason = "VS Code terminal";
+                return ColorDepth.TrueColor;
+            }
+            if (_environment.IsWindows && _environment.IsConsoleHandle) {
+                if (_environment.WindowsBuild >= 14931) {
+                    reason = "Windows build >=14931";
+                    return ColorDepth.TrueColor;
+                }
+                if (_environment.WindowsBuild >= 10586) {
+                    reason = "Windows build >=10586";
+                    return ColorDepth.Ansi16;
+                }
+            }
+            if (Contains(Get("TERM"), "256color")) {
+                reason = "TERM 256color";
+                return ColorDepth.Ansi256;
+            }
             string term = Get("TERM");
             if (Contains(term, "xterm") || Contains(term, "screen") || Contains(term, "tmux")
                 || Contains(term, "rxvt") || Equal(term, "linux") || Equal(term, "ansi") || Equal(term, "vt100")) {
-                reason = "TERM ANSI terminal"; return ColorDepth.Ansi16;
+                reason = "TERM ANSI terminal";
+                return ColorDepth.Ansi16;
             }
             reason = "unknown colour support";
             return ColorDepth.None;
         }
 
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, out string reason) {
-            if (mode != OutputMode.Interactive || ci) { reason = "stream/CI"; return GlyphTier.Basic; }
+            if (mode != OutputMode.Interactive || ci) {
+                reason = "stream/CI";
+                return GlyphTier.Basic;
+            }
             if (Get("WT_SESSION").Length > 0 || Equal(Get("TERM_PROGRAM"), "vscode") || !_environment.IsWindows) {
-                reason = "modern terminal"; return GlyphTier.Full;
+                reason = "modern terminal";
+                return GlyphTier.Full;
             }
             string font = _environment.ConsoleFontFace ?? "unknown";
             reason = "conhost font '" + font + "'";
-            if (_environment.ConsoleFontIsRaster || Equal(font, "Terminal")) { return GlyphTier.Ascii; }
+            if (_environment.ConsoleFontIsRaster || Equal(font, "Terminal")) {
+                return GlyphTier.Ascii;
+            }
             foreach (string fullFont in FullFonts) {
-                if (Contains(font, fullFont)) { return GlyphTier.Full; }
+                if (Contains(font, fullFont)) {
+                    return GlyphTier.Full;
+                }
             }
             string[] fontWords = font.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string word in fontWords) {
-                if (Equal(word, "NF")) { return GlyphTier.Full; }
+                if (Equal(word, "NF")) {
+                    return GlyphTier.Full;
+                }
             }
             return GlyphTier.Basic;
         }
 
         private TerminalKind DetectKind() {
-            if (_environment.IsOutputRedirected) { return TerminalKind.Redirected; }
+            if (_environment.IsOutputRedirected) {
+                return TerminalKind.Redirected;
+            }
             if (_environment.IsWindows && !_environment.IsConsoleHandle) {
                 return Get("PSISE").Length > 0 || Get("PSISE_HOST").Length > 0 ? TerminalKind.PowerShellIse : TerminalKind.Unknown;
             }
-            if (Get("WT_SESSION").Length > 0) { return TerminalKind.WindowsTerminal; }
-            if (Equal(Get("TERM_PROGRAM"), "vscode")) { return TerminalKind.VisualStudioCode; }
-            if (_environment.IsWindows && _environment.IsConsoleHandle) { return TerminalKind.Conhost; }
+            if (Get("WT_SESSION").Length > 0) {
+                return TerminalKind.WindowsTerminal;
+            }
+            if (Equal(Get("TERM_PROGRAM"), "vscode")) {
+                return TerminalKind.VisualStudioCode;
+            }
+            if (_environment.IsWindows && _environment.IsConsoleHandle) {
+                return TerminalKind.Conhost;
+            }
             return Get("TERM").Length > 0 ? TerminalKind.Xterm : TerminalKind.Unknown;
         }
 

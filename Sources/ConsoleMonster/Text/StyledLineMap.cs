@@ -19,7 +19,9 @@ namespace ConsoleMonster.Text {
         }
 
         internal StyledLine Slice(int start, int end) {
-            if (start >= end) { return StyledLine.Empty; }
+            if (start >= end) {
+                return StyledLine.Empty;
+            }
             int first = Clusters[start].Start;
             TextCluster last = Clusters[end - 1];
             int limit = last.Start + last.Length;
@@ -32,7 +34,9 @@ namespace ConsoleMonster.Text {
                     spans.Add(new TextSpan(span.Text.Substring(left - offset, right - left), span.Style));
                 }
                 offset += span.Text.Length;
-                if (offset >= limit) { break; }
+                if (offset >= limit) {
+                    break;
+                }
             }
             return new StyledLine(spans);
         }
@@ -40,7 +44,9 @@ namespace ConsoleMonster.Text {
         internal Style StyleAt(int index) {
             int position = Clusters[index].Start;
             foreach (TextSpan span in _line) {
-                if (position < span.Text.Length) { return span.Style; }
+                if (position < span.Text.Length) {
+                    return span.Style;
+                }
                 position -= span.Text.Length;
             }
             return Style.Plain;

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>
     /// Writes UTF-8 (without BOM) to a stream, typically redirected standard output. Text is buffered until
     /// <see cref="Flush"/> so a frame or block reaches the device in one write.

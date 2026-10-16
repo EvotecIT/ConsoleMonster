@@ -6,6 +6,7 @@ using System.Text;
 using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>Buffers UTF-16 text and writes directly to the Windows stdout console, independent of its code page.</summary>
     public sealed class ConsoleHandleWriter : ITerminalWriter {
         private readonly IntPtr _handle;

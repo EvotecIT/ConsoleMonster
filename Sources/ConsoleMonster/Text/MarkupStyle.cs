@@ -13,7 +13,9 @@ namespace ConsoleMonster.Text {
             _foreground = foreground;
             _background = background;
         }
+
         internal Style Style { get; }
+
         internal Style Apply(Style parent) => new Style(
             _foreground ? Style.Foreground : parent.Foreground,
             _background ? Style.Background : parent.Background,
@@ -44,18 +46,33 @@ namespace ConsoleMonster.Text {
                 }
                 TextDecoration decoration;
                 switch (lower) {
-                    case "bold": decoration = TextDecoration.Bold; break;
-                    case "dim": decoration = TextDecoration.Dim; break;
-                    case "italic": decoration = TextDecoration.Italic; break;
-                    case "underline": decoration = TextDecoration.Underline; break;
-                    case "strikethrough": decoration = TextDecoration.Strikethrough; break;
+                    case "bold":
+                        decoration = TextDecoration.Bold;
+                        break;
+                    case "dim":
+                        decoration = TextDecoration.Dim;
+                        break;
+                    case "italic":
+                        decoration = TextDecoration.Italic;
+                        break;
+                    case "underline":
+                        decoration = TextDecoration.Underline;
+                        break;
+                    case "strikethrough":
+                        decoration = TextDecoration.Strikethrough;
+                        break;
                     case "reverse":
-                    case "invert": decoration = TextDecoration.Reverse; break;
+                    case "invert":
+                        decoration = TextDecoration.Reverse;
+                        break;
                     case "blink":
-                    case "link": continue;
+                    case "link":
+                        continue;
                     default:
                         if (lower.StartsWith("link=", StringComparison.Ordinal)) {
-                            if (word.Length == 5) { return false; }
+                            if (word.Length == 5) {
+                                return false;
+                            }
                             continue;
                         }
                         if (Color.TryParse(word, out Color color)) {
@@ -89,17 +106,27 @@ namespace ConsoleMonster.Text {
                     }
                     continue;
                 }
-                if (start < 0) { start = i; }
+                if (start < 0) {
+                    start = i;
+                }
                 if (c == '(') {
-                    if (parenthesis) { return null; }
+                    if (parenthesis) {
+                        return null;
+                    }
                     parenthesis = true;
                 } else if (c == ')') {
-                    if (!parenthesis) { return null; }
+                    if (!parenthesis) {
+                        return null;
+                    }
                     parenthesis = false;
                 }
             }
-            if (parenthesis) { return null; }
-            if (start >= 0) { words.Add(specification.Substring(start)); }
+            if (parenthesis) {
+                return null;
+            }
+            if (start >= 0) {
+                words.Add(specification.Substring(start));
+            }
             return words;
         }
     }

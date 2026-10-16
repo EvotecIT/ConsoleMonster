@@ -2,8 +2,10 @@ using System;
 using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>Reads the visible window size, rather than the scrollback buffer; safe to call every frame.</summary>
     public static class TerminalSize {
+
         /// <summary>Tries to read the visible size without throwing.</summary>
         /// <param name="width">Columns, or zero when unavailable.</param>
         /// <param name="height">Rows, or zero when unavailable.</param>

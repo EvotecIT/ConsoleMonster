@@ -1,8 +1,10 @@
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>
     /// The terminal or host that was detected. Informational; decisions are carried by <see cref="TerminalProfile"/>.
     /// </summary>
     public enum TerminalKind {
+
         /// <summary>Not identified.</summary>
         Unknown = 0,
 

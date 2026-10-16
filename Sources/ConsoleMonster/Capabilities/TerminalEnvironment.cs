@@ -6,8 +6,10 @@ using ConsoleMonster.Interop;
 using ConsoleMonster.Output;
 
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>An immutable snapshot of the process inputs used by capability detection.</summary>
     public sealed class TerminalEnvironment {
+
         /// <summary>Creates a snapshot, copying variables with the platform's name comparison.</summary>
         /// <param name="environmentVariables">Environment variables; absent entries behave as empty strings.</param>
         /// <param name="isOutputRedirected">Whether stdout is redirected.</param>
@@ -44,22 +46,31 @@ namespace ConsoleMonster.Capabilities {
 
         /// <summary>Copied environment variables, case-insensitive on Windows.</summary>
         public IReadOnlyDictionary<string, string> EnvironmentVariables { get; }
+
         /// <summary>Whether stdout is redirected.</summary>
         public bool IsOutputRedirected { get; }
+
         /// <summary>Whether the host is Windows.</summary>
         public bool IsWindows { get; }
+
         /// <summary>Windows build, or zero when unknown.</summary>
         public int WindowsBuild { get; }
+
         /// <summary>Whether GetConsoleMode succeeded for stdout.</summary>
         public bool IsConsoleHandle { get; }
+
         /// <summary>Result of enabling VT, or null when not attempted.</summary>
         public bool? VirtualTerminalEnabled { get; }
+
         /// <summary>Console font face, when available.</summary>
         public string? ConsoleFontFace { get; }
+
         /// <summary>Whether the console font is raster.</summary>
         public bool ConsoleFontIsRaster { get; }
+
         /// <summary>Visible columns, or zero when unavailable.</summary>
         public int WindowWidth { get; }
+
         /// <summary>Visible rows, or zero when unavailable.</summary>
         public int WindowHeight { get; }
 

@@ -5,8 +5,10 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>Parses nested Spectre-compatible style tags, theme tokens and escaped brackets.</summary>
     public static class Markup {
+
         /// <summary>Parses leniently: invalid tags stay literal, unmatched closing tags are ignored and open tags end at EOF.</summary>
         /// <param name="markup">Markup, or null for empty text.</param>
         /// <param name="theme">Theme token resolver; defaults to the built-in dark theme.</param>
@@ -79,7 +81,10 @@ namespace ConsoleMonster.Text {
                 } else if (c == '[') {
                     int close = text.IndexOf(']', i + 1);
                     if (close < 0) {
-                        if (strict) { error = "Unterminated tag at position " + i + "."; return false; }
+                        if (strict) {
+                            error = "Unterminated tag at position " + i + ".";
+                            return false;
+                        }
                         literal.Append(text, i, text.Length - i);
                         break;
                     }
@@ -97,7 +102,10 @@ namespace ConsoleMonster.Text {
                         parents.Push(current);
                         current = style.Apply(current);
                     } else {
-                        if (strict) { error = "Invalid style tag at position " + i + ": [" + tag + "]."; return false; }
+                        if (strict) {
+                            error = "Invalid style tag at position " + i + ": [" + tag + "].";
+                            return false;
+                        }
                         literal.Append(text, i, close - i + 1);
                     }
                     i = close;
@@ -117,7 +125,9 @@ namespace ConsoleMonster.Text {
         }
 
         private static void Flush(StringBuilder literal, List<TextSpan> spans, Style style) {
-            if (literal.Length == 0) { return; }
+            if (literal.Length == 0) {
+                return;
+            }
             spans.Add(new TextSpan(literal.ToString(), style));
             literal.Clear();
         }

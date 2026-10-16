@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>Multi-line styled text: the result of parsing markup or splitting plain text into lines.</summary>
     public sealed class StyledText {
+
         /// <summary>Creates styled text from lines.</summary>
         /// <param name="lines">The lines.</param>
         public StyledText(IReadOnlyList<StyledLine> lines) {

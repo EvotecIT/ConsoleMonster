@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>Word wrapping and end/middle truncation in terminal cells, preserving graphemes and styles.</summary>
     public static class TextWrapper {
+
         /// <summary>The ellipsis used by Full and Basic glyph tiers.</summary>
         public const string Ellipsis = "…";
 
@@ -13,9 +15,13 @@ namespace ConsoleMonster.Text {
         /// <param name="width">Maximum cells per line; values below one use one.</param>
         /// <returns>At least one line, each within the budget.</returns>
         public static IReadOnlyList<StyledLine> Wrap(StyledLine line, int width) {
-            if (line == null) { throw new ArgumentNullException(nameof(line)); }
+            if (line == null) {
+                throw new ArgumentNullException(nameof(line));
+            }
             width = Math.Max(1, width);
-            if (line.Width <= width) { return new[] { line }; }
+            if (line.Width <= width) {
+                return new[] { line };
+            }
             StyledLineMap map = new StyledLineMap(line);
             List<StyledLine> result = new List<StyledLine>();
             int start = 0;
@@ -53,12 +59,20 @@ namespace ConsoleMonster.Text {
                     }
                 }
                 int trimmed = split;
-                while (trimmed > start && map.IsSpace(trimmed - 1)) { trimmed--; }
-                if (trimmed > start) { result.Add(map.Slice(start, trimmed)); }
+                while (trimmed > start && map.IsSpace(trimmed - 1)) {
+                    trimmed--;
+                }
+                if (trimmed > start) {
+                    result.Add(map.Slice(start, trimmed));
+                }
                 start = split;
-                while (start < map.Clusters.Count && map.IsSpace(start)) { start++; }
+                while (start < map.Clusters.Count && map.IsSpace(start)) {
+                    start++;
+                }
             }
-            if (result.Count == 0) { result.Add(StyledLine.Empty); }
+            if (result.Count == 0) {
+                result.Add(StyledLine.Empty);
+            }
             return result;
         }
 
@@ -77,15 +91,23 @@ namespace ConsoleMonster.Text {
         /// <param name="ellipsis">Marker, clipped to the budget on grapheme boundaries.</param>
         /// <returns>A line no wider than the budget, with retained text styles.</returns>
         public static StyledLine Truncate(StyledLine line, int width, string ellipsis = Ellipsis) {
-            if (line == null) { throw new ArgumentNullException(nameof(line)); }
-            if (width <= 0) { return StyledLine.Empty; }
-            if (line.Width <= width) { return line; }
+            if (line == null) {
+                throw new ArgumentNullException(nameof(line));
+            }
+            if (width <= 0) {
+                return StyledLine.Empty;
+            }
+            if (line.Width <= width) {
+                return line;
+            }
             string marker = ClipMarker(ellipsis, width);
             StyledLineMap map = new StyledLineMap(line);
             int end = map.PrefixEnd(0, width - DisplayWidth.Measure(marker));
             List<TextSpan> spans = new List<TextSpan>(map.Slice(0, end));
             Style markerStyle = map.Clusters.Count == 0 ? Style.Plain : map.StyleAt(end > 0 ? end - 1 : 0);
-            if (marker.Length > 0) { spans.Add(new TextSpan(marker, markerStyle)); }
+            if (marker.Length > 0) {
+                spans.Add(new TextSpan(marker, markerStyle));
+            }
             return new StyledLine(spans);
         }
 
@@ -104,15 +126,21 @@ namespace ConsoleMonster.Text {
         /// <param name="ellipsis">Marker inserted between the retained ends.</param>
         /// <returns>Text within the budget, on grapheme boundaries.</returns>
         public static string TruncateMiddle(string text, int width, string ellipsis = Ellipsis) {
-            if (width <= 0) { return string.Empty; }
+            if (width <= 0) {
+                return string.Empty;
+            }
             text = text ?? string.Empty;
-            if (DisplayWidth.Measure(text) <= width) { return text; }
+            if (DisplayWidth.Measure(text) <= width) {
+                return text;
+            }
             string marker = ClipMarker(ellipsis, width);
             int budget = width - DisplayWidth.Measure(marker);
             StyledLineMap map = new StyledLineMap(StyledLine.From(text));
             int leftEnd = map.PrefixEnd(0, (budget + 1) / 2);
             int used = 0;
-            for (int i = 0; i < leftEnd; i++) { used += map.Clusters[i].Width; }
+            for (int i = 0; i < leftEnd; i++) {
+                used += map.Clusters[i].Width;
+            }
             int rightStart = map.Clusters.Count;
             while (rightStart > leftEnd && map.Clusters[rightStart - 1].Width <= budget - used) {
                 used += map.Clusters[--rightStart].Width;
@@ -128,7 +156,9 @@ namespace ConsoleMonster.Text {
             marker = marker ?? string.Empty;
             int length = 0;
             foreach (TextCluster cluster in DisplayWidth.Clusters(marker)) {
-                if (cluster.Width > width) { break; }
+                if (cluster.Width > width) {
+                    break;
+                }
                 width -= cluster.Width;
                 length = cluster.Start + cluster.Length;
             }

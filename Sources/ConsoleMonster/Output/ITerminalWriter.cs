@@ -1,6 +1,7 @@
 using System;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>
     /// The lowest output sink: turns already-encoded text (including VT sequences) into calls or bytes.
     /// On a real Windows console handle the text is written as UTF-16 through <c>WriteConsoleW</c>, so Unicode
@@ -8,6 +9,7 @@ namespace ConsoleMonster.Output {
     /// <see cref="Console.Out"/>, because a live session redirects it into a log region.
     /// </summary>
     public interface ITerminalWriter : IDisposable {
+
         /// <summary>Whether this writer targets a real console handle (as opposed to a file, pipe or buffer).</summary>
         bool IsConsole { get; }
 

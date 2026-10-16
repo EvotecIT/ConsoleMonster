@@ -1,6 +1,7 @@
 using System.Text;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>
     /// An in-memory <see cref="ITerminalWriter"/>. Used by tests (VT byte-stream goldens) and by callers that
     /// want rendered output as a string, for example to embed it in another log.

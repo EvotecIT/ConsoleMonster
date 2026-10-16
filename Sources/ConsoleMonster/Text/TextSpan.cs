@@ -2,8 +2,10 @@ using System;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Text {
+
     /// <summary>A run of text with one style. Spans never contain line breaks once inside a <see cref="StyledLine"/>.</summary>
     public readonly struct TextSpan : IEquatable<TextSpan> {
+
         /// <summary>Creates a span.</summary>
         /// <param name="text">The text.</param>
         /// <param name="style">The style.</param>

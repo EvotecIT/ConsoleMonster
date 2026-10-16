@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>
     /// An immutable description of what the current terminal can do. Produced by an
     /// <see cref="ICapabilityProvider"/>, overridable by code, environment variables
@@ -9,6 +10,7 @@ namespace ConsoleMonster.Capabilities {
     /// Rendering is a pure function of the widget, its state, this profile and the theme.
     /// </summary>
     public sealed class TerminalProfile {
+
         /// <summary>The default width used when the real width cannot be determined (redirected output).</summary>
         public const int DefaultWidth = 120;
 

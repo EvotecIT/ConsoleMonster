@@ -3,6 +3,7 @@ using System.Threading;
 using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
+
     /// <summary>Restores the screen and saved Windows output mode on disposal, termination or a second Ctrl+C.</summary>
     public sealed class TerminalGuard : IDisposable {
         private readonly Action _restore;

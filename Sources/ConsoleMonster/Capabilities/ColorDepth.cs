@@ -1,8 +1,10 @@
 namespace ConsoleMonster.Capabilities {
+
     /// <summary>
     /// Colour fidelity a terminal supports. Themes map their semantic tokens down to the detected depth.
     /// </summary>
     public enum ColorDepth {
+
         /// <summary>No colour at all (NO_COLOR, plain mode, logs that must stay clean).</summary>
         None = 0,
 
