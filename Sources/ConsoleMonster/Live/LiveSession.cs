@@ -50,6 +50,7 @@ namespace ConsoleMonster.Live {
         private long _resizes;
         private long _renderErrors;
         private Output.ConsoleFontWatcher? _fontWatcher;
+        private bool _began; // BeginLive succeeded: only then may stopping draw a final frame and summary.
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
         private int _admission; // Sign bit closes admission; the remaining bits count admitted publications.
         private int _invalidate;

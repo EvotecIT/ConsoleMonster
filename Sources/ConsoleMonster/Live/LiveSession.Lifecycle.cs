@@ -36,18 +36,22 @@ namespace ConsoleMonster.Live {
                         _guardRegistration = _guard.Cancellation.Register(RequestCancellation);
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
                         else if (_options.RecordPath != null) {
-                            StreamWriter writer = new StreamWriter(_options.RecordPath, false, new UTF8Encoding(false));
+                            StreamWriter writer = OpenRecording(_options.RecordPath);
                             try { _recorder = new LiveRecorder(writer, false); }
                             catch { writer.Dispose(); throw; }
                         }
                         if (_options.CaptureConsole) {
                             lock (CurrentGate) {
-                                if (_captureOwner != null) { throw new InvalidOperationException("Another session already captures Console.Out/Error."); }
+                                if (_captureOwner != null) {
+                                    throw new InvalidOperationException("Another live session is running and captures console output; stop it before starting a new one.");
+                                }
                                 _captureOwner = this;
                                 _capture = new ConsoleCapture(CaptureLine);
                             }
                         }
+                        // Everything that can fail without touching the screen has been validated above.
                         _output.BeginLive();
+                        _began = true;
                         ApplyWidthProbe(profile);
                         if (profile.Kind == TerminalKind.Conhost && _options.Output == null && _output is VtOutput) {
                             _fontWatcher = new ConsoleFontWatcher();
@@ -94,6 +98,14 @@ namespace ConsoleMonster.Live {
             if (measured.AmbiguousWidth == 2 && profile.Glyphs != GlyphTier.Ascii) {
                 TerminalProfile downgraded = profile.WithGlyphs(GlyphTier.Ascii).WithWidthProfile(measured).WithDecision("glyphs downgraded: the probe measured ambiguous width 2");
                 _context = Terminal.CreateContext(downgraded, _options.Theme);
+            }
+        }
+
+        private static StreamWriter OpenRecording(string path) {
+            try {
+                return new StreamWriter(path, false, new UTF8Encoding(false));
+            } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) {
+                throw new IOException("Cannot write the recording to '" + path + "': " + ex.Message, ex);
             }
         }
 
@@ -184,12 +196,14 @@ namespace ConsoleMonster.Live {
                 while (Volatile.Read(ref _admission) != int.MinValue) { producers.SpinOnce(); }
                 Attempt(RestoreCapture);
                 Attempt(() => Drain(int.MaxValue));
-                if (_output != null && _context != null) { Attempt(RenderFinal); }
+                // A start that failed before BeginLive never owned the screen: no final frame, no summary.
+                bool drawn = _began && _output != null && _context != null;
+                if (drawn) { Attempt(RenderFinal); }
                 Attempt(RestoreTerminal);
                 _guardRegistration.Dispose();
                 Attempt(() => _guard?.Dispose());
                 Attempt(() => _recorder?.Dispose());
-                if (_output != null && _context != null) {
+                if (drawn && _output != null && _context != null) {
                     Attempt(() => {
                         while (_unroutedLines.TryDequeue(out string? line)) { _output.WriteLine(StyledLine.From(line)); }
                         IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);

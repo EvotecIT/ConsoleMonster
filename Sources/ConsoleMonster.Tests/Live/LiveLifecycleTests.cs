@@ -86,6 +86,44 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public void Start_UnwritableRecordPath_FailsClearlyWithoutTouchingTheScreen() {
+            FakeOutput output = new FakeOutput();
+            LiveSessionOptions options = LiveSessionTests.Options(output);
+            options.RecordPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing", "run.jsonl");
+            using (LiveSession session = new LiveSession(new FakeLogTarget(), options)) {
+                IOException error = Assert.Throws<IOException>(session.Start);
+                Assert.Contains("Cannot write the recording", error.Message);
+                Assert.Contains("run.jsonl", error.Message);
+                Assert.False(session.IsRunning);
+            }
+            Assert.DoesNotContain("begin", output.Calls);
+            Assert.DoesNotContain("frame", output.Calls);
+            Assert.DoesNotContain("block", output.Calls);
+            Assert.DoesNotContain("line", output.Calls);
+        }
+
+        [Fact]
+        public void Start_WhileAnotherSessionCaptures_FailsWithoutDrawingOverIt() {
+            FakeOutput first = new FakeOutput();
+            FakeOutput second = new FakeOutput();
+            LiveSessionOptions firstOptions = LiveSessionTests.Options(first);
+            firstOptions.CaptureConsole = true;
+            LiveSessionOptions secondOptions = LiveSessionTests.Options(second);
+            secondOptions.CaptureConsole = true;
+            using (LiveSession running = new LiveSession(new FakeLogTarget(), firstOptions)) {
+                running.Start();
+                using (LiveSession another = new LiveSession(new FakeLogTarget(), secondOptions)) {
+                    InvalidOperationException error = Assert.Throws<InvalidOperationException>(another.Start);
+                    Assert.Contains("Another live session is running", error.Message);
+                }
+                Assert.True(running.IsRunning);
+            }
+            Assert.DoesNotContain("begin", second.Calls);
+            Assert.DoesNotContain("frame", second.Calls);
+            Assert.DoesNotContain("block", second.Calls);
+        }
+
+        [Fact]
         public void RenderFailureCancelsAndRestoresWithoutKillingProcess() {
             TextWriter original = Console.Out;
             FakeOutput output = new FakeOutput();
