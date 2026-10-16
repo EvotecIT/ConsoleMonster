@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>ConsoleMonster.Benchmarks</AssemblyName>
+        <AssemblyTitle>ConsoleMonster Benchmarks</AssemblyTitle>
+        <Description>Frame time, bytes per frame, allocations and updates per second for ConsoleMonster live rendering.</Description>
+        <TargetFramework>net8.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+    </ItemGroup>
+</Project>
