@@ -29,6 +29,15 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether entries show their session time (default true).</summary>
         public bool ShowTime { get; set; } = true;
 
+        /// <summary>
+        /// Whether long entries continue on further rows, aligned under the message, instead of being truncated (default
+        /// false). Lines break after spaces, then after separators, as everywhere else.
+        /// </summary>
+        public bool Wrap { get; set; }
+
+        /// <summary>The most rows one entry may use when <see cref="Wrap"/> is on; the last row ends with an ellipsis when cut (default 3).</summary>
+        public int MaxLinesPerEntry { get; set; } = 3;
+
         /// <summary>The kept entries, oldest first.</summary>
         public IReadOnlyCollection<LogEntry> Entries => _entries;
 
@@ -73,8 +82,26 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int height = constraints.IsHeightUnbounded ? Math.Min(_entries.Count, PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
+            int height = constraints.IsHeightUnbounded ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
             return new Size(constraints.MaxWidth, Math.Max(1, height));
+        }
+
+        // Rows the newest entries need without a height limit: one each, or their wrapped rows when Wrap is on.
+        private int UnboundedRows(int width, RenderContext context) {
+            if (!Wrap) {
+                return _entries.Count;
+            }
+            LogEntry[] all = _entries.ToArray();
+            int count = Math.Min(all.Length, PreferredHeight);
+            int levelWidth = 0;
+            for (int i = all.Length - count; i < all.Length; i++) {
+                levelWidth = Math.Max(levelWidth, Tag(all[i].Level).Length);
+            }
+            int rows = 0;
+            for (int i = all.Length - 1; i >= all.Length - count && rows < PreferredHeight; i--) {
+                rows += WrapEntry(all[i].Text, Style.Plain, Math.Max(1, width - PrefixWidth(all[i], levelWidth)), context).Count;
+            }
+            return rows;
         }
 
         /// <summary>
@@ -102,21 +129,84 @@ namespace ConsoleMonster.Widgets {
                 levelWidth = Math.Max(levelWidth, Tag(all[all.Length - count + i].Level).Length);
             }
             levelWidth = levelWidth > 0 ? _levelColumn.Resolve(levelWidth) : 0;
+            if (Wrap) {
+                RenderWrapped(region, context, all, count, levelWidth, muted);
+                return;
+            }
             for (int i = 0; i < count; i++) {
                 LogEntry entry = all[all.Length - count + i];
                 int y = startRow + i;
-                int x = 0;
-                if (ShowTime) {
-                    x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
-                }
-                if (levelWidth > 0) {
-                    StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment);
-                    x += levelWidth + 1;
-                }
+                int x = WritePrefix(region, y, entry, levelWidth, muted, context);
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
                 StyledLine line = TextWrapper.Truncate(StyledLine.From(entry.Text, textStyle), region.Width - x, context.Ellipsis);
                 region.Write(x, y, line);
             }
+        }
+
+        private int WritePrefix(Region region, int y, LogEntry entry, int levelWidth, Style muted, RenderContext context) {
+            int x = 0;
+            if (ShowTime) {
+                x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
+            }
+            if (levelWidth > 0) {
+                StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment);
+                x += levelWidth + 1;
+            }
+            return x;
+        }
+
+        private int PrefixWidth(LogEntry entry, int levelWidth) {
+            int x = ShowTime ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
+            return levelWidth > 0 ? x + levelWidth + 1 : x;
+        }
+
+        // Newest entries that fit as whole entries, rows filling from the top; the newest entry alone may be cut at the bottom.
+        private void RenderWrapped(Region region, RenderContext context, LogEntry[] all, int count, int levelWidth, Style muted) {
+            List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>> shown = new List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>>();
+            int rows = 0;
+            for (int i = all.Length - 1; i >= all.Length - count; i--) {
+                LogEntry entry = all[i];
+                Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
+                IReadOnlyList<StyledLine> lines = WrapEntry(entry.Text, textStyle, Math.Max(1, region.Width - PrefixWidth(entry, levelWidth)), context);
+                if (shown.Count > 0 && rows + lines.Count > region.Height) {
+                    break;
+                }
+                shown.Insert(0, new KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>(entry, lines));
+                rows += lines.Count;
+                if (rows >= region.Height) {
+                    break;
+                }
+            }
+            int y = 0;
+            foreach (KeyValuePair<LogEntry, IReadOnlyList<StyledLine>> item in shown) {
+                int x = WritePrefix(region, y, item.Key, levelWidth, muted, context);
+                foreach (StyledLine line in item.Value) {
+                    if (y >= region.Height) {
+                        return;
+                    }
+                    region.Write(x, y, line);
+                    y++;
+                }
+            }
+        }
+
+        private IReadOnlyList<StyledLine> WrapEntry(string text, Style style, int width, RenderContext context) {
+            IReadOnlyList<StyledLine> lines = TextWrapper.Wrap(StyledLine.From(text, style), width);
+            int max = Math.Max(1, MaxLinesPerEntry);
+            if (lines.Count <= max) {
+                return lines;
+            }
+            List<StyledLine> kept = new List<StyledLine>();
+            for (int i = 0; i < max - 1; i++) {
+                kept.Add(lines[i]);
+            }
+            // The last kept row shows that more text was cut.
+            string last = lines[max - 1].PlainText;
+            string marker = context.Ellipsis;
+            int markerWidth = DisplayWidth.Measure(marker);
+            string cut = DisplayWidth.Measure(last) + markerWidth <= width ? last + marker : TextWrapper.Truncate(last, Math.Max(0, width - markerWidth), string.Empty) + marker;
+            kept.Add(StyledLine.From(cut, style));
+            return kept;
         }
 
         private static bool IsQuiet(string level) => level == "verbose" || level == "debug";

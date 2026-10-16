@@ -20,8 +20,8 @@ evotec.xyz
   Type        MX
   TTL         1 h 00 m
   Data        10
-              evotec-xyz.mail.protection.outlook.c
-              om
+              evotec-xyz.mail.protection.outlook.
+              com
   Latency     18 ms
   Cache file  C:\ProgramData\DnsClientX\cache\
               evotec.xyz\MX.json
@@ -52,8 +52,8 @@ _dmarc.evotec.xyz
 selector1._domainkey.evotec.xyz
   Type        CNAME
   TTL         1 h 00 m
-  Data        selector1-evotec-xyz._domainkey.evot
-              ecpl.onmicrosoft.com
+  Data        selector1-evotec-xyz._domainkey.
+              evotecpl.onmicrosoft.com
   Latency     16 ms
   Cache file  C:\ProgramData\DnsClientX\cache\
               evotec.xyz\
@@ -239,8 +239,8 @@ ConsoleMonster.PowerShell.dll
   Built in  23 s
   Created   3 h ago
   Path      C:\Support\GitHub\ConsoleMonster\
-            Sources\ConsoleMonster.PowerShell\
-            bin\Release\net8.0\
+            Sources\ConsoleMonster.PowerShell\bin\
+            Release\net8.0\
             ConsoleMonster.PowerShell.dll
   SHA256    77aa13f9b2c46e5d
 

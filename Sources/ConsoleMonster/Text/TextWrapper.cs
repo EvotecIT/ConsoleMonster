@@ -10,7 +10,12 @@ namespace ConsoleMonster.Text {
         /// <summary>The ellipsis used by Full and Basic glyph tiers.</summary>
         public const string Ellipsis = "…";
 
-        /// <summary>Word-wraps a line, keeping inner spaces and trimming spaces at breaks. An indivisible grapheme wider than the budget becomes a space.</summary>
+        /// <summary>
+        /// Word-wraps a line, keeping inner spaces and trimming spaces at breaks. Lines break after a space when one fits;
+        /// otherwise after a separator (<c>\ / ; , | &amp; ?</c> before <c>. - : =</c>, keeping a path segment or list
+        /// item whole when it fits), so the line ends with it; only then by character.
+        /// An indivisible grapheme wider than the budget becomes a space.
+        /// </summary>
         /// <param name="line">Styled line.</param>
         /// <param name="width">Maximum cells per line; values below one use one.</param>
         /// <returns>At least one line, each within the budget.</returns>
@@ -54,13 +59,7 @@ namespace ConsoleMonster.Text {
                         }
                     }
                     if (!found) {
-                        // No space: break after separators so DNs, paths and lists wrap at natural points.
-                        for (int i = end - 1; i > start; i--) {
-                            if (IsBreakAfter(map, i - 1)) {
-                                split = i;
-                                break;
-                            }
-                        }
+                        split = SeparatorBreak(map, start, end, width);
                     }
                 }
                 int trimmed = split;
@@ -81,13 +80,96 @@ namespace ConsoleMonster.Text {
             return result;
         }
 
-        private static bool IsBreakAfter(StyledLineMap map, int index) {
+        // No space fits: break after a separator, so hostnames, URLs, paths, DNs and lists wrap at natural points and each
+        // line ends with its separator ("evotec-xyz.mail.protection." / "outlook.com"). Strong separators (\ / ; , | & ?)
+        // end a path segment, list item or query part; weak ones (. - : =) sit inside a name. The last strong break wins
+        // when the segment after it fits on one line ("Artefacts\Packed\" / "ConsoleMonster.2.0.0.nupkg"); otherwise the
+        // line fills up to the last break of either kind. A run of separators ("://", "::", "..") stays together. Without
+        // any separator the text breaks by character (the returned end).
+        private static int SeparatorBreak(StyledLineMap map, int start, int end, int width) {
+            int strong = -1;
+            int any = -1;
+            // A break at i ends the line after cluster i - 1; i == end uses the last cluster that fits.
+            for (int i = end; i > start; i--) {
+                if (BreakAfter(map, i - 1) == BreakKind.None || BreakAfter(map, i) != BreakKind.None) {
+                    continue;
+                }
+                BreakKind kind = RunKind(map, i - 1, start);
+                if (any < 0) {
+                    any = i;
+                }
+                if (kind == BreakKind.Strong) {
+                    strong = i;
+                    break;
+                }
+            }
+            if (any < 0) {
+                return end;
+            }
+            if (strong < 0 || strong == any) {
+                return any;
+            }
+            return SegmentWidth(map, strong) <= width ? strong : any;
+        }
+
+        // The strongest separator in the run that ends at last ("/." in ".xyz/.well-known" counts as strong).
+        private static BreakKind RunKind(StyledLineMap map, int last, int start) {
+            BreakKind kind = BreakKind.None;
+            for (int i = last; i >= start; i--) {
+                BreakKind current = BreakAfter(map, i);
+                if (current == BreakKind.None) {
+                    break;
+                }
+                if (current > kind) {
+                    kind = current;
+                }
+            }
+            return kind;
+        }
+
+        // Cells from index up to and including the next space or strong separator (or the end of the text).
+        private static int SegmentWidth(StyledLineMap map, int index) {
+            int cells = 0;
+            for (int i = index; i < map.Clusters.Count; i++) {
+                if (map.IsSpace(i)) {
+                    break;
+                }
+                cells += map.Clusters[i].Width;
+                if (BreakAfter(map, i) == BreakKind.Strong) {
+                    break;
+                }
+            }
+            return cells;
+        }
+
+        private enum BreakKind {
+            None,
+            Weak,
+            Strong
+        }
+
+        private static BreakKind BreakAfter(StyledLineMap map, int index) {
             TextCluster cluster = map.Clusters[index];
             if (cluster.Length != 1) {
-                return false;
+                return BreakKind.None;
             }
-            char c = map.Text[cluster.Start];
-            return c == ',' || c == ';' || c == '/' || c == '\\' || c == '|';
+            switch (map.Text[cluster.Start]) {
+                case '/':
+                case '\\':
+                case ';':
+                case ',':
+                case '|':
+                case '&':
+                case '?':
+                    return BreakKind.Strong;
+                case '.':
+                case '-':
+                case ':':
+                case '=':
+                    return BreakKind.Weak;
+                default:
+                    return BreakKind.None;
+            }
         }
 
         /// <summary>Truncates a styled line at the end, appending an ellipsis when text was cut.</summary>

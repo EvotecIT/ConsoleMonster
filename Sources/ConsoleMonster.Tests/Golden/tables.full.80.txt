@@ -5,16 +5,16 @@
 │ evotec.xyz            │ A     │ 104.21.48.12                      │    12 ms │
 │ evotec.xyz            │ AAAA  │ 2606:4700:3036::6815:300c         │    14 ms │
 │ evotec.xyz            │ MX    │ 10                                │    18 ms │
-│                       │       │ evotec-xyz.mail.protection.outloo │          │
-│                       │       │ k.com                             │          │
+│                       │       │ evotec-xyz.mail.protection.       │          │
+│                       │       │ outlook.com                       │          │
 │ evotec.xyz            │ TXT   │ v=spf1                            │    21 ms │
-│                       │       │ include:spf.protection.outlook.co │          │
-│                       │       │ m include:_spf.google.com…        │          │
+│                       │       │ include:spf.protection.outlook.   │          │
+│                       │       │ com include:_spf.google.com…      │          │
 │ _dmarc.evotec.xyz     │ TXT   │ v=DMARC1; p=reject;               │ ▴ 133 ms │
 │                       │       │ rua=mailto:dmarc@evotec.xyz;      │          │
 │                       │       │ ruf=mailto:forensic@evotec.xyz;…  │          │
-│ selector1.…evotec.xyz │ CNAME │ selector1-evotec-xyz._domainkey.e │    16 ms │
-│                       │       │ votecpl.onmicrosoft.com           │          │
+│ selector1.…evotec.xyz │ CNAME │ selector1-evotec-xyz._domainkey.  │    16 ms │
+│                       │       │ evotecpl.onmicrosoft.com          │          │
 │ evotec.xyz            │ CAA   │ 0 issue "letsencrypt.org"         │    15 ms │
 ╰───────────────────────┴───────┴───────────────────────────────────┴──────────╯
  +2 columns (TTL, Cache file)

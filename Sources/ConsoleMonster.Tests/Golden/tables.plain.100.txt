@@ -13,8 +13,8 @@
 | _dmarc.evotec.xyz       | TXT   | 1 h 00 m | v=DMARC1; p=reject;                 | [WARN] 133 ms |
 |                         |       |          | rua=mailto:dmarc@evotec.xyz;        |               |
 |                         |       |          | ruf=mailto:forensic@evotec.xyz;...  |               |
-| selector1....evotec.xyz | CNAME | 1 h 00 m | selector1-evotec-xyz._domainkey.evo |         16 ms |
-|                         |       |          | tecpl.onmicrosoft.com               |               |
+| selector1....evotec.xyz | CNAME | 1 h 00 m | selector1-evotec-xyz._domainkey.    |         16 ms |
+|                         |       |          | evotecpl.onmicrosoft.com            |               |
 | evotec.xyz              | CAA   | 1 h 00 m | 0 issue "letsencrypt.org"           |         15 ms |
 +-------------------------+-------+----------+-------------------------------------+---------------+
  +1 column (Cache file)

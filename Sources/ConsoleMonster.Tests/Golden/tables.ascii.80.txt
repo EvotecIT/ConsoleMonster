@@ -5,16 +5,17 @@
 | evotec.xyz          | A     | 104.21.48.12                   |         12 ms |
 | evotec.xyz          | AAAA  | 2606:4700:3036::6815:300c      |         14 ms |
 | evotec.xyz          | MX    | 10                             |         18 ms |
-|                     |       | evotec-xyz.mail.protection.out |               |
-|                     |       | look.com                       |               |
+|                     |       | evotec-xyz.mail.protection.    |               |
+|                     |       | outlook.com                    |               |
 | evotec.xyz          | TXT   | v=spf1                         |         21 ms |
-|                     |       | include:spf.protection.outlook |               |
-|                     |       | .com include:_spf.google.co... |               |
+|                     |       | include:spf.protection.        |               |
+|                     |       | outlook.com...                 |               |
 | _dmarc.evotec.xyz   | TXT   | v=DMARC1; p=reject;            | [WARN] 133 ms |
 |                     |       | rua=mailto:dmarc@evotec.xyz;   |               |
 |                     |       | ruf=mailto:forensic@evotec.... |               |
-| selector...otec.xyz | CNAME | selector1-evotec-xyz._domainke |         16 ms |
-|                     |       | y.evotecpl.onmicrosoft.com     |               |
+| selector...otec.xyz | CNAME | selector1-evotec-xyz.          |         16 ms |
+|                     |       | _domainkey.evotecpl.           |               |
+|                     |       | onmicrosoft.com                |               |
 | evotec.xyz          | CAA   | 0 issue "letsencrypt.org"      |         15 ms |
 +---------------------+-------+--------------------------------+---------------+
  +2 columns (TTL, Cache file)
