@@ -17,5 +17,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+        <!-- The table showcases double as golden scenes, so the datasets are defined once. -->
+        <ProjectReference Include="..\ConsoleMonster.Examples\ConsoleMonster.Examples.csproj" />
     </ItemGroup>
 </Project>

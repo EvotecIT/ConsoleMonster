@@ -56,6 +56,11 @@ namespace ConsoleMonster.Examples {
                 case "widths":
                     GraphemeWidths.Run(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 6);
                     return 0;
+                case "tables":
+                    int tableWidth = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 0;
+                    Capabilities.TerminalProfile tableProfile = tableWidth > 0 ? Terminal.Profile.WithSize(tableWidth, Terminal.Profile.Height) : Terminal.Profile;
+                    Terminal.Write(TableShowcases.All(), tableProfile);
+                    return 0;
                 case "profile":
                     Console.WriteLine(Terminal.Profile.ToString());
                     foreach (string decision in Terminal.Profile.Decisions) {

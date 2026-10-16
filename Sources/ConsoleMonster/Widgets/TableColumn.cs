@@ -29,11 +29,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// Whether values may wrap onto several lines when space is short (default true). Setting it maps to
-        /// <see cref="Overflow"/>: true is <see cref="ColumnOverflow.Wrap"/>, false is <see cref="ColumnOverflow.Truncate"/>.
+        /// <see cref="Overflow"/>: true is <see cref="ColumnOverflow.Wrap"/>, false is <see cref="ColumnOverflow.Never"/> (identifiers keep their width while other columns give way).
         /// </summary>
         public bool Wrap {
             get => _overflow == ColumnOverflow.Wrap;
-            set => _overflow = value ? ColumnOverflow.Wrap : ColumnOverflow.Truncate;
+            set => _overflow = value ? ColumnOverflow.Wrap : ColumnOverflow.Never;
         }
 
         /// <summary>What happens to values wider than the column: wrap (default), truncate at the end, truncate in the middle, or never shorten.</summary>
