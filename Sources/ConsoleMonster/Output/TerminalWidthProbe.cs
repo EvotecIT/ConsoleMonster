@@ -111,6 +111,12 @@ namespace ConsoleMonster.Output {
                     }
                     writer.Write("\r\u001b[2K");
                     writer.Flush();
+                    if (dsr && !InputQueueIsEmpty()) {
+                        // Pending input (even a key release) would sit in front of the reply; measure through the
+                        // screen buffer instead of touching the queue.
+                        dsr = false;
+                        method = "screen buffer (input pending)";
+                    }
                     if (dsr) {
                         writer.Write(Samples[i] + "\u001b[6n");
                         writer.Flush();
@@ -162,42 +168,83 @@ namespace ConsoleMonster.Output {
             return true;
         }
 
-        // Removes a cursor position report ("ESC [ row ; col R") from the console input queue without losing other input:
-        // records are inspected with PeekConsoleInput, only the reply is taken, and any keys read together with it are
-        // written back in their original order. Keys typed in the same millisecond after the peek may be queued ahead of
-        // those written back; nothing is discarded.
+        // Removes a cursor position report ("ESC [ row ; col R") from the console input queue only when it is at the very
+        // front: the records are inspected with PeekConsoleInput and exactly the reply's records are read. Unrelated input
+        // is never read, reordered or written back. If anything else is in front of the reply, the probe gives up on cursor
+        // reports for this run (the caller falls back to the screen buffer); in that rare race the reply stays queued
+        // behind the user's keys and may reach the application as text, but no keystroke is lost or reordered.
         private static bool ReadCursorColumn(TimeSpan timeout, out int column) {
             column = 0;
             if (timeout <= TimeSpan.Zero) {
                 return false;
             }
             IntPtr input = Interop.WindowsConsole.StandardInput;
-            ConsoleInputRecord[] buffer = new ConsoleInputRecord[256];
-            bool[] drop = new bool[buffer.Length];
+            ConsoleInputRecord[] buffer = new ConsoleInputRecord[64];
             Stopwatch timer = Stopwatch.StartNew();
             while (timer.Elapsed < timeout) {
                 int count = Interop.WindowsConsole.PeekInput(input, buffer);
                 if (count > 0) {
-                    Array.Clear(drop, 0, drop.Length);
-                    if (FindCursorReport(buffer, count, drop, out column)) {
-                        int take = LastDropped(drop, count) + 1;
-                        ConsoleInputRecord[] taken = new ConsoleInputRecord[take];
-                        int read = Interop.WindowsConsole.ReadInput(input, taken, take);
-                        List<ConsoleInputRecord> keep = new List<ConsoleInputRecord>();
-                        for (int i = 0; i < read; i++) {
-                            if (!drop[i]) {
-                                keep.Add(taken[i]);
-                            }
-                        }
-                        if (keep.Count > 0) {
-                            Interop.WindowsConsole.WriteInput(input, keep.ToArray(), keep.Count);
-                        }
-                        return true;
+                    int length = FrontReplyLength(buffer, count, out column);
+                    if (length < 0) {
+                        return false;
+                    }
+                    if (length > 0) {
+                        ConsoleInputRecord[] reply = new ConsoleInputRecord[length];
+                        return Interop.WindowsConsole.ReadInput(input, reply, length) == length;
                     }
                 }
                 Thread.Sleep(1);
             }
             return false;
+        }
+
+        private static bool InputQueueIsEmpty() {
+            ConsoleInputRecord[] one = new ConsoleInputRecord[1];
+            return Interop.WindowsConsole.PeekInput(Interop.WindowsConsole.StandardInput, one) == 0;
+        }
+
+        /// <summary>
+        /// Measures a cursor position report at the front of the input queue. Returns the number of records that form
+        /// the complete reply (its key presses and releases, starting at the first record), 0 when the front is still an
+        /// incomplete reply, or -1 when the front record is not part of a reply (unrelated input that must not be read).
+        /// </summary>
+        internal static int FrontReplyLength(ConsoleInputRecord[] records, int count, out int column) {
+            column = 0;
+            if (count <= 0) {
+                return 0;
+            }
+            if (!records[0].IsKeyDown || records[0].UnicodeChar != '\u001b') {
+                return -1;
+            }
+            bool[] drop = new bool[count];
+            if (!FindCursorReport(records, count, drop, out column)) {
+                // Still arriving, or something unrelated is interleaved: wait only while every key press so far fits.
+                StringBuilder prefix = new StringBuilder();
+                for (int i = 0; i < count; i++) {
+                    if (!records[i].IsKeyDown) {
+                        continue;
+                    }
+                    char c = records[i].UnicodeChar;
+                    bool fits = prefix.Length == 0 ? c == '\u001b' : prefix.Length == 1 ? c == '[' : char.IsDigit(c) || c == ';';
+                    if (!fits) {
+                        return -1;
+                    }
+                    prefix.Append(c);
+                }
+                return 0;
+            }
+            int length = 0;
+            while (length < count && drop[length]) {
+                length++;
+            }
+            for (int i = length; i < count; i++) {
+                if (drop[i]) {
+                    // Part of the reply sits behind an unrelated record: leave the queue alone.
+                    column = 0;
+                    return -1;
+                }
+            }
+            return length;
         }
 
         /// <summary>
@@ -246,14 +293,6 @@ namespace ConsoleMonster.Output {
             return false;
         }
 
-        private static int LastDropped(bool[] drop, int count) {
-            for (int i = count - 1; i >= 0; i--) {
-                if (drop[i]) {
-                    return i;
-                }
-            }
-            return -1;
-        }
         internal static bool TryParseReply(string reply, out int column) {
             column = 0;
             int bracket = reply.IndexOf('[');

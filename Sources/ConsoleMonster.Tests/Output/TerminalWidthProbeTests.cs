@@ -74,5 +74,33 @@ namespace ConsoleMonster.Tests.Output {
                 Assert.DoesNotContain(true, drop);
             }
         }
+
+        [Fact]
+        public void FrontReplyLength_ReplyAtFrontFollowedByTyping_TakesOnlyTheReply() {
+            System.Collections.Generic.List<ConsoleMonster.Interop.ConsoleInputRecord> records = Typed("\u001b[3;9R");
+            records.AddRange(Typed("x"));
+            ConsoleMonster.Interop.ConsoleInputRecord[] buffer = records.ToArray();
+            Assert.Equal(12, TerminalWidthProbe.FrontReplyLength(buffer, buffer.Length, out int column));
+            Assert.Equal(9, column);
+        }
+
+        [Fact]
+        public void FrontReplyLength_TypingBeforeTheReply_ReadsNothing() {
+            System.Collections.Generic.List<ConsoleMonster.Interop.ConsoleInputRecord> records = Typed("a");
+            records.AddRange(Typed("\u001b[3;9R"));
+            ConsoleMonster.Interop.ConsoleInputRecord[] buffer = records.ToArray();
+            Assert.Equal(-1, TerminalWidthProbe.FrontReplyLength(buffer, buffer.Length, out int column));
+            Assert.Equal(0, column);
+        }
+
+        [Fact]
+        public void FrontReplyLength_IncompleteOrInterruptedReply_WaitsOrBacksOff() {
+            ConsoleMonster.Interop.ConsoleInputRecord[] partial = Typed("\u001b[3;").ToArray();
+            Assert.Equal(0, TerminalWidthProbe.FrontReplyLength(partial, partial.Length, out _));
+            ConsoleMonster.Interop.ConsoleInputRecord[] interrupted = Typed("\u001b[3q9R").ToArray();
+            Assert.Equal(-1, TerminalWidthProbe.FrontReplyLength(interrupted, interrupted.Length, out _));
+            ConsoleMonster.Interop.ConsoleInputRecord[] release = { Key('\r', false) };
+            Assert.Equal(-1, TerminalWidthProbe.FrontReplyLength(release, release.Length, out _));
+        }
     }
 }

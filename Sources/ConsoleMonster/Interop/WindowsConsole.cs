@@ -74,13 +74,6 @@ namespace ConsoleMonster.Interop {
             return ReadConsoleInputW(handle, buffer, (uint)count, out uint read) ? (int)read : 0;
         }
 
-        /// <summary>Appends input records to the queue (used to give back keys read together with a terminal reply).</summary>
-        internal static bool WriteInput(IntPtr handle, ConsoleInputRecord[] records, int count) {
-            if (!IsWindows || count <= 0) {
-                return true;
-            }
-            return WriteConsoleInputW(handle, records, (uint)count, out uint written) && written == count;
-        }
 
         internal static int BuildNumber() {
             if (!IsWindows) {
@@ -121,8 +114,6 @@ namespace ConsoleMonster.Interop {
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool ReadConsoleInputW(IntPtr handle, [Out] ConsoleInputRecord[] buffer, uint length, out uint read);
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool WriteConsoleInputW(IntPtr handle, ConsoleInputRecord[] buffer, uint length, out uint written);
+
     }
 }
