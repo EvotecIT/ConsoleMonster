@@ -24,12 +24,12 @@ Each layer can be used without the ones above it.
 
 | Layer | What it does |
 |---|---|
-| L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE` and `NO_COLOR` overrides; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
+| L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE`, `CONSOLEMONSTER_THEME` and `NO_COLOR` overrides; light/dark background detection; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
 | L1 Text and style | Display-width measurement (Unicode 17), Spectre-compatible markup (`[bold red]text[/]`, `[pass]`), semantic themes mapped to 24-bit, 256 and 16 colours, glyph sets (Full, Basic, ASCII). |
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
-| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; text, rule, table, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard. |
-| L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 42 thin PowerShell cmdlets with a plain `Console` noun. |
+| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
+| L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, resize, font and too-small handling, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
+| L5 Surfaces | The C# object model and a fluent builder; 45 thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
@@ -79,10 +79,116 @@ using (LiveSession session = new LiveSession(dashboard)) {
 }
 ```
 
+## Tables and complex data
+
+Tables negotiate their width instead of overflowing it:
+
+- Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
+  `TruncateMiddle` (paths, DNS names) or `Never`.
+- When the columns don't fit, the lowest-priority columns hide first and a footer names them:
+  `+2 columns (TTL, Cache file)`. The key column never hides.
+- Column widths only grow in a live table, so values don't jump between frames.
+- Below `CardsBelow` (60 cells by default), when the minimum widths still don't fit, rows turn into record cards with
+  the key value as the card title.
+- A single record renders as a record view: sections, groups, empty fields hidden and a summary header line.
+- Groups (`AddGroup`) can show subtotals; `ShowTotals` adds a totals row (Sum, Count, Average, Min, Max per column).
+  `MaxRows` with `TotalRowCount` prints "Showing 50 of 1,234".
+
+Cell presenters turn values into text and are shared by tables, cards, key/value lists and trees:
+
+| Presenter | Shows |
+|---|---|
+| Status | the status glyph and label (`√ PASS`, `▲ WARN`, `✗ FAIL`) |
+| Number | right-aligned, with culture separators and an optional unit |
+| Bytes | `1,41 MB` |
+| Duration | `48 s`, `1 m 04 s` |
+| Date | absolute, relative (`12 m ago`) or both, in a chosen time zone |
+| Boolean | `√ yes` / `— no`, either value can be marked as the problem |
+| Bar, Sparkline, Progress | a data bar, sparkline or progress bar inside the cell |
+| Link | an OSC 8 hyperlink in Windows Terminal and VS Code, plain text elsewhere |
+
+Tone rules (`ToneRule.Above(1, ThemeToken.Warn)` and similar) colour a value by threshold. Without colour (16-colour
+fallbacks, `NO_COLOR`, redirected output and `CONSOLEMONSTER_MODE=plain`), a status tone adds its symbol, so the
+output stays readable.
+
+```csharp
+Table table = new Table { Title = "Artifacts", ShowTotals = true };
+table.AddColumn(new TableColumn("Artifact") { IsKey = true, Overflow = ColumnOverflow.Never });
+table.AddColumn(new TableColumn("Size") { Priority = 9, Presenter = CellPresenters.Bytes, Aggregate = ColumnAggregate.Sum });
+table.AddColumn(new TableColumn("Built in") { Priority = 6, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
+table.AddColumn(new TableColumn("Path") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20 });
+table.AddValues("ConsoleMonster.2.0.0.nupkg", 1_482_113L, TimeSpan.FromSeconds(48.2), @"C:\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg");
+Terminal.Write(table);
+```
+
+The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET objects, PSObjects, dictionaries and JSON:
+
+- Nested objects become indented sections and collections become nested tables.
+- `InspectorOptions` sets the depth limit, the item limit (with "+N more"), include/exclude and ordering.
+- Cycles are detected and marked.
+- `JsonElement` is supported on net8.0, where System.Text.Json is in-box. On net472 and netstandard2.0, parse JSON
+  into dictionaries first.
+- Reflection is used only for objects that are not dictionaries, JSON or PSObjects, and lives in one member source.
+  On net8.0 it is marked `RequiresUnreferencedCode`. For trimmed or AOT builds, set `UseReflection = false` and pass
+  dictionaries or your own `IMemberSource`.
+
+From PowerShell, `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` take pipeline input like the
+built-in Format cmdlets:
+
+- `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
+  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`, ...)
+  configures that column.
+- Without `-Property`, an object's DefaultDisplayPropertySet is used.
+- `-GroupBy`, `-Total`, `-Top N` and `-Width` work as their names say. `-PassThru` returns the widget instead of
+  writing it.
+- Redirected output is plain text.
+
+```powershell
+Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
+    @{ Name = 'Name'; Key = $true }
+    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
+    @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
+    @{ Name = 'FullName'; Header = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1 }
+)
+Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
+```
+
+`Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DnsClientX, DomainDetective,
+TestimoX and PSPublishModule style data at any width.
+
+## Window size, fonts and themes
+
+- Live dashboards follow the window: dragging, maximize/restore, snapping, Windows Terminal pane splits and font zoom.
+  A size change clears the screen and redraws it fully. During a drag, redraws are coalesced to at most one every
+  100 ms, and the final size always gets a frame.
+- Narrower panels drop optional parts first: lane counts, then percentages. Table columns hide by priority, and
+  tables turn into cards.
+- A widget declares its minimum size (`ICompactWidget.MinimumSize`, or `Prioritized` around any widget).
+- When the window is smaller than a dashboard's `MinimumSize`, the dashboard keeps its highest-priority panels. When
+  even those don't fit, it shows one status line, for example
+  `TestimoX · 218/332 · ✗12 ▲25 · 00:24 · window too small: 50×12, needs 60×20`.
+- A widget that fails at an unusual size is replaced by a one-line note for that frame. It never ends the session.
+- In conhost, layout uses the visible window, not the screen buffer. Nothing is written past the window or into its
+  bottom-right cell. This was verified with "Wrap text output on resize" both on and off.
+- Scrolling during a live session: frames are drawn on the alternate screen. When the conhost viewport moves (the
+  scroll bar or the mouse wheel), the next frame is redrawn completely at the new position.
+- Font changes: in conhost, the console font is polled about once a second, and a new face or size re-derives the
+  glyph tier and the emoji/ambiguous widths. In Windows Terminal, widths are measured again after every resize, which
+  also covers Ctrl+= and Ctrl+0 zoom.
+- Theme: `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
+  the console background colour in conhost. Windows Terminal doesn't expose its colour scheme to console programs
+  (ConPTY reports the default dark colour table), and ConsoleMonster never reads console input to ask the terminal
+  (OSC 11). So in Windows Terminal with a light scheme, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light`.
+  The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background.
+- Print-once output (tables, trees and lists written with `Terminal.Write` or the Format cmdlets) has no trailing
+  spaces or padding to the right edge. It is laid out for the width at the time it was printed. A later resize can't
+  re-lay it out: in conhost with "Wrap text output on resize" on, a narrower window re-wraps wide lines into
+  fragments, and with the option off, wide lines are clipped behind a horizontal scroll bar. Use `-Width` (or a
+  `TerminalProfile.Fixed` profile) when output must fit a known width.
 ## Repository
 
 - `ConsoleMonster.psd1` / `ConsoleMonster.psm1` / `ConsoleMonster.Tests.ps1`: the module (built by `Build/Build-Module.ps1`).
 - `Sources/ConsoleMonster`: the library; `Sources/ConsoleMonster.PowerShell`: the cmdlets; `Sources/ConsoleMonster.Tests`: xUnit;
-  `Sources/ConsoleMonster.Examples`: showcases (`query`, `gallery`, `pipeline`, `testimox`, `record`, `stress`); `Sources/ConsoleMonster.Benchmarks`.
+  `Sources/ConsoleMonster.Examples`: showcases (`query`, `gallery`, `pipeline`, `testimox`, `record`, `stress`, `tables`, `theme`, `widths`); `Sources/ConsoleMonster.Benchmarks`.
 - `Examples/*.ps1`: PowerShell showcases; `Tests/*.Tests.ps1`: Pester (Windows PowerShell 5.1 and PowerShell 7).
 - `Build/Build-Module.ps1` (PSPublishModule), `Build/Build-Project.ps1` and `Build/project.build.json` (PowerForge, NuGet package).

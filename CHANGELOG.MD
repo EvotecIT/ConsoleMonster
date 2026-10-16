@@ -6,7 +6,14 @@
 - Widgets: text, rule, panel, table, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, braille line/scatter chart, log region, logo and dashboard; layouts Rows, Columns, Grid, Padding, Align and Stack.
 - Live sessions: thread-safe updates coalesced at about 15 frames per second, console and PowerShell stream capture, Ctrl+C restore, JSON-lines record and replay (the replayed clock follows the recorded timeline), optional `[mm:ss]` prefixes on stream-mode lines (on by default in CI).
 - Bars come in `Line` (progress and lanes default) and `Block` (bar and stacked chart default) shapes.
-- 42 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
+- Table width negotiation: column priority, minimum and maximum widths, overflow (wrap with a line limit, truncate, middle truncation, never), hidden-column footer, stable widths in live tables; record cards below a configurable width and a record view for single records.
+- Groups with subtotals, totals (sum, count, average, minimum, maximum) and "Showing N of M" top-N.
+- Cell presenters shared by tables, cards, key/value lists and trees: status, number, bytes, duration, date (absolute, relative, both; time zone), boolean, in-cell data bar, sparkline and progress, OSC 8 links; tone rules by threshold; readable without colour.
+- Object inspector for .NET objects, PSObjects, dictionaries and `JsonElement` (net8.0) with depth and item limits, cycle detection, include/exclude and ordering; reflection isolated in one member source.
+- `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree`: Format-Table style `-Property` (calculated properties, column option hashtables), DefaultDisplayPropertySet, `-GroupBy`, `-Total`, `-Top`, `-Width`, `-PassThru`.
+- Live sessions handle window resizes (full redraw, coalesced while dragging), viewport scrolling, font changes (conhost font polling, width re-probe after Windows Terminal resizes) and windows that are too small (reduced layout by panel priority, then a one-line status).
+- Light/dark background detection in conhost and `CONSOLEMONSTER_THEME=light|dark|auto`.
+- 45 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
 
 #### Breaking changes
 - The Spectre.Console / Terminal.Gui functions of 0.0.x (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 remains on the PowerShell Gallery.
