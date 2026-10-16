@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            TerminalProfile profile = Terminal.Profile;
+            TerminalProfile profile = Terminal.GetCurrentProfile();
             if (Width > 0) {
                 profile = profile.WithSize(Width, profile.Height);
             }

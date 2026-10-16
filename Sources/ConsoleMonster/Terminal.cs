@@ -19,6 +19,10 @@ namespace ConsoleMonster {
         private static ITheme? _theme;
         private static ICapabilityProvider _provider = new CapabilityDetector();
         private static bool _defaultProvider = true;
+        private static bool _explicitProfile;
+
+        // Test hook: returns { width, height } of the visible window, or null when unknown. Null uses the console.
+        internal static Func<int[]?>? WindowSizeSource { get; set; }
 
         /// <summary>The capability provider used for detection.</summary>
         public static ICapabilityProvider CapabilityProvider {
@@ -28,11 +32,15 @@ namespace ConsoleMonster {
                     _provider = value ?? throw new ArgumentNullException(nameof(value));
                     _defaultProvider = false;
                     _profile = null;
+                    _explicitProfile = false;
                 }
             }
         }
 
-        /// <summary>The active profile; detected on first use. Assign to override detection for the process.</summary>
+        /// <summary>
+        /// The active profile; detected on first use and cached (including the size at detection time). Assign to override
+        /// detection for the process. Print-once writes use <see cref="GetCurrentProfile"/>, which refreshes the size.
+        /// </summary>
         public static TerminalProfile Profile {
             get {
                 lock (Gate) {
@@ -48,6 +56,7 @@ namespace ConsoleMonster {
             set {
                 lock (Gate) {
                     _profile = value ?? throw new ArgumentNullException(nameof(value));
+                    _explicitProfile = true;
                 }
             }
         }
@@ -90,7 +99,39 @@ namespace ConsoleMonster {
                     _provider = new CapabilityDetector();
                 }
                 _profile = null;
+                _explicitProfile = false;
             }
+        }
+
+        /// <summary>
+        /// The cached <see cref="Profile"/> with the current window size: after the user resizes the console, print-once
+        /// output lays out for the new width while every other detected capability stays cached. An assigned profile,
+        /// redirected output and non-interactive modes keep their size.
+        /// </summary>
+        /// <returns>The profile for a write happening now.</returns>
+        public static TerminalProfile GetCurrentProfile() {
+            TerminalProfile p = Profile;
+            bool explicitProfile;
+            lock (Gate) {
+                explicitProfile = _explicitProfile;
+            }
+            if (explicitProfile || p.Mode != OutputMode.Interactive || p.IsOutputRedirected) {
+                return p;
+            }
+            int width;
+            int height;
+            Func<int[]?>? source = WindowSizeSource;
+            if (source != null) {
+                int[]? size = source();
+                if (size == null || size.Length != 2) {
+                    return p;
+                }
+                width = size[0];
+                height = size[1];
+            } else if (!TerminalSize.TryGet(out width, out height)) {
+                return p;
+            }
+            return width > 0 && height > 0 && (width != p.Width || height != p.Height) ? p.WithSize(width, height) : p;
         }
 
         /// <summary>Writes a widget once, as wide as the terminal.</summary>
@@ -100,31 +141,48 @@ namespace ConsoleMonster {
         /// <summary>Writes a widget once with an explicit profile.</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="profile">The profile, or <c>null</c> for the detected one.</param>
-        public static void Write(IWidget widget, TerminalProfile? profile) {
+        public static void Write(IWidget widget, TerminalProfile? profile) => Write(widget, profile, null);
+
+        /// <summary>
+        /// Writes a widget once to an explicit sink: a PowerShell host, a log, a string. With a writer, the output is laid out
+        /// for the profile but goes to the writer instead of the console.
+        /// </summary>
+        /// <param name="widget">The widget.</param>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
+        public static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer) {
             if (widget == null) {
                 throw new ArgumentNullException(nameof(widget));
             }
-            TerminalProfile p = profile ?? Profile;
+            TerminalProfile p = profile ?? GetCurrentProfile();
             RenderContext context = CreateContext(p);
             CellBuffer block = FrameComposer.RenderBlock(widget, p.Width, context);
             lock (Gate) {
-                using (ITerminalOutput output = CreateOutput(p)) {
+                using (ITerminalOutput output = CreateOutput(p, writer)) {
                     output.WriteBlock(block);
                 }
+                writer?.Flush();
             }
         }
 
         /// <summary>Writes one line of Spectre-compatible markup, for example <c>[pass]Done[/] in [muted]3s[/]</c>.</summary>
         /// <param name="markup">The markup.</param>
-        public static void WriteMarkup(string markup) {
-            TerminalProfile p = Profile;
+        public static void WriteMarkup(string markup) => WriteMarkup(markup, null, null);
+
+        /// <summary>Writes one line of markup to an explicit sink.</summary>
+        /// <param name="markup">The markup.</param>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
+        public static void WriteMarkup(string markup, TerminalProfile? profile, ITerminalWriter? writer) {
+            TerminalProfile p = profile ?? GetCurrentProfile();
             StyledText text = Markup.Parse(markup, Theme, p.ColorDepth);
             lock (Gate) {
-                using (ITerminalOutput output = CreateOutput(p)) {
+                using (ITerminalOutput output = CreateOutput(p, writer)) {
                     foreach (StyledLine line in text.Lines) {
                         output.WriteLine(line);
                     }
                 }
+                writer?.Flush();
             }
         }
 

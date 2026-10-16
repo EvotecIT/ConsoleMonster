@@ -86,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Writes a widget to the host, laid out for an explicit width and culture when given.</summary>
         internal static void Write(IWidget widget, int width, System.Globalization.CultureInfo? culture = null) {
-            TerminalProfile profile = Terminal.Profile;
+            TerminalProfile profile = Terminal.GetCurrentProfile();
             if (culture != null) {
                 profile = profile.WithCulture(culture);
             }
