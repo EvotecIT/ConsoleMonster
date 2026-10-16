@@ -26,8 +26,12 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal(BarShape.Line, new ProgressBar().Shape);
             Assert.Equal(BarShape.Line, new Lanes().Shape);
             Assert.Equal(BarShape.Block, new BarChart().Shape);
-            string bars = Render(new BarChart().Add("alpha", 7.5).Add("beta", 10))[0];
-            Assert.Contains("█", bars);
+            string[] bars = Render(new BarChart().Add("alpha", 7.5).Add("beta", 10));
+            // Three-quarter-height blocks: adjacent rows keep a visible gap instead of merging into one block.
+            Assert.Contains("▆", bars[0]);
+            Assert.DoesNotContain("█", bars[0] + bars[1]);
+            Assert.Contains("▄", Render(new BarChart().Add("alpha", 7.5), 40, GlyphTier.Basic)[0]);
+            Assert.Contains("#", Render(new BarChart().Add("alpha", 7.5), 40, GlyphTier.Ascii)[0]);
         }
 
         [Fact]

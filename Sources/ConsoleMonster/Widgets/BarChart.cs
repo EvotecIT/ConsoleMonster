@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether values are shown after the bars (default true).</summary>
         public bool ShowValues { get; set; } = true;
 
-        /// <summary>The bar shape: <see cref="BarShape.Block"/> (default, solid bars with eighth-block ends) or <see cref="BarShape.Line"/>.</summary>
+        /// <summary>The bar shape: <see cref="BarShape.Block"/> (default, solid three-quarter-height bars that keep a gap between rows) or <see cref="BarShape.Line"/>.</summary>
         public BarShape Shape { get; set; } = BarShape.Block;
 
         /// <summary>

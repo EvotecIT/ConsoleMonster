@@ -6,9 +6,11 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
-    /// Draws horizontal bars with sub-cell precision for the glyph tier: eighths on Full, halves on Basic, whole cells on
-    /// Ascii. With 256 or more colours the empty track is a solid groove in the subtle colour; with 16 colours it is a
-    /// light shade; without colour it is the tier's track glyph, so bars stay readable everywhere.
+    /// Draws horizontal bars for the glyph tier. Every shape leaves visible space between stacked rows, so neighbouring
+    /// bars of similar length never merge into one block: <see cref="BarShape.Block"/> uses three-quarter-height blocks
+    /// (<c>▆</c>) on Full and lower half blocks (<c>▄</c>) on Basic, whole cells either way; <see cref="BarShape.Line"/>
+    /// uses a heavy stroke with half-cell precision on Full. Ascii uses <c>#</c>, whose glyph already separates rows. The
+    /// empty track has the same height as the bar: a groove in the subtle colour, or the tier's track glyph without colour.
     /// </summary>
     internal static class BarDrawer {
         /// <summary>Draws one bar.</summary>
@@ -22,8 +24,12 @@ namespace ConsoleMonster.Widgets {
                 DrawLine(region, x, y, width, fraction, fill, context, track);
                 return;
             }
-            if (shape == BarShape.Line && glyphs.Tier == GlyphTier.Basic) {
+            if (glyphs.Tier == GlyphTier.Basic) {
                 DrawHalfHeight(region, x, y, width, fraction, fill, context, track);
+                return;
+            }
+            if (glyphs.Tier == GlyphTier.Full) {
+                DrawRowBlock(region, x, y, width, fraction, fill, context, track);
                 return;
             }
             int eighths = (int)Math.Round(fraction * width * 8);
@@ -60,10 +66,36 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
+        private static void DrawRowBlock(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track) {
+            // Three-quarter blocks leave the top quarter of each row empty: a clear gap between stacked bars. No glyph
+            // has both a partial width and this height, so bars round to whole cells (a non-zero value keeps one cell).
+            string block = context.Glyphs.VerticalFill(6);
+            int full = WholeCells(fraction, width);
+            for (int i = 0; i < full; i++) {
+                region.Put(x + i, y, block, fill);
+            }
+            if (!track) {
+                return;
+            }
+            string trackGlyph = context.HasColor ? block : context.Glyphs.Get(Glyph.BarTrack);
+            Style trackStyle = context.Style(ThemeToken.Subtle);
+            for (int i = full; i < width; i++) {
+                region.Put(x + i, y, trackGlyph, trackStyle);
+            }
+        }
+
+        private static int WholeCells(double fraction, int width) {
+            int cells = (int)Math.Round(fraction * width);
+            if (cells == 0 && fraction > 0) {
+                cells = 1;
+            }
+            return Math.Min(width, cells);
+        }
+
         private static void DrawHalfHeight(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track) {
             // Lower half blocks (WGL4) leave the upper half of each row empty, so stacked bars stay separate on Consolas.
             string lower = context.Glyphs.Get(Glyph.HalfLower);
-            int full = (int)Math.Round(fraction * width);
+            int full = WholeCells(fraction, width);
             for (int i = 0; i < full && i < width; i++) {
                 region.Put(x + i, y, lower, fill);
             }
@@ -101,5 +133,6 @@ namespace ConsoleMonster.Widgets {
             for (int i = next; i < width; i++) {
                 region.Put(x + i, y, Light, trackStyle);
             }
-        }    }
+        }
+    }
 }
