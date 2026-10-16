@@ -38,23 +38,24 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Builds a record view: one section per object (titled by the key column), groups as top-level sections.</summary>
-        internal static RecordView BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title) {
+        internal static RecordView BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title, System.Globalization.CultureInfo? culture = null) {
+            System.Globalization.CultureInfo resolved = ResolveCulture(culture);
             IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, property);
             RecordView view = new RecordView(title) { HideEmpty = !showEmpty };
             int key = KeyIndex(columns);
             if (items.Count > 1 || groupBy != null) {
-                view.Summary = items.Count.ToString("N0", System.Globalization.CultureInfo.CurrentCulture) + (items.Count == 1 ? " record" : " records");
+                view.Summary = items.Count.ToString("N0", resolved) + (items.Count == 1 ? " record" : " records");
             }
             if (groupBy != null) {
                 foreach (KeyValuePair<string, IReadOnlyList<PSObject>> group in GroupBinder.Group(items, groupBy)) {
                     view.AddSection(Text.Markup.Escape(group.Key));
                     foreach (PSObject item in group.Value) {
-                        AddRecord(view, columns, key, item, 1, depth, true);
+                        AddRecord(view, columns, key, item, 1, depth, true, resolved);
                     }
                 }
             } else {
                 foreach (PSObject item in items) {
-                    AddRecord(view, columns, key, item, 0, depth, items.Count > 1 || title == null);
+                    AddRecord(view, columns, key, item, 0, depth, items.Count > 1 || title == null, resolved);
                 }
             }
             return view;
@@ -78,9 +79,17 @@ namespace ConsoleMonster.PowerShell {
             return options;
         }
 
-        /// <summary>Writes a widget to the host, laid out for an explicit width when given.</summary>
-        internal static void Write(IWidget widget, int width) {
+        /// <summary>The culture a Format cmdlet renders with: -Culture, else the profile's (CONSOLEMONSTER_CULTURE), else the current culture.</summary>
+        internal static System.Globalization.CultureInfo ResolveCulture(System.Globalization.CultureInfo? culture) {
+            return culture ?? Terminal.Profile.Culture ?? System.Globalization.CultureInfo.CurrentCulture;
+        }
+
+        /// <summary>Writes a widget to the host, laid out for an explicit width and culture when given.</summary>
+        internal static void Write(IWidget widget, int width, System.Globalization.CultureInfo? culture = null) {
             TerminalProfile profile = Terminal.Profile;
+            if (culture != null) {
+                profile = profile.WithCulture(culture);
+            }
             if (width > 0) {
                 profile = profile.WithSize(width, profile.Height);
             }
@@ -88,11 +97,11 @@ namespace ConsoleMonster.PowerShell {
             Terminal.Write(new Rows(widget, new TextBlock(string.Empty)), profile);
         }
 
-        private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading) {
+        private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading, System.Globalization.CultureInfo culture) {
             int fieldLevel = level;
             if (heading) {
                 object? title = columns[key].GetValue(item);
-                view.AddHeading(Text.Markup.Escape(PresenterValues.ToText(title, System.Globalization.CultureInfo.CurrentCulture)), level);
+                view.AddHeading(Text.Markup.Escape(PresenterValues.ToText(title, culture)), level);
                 fieldLevel = level + 1;
             }
             for (int c = 0; c < columns.Count; c++) {

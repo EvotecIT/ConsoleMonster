@@ -13,7 +13,7 @@ Columns come from -Property (like Format-Table: names, wildcards and calculated 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-NoHeaderSeparator] [-PassThru] [<CommonParameters>]
+Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -68,6 +68,22 @@ Below this width (in cells) rows become record cards when the grid cannot fit; 0
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Culture
+The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.
+
+```yaml
+Type: CultureInfo
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

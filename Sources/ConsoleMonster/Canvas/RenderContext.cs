@@ -47,6 +47,9 @@ namespace ConsoleMonster.Canvas {
         /// <summary>Whether any colour is available.</summary>
         public bool HasColor => Profile.ColorDepth != ColorDepth.None;
 
+        /// <summary>The culture for numbers and dates: <see cref="TerminalProfile.Culture"/>, or the current culture when that is null.</summary>
+        public System.Globalization.CultureInfo Culture => Profile.Culture ?? System.Globalization.CultureInfo.CurrentCulture;
+
         /// <summary>Animation frame counter.</summary>
         public long Tick { get; }
 

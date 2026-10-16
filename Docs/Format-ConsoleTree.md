@@ -13,7 +13,7 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <string>] [-AsInspector] [-Width <int>] [-PassThru] [<CommonParameters>]
+Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <string>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,6 +36,22 @@ Shows a record view (sections and nested tables) instead of a tree.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Culture
+The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.
+
+```yaml
+Type: CultureInfo
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

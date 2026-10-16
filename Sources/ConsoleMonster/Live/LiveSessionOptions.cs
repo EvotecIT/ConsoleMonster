@@ -27,6 +27,12 @@ namespace ConsoleMonster.Live {
         /// <summary>Profile override, or null for Terminal.Profile.</summary>
         public TerminalProfile? Profile { get; set; }
 
+        /// <summary>
+        /// The culture for numbers and dates in the session's widgets, overriding the profile's (and <c>CONSOLEMONSTER_CULTURE</c>);
+        /// null keeps the profile culture, which defaults to the current culture.
+        /// </summary>
+        public System.Globalization.CultureInfo? Culture { get; set; }
+
         /// <summary>Theme override, or null for Terminal.Theme.</summary>
         public ITheme? Theme { get; set; }
 

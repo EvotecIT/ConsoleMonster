@@ -61,6 +61,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Width { get; set; }
 
+        /// <summary><para type="description">The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</para></summary>
+        [Parameter]
+        public System.Globalization.CultureInfo? Culture { get; set; }
+
         /// <summary><para type="description">Underlines the header instead of drawing a separator row.</para></summary>
         [Parameter]
         public SwitchParameter NoHeaderSeparator { get; set; }
@@ -88,7 +92,7 @@ namespace ConsoleMonster.PowerShell {
             table.CardsBelow = CardsBelow;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
             table.MaxRows = Top > 0 ? Top : 0;
-            PSFormatting.Write(table, Width);
+            PSFormatting.Write(table, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

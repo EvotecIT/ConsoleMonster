@@ -37,6 +37,21 @@
         $text.IndexOf([char] 27) | Should -Be -1
     }
 
+    It 'formats numbers with -Culture and CONSOLEMONSTER_CULTURE instead of the current culture' {
+        $props = "Name, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }"
+        $polish = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Culture pl-PL -Width 100 -Property $props"
+        $polish | Should -Match '1,41 MB'
+        $env:CONSOLEMONSTER_CULTURE = 'pl-PL'
+        try {
+            $fromEnvironment = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Width 100 -Property $props"
+            $explicit = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Culture en-US -Width 100 -Property $props"
+        } finally {
+            $env:CONSOLEMONSTER_CULTURE = $null
+        }
+        $fromEnvironment | Should -Match '1,41 MB'
+        $explicit | Should -Match '1\.41 MB'
+    }
+
     It 'hides low-priority columns with a footer and switches to cards when narrow' {
         $props = "Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes'; Priority = 5 }, @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 0; MinWidth = 24 }"
         $hidden = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Width 60 -CardsBelow 0 -Property $props"

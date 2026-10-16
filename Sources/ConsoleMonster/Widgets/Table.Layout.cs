@@ -321,7 +321,8 @@ namespace ConsoleMonster.Widgets {
             int shown = DisplayedRowCount;
             int all = TotalRowCount ?? _rows.Count;
             if (shown < all) {
-                string text = "Showing " + shown.ToString("N0", Presentation.Culture ?? CultureInfo.CurrentCulture) + " of " + all.ToString("N0", Presentation.Culture ?? CultureInfo.CurrentCulture);
+                CultureInfo culture = Presentation.Culture ?? context.Culture;
+                string text = "Showing " + shown.ToString("N0", culture) + " of " + all.ToString("N0", culture);
                 layout.ShowingLine = TextWrapper.Truncate(StyledLine.From(text, context.Style(ThemeToken.Muted)), Math.Max(1, maxWidth - (IsBoxed ? 1 : 0)), context.Ellipsis);
             }
             int height = 0;

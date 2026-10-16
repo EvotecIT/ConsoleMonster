@@ -43,6 +43,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Width { get; set; }
 
+        /// <summary><para type="description">The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</para></summary>
+        [Parameter]
+        public System.Globalization.CultureInfo? Culture { get; set; }
+
         /// <summary><para type="description">Also writes the input objects to the pipeline.</para></summary>
         [Parameter]
         public SwitchParameter PassThru { get; set; }
@@ -59,8 +63,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            RecordView view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, Title);
-            PSFormatting.Write(view, Width);
+            RecordView view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, Title, Culture);
+            PSFormatting.Write(view, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

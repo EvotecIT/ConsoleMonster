@@ -21,6 +21,30 @@ namespace ConsoleMonster.Tests.Capabilities {
             Assert.Equal(invalid, profile.Decisions.Any(decision => decision.Contains("CONSOLEMONSTER_THEME: ignored invalid value")));
         }
 
+        [Theory]
+        [InlineData("pl-PL", "pl-PL", false)]
+        [InlineData("en-US", "en-US", false)]
+        [InlineData("invariant", "", false)]
+        [InlineData("", null, false)]
+        [InlineData("current", null, false)]
+        [InlineData("not a culture!", null, true)]
+        [InlineData("qq-ZZ", null, true)]
+        public void Detect_CultureEnvironmentValue_SetsProfileCultureOrRecordsIgnoredValue(string value, string? expected, bool invalid) {
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["TERM"] = "xterm", ["CONSOLEMONSTER_CULTURE"] = value
+            })).Detect();
+            Assert.Equal(expected, profile.Culture?.Name);
+            Assert.Equal(invalid, profile.Decisions.Any(decision => decision.Contains("CONSOLEMONSTER_CULTURE: ignored unknown culture")));
+        }
+
+        [Fact]
+        public void WithCulture_KeepsTheCultureThroughOtherCopies() {
+            System.Globalization.CultureInfo polish = System.Globalization.CultureInfo.GetCultureInfo("pl-PL");
+            TerminalProfile profile = TerminalProfile.Fixed(80, 24).WithCulture(polish).WithSize(100, 30).WithGlyphs(GlyphTier.Ascii);
+            Assert.Same(polish, profile.Culture);
+            Assert.Same(polish, new CapabilityDetector().RefreshFont(profile, "Consolas").Culture);
+        }
+
         [Fact]
         public void Fixed_DefaultsThemePreferenceToAutoAndCopyCanOverrideIt() {
             TerminalProfile profile = TerminalProfile.Fixed(80, 24);

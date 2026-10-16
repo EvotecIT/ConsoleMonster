@@ -23,6 +23,9 @@ namespace ConsoleMonster.Live {
                     try {
                         ResolveLogTarget();
                         TerminalProfile profile = _options.Profile ?? Terminal.Profile;
+                        if (_options.Culture != null) {
+                            profile = profile.WithCulture(_options.Culture);
+                        }
                         _context = Terminal.CreateContext(profile, _options.Theme);
                         _streamTimestamps = _options.StreamTimestamps ?? profile.IsContinuousIntegration;
                         _output = _options.Output ?? Terminal.CreateOutput(profile);

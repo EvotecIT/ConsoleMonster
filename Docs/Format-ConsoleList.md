@@ -13,7 +13,7 @@ Each object becomes a section titled by its key column (the first property, or o
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleList [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Title <string>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-PassThru] [<CommonParameters>]
+Format-ConsoleList [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Title <string>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,11 +25,27 @@ Each object becomes a section titled by its key column (the first property, or o
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleList -Depth 1
+Format-ConsoleList -Culture 'Value'
 ```
 
 
 ## PARAMETERS
+
+### -Culture
+The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.
+
+```yaml
+Type: CultureInfo
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Depth
 How many levels of nested objects expand (default 1; 0 shows nested values as text).

@@ -138,9 +138,39 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("width profile: " + widths);
             decisions.Add("probe widths: " + probeWidths);
             decisions.Add("theme preference: " + themePreference + " (CONSOLEMONSTER_THEME)");
+            CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference);
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture);
+        }
+
+        // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.
+        private static CultureInfo? ParseCulture(string value, List<string> decisions) {
+            if (value.Length == 0 || Equal(value, "current")) {
+                decisions.Add("culture: current (" + CultureInfo.CurrentCulture.Name + ") at render time");
+                return null;
+            }
+            if (Equal(value, "invariant")) {
+                decisions.Add("culture: invariant (CONSOLEMONSTER_CULTURE)");
+                return CultureInfo.InvariantCulture;
+            }
+            try {
+#if NET5_0_OR_GREATER
+                // ICU accepts any well-formed tag as a custom culture; only predefined cultures are meaningful here.
+                CultureInfo culture = CultureInfo.GetCultureInfo(value, predefinedOnly: true);
+#else
+                CultureInfo culture = CultureInfo.GetCultureInfo(value);
+#endif
+                if (string.Equals(culture.ThreeLetterWindowsLanguageName, "ZZZ", StringComparison.Ordinal)) {
+                    // Windows synthesises "unknown locale" cultures for well-formed but unknown names.
+                    throw new CultureNotFoundException(nameof(value), value, "Unknown culture.");
+                }
+                decisions.Add("culture: " + culture.Name + " (CONSOLEMONSTER_CULTURE)");
+                return culture;
+            } catch (CultureNotFoundException) {
+                decisions.Add("CONSOLEMONSTER_CULTURE: ignored unknown culture '" + value + "'; using the current culture");
+                return null;
+            }
         }
 
         /// <summary>Re-evaluates font-dependent glyph decisions for an existing profile.</summary>
@@ -183,7 +213,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference);
+                profile.ThemePreference, profile.Culture);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

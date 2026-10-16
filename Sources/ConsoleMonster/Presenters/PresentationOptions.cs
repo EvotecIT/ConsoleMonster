@@ -8,7 +8,7 @@ namespace ConsoleMonster.Presenters {
     /// one, so output is deterministic when these are fixed (tests, snapshots) and follows the user's settings otherwise.
     /// </summary>
     public sealed class PresentationOptions {
-        /// <summary>The culture for numbers and dates, or null for the current culture.</summary>
+        /// <summary>The culture for numbers and dates, or null for the render culture (the profile's <see cref="Capabilities.TerminalProfile.Culture"/>, else the current culture).</summary>
         public CultureInfo? Culture { get; set; }
 
         /// <summary>The reference time for relative dates, or null for the current time at render.</summary>

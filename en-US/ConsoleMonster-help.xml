@@ -159,6 +159,18 @@
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Format-ConsoleList</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Culture</maml:name>
+          <maml:description>
+            <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+          <dev:type>
+            <maml:name>CultureInfo</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Depth</maml:name>
           <maml:description>
             <maml:para>How many levels of nested objects expand (default 1; 0 shows nested values as text).</maml:para>
@@ -257,6 +269,18 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Culture</maml:name>
+        <maml:description>
+          <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+        <dev:type>
+          <maml:name>CultureInfo</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Depth</maml:name>
         <maml:description>
@@ -370,7 +394,7 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Format-ConsoleList -Depth 1</dev:code>
+        <dev:code>Format-ConsoleList -Culture 'Value'</dev:code>
         <dev:remarks>
           <maml:para></maml:para>
         </dev:remarks>
@@ -434,6 +458,18 @@
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Culture</maml:name>
+          <maml:description>
+            <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+          <dev:type>
+            <maml:name>CultureInfo</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -588,6 +624,18 @@
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Culture</maml:name>
+        <maml:description>
+          <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+        <dev:type>
+          <maml:name>CultureInfo</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -755,6 +803,18 @@
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Culture</maml:name>
+          <maml:description>
+            <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+          <dev:type>
+            <maml:name>CultureInfo</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Depth</maml:name>
           <maml:description>
             <maml:para>How deep nested objects are followed (default 3).</maml:para>
@@ -861,6 +921,18 @@
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Culture</maml:name>
+        <maml:description>
+          <maml:para>The culture for numbers and dates, for example en-US or pl-PL (labels stay English). Defaults to CONSOLEMONSTER_CULTURE, then the current culture, as PowerShell's own formatting does.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CultureInfo</command:parameterValue>
+        <dev:type>
+          <maml:name>CultureInfo</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

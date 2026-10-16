@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using ConsoleMonster.Text;
 
@@ -38,6 +39,7 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="widthProfile">Configured or derived display width assumptions.</param>
         /// <param name="probeWidths">Whether a live width probe is permitted.</param>
         /// <param name="themePreference">Requested terminal theme preference.</param>
+        /// <param name="culture">The culture for numbers and dates in rendered output, or null for the current culture.</param>
         public TerminalProfile(
             ColorDepth colorDepth,
             GlyphTier glyphs,
@@ -53,7 +55,8 @@ namespace ConsoleMonster.Capabilities {
             IReadOnlyList<string>? decisions = null,
             TerminalWidthProfile? widthProfile = null,
             bool probeWidths = false,
-            ThemePreference themePreference = ThemePreference.Auto) {
+            ThemePreference themePreference = ThemePreference.Auto,
+            CultureInfo? culture = null) {
             ColorDepth = colorDepth;
             Glyphs = glyphs;
             Mode = mode;
@@ -69,6 +72,7 @@ namespace ConsoleMonster.Capabilities {
             WidthProfile = widthProfile ?? TerminalWidthProfile.Standard;
             ProbeWidths = probeWidths;
             ThemePreference = themePreference;
+            Culture = culture;
         }
 
         /// <summary>Colour fidelity.</summary>
@@ -116,6 +120,13 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>The requested light, dark, or automatically detected theme preference.</summary>
         public ThemePreference ThemePreference { get; }
 
+        /// <summary>
+        /// The culture for numbers and dates in rendered output (thousand and decimal separators, date formats), or null to
+        /// follow the current culture at render time, as PowerShell does. Set by <c>CONSOLEMONSTER_CULTURE</c> or
+        /// <see cref="WithCulture"/>. Labels stay English either way.
+        /// </summary>
+        public CultureInfo? Culture { get; }
+
         /// <summary>Whether the profile allows live redraw (interactive mode with VT support).</summary>
         public bool IsLive => Mode == OutputMode.Interactive && SupportsVirtualTerminal;
 
@@ -151,6 +162,14 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="themePreference">The requested preference.</param>
         /// <returns>A new profile.</returns>
         public TerminalProfile WithThemePreference(ThemePreference themePreference) => Copy(themePreference: themePreference);
+
+        /// <summary>Returns a copy that renders numbers and dates with the given culture.</summary>
+        /// <param name="culture">The culture, or null to follow the current culture.</param>
+        /// <returns>The copy.</returns>
+        public TerminalProfile WithCulture(CultureInfo? culture) {
+            return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
+                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture);
+        }
 
         /// <summary>Returns a copy with a different size (used on resize).</summary>
         /// <param name="width">Width in cells.</param>
@@ -193,7 +212,8 @@ namespace ConsoleMonster.Capabilities {
                 decisions ?? Decisions,
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
-                themePreference ?? ThemePreference);
+                themePreference ?? ThemePreference,
+                Culture);
         }
     }
 }

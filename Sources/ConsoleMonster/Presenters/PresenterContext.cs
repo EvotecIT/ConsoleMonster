@@ -8,12 +8,12 @@ namespace ConsoleMonster.Presenters {
     public sealed class PresenterContext {
         /// <summary>Creates a presenter context.</summary>
         /// <param name="render">The render context (profile, theme, glyphs).</param>
-        /// <param name="culture">The culture for numbers and dates, or null for the current culture.</param>
+        /// <param name="culture">The culture for numbers and dates, or null for the render culture (<see cref="RenderContext.Culture"/>).</param>
         /// <param name="now">The reference time for relative dates, or null for the current time.</param>
         /// <param name="timeZone">The time zone for absolute dates, or null for local time.</param>
         public PresenterContext(RenderContext render, CultureInfo? culture = null, DateTimeOffset? now = null, TimeZoneInfo? timeZone = null) {
             Render = render ?? throw new ArgumentNullException(nameof(render));
-            Culture = culture ?? CultureInfo.CurrentCulture;
+            Culture = culture ?? render.Culture;
             Now = now ?? DateTimeOffset.Now;
             TimeZone = timeZone ?? TimeZoneInfo.Local;
         }
