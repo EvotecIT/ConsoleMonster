@@ -62,9 +62,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Inspector options for PowerShell objects (PSObject members first, then dictionaries and reflection).</summary>
-        internal static InspectorOptions InspectorOptions(int depth, int maxItems, string[]? include, string[]? exclude) {
+        internal static InspectorOptions InspectorOptions(int depth, int maxItems, string[]? include, string[]? exclude, int maxNodes = 5000) {
             // PSObjects wrapping dictionaries, collections or scalars inspect as those; PSCustomObjects keep their note properties.
-            InspectorOptions options = new InspectorOptions { MaxDepth = depth, MaxItems = maxItems, Unwrap = PSObjectMemberSource.UnwrapPSObject };
+            InspectorOptions options = new InspectorOptions { MaxDepth = depth, MaxItems = maxItems, MaxNodes = maxNodes, Unwrap = PSObjectMemberSource.UnwrapPSObject };
             options.Sources.Add(new PSObjectMemberSource());
             if (include != null) {
                 foreach (string name in include) {

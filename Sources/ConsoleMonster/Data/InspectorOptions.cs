@@ -13,10 +13,19 @@ namespace ConsoleMonster.Data {
         /// <summary>Maximum tabular columns exposed.</summary>
         public int MaxColumns { get; set; } = 8;
 
+        /// <summary>
+        /// Maximum nodes in one inspection (default 5,000). Wide objects grow as members to the power of depth; once the
+        /// budget is spent, the inspector adds one "node limit reached" marker and stops reading further members and items.
+        /// </summary>
+        public int MaxNodes { get; set; } = 5000;
+
         /// <summary>Optional member-name wildcard allow list.</summary>
         public IList<string> Include { get; } = new List<string>();
 
-        /// <summary>Optional member-name wildcard deny list.</summary>
+        /// <summary>
+        /// Optional member-name wildcard deny list. Excluded members are never read, so this is also the skip list for
+        /// getters that are slow, block or have side effects.
+        /// </summary>
         public IList<string> Exclude { get; } = new List<string>();
 
         /// <summary>Member names to place first, in listed order.</summary>

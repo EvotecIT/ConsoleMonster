@@ -28,7 +28,8 @@ namespace ConsoleMonster.PowerShell.Binding {
             try {
                 return PropertyBinder.Evaluate(item, _expression);
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (!(ex is System.Management.Automation.PipelineStoppedException) && !(ex is OperationCanceledException)) {
+                // Ctrl+C (PipelineStoppedException) must stop the cmdlet, not blank the column.
                 LastError ??= ex.Message;
                 return null;
             }

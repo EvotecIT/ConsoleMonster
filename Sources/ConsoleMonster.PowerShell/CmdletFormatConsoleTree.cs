@@ -33,6 +33,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int MaxItems { get; set; } = 25;
 
+        /// <summary><para type="description">The most nodes one object may expand into (default 5000); beyond it a "node limit reached" marker ends the expansion. Wide objects grow as members to the power of -Depth.</para></summary>
+        [Parameter]
+        public int MaxNodes { get; set; } = 5000;
+
         /// <summary><para type="description">Member names to show (wildcards); others are left out.</para></summary>
         [Parameter]
         public string[]? Include { get; set; }
@@ -73,7 +77,7 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude);
+            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes);
             List<IWidget> widgets = new List<IWidget>();
             foreach (PSObject item in _items) {
 #pragma warning disable IL2026
