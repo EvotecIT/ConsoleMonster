@@ -59,7 +59,7 @@ namespace ConsoleMonster.Examples {
                 case "tables":
                     int tableWidth = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 0;
                     Capabilities.TerminalProfile tableProfile = tableWidth > 0 ? Terminal.Profile.WithSize(tableWidth, Terminal.Profile.Height) : Terminal.Profile;
-                    Terminal.Write(TableShowcases.All(), tableProfile);
+                    Terminal.Write(args.Length > 2 ? TableShowcases.Sections(args[2]) : TableShowcases.All(), tableProfile);
                     return 0;
                 case "theme":
                     Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo background);

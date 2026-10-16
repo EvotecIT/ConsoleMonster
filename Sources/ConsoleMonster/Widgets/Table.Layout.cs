@@ -39,6 +39,7 @@ namespace ConsoleMonster.Widgets {
                     Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c]);
                 }
             }
+            _keyComfort = KeyComfort(rows);
             for (int c = 0; c < count; c++) {
                 ApplyColumnLimits(c, desired, minimum);
             }
@@ -159,13 +160,32 @@ namespace ConsoleMonster.Widgets {
                 minimum[c] = Math.Max(minimum[c], column.MinWidth.Value);
             }
             if (c == KeyColumn || column.IsKey) {
-                // The key identifies the row: keep it readable and let low-priority columns hide instead.
-                minimum[c] = Math.Max(minimum[c], Math.Min(desired[c], Math.Max(column.MinWidth ?? 0, KeyComfortWidth)));
+                // The key identifies the row: keep its typical values whole and let low-priority columns hide instead;
+                // an unusually long key shortens (in the middle or at the end) rather than starving the other columns.
+                minimum[c] = Math.Max(minimum[c], Math.Min(desired[c], Math.Max(column.MinWidth ?? 0, _keyComfort)));
             }
             minimum[c] = Math.Max(1, Math.Min(minimum[c], desired[c]));
         }
 
         private const int KeyComfortWidth = 32;
+        private int _keyComfort = KeyComfortWidth;
+
+        // The 80th-percentile width of the key column's values, between 16 and 32 cells.
+        private int KeyComfort(List<TableLayoutRow> rows) {
+            int key = KeyColumn;
+            List<int> widths = new List<int>();
+            foreach (TableLayoutRow row in rows) {
+                if (row.Kind == TableRowKind.Data && row.Cells != null) {
+                    widths.Add(row.Cells[key].TextWidth);
+                }
+            }
+            if (widths.Count == 0) {
+                return KeyComfortWidth;
+            }
+            widths.Sort();
+            int index = Math.Min(widths.Count - 1, (int)Math.Ceiling(widths.Count * 0.8) - 1);
+            return Math.Max(16, Math.Min(KeyComfortWidth, widths[Math.Max(0, index)]));
+        }
 
         private int PickHidden(List<int> visible) {
             int key = KeyColumn;

@@ -1,25 +1,22 @@
  evotec.xyz · DNS records via Cloudflare DoH
-+---------------------------------+-------+----------+--------------------------+---------------+----------------------+
-| Name                            | Type  |      TTL | Data                     |       Latency | Cache file           |
-+---------------------------------+-------+----------+--------------------------+---------------+----------------------+
-| evotec.xyz                      | A     | 5 m 00 s | 104.21.48.12             |         12 ms | C:\Progra...z\A.json |
-| evotec.xyz                      | AAAA  | 5 m 00 s | 2606:4700:3036::6815:300 |         14 ms | C:\Progra...AAA.json |
-|                                 |       |          | c                        |               |                      |
-| evotec.xyz                      | MX    | 1 h 00 m | 10                       |         18 ms | C:\Progra...\MX.json |
-|                                 |       |          | evotec-xyz.mail.protecti |               |                      |
-|                                 |       |          | on.outlook.com           |               |                      |
-| evotec.xyz                      | TXT   | 1 h 00 m | v=spf1                   |         21 ms | C:\Progra...TXT.json |
-|                                 |       |          | include:spf.protection.o |               |                      |
-|                                 |       |          | utlook.com...            |               |                      |
-| _dmarc.evotec.xyz               | TXT   | 1 h 00 m | v=DMARC1; p=reject;      | [WARN] 133 ms | C:\Progra...TXT.json |
-|                                 |       |          | rua=mailto:dmarc@evotec. |               |                      |
-|                                 |       |          | xyz;...                  |               |                      |
-| selector1._domainkey.evotec.xyz | CNAME | 1 h 00 m | selector1-evotec-xyz._do |         16 ms | C:\Progra...AME.json |
-|                                 |       |          | mainkey.evotecpl.onmicro |               |                      |
-|                                 |       |          | soft.com                 |               |                      |
-| evotec.xyz                      | CAA   | 1 h 00 m | 0 issue                  |         15 ms | C:\Progra...CAA.json |
-|                                 |       |          | "letsencrypt.org"        |               |                      |
-+---------------------------------+-------+----------+--------------------------+---------------+----------------------+
++------------------------+-------+----------+-----------------------------------+---------------+----------------------+
+| Name                   | Type  |      TTL | Data                              |       Latency | Cache file           |
++------------------------+-------+----------+-----------------------------------+---------------+----------------------+
+| evotec.xyz             | A     | 5 m 00 s | 104.21.48.12                      |         12 ms | C:\Progra...z\A.json |
+| evotec.xyz             | AAAA  | 5 m 00 s | 2606:4700:3036::6815:300c         |         14 ms | C:\Progra...AAA.json |
+| evotec.xyz             | MX    | 1 h 00 m | 10                                |         18 ms | C:\Progra...\MX.json |
+|                        |       |          | evotec-xyz.mail.protection.outloo |               |                      |
+|                        |       |          | k.com                             |               |                      |
+| evotec.xyz             | TXT   | 1 h 00 m | v=spf1                            |         21 ms | C:\Progra...TXT.json |
+|                        |       |          | include:spf.protection.outlook.co |               |                      |
+|                        |       |          | m include:_spf.google.com...      |               |                      |
+| _dmarc.evotec.xyz      | TXT   | 1 h 00 m | v=DMARC1; p=reject;               | [WARN] 133 ms | C:\Progra...TXT.json |
+|                        |       |          | rua=mailto:dmarc@evotec.xyz;      |               |                      |
+|                        |       |          | ruf=mailto:forensic@evotec.xyz... |               |                      |
+| selector1....votec.xyz | CNAME | 1 h 00 m | selector1-evotec-xyz._domainkey.e |         16 ms | C:\Progra...AME.json |
+|                        |       |          | votecpl.onmicrosoft.com           |               |                      |
+| evotec.xyz             | CAA   | 1 h 00 m | 0 issue "letsencrypt.org"         |         15 ms | C:\Progra...CAA.json |
++------------------------+-------+----------+-----------------------------------+---------------+----------------------+
 
  evotec.xyz · DomainDetective checks
 +---------+--------+-----------------------------------------------------------------------------------+--------+------+

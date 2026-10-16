@@ -1,5 +1,6 @@
 ﻿param(
-    [int] $Width
+    [int] $Width,
+    [ValidateSet('All', 'Artifacts', 'Checks', 'Certificate', 'List')][string] $Part = 'All'
 )
 # Tables and complex data from PowerShell: Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree with
 # presenters, column options, groups, totals and nested objects. -Width lays the output out for a given width (try 120, 80
@@ -18,14 +19,14 @@ if ($Width -gt 0) {
     $common.Width = $Width
 }
 
-$artifacts | Format-ConsoleTable @common -Title '[bold]PSPublishModule[/] [muted]· artifacts[/]' -GroupBy Kind -Total -Property @(
+if ($Part -in 'All', 'Artifacts') { $artifacts | Format-ConsoleTable @common -Title '[bold]PSPublishModule[/] [muted]· artifacts[/]' -GroupBy Kind -Total -Property @(
     @{ Name = 'Name'; Key = $true; Overflow = 'Never' }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6 }
     @{ Name = 'Created'; Presenter = 'DateRelative'; Priority = 4 }
     @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }
     @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }
-)
+) }
 
 $checks = @(
     [pscustomobject] @{ Check = 'SPF'; Status = 'Pass'; Detail = '9 DNS lookups (limit 10); ends with -all'; Took = [timespan]::FromMilliseconds(84) }
@@ -33,7 +34,7 @@ $checks = @(
     [pscustomobject] @{ Check = 'MTA-STS'; Status = 'Fail'; Detail = 'policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt'; Took = [timespan]::FromSeconds(1.4) }
     [pscustomobject] @{ Check = 'DNSSEC'; Status = 'Warn'; Detail = 'zone is not signed'; Took = [timespan]::FromMilliseconds(95) }
 )
-$checks | Format-ConsoleTable @common -Title '[bold]evotec.xyz[/] [muted]· DomainDetective checks[/]' -Property Check, @{ Name = 'Status'; Presenter = 'Status'; Priority = 10 }, @{ Name = 'Detail'; MaxLines = 2; Priority = 5 }, @{ Name = 'Took'; Presenter = 'Duration'; Priority = 1; WarnAbove = 1 }
+if ($Part -in 'All', 'Checks') { $checks | Format-ConsoleTable @common -Title '[bold]evotec.xyz[/] [muted]· DomainDetective checks[/]' -Property Check, @{ Name = 'Status'; Presenter = 'Status'; Priority = 10 }, @{ Name = 'Detail'; MaxLines = 2; Priority = 5 }, @{ Name = 'Took'; Presenter = 'Duration'; Priority = 1; WarnAbove = 1 } }
 
 $certificate = [pscustomobject] @{
     Subject = 'CN=mail.evotec.xyz'
@@ -47,5 +48,5 @@ $certificate = [pscustomobject] @{
         [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Expires = $now.AddYears(8); Key = 'RSA 4096' }
     )
 }
-$certificate | Format-ConsoleTree @common -AsInspector -Title 'mail.evotec.xyz certificate'
-$artifacts[0] | Format-ConsoleList @common -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, Signed, Path
+if ($Part -in 'All', 'Certificate') { $certificate | Format-ConsoleTree @common -AsInspector -Title 'mail.evotec.xyz certificate' }
+if ($Part -in 'All', 'List') { $artifacts[0] | Format-ConsoleList @common -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, Signed, Path }

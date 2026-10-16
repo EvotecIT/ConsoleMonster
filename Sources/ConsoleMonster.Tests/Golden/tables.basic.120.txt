@@ -1,22 +1,22 @@
  evotec.xyz · DNS records via Cloudflare DoH
-┌─────────────────────────────────┬───────┬──────────┬───────────────────────────────┬──────────┬──────────────────────┐
-│ Name                            │ Type  │      TTL │ Data                          │  Latency │ Cache file           │
-├─────────────────────────────────┼───────┼──────────┼───────────────────────────────┼──────────┼──────────────────────┤
-│ evotec.xyz                      │ A     │ 5 m 00 s │ 104.21.48.12                  │    12 ms │ C:\Program…yz\A.json │
-│ evotec.xyz                      │ AAAA  │ 5 m 00 s │ 2606:4700:3036::6815:300c     │    14 ms │ C:\Program…AAAA.json │
-│ evotec.xyz                      │ MX    │ 1 h 00 m │ 10                            │    18 ms │ C:\Program…z\MX.json │
-│                                 │       │          │ evotec-xyz.mail.protection.ou │          │                      │
-│                                 │       │          │ tlook.com                     │          │                      │
-│ evotec.xyz                      │ TXT   │ 1 h 00 m │ v=spf1                        │    21 ms │ C:\Program…\TXT.json │
-│                                 │       │          │ include:spf.protection.outloo │          │                      │
-│                                 │       │          │ k.com include:_spf.google.co… │          │                      │
-│ _dmarc.evotec.xyz               │ TXT   │ 1 h 00 m │ v=DMARC1; p=reject;           │ ! 133 ms │ C:\Program….TXT.json │
-│                                 │       │          │ rua=mailto:dmarc@evotec.xyz;  │          │                      │
-│                                 │       │          │ ruf=mailto:forensic@evotec.x… │          │                      │
-│ selector1._domainkey.evotec.xyz │ CNAME │ 1 h 00 m │ selector1-evotec-xyz._domaink │    16 ms │ C:\Program…NAME.json │
-│                                 │       │          │ ey.evotecpl.onmicrosoft.com   │          │                      │
-│ evotec.xyz                      │ CAA   │ 1 h 00 m │ 0 issue "letsencrypt.org"     │    15 ms │ C:\Program…\CAA.json │
-└─────────────────────────────────┴───────┴──────────┴───────────────────────────────┴──────────┴──────────────────────┘
+┌──────────────────────────┬───────┬──────────┬──────────────────────────────────────┬──────────┬──────────────────────┐
+│ Name                     │ Type  │      TTL │ Data                                 │  Latency │ Cache file           │
+├──────────────────────────┼───────┼──────────┼──────────────────────────────────────┼──────────┼──────────────────────┤
+│ evotec.xyz               │ A     │ 5 m 00 s │ 104.21.48.12                         │    12 ms │ C:\Program…yz\A.json │
+│ evotec.xyz               │ AAAA  │ 5 m 00 s │ 2606:4700:3036::6815:300c            │    14 ms │ C:\Program…AAAA.json │
+│ evotec.xyz               │ MX    │ 1 h 00 m │ 10                                   │    18 ms │ C:\Program…z\MX.json │
+│                          │       │          │ evotec-xyz.mail.protection.outlook.c │          │                      │
+│                          │       │          │ om                                   │          │                      │
+│ evotec.xyz               │ TXT   │ 1 h 00 m │ v=spf1                               │    21 ms │ C:\Program…\TXT.json │
+│                          │       │          │ include:spf.protection.outlook.com   │          │                      │
+│                          │       │          │ include:_spf.google.com…             │          │                      │
+│ _dmarc.evotec.xyz        │ TXT   │ 1 h 00 m │ v=DMARC1; p=reject;                  │ ! 133 ms │ C:\Program….TXT.json │
+│                          │       │          │ rua=mailto:dmarc@evotec.xyz;         │          │                      │
+│                          │       │          │ ruf=mailto:forensic@evotec.xyz; fo=1 │          │                      │
+│ selector1._d….evotec.xyz │ CNAME │ 1 h 00 m │ selector1-evotec-xyz._domainkey.evot │    16 ms │ C:\Program…NAME.json │
+│                          │       │          │ ecpl.onmicrosoft.com                 │          │                      │
+│ evotec.xyz               │ CAA   │ 1 h 00 m │ 0 issue "letsencrypt.org"            │    15 ms │ C:\Program…\CAA.json │
+└──────────────────────────┴───────┴──────────┴──────────────────────────────────────┴──────────┴──────────────────────┘
 
  evotec.xyz · DomainDetective checks
 ┌─────────┬────────┬───────────────────────────────────────────────────────────────────────────────────┬────────┬──────┐

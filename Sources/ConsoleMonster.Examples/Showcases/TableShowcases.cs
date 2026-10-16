@@ -23,7 +23,7 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Name") { IsKey = true, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 10 });
             table.AddColumn(new TableColumn("Type") { Priority = 9, Overflow = ColumnOverflow.Never });
             table.AddColumn(new TableColumn("TTL") { Priority = 2, Presenter = new DurationPresenter() });
-            table.AddColumn(new TableColumn("Data") { Priority = 10, Overflow = ColumnOverflow.Wrap, MaxLines = 3, Flexible = true, MinWidth = 16 });
+            table.AddColumn(new TableColumn("Data") { Priority = 10, Overflow = ColumnOverflow.Wrap, MaxLines = 3, Flexible = true, MinWidth = 28 });
             table.AddColumn(new TableColumn("Latency") { Priority = 3, Presenter = new NumberPresenter("ms"), ToneRules = { ToneRule.Above(100, ThemeToken.Warn) } });
             table.AddColumn(new TableColumn("Cache file") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20, MaxWidth = 36 });
             const string Cache = @"C:\ProgramData\DnsClientX\cache\evotec.xyz\";
@@ -136,6 +136,33 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddValues("en-US\\ConsoleMonster-help.xml", "Help", 96_210L, TimeSpan.FromSeconds(6.4), Now.AddDays(-2), Root + @"en-US\ConsoleMonster-help.xml", "0be4d29c6a1f8873");
             table.AddValues("Docs.zip", "Docs", 51_302L, TimeSpan.FromSeconds(1.2), Now.AddDays(-9), Root + "Docs.zip", "5d6e7f8091a2b3c4");
             return table;
+        }
+
+        /// <summary>Selected showcases stacked: a comma-separated list of dns, checks, certificate, testimox and artifacts.</summary>
+        /// <param name="names">The section names.</param>
+        /// <returns>The widget tree.</returns>
+        public static IWidget Sections(string names) {
+            System.Collections.Generic.List<IWidget> widgets = new System.Collections.Generic.List<IWidget>();
+            foreach (string name in (names ?? string.Empty).Split(',')) {
+                switch (name.Trim().ToLowerInvariant()) {
+                    case "dns":
+                        widgets.Add(DnsRecords());
+                        break;
+                    case "checks":
+                        widgets.Add(DomainChecks());
+                        break;
+                    case "certificate":
+                        widgets.Add(Certificate());
+                        break;
+                    case "testimox":
+                        widgets.Add(TestimoXSummary());
+                        break;
+                    case "artifacts":
+                        widgets.Add(PublishArtifacts());
+                        break;
+                }
+            }
+            return new Rows(widgets.ToArray()) { Gap = 1 };
         }
 
         /// <summary>All showcases stacked, for one width.</summary>
