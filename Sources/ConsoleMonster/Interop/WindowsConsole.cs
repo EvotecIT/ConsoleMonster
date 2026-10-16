@@ -5,14 +5,8 @@ namespace ConsoleMonster.Interop {
     // Private entry points prevent callers from bypassing the platform guard.
     internal static class WindowsConsole {
         internal const uint EnableVirtualTerminalProcessing = 0x0004;
-
-        /// <summary>Input mode flag that delivers VT sequences (such as cursor position reports) to the application.</summary>
-        internal const uint EnableVirtualTerminalInput = 0x0200;
-
         internal static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         internal static IntPtr StandardOutput => IsWindows ? GetStdHandle(-11) : IntPtr.Zero;
-
-        internal static IntPtr StandardInput => IsWindows ? GetStdHandle(-10) : IntPtr.Zero;
 
         internal static bool TryGetMode(IntPtr handle, out uint mode) {
             mode = 0;
@@ -57,24 +51,6 @@ namespace ConsoleMonster.Interop {
 
         internal static uint FileType(IntPtr handle) => IsWindows ? GetFileType(handle) : 0;
 
-        /// <summary>Copies pending input records without removing them from the queue.</summary>
-        internal static int PeekInput(IntPtr handle, ConsoleInputRecord[] buffer) {
-            if (!IsWindows || !GetNumberOfConsoleInputEvents(handle, out uint pending) || pending == 0) {
-                return 0;
-            }
-            uint length = Math.Min(pending, (uint)buffer.Length);
-            return PeekConsoleInputW(handle, buffer, length, out uint read) ? (int)read : 0;
-        }
-
-        /// <summary>Removes the first <paramref name="count"/> input records from the queue.</summary>
-        internal static int ReadInput(IntPtr handle, ConsoleInputRecord[] buffer, int count) {
-            if (!IsWindows || count <= 0) {
-                return 0;
-            }
-            return ReadConsoleInputW(handle, buffer, (uint)count, out uint read) ? (int)read : 0;
-        }
-
-
         internal static int BuildNumber() {
             if (!IsWindows) {
                 return 0;
@@ -105,15 +81,5 @@ namespace ConsoleMonster.Interop {
         private static extern uint GetFileType(IntPtr handle);
         [DllImport("ntdll.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
         private static extern int RtlGetVersion(ref WindowsVersionInfo info);
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetNumberOfConsoleInputEvents(IntPtr handle, out uint count);
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool PeekConsoleInputW(IntPtr handle, [Out] ConsoleInputRecord[] buffer, uint length, out uint read);
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool ReadConsoleInputW(IntPtr handle, [Out] ConsoleInputRecord[] buffer, uint length, out uint read);
-
     }
 }
