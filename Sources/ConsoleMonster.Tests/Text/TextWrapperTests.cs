@@ -7,6 +7,14 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Text {
     public sealed class TextWrapperTests {
+        [Fact]
+        public void Truncate_UsesExplicitTerminalWidthProfile() {
+            TerminalWidthProfile narrowEmoji = TerminalWidthProfile.Standard.WithEmojiWidth(1);
+            Assert.Equal("😀…", TextWrapper.Truncate("😀ab", 2, narrowEmoji));
+            Assert.Equal("😀…", TextWrapper.TruncateMiddle("😀abc", 2, narrowEmoji));
+            TerminalWidthProfile wideAmbiguous = TerminalWidthProfile.Standard.WithAmbiguousWidth(2);
+            Assert.Equal("▲…", TextWrapper.Truncate("▲ab", 3, wideAmbiguous));
+        }
         [Theory]
         [InlineData("one  two three", 8, "one  two|three")]
         [InlineData("one   two", 5, "one|two")]

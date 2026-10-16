@@ -107,5 +107,18 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal(3, line.Width);
             Assert.Equal("👩‍💻e\u0301", line.PlainText);
         }
+
+        [Fact]
+        public void MeasuresClustersWithExplicitTerminalProfiles() {
+            TerminalWidthProfile split = TerminalWidthProfile.Standard.WithZwjSequences(ZwjRendering.Split);
+            Assert.Equal(8, DisplayWidth.Measure("👨‍👩‍👧‍👦", split));
+            Assert.Equal(1, DisplayWidth.Measure("😀", TerminalWidthProfile.Standard.WithEmojiWidth(1)));
+            Assert.Equal(2, DisplayWidth.Measure("▲", TerminalWidthProfile.Standard.WithAmbiguousWidth(2)));
+            Assert.Equal(2, DisplayWidth.Measure("🇵🇱", TerminalWidthProfile.Standard.WithFlagWidth(2)));
+            Assert.Equal(2, DisplayWidth.Measure("👍🏽", TerminalWidthProfile.Standard));
+            Assert.Equal(2, DisplayWidth.Measure("#️⃣", TerminalWidthProfile.Standard));
+            Assert.Equal(1, DisplayWidth.Measure("☺︎", TerminalWidthProfile.Standard));
+            Assert.Equal(2, DisplayWidth.Measure("☺️", TerminalWidthProfile.Standard));
+        }
     }
 }

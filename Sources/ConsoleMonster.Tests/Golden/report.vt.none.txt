@@ -1,7 +1,7 @@
 ── Report ──────────────────────────────────────────────────
 
 Domain  evotec.xyz
-DNSSEC  ▲ not signed
+DNSSEC  ▴\e[10G not signed
 
  Records
 ╭───────────────────┬──────┬──────┬────────────────────────╮
@@ -16,12 +16,12 @@ DNSSEC  ▲ not signed
 │                   │      │      │ .outlook.com           │
 │                   │      │      │ include:_spf.google.co │
 │                   │      │      │ m -all                 │
-│ _dmarc.evotec.xyz │ TXT  │ 3600 │ ✓ p=reject             │
+│ _dmarc.evotec.xyz │ TXT  │ 3600 │ ✓\e[38G p=reject             │
 ╰───────────────────┴──────┴──────┴────────────────────────╯
 
 ╭─ Tree ────────────────────╮ ╭─ Checks ───────── 3 items ─╮
-│ root                      │ │ ✓ SPF            9 lookups │
-│ └── xyz.  2 servers       │ │ ▲ MTA-STS          missing │
-│     ├── ✓ dana.ns.cloudf… │ │ – BIMI                     │
-│     └── ✗ kirk.ns.cloudf… │ │                            │
+│ root                      │ │ ✓\e[34G SPF            9 lookups │
+│ └── xyz.  2 servers       │ │ ▴\e[34G MTA-STS          missing │
+│     ├── ✓\e[12G dana.ns.cloudf…\e[28G │ │ –\e[34G BIMI                     │
+│     └── ✗\e[12G kirk.ns.cloudf…\e[28G │ │                            │
 ╰───────────────────────────╯ ╰────────────────────────────╯

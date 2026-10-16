@@ -236,5 +236,35 @@ namespace ConsoleMonster.Tests.Capabilities {
                 windowsBuild: 22631, isConsoleHandle: true, virtualTerminalEnabled: true,
                 consoleFontFace: "Consolas")).Detect();
         }
+
+        [Fact]
+        public void WidthOverrides_ApplyAndDowngradeAmbiguousGlyphs() {
+            TerminalProfile profile = Windows(new Dictionary<string, string> {
+                ["CONSOLEMONSTER_EMOJI_WIDTH"] = "1", ["CONSOLEMONSTER_AMBIGUOUS_WIDTH"] = "2"
+            });
+            Assert.Equal(1, profile.WidthProfile.EmojiWidth);
+            Assert.Equal(2, profile.WidthProfile.AmbiguousWidth);
+            Assert.Equal(GlyphTier.Ascii, profile.Glyphs);
+            Assert.False(profile.ProbeWidths);
+            Assert.Contains(profile.Decisions, value => value.Contains("ambiguous width 2"));
+        }
+
+        [Fact]
+        public void WidthOverrides_InvalidValueIsIgnoredAndNoted() {
+            TerminalProfile profile = Windows(new Dictionary<string, string> { ["CONSOLEMONSTER_EMOJI_WIDTH"] = "3", ["CONSOLEMONSTER_AMBIGUOUS_WIDTH"] = "1" });
+            Assert.Equal(2, profile.WidthProfile.EmojiWidth);
+            Assert.False(profile.ProbeWidths);
+            Assert.Contains(profile.Decisions, value => value.Contains("ignored invalid value"));
+        }
+
+        [Fact]
+        public void WidthOverrides_AutoEnablesProbeOnlyForInteractiveUnredirectedInput() {
+            TerminalProfile interactive = Windows(new Dictionary<string, string>());
+            TerminalProfile redirected = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["TERM"] = "xterm", ["CONSOLEMONSTER_EMOJI_WIDTH"] = "auto"
+            }, isOutputRedirected: true)).Detect();
+            Assert.True(interactive.ProbeWidths);
+            Assert.False(redirected.ProbeWidths);
+        }
     }
 }

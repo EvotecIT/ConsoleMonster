@@ -36,7 +36,13 @@ namespace ConsoleMonster {
         public static TerminalProfile Profile {
             get {
                 lock (Gate) {
-                    return _profile ?? (_profile = _provider.Detect());
+                    if (_profile == null) {
+                        _profile = _provider.Detect();
+                        if (_profile.WidthProfile.Source == "environment") {
+                            DisplayWidth.Profile = _profile.WidthProfile;
+                        }
+                    }
+                    return _profile;
                 }
             }
             set {

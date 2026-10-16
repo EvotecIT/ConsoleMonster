@@ -15,14 +15,19 @@ namespace ConsoleMonster.Text {
         /// <param name="width">Maximum cells per line; values below one use one.</param>
         /// <returns>At least one line, each within the budget.</returns>
         public static IReadOnlyList<StyledLine> Wrap(StyledLine line, int width) {
+            return Wrap(line, width, DisplayWidth.Profile);
+        }
+
+        /// <summary>Word-wraps a line using an explicit terminal width profile.</summary>
+        public static IReadOnlyList<StyledLine> Wrap(StyledLine line, int width, TerminalWidthProfile profile) {
             if (line == null) {
                 throw new ArgumentNullException(nameof(line));
             }
             width = Math.Max(1, width);
-            if (line.Width <= width) {
+            StyledLineMap map = new StyledLineMap(line, profile);
+            if (map.Width <= width) {
                 return new[] { line };
             }
-            StyledLineMap map = new StyledLineMap(line);
             List<StyledLine> result = new List<StyledLine>();
             int start = 0;
             while (start < map.Clusters.Count) {
@@ -91,17 +96,22 @@ namespace ConsoleMonster.Text {
         /// <param name="ellipsis">Marker, clipped to the budget on grapheme boundaries.</param>
         /// <returns>A line no wider than the budget, with retained text styles.</returns>
         public static StyledLine Truncate(StyledLine line, int width, string ellipsis = Ellipsis) {
+            return Truncate(line, width, DisplayWidth.Profile, ellipsis);
+        }
+
+        /// <summary>Truncates a styled line using an explicit width profile.</summary>
+        public static StyledLine Truncate(StyledLine line, int width, TerminalWidthProfile profile, string ellipsis = Ellipsis) {
             if (line == null) {
                 throw new ArgumentNullException(nameof(line));
             }
             if (width <= 0) {
                 return StyledLine.Empty;
             }
-            if (line.Width <= width) {
+            StyledLineMap map = new StyledLineMap(line, profile);
+            if (map.Width <= width) {
                 return line;
             }
-            string marker = ClipMarker(ellipsis, width);
-            StyledLineMap map = new StyledLineMap(line);
+            string marker = ClipMarker(ellipsis, width, profile);
             int end = map.PrefixEnd(0, width - DisplayWidth.Measure(marker));
             List<TextSpan> spans = new List<TextSpan>(map.Slice(0, end));
             Style markerStyle = map.Clusters.Count == 0 ? Style.Plain : map.StyleAt(end > 0 ? end - 1 : 0);
@@ -120,22 +130,30 @@ namespace ConsoleMonster.Text {
             return Truncate(StyledLine.From(text ?? string.Empty), width, ellipsis).PlainText;
         }
 
+        /// <summary>Truncates plain text with an explicit width profile.</summary>
+        public static string Truncate(string text, int width, TerminalWidthProfile profile, string ellipsis = Ellipsis) => Truncate(StyledLine.From(text ?? string.Empty), width, profile, ellipsis).PlainText;
+
         /// <summary>Truncates the middle of text, retaining both the beginning and the end (useful for paths).</summary>
         /// <param name="text">Plain text.</param>
         /// <param name="width">Maximum cells.</param>
         /// <param name="ellipsis">Marker inserted between the retained ends.</param>
         /// <returns>Text within the budget, on grapheme boundaries.</returns>
         public static string TruncateMiddle(string text, int width, string ellipsis = Ellipsis) {
+            return TruncateMiddle(text, width, DisplayWidth.Profile, ellipsis);
+        }
+
+        /// <summary>Truncates the middle using an explicit width profile.</summary>
+        public static string TruncateMiddle(string text, int width, TerminalWidthProfile profile, string ellipsis = Ellipsis) {
             if (width <= 0) {
                 return string.Empty;
             }
             text = text ?? string.Empty;
-            if (DisplayWidth.Measure(text) <= width) {
+            if (DisplayWidth.Measure(text, profile) <= width) {
                 return text;
             }
-            string marker = ClipMarker(ellipsis, width);
-            int budget = width - DisplayWidth.Measure(marker);
-            StyledLineMap map = new StyledLineMap(StyledLine.From(text));
+            string marker = ClipMarker(ellipsis, width, profile);
+            int budget = width - DisplayWidth.Measure(marker, profile);
+            StyledLineMap map = new StyledLineMap(StyledLine.From(text), profile);
             int leftEnd = map.PrefixEnd(0, (budget + 1) / 2);
             int used = 0;
             for (int i = 0; i < leftEnd; i++) {
@@ -152,10 +170,10 @@ namespace ConsoleMonster.Text {
             return map.Slice(0, leftEnd).PlainText + marker + map.Slice(rightStart, map.Clusters.Count).PlainText;
         }
 
-        private static string ClipMarker(string? marker, int width) {
+        private static string ClipMarker(string? marker, int width, TerminalWidthProfile? profile = null) {
             marker = marker ?? string.Empty;
             int length = 0;
-            foreach (TextCluster cluster in DisplayWidth.Clusters(marker)) {
+            foreach (TextCluster cluster in DisplayWidth.Clusters(marker, profile ?? DisplayWidth.Profile)) {
                 if (cluster.Width > width) {
                     break;
                 }

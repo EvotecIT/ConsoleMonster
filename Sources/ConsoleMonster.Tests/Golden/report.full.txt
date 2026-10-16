@@ -1,7 +1,7 @@
 ── Report ──────────────────────────────────────────────────────────────────────────────────────────
 
 Domain  evotec.xyz
-DNSSEC  ▲ not signed
+DNSSEC  ▴ not signed
 
  Records
 ╭───────────────────┬──────┬──────┬────────────────────────────────────────────────────────────────╮
@@ -16,7 +16,7 @@ DNSSEC  ▲ not signed
 
 ╭─ Tree ────────────────────────────────────────╮ ╭─ Checks ───────────────────────────── 3 items ─╮
 │ root                                          │ │ ✓ SPF                                9 lookups │
-│ └── xyz.  2 servers                           │ │ ▲ MTA-STS                              missing │
+│ └── xyz.  2 servers                           │ │ ▴ MTA-STS                              missing │
 │     ├── ✓ dana.ns.cloudflare.com  12 ms       │ │ – BIMI                                         │
 │     └── ✗ kirk.ns.cloudflare.com  timeout     │ │                                                │
 ╰───────────────────────────────────────────────╯ ╰────────────────────────────────────────────────╯

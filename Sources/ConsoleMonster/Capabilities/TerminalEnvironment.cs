@@ -21,11 +21,12 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="consoleFontIsRaster">Whether the font is raster.</param>
         /// <param name="windowWidth">Visible columns, or zero when unavailable.</param>
         /// <param name="windowHeight">Visible rows, or zero when unavailable.</param>
+        /// <param name="isInputRedirected">Whether standard input is redirected.</param>
         public TerminalEnvironment(IReadOnlyDictionary<string, string>? environmentVariables = null,
             bool isOutputRedirected = false, bool isWindows = false, int windowsBuild = 0,
             bool isConsoleHandle = false, bool? virtualTerminalEnabled = null,
             string? consoleFontFace = null, bool consoleFontIsRaster = false,
-            int windowWidth = 0, int windowHeight = 0) {
+            int windowWidth = 0, int windowHeight = 0, bool isInputRedirected = false) {
             Dictionary<string, string> copy = new Dictionary<string, string>(isWindows ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             if (environmentVariables != null) {
                 foreach (KeyValuePair<string, string> entry in environmentVariables) {
@@ -42,6 +43,7 @@ namespace ConsoleMonster.Capabilities {
             ConsoleFontIsRaster = consoleFontIsRaster;
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
+            IsInputRedirected = isInputRedirected;
         }
 
         /// <summary>Copied environment variables, case-insensitive on Windows.</summary>
@@ -73,6 +75,8 @@ namespace ConsoleMonster.Capabilities {
 
         /// <summary>Visible rows, or zero when unavailable.</summary>
         public int WindowHeight { get; }
+        /// <summary>Whether standard input is redirected.</summary>
+        public bool IsInputRedirected { get; }
 
         /// <summary>Captures real process inputs, enabling Windows VT output without changing code pages.</summary>
         /// <returns>A snapshot for deterministic detection.</returns>
@@ -85,17 +89,19 @@ namespace ConsoleMonster.Capabilities {
                 }
             }
             bool redirected = true;
+            bool inputRedirected = true;
             try {
                 redirected = Console.IsOutputRedirected;
             } catch (Exception) {
                 // Hosts without a console use the conservative stream path.
             }
+            try { inputRedirected = Console.IsInputRedirected; } catch (Exception) { }
             IntPtr handle = WindowsConsole.StandardOutput;
             bool console = WindowsConsole.TryGetMode(handle, out uint mode);
             bool? vt = console ? WindowsConsole.TrySetMode(handle, mode | WindowsConsole.EnableVirtualTerminalProcessing) : (bool?)null;
             WindowsConsole.TryGetFont(handle, out string? face, out bool raster);
             TerminalSize.TryGet(out int width, out int height);
-            return new TerminalEnvironment(variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height);
+            return new TerminalEnvironment(variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected);
         }
     }
 }

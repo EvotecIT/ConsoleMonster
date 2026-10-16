@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Capabilities {
 
@@ -34,6 +35,8 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="isContinuousIntegration">Whether a CI environment was detected.</param>
         /// <param name="fontFace">The console font face, when known.</param>
         /// <param name="decisions">Human-readable notes explaining how each value was chosen.</param>
+        /// <param name="widthProfile">Configured or derived display width assumptions.</param>
+        /// <param name="probeWidths">Whether a live width probe is permitted.</param>
         public TerminalProfile(
             ColorDepth colorDepth,
             GlyphTier glyphs,
@@ -46,7 +49,9 @@ namespace ConsoleMonster.Capabilities {
             bool isConsoleHandle = false,
             bool isContinuousIntegration = false,
             string? fontFace = null,
-            IReadOnlyList<string>? decisions = null) {
+            IReadOnlyList<string>? decisions = null,
+            TerminalWidthProfile? widthProfile = null,
+            bool probeWidths = false) {
             ColorDepth = colorDepth;
             Glyphs = glyphs;
             Mode = mode;
@@ -59,6 +64,8 @@ namespace ConsoleMonster.Capabilities {
             IsContinuousIntegration = isContinuousIntegration;
             FontFace = fontFace;
             Decisions = decisions ?? NoDecisions;
+            WidthProfile = widthProfile ?? TerminalWidthProfile.Standard;
+            ProbeWidths = probeWidths;
         }
 
         /// <summary>Colour fidelity.</summary>
@@ -96,6 +103,12 @@ namespace ConsoleMonster.Capabilities {
 
         /// <summary>Human-readable notes explaining how each value was chosen (shown by <c>Get-ConsoleCapability</c>).</summary>
         public IReadOnlyList<string> Decisions { get; }
+
+        /// <summary>The configured or derived Unicode display width profile.</summary>
+        public TerminalWidthProfile WidthProfile { get; }
+
+        /// <summary>Whether an interactive session may probe terminal widths.</summary>
+        public bool ProbeWidths { get; }
 
         /// <summary>Whether the profile allows live redraw (interactive mode with VT support).</summary>
         public bool IsLive => Mode == OutputMode.Interactive && SupportsVirtualTerminal;
@@ -145,12 +158,15 @@ namespace ConsoleMonster.Capabilities {
             return Copy(decisions: list);
         }
 
+        /// <summary>Returns a copy with a different terminal width profile.</summary>
+        public TerminalProfile WithWidthProfile(TerminalWidthProfile profile) => Copy(widthProfile: profile ?? throw new ArgumentNullException(nameof(profile)));
+
         /// <inheritdoc />
         public override string ToString() {
             return Kind + " " + Width + "x" + Height + " " + Mode + " " + ColorDepth + " " + Glyphs;
         }
 
-        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null) {
+        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null) {
             return new TerminalProfile(
                 colorDepth ?? ColorDepth,
                 glyphs ?? Glyphs,
@@ -163,7 +179,9 @@ namespace ConsoleMonster.Capabilities {
                 IsConsoleHandle,
                 IsContinuousIntegration,
                 FontFace,
-                decisions ?? Decisions);
+                decisions ?? Decisions,
+                widthProfile ?? WidthProfile,
+                ProbeWidths);
         }
     }
 }

@@ -5,13 +5,15 @@ namespace ConsoleMonster.Text {
     // One segmentation of the whole line, independent of its style boundaries.
     internal sealed class StyledLineMap {
         private readonly StyledLine _line;
-        internal StyledLineMap(StyledLine line) {
+        internal StyledLineMap(StyledLine line, TerminalWidthProfile? profile = null) {
             _line = line;
             Text = line.PlainText;
-            Clusters = new List<TextCluster>(DisplayWidth.Clusters(Text));
+            Clusters = new List<TextCluster>(DisplayWidth.Clusters(Text, profile ?? DisplayWidth.Profile));
+            foreach (TextCluster cluster in Clusters) Width += cluster.Width;
         }
         internal string Text { get; }
         internal List<TextCluster> Clusters { get; }
+        internal int Width { get; }
 
         internal bool IsSpace(int index) {
             TextCluster cluster = Clusters[index];

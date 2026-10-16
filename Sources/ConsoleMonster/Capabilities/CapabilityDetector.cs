@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Capabilities {
 
@@ -101,6 +102,15 @@ namespace ConsoleMonster.Capabilities {
                 glyphs = GlyphTier.Ascii;
                 colorReason = glyphReason = "plain mode";
             }
+            TerminalWidthProfile widths = TerminalWidthProfile.Standard;
+            bool emojiAuto = ParseWidth("CONSOLEMONSTER_EMOJI_WIDTH", ref widths, true, decisions);
+            bool ambiguousAuto = ParseWidth("CONSOLEMONSTER_AMBIGUOUS_WIDTH", ref widths, false, decisions);
+            bool probeWidths = mode == OutputMode.Interactive && !_environment.IsOutputRedirected && !_environment.IsInputRedirected && (emojiAuto || ambiguousAuto);
+            if (widths.AmbiguousWidth == 2 && glyphs != GlyphTier.Ascii) {
+                glyphs = GlyphTier.Ascii;
+                glyphReason = "ambiguous width 2";
+                decisions.Add("glyphs downgraded: ambiguous width 2");
+            }
             int width = env.IsOutputRedirected ? Dimension("COLUMNS", TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
             int height = env.IsOutputRedirected ? Dimension("LINES", TerminalProfile.DefaultHeight) : Positive(env.WindowHeight, TerminalProfile.DefaultHeight);
             TerminalKind kind = DetectKind();
@@ -109,9 +119,23 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("glyphs: " + glyphs + " (" + glyphReason + ")");
             decisions.Add("VT: " + (vt ? "supported" : "unavailable"));
             decisions.Add("kind: " + kind);
+            decisions.Add("width profile: " + widths);
+            decisions.Add("probe widths: " + probeWidths);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly());
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths);
+        }
+
+        private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {
+            string value = Get(name);
+            if (value.Length == 0 || Equal(value, "auto")) return true;
+            if (value == "1" || value == "2") {
+                profile = (emoji ? profile.WithEmojiWidth(int.Parse(value, CultureInfo.InvariantCulture)) : profile.WithAmbiguousWidth(int.Parse(value, CultureInfo.InvariantCulture))).WithSource("environment");
+                decisions.Add(name + ": " + value);
+                return false;
+            }
+            decisions.Add(name + ": ignored invalid value '" + value + "'");
+            return false;
         }
 
         private OutputMode DetectMode(bool ci, bool vt, out string reason) {

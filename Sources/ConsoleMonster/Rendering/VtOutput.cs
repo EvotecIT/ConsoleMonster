@@ -98,7 +98,7 @@ namespace ConsoleMonster.Rendering {
                 for (int y = 0; y < frame.Height; y++) {
                     MoveTo(0, y);
                     current = null;
-                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current);
+                    CellEncoder.AppendRun(_sb, frame, y, 0, RowLimit(frame, y), depth, ref current, true);
                 }
             } else {
                 List<DiffRun> runs = FrameDiff.Compute(_previous!, frame);
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Rendering {
                         continue;
                     }
                     MoveTo(run.Start, run.Row);
-                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current);
+                    CellEncoder.AppendRun(_sb, frame, run.Row, run.Start, end, depth, ref current, true);
                 }
             }
             if (depth != ColorDepth.None) {
@@ -122,6 +122,15 @@ namespace ConsoleMonster.Rendering {
             _invalidated = false;
             LastFrameLength = _sb.Length;
             Emit();
+        }
+
+        /// <summary>Runs the process-wide terminal width probe through this output's console writer.</summary>
+        /// <param name="timeout">The time budget.</param>
+        /// <param name="profile">The measured profile.</param>
+        /// <param name="decision">The probe result or skip reason.</param>
+        /// <returns>True when the terminal was measured.</returns>
+        internal bool TryProbeWidths(TimeSpan timeout, out TerminalWidthProfile profile, out string decision) {
+            return TerminalWidthProbe.TryProbe(_writer, timeout, out profile, out decision);
         }
 
         /// <inheritdoc />
@@ -156,7 +165,7 @@ namespace ConsoleMonster.Rendering {
             ColorDepth depth = Profile.ColorDepth;
             int end = CellEncoder.ContentEnd(buffer, y, depth);
             Style? current = null;
-            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current);
+            CellEncoder.AppendRun(_sb, buffer, y, 0, end, depth, ref current, true);
             if (depth != ColorDepth.None && end > 0) {
                 _sb.Append(SgrEncoder.Reset);
             }
