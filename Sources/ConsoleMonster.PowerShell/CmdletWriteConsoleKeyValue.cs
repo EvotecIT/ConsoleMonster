@@ -25,6 +25,6 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <inheritdoc />
-        protected override void Emit(KeyValueList list) => Terminal.Write(list);
+        protected override void Emit(KeyValueList list) => HostOutput.Write(this, list);
     }
 }

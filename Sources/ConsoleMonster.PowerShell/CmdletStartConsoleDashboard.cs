@@ -26,6 +26,7 @@ namespace ConsoleMonster.PowerShell {
         private DashboardRunspaceHost? _host;
         private string _script = string.Empty;
         private bool _finished;
+        private HostQueueWriter? _hostQueue; // Outside a real console: narration lines waiting for the pipeline thread.
 
         /// <summary><para type="description">The dashboard from New-ConsoleDashboard (or any widget tree).</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
@@ -69,6 +70,12 @@ namespace ConsoleMonster.PowerShell {
 
         private bool Cancelled => _stopping || (_session != null && _session.Cancellation.IsCancellationRequested);
 
+        // Called from every wait loop on the pipeline thread (about every 50 ms): flushes queued host output.
+        private bool Poll() {
+            _hostQueue?.Drain(this);
+            return Cancelled;
+        }
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
             LiveSessionOptions options = new LiveSessionOptions {
@@ -76,6 +83,15 @@ namespace ConsoleMonster.PowerShell {
                 Summary = Summary,
                 RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath)
             };
+            Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
+            if (HostOutput.UseHost(this, profile)) {
+                // Jobs, remoting, the ISE, redirected output, transcripts: append-only lines through the host, never the
+                // raw stdout handle (which is the job or remoting channel) and never a live screen.
+                Capabilities.TerminalProfile hostProfile = HostOutput.HostProfile(this, profile, false);
+                _hostQueue = new HostQueueWriter();
+                options.Profile = hostProfile;
+                options.Output = Terminal.CreateOutput(hostProfile, _hostQueue);
+            }
             _script = ScriptBlock.ToString();
             _session = new LiveSession(Dashboard, options);
             try {
@@ -86,6 +102,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             } catch {
                 Finish();
+                _hostQueue?.Drain(this, true);
                 throw;
             }
         }
@@ -97,7 +114,7 @@ namespace ConsoleMonster.PowerShell {
             }
             object item = InputObject is PSObject ps ? ps.BaseObject : InputObject;
             try {
-                _host.Submit(_script, item, ArgumentList, () => Cancelled);
+                _host.Submit(_script, item, ArgumentList, Poll);
             } catch {
                 Finish();
                 throw;
@@ -108,13 +125,15 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             try {
                 if (Parallel.IsPresent) {
-                    _host?.WaitAll(() => Cancelled);
+                    _host?.WaitAll(Poll);
                 } else {
-                    _host?.Run(_script, ArgumentList, () => Cancelled);
+                    _host?.Run(_script, ArgumentList, Poll);
                 }
             } finally {
                 Finish();
             }
+            // The final state (or -Summary) and the last narration lines, written by Stop on this thread.
+            _hostQueue?.Drain(this, true);
             if (_session != null) {
                 ReportProblems(_session);
             }

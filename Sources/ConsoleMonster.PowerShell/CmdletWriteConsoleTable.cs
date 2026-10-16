@@ -13,6 +13,6 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommunications.Write, "ConsoleTable")]
     public sealed class CmdletWriteConsoleTable : CmdletNewConsoleTable {
         /// <inheritdoc />
-        protected override void Emit(Table table) => Terminal.Write(table);
+        protected override void Emit(Table table) => HostOutput.Write(this, table);
     }
 }

@@ -92,7 +92,7 @@ namespace ConsoleMonster.PowerShell {
             table.CardsBelow = CardsBelow;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
             table.MaxRows = Top > 0 ? Top : 0;
-            PSFormatting.Write(table, Width, Culture);
+            PSFormatting.Write(this, table, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

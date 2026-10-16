@@ -30,8 +30,35 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-            using (StreamReader reader = new StreamReader(path, Encoding.UTF8)) {
-                LiveSession.Replay(Dashboard, reader, new LiveSessionOptions(), Speed);
+            LiveSessionOptions options = new LiveSessionOptions();
+            HostQueueWriter? queue = null;
+            Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
+            if (HostOutput.UseHost(this, profile)) {
+                // Outside a real console the replay narrates through the host; the waits between events run here, on the
+                // pipeline thread, and flush the queued lines as they go.
+                queue = new HostQueueWriter();
+                Capabilities.TerminalProfile hostProfile = HostOutput.HostProfile(this, profile, false);
+                options.Profile = hostProfile;
+                options.Output = Terminal.CreateOutput(hostProfile, queue);
+                HostQueueWriter lines = queue;
+                options.ReplayDelay = (delay, token) => {
+                    while (delay > System.TimeSpan.Zero) {
+                        System.TimeSpan slice = delay > System.TimeSpan.FromMilliseconds(50) ? System.TimeSpan.FromMilliseconds(50) : delay;
+                        if (token.WaitHandle.WaitOne(slice)) {
+                            token.ThrowIfCancellationRequested();
+                        }
+                        delay -= slice;
+                        lines.Drain(this);
+                    }
+                };
+            }
+            try {
+                using (StreamReader reader = new StreamReader(path, Encoding.UTF8)) {
+                    LiveSession.Replay(Dashboard, reader, options, Speed);
+                }
+            } finally {
+                queue?.Drain(this, true);
+                options.Output?.Dispose();
             }
         }
     }

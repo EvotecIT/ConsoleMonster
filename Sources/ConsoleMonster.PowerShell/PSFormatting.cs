@@ -85,7 +85,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Writes a widget to the host, laid out for an explicit width and culture when given.</summary>
-        internal static void Write(IWidget widget, int width, System.Globalization.CultureInfo? culture = null) {
+        internal static void Write(PSCmdlet cmdlet, IWidget widget, int width, System.Globalization.CultureInfo? culture = null) {
             TerminalProfile profile = Terminal.GetCurrentProfile();
             if (culture != null) {
                 profile = profile.WithCulture(culture);
@@ -94,7 +94,7 @@ namespace ConsoleMonster.PowerShell {
                 profile = profile.WithSize(width, profile.Height);
             }
             // A blank line after each block, as Format-Table does, so consecutive outputs stay apart.
-            Terminal.Write(new Rows(widget, new TextBlock(string.Empty)), profile);
+            HostOutput.Write(cmdlet, new Rows(widget, new TextBlock(string.Empty)), profile, width > 0);
         }
 
         private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading, System.Globalization.CultureInfo culture) {

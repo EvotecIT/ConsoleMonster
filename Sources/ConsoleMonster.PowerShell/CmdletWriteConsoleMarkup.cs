@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Terminal.WriteMarkup(Text);
+            HostOutput.WriteMarkup(this, Text);
         }
     }
 }

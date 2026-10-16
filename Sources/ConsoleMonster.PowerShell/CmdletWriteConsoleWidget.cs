@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
                     WriteError(new ErrorRecord(new PSArgumentException("Not a console widget: " + item), "ConsoleMonsterNotWidget", ErrorCategory.InvalidArgument, item));
                     continue;
                 }
-                Terminal.Write(widget, profile);
+                HostOutput.Write(this, widget, profile, Width > 0);
             }
         }
     }

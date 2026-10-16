@@ -86,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
                 widgets.Add(AsInspector.IsPresent ? new InspectorView(node, Title) : (IWidget)InspectorTree.Build(node, Title));
             }
             IWidget output = widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
-            PSFormatting.Write(output, Width, Culture);
+            PSFormatting.Write(this, output, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

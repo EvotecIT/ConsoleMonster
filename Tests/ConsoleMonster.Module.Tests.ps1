@@ -81,6 +81,43 @@ $result = Start-ConsoleDashboard $d {
         $text | Should -Match 'RESULT=script output'
     }
 
+    It 'writes through the host in a background job, so the job completes and Receive-Job gets the text' {
+        $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
+            param($ModulePath)
+            Import-Module $ModulePath -Force
+            Write-ConsoleMarkup '[pass]from the job[/]'
+            [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Write-ConsoleTable -Border Minimal
+            $d = New-ConsoleDashboard -Title 'Job dashboard' { New-ConsoleLanes -Name lanes }
+            Start-ConsoleDashboard $d { Update-ConsoleLane -Key srv1 -Result Pass; Update-ConsoleLane -Key srv1 -Complete }
+            'pipeline output'
+        }
+        $null = Wait-Job $job -Timeout 180
+        $state = $job.State
+        $received = @(Receive-Job $job 6>&1 2>&1 | ForEach-Object { "$_" })
+        Remove-Job $job -Force
+        $state | Should -Be 'Completed'
+        $received | Should -Contain 'from the job'
+        $received | Should -Contain 'pipeline output'
+        ($received -join "`n") | Should -Match 'alpha\s+7'
+        ($received -join "`n") | Should -Match 'srv1 PASS'
+    }
+
+    It 'is recorded by Start-Transcript and captured by 6>&1 like Write-Host, but not by assignment' {
+        $transcript = Join-Path $TestDrive 'transcript.txt'
+        $text = Invoke-ConsoleChild -Script @"
+Start-Transcript -Path '$transcript' | Out-Null
+Write-ConsoleMarkup 'in the transcript'
+Stop-Transcript | Out-Null
+`$assigned = Write-ConsoleMarkup 'assigned line'
+"ASSIGNED=[`$assigned]"
+`$captured = @(Write-ConsoleMarkup 'captured line' 6>&1 | ForEach-Object { "`$_" })
+"CAPTURED=[`$(`$captured -join '|')]"
+"@
+        Get-Content -LiteralPath $transcript -Raw | Should -Match 'in the transcript'
+        $text | Should -Match 'ASSIGNED=\[\]'
+        $text | Should -Match 'CAPTURED=\[captured line\]'
+    }
+
     It 'reports updates to an unknown widget name once, through the host, after the dashboard ends' {
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Typos' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
