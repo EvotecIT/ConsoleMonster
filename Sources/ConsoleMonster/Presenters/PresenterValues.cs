@@ -4,7 +4,10 @@ using System.Globalization;
 namespace ConsoleMonster.Presenters {
     /// <summary>Value conversions shared by presenters, tone rules and aggregates.</summary>
     public static class PresenterValues {
-        /// <summary>Converts a value to a double when it is numeric (numbers, numeric strings in invariant format, TimeSpan seconds).</summary>
+        /// <summary>
+        /// Converts a value to a double when it is a finite number (numbers, numeric strings in invariant format, TimeSpan
+        /// seconds). NaN and infinities are not numbers here, so totals, tone rules and scales skip them.
+        /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="number">The number.</param>
         /// <returns>True when the value is numeric.</returns>
@@ -15,10 +18,10 @@ namespace ConsoleMonster.Presenters {
                     return false;
                 case double d:
                     number = d;
-                    return !double.IsNaN(d);
+                    return !double.IsNaN(d) && !double.IsInfinity(d);
                 case float f:
                     number = f;
-                    return !float.IsNaN(f);
+                    return !float.IsNaN(f) && !float.IsInfinity(f);
                 case decimal m:
                     number = (double)m;
                     return true;
@@ -52,7 +55,28 @@ namespace ConsoleMonster.Presenters {
                 case bool _:
                     return false;
                 case string text:
-                    return double.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out number);
+                    return double.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out number) && !double.IsNaN(number) && !double.IsInfinity(number);
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>The placeholder for a value that has no meaningful display (an unbounded duration, a non-finite number): an em dash, or "-" in the ASCII tier.</summary>
+        /// <param name="context">The presenter context.</param>
+        /// <returns>The dash.</returns>
+        public static string Dash(PresenterContext context) {
+            return context.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "-" : "—";
+        }
+
+        /// <summary>Whether a value is a NaN or infinite <see cref="double"/> or <see cref="float"/> (shown as a dash).</summary>
+        /// <param name="value">The value.</param>
+        /// <returns>True for NaN and infinities.</returns>
+        public static bool IsNonFinite(object? value) {
+            switch (value) {
+                case double d:
+                    return double.IsNaN(d) || double.IsInfinity(d);
+                case float f:
+                    return float.IsNaN(f) || float.IsInfinity(f);
                 default:
                     return false;
             }

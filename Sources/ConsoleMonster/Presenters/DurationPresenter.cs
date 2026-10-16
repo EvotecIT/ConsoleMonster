@@ -8,6 +8,7 @@ namespace ConsoleMonster.Presenters {
     /// <summary>
     /// A duration in the most readable unit: <c>380 ms</c>, <c>4.2 s</c>, <c>1 m 05 s</c>, <c>2 h 14 m</c>, <c>3 d 4 h</c>.
     /// Accepts <see cref="TimeSpan"/> values, or numbers in <see cref="NumberUnit"/> (seconds by default).
+    /// <see cref="TimeSpan.MinValue"/>, <see cref="TimeSpan.MaxValue"/> and numbers outside the TimeSpan range show as a dash.
     /// </summary>
     public sealed class DurationPresenter : ICellPresenter {
         /// <summary>Creates a duration presenter.</summary>
@@ -21,16 +22,31 @@ namespace ConsoleMonster.Presenters {
 
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
+            if (PresenterValues.IsNonFinite(value)) {
+                return Unbounded(context);
+            }
             TimeSpan span;
             if (value is TimeSpan direct) {
                 span = direct;
             } else if (PresenterValues.TryGetNumber(value, out double number)) {
-                span = TimeSpan.FromTicks((long)(number * NumberUnit.Ticks));
+                double ticks = number * NumberUnit.Ticks;
+                if (double.IsNaN(ticks) || double.IsInfinity(ticks) || ticks >= TimeSpan.MaxValue.Ticks || ticks <= TimeSpan.MinValue.Ticks) {
+                    return Unbounded(context);
+                }
+                span = TimeSpan.FromTicks((long)ticks);
             } else {
                 return new TextPresenter().Present(value, context);
             }
+            if (span == TimeSpan.MaxValue || span == TimeSpan.MinValue) {
+                // The usual "no limit" values (lockout duration, maximum password age): a dash, not 10675199 d.
+                return Unbounded(context);
+            }
             string text = Format(span, context.Culture);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text)), HorizontalAlignment.Right) { Number = span.TotalSeconds };
+        }
+
+        private static PresentedValue Unbounded(PresenterContext context) {
+            return new PresentedValue(StyledLine.From(PresenterValues.Dash(context), context.Render.Style(ThemeToken.Muted)), HorizontalAlignment.Right);
         }
 
         /// <summary>Formats a duration with the culture's decimal separator.</summary>
@@ -39,7 +55,8 @@ namespace ConsoleMonster.Presenters {
         /// <returns>The text.</returns>
         public static string Format(TimeSpan span, CultureInfo culture) {
             string sign = span < TimeSpan.Zero ? "-" : string.Empty;
-            TimeSpan d = span.Duration();
+            // TimeSpan.MinValue has no positive counterpart; Duration() would overflow.
+            TimeSpan d = span == TimeSpan.MinValue ? TimeSpan.MaxValue : span.Duration();
             if (d.TotalSeconds < 1) {
                 return sign + Math.Round(d.TotalMilliseconds).ToString("0", culture) + " ms";
             }

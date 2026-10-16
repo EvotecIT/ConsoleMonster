@@ -8,6 +8,8 @@ namespace ConsoleMonster.Presenters {
     /// A point in time, absolute (in the presenter's or the context's time zone), relative to now, or both. Accepts
     /// <see cref="DateTime"/>, <see cref="DateTimeOffset"/> and ISO 8601 strings. <see cref="PresentedValue.Number"/> is the
     /// number of days from now (negative in the past), so tone rules can flag, for example, certificates that expire soon.
+    /// <see cref="DateTime.MinValue"/> and <see cref="DateTime.MaxValue"/> (and values within 14 hours of them) show as
+    /// "never" with no number.
     /// </summary>
     public sealed class DatePresenter : ICellPresenter {
         /// <summary>Creates a date presenter.</summary>
@@ -31,10 +33,20 @@ namespace ConsoleMonster.Presenters {
 
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
+            if (IsSentinel(value)) {
+                // DateTime.MinValue/MaxValue are the usual "never" values (directory attributes, default structs).
+                return new PresentedValue(StyledLine.From("never", context.Render.Style(ThemeToken.Muted)));
+            }
             if (!TryGetTime(value, out DateTimeOffset time)) {
                 return new TextPresenter().Present(value, context);
             }
-            DateTimeOffset local = TimeZoneInfo.ConvertTime(time, TimeZone ?? context.TimeZone);
+            DateTimeOffset local;
+            try {
+                local = TimeZoneInfo.ConvertTime(time, TimeZone ?? context.TimeZone);
+            } catch (ArgumentOutOfRangeException) {
+                // Within a day of the representable range the zone shift cannot be applied; show the value unshifted.
+                local = time;
+            }
             string absolute = local.ToString(Format, context.Culture);
             string relative = Relative(time - context.Now);
             Style text = context.Render.Style(ThemeToken.Text);
@@ -76,6 +88,20 @@ namespace ConsoleMonster.Presenters {
                 amount = ((int)(d.TotalDays / 365.25)).ToString(CultureInfo.InvariantCulture) + " y";
             }
             return offset < TimeSpan.Zero ? amount + " ago" : "in " + amount;
+        }
+
+        // The representable limits, or so close to them that a time-zone shift (at most 14 h) would overflow.
+        private static readonly TimeSpan SentinelMargin = TimeSpan.FromHours(14);
+
+        private static bool IsSentinel(object? value) {
+            switch (value) {
+                case DateTime date:
+                    return date.Ticks - DateTime.MinValue.Ticks <= SentinelMargin.Ticks || DateTime.MaxValue.Ticks - date.Ticks <= SentinelMargin.Ticks;
+                case DateTimeOffset offset:
+                    return offset.UtcTicks - DateTime.MinValue.Ticks <= SentinelMargin.Ticks || DateTime.MaxValue.Ticks - offset.UtcTicks <= SentinelMargin.Ticks;
+                default:
+                    return false;
+            }
         }
 
         private static bool TryGetTime(object? value, out DateTimeOffset time) {

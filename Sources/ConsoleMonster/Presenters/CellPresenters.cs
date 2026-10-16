@@ -105,6 +105,10 @@ namespace ConsoleMonster.Presenters {
         /// <param name="context">The presenter context.</param>
         /// <returns>The presented value.</returns>
         public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
+            if (PresenterValues.IsNonFinite(value)) {
+                // NaN and infinities (a rate computed over zero elapsed time) have no meaningful display.
+                return new PresentedValue(StyledLine.From(PresenterValues.Dash(context), context.Render.Style(ThemeToken.Muted)), Layout.HorizontalAlignment.Right);
+            }
             PresentedValue presented = (presenter ?? Auto).Present(value, context);
             if (PresenterValues.IsEmpty(value)) {
                 presented.IsEmpty = true;

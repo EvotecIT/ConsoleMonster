@@ -197,7 +197,9 @@ namespace ConsoleMonster.Widgets {
                     break;
             }
             if (allSpans) {
-                return TimeSpan.FromSeconds(result);
+                // A total beyond the TimeSpan range (a column holding TimeSpan.MaxValue) shows as unbounded, never throws.
+                bool representable = !double.IsNaN(result) && Math.Abs(result) < TimeSpan.MaxValue.TotalSeconds;
+                return representable ? TimeSpan.FromSeconds(result) : TimeSpan.MaxValue;
             }
             return Math.Abs(result - Math.Round(result)) < 1e-9 && Math.Abs(result) < long.MaxValue ? (object)Convert.ToInt64(Math.Round(result), CultureInfo.InvariantCulture) : result;
         }
