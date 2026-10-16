@@ -24,6 +24,7 @@ namespace ConsoleMonster.Live {
                         ResolveLogTarget();
                         TerminalProfile profile = _options.Profile ?? Terminal.Profile;
                         _context = Terminal.CreateContext(profile, _options.Theme);
+                        _streamTimestamps = _options.StreamTimestamps ?? profile.IsContinuousIntegration;
                         _output = _options.Output ?? Terminal.CreateOutput(profile);
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
@@ -44,6 +45,7 @@ namespace ConsoleMonster.Live {
                             }
                         }
                         _output.BeginLive();
+                        ApplyWidthProbe(profile);
                         lock (CurrentGate) { Running.Add(this); }
                         _thread = new Thread(RenderLoop) { IsBackground = true, Name = "ConsoleMonster render" };
                         _thread.Start();
@@ -59,6 +61,38 @@ namespace ConsoleMonster.Live {
                 if (cleanup) { FinishStop(); }
                 throw;
             }
+        }
+
+        // Measures emoji, ZWJ, flag and ambiguous widths once per process on the alternate screen (samples are erased and
+        // the first frame clears the screen), keeps explicit CONSOLEMONSTER_*_WIDTH settings, and makes the result the
+        // process-wide measurement profile. An ambiguous-wide terminal also gets ASCII glyphs, since box drawing and
+        // block elements are ambiguous too.
+        private void ApplyWidthProbe(TerminalProfile profile) {
+            if (!profile.ProbeWidths || _options.Output != null || !(_output is VtOutput vt)) {
+                return;
+            }
+            bool measuredOk = vt.TryProbeWidths(TimeSpan.FromMilliseconds(500), out TerminalWidthProfile measured, out string decision);
+            WidthDecision = decision;
+            if (!measuredOk) {
+                return;
+            }
+            TerminalWidthProfile configured = profile.WidthProfile;
+            if (IsExplicitWidth("CONSOLEMONSTER_EMOJI_WIDTH")) {
+                measured = measured.WithEmojiWidth(configured.EmojiWidth);
+            }
+            if (IsExplicitWidth("CONSOLEMONSTER_AMBIGUOUS_WIDTH")) {
+                measured = measured.WithAmbiguousWidth(configured.AmbiguousWidth);
+            }
+            DisplayWidth.Profile = measured;
+            if (measured.AmbiguousWidth == 2 && profile.Glyphs != GlyphTier.Ascii) {
+                TerminalProfile downgraded = profile.WithGlyphs(GlyphTier.Ascii).WithWidthProfile(measured).WithDecision("glyphs downgraded: the probe measured ambiguous width 2");
+                _context = Terminal.CreateContext(downgraded, _options.Theme);
+            }
+        }
+
+        private static bool IsExplicitWidth(string name) {
+            string? value = Environment.GetEnvironmentVariable(name);
+            return value == "1" || value == "2";
         }
 
         /// <summary>
@@ -158,7 +192,7 @@ namespace ConsoleMonster.Live {
                     });
                 }
                 if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
-                Attempt(() => _stoppedElapsed = ReadElapsed());
+                Attempt(() => _stoppedElapsed = Scale(ReadElapsed()));
                 _watch.Stop();
                 lock (CurrentGate) { Running.Remove(this); }
                 lock (_lifecycle) {

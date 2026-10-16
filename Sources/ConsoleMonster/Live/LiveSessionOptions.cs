@@ -51,6 +51,13 @@ namespace ConsoleMonster.Live {
         /// <summary>Interval between line-mode summaries; defaults to ten seconds. Zero disables them.</summary>
         public TimeSpan StreamHeartbeat { get; set; } = TimeSpan.FromSeconds(10);
 
+        /// <summary>
+        /// Prefixes each line-mode narration and heartbeat line with the session clock (<c>[mm:ss]</c>, or <c>[h:mm:ss]</c>
+        /// past an hour). Null (the default) enables it when the profile detected a CI environment, where log viewers often
+        /// lack their own per-line timestamps; true or false forces it. Interactive frames are unaffected.
+        /// </summary>
+        public bool? StreamTimestamps { get; set; }
+
         /// <summary>Intercepts the first Ctrl+C for cooperative cancellation; defaults to true.</summary>
         public bool HandleCancelKey { get; set; } = true;
 

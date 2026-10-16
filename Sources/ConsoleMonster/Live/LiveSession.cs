@@ -41,6 +41,8 @@ namespace ConsoleMonster.Live {
         private CellBuffer? _frame;
         private TimeSpan _clockStart;
         private TimeSpan _stoppedElapsed;
+        private double _timelineScale = 1.0; // Replay runs the displayed clock on the recorded timeline.
+        private bool _streamTimestamps;
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
         private int _admission; // Sign bit closes admission; the remaining bits count admitted publications.
         private int _invalidate;
@@ -85,14 +87,38 @@ namespace ConsoleMonster.Live {
         /// <summary>Cancelled by Stop or the first intercepted Ctrl+C.</summary>
         public CancellationToken Cancellation => _cancellation.Token;
 
-        /// <summary>Time since Start, frozen after shutdown.</summary>
+        /// <summary>
+        /// The terminal width probe result for this session ("width probe (cursor report, 12 ms): ..."), the reason it was
+        /// skipped, or null when probing was not applicable (Stream/Plain output, a borrowed output, or explicit width settings).
+        /// </summary>
+        public string? WidthDecision { get; private set; }
+
+        /// <summary>
+        /// Time since Start, frozen after shutdown. During <see cref="Replay"/> it follows the recorded timeline
+        /// (real time multiplied by the replay speed), so the header clock agrees with recorded timestamps.
+        /// </summary>
         public TimeSpan Elapsed {
             get {
                 int state = Volatile.Read(ref _state);
-                if (state == 0) { return TimeSpan.Zero; }
-                if (state == 3) { return _stoppedElapsed; }
-                return ReadElapsed();
+                if (state == 0) {
+                    return TimeSpan.Zero;
+                }
+                if (state == 3) {
+                    return _stoppedElapsed;
+                }
+                return Scale(ReadElapsed());
             }
+        }
+
+        private TimeSpan RealElapsed {
+            get {
+                int state = Volatile.Read(ref _state);
+                return state == 1 || state == 2 ? ReadElapsed() : TimeSpan.Zero;
+            }
+        }
+
+        private TimeSpan Scale(TimeSpan real) {
+            return _timelineScale == 1.0 ? real : TimeSpan.FromTicks((long)(real.Ticks * _timelineScale));
         }
 
         /// <summary>Number of events accepted before shutdown closed admission.</summary>

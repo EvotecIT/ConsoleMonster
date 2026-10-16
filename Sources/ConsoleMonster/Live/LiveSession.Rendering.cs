@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
@@ -12,19 +13,33 @@ namespace ConsoleMonster.Live {
         private void RenderLoop() {
             double period = 1000.0 / _options.FramesPerSecond;
             TimeSpan heartbeat = Elapsed;
+            // Frames are scheduled against absolute deadlines (frame n is due at n x period). Windows wait timeouts round
+            // up to the system timer tick (~15.6 ms), so sleeping "period minus work" every frame drifted to ~12.5 fps at a
+            // 15 fps setting; with deadlines a late wake-up shortens the next wait instead, and the average meets the rate.
+            Stopwatch schedule = Stopwatch.StartNew();
+            long frame = 0;
             try {
                 while (IsRunning) {
-                    Stopwatch tick = Stopwatch.StartNew();
                     // Apply everything queued, bounded by time rather than count: a flood must neither starve rendering
                     // nor cap throughput (a fixed per-tick count capped a 15 fps loop near 60k events/s).
                     Drain(int.MaxValue, Math.Max(20, period * 0.6));
-                    if (_output!.SupportsLiveFrames) { RenderFinal(); }
-                    else if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - heartbeat >= _options.StreamHeartbeat) {
+                    if (_output!.SupportsLiveFrames) {
+                        RenderFinal();
+                    } else if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - heartbeat >= _options.StreamHeartbeat) {
                         Heartbeat();
                         heartbeat = Elapsed;
                     }
-                    int delay = Math.Max(1, (int)Math.Ceiling(period - tick.Elapsed.TotalMilliseconds));
-                    if (_wake.WaitOne(delay)) { break; }
+                    frame++;
+                    double now = schedule.Elapsed.TotalMilliseconds;
+                    double wait = (frame * period) - now;
+                    if (wait < -period) {
+                        // Too far behind (a stall or a slow terminal): resynchronise instead of rendering a burst of frames.
+                        frame = (long)(now / period);
+                        wait = 0;
+                    }
+                    if (_wake.WaitOne(wait >= 1 ? (int)wait : 0)) {
+                        break;
+                    }
                 }
             } catch (Exception ex) {
                 Error(ex);
@@ -70,7 +85,7 @@ namespace ConsoleMonster.Live {
                     string? description = target!.Describe(liveEvent);
                     if (description != null) {
                         lock (_outputGate) {
-                            _output.WriteLine(StyledLine.From(description));
+                            _output.WriteLine(StyledLine.From(Stamp(description)));
                         }
                     }
                 });
@@ -107,8 +122,27 @@ namespace ConsoleMonster.Live {
                 }
             }
             if (lines.Count > 0) {
-                lock (_outputGate) { _output!.WriteLine(StyledLine.From(string.Join(" | ", lines))); }
+                lock (_outputGate) {
+                    _output!.WriteLine(StyledLine.From(Stamp(string.Join(" | ", lines))));
+                }
             }
+        }
+
+        private string Stamp(string line) {
+            if (!_streamTimestamps) {
+                return line;
+            }
+            return "[" + FormatClock(Elapsed) + "] " + line;
+        }
+
+        /// <summary>Formats a session clock value as <c>mm:ss</c>, or <c>h:mm:ss</c> from one hour.</summary>
+        internal static string FormatClock(TimeSpan elapsed) {
+            if (elapsed < TimeSpan.Zero) {
+                elapsed = TimeSpan.Zero;
+            }
+            int hours = (int)elapsed.TotalHours;
+            string minutesSeconds = elapsed.Minutes.ToString("00", CultureInfo.InvariantCulture) + ":" + elapsed.Seconds.ToString("00", CultureInfo.InvariantCulture);
+            return hours > 0 ? hours.ToString(CultureInfo.InvariantCulture) + ":" + minutesSeconds : minutesSeconds;
         }
     }
 }

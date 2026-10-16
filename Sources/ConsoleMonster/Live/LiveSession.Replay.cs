@@ -16,9 +16,12 @@ namespace ConsoleMonster.Live {
             if (jsonLines == null) { throw new ArgumentNullException(nameof(jsonLines)); }
             LiveSessionOptions configuration = options ?? new LiveSessionOptions();
             using (LiveSession session = new LiveSession(root, configuration)) {
+                if (speed > 0) {
+                    session._timelineScale = speed;
+                }
                 session.Start();
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(ct, session.Cancellation)) {
-                    TimeSpan baseline = session.Elapsed;
+                    TimeSpan baseline = session.RealElapsed;
                     TimeSpan requestedDelay = TimeSpan.Zero;
                     foreach (LiveEvent liveEvent in LiveRecordingReader.Read(jsonLines)) {
                         linked.Token.ThrowIfCancellationRequested();
@@ -26,7 +29,7 @@ namespace ConsoleMonster.Live {
                             double milliseconds = Math.Max(0, liveEvent.Time / speed);
                             if (milliseconds > TimeSpan.MaxValue.TotalMilliseconds) { throw new FormatException("Replay time is too large."); }
                             TimeSpan due = TimeSpan.FromMilliseconds(milliseconds);
-                            TimeSpan elapsed = configuration.ReplayDelay == null ? session.Elapsed - baseline : requestedDelay;
+                            TimeSpan elapsed = configuration.ReplayDelay == null ? session.RealElapsed - baseline : requestedDelay;
                             TimeSpan remaining = due - elapsed;
                             if (remaining > TimeSpan.Zero) {
                                 if (configuration.ReplayDelay != null) { configuration.ReplayDelay(remaining, linked.Token); }
