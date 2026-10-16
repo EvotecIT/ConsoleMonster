@@ -61,6 +61,17 @@ namespace ConsoleMonster.Examples {
                     Capabilities.TerminalProfile tableProfile = tableWidth > 0 ? Terminal.Profile.WithSize(tableWidth, Terminal.Profile.Height) : Terminal.Profile;
                     Terminal.Write(TableShowcases.All(), tableProfile);
                     return 0;
+                case "theme":
+                    Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo background);
+                    string themeName = Terminal.Theme is Styling.Theme builtIn ? builtIn.Name : Terminal.Theme.GetType().Name;
+                    Terminal.Write(new Layout.Rows(
+                        new Widgets.KeyValueList()
+                            .Add("Theme", "[bold]" + themeName + "[/]")
+                            .Add("Preference", Terminal.Profile.ThemePreference.ToString())
+                            .Add("Background", Text.Markup.Escape(background.Decision)),
+                        TableShowcases.DomainChecks(),
+                        TableShowcases.TestimoXSummary()) { Gap = 1 });
+                    return 0;
                 case "profile":
                     Console.WriteLine(Terminal.Profile.ToString());
                     foreach (string decision in Terminal.Profile.Decisions) {

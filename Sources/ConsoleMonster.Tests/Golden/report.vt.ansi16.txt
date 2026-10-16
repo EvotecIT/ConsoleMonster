@@ -1,11 +1,11 @@
-\e[0;90m──\e[0m \e[0;1;97mReport\e[0m \e[0;90m──────────────────────────────────────────────────\e[0m
+\e[0;90m──\e[0m \e[0;1mReport\e[0m \e[0;90m──────────────────────────────────────────────────\e[0m
 
 \e[0;90mDomain\e[0m  evotec.xyz\e[0m
 \e[0;90mDNSSEC\e[0m  \e[0;93m▴\e[10G \e[0mnot signed\e[0m
 
-\e[0m \e[0;1;97mRecords\e[0m
+\e[0m \e[0;1mRecords\e[0m
 \e[0;90m╭───────────────────┬──────┬──────┬────────────────────────╮\e[0m
-\e[0;90m│\e[0m \e[0;1;97mName\e[0m              \e[0;90m│\e[0m \e[0;1;97mType\e[0m \e[0;90m│\e[0m  \e[0;1;97mTTL\e[0m \e[0;90m│\e[0m \e[0;1;97mData\e[0m                   \e[0;90m│\e[0m
+\e[0;90m│\e[0m \e[0;1mName\e[0m              \e[0;90m│\e[0m \e[0;1mType\e[0m \e[0;90m│\e[0m  \e[0;1mTTL\e[0m \e[0;90m│\e[0m \e[0;1mData\e[0m                   \e[0;90m│\e[0m
 \e[0;90m├───────────────────┼──────┼──────┼────────────────────────┤\e[0m
 \e[0;90m│\e[0m evotec.xyz        \e[0;90m│\e[0m A    \e[0;90m│\e[0m  300 \e[0;90m│\e[0m 104.21.48.12           \e[0;90m│\e[0m
 \e[0;90m│\e[0m evotec.xyz        \e[0;90m│\e[0m MX   \e[0;90m│\e[0m 3600 \e[0;90m│\e[0m 10                     \e[0;90m│\e[0m
@@ -19,7 +19,7 @@
 \e[0;90m│\e[0m _dmarc.evotec.xyz \e[0;90m│\e[0m TXT  \e[0;90m│\e[0m 3600 \e[0;90m│\e[0m \e[0;92m✓\e[38G p=reject\e[0m             \e[0;90m│\e[0m
 \e[0;90m╰───────────────────┴──────┴──────┴────────────────────────╯\e[0m
 
-\e[0;90m╭─\e[0m \e[0;1;97mTree\e[0m \e[0;90m────────────────────╮\e[0m \e[0;90m╭─\e[0m \e[0;1;97mChecks\e[0m \e[0;90m─────────\e[0m \e[0;90m3 items\e[0m \e[0;90m─╮\e[0m
+\e[0;90m╭─\e[0m \e[0;1mTree\e[0m \e[0;90m────────────────────╮\e[0m \e[0;90m╭─\e[0m \e[0;1mChecks\e[0m \e[0;90m─────────\e[0m \e[0;90m3 items\e[0m \e[0;90m─╮\e[0m
 \e[0;90m│\e[0m root                      \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;92m✓\e[0m\e[34G SPF            \e[0;90m9 lookups\e[0m \e[0;90m│\e[0m
 \e[0;90m│\e[0m \e[0;90m└── \e[0mxyz.  \e[0;90m2 servers\e[0m       \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;93m▴\e[0m\e[34G MTA-STS          \e[0;90mmissing\e[0m \e[0;90m│\e[0m
 \e[0;90m│\e[0m \e[0;90m    ├── \e[0;92m✓\e[0m\e[12G dana.ns.cloudf…\e[28G \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;37m–\e[0m\e[34G BIMI                     \e[0;90m│\e[0m

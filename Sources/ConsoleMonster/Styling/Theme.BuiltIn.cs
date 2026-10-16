@@ -11,6 +11,8 @@ namespace ConsoleMonster.Styling {
         /// <summary>A high-contrast theme: saturated primaries, bold status, white borders.</summary>
         public static Theme HighContrast { get; } = BuildHighContrast();
 
+        // Titles, headers and highlights use the terminal's own foreground (bold), so the dark theme stays readable when
+        // it is used on a light background that could not be detected (for example inside Windows Terminal).
         private static Theme BuildDark() {
             Dictionary<ThemeToken, ThemeStyle> s = new Dictionary<ThemeToken, ThemeStyle> {
                 [ThemeToken.Text] = new ThemeStyle(null),
@@ -26,9 +28,9 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Running] = new ThemeStyle(ThemeColor.Hex("#60a5fa", 12, 75)),
                 [ThemeToken.Pending] = new ThemeStyle(ThemeColor.Hex("#71717a", 8, 243)),
                 [ThemeToken.Border] = new ThemeStyle(ThemeColor.Hex("#4b5060", 8, 240)),
-                [ThemeToken.Title] = new ThemeStyle(ThemeColor.Hex("#e4e4e7", 15, 254), null, TextDecoration.Bold),
-                [ThemeToken.Header] = new ThemeStyle(ThemeColor.Hex("#c7cad1", 15, 252), null, TextDecoration.Bold),
-                [ThemeToken.Highlight] = new ThemeStyle(ThemeColor.Hex("#f4f4f5", 15, 255), null, TextDecoration.Bold),
+                [ThemeToken.Title] = new ThemeStyle(null, null, TextDecoration.Bold),
+                [ThemeToken.Header] = new ThemeStyle(null, null, TextDecoration.Bold),
+                [ThemeToken.Highlight] = new ThemeStyle(null, null, TextDecoration.Bold),
                 [ThemeToken.Surface] = new ThemeStyle(ThemeColor.Hex("#e2e8f0", 15, 254), ThemeColor.Hex("#1f2a3c", 4, 236)),
                 [ThemeToken.SurfaceAccent] = new ThemeStyle(ThemeColor.Hex("#93c5fd", 14, 117), ThemeColor.Hex("#1f2a3c", 4, 236), TextDecoration.Bold),
                 [ThemeToken.Series1] = new ThemeStyle(ThemeColor.Hex("#60a5fa", 12, 75)),

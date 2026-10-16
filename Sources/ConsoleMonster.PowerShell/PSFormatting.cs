@@ -84,7 +84,8 @@ namespace ConsoleMonster.PowerShell {
             if (width > 0) {
                 profile = profile.WithSize(width, profile.Height);
             }
-            Terminal.Write(widget, profile);
+            // A blank line after each block, as Format-Table does, so consecutive outputs stay apart.
+            Terminal.Write(new Rows(widget, new TextBlock(string.Empty)), profile);
         }
 
         private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading) {
