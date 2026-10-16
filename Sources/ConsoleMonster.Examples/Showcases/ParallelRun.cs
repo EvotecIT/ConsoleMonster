@@ -89,9 +89,9 @@ namespace ConsoleMonster.Examples.Showcases {
             Lanes targets = new Lanes { MaxLabelWidth = 28 };
             Dashboard dashboard = new DashboardBuilder("[bold]TestimoX[/]")
                 .Subtitle("ad.evotec.xyz forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
-                .Add(new Padding(phases, 1, 0, 1, 1))
+                .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
                 .Columns(c => c
-                    .Panel("Targets", targets, 2.3, ParallelRunRecording.Workers + " workers")
+                    .Panel("Targets", new Prioritized(targets, 8, 4, 40), 2.3, ParallelRunRecording.Workers + " workers")
                     .Panel("Results", new Rows(results, new Rule(), summary), 1))
                 .Columns(c => c
                     .Panel("Throughput", throughput, 1.2, "rules/s")
@@ -99,8 +99,28 @@ namespace ConsoleMonster.Examples.Showcases {
                     .Panel("Failures by category", findings, 1))
                 .Panel("Log", new LogRegion { PreferredHeight = 6 }, fill: true)
                 .BuildDashboard();
+            // Below 60 x 20 the dashboard shows one status line plus the phases and the lanes that fit.
+            dashboard.MinimumSize = new Size(60, 20);
+            dashboard.CompactSummary = () => CompactSummary(results);
             lanes = targets;
             return dashboard;
+        }
+
+        private static string CompactSummary(StackedBar results) {
+            double done = 0;
+            double failed = 0;
+            double warned = 0;
+            foreach (ChartItem segment in results.Segments) {
+                done += segment.Value;
+                if (segment.Label == "Failed") {
+                    failed = segment.Value;
+                } else if (segment.Label == "Warnings") {
+                    warned = segment.Value;
+                }
+            }
+            return done.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "/" + ParallelRunRecording.TotalRules
+                + " · [fail]✗" + failed.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/] [warn]▴"
+                + warned.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/]";
         }
 
         /// <summary>

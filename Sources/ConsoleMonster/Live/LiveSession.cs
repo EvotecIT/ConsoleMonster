@@ -43,6 +43,13 @@ namespace ConsoleMonster.Live {
         private TimeSpan _stoppedElapsed;
         private double _timelineScale = 1.0; // Replay runs the displayed clock on the recorded timeline.
         private bool _streamTimestamps;
+        private static readonly TimeSpan ResizeSettle = TimeSpan.FromMilliseconds(100);
+        private TimeSpan _lastResizeRender = TimeSpan.FromDays(-1);
+        private int _windowLeft;
+        private int _windowTop;
+        private long _resizes;
+        private long _renderErrors;
+        private Output.ConsoleFontWatcher? _fontWatcher;
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
         private int _admission; // Sign bit closes admission; the remaining bits count admitted publications.
         private int _invalidate;
@@ -86,6 +93,12 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Cancelled by Stop or the first intercepted Ctrl+C.</summary>
         public CancellationToken Cancellation => _cancellation.Token;
+
+        /// <summary>The number of size changes the session redrew for (coalesced: rapid drags count once per redraw).</summary>
+        public long Resizes => Interlocked.Read(ref _resizes);
+
+        /// <summary>Frames where the layout threw and a one-line note was shown instead (the session keeps running).</summary>
+        public long RenderErrors => Interlocked.Read(ref _renderErrors);
 
         /// <summary>
         /// The terminal width probe result for this session ("width probe (cursor report, 12 ms): ..."), the reason it was

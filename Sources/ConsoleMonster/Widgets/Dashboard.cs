@@ -13,7 +13,7 @@ namespace ConsoleMonster.Widgets {
     /// footer bar (hints such as "Ctrl+C to stop"). In print-once output it renders the same parts top to bottom.
     /// Live operations: <c>title</c> (Text), <c>subtitle</c> (Text), <c>status</c> (Text, State), <c>footer</c> (Text).
     /// </summary>
-    public sealed class Dashboard : LiveWidget, IContainer {
+    public sealed partial class Dashboard : LiveWidget, IContainer {
         /// <summary>Creates a dashboard.</summary>
         /// <param name="title">The title (markup).</param>
         /// <param name="body">The body.</param>

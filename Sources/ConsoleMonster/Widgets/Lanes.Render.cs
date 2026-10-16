@@ -36,7 +36,17 @@ namespace ConsoleMonster.Widgets {
             labelWidth = Math.Min(labelWidth, Math.Min(MaxLabelWidth, Math.Max(6, region.Width / 3)));
             CountLayout counts = ResolveCounts(context);
             int percentWidth = _percentColumn.Resolve(4);
-            int fixedWidth = 2 + labelWidth + 2 + 1 + percentWidth + 2 + counts.Width;
+            const int MinimumBar = 4;
+            // Narrow regions drop whole columns, lowest value first: the counts, then the percentage (the bar still shows it).
+            bool showCounts = 2 + labelWidth + 2 + MinimumBar + 1 + percentWidth + 2 + counts.Width <= region.Width;
+            bool showPercent = 2 + labelWidth + 2 + MinimumBar + 1 + percentWidth <= region.Width;
+            if (!showCounts) {
+                counts = CountLayout.Hidden;
+            }
+            if (!showPercent) {
+                percentWidth = 0;
+            }
+            int fixedWidth = 2 + labelWidth + 2 + (percentWidth > 0 ? 1 + percentWidth : 0) + (counts.Width > 0 ? 2 + counts.Width : 0);
             int rest = region.Width - fixedWidth;
             int barWidth;
             int detailWidth;
@@ -123,11 +133,17 @@ namespace ConsoleMonster.Widgets {
             Style fill = lane.IsFinished ? context.Style(ThemeToken.Muted) : context.Style(ThemeToken.Accent);
             BarDrawer.Draw(region, x, y, barWidth, lane.Fraction, fill, context, true, Shape);
             x += barWidth + 1;
-            string percent = lane.Status == StatusKind.Pending ? string.Empty : NumberFormat.Percent(lane.Fraction);
-            StatColumn.Write(region, x, y, percentWidth, percent, muted, PercentColumn.Alignment);
-            x += percentWidth + 2;
-            DrawCounts(region, x, y, lane, counts, context);
-            x += counts.Width + 2;
+            if (percentWidth > 0) {
+                string percent = lane.Status == StatusKind.Pending ? string.Empty : NumberFormat.Percent(lane.Fraction);
+                StatColumn.Write(region, x, y, percentWidth, percent, muted, PercentColumn.Alignment);
+                x += percentWidth + 2;
+            } else {
+                x += 1;
+            }
+            if (counts.Width > 0) {
+                DrawCounts(region, x, y, lane, counts, context);
+                x += counts.Width + 2;
+            }
             if (detailWidth > 0) {
                 string detail;
                 if (lane.IsFinished) {
@@ -228,6 +244,8 @@ namespace ConsoleMonster.Widgets {
 
             internal int WarnWidth { get; }
 
-            internal int Width => PassWidth + 1 + FailWidth + 1 + WarnWidth;
+            internal int Width => PassWidth == 0 ? 0 : PassWidth + 1 + FailWidth + 1 + WarnWidth;
+
+            internal static CountLayout Hidden => new CountLayout(string.Empty, 0, string.Empty, 0, string.Empty, 0);
         }    }
 }

@@ -73,6 +73,11 @@ namespace ConsoleMonster.Live {
         /// <summary>Optional monotonic time source, sampled relative to its value at Start.</summary>
         public Func<TimeSpan>? Clock { get; set; }
 
+        /// <summary>
+        /// Test hook: returns the window as { left, top, width, height } (or null for unknown) instead of reading the console.
+        /// </summary>
+        internal Func<int[]?>? WindowSource { get; set; }
+
         /// <summary>Optional replay delay implementation; receives the scaled interval and cancellation token.</summary>
         public Action<TimeSpan, CancellationToken>? ReplayDelay { get; set; }
     }

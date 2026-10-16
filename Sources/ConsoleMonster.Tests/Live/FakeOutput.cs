@@ -28,8 +28,11 @@ namespace ConsoleMonster.Tests.Live {
 
         public void BeginLive() { Calls.Enqueue("begin"); Beginning?.Invoke(); }
 
+        internal int LastFrameWidth;
+
         public void RenderFrame(CellBuffer frame) {
             Interlocked.Increment(ref Frames);
+            LastFrameWidth = frame.Width;
             Calls.Enqueue("frame");
             Frame?.Invoke();
         }

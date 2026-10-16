@@ -46,6 +46,10 @@ namespace ConsoleMonster.Live {
                         }
                         _output.BeginLive();
                         ApplyWidthProbe(profile);
+                        if (profile.Kind == TerminalKind.Conhost && _options.Output == null && _output is VtOutput) {
+                            _fontWatcher = new ConsoleFontWatcher();
+                            _fontWatcher.CheckChanged(out _, out _);
+                        }
                         lock (CurrentGate) { Running.Add(this); }
                         _thread = new Thread(RenderLoop) { IsBackground = true, Name = "ConsoleMonster render" };
                         _thread.Start();

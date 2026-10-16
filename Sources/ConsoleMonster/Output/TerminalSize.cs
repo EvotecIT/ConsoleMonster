@@ -35,6 +35,30 @@ namespace ConsoleMonster.Output {
             return false;
         }
 
+        /// <summary>
+        /// Reads the visible window's position in the screen buffer and its size. On Windows consoles the position changes
+        /// when the user scrolls the window; elsewhere it is always (0, 0).
+        /// </summary>
+        /// <param name="left">The window's left column in the buffer.</param>
+        /// <param name="top">The window's top row in the buffer.</param>
+        /// <param name="width">The window width in cells.</param>
+        /// <param name="height">The window height in cells.</param>
+        /// <returns>True when the window could be read.</returns>
+        public static bool TryGetWindow(out int left, out int top, out int width, out int height) {
+            left = 0;
+            top = 0;
+            try {
+                if (!Console.IsOutputRedirected && WindowsConsole.IsWindows && WindowsConsole.TryGetWindow(WindowsConsole.StandardOutput, out left, out top, out width, out height)) {
+                    return true;
+                }
+            } catch (Exception) {
+                // Best effort.
+            }
+            left = 0;
+            top = 0;
+            return TryGet(out width, out height);
+        }
+
         internal static bool TryComputeWindowSize(int left, int top, int right, int bottom, out int width, out int height) {
             return ConsoleRectangle.TryComputeSize(left, top, right, bottom, out width, out height);
         }

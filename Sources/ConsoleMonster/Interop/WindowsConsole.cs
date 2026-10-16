@@ -49,6 +49,21 @@ namespace ConsoleMonster.Interop {
             return true;
         }
 
+        internal static bool TryGetWindow(IntPtr handle, out int left, out int top, out int width, out int height) {
+            left = 0;
+            top = 0;
+            width = 0;
+            height = 0;
+            if (!IsWindows || !GetConsoleScreenBufferInfo(handle, out ConsoleBufferInfo info)) {
+                return false;
+            }
+            left = info.Window.Left;
+            top = info.Window.Top;
+            width = info.Window.Right - info.Window.Left + 1;
+            height = info.Window.Bottom - info.Window.Top + 1;
+            return width > 0 && height > 0;
+        }
+
         internal static bool TryGetFont(IntPtr handle, out string? face, out bool raster) {
             return TryGetFont(handle, out face, out raster, out _);
         }

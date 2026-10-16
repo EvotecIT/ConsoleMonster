@@ -25,6 +25,11 @@ namespace ConsoleMonster.Rendering {
             } else {
                 buffer.Clear();
             }
+            if (root is ICompactWidget compact && (width < compact.MinimumSize.Width || height < compact.MinimumSize.Height)) {
+                // Too small for the full layout: a compact form instead of a squeezed, unreadable one.
+                compact.RenderCompact(new Region(buffer), context);
+                return buffer;
+            }
             root.Render(new Region(buffer), context);
             return buffer;
         }
