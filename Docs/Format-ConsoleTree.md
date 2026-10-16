@@ -13,7 +13,7 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <string>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
+Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <string>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -129,6 +129,22 @@ Accept wildcard characters: False
 
 ### -MaxItems
 The most items listed per collection before "+N more" (default 25).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxNodes
+The most nodes one object may expand into (default 5000); beyond it a "node limit reached" marker ends the expansion. Wide objects grow as members to the power of -Depth.
 
 ```yaml
 Type: Int32
