@@ -31,8 +31,19 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether values are shown after the bars (default true).</summary>
         public bool ShowValues { get; set; } = true;
 
-        /// <summary>The bar shape (default <see cref="BarShape.Line"/>, which keeps rows visually separate).</summary>
-        public BarShape Shape { get; set; } = BarShape.Line;
+        /// <summary>The bar shape: <see cref="BarShape.Block"/> (default, solid bars with eighth-block ends) or <see cref="BarShape.Line"/>.</summary>
+        public BarShape Shape { get; set; } = BarShape.Block;
+
+        /// <summary>
+        /// Layout of the value column on the right (default right-aligned). Its width never shrinks during a session, so
+        /// the bars keep their scale when a value grows from 9 to 10.
+        /// </summary>
+        public ColumnFormat ValueColumn {
+            get => _valueColumn.Format;
+            set => _valueColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _valueColumn = new StatColumn(new ColumnFormat());
 
         /// <summary>A unit appended to values (for example <c>ms</c>).</summary>
         public string? Unit { get; set; }
@@ -90,6 +101,9 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             labelWidth = Math.Min(labelWidth, Math.Max(4, region.Width / 3));
+            if (ShowValues) {
+                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), Max.HasValue ? DisplayWidth.Measure(FormatValue(Max.Value)) : 0);
+            }
             int barX = labelWidth + 1;
             int barWidth = region.Width - barX - (ShowValues ? valueWidth + 1 : 0);
             Style muted = context.Style(ThemeToken.Muted);
@@ -98,8 +112,7 @@ namespace ConsoleMonster.Widgets {
                 region.Write(0, i, TextWrapper.Truncate(item.Label, labelWidth, context.Ellipsis), context.Style(ThemeToken.Text));
                 BarDrawer.Draw(region, barX, i, barWidth, max <= 0 ? 0 : item.Value / max, context.Style(item.Token ?? BarToken), context, false, Shape);
                 if (ShowValues) {
-                    string value = FormatValue(item.Value);
-                    region.Write(region.Width - DisplayWidth.Measure(value), i, value, muted);
+                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value), muted, ValueColumn.Alignment);
                 }
             }
         }

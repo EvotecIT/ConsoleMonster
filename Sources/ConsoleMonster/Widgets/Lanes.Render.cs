@@ -34,11 +34,9 @@ namespace ConsoleMonster.Widgets {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(lane.Label));
             }
             labelWidth = Math.Min(labelWidth, Math.Min(MaxLabelWidth, Math.Max(6, region.Width / 3)));
-            int countsWidth = 0;
-            foreach (Lane lane in visible) {
-                countsWidth = Math.Max(countsWidth, CountsWidth(lane, context));
-            }
-            int fixedWidth = 2 + labelWidth + 2 + 5 + 2 + countsWidth;
+            CountLayout counts = ResolveCounts(context);
+            int percentWidth = _percentColumn.Resolve(4);
+            int fixedWidth = 2 + labelWidth + 2 + 1 + percentWidth + 2 + counts.Width;
             int rest = region.Width - fixedWidth;
             int barWidth;
             int detailWidth;
@@ -51,7 +49,7 @@ namespace ConsoleMonster.Widgets {
             }
 
             for (int i = 0; i < visible.Count; i++) {
-                DrawLane(region, i, visible[i], labelWidth, barWidth, countsWidth, detailWidth, context);
+                DrawLane(region, i, visible[i], labelWidth, barWidth, percentWidth, counts, detailWidth, context);
             }
             if (hidden > 0) {
                 int done = 0;
@@ -105,7 +103,7 @@ namespace ConsoleMonster.Widgets {
             return chosen;
         }
 
-        private void DrawLane(Region region, int y, Lane lane, int labelWidth, int barWidth, int countsWidth, int detailWidth, RenderContext context) {
+        private void DrawLane(Region region, int y, Lane lane, int labelWidth, int barWidth, int percentWidth, CountLayout counts, int detailWidth, RenderContext context) {
             IGlyphSet glyphs = context.Glyphs;
             Style muted = context.Style(ThemeToken.Muted);
             string marker;
@@ -123,13 +121,13 @@ namespace ConsoleMonster.Widgets {
 
             int x = 2 + labelWidth + 2;
             Style fill = lane.IsFinished ? context.Style(ThemeToken.Muted) : context.Style(ThemeToken.Accent);
-            BarDrawer.Draw(region, x, y, barWidth, lane.Fraction, fill, context, true, BarShape.Line);
+            BarDrawer.Draw(region, x, y, barWidth, lane.Fraction, fill, context, true, Shape);
             x += barWidth + 1;
             string percent = lane.Status == StatusKind.Pending ? string.Empty : NumberFormat.Percent(lane.Fraction);
-            region.Write(x + (4 - DisplayWidth.Measure(percent)), y, percent, muted);
-            x += 4 + 2;
-            DrawCounts(region, x, y, lane, context);
-            x += countsWidth + 2;
+            StatColumn.Write(region, x, y, percentWidth, percent, muted, PercentColumn.Alignment);
+            x += percentWidth + 2;
+            DrawCounts(region, x, y, lane, counts, context);
+            x += counts.Width + 2;
             if (detailWidth > 0) {
                 string detail;
                 if (lane.IsFinished) {
@@ -159,27 +157,77 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static int CountsWidth(Lane lane, RenderContext context) {
-            if (lane.Status == StatusKind.Pending && lane.Done == 0) {
-                return 0;
-            }
+        private CountLayout ResolveCounts(RenderContext context) {
             IGlyphSet g = context.Glyphs;
             bool ascii = g.Tier == GlyphTier.Ascii;
-            return DisplayWidth.Measure((ascii ? "P" : g.Get(Glyph.Check)) + lane.Passed.ToString(CultureInfo.InvariantCulture))
-                + 1 + DisplayWidth.Measure((ascii ? "F" : g.Get(Glyph.Cross)) + lane.Failed.ToString(CultureInfo.InvariantCulture))
-                + 1 + DisplayWidth.Measure((ascii ? "W" : g.Get(Glyph.Warning)) + lane.Warned.ToString(CultureInfo.InvariantCulture));
+            string pass = ascii ? "P" : g.Get(Glyph.Check);
+            string fail = ascii ? "F" : g.Get(Glyph.Cross);
+            string warn = ascii ? "W" : g.Get(Glyph.Warning);
+            int passed = 0;
+            int failed = 0;
+            int warned = 0;
+            double total = 0;
+            foreach (Lane lane in _lanes) {
+                passed = Math.Max(passed, lane.Passed);
+                failed = Math.Max(failed, lane.Failed);
+                warned = Math.Max(warned, lane.Warned);
+                total = Math.Max(total, lane.Total);
+            }
+            // A lane can never count more steps than its total, so a known total reserves every column from the first frame.
+            int totalDigits = total > 0 ? Digits((int)Math.Min(int.MaxValue, Math.Ceiling(total))) : 0;
+            return new CountLayout(
+                pass, Resolve(_passColumn, pass, passed, totalDigits),
+                fail, Resolve(_failColumn, fail, failed, totalDigits),
+                warn, Resolve(_warnColumn, warn, warned, totalDigits));
         }
 
-        private static void DrawCounts(Region region, int x, int y, Lane lane, RenderContext context) {
+        private static int Resolve(StatColumn column, string symbol, int widest, int totalDigits) {
+            int symbolWidth = DisplayWidth.Measure(symbol);
+            return column.Resolve(symbolWidth + Digits(widest), symbolWidth, totalDigits > 0 ? symbolWidth + totalDigits : 0);
+        }
+
+        private static int Digits(int value) => value.ToString(CultureInfo.InvariantCulture).Length;
+
+        private void DrawCounts(Region region, int x, int y, Lane lane, CountLayout counts, RenderContext context) {
             if (lane.Status == StatusKind.Pending && lane.Done == 0) {
                 return;
             }
-            IGlyphSet g = context.Glyphs;
-            bool ascii = g.Tier == GlyphTier.Ascii;
             Style muted = context.Style(ThemeToken.Muted);
-            x = region.Write(x, y, (ascii ? "P" : g.Get(Glyph.Check)) + lane.Passed.ToString(CultureInfo.InvariantCulture), muted) + 1;
-            x = region.Write(x, y, (ascii ? "F" : g.Get(Glyph.Cross)) + lane.Failed.ToString(CultureInfo.InvariantCulture), lane.Failed > 0 ? context.Style(ThemeToken.Fail) : muted) + 1;
-            region.Write(x, y, (ascii ? "W" : g.Get(Glyph.Warning)) + lane.Warned.ToString(CultureInfo.InvariantCulture), lane.Warned > 0 ? context.Style(ThemeToken.Warn) : muted);
+            x = DrawCount(region, x, y, counts.PassSymbol, counts.PassWidth, lane.Passed, muted, muted);
+            x = DrawCount(region, x + 1, y, counts.FailSymbol, counts.FailWidth, lane.Failed, lane.Failed > 0 ? context.Style(ThemeToken.Fail) : muted, muted);
+            DrawCount(region, x + 1, y, counts.WarnSymbol, counts.WarnWidth, lane.Warned, lane.Warned > 0 ? context.Style(ThemeToken.Warn) : muted, muted);
         }
-    }
+
+        private int DrawCount(Region region, int x, int y, string symbol, int width, int value, Style style, Style muted) {
+            int symbolWidth = DisplayWidth.Measure(symbol);
+            region.Write(x, y, symbol, style, width);
+            StatColumn.Write(region, x + symbolWidth, y, width - symbolWidth, value.ToString(CultureInfo.InvariantCulture), style, CountColumn.Alignment);
+            return x + width;
+        }
+
+        /// <summary>The resolved count columns for one frame: symbol and total width per column.</summary>
+        private readonly struct CountLayout {
+            internal CountLayout(string passSymbol, int passWidth, string failSymbol, int failWidth, string warnSymbol, int warnWidth) {
+                PassSymbol = passSymbol;
+                PassWidth = passWidth;
+                FailSymbol = failSymbol;
+                FailWidth = failWidth;
+                WarnSymbol = warnSymbol;
+                WarnWidth = warnWidth;
+            }
+
+            internal string PassSymbol { get; }
+
+            internal int PassWidth { get; }
+
+            internal string FailSymbol { get; }
+
+            internal int FailWidth { get; }
+
+            internal string WarnSymbol { get; }
+
+            internal int WarnWidth { get; }
+
+            internal int Width => PassWidth + 1 + FailWidth + 1 + WarnWidth;
+        }    }
 }

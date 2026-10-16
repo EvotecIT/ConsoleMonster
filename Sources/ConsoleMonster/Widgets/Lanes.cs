@@ -32,8 +32,37 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The widest label column (default 28).</summary>
         public int MaxLabelWidth { get; set; } = 28;
 
+        /// <summary>The bar shape: <see cref="BarShape.Line"/> (default, thin strokes that keep rows apart) or <see cref="BarShape.Block"/>.</summary>
+        public BarShape Shape { get; set; } = BarShape.Line;
+
         /// <summary>Whether the detail column is shown (default true).</summary>
         public bool ShowDetail { get; set; } = true;
+
+        /// <summary>
+        /// Layout of the pass, fail and warning count columns. Each count is its own column across all rows: the symbol
+        /// stays put and the number is right-aligned. Digits are reserved from the largest lane total (when totals are
+        /// known) and from the largest count displayed so far, so columns never move during a run.
+        /// </summary>
+        public ColumnFormat CountColumn {
+            get => _passColumn.Format;
+            set {
+                ColumnFormat format = value ?? throw new ArgumentNullException(nameof(value));
+                _passColumn.Format = format;
+                _failColumn.Format = format;
+                _warnColumn.Format = format;
+            }
+        }
+
+        /// <summary>Layout of the percentage column (default right-aligned, four cells for "100%").</summary>
+        public ColumnFormat PercentColumn {
+            get => _percentColumn.Format;
+            set => _percentColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _passColumn = new StatColumn(new ColumnFormat());
+        private readonly StatColumn _failColumn = new StatColumn(new ColumnFormat());
+        private readonly StatColumn _warnColumn = new StatColumn(new ColumnFormat());
+        private readonly StatColumn _percentColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Right, 4));
 
         /// <summary>Adds a lane or updates its label and total.</summary>
         /// <param name="key">Unique key.</param>

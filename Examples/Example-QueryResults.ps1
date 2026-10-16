@@ -21,7 +21,7 @@ $records = @(
     [pscustomobject] @{ Name = 'evotec.xyz'; Type = 'TXT'; TTL = 3600; Data = 'v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all' }
     [pscustomobject] @{ Name = '_dmarc.evotec.xyz'; Type = 'TXT'; TTL = 3600; Data = 'v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; fo=1' }
 )
-$records | Write-ConsoleTable -Expand
+$records | Write-ConsoleTable -Expand -NoHeaderSeparator
 
 $delegation = New-ConsoleTree -Title '. (root)' -Data ([ordered] @{
         'xyz.' = [ordered] @{

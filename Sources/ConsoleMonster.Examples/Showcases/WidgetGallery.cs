@@ -49,6 +49,8 @@ namespace ConsoleMonster.Examples.Showcases {
             Sparkline spark = new Sparkline("s1") { Label = "rules/s", Unit = "/s" };
             Sparkline area = new Sparkline("s2") { Height = 3, Unit = "/s" };
             LineChart chart = new LineChart { Height = 7 };
+            chart.AddSeries("completed", ThemeToken.Accent);
+            chart.AddSeries("failed", ThemeToken.Fail);
             Histogram histogram = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8, 16 }) { Height = 5, Unit = "s" };
             for (int i = 0; i < 120; i++) {
                 double value = 18 + (8 * Math.Sin(i / 9.0)) + (random.NextDouble() * 6);
@@ -59,7 +61,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 histogram.Add(Math.Exp((random.NextDouble() * 4) - 2.2));
             }
 
-            BarChart categories = new BarChart("categories")
+            BarChart categories = new BarChart("categories") { BarToken = ThemeToken.Fail }
                 .Add("Domain controllers", 14)
                 .Add("Group Policy", 9)
                 .Add("Kerberos", 6)
@@ -73,6 +75,18 @@ namespace ConsoleMonster.Examples.Showcases {
             log.Write("Collected 186 rule inputs from DC01", "info", TimeSpan.FromSeconds(52));
             log.Write("Using cached schema snapshot", "verbose", TimeSpan.FromSeconds(53));
 
+            Spinner resolving = new Spinner("Resolving DNS records", "spin1") { Detail = "zone 4 of 9" };
+            Spinner synced = new Spinner("Schema snapshot", "spin2") { Status = StatusKind.Pass, Detail = "cached" };
+            Sparkline badgeBase = new Sparkline("s3") { Height = 2 };
+            for (int i = 0; i < 40; i++) {
+                badgeBase.Add(10 + (6 * Math.Sin(i / 4.0)));
+            }
+            Stack overlay = new Stack(badgeBase, new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right));
+            Columns containers = new Columns(
+                new Panel(new Rows(resolving, synced), "Spinner"),
+                new Panel(new Align(new TextBlock("[muted]centred with Align[/]")), "Align"),
+                new Panel(overlay, "Stack") { Caption = "badge over a chart" });
+
             Columns charts = new Columns(
                 new Panel(new Rows(spark, area) { Gap = 1 }, "Sparkline"),
                 new Panel(chart, "Line chart") { Caption = "braille" },
@@ -85,6 +99,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 new Panel(phases, "Phases"),
                 new Columns(new Panel(results, "Stacked bar"), new Panel(categories, "Bar chart") { Caption = "failures" }),
                 charts,
+                containers,
                 new Panel(log, "Log region")) { Gap = 0 };
         }
     }

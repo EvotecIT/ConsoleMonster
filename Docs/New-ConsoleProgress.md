@@ -13,7 +13,7 @@ Shows a bar with sub-cell precision for the glyph tier, the percentage and value
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleProgress [[-Label] <string>] [-Value <double>] [-Total <double>] [-Name <string>] [<CommonParameters>]
+New-ConsoleProgress [[-Label] <string>] [-Value <double>] [-Total <double>] [-Name <string>] [-Shape <BarShape>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +55,22 @@ Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shape
+Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.
+
+```yaml
+Type: BarShape
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Block, Line
 
 Required: False
 Position: named

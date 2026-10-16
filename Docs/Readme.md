@@ -20,6 +20,11 @@ Shows what ConsoleMonster detected about the current terminal.
 
 Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
 
+### [New-ConsoleAlign](New-ConsoleAlign.md)
+Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.
+
+The content keeps its measured size and is placed within the space the parent gives it. Horizontal alignment uses the full width; vertical alignment applies when the parent gives more rows than the content needs (-Height or -Fill). Widgets that already use the full width, such as progress bars, only move vertically.
+
 ### [New-ConsoleBarChart](New-ConsoleBarChart.md)
 Creates a horizontal bar chart, or a stacked bar with -Stacked.
 
@@ -100,6 +105,16 @@ Creates a sparkline: a compact trend of recent values.
 
 One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Append values live with Add-ConsoleValue.
 
+### [New-ConsoleSpinner](New-ConsoleSpinner.md)
+Creates a spinner: a one-line activity indicator for work without a known total.
+
+While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) and shows the label, a muted detail and the elapsed time. Once finished it shows the status marker in the status colour and the final duration. Update it live with Update-ConsoleSpinner.
+
+### [New-ConsoleStack](New-ConsoleStack.md)
+Layers console widgets on top of each other in the same space.
+
+Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
+
 ### [New-ConsoleStatusList](New-ConsoleStatusList.md)
 Creates a checklist of items with status markers.
 
@@ -159,6 +174,11 @@ Set -Status Running when a phase starts; its duration is measured until it gets 
 Updates a progress bar in a running dashboard.
 
 -Value sets the value, -Increment adds to it, -Label renames the bar and -Status sets a final state that recolours it.
+
+### [Update-ConsoleSpinner](Update-ConsoleSpinner.md)
+Updates a spinner in a running dashboard.
+
+-Label renames it, -Detail changes the muted detail, -Restart restarts its clock and returns it to running, and -Status sets a final state that replaces the animation with the status marker.
 
 ### [Update-ConsoleStatus](Update-ConsoleStatus.md)
 Updates an item of a status list in a running dashboard.

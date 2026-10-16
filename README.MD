@@ -27,9 +27,9 @@ Each layer can be used without the ones above it.
 | L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE` and `NO_COLOR` overrides; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
 | L1 Text and style | Display-width measurement (Unicode 17), Spectre-compatible markup (`[bold red]text[/]`, `[pass]`), semantic themes mapped to 24-bit, 256 and 16 colours, glyph sets (Full, Basic, ASCII). |
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
-| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding; text, rule, table, tree, key/value, status list, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard. |
+| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; text, rule, table, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard. |
 | L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 38 thin PowerShell cmdlets with a plain `Console` noun. |
+| L5 Surfaces | The C# object model and a fluent builder; 42 thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.

@@ -97,11 +97,27 @@ namespace ConsoleMonster.Widgets {
             return new Size(Math.Min(width, constraints.MaxWidth), height);
         }
 
+        /// <summary>
+        /// Layout of the detail column on the right (default right-aligned). All rows share its width, which never shrinks
+        /// during a session, so labels keep their room as details change.
+        /// </summary>
+        public ColumnFormat DetailColumn {
+            get => _detailColumn.Format;
+            set => _detailColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _detailColumn = new StatColumn(new ColumnFormat());
+
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             int markerWidth = 0;
+            int detailColumn = 0;
             foreach (StatusItem item in _items) {
                 markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(context.Glyphs.StatusMarker(item.Status)));
+                detailColumn = Math.Max(detailColumn, string.IsNullOrEmpty(item.Detail) ? 0 : DisplayWidth.Measure(item.Detail));
+            }
+            if (detailColumn > 0) {
+                detailColumn = Math.Min(_detailColumn.Resolve(detailColumn), Math.Max(0, region.Width / 2));
             }
             Style muted = context.Style(ThemeToken.Muted);
             for (int i = 0; i < _items.Count && i < region.Height; i++) {
@@ -110,13 +126,12 @@ namespace ConsoleMonster.Widgets {
                     ? context.Glyphs.SpinnerFrames[(int)(context.Tick % context.Glyphs.SpinnerFrames.Count)]
                     : context.Glyphs.StatusMarker(item.Status);
                 region.Write(0, i, marker, context.Style(item.Status));
-                int detailWidth = string.IsNullOrEmpty(item.Detail) ? 0 : DisplayWidth.Measure(item.Detail);
                 int labelX = markerWidth + 1;
-                int labelWidth = Math.Max(0, region.Width - labelX - (detailWidth > 0 ? detailWidth + 2 : 0));
+                int labelWidth = Math.Max(0, region.Width - labelX - (detailColumn > 0 ? detailColumn + 2 : 0));
                 StyledLine label = TextWrapper.Truncate(context.Markup(item.Label).Lines[0], labelWidth, context.Ellipsis);
                 region.Write(labelX, i, label);
-                if (detailWidth > 0 && detailWidth < region.Width - labelX) {
-                    region.Write(region.Width - detailWidth, i, item.Detail!, muted);
+                if (detailColumn > 0 && !string.IsNullOrEmpty(item.Detail)) {
+                    StatColumn.Write(region, region.Width - detailColumn, i, detailColumn, item.Detail!, muted, DetailColumn.Alignment);
                 }
             }
         }

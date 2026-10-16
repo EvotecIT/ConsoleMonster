@@ -218,6 +218,245 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleAlign</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleAlign</command:noun>
+      <maml:description>
+        <maml:para>Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.</maml:para>
+        <maml:para>The content keeps its measured size and is placed within the space the parent gives it. Horizontal alignment uses the full width; vertical alignment applies when the parent gives more rows than the content needs (-Height or -Fill). Widgets that already use the full width, such as progress bars, only move vertically.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.</maml:para>
+      <maml:para>The content keeps its measured size and is placed within the space the parent gives it. Horizontal alignment uses the full width; vertical alignment applies when the parent gives more rows than the content needs (-Height or -Fill). Widgets that already use the full width, such as progress bars, only move vertically.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleAlign</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>Scriptblock that emits the content (several widgets are stacked vertically).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fill</maml:name>
+          <maml:description>
+            <maml:para>Take the remaining height of a live dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Fixed height in rows.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Horizontal</maml:name>
+          <maml:description>
+            <maml:para>Horizontal placement: Left, Center (default) or Right.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">HorizontalAlignment</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Left</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Center</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Right</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>HorizontalAlignment</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Vertical</maml:name>
+          <maml:description>
+            <maml:para>Vertical placement: Top (default), Middle or Bottom.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">VerticalAlignment</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Top</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Middle</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Bottom</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>VerticalAlignment</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Weight</maml:name>
+          <maml:description>
+            <maml:para>Share of the width (in columns) or height (in a live dashboard) this widget takes.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>Widget</maml:name>
+          <maml:description>
+            <maml:para>A widget to align instead of a scriptblock.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IWidget</command:parameterValue>
+          <dev:type>
+            <maml:name>IWidget</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>Scriptblock that emits the content (several widgets are stacked vertically).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fill</maml:name>
+        <maml:description>
+          <maml:para>Take the remaining height of a live dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Fixed height in rows.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Horizontal</maml:name>
+        <maml:description>
+          <maml:para>Horizontal placement: Left, Center (default) or Right.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">HorizontalAlignment</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Left</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Center</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Right</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>HorizontalAlignment</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Vertical</maml:name>
+        <maml:description>
+          <maml:para>Vertical placement: Top (default), Middle or Bottom.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">VerticalAlignment</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Top</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Middle</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Bottom</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>VerticalAlignment</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Weight</maml:name>
+        <maml:description>
+          <maml:para>Share of the width (in columns) or height (in a live dashboard) this widget takes.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>Widget</maml:name>
+        <maml:description>
+          <maml:para>A widget to align instead of a scriptblock.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IWidget</command:parameterValue>
+        <dev:type>
+          <maml:name>IWidget</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>ConsoleMonster.Layout.IWidget</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Layout.IWidget</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleAlign -Content { }</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleBarChart</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleBarChart</command:noun>
@@ -253,6 +492,22 @@
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shape</maml:name>
+          <maml:description>
+            <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Block.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>BarShape</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -304,6 +559,22 @@
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Shape</maml:name>
+        <maml:description>
+          <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Block.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>BarShape</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -1145,6 +1416,22 @@
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shape</maml:name>
+          <maml:description>
+            <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>BarShape</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Total</maml:name>
           <maml:description>
             <maml:para>Planned steps per declared lane.</maml:para>
@@ -1179,6 +1466,22 @@
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Shape</maml:name>
+        <maml:description>
+          <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>BarShape</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -2149,6 +2452,22 @@
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shape</maml:name>
+          <maml:description>
+            <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>BarShape</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Total</maml:name>
           <maml:description>
             <maml:para>The total (default 100).</maml:para>
@@ -2195,6 +2514,22 @@
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Shape</maml:name>
+        <maml:description>
+          <maml:para>Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Block</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>BarShape</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -2683,6 +3018,366 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleSpinner</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleSpinner</command:noun>
+      <maml:description>
+        <maml:para>Creates a spinner: a one-line activity indicator for work without a known total.</maml:para>
+        <maml:para>While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) and shows the label, a muted detail and the elapsed time. Once finished it shows the status marker in the status colour and the final duration. Update it live with Update-ConsoleSpinner.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a spinner: a one-line activity indicator for work without a known total.</maml:para>
+      <maml:para>While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) and shows the label, a muted detail and the elapsed time. Once finished it shows the status marker in the status colour and the final duration. Update it live with Update-ConsoleSpinner.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleSpinner</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Detail</maml:name>
+          <maml:description>
+            <maml:para>Muted detail after the label, for example the current item.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>The label (markup allowed).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The live name (default spinner).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoElapsed</maml:name>
+          <maml:description>
+            <maml:para>Hide the elapsed time.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>The initial status (default Running).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Detail</maml:name>
+        <maml:description>
+          <maml:para>Muted detail after the label, for example the current item.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>The label (markup allowed).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The live name (default spinner).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoElapsed</maml:name>
+        <maml:description>
+          <maml:para>Hide the elapsed time.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>The initial status (default Running).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.Spinner</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleSpinner -Name 'Name'</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleStack</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleStack</command:noun>
+      <maml:description>
+        <maml:para>Layers console widgets on top of each other in the same space.</maml:para>
+        <maml:para>Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Layers console widgets on top of each other in the same space.</maml:para>
+      <maml:para>Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleAlign to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleStack</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>Scriptblock that emits the layers, bottom first.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fill</maml:name>
+          <maml:description>
+            <maml:para>Take the remaining height of a live dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Fixed height in rows.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Weight</maml:name>
+          <maml:description>
+            <maml:para>Share of the width (in columns) or height (in a live dashboard) this widget takes.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>Widget</maml:name>
+          <maml:description>
+            <maml:para>Layers to use instead of, or after, the scriptblock output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IWidget[]</command:parameterValue>
+          <dev:type>
+            <maml:name>IWidget[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>Scriptblock that emits the layers, bottom first.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fill</maml:name>
+        <maml:description>
+          <maml:para>Take the remaining height of a live dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Fixed height in rows.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Weight</maml:name>
+        <maml:description>
+          <maml:para>Share of the width (in columns) or height (in a live dashboard) this widget takes.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>Widget</maml:name>
+        <maml:description>
+          <maml:para>Layers to use instead of, or after, the scriptblock output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IWidget[]</command:parameterValue>
+        <dev:type>
+          <maml:name>IWidget[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>ConsoleMonster.Layout.IWidget[]</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Layout.IWidget</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleStack -Content { }</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleStatusList</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleStatusList</command:noun>
@@ -2876,6 +3571,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoHeaderSeparator</maml:name>
+          <maml:description>
+            <maml:para>Underline the header instead of drawing a separator row under it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Property</maml:name>
           <maml:description>
@@ -2966,6 +3673,18 @@
         <command:parameterValue required="false" variableLength="false">PSObject[]</command:parameterValue>
         <dev:type>
           <maml:name>PSObject[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoHeaderSeparator</maml:name>
+        <maml:description>
+          <maml:para>Underline the header instead of drawing a separator row under it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -4941,6 +5660,213 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Update-ConsoleSpinner</command:name>
+      <command:verb>Update</command:verb>
+      <command:noun>ConsoleSpinner</command:noun>
+      <maml:description>
+        <maml:para>Updates a spinner in a running dashboard.</maml:para>
+        <maml:para>-Label renames it, -Detail changes the muted detail, -Restart restarts its clock and returns it to running, and -Status sets a final state that replaces the animation with the status marker.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Updates a spinner in a running dashboard.</maml:para>
+      <maml:para>-Label renames it, -Detail changes the muted detail, -Restart restarts its clock and returns it to running, and -Status sets a final state that replaces the animation with the status marker.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Update-ConsoleSpinner</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Detail</maml:name>
+          <maml:description>
+            <maml:para>A new detail.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>A new label.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The spinner name (default spinner).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Restart</maml:name>
+          <maml:description>
+            <maml:para>Restart the clock and return to running.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>A final status (Pass, Fail, Warn, Skip).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Detail</maml:name>
+        <maml:description>
+          <maml:para>A new detail.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>A new label.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The spinner name (default spinner).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Restart</maml:name>
+        <maml:description>
+          <maml:para>Restart the clock and return to running.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>A final status (Pass, Fail, Warn, Skip).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Update-ConsoleSpinner -Name 'Name'</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Update-ConsoleStatus</command:name>
       <command:verb>Update</command:verb>
       <command:noun>ConsoleStatus</command:noun>
@@ -5654,6 +6580,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoHeaderSeparator</maml:name>
+          <maml:description>
+            <maml:para>Underline the header instead of drawing a separator row under it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Property</maml:name>
           <maml:description>
@@ -5744,6 +6682,18 @@
         <command:parameterValue required="false" variableLength="false">PSObject[]</command:parameterValue>
         <dev:type>
           <maml:name>PSObject[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoHeaderSeparator</maml:name>
+        <maml:description>
+          <maml:para>Underline the header instead of drawing a separator row under it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

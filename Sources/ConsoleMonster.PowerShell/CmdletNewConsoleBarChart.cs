@@ -34,6 +34,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Name { get; set; }
 
+        /// <summary><para type="description">Bar shape: Line (thin stroke) or Block (solid blocks). Default Block.</para></summary>
+        [Parameter]
+        public BarShape Shape { get; set; } = BarShape.Block;
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Stacked.IsPresent) {
@@ -46,7 +50,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteObject(stacked);
                 return;
             }
-            BarChart chart = new BarChart(Name ?? "bars") { Unit = Unit };
+            BarChart chart = new BarChart(Name ?? "bars") { Unit = Unit, Shape = Shape };
             if (Data != null) {
                 foreach (DictionaryEntry entry in Data) {
                     chart.Add(PSWidgets.ToText(entry.Key), LanguagePrimitives.ConvertTo<double>(entry.Value));

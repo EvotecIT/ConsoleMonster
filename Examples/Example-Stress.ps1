@@ -20,7 +20,7 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle "32 wo
                     'Updates posted' = 0
                     'Update rate'    = '-'
                     'Frames'         = 0
-                    'CPU (one core)' = '-'
+                    'CPU'            = '-'
                     'Dropped/errors' = '0 / 0'
                 })
             New-ConsoleRule 'updates/s'
@@ -59,7 +59,7 @@ $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $
             Set-ConsoleValue -Name stats -Key 'Updates posted' -Value ('{0:N0}' -f $posted)
             Set-ConsoleValue -Name stats -Key 'Update rate' -Value ('{0:N0}/s' -f $rate)
             Set-ConsoleValue -Name stats -Key 'Frames' -Value ('{0:N0}' -f $ConsoleSession.FramesRendered)
-            Set-ConsoleValue -Name stats -Key 'CPU (one core)' -Value ('{0:N0}%' -f $core)
+            Set-ConsoleValue -Name stats -Key 'CPU' -Value (('{0:N0}% ({1:N1} cores)' -f $core, ($core / 100)))
             Set-ConsoleValue -Name stats -Key 'Dropped/errors' -Value ('{0} / {1}' -f $ConsoleSession.EventsDropped, $ConsoleSession.ApplyErrors)
             Add-ConsoleValue -Name rate -Value $rate
         }

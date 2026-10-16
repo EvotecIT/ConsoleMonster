@@ -25,9 +25,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public double Total { get; set; }
 
+        /// <summary><para type="description">Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</para></summary>
+        [Parameter]
+        public BarShape Shape { get; set; } = BarShape.Line;
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Lanes lanes = new Lanes(Name);
+            Lanes lanes = new Lanes(Name) { Shape = Shape };
             if (Lane != null) {
                 foreach (string lane in Lane) {
                     lanes.Add(lane, lane, Total);

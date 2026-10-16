@@ -4,7 +4,7 @@ using ConsoleMonster.Examples.Showcases;
 namespace ConsoleMonster.Examples {
     /// <summary>
     /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
-    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c> or <c>stress</c>. Terminal detection can be
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c>, <c>stress</c> or <c>widths</c>. Terminal detection can be
     /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
     /// </summary>
     public static class Program {
@@ -38,7 +38,13 @@ namespace ConsoleMonster.Examples {
                             recording = args[i];
                         }
                     }
-                    ParallelRun.Replay(recording, speed);
+                    try {
+                        ParallelRun.Replay(recording, speed);
+                    } catch (OperationCanceledException) {
+                        // Ctrl+C: the session has already restored the terminal and printed the summary.
+                        Console.WriteLine("Replay interrupted by Ctrl+C.");
+                        return 130;
+                    }
                     return 0;
                 case "stress":
                     int seconds = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 20;
@@ -47,6 +53,9 @@ namespace ConsoleMonster.Examples {
                         System.IO.File.WriteAllText(args[2], result + Environment.NewLine);
                     }
                     return 0;
+                case "widths":
+                    GraphemeWidths.Run(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 6);
+                    return 0;
                 case "profile":
                     Console.WriteLine(Terminal.Profile.ToString());
                     foreach (string decision in Terminal.Profile.Decisions) {
@@ -54,7 +63,7 @@ namespace ConsoleMonster.Examples {
                     }
                     return 0;
                 default:
-                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, testimox, record or stress.");
+                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, testimox, record, stress or widths.");
                     return 2;
             }
         }

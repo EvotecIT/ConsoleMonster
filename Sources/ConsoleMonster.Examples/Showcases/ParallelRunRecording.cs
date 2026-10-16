@@ -12,60 +12,55 @@ namespace ConsoleMonster.Examples.Showcases {
     /// </summary>
     public static class ParallelRunRecording {
         private static readonly SyntheticRule[] DcRules = {
-            new SyntheticRule("Domain controllers", "LDAP signing required"),
-            new SyntheticRule("Domain controllers", "LDAP channel binding"),
-            new SyntheticRule("Domain controllers", "SMB signing enforced"),
-            new SyntheticRule("Domain controllers", "Print Spooler disabled"),
-            new SyntheticRule("Domain controllers", "LSA protection enabled"),
-            new SyntheticRule("Domain controllers", "Credential Guard posture", 1.4),
-            new SyntheticRule("Domain controllers", "Secure Boot certificate rollout"),
-            new SyntheticRule("Domain controllers", "Windows Update compliance", 2.2),
-            new SyntheticRule("Domain controllers", "Operating system support"),
-            new SyntheticRule("Domain controllers", "NTLM audit configuration"),
-            new SyntheticRule("Replication", "Replication latency per partner", 2.6),
-            new SyntheticRule("Replication", "USN rollback detection", 1.8),
-            new SyntheticRule("Replication", "SYSVOL DFSR state", 1.5),
-            new SyntheticRule("Replication", "Tombstone lifetime"),
-            new SyntheticRule("Replication", "Lingering objects", 2.0),
-            new SyntheticRule("DNS", "DNS forwarders consistency"),
-            new SyntheticRule("DNS", "DNS scavenging"),
-            new SyntheticRule("DNS", "Root hints reachable", 1.6),
-            new SyntheticRule("DNS", "DC locator SRV records"),
-            new SyntheticRule("Time", "Time source hierarchy"),
-            new SyntheticRule("Time", "Clock skew"),
-            new SyntheticRule("Kerberos", "Kerberos AES-only encryption"),
-            new SyntheticRule("Kerberos", "krbtgt password age"),
-            new SyntheticRule("Kerberos", "Unconstrained delegation"),
-            new SyntheticRule("Security", "Audit policy baseline", 1.3),
-            new SyntheticRule("Security", "Event log sizes"),
-            new SyntheticRule("Security", "Local administrators"),
-            new SyntheticRule("Security", "Firewall profile"),
-            new SyntheticRule("Security", "Remote Desktop exposure"),
-            new SyntheticRule("Security", "PowerShell logging")
+            new SyntheticRule("Domain controllers", "LDAP signing required", "LDAPServerIntegrity is 1 (signing not required)", "12 unsigned binds in the last 24h"),
+            new SyntheticRule("Domain controllers", "LDAP channel binding", "LdapEnforceChannelBinding is 0", "channel binding set to 'when supported'"),
+            new SyntheticRule("Domain controllers", "SMB signing enforced", "RequireSecuritySignature is disabled", "SMB1 client still installed"),
+            new SyntheticRule("Domain controllers", "Print Spooler disabled", "Spooler service is running", "Spooler set to manual start"),
+            new SyntheticRule("Domain controllers", "LSA protection enabled", "RunAsPPL is not set", "RunAsPPL set without UEFI lock"),
+            new SyntheticRule("Domain controllers", "Credential Guard posture", "virtualization-based security is off", "Credential Guard configured but not running", 1.4),
+            new SyntheticRule("Domain controllers", "Secure Boot certificate rollout", "2023 CA certificate not applied", "update staged, reboot pending"),
+            new SyntheticRule("Domain controllers", "Windows Update compliance", "last cumulative update 94 days ago", "update installed, restart pending", 2.2),
+            new SyntheticRule("Domain controllers", "Operating system support", "Windows Server 2012 R2 is out of support", "support ends in 11 months"),
+            new SyntheticRule("Domain controllers", "NTLM audit configuration", "NTLM auditing is disabled", "audit enabled for incoming traffic only"),
+            new SyntheticRule("Replication", "Replication latency per partner", "no successful inbound replication from DC02 for 4h", "latency to DC05 is 42 minutes", 2.6),
+            new SyntheticRule("Replication", "USN rollback detection", "event 2095 logged (USN rollback suspected)", "invocation ID changed after restore", 1.8),
+            new SyntheticRule("Replication", "SYSVOL DFSR state", "DFSR state is 'In Error' (5)", "DFSR backlog of 37 files", 1.5),
+            new SyntheticRule("Replication", "Tombstone lifetime", "tombstone lifetime is 60 days", "tombstone lifetime not set explicitly"),
+            new SyntheticRule("Replication", "Lingering objects", "3 lingering objects in the configuration partition", "strict replication consistency is off", 2.0),
+            new SyntheticRule("DNS", "DNS forwarders consistency", "forwarders differ from the domain baseline", "one forwarder does not answer"),
+            new SyntheticRule("DNS", "DNS scavenging", "scavenging disabled on all zones", "no-refresh interval longer than 7 days"),
+            new SyntheticRule("DNS", "Root hints reachable", "4 of 13 root servers unreachable", "root hints file older than 2 years", 1.6),
+            new SyntheticRule("DNS", "DC locator SRV records", "_ldap._tcp.dc._msdcs record missing", "stale SRV record for a retired DC"),
+            new SyntheticRule("Time", "Time source hierarchy", "PDC emulator syncs from the local CMOS clock", "NTP server configured by IP address"),
+            new SyntheticRule("Time", "Clock skew", "clock skew of 7 minutes against the PDC emulator", "clock skew of 48 seconds"),
+            new SyntheticRule("Kerberos", "Kerberos AES-only encryption", "RC4 still allowed for Kerberos", "3 accounts without AES keys"),
+            new SyntheticRule("Kerberos", "krbtgt password age", "krbtgt password not changed for 812 days", "krbtgt password is 190 days old"),
+            new SyntheticRule("Kerberos", "Unconstrained delegation", "2 servers trusted for unconstrained delegation", "1 service account trusted for delegation"),
+            new SyntheticRule("Security", "Audit policy baseline", "advanced audit policy not applied", "logon auditing set to success only", 1.3),
+            new SyntheticRule("Security", "Event log sizes", "Security log is 20 MB and overwrites in 2 hours", "Directory Service log under 64 MB"),
+            new SyntheticRule("Security", "Local administrators", "4 unexpected members in BUILTIN\\Administrators", "nested group in BUILTIN\\Administrators"),
+            new SyntheticRule("Security", "Firewall profile", "domain firewall profile is disabled", "inbound rule allows any remote address"),
+            new SyntheticRule("Security", "Remote Desktop exposure", "RDP allowed without network level authentication", "RDP open to all internal subnets"),
+            new SyntheticRule("Security", "PowerShell logging", "script block logging is disabled", "transcription not configured")
         };
 
         private static readonly SyntheticRule[] DomainRules = {
-            new SyntheticRule("Group Policy", "GPO permissions baseline", 2.4),
-            new SyntheticRule("Group Policy", "Orphaned GPO folders"),
-            new SyntheticRule("Group Policy", "Empty GPOs"),
-            new SyntheticRule("Group Policy", "LAPS policy"),
-            new SyntheticRule("Accounts", "Stale computer accounts", 1.8),
-            new SyntheticRule("Accounts", "Password never expires"),
-            new SyntheticRule("Accounts", "Privileged group membership", 1.5),
-            new SyntheticRule("Accounts", "AdminSDHolder protected objects"),
-            new SyntheticRule("Accounts", "Service account SPN hygiene", 1.4),
-            new SyntheticRule("PKI", "CA weak key size"),
-            new SyntheticRule("PKI", "Certificate template exposure", 1.7),
-            new SyntheticRule("Kerberos", "Constrained delegation overview"),
-            new SyntheticRule("Forest", "Recycle Bin enabled"),
-            new SyntheticRule("Forest", "Site link costs"),
-            new SyntheticRule("Forest", "Subnets without sites"),
-            new SyntheticRule("Forest", "Functional level")
-        };
-
-        private static readonly string[] FailReasons = {
-            "partner DC02 last success 4h ago", "event 2095 present", "value 0 expected 1", "3 accounts affected",
-            "baseline drift on 2 settings", "certificate expires in 9 days", "not configured", "12 objects found"
+            new SyntheticRule("Group Policy", "GPO permissions baseline", "Authenticated Users can edit 2 GPOs", "a GPO without Authenticated Users read", 2.4),
+            new SyntheticRule("Group Policy", "Orphaned GPO folders", "5 SYSVOL folders without a GPO object", "1 GPO object without a SYSVOL folder"),
+            new SyntheticRule("Group Policy", "Empty GPOs", "9 GPOs with no settings are linked", "3 unlinked empty GPOs"),
+            new SyntheticRule("Group Policy", "LAPS policy", "no LAPS policy applies to member servers", "legacy LAPS still deployed alongside Windows LAPS"),
+            new SyntheticRule("Accounts", "Stale computer accounts", "214 computers inactive for over 180 days", "41 computers inactive for over 90 days", 1.8),
+            new SyntheticRule("Accounts", "Password never expires", "18 user accounts never expire their password", "2 service accounts never expire their password"),
+            new SyntheticRule("Accounts", "Privileged group membership", "Domain Admins has 14 members", "a disabled account is still in Enterprise Admins", 1.5),
+            new SyntheticRule("Accounts", "AdminSDHolder protected objects", "6 orphaned adminCount=1 accounts", "AdminSDHolder ACL differs from the default"),
+            new SyntheticRule("Accounts", "Service account SPN hygiene", "duplicate SPN HTTP/intranet registered twice", "3 SPNs on user accounts with old passwords", 1.4),
+            new SyntheticRule("PKI", "CA weak key size", "issuing CA uses a 1024-bit RSA key", "issuing CA certificate expires in 9 months"),
+            new SyntheticRule("PKI", "Certificate template exposure", "template allows SAN from the requester (ESC1)", "template enrollable by Domain Users", 1.7),
+            new SyntheticRule("Kerberos", "Constrained delegation overview", "protocol transition allowed to DC services", "delegation to CIFS on 2 servers"),
+            new SyntheticRule("Forest", "Recycle Bin enabled", "AD Recycle Bin is not enabled", "deleted object lifetime is 60 days"),
+            new SyntheticRule("Forest", "Site link costs", "site link with cost 0 and 15-minute schedule gaps", "2 site links use default cost 100"),
+            new SyntheticRule("Forest", "Subnets without sites", "11 client subnets are not mapped to a site", "3 overlapping subnet definitions"),
+            new SyntheticRule("Forest", "Functional level", "domain functional level is Windows Server 2008 R2", "forest functional level is behind the domains")
         };
 
         /// <summary>The number of parallel workers simulated.</summary>
@@ -159,7 +154,7 @@ namespace ConsoleMonster.Examples.Showcases {
                             warned++;
                             Add(events, t, "results", "add", "Warnings", value: 1);
                             if (random.NextDouble() < 0.5) {
-                                Add(events, t, "log", "write", text: target.Value + ": " + rule.Name + " - " + FailReasons[random.Next(FailReasons.Length)], state: "warn");
+                                Add(events, t, "log", "write", text: target.Value + ": " + rule.Name + " - " + rule.WarnReason, state: "warn");
                             }
                             break;
                         case "fail":
@@ -168,7 +163,7 @@ namespace ConsoleMonster.Examples.Showcases {
                             failures.Add(t);
                             Add(events, t, "results", "add", "Failed", value: 1);
                             Add(events, t, "findings", "add", rule.Category, value: 1);
-                            Add(events, t, "log", "write", text: target.Value + ": " + rule.Name + " failed - " + FailReasons[random.Next(FailReasons.Length)], state: "err");
+                            Add(events, t, "log", "write", text: target.Value + ": " + rule.Name + " failed - " + rule.FailReason, state: "err");
                             break;
                         default:
                             skipped++;

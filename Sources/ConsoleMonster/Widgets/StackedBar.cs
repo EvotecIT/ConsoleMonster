@@ -29,6 +29,34 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the legend line is shown (default true).</summary>
         public bool ShowLegend { get; set; } = true;
 
+        /// <summary>
+        /// The most legend columns per row, or 0 (default) to fit as many as the width allows. Entries fill rows left to
+        /// right and every row shares one grid, so labels, counts and percentages line up.
+        /// </summary>
+        public int MaxLegendColumns { get; set; }
+
+        /// <summary>Layout of the legend label column (default left-aligned).</summary>
+        public ColumnFormat LabelColumn {
+            get => _labelColumn.Format;
+            set => _labelColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>Layout of the legend count column (default right-aligned; reserves the digits of the overall total).</summary>
+        public ColumnFormat CountColumn {
+            get => _countColumn.Format;
+            set => _countColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>Layout of the legend percentage column (default right-aligned, four cells).</summary>
+        public ColumnFormat PercentColumn {
+            get => _percentColumn.Format;
+            set => _percentColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _labelColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
+        private readonly StatColumn _countColumn = new StatColumn(new ColumnFormat());
+        private readonly StatColumn _percentColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Right, 4));
+
         /// <summary>Adds or updates a segment.</summary>
         /// <param name="label">The label.</param>
         /// <param name="value">The value.</param>
@@ -162,32 +190,55 @@ namespace ConsoleMonster.Widgets {
                 total += Math.Max(0, segment.Value);
             }
             List<StyledLine> lines = new List<StyledLine>();
-            List<TextSpan> current = new List<TextSpan>();
-            int used = 0;
+            if (_segments.Count == 0) {
+                return lines;
+            }
+            // One grid for every entry: marker | label (left) | count (right) | percent (right). Counts reserve the digits
+            // of the overall total, which no segment can exceed, so the grid holds still as the numbers grow.
+            int markerWidth = 0;
+            int labelWidth = 0;
+            int countWidth = 0;
+            foreach (ChartItem segment in _segments) {
+                labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(segment.Label));
+                countWidth = Math.Max(countWidth, DisplayWidth.Measure(NumberFormat.Compact(segment.Value)));
+            }
             for (int i = 0; i < _segments.Count; i++) {
-                ChartItem segment = _segments[i];
-                string marker = FillGlyph(i, context);
-                string text = segment.Label + " " + NumberFormat.Compact(segment.Value);
-                string share = total > 0 ? " " + NumberFormat.Percent(segment.Value / total) : string.Empty;
-                int chipWidth = DisplayWidth.Measure(marker) + 1 + DisplayWidth.Measure(text) + DisplayWidth.Measure(share);
-                if (current.Count > 0 && used + 3 + chipWidth > width) {
+                markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(FillGlyph(i, context)));
+            }
+            labelWidth = _labelColumn.Resolve(labelWidth);
+            countWidth = _countColumn.Resolve(countWidth, 0, DisplayWidth.Measure(NumberFormat.Compact(total)));
+            int percentWidth = total > 0 ? _percentColumn.Resolve(DisplayWidth.Measure(NumberFormat.Percent(1))) : 0;
+            int entryWidth = markerWidth + 1 + labelWidth + 1 + countWidth + (percentWidth > 0 ? 1 + percentWidth : 0);
+            const int Gap = 3;
+            int columns = Math.Max(1, Math.Min(_segments.Count, (width + Gap) / (entryWidth + Gap)));
+            if (MaxLegendColumns > 0) {
+                columns = Math.Min(columns, MaxLegendColumns);
+            }
+            if (entryWidth > width) {
+                // Too narrow for the grid: shrink the label column so counts and percents keep their columns.
+                labelWidth = Math.Max(1, labelWidth - (entryWidth - width));
+            }
+            List<TextSpan> current = new List<TextSpan>();
+            for (int i = 0; i < _segments.Count; i++) {
+                if (i > 0 && i % columns == 0) {
                     lines.Add(new StyledLine(current));
                     current = new List<TextSpan>();
-                    used = 0;
                 }
-                if (current.Count > 0) {
-                    current.Add(new TextSpan("   "));
-                    used += 3;
+                if (i % columns != 0) {
+                    current.Add(new TextSpan(new string(' ', Gap)));
                 }
-                current.Add(new TextSpan(marker, context.Style(segment.Token ?? ThemeToken.Series1)));
-                current.Add(new TextSpan(" " + text, context.Style(ThemeToken.Text)));
-                current.Add(new TextSpan(share, context.Style(ThemeToken.Muted)));
-                used += chipWidth;
+                ChartItem segment = _segments[i];
+                string label = TextWrapper.Truncate(segment.Label, labelWidth, context.Ellipsis);
+                current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Token ?? ThemeToken.Series1)));
+                current.Add(new TextSpan(" " + StatColumn.Pad(label, labelWidth, LabelColumn.Alignment), context.Style(ThemeToken.Text)));
+                current.Add(new TextSpan(" " + StatColumn.Pad(NumberFormat.Compact(segment.Value), countWidth, CountColumn.Alignment), context.Style(ThemeToken.Text)));
+                if (percentWidth > 0) {
+                    current.Add(new TextSpan(" " + StatColumn.Pad(NumberFormat.Percent(segment.Value / total), percentWidth, PercentColumn.Alignment), context.Style(ThemeToken.Muted)));
+                }
             }
             if (current.Count > 0) {
                 lines.Add(new StyledLine(current));
             }
             return lines;
-        }
-    }
+        }    }
 }

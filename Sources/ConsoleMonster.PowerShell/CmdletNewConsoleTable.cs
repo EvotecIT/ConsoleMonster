@@ -40,6 +40,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public TableBorder Border { get; set; } = TableBorder.Rounded;
 
+        /// <summary><para type="description">Underline the header instead of drawing a separator row under it.</para></summary>
+        [Parameter]
+        public SwitchParameter NoHeaderSeparator { get; set; }
+
         /// <summary><para type="description">Fill the available width (spare width goes to the widest text column).</para></summary>
         [Parameter]
         public SwitchParameter Expand { get; set; }
@@ -64,6 +68,7 @@ namespace ConsoleMonster.PowerShell {
             table.Caption = Caption;
             table.Border = Border;
             table.Expand = Expand.IsPresent;
+            table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
             return table;
         }
 

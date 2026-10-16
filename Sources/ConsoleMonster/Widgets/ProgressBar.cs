@@ -33,6 +33,20 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the <c>value/total</c> count is shown (default true).</summary>
         public bool ShowCount { get; set; } = true;
 
+        /// <summary>The bar shape: <see cref="BarShape.Line"/> (default, a thin stroke) or <see cref="BarShape.Block"/> (solid blocks).</summary>
+        public BarShape Shape { get; set; } = BarShape.Line;
+
+        /// <summary>
+        /// Layout of the value in the <c>value/total</c> count (default right-aligned). The value reserves the width of the
+        /// total, so the bar keeps its length as the value grows from 9 to 10.
+        /// </summary>
+        public ColumnFormat CountColumn {
+            get => _countColumn.Format;
+            set => _countColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _countColumn = new StatColumn(new ColumnFormat());
+
         /// <summary>A fixed label column width, or <c>null</c> to fit the label.</summary>
         public int? LabelWidth { get; set; }
 
@@ -70,7 +84,8 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override string? Describe(LiveEvent liveEvent) {
             if (liveEvent.Operation == "state" && Status != StatusKind.Running && Status != StatusKind.Pending) {
-                return Markup.Strip(Label) + " " + Status.ToWord() + " " + Tail();
+                string count = ShowCount ? " " + NumberFormat.Compact(Value) + "/" + NumberFormat.Compact(Total) : string.Empty;
+                return Markup.Strip(Label) + " " + Status.ToWord() + " " + NumberFormat.Percent(Fraction) + count;
             }
             return null;
         }
@@ -98,13 +113,19 @@ namespace ConsoleMonster.Widgets {
                 region.Write(0, 0, TextWrapper.Truncate(label, labelWidth, context.Ellipsis));
             }
             ThemeToken token = Status == StatusKind.Running || Status == StatusKind.Pending ? ThemeToken.Accent : Status.ToToken();
-            BarDrawer.Draw(region, barX, 0, barWidth, Fraction, context.Style(token), context, true, BarShape.Line);
+            BarDrawer.Draw(region, barX, 0, barWidth, Fraction, context.Style(token), context, true, Shape);
             region.Write(region.Width - tailWidth, 0, tail, context.Style(ThemeToken.Muted));
         }
 
         private string Tail() {
             string percent = NumberFormat.Percent(Fraction).PadLeft(4);
-            return ShowCount ? percent + "  " + NumberFormat.Compact(Value) + "/" + NumberFormat.Compact(Total) : percent;
+            if (!ShowCount) {
+                return percent;
+            }
+            string value = NumberFormat.Compact(Value);
+            string total = NumberFormat.Compact(Total);
+            int width = _countColumn.Resolve(DisplayWidth.Measure(value), 0, DisplayWidth.Measure(total));
+            return percent + "  " + StatColumn.Pad(value, width, CountColumn.Alignment) + "/" + total;
         }
     }
 }

@@ -78,10 +78,11 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static void DrawLine(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track) {
+            // Heavy fill, light track: a finished bar, a running bar and a separator rule all read differently.
             const string Heavy = "━";
             const string HeavyLeftHalf = "╸";
-            const string HeavyRightHalf = "╺";
-            const string Thin = "─";
+            const string HeavyLeftLightRight = "╾";
+            const string Light = "─";
             int halves = (int)Math.Round(fraction * width * 2);
             int full = halves / 2;
             bool half = halves % 2 == 1;
@@ -89,22 +90,16 @@ namespace ConsoleMonster.Widgets {
                 region.Put(x + i, y, Heavy, fill);
             }
             int next = full;
-            Style trackStyle = context.HasColor ? context.Style(ThemeToken.Subtle) : Style.Plain;
-            string trackGlyph = context.HasColor ? Heavy : Thin;
             if (half && next < width) {
-                region.Put(x + next, y, HeavyLeftHalf, fill);
+                region.Put(x + next, y, track ? HeavyLeftLightRight : HeavyLeftHalf, fill);
                 next++;
-                if (track && context.HasColor && next < width) {
-                    region.Put(x + next, y, HeavyRightHalf, trackStyle);
-                    next++;
-                }
             }
             if (!track) {
                 return;
             }
+            Style trackStyle = context.Style(ThemeToken.Subtle);
             for (int i = next; i < width; i++) {
-                region.Put(x + i, y, trackGlyph, trackStyle);
+                region.Put(x + i, y, Light, trackStyle);
             }
-        }
-    }
+        }    }
 }

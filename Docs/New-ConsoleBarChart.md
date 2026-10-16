@@ -13,7 +13,7 @@ Creates a horizontal bar chart, or a stacked bar with -Stacked.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleBarChart [[-Data] <IDictionary>] [-Stacked] [-Unit <string>] [-Name <string>] [<CommonParameters>]
+New-ConsoleBarChart [[-Data] <IDictionary>] [-Stacked] [-Unit <string>] [-Name <string>] [-Shape <BarShape>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +55,22 @@ Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shape
+Bar shape: Line (thin stroke) or Block (solid blocks). Default Block.
+
+```yaml
+Type: BarShape
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Block, Line
 
 Required: False
 Position: named

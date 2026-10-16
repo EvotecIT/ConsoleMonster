@@ -35,6 +35,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the header row is shown (default true).</summary>
         public bool ShowHeader { get; set; } = true;
 
+        /// <summary>
+        /// Whether a separator row is drawn under the header (default true). When false the header is underlined instead,
+        /// so data starts on the row directly below it.
+        /// </summary>
+        public bool HeaderSeparator { get; set; } = true;
+
         /// <summary>Whether the table fills the available width (spare width goes to the flexible column).</summary>
         public bool Expand { get; set; }
 
@@ -106,7 +112,9 @@ namespace ConsoleMonster.Widgets {
             }
             if (ShowHeader) {
                 y = DrawRow(region, y, layout, layout.HeaderLines, layout.HeaderHeight, true, box, border, context);
-                if (boxed) {
+                if (!HeaderSeparator) {
+                    // The underlined header carries the separation.
+                } else if (boxed) {
                     DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if (Border == TableBorder.Minimal) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);

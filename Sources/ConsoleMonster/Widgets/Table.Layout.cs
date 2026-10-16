@@ -21,7 +21,8 @@ namespace ConsoleMonster.Widgets {
             int[] desired = new int[count];
             int[] minimum = new int[count];
             for (int c = 0; c < count; c++) {
-                headers[c] = context.Markup(_columns[c].Header).Lines[0].WithBaseStyle(context.Style(ThemeToken.Header));
+                Style headerStyle = HeaderSeparator ? context.Style(ThemeToken.Header) : context.Style(ThemeToken.Header).With(TextDecoration.Underline);
+                headers[c] = context.Markup(_columns[c].Header).Lines[0].WithBaseStyle(headerStyle);
                 desired[c] = headers[c].Width;
                 minimum[c] = headers[c].Width;
                 layout.Alignments[c] = _columns[c].Alignment ?? (IsNumericColumn(c) ? HorizontalAlignment.Right : HorizontalAlignment.Left);
@@ -98,7 +99,7 @@ namespace ConsoleMonster.Widgets {
                 total += 2;
             }
             if (ShowHeader) {
-                total += layout.HeaderHeight + (IsBoxed || Border == TableBorder.Minimal ? 1 : 0);
+                total += layout.HeaderHeight + (HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) ? 1 : 0);
             }
             foreach (int h in layout.RowHeights) {
                 total += h;

@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation != "write") {
                 return null;
             }
-            string tag = Tag(liveEvent.State ?? "info", false);
+            string tag = Tag(liveEvent.State ?? "info");
             return (tag.Length > 0 ? tag + " " : string.Empty) + (liveEvent.Text ?? string.Empty);
         }
 
@@ -76,6 +76,17 @@ namespace ConsoleMonster.Widgets {
             int height = constraints.IsHeightUnbounded ? Math.Min(_entries.Count, PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
             return new Size(constraints.MaxWidth, Math.Max(1, height));
         }
+
+        /// <summary>
+        /// Layout of the level column (ERR, WARN, VERB...). Every row shares its width, including info lines that have no
+        /// tag, so messages always start in the same column; the width never shrinks during a session.
+        /// </summary>
+        public ColumnFormat LevelColumn {
+            get => _levelColumn.Format;
+            set => _levelColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _levelColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
@@ -86,6 +97,11 @@ namespace ConsoleMonster.Widgets {
             LogEntry[] all = _entries.ToArray();
             int count = Math.Min(all.Length, region.Height);
             int startRow = 0;
+            int levelWidth = 0;
+            for (int i = 0; i < count; i++) {
+                levelWidth = Math.Max(levelWidth, Tag(all[all.Length - count + i].Level).Length);
+            }
+            levelWidth = levelWidth > 0 ? _levelColumn.Resolve(levelWidth) : 0;
             for (int i = 0; i < count; i++) {
                 LogEntry entry = all[all.Length - count + i];
                 int y = startRow + i;
@@ -93,9 +109,9 @@ namespace ConsoleMonster.Widgets {
                 if (ShowTime) {
                     x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
                 }
-                string tag = Tag(entry.Level, context.Glyphs.Tier != Capabilities.GlyphTier.Ascii);
-                if (tag.Length > 0) {
-                    x = region.Write(x, y, tag, TagStyle(entry.Level, context)) + 1;
+                if (levelWidth > 0) {
+                    StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment);
+                    x += levelWidth + 1;
                 }
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
                 StyledLine line = TextWrapper.Truncate(StyledLine.From(entry.Text, textStyle), region.Width - x, context.Ellipsis);
@@ -105,30 +121,25 @@ namespace ConsoleMonster.Widgets {
 
         private static bool IsQuiet(string level) => level == "verbose" || level == "debug";
 
-        private static string Tag(string level, bool padded) {
+        private static string Tag(string level) {
             switch (level) {
                 case "err":
                 case "error":
                 case "fail":
-                    return padded ? "ERR " : "ERR";
+                    return "ERR";
                 case "warn":
                 case "warning":
-                    return padded ? "WARN" : "WARN";
+                    return "WARN";
                 case "verbose":
-                    return padded ? "VERB" : "VERB";
+                    return "VERB";
                 case "debug":
-                    return padded ? "DBG " : "DBG";
+                    return "DBG";
                 case "pass":
-                    return padded ? "OK  " : "OK";
-                case "info":
-                case "out":
-                case "host":
-                    return padded ? "    " : string.Empty;
+                    return "OK";
                 default:
-                    return padded ? "    " : string.Empty;
+                    return string.Empty;
             }
         }
-
         private static Style TagStyle(string level, RenderContext context) {
             switch (level) {
                 case "err":

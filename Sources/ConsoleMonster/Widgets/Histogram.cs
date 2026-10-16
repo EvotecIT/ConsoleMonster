@@ -99,7 +99,6 @@ namespace ConsoleMonster.Widgets {
             int minimumSlot = Math.Max(1, plotWidth / buckets);
             Style bar = context.Style(Token);
             IGlyphSet glyphs = context.Glyphs;
-            int labelEnd = 0;
             for (int b = 0; b < buckets; b++) {
                 // Spread the plot width over the buckets so the bars fill the panel.
                 int x = plotX + (int)((long)b * plotWidth / buckets);
@@ -123,10 +122,30 @@ namespace ConsoleMonster.Widgets {
                     }
                     region.HorizontalLine(x, barRows - 1 - r, barWidth, glyph, bar);
                 }
+            }
+            DrawEdgeLabels(region, plotX, plotWidth, barRows, muted);
+        }
+
+        /// <summary>
+        /// Labels the bucket edges: the left edge of every bar plus the right end of the last one (buckets + 1 labels).
+        /// The first and last edges are always shown; inner labels that would touch a neighbour are skipped.
+        /// </summary>
+        private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style) {
+            int buckets = _counts.Length;
+            string last = EdgeLabel(_edges[buckets]);
+            int lastStart = Math.Max(plotX, region.Width - DisplayWidth.Measure(last));
+            int labelEnd = 0;
+            for (int b = 0; b < buckets; b++) {
+                int x = plotX + (int)((long)b * plotWidth / buckets);
                 string label = EdgeLabel(_edges[b]);
-                if (x >= labelEnd) {
-                    labelEnd = region.Write(x, barRows, label, muted) + 1;
+                int end = x + DisplayWidth.Measure(label);
+                if (x < labelEnd || (b > 0 && end + 1 > lastStart)) {
+                    continue;
                 }
+                labelEnd = region.Write(x, row, label, style) + 1;
+            }
+            if (lastStart >= labelEnd) {
+                region.Write(lastStart, row, last, style);
             }
         }
 

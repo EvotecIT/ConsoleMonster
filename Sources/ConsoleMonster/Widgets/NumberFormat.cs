@@ -9,6 +9,9 @@ namespace ConsoleMonster.Widgets {
         /// <returns>The text.</returns>
         public static string Compact(double value) {
             double abs = Math.Abs(value);
+            if (abs < 10) {
+                return value.ToString("0.##", CultureInfo.InvariantCulture);
+            }
             if (abs < 1000) {
                 return Math.Abs(value - Math.Round(value)) < 0.05 ? Math.Round(value).ToString("0", CultureInfo.InvariantCulture) : value.ToString("0.#", CultureInfo.InvariantCulture);
             }

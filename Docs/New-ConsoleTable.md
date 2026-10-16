@@ -13,7 +13,7 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-Expand] [<CommonParameters>]
+New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -92,6 +92,22 @@ Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -NoHeaderSeparator
+Underline the header instead of drawing a separator row under it.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

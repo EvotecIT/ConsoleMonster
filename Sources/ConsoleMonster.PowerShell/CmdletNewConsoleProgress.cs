@@ -29,9 +29,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string Name { get; set; } = "progress";
 
+        /// <summary><para type="description">Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</para></summary>
+        [Parameter]
+        public BarShape Shape { get; set; } = BarShape.Line;
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new ProgressBar(Label, Name) { Value = Value, Total = Total });
+            WriteObject(new ProgressBar(Label, Name) { Value = Value, Total = Total, Shape = Shape });
         }
     }
 }

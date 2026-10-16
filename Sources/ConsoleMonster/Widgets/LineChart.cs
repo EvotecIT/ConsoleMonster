@@ -52,7 +52,9 @@ namespace ConsoleMonster.Widgets {
                     return existing;
                 }
             }
-            ChartSeries series = new ChartSeries(name, token ?? (ThemeToken)((int)ThemeToken.Series1 + (_series.Count % 6)));
+            // A series named with a status word (failed, passed, warnings...) takes that status tone unless a token is given.
+            ThemeToken automatic = StatusKinds.TryParse(name, out StatusKind status) ? status.ToToken() : (ThemeToken)((int)ThemeToken.Series1 + (_series.Count % 6));
+            ChartSeries series = new ChartSeries(name, token ?? automatic);
             _series.Add(series);
             return series;
         }

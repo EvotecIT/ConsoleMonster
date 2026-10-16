@@ -30,6 +30,18 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The widest the key column may be, as a fraction of the width (default 0.4).</summary>
         public double MaxKeyFraction { get; set; } = 0.4;
 
+        /// <summary>
+        /// Layout of the leading number of each value (<c>234 / 332</c>, <c>8.4 rules/s</c>, <c>~12s</c>): values that start with
+        /// a number share a number column, right-aligned by default, so the numbers line up under each other. Set the
+        /// alignment to <see cref="HorizontalAlignment.Left"/> to print values as written.
+        /// </summary>
+        public ColumnFormat NumberColumn {
+            get => _numberColumn.Format;
+            set => _numberColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        private readonly StatColumn _numberColumn = new StatColumn(new ColumnFormat());
+
         /// <summary>Adds or replaces a pair.</summary>
         /// <param name="key">The key (plain text).</param>
         /// <param name="value">The value (markup).</param>
@@ -77,8 +89,9 @@ namespace ConsoleMonster.Widgets {
             int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - Gap);
             int height = 0;
             int width = 0;
+            int numberWidth = NumberWidth();
             foreach (KeyValueItem item in _items) {
-                IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, context);
+                IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 height += Math.Max(1, lines.Count);
                 foreach (StyledLine line in lines) {
                     width = Math.Max(width, keyWidth + Gap + line.Width);
@@ -92,13 +105,14 @@ namespace ConsoleMonster.Widgets {
             int keyWidth = KeyWidth(region.Width);
             int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
             Style keyStyle = context.Style(ThemeToken.Muted);
+            int numberWidth = NumberWidth();
             int y = 0;
             foreach (KeyValueItem item in _items) {
                 if (y >= region.Height) {
                     break;
                 }
                 region.Write(0, y, TextWrapper.Truncate(item.Key, keyWidth, context.Ellipsis), keyStyle);
-                IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, context);
+                IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 for (int i = 0; i < lines.Count && y < region.Height; i++) {
                     region.Write(keyWidth + Gap, y, lines[i]);
                     y++;
@@ -118,16 +132,73 @@ namespace ConsoleMonster.Widgets {
             return Math.Min(longest, cap);
         }
 
-        private static IReadOnlyList<StyledLine> ValueLines(KeyValueItem item, int width, RenderContext context) {
+        private int NumberWidth() {
+            if (NumberColumn.Alignment == HorizontalAlignment.Left) {
+                return 0;
+            }
+            int widest = 0;
+            foreach (KeyValueItem item in _items) {
+                widest = Math.Max(widest, DisplayWidth.Measure(LeadingNumber(item.Value)));
+            }
+            return widest == 0 ? 0 : _numberColumn.Resolve(widest);
+        }
+
+        // The leading number of a value with an optional sign or "~" and an optional unit ("8.4", "~12s", "77%", "6 064 519"):
+        // culture group separators (non-breaking or thin spaces, apostrophes) count as part of the number between digits.
+        private static string LeadingNumber(string value) {
+            if (string.IsNullOrEmpty(value) || value[0] == '[') {
+                return string.Empty;
+            }
+            int end = value.IndexOf(' ');
+            string token = end < 0 ? value : value.Substring(0, end);
+            int i = 0;
+            if (i < token.Length && (token[i] == '~' || token[i] == '+' || token[i] == '-' || token[i] == '\u2248')) {
+                i++;
+            }
+            if (i >= token.Length || !char.IsDigit(token[i])) {
+                return string.Empty;
+            }
+            while (i < token.Length && (char.IsDigit(token[i]) || IsNumberSeparator(token, i))) {
+                i++;
+            }
+            for (; i < token.Length; i++) {
+                if (!char.IsLetter(token[i]) && token[i] != '%' && token[i] != '/') {
+                    return string.Empty;
+                }
+            }
+            return token;
+        }
+
+        private static bool IsNumberSeparator(string token, int index) {
+            char c = token[index];
+            bool between = index > 0 && index + 1 < token.Length && char.IsDigit(token[index - 1]) && char.IsDigit(token[index + 1]);
+            if (c == '.' || c == ',' || c == ':') {
+                return true;
+            }
+            return between && (c == '\u00A0' || c == '\u202F' || c == '\u2009' || c == '\'');
+        }
+
+        private IReadOnlyList<StyledLine> ValueLines(KeyValueItem item, int width, int numberWidth, RenderContext context) {
             List<StyledLine> result = new List<StyledLine>();
             string prefix = item.Status.HasValue ? context.Glyphs.StatusMarker(item.Status.Value) + " " : string.Empty;
             Style markerStyle = item.Status.HasValue ? context.Style(item.Status.Value) : Style.Plain;
+            string number = numberWidth > 0 ? LeadingNumber(item.Value) : string.Empty;
+            int pad = number.Length > 0 ? numberWidth - DisplayWidth.Measure(number) : 0;
+            if (pad > 0 && NumberColumn.Alignment == HorizontalAlignment.Center) {
+                pad /= 2;
+            }
             StyledText text = context.Markup(item.Value);
             bool first = true;
             foreach (StyledLine line in text.Lines) {
                 StyledLine full = line;
-                if (first && prefix.Length > 0) {
-                    List<TextSpan> spans = new List<TextSpan> { new TextSpan(prefix, markerStyle) };
+                if (first && (prefix.Length > 0 || pad > 0)) {
+                    List<TextSpan> spans = new List<TextSpan>();
+                    if (prefix.Length > 0) {
+                        spans.Add(new TextSpan(prefix, markerStyle));
+                    }
+                    if (pad > 0) {
+                        spans.Add(new TextSpan(new string(' ', pad)));
+                    }
                     spans.AddRange(line);
                     full = new StyledLine(spans);
                 }

@@ -18,7 +18,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Records", "14")
                 .Add("DNSSEC", "not signed", StatusKind.Warn);
 
-            Table records = new Table { Border = TableBorder.Rounded, Expand = true };
+            Table records = new Table { Border = TableBorder.Rounded, Expand = true, HeaderSeparator = false };
             records.AddColumn(new TableColumn("Name") { Wrap = false });
             records.AddColumn(new TableColumn("Type") { Wrap = false });
             records.AddColumn("TTL");

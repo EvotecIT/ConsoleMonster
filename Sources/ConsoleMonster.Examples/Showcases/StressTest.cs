@@ -31,8 +31,8 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Update rate", "-")
                 .Add("Frames", "0")
                 .Add("Frame rate", "-")
-                .Add("CPU (machine)", "-")
-                .Add("CPU (one core)", "-")
+                .Add("CPU", "-")
+                .Add("CPU share", "-")
                 .Add("Captured lines", "0")
                 .Add("Dropped / errors", "0 / 0");
             Sparkline rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
@@ -43,7 +43,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
                 .Columns(c => c
                     .Panel("Workers", lanes, 2.2)
-                    .Panel("Session", new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (one core)"), cpu), 1))
+                    .Panel("Session", new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), 1))
                 .Panel("Captured output", new LogRegion { PreferredHeight = 6 }, fill: true)
                 .BuildDashboard();
 
@@ -103,8 +103,8 @@ namespace ConsoleMonster.Examples.Showcases {
                     stats.Set("Update rate", NumberFormat.Grouped(perSecond) + "/s");
                     stats.Set("Frames", NumberFormat.Grouped(session.FramesRendered));
                     stats.Set("Frame rate", (session.FramesRendered / now).ToString("0.0", CultureInfo.InvariantCulture) + " fps");
-                    stats.Set("CPU (machine)", (core / Environment.ProcessorCount).ToString("0.0", CultureInfo.InvariantCulture) + "% of " + Environment.ProcessorCount + " logical");
-                    stats.Set("CPU (one core)", core.ToString("0", CultureInfo.InvariantCulture) + "%");
+                    stats.Set("CPU", core.ToString("0", CultureInfo.InvariantCulture) + "% (" + (core / 100).ToString("0.0", CultureInfo.InvariantCulture) + " cores)");
+                    stats.Set("CPU share", (core / Environment.ProcessorCount).ToString("0.0", CultureInfo.InvariantCulture) + "% of " + Environment.ProcessorCount + " cores");
                     stats.Set("Captured lines", NumberFormat.Grouped(Interlocked.Read(ref captured)));
                     stats.Set("Dropped / errors", session.EventsDropped + " / " + session.ApplyErrors);
                 }

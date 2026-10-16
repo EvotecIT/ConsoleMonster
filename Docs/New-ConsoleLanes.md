@@ -13,7 +13,7 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-Name] <string>] [-Lane <string[]>] [-Total <double>] [<CommonParameters>]
+New-ConsoleLanes [[-Name] <string>] [-Lane <string[]>] [-Total <double>] [-Shape <BarShape>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -58,6 +58,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shape
+Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.
+
+```yaml
+Type: BarShape
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Block, Line
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

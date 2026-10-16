@@ -27,7 +27,7 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 38
+        $commands.Count | Should -Be 42
         $commands.Name | Should -Contain 'Write-ConsoleTable'
         $commands.Name | Should -Contain 'Start-ConsoleDashboard'
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty
@@ -92,6 +92,40 @@ $results = 1..60 | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
 "SUM=$(($results | Measure-Object -Sum).Sum)"
 '@
         $text | Should -Match 'SUM=18300'
+    }
+
+    It 'records a dashboard run with -RecordPath and replays the recording' {
+        $recording = Join-Path $TestDrive 'run.jsonl'
+        $text = Invoke-ConsoleChild -Script @"
+`$d = New-ConsoleDashboard -Title 'Recorded' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
+Start-ConsoleDashboard `$d -RecordPath '$recording' {
+    Update-ConsoleLane -Key one -Status Running
+    Write-ConsoleLog -Message 'checking one' -Level Info
+    Update-ConsoleLane -Key one -Result Pass
+    Update-ConsoleLane -Key two -Result Fail
+    Update-ConsoleLane -Key one -Complete
+    Update-ConsoleLane -Key two -Complete
+}
+`$r = New-ConsoleDashboard -Title 'Replayed' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
+Start-ConsoleReplay `$r -Path '$recording' -Speed 1000
+'REPLAY-DONE'
+"@
+        Test-Path -LiteralPath $recording | Should -BeTrue
+        $lines = @(Get-Content -LiteralPath $recording -Encoding UTF8 | Where-Object { $_ })
+        $lines[0] | Should -Be '{"consolemonster":"recording","version":1}'
+        $events = @($lines | Select-Object -Skip 1 | ForEach-Object { $_ | ConvertFrom-Json })
+        $events.Count | Should -BeGreaterThan 4
+        @($events | Where-Object { $_.target -eq 'lanes' -and $_.key -eq 'one' }).Count | Should -BeGreaterThan 0
+        @($events | Where-Object { $_.target -eq 'lanes' -and $_.key -eq 'two' -and $_.state -eq 'fail' }).Count | Should -Be 1
+        # Timestamps are milliseconds since Start and never go backwards.
+        $previous = 0
+        foreach ($event in $events) {
+            [double] $event.t | Should -BeGreaterOrEqual $previous
+            $previous = [double] $event.t
+        }
+        # The replay narrates the same run in stream mode.
+        $text | Should -Match 'two FAIL'
+        $text | Should -Match 'REPLAY-DONE'
     }
 
     It 'reports an error when updating without a running dashboard' {
