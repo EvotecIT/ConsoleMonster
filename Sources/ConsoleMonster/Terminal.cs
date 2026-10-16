@@ -16,7 +16,7 @@ namespace ConsoleMonster {
     public static class Terminal {
         private static readonly object Gate = new object();
         private static TerminalProfile? _profile;
-        private static ITheme _theme = Styling.Theme.Dark;
+        private static ITheme? _theme;
         private static ICapabilityProvider _provider = new CapabilityDetector();
         private static bool _defaultProvider = true;
 
@@ -52,9 +52,34 @@ namespace ConsoleMonster {
             }
         }
 
+        /// <summary>
+        /// Chooses the light or dark theme: <c>CONSOLEMONSTER_THEME=light|dark</c> wins; otherwise interactive consoles use
+        /// the detected background (console colour table, COLORFGBG) and everything else the dark theme.
+        /// </summary>
+        /// <param name="profile">The terminal profile.</param>
+        /// <returns>The theme.</returns>
+        public static ITheme ResolveTheme(TerminalProfile profile) {
+            if (profile == null) {
+                throw new ArgumentNullException(nameof(profile));
+            }
+            switch (profile.ThemePreference) {
+                case ThemePreference.Light:
+                    return Styling.Theme.Light;
+                case ThemePreference.Dark:
+                    return Styling.Theme.Dark;
+            }
+            if (profile.Mode == OutputMode.Interactive && Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo info) && info.IsLight) {
+                return Styling.Theme.Light;
+            }
+            return Styling.Theme.Dark;
+        }
         /// <summary>The active theme.</summary>
         public static ITheme Theme {
-            get => _theme;
+            get {
+                lock (Gate) {
+                    return _theme ?? (_theme = ResolveTheme(Profile));
+                }
+            }
             set => _theme = value ?? throw new ArgumentNullException(nameof(value));
         }
 
@@ -93,7 +118,7 @@ namespace ConsoleMonster {
         /// <param name="markup">The markup.</param>
         public static void WriteMarkup(string markup) {
             TerminalProfile p = Profile;
-            StyledText text = Markup.Parse(markup, _theme, p.ColorDepth);
+            StyledText text = Markup.Parse(markup, Theme, p.ColorDepth);
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p)) {
                     foreach (StyledLine line in text.Lines) {
@@ -108,7 +133,7 @@ namespace ConsoleMonster {
         /// <param name="theme">The theme, or <c>null</c> for <see cref="Theme"/>.</param>
         /// <returns>The context.</returns>
         public static RenderContext CreateContext(TerminalProfile? profile = null, ITheme? theme = null) {
-            return new RenderContext(profile ?? Profile, theme ?? _theme);
+            return new RenderContext(profile ?? Profile, theme ?? Theme);
         }
 
         /// <summary>Creates the output for a profile: VT when live rendering is possible, line-based otherwise.</summary>
@@ -131,7 +156,7 @@ namespace ConsoleMonster {
         /// <param name="theme">The theme, or <c>null</c> for <see cref="Theme"/>.</param>
         /// <returns>The rendered block.</returns>
         public static CellBuffer Render(IWidget widget, TerminalProfile profile, ITheme? theme = null) {
-            return FrameComposer.RenderBlock(widget, profile.Width, new RenderContext(profile, theme ?? _theme));
+            return FrameComposer.RenderBlock(widget, profile.Width, new RenderContext(profile, theme ?? Theme));
         }
 
         /// <summary>Renders a widget to plain text lines (trailing spaces trimmed).</summary>
