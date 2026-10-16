@@ -145,5 +145,32 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.True(full > half && half > 0, full + " vs " + half);
             Assert.Contains("100", lines[1]);
         }
+
+        [Theory]
+        [InlineData(TableBorder.Rounded)]
+        [InlineData(TableBorder.Square)]
+        [InlineData(TableBorder.Minimal)]
+        public void Table_HeaderSeparator_IsFollowedDirectlyByTheFirstRow(TableBorder border) {
+            Table table = Wide();
+            table.Border = border;
+            string[] lines = Render(table, 120).Replace("\r\n", "\n").Split('\n');
+            int header = Array.FindIndex(lines, line => line.Contains("Host"));
+            Assert.True(header >= 0);
+            // Header, one separator row, then data: no blank padding row in between.
+            Assert.Contains("dc01.ad.evotec.xyz", lines[header + 2]);
+        }
+
+        [Fact]
+        public void Table_GroupedRows_StartDirectlyUnderTheHeaderSeparator() {
+            Table grouped = new Table { Border = TableBorder.Rounded };
+            grouped.AddColumn(new TableColumn("Host") { IsKey = true });
+            grouped.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
+            grouped.AddGroup("Domain controllers");
+            grouped.AddValues("dc01.ad.evotec.xyz", StatusKind.Pass);
+            string[] lines = Render(grouped, 80).Replace("\r\n", "\n").Split('\n');
+            int header = Array.FindIndex(lines, line => line.Contains("Host"));
+            Assert.Contains("Domain controllers", lines[header + 2]);
+            Assert.Contains("dc01.ad.evotec.xyz", lines[header + 3]);
+        }
     }
 }
