@@ -43,8 +43,7 @@ namespace ConsoleMonster.Live {
         private TimeSpan _stoppedElapsed;
         private double _timelineScale = 1.0; // Replay runs the displayed clock on the recorded timeline.
         private bool _streamTimestamps;
-        private static readonly TimeSpan ResizeSettle = TimeSpan.FromMilliseconds(100);
-        private TimeSpan _lastResizeRender = TimeSpan.FromDays(-1);
+        private readonly ResizeCoalescer _resizeCoalescer = new ResizeCoalescer(TimeSpan.FromMilliseconds(100));
         private int _windowLeft;
         private int _windowTop;
         private long _resizes;

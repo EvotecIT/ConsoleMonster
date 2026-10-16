@@ -17,13 +17,10 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
         private void RenderLoop() {
-            double period = 1000.0 / _options.FramesPerSecond;
+            FrameSchedule frames = new FrameSchedule(_options.FramesPerSecond);
+            double period = frames.Period;
             TimeSpan heartbeat = Elapsed;
-            // Frames are scheduled against absolute deadlines (frame n is due at n x period). Windows wait timeouts round
-            // up to the system timer tick (~15.6 ms), so sleeping "period minus work" every frame drifted to ~12.5 fps at a
-            // 15 fps setting; with deadlines a late wake-up shortens the next wait instead, and the average meets the rate.
             Stopwatch schedule = Stopwatch.StartNew();
-            long frame = 0;
             try {
                 while (IsRunning) {
                     // Apply everything queued, bounded by time rather than count: a flood must neither starve rendering
@@ -35,15 +32,7 @@ namespace ConsoleMonster.Live {
                         Heartbeat();
                         heartbeat = Elapsed;
                     }
-                    frame++;
-                    double now = schedule.Elapsed.TotalMilliseconds;
-                    double wait = (frame * period) - now;
-                    if (wait < -period) {
-                        // Too far behind (a stall or a slow terminal): resynchronise instead of rendering a burst of frames.
-                        frame = (long)(now / period);
-                        wait = 0;
-                    }
-                    if (_wake.WaitOne(wait >= 1 ? (int)wait : 0)) {
+                    if (_wake.WaitOne(frames.Next(schedule.Elapsed.TotalMilliseconds))) {
                         break;
                     }
                 }
@@ -128,13 +117,11 @@ namespace ConsoleMonster.Live {
                 bool resized = _frame != null && (_frame.Width != width || _frame.Height != height);
                 bool moved = left != _windowLeft || top != _windowTop;
                 if (resized) {
-                    // Coalesce drag-resizes: at most one full redraw per ResizeSettle while the size keeps changing; the
+                    // Coalesce drag-resizes: at most one full redraw per 100 ms settle period while the size keeps changing; the
                     // frame after the last change always redraws, so the final size is never missed.
-                    TimeSpan now = RealElapsed;
-                    if (now - _lastResizeRender < ResizeSettle) {
+                    if (!_resizeCoalescer.TryRedraw(RealElapsed)) {
                         return;
                     }
-                    _lastResizeRender = now;
                     Interlocked.Increment(ref _resizes);
                     OnResized();
                 }

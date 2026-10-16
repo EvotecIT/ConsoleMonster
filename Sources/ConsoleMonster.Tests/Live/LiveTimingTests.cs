@@ -71,17 +71,48 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
-        public void RenderLoop_FifteenFramesPerSecond_MeetsTheConfiguredRate() {
+        public void FrameSchedule_FifteenFps_WithTimerTickRounding_AveragesTheConfiguredRate() {
+            // Fake clock: every wait rounds up to the 15.625 ms Windows timer tick and each frame costs 2 ms of work. The old
+            // "sleep the remainder" loop measured about 12.5 fps under exactly these conditions.
+            FrameSchedule schedule = new FrameSchedule(15);
+            const double Tick = 15.625;
+            double now = 0;
+            int frames = 0;
+            while (now < 3000) {
+                now += 2;
+                frames++;
+                int wait = schedule.Next(now);
+                now += wait == 0 ? 0 : Math.Ceiling(wait / Tick) * Tick;
+            }
+            Assert.InRange(frames, 44, 46);
+        }
+
+        [Fact]
+        public void FrameSchedule_AfterAStall_ResynchronisesInsteadOfBursting() {
+            FrameSchedule schedule = new FrameSchedule(15);
+            Assert.True(schedule.Next(1) > 0);
+            // A 2-second stall (about 30 missed frames): the next frame renders immediately, then the schedule waits
+            // again instead of rendering the missed frames back to back (at most one more is due at once).
+            Assert.Equal(0, schedule.Next(2000));
+            int immediate = 0;
+            for (int i = 1; i <= 5; i++) {
+                if (schedule.Next(2000 + i) == 0) {
+                    immediate++;
+                }
+            }
+            Assert.InRange(immediate, 0, 1);
+        }
+
+        [Fact]
+        public void RenderLoop_FifteenFramesPerSecond_KeepsRendering() {
+            // Smoke test only; the rate itself is asserted deterministically above and measured in ConsoleMonster.Benchmarks.
             FakeOutput output = new FakeOutput(true);
             LiveSessionOptions options = LiveSessionTests.Options(output);
             options.FramesPerSecond = 15;
             using (LiveSession session = new LiveSession(new FakeTarget(), options)) {
                 session.Start();
-                Thread.Sleep(3000);
+                Assert.True(SpinWait.SpinUntil(() => output.Frames >= 5, TimeSpan.FromSeconds(10)));
             }
-            // The deadline schedule averages the configured rate; the old "sleep the remainder" loop measured ~12.5 fps
-            // (37-38 frames in 3 s) because every wait rounded up to the 15.6 ms system timer tick.
-            Assert.InRange(output.Frames, 42, 50);
         }
     }
 }
