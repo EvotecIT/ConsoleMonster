@@ -7,7 +7,7 @@ namespace ConsoleMonster.Capabilities {
     /// <summary>
     /// An immutable description of what the current terminal can do. Produced by an
     /// <see cref="ICapabilityProvider"/>, overridable by code, environment variables
-    /// (<c>CONSOLEMONSTER_COLOR</c>, <c>CONSOLEMONSTER_GLYPHS</c>, <c>CONSOLEMONSTER_MODE</c>, <c>NO_COLOR</c>) and configuration.
+    /// (<c>CONSOLEMONSTER_COLOR</c>, <c>CONSOLEMONSTER_GLYPHS</c>, <c>CONSOLEMONSTER_MODE</c>, <c>CONSOLEMONSTER_THEME</c>, <c>NO_COLOR</c>) and configuration.
     /// Rendering is a pure function of the widget, its state, this profile and the theme.
     /// </summary>
     public sealed class TerminalProfile {
@@ -37,6 +37,7 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="decisions">Human-readable notes explaining how each value was chosen.</param>
         /// <param name="widthProfile">Configured or derived display width assumptions.</param>
         /// <param name="probeWidths">Whether a live width probe is permitted.</param>
+        /// <param name="themePreference">Requested terminal theme preference.</param>
         public TerminalProfile(
             ColorDepth colorDepth,
             GlyphTier glyphs,
@@ -51,7 +52,8 @@ namespace ConsoleMonster.Capabilities {
             string? fontFace = null,
             IReadOnlyList<string>? decisions = null,
             TerminalWidthProfile? widthProfile = null,
-            bool probeWidths = false) {
+            bool probeWidths = false,
+            ThemePreference themePreference = ThemePreference.Auto) {
             ColorDepth = colorDepth;
             Glyphs = glyphs;
             Mode = mode;
@@ -66,6 +68,7 @@ namespace ConsoleMonster.Capabilities {
             Decisions = decisions ?? NoDecisions;
             WidthProfile = widthProfile ?? TerminalWidthProfile.Standard;
             ProbeWidths = probeWidths;
+            ThemePreference = themePreference;
         }
 
         /// <summary>Colour fidelity.</summary>
@@ -110,6 +113,9 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Whether an interactive session may probe terminal widths.</summary>
         public bool ProbeWidths { get; }
 
+        /// <summary>The requested light, dark, or automatically detected theme preference.</summary>
+        public ThemePreference ThemePreference { get; }
+
         /// <summary>Whether the profile allows live redraw (interactive mode with VT support).</summary>
         public bool IsLive => Mode == OutputMode.Interactive && SupportsVirtualTerminal;
 
@@ -141,6 +147,11 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>A new profile.</returns>
         public TerminalProfile WithMode(OutputMode mode) => Copy(mode: mode);
 
+        /// <summary>Returns a copy with a different theme preference.</summary>
+        /// <param name="themePreference">The requested preference.</param>
+        /// <returns>A new profile.</returns>
+        public TerminalProfile WithThemePreference(ThemePreference themePreference) => Copy(themePreference: themePreference);
+
         /// <summary>Returns a copy with a different size (used on resize).</summary>
         /// <param name="width">Width in cells.</param>
         /// <param name="height">Height in cells.</param>
@@ -166,7 +177,7 @@ namespace ConsoleMonster.Capabilities {
             return Kind + " " + Width + "x" + Height + " " + Mode + " " + ColorDepth + " " + Glyphs;
         }
 
-        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null) {
+        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null, ThemePreference? themePreference = null) {
             return new TerminalProfile(
                 colorDepth ?? ColorDepth,
                 glyphs ?? Glyphs,
@@ -181,7 +192,8 @@ namespace ConsoleMonster.Capabilities {
                 FontFace,
                 decisions ?? Decisions,
                 widthProfile ?? WidthProfile,
-                ProbeWidths);
+                ProbeWidths,
+                themePreference ?? ThemePreference);
         }
     }
 }

@@ -31,14 +31,32 @@ namespace ConsoleMonster.Interop {
             if (!IsWindows || !GetConsoleScreenBufferInfo(handle, out ConsoleBufferInfo info)) {
                 return false;
             }
-            width = info.Window.Right - info.Window.Left + 1;
-            height = info.Window.Bottom - info.Window.Top + 1;
-            return width > 0 && height > 0;
+            return info.Window.TryGetSize(out width, out height);
+        }
+
+        internal static bool TryGetBackgroundColor(IntPtr handle, out uint color, out int attributeIndex) {
+            color = 0;
+            attributeIndex = 0;
+            ConsoleScreenBufferInfoEx info = new ConsoleScreenBufferInfoEx {
+                Size = 96,
+                ColorTable = new uint[16]
+            };
+            if (!IsWindows || !GetConsoleScreenBufferInfoEx(handle, ref info)) {
+                return false;
+            }
+            attributeIndex = (info.Attributes >> 4) & 0x0F;
+            color = info.ColorTable[attributeIndex];
+            return true;
         }
 
         internal static bool TryGetFont(IntPtr handle, out string? face, out bool raster) {
+            return TryGetFont(handle, out face, out raster, out _);
+        }
+
+        internal static bool TryGetFont(IntPtr handle, out string? face, out bool raster, out int height) {
             face = null;
             raster = false;
+            height = 0;
             // Fixed native size, including 32 WCHARs. No reflection-based struct sizing.
             ConsoleFontInfo info = new ConsoleFontInfo { Size = 84, FaceName = string.Empty };
             if (!IsWindows || !GetCurrentConsoleFontEx(handle, false, ref info)) {
@@ -46,6 +64,7 @@ namespace ConsoleMonster.Interop {
             }
             face = info.FaceName;
             raster = (info.FontFamily & 4) == 0; // TMPF_TRUETYPE
+            height = info.FontSize.Y;
             return true;
         }
 
@@ -77,6 +96,9 @@ namespace ConsoleMonster.Interop {
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetConsoleScreenBufferInfo(IntPtr handle, out ConsoleBufferInfo info);
+        [DllImport("kernel32.dll", SetLastError = true, EntryPoint = "GetConsoleScreenBufferInfoEx")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetConsoleScreenBufferInfoEx(IntPtr handle, ref ConsoleScreenBufferInfoEx info);
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern uint GetFileType(IntPtr handle);
         [DllImport("ntdll.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]

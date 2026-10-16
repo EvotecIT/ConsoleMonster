@@ -1,10 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Text;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Capabilities {
     public sealed class CapabilityDetectorTests {
+        [Theory]
+        [InlineData("light", ThemePreference.Light, false)]
+        [InlineData("DARK", ThemePreference.Dark, false)]
+        [InlineData("auto", ThemePreference.Auto, false)]
+        [InlineData("", ThemePreference.Auto, false)]
+        [InlineData("sepia", ThemePreference.Auto, true)]
+        public void Detect_ThemeEnvironmentValue_UsesPreferenceOrRecordsIgnoredValue(string value, ThemePreference expected, bool invalid) {
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["TERM"] = "xterm", ["CONSOLEMONSTER_THEME"] = value
+            })).Detect();
+            Assert.Equal(expected, profile.ThemePreference);
+            Assert.Equal(invalid, profile.Decisions.Any(decision => decision.Contains("CONSOLEMONSTER_THEME: ignored invalid value")));
+        }
+
+        [Fact]
+        public void Fixed_DefaultsThemePreferenceToAutoAndCopyCanOverrideIt() {
+            TerminalProfile profile = TerminalProfile.Fixed(80, 24);
+            Assert.Equal(ThemePreference.Auto, profile.ThemePreference);
+            Assert.Equal(ThemePreference.Dark, profile.WithThemePreference(ThemePreference.Dark).ThemePreference);
+        }
+
+        [Fact]
+        public void RefreshFont_UsesNewFontAndPreservesGlyphOverrideAndAmbiguousWidthDowngrade() {
+            CapabilityDetector detector = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["CONSOLEMONSTER_GLYPHS"] = "full"
+            }, isWindows: true));
+            TerminalProfile profile = TerminalProfile.Fixed(80, 24).WithWidthProfile(TerminalWidthProfile.Standard.WithAmbiguousWidth(2));
+            TerminalProfile refreshed = detector.RefreshFont(profile, "Cascadia Mono");
+            Assert.Equal("Cascadia Mono", refreshed.FontFace);
+            Assert.Equal(GlyphTier.Ascii, refreshed.Glyphs);
+            Assert.Contains(refreshed.Decisions, decision => decision.Contains("CONSOLEMONSTER_GLYPHS"));
+            Assert.Contains(refreshed.Decisions, decision => decision.Contains("ambiguous width 2"));
+        }
+
         [Theory]
         [InlineData(22631, "Consolas", false, ColorDepth.TrueColor, GlyphTier.Basic)]
         [InlineData(14393, "Consolas", false, ColorDepth.Ansi16, GlyphTier.Basic)]

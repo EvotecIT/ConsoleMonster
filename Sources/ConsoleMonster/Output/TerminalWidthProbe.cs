@@ -32,6 +32,24 @@ namespace ConsoleMonster.Output {
         private static TerminalWidthProfile _cached = TerminalWidthProfile.Standard;
         private static string _decision = string.Empty;
 
+        internal static bool HasCachedResult {
+            get {
+                lock (Sync) {
+                    return _attempted;
+                }
+            }
+        }
+
+        /// <summary>Forgets the cached measurement so the next call to <see cref="TryProbe"/> measures again.</summary>
+        public static void Invalidate() {
+            lock (Sync) {
+                _attempted = false;
+                _success = false;
+                _cached = TerminalWidthProfile.Standard;
+                _decision = string.Empty;
+            }
+        }
+
         /// <summary>
         /// Probes once per process through <paramref name="writer"/> (the console writer the session draws with); later
         /// calls return the cached outcome. Call it only while the alternate screen is active: the probe writes on the

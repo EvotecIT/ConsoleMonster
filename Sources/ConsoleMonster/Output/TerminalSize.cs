@@ -34,5 +34,9 @@ namespace ConsoleMonster.Output {
             width = height = 0;
             return false;
         }
+
+        internal static bool TryComputeWindowSize(int left, int top, int right, int bottom, out int width, out int height) {
+            return ConsoleRectangle.TryComputeSize(left, top, right, bottom, out width, out height);
+        }
     }
 }

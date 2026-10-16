@@ -1,5 +1,6 @@
 using ConsoleMonster.Output;
 using ConsoleMonster.Text;
+using System;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Output {
@@ -31,6 +32,21 @@ namespace ConsoleMonster.Tests.Output {
         [InlineData(false, false, false)]
         public void CanProbe_RedirectedOrMissingConsoleIsSkipped(bool outputRedirected, bool inputRedirected, bool hasConsole) {
             Assert.False(TerminalWidthProbe.CanProbe(outputRedirected, inputRedirected, hasConsole));
+        }
+
+        [Fact]
+        public void Invalidate_ClearsProbeCacheWithoutTouchingConsoleInput() {
+            TerminalWidthProbe.TryProbe(new NonConsoleWriter(), TimeSpan.FromMilliseconds(1), out _, out _);
+            Assert.True(TerminalWidthProbe.HasCachedResult);
+            TerminalWidthProbe.Invalidate();
+            Assert.False(TerminalWidthProbe.HasCachedResult);
+        }
+
+        private sealed class NonConsoleWriter : ITerminalWriter {
+            public bool IsConsole => false;
+            public void Write(string text) { }
+            public void Flush() { }
+            public void Dispose() { }
         }
     }
 }

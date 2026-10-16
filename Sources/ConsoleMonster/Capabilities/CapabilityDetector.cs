@@ -97,6 +97,22 @@ namespace ConsoleMonster.Capabilities {
                     glyphReason = "CONSOLEMONSTER_GLYPHS";
                     break;
             }
+            ThemePreference themePreference = ThemePreference.Auto;
+            string themeValue = Get("CONSOLEMONSTER_THEME");
+            switch (themeValue.ToLowerInvariant()) {
+                case "light":
+                    themePreference = ThemePreference.Light;
+                    break;
+                case "dark":
+                    themePreference = ThemePreference.Dark;
+                    break;
+                case "":
+                case "auto":
+                    break;
+                default:
+                    decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'");
+                    break;
+            }
             if (mode == OutputMode.Plain) {
                 color = ColorDepth.None;
                 glyphs = GlyphTier.Ascii;
@@ -121,14 +137,60 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("kind: " + kind);
             decisions.Add("width profile: " + widths);
             decisions.Add("probe widths: " + probeWidths);
+            decisions.Add("theme preference: " + themePreference + " (CONSOLEMONSTER_THEME)");
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths);
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference);
+        }
+
+        /// <summary>Re-evaluates font-dependent glyph decisions for an existing profile.</summary>
+        /// <param name="profile">The profile to refresh.</param>
+        /// <param name="fontFace">The current console font face, or null when unavailable.</param>
+        /// <param name="fontIsRaster">Whether the current font is a raster font.</param>
+        /// <returns>A profile with refreshed font and glyph decisions.</returns>
+        public TerminalProfile RefreshFont(TerminalProfile profile, string? fontFace, bool fontIsRaster = false) {
+            if (profile == null) {
+                throw new ArgumentNullException(nameof(profile));
+            }
+            string font = fontFace ?? "unknown";
+            GlyphTier glyphs = DetectGlyphs(profile.Mode, profile.IsContinuousIntegration, font, fontIsRaster, out string reason);
+            switch (Get("CONSOLEMONSTER_GLYPHS").ToLowerInvariant()) {
+                case "full":
+                    glyphs = GlyphTier.Full;
+                    reason = "CONSOLEMONSTER_GLYPHS";
+                    break;
+                case "basic":
+                    glyphs = GlyphTier.Basic;
+                    reason = "CONSOLEMONSTER_GLYPHS";
+                    break;
+                case "ascii":
+                    glyphs = GlyphTier.Ascii;
+                    reason = "CONSOLEMONSTER_GLYPHS";
+                    break;
+            }
+            if (profile.Mode == OutputMode.Plain) {
+                glyphs = GlyphTier.Ascii;
+                reason = "plain mode";
+            }
+            List<string> decisions = new List<string>(profile.Decisions) {
+                "font refreshed: " + font,
+                "glyphs: " + glyphs + " (" + reason + ")"
+            };
+            if (profile.WidthProfile.AmbiguousWidth == 2 && glyphs != GlyphTier.Ascii) {
+                glyphs = GlyphTier.Ascii;
+                decisions.Add("glyphs downgraded: ambiguous width 2");
+            }
+            return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
+                profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
+                profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
+                profile.ThemePreference);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {
             string value = Get(name);
-            if (value.Length == 0 || Equal(value, "auto")) return true;
+            if (value.Length == 0 || Equal(value, "auto")) {
+                return true;
+            }
             if (value == "1" || value == "2") {
                 profile = (emoji ? profile.WithEmojiWidth(int.Parse(value, CultureInfo.InvariantCulture)) : profile.WithAmbiguousWidth(int.Parse(value, CultureInfo.InvariantCulture))).WithSource("environment");
                 decisions.Add(name + ": " + value);
@@ -209,6 +271,10 @@ namespace ConsoleMonster.Capabilities {
         }
 
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, out string reason) {
+            return DetectGlyphs(mode, ci, _environment.ConsoleFontFace, _environment.ConsoleFontIsRaster, out reason);
+        }
+
+        private GlyphTier DetectGlyphs(OutputMode mode, bool ci, string? consoleFontFace, bool consoleFontIsRaster, out string reason) {
             if (mode != OutputMode.Interactive || ci) {
                 reason = "stream/CI";
                 return GlyphTier.Basic;
@@ -217,9 +283,9 @@ namespace ConsoleMonster.Capabilities {
                 reason = "modern terminal";
                 return GlyphTier.Full;
             }
-            string font = _environment.ConsoleFontFace ?? "unknown";
+            string font = consoleFontFace ?? "unknown";
             reason = "conhost font '" + font + "'";
-            if (_environment.ConsoleFontIsRaster || Equal(font, "Terminal")) {
+            if (consoleFontIsRaster || Equal(font, "Terminal")) {
                 return GlyphTier.Ascii;
             }
             foreach (string fullFont in FullFonts) {
