@@ -33,6 +33,8 @@ Each layer can be used without the ones above it.
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
+Text that reaches stream and plain output is sanitised: escape sequences (CSI, OSC) and control characters in log
+messages, captured lines or data are removed, so Plain mode never emits an escape sequence.
 
 ## PowerShell
 
@@ -51,6 +53,25 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 {
     Update-ConsoleLane -Key $Server -Complete
 }
 ```
+
+Where cmdlet output goes:
+
+- On a real local interactive console, output is drawn directly, with colour and live dashboards.
+- Everywhere else, output is written the way `Write-Host` writes it: information records tagged `PSHOST`, one per
+  line, as plain text. "Everywhere else" means background jobs and thread jobs, remoting and SSH, the ISE, redirected
+  output, and any session where `Start-Transcript` is running.
+- So `Receive-Job` gets the text, transcripts record it, and `6>&1` captures it as lines.
+- As with `Write-Host`, `$x = Write-ConsoleTable ...` captures nothing.
+- A dashboard in those hosts narrates as append-only lines.
+
+Dashboard problems are reported once the screen is restored:
+
+- An update for a widget name the dashboard doesn't have warns once per name, listing the valid names.
+- Failed updates, frames that couldn't be laid out, and a session that ended because drawing failed are written as
+  warnings and errors.
+- `LiveSession.GetCounters()` returns the counters, for example `$ConsoleSession.GetCounters()` inside the dashboard script.
+- A dashboard that can't start fails with a clear error before it touches the screen. Examples are an unwritable
+  `-RecordPath` or another dashboard already running.
 
 ## C#
 
@@ -132,7 +153,12 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
 
 - Nested objects become indented sections and collections become nested tables.
 - `InspectorOptions` sets the depth limit, the item limit (with "+N more"), include/exclude and ordering.
+- `MaxNodes` (default 5,000; `Format-ConsoleTree -MaxNodes`) caps one inspection, so a wide object at a large depth
+  ends with a "node limit reached" marker instead of millions of nodes.
 - Cycles are detected and marked.
+- Getters that would block or force work are not called. An incomplete `Task` or `ValueTask` and an uncreated
+  `Lazy<T>` show their state instead. Excluded members are never read, so `Exclude` doubles as a skip list.
+- Ctrl+C (and any `OperationCanceledException`) stops the inspection instead of becoming an error node.
 - `JsonElement` is supported on net8.0, where System.Text.Json is in-box. On net472 and netstandard2.0, parse JSON
   into dictionaries first.
 - Reflection is used only for objects that are not dictionaries, JSON or PSObjects, and lives in one member source.
@@ -204,10 +230,20 @@ rather than data.
   (OSC 11). So in Windows Terminal with a light scheme, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light`.
   The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background.
 - Print-once output (tables, trees and lists written with `Terminal.Write` or the Format cmdlets) has no trailing
-  spaces or padding to the right edge. It is laid out for the width at the time it was printed. A later resize can't
+  spaces or padding to the right edge. Each write reads the window size again (`Terminal.GetCurrentProfile`), so
+  output printed after a resize uses the new width. Once printed, it is laid out for the width at that moment. A later resize can't
   re-lay it out: in conhost with "Wrap text output on resize" on, a narrower window re-wraps wide lines into
   fragments, and with the option off, wide lines are clipped behind a horizontal scroll bar. Use `-Width` (or a
   `TerminalProfile.Fixed` profile) when output must fit a known width.
+
+## Edge values
+
+- `DateTime.MinValue` and `DateTime.MaxValue` are common "never" values in directory data. They show as `never` in
+  every time zone instead of throwing.
+- `TimeSpan.MinValue`, `TimeSpan.MaxValue`, durations beyond the TimeSpan range, and NaN or infinite numbers show as a
+  dash (`-` in the ASCII tier).
+- Charts skip non-finite values, so a rate computed over zero elapsed time never prints `Infinity` or `NaN`.
+
 ## Repository
 
 - `ConsoleMonster.psd1` / `ConsoleMonster.psm1` / `ConsoleMonster.Tests.ps1`: the module (built by `Build/Build-Module.ps1`).

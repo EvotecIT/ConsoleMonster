@@ -15,6 +15,12 @@
 - Light/dark background detection in conhost and `CONSOLEMONSTER_THEME=light|dark|auto`.
 - Wrapping breaks after spaces, then after separators (path, list and query separators before dots, dashes and colons), then by character; `LogRegion.Wrap` wraps long log entries.
 - Explicit culture for numbers and dates: `CONSOLEMONSTER_CULTURE`, `TerminalProfile.WithCulture`, `LiveSessionOptions.Culture` and `-Culture` on the Format cmdlets (default: the current culture).
+- Outside a real local console (jobs, remoting, SSH, the ISE, redirected output, transcripts) cmdlets write through the PowerShell host like Write-Host, so jobs complete, transcripts record and `6>&1` captures the output.
+- Print-once output reads the window size on every write.
+- Sentinel dates show as "never" and unbounded durations or non-finite numbers as a dash, instead of throwing; charts skip non-finite values.
+- Stream and plain output sanitise escape sequences and control characters.
+- Dashboards report unknown widget names, failed updates, failed frames and early ends through the host; `LiveSession.GetCounters()`; a dashboard that cannot start leaves the screen untouched.
+- The object inspector has a node budget (`MaxNodes`, `-MaxNodes`), skips blocking getters and lets Ctrl+C through.
 - 45 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
 
 #### Breaking changes
