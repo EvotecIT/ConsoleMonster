@@ -40,7 +40,7 @@ $text = if ($CurrentOperation) { if ($Status) { $Status + ' - ' + $CurrentOperat
 $__cmProgressBridge.Progress($Id, $ParentId, $Activity, $text, $PercentComplete, $SecondsRemaining, $Completed.IsPresent)
 ";
 
-        private const string HostProxy = @"
+        internal const string HostProxy = @"
 param(
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)][object[]] $Object,
     [switch] $NoNewline,

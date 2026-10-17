@@ -1,5 +1,6 @@
 Describe 'ConsoleMonster module' {
     BeforeAll {
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
@@ -18,8 +19,7 @@ Describe 'ConsoleMonster module' {
                 $lines.Add("`$env:$key = '$($Environment[$key])'")
             }
             $lines.Add($Script)
-            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
             ($output | ForEach-Object { "$_" }) -join "`n"
         }
     }
@@ -27,7 +27,8 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 64
+        $commands.Count | Should -Be 65
+        $commands.Name | Should -Contain 'Invoke-ConsolePester'
         $commands.Name | Should -Contain 'Write-ConsoleTable'
         $commands.Name | Should -Contain 'Start-ConsoleDashboard'
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty
@@ -93,7 +94,9 @@ $result = Start-ConsoleDashboard $d {
         }
         $null = Wait-Job $job -Timeout 180
         $state = $job.State
-        $received = @(Receive-Job $job 6>&1 2>&1 | ForEach-Object { "$_" })
+        # The job's streams are read directly: Receive-Job would also replay the job's host calls onto this console.
+        $child = $job.ChildJobs[0]
+        $received = @(@($child.Output) + @($child.Information) + @($child.Error) | ForEach-Object { "$_" })
         Remove-Job $job -Force
         $state | Should -Be 'Completed'
         $received | Should -Contain 'from the job'
@@ -167,7 +170,8 @@ Stop-Transcript | Out-Null
             [pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
         }
         $null = Wait-Job $job -Timeout 180
-        $records = @(Receive-Job $job 6>&1)
+        # The job's information records are what Receive-Job 6>&1 returns, read without replaying host calls onto this console.
+        $records = @($job.ChildJobs[0].Information)
         Remove-Job $job -Force
         $segments = @($records | Where-Object { $_.MessageData.Message } | ForEach-Object { '{0}|{1}' -f $_.MessageData.Message.Trim(), $_.MessageData.ForegroundColor })
         ($segments -join "`n") | Should -Match '\S+ PASS\|Green'
