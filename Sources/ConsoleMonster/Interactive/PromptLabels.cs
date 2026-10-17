@@ -106,6 +106,30 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: run the action.</summary>
         public string KeyRun { get; set; } = "run";
 
+        /// <summary>Key hint: sort a grid by the next column.</summary>
+        public string KeySort { get; set; } = "sort";
+
+        /// <summary>Key hint: reverse a grid's sort order.</summary>
+        public string KeyOrder { get; set; } = "order";
+
+        /// <summary>Key hint: choose a grid's columns.</summary>
+        public string KeyColumns { get; set; } = "columns";
+
+        /// <summary>Key hint: the focused row's details.</summary>
+        public string KeyDetails { get; set; } = "details";
+
+        /// <summary>Key hint: finish and return the selection.</summary>
+        public string KeyDone { get; set; } = "done";
+
+        /// <summary>The grid's row count: {0} shown of {1}.</summary>
+        public string GridRows { get; set; } = "{0} of {1} rows";
+
+        /// <summary>The grid's selection count.</summary>
+        public string GridSelected { get; set; } = "{0} selected";
+
+        /// <summary>The column chooser's title.</summary>
+        public string Columns { get; set; } = "Columns";
+
         /// <summary>Key hint: a new line in a multi-line text box.</summary>
         public string KeyNewLine { get; set; } = "new line";
 

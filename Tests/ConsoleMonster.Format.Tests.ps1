@@ -26,7 +26,7 @@
 
     It 'exports the Format cmdlets' {
         Import-Module $script:ModulePath -Force
-        (Get-Command -Module ConsoleMonster -Name Format-Console*).Name | Sort-Object | Should -Be @('Format-ConsoleList', 'Format-ConsoleTable', 'Format-ConsoleTree')
+        (Get-Command -Module ConsoleMonster -Name Format-Console*).Name | Sort-Object | Should -Be @('Format-ConsoleCode', 'Format-ConsoleError', 'Format-ConsoleJson', 'Format-ConsoleList', 'Format-ConsoleTable', 'Format-ConsoleTree')
     }
 
     It 'formats a table with presenters and a totals row as plain text' {

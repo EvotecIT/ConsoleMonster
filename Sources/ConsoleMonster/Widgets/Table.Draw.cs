@@ -80,6 +80,52 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
+        private TableLayout? _window;
+        private int _windowWidth;
+        private Styling.ITheme? _windowTheme;
+        private Capabilities.ColorDepth _windowDepth;
+        private Capabilities.GlyphTier _windowTier;
+
+        /// <summary>
+        /// Renders the head and a window of body rows (an interactive grid's visible page). Column widths come from every
+        /// row and are computed once per width and theme, so scrolling keeps the columns still; only the window's cells are
+        /// presented. Returns the head height and, per drawn row, its first line.
+        /// </summary>
+        internal CellBuffer RenderWindow(int width, int start, int count, RenderContext context, out int headHeight, out List<int> rowLines, out string? hiddenNote) {
+            if (_window == null || _windowWidth != width || !ReferenceEquals(_windowTheme, context.Theme) || _windowDepth != context.Depth || _windowTier != context.Glyphs.Tier) {
+                _window = ComputeLayout(width, context, true);
+                _windowWidth = width;
+                _windowTheme = context.Theme;
+                _windowDepth = context.Depth;
+                _windowTier = context.Glyphs.Tier;
+            }
+            TableLayout layout = _window;
+            hiddenNote = layout.HiddenMarker?.PlainText;
+            headHeight = HeadHeight(layout);
+            rowLines = new List<int>();
+            int first = Math.Max(0, Math.Min(start, layout.Rows.Count));
+            int end = Math.Min(layout.Rows.Count, first + Math.Max(0, count));
+            PresenterContext[] contexts = ColumnContexts(Presentation.CreateContext(context));
+            int lines = 0;
+            for (int i = first; i < end; i++) {
+                TableLayoutRow row = layout.Rows[i];
+                if (row.Cells == null && row.Source >= 0) {
+                    row.Cells = Present(_rows[row.Source], contexts);
+                }
+                FitRow(row, layout, context);
+                rowLines.Add(headHeight + lines);
+                lines += row.Height;
+            }
+            CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
+            Region region = new Region(buffer);
+            DrawHead(region, 0, layout, context);
+            DrawRows(region, headHeight, layout, first, end, context);
+            for (int i = first; i < end; i++) {
+                layout.Rows[i].Lines = null;
+                layout.Rows[i].Cells = null;
+            }
+            return buffer;
+        }
         private int HeadHeight(TableLayout layout) {
             bool boxed = IsBoxed;
             int height = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (boxed ? 1 : 0);

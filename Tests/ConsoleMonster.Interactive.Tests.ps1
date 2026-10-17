@@ -161,6 +161,22 @@ $s = Read-ConsoleSecret 'Token'
             $text | Should -Match 'not that one'
         }
 
+        It 'returns the original objects chosen in Show-ConsoleGrid' {
+            $text = Invoke-PromptChild -Script @'
+$rows = 1..12 | ForEach-Object { [pscustomobject] @{ Name = 'SRV{0:00}' -f $_; Role = @('web', 'sql', 'dc')[$_ % 3]; Cpu = ($_ * 37) % 100 } }
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('"sql" Space Down Space Ctrl+Enter')
+$picked = @($rows | Show-ConsoleGrid -Title 'Servers')
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+Home Ctrl+Enter')
+$top = @($rows | Show-ConsoleGrid -Property Name, Cpu -SortBy Cpu -Descending -OutputMode Single)
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+Enter')
+$none = @($rows | Show-ConsoleGrid -OutputMode None)
+"picked=$($picked.Name -join '+') type=$($picked[0].GetType().Name) top=$($top.Name) none=$($none.Count)"
+try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+'@
+            $text | Should -Match 'picked=SRV01\+SRV04 type=PSCustomObject top=SRV08 none=0'
+            $text | Should -Match 'error=Prompt'
+        }
+
         It 'cancels with a PromptCancelled error on Esc' {
             $text = Invoke-PromptChild -Script @'
 [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Escape')

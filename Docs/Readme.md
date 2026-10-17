@@ -260,6 +260,11 @@ Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar se
 
 Sends a "set" update to the named widget. For a key/value list the value is shown as text; for bar charts and stacked bars it must be numeric.
 
+### [Show-ConsoleGrid](Show-ConsoleGrid.md)
+Shows pipeline objects in an interactive grid and returns the rows you choose.
+
+An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list; without an interactive user the cmdlet fails with a clear error.
+
 ### [Show-ConsoleMenu](Show-ConsoleMenu.md)
 Shows a menu until the user exits.
 
