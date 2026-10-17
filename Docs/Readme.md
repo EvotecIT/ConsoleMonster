@@ -15,6 +15,11 @@ Adds a value to a chart in a running dashboard.
 
 Appends to a sparkline or line-chart series (-Key names the series), counts a value in a histogram, or adds to a bar or stacked-bar segment (-Key names it).
 
+### [Assert-ConsoleOutput](Assert-ConsoleOutput.md)
+Compares console output with a golden file (for Pester and other tests).
+
+Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.
+
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
 Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
 
@@ -274,6 +279,11 @@ Updates a spinner in a running dashboard.
 Updates an item of a status list in a running dashboard.
 
 Adds the item when it does not exist. -Detail shows a right-aligned muted note such as a duration.
+
+### [Use-ConsoleProgress](Use-ConsoleProgress.md)
+Runs a script and shows its Write-Progress calls as an inline progress area.
+
+The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ### [Write-ConsoleKeyValue](Write-ConsoleKeyValue.md)
 Writes an aligned key/value list.

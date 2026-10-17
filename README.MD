@@ -116,7 +116,10 @@ Tables negotiate their width instead of overflowing it:
   on one line, so a line ends with its separator: `evotec-xyz.mail.protection.` / `outlook.com`,
   `Artefacts\Packed\` / `ConsoleMonster.2.0.0.nupkg`. Tables, cards, record views, key/value lists, text blocks and
   log regions (with `LogRegion.Wrap`) all use the same rules.
-- The header row is separated from the data by one rule row (`├──┼──┤`), drawn by the font at mid-height. There is
+- Very long tables print in blocks: above `Terminal.StreamingRowThreshold` rows (2,000) the column widths are still
+  measured from every row, but rows are rendered and written 500 at a time. Printing 50,000 rows at 140 columns
+  takes about 1.7 s, with peak memory about 76 MB above the starting point (510 MB before), and the output is
+  identical to a single render.- The header row is separated from the data by one rule row (`├──┼──┤`), drawn by the font at mid-height. There is
   no padding row. `HeaderSeparator = false` (`-NoHeaderSeparator`) underlines the header instead.
 - When the columns don't fit, the lowest-priority columns hide first and a footer names them:
   `+2 columns (TTL, Cache file)`. The key column never hides.
@@ -402,6 +405,30 @@ that Esc cancels. The review page shows every answer and the equivalent command 
 
 Every built-in word comes from `PromptLabels`, so the interactive layer can be translated.
 
+## Inline live area and Write-Progress
+
+A live session can draw inline instead of on the alternate screen: an area as tall as its content sits below the
+cursor, output and log lines scroll above it, and the final state stays in the scrollback.
+
+```powershell
+Start-ConsoleDashboard $dashboard -Inline { ... }          # -Transient leaves nothing behind
+Use-ConsoleProgress { foreach ($i in 1..50) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 2) } }
+```
+
+```csharp
+using (LiveSession session = new LiveSession(new Rows(progress, lanes), new LiveSessionOptions { Mode = LiveMode.Inline })) { ... }
+```
+
+- It works in Windows Terminal and conhost. It redraws only changed rows, clears the rows it leaves when it shrinks,
+  and copes with a narrower window after a resize. Ctrl+C restores the screen. In CI and redirected output it falls
+  back to the usual stream lines.
+- Console output, and log lines when the area has no log region, are printed above the area while it runs.
+- `Write-Progress` in a dashboard script shows as nested activities under the dashboard, with Activity, Status,
+  PercentComplete, SecondsRemaining and Id/ParentId nesting. They come from an `ActivityList`, added automatically
+  when the dashboard has none; an empty list takes no space. In stream mode they print a line at every 10%.
+- `Use-ConsoleProgress` runs an existing script unchanged, with the caller's variables. Its own `Write-Progress` and
+  `Write-Host` calls are drawn inline, and its output is returned at the end. Commands inside other modules keep their
+  own `Write-Progress`, which PowerShell shows as usual.
 ## Export to HTML, SVG, text and asciicast
 
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
@@ -428,7 +455,7 @@ string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
 - **SVG**: box drawing, block and braille characters are drawn as shapes, so borders join and charts line up in any
   font. Every other glyph is centred in its cell and stays selectable. There are no external assets.
 - **Recordings** are played into the same dashboard definition at a fixed size and frame rate, and identical frames
-  are merged. The animated SVG uses CSS keyframes only. The HTML player has play/pause, speed and a scrubber; add
+  are merged; `FramesPerSecond = 2` roughly halves the size of an animated SVG. The animated SVG uses CSS keyframes only. The HTML player has play/pause, speed and a scrubber; add
   `#t=30000` to the address to open it at 30 seconds. Asciicast v3 files contain output events only.
 - **Links**: OSC 8 links become links for http, https, mailto and ftp only. `javascript:` and every other scheme
   render as plain text, all text is escaped, and nothing is fetched from the network.
@@ -438,6 +465,30 @@ string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
 - **Interactive screens**: `InteractiveOptions.Capture = new ScreenCapture(120, 36)` with a scripted `Input` draws
   prompts, menus and forms into memory, ready for `ConsoleExporter`.
 
+## Testing your output
+
+The same helpers the library's tests use are public (`ConsoleMonster.Testing`):
+
+```csharp
+string text = TestTerminal.RenderText(widget, width: 80, glyphs: GlyphTier.Ascii, culture: CultureInfo.InvariantCulture);
+GoldenFile.Match("Golden/report.txt", text);      // first run writes the file; CONSOLEMONSTER_UPDATE_GOLDEN=1 rewrites
+ScreenCapture capture = new ScreenCapture(80, 20);
+bool ok = new ConfirmPrompt("Deploy?").Show(TestTerminal.Interactive("y", capture));
+```
+
+```powershell
+It 'renders the report' {
+    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+}
+```
+
+- Rendering uses a fixed size, glyph tier and culture (invariant by default), so results don't depend on the machine.
+- A mismatch fails with the first differing line, the expected and actual versions, and the column where they part.
+- To get a `Should` operator, register one in `BeforeAll`:
+  `Add-ShouldOperator -Name MatchConsoleGolden -Test { param($ActualValue, $Path) try { $ActualValue | Assert-ConsoleOutput -GoldenPath $Path; [pscustomobject] @{ Succeeded = $true; FailureMessage = '' } } catch { [pscustomobject] @{ Succeeded = $false; FailureMessage = $_.Exception.Message } } }`,
+  then write `$widget | Should -MatchConsoleGolden "$PSScriptRoot\Golden\x.txt"`.
+- `.github/workflows/test.yml` runs xUnit on net472 and net8.0 and Pester on Windows PowerShell 5.1 and PowerShell 7
+  on every push and pull request.
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a

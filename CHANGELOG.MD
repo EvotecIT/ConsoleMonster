@@ -30,6 +30,12 @@
 - Menus and the app shell: Shell, Classic and Inline layouts, breadcrumb navigation, a command palette with providers, a key map and footer generated from the active keys, toasts, prompts over the app, and runs into a live dashboard that return to a results summary.
 - Menu actions: console output, Write-Host, warnings and errors are collected and shown as a toast or an output dialog instead of drawing over the app; async actions ask through the menu's thread; a blocked Run shows its problem count and opens the item that fixes it; leaving a form with unsaved changes asks to discard them.
 - Export: widgets, rendered frames and live-session snapshots to self-contained HTML (light and dark), SVG (box, block and braille drawn as shapes) and text; recordings to an HTML player, an animated SVG and asciicast v3 (ConsoleExporter, Recording, Export-ConsoleFrame, Export-ConsoleRecording, Format-ConsoleTable -AsWidget); ScreenCapture draws interactive screens into memory.
+- Inline live area (`LiveSessionOptions.Mode = Inline`, `Start-ConsoleDashboard -Inline`/`-Transient`): a live region below the cursor with output scrolling above it; stream lines in CI and redirected output.
+- `Write-Progress` from dashboard runspaces shows as nested activities (`ActivityList`); `Use-ConsoleProgress` renders a script's `Write-Progress` inline.
+- Public test helpers: `TestTerminal`, `GoldenFile` (`CONSOLEMONSTER_UPDATE_GOLDEN=1`, readable diffs), `ScreenCapture` and `Assert-ConsoleOutput`.
+- Long tables print in blocks (`Terminal.StreamingRowThreshold`, `Terminal.RenderChunks`): 50,000 rows use about 76 MB instead of 510 MB.
+- SVG exports batch shapes into one path per colour; `ExportOptions.Elapsed` sets the clock of widget exports; `Format-ConsoleTable -AsWidget` keeps `-Culture` (`CultureScope`).
+- A Windows CI workflow runs xUnit (net472, net8.0) and Pester (5.1, 7).
 - 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes

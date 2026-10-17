@@ -27,7 +27,7 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 62
+        $commands.Count | Should -Be 64
         $commands.Name | Should -Contain 'Write-ConsoleTable'
         $commands.Name | Should -Contain 'Start-ConsoleDashboard'
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty

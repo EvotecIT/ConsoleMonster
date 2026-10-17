@@ -13,7 +13,7 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportModule <string[]>] [-RecordPath <string>] [-Summary <IWidget>] [-FramesPerSecond <int>] [<CommonParameters>]
+Start-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportModule <string[]>] [-RecordPath <string>] [-Summary <IWidget>] [-Inline] [-Transient] [-FramesPerSecond <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -84,6 +84,22 @@ Modules to import into the dashboard runspaces.
 
 ```yaml
 Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Inline
+Draws the dashboard inline, below the cursor, instead of on the alternate screen: output and log lines scroll above it and the final state stays in the scrollback.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -180,6 +196,22 @@ Maximum concurrent runspaces with -Parallel (default 4).
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Transient
+Leaves nothing behind when the dashboard ends (no final state in the scrollback).
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
