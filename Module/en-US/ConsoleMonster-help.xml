@@ -372,6 +372,50 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Clear-ConsoleScreen</command:name>
+      <command:verb>Clear</command:verb>
+      <command:noun>ConsoleScreen</command:noun>
+      <maml:description>
+        <maml:para>Clears the console screen, safely.</maml:para>
+        <maml:para>On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Clears the console screen, safely.</maml:para>
+      <maml:para>On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Clear-ConsoleScreen</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Clear-ConsoleScreen</dev:code>
+        <dev:remarks>
+          <maml:para></maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Export-ConsoleFrame</command:name>
       <command:verb>Export</command:verb>
       <command:noun>ConsoleFrame</command:noun>
@@ -15654,16 +15698,28 @@ Description and RunText.</maml:para>
       <command:noun>ConsoleMarkup</command:noun>
       <maml:description>
         <maml:para>Writes Spectre-compatible markup as styled text.</maml:para>
-        <maml:para>Supports [bold], [italic], [underline], colours ([red], [#ff8800], [rgb(1,2,3)], [white on navy]) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them: [[ and ]]. Colours degrade to 256 or 16 colours, or none, as the terminal requires.</maml:para>
+        <maml:para>Supports [bold], [italic], [underline], the 256 xterm colour names of Spectre markup ([red], [cadetblue], [grey50], [deepskyblue3]), [#ff8800], [rgb(1,2,3)], [white on navy], links ([link=https://example.com]text[/] or [link]https://example.com[/], clickable in Windows Terminal and VS Code) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them ([[ and ]]) or with [ConsoleMonster.Text.Markup]::Escape($value). A tag that is not a known style is removed and its text kept when a [/] closes it; an unclosed unknown tag stays literal. Colours degrade to 256 or 16 colours, or none, as the terminal requires.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Writes Spectre-compatible markup as styled text.</maml:para>
-      <maml:para>Supports [bold], [italic], [underline], colours ([red], [#ff8800], [rgb(1,2,3)], [white on navy]) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them: [[ and ]]. Colours degrade to 256 or 16 colours, or none, as the terminal requires.</maml:para>
+      <maml:para>Supports [bold], [italic], [underline], the 256 xterm colour names of Spectre markup ([red], [cadetblue], [grey50], [deepskyblue3]), [#ff8800], [rgb(1,2,3)], [white on navy], links ([link=https://example.com]text[/] or [link]https://example.com[/], clickable in Windows Terminal and VS Code) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them ([[ and ]]) or with [ConsoleMonster.Text.Markup]::Escape($value). A tag that is not a known style is removed and its text kept when a [/] closes it; an unclosed unknown tag stays literal. Colours degrade to 256 or 16 colours, or none, as the terminal requires.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Write-ConsoleMarkup</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoNewLine</maml:name>
+          <maml:description>
+            <maml:para>Leaves the line open, as Write-Host -NoNewline does. Redirected output still gets plain text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Text</maml:name>
           <maml:description>
@@ -15679,6 +15735,18 @@ Description and RunText.</maml:para>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoNewLine</maml:name>
+        <maml:description>
+          <maml:para>Leaves the line open, as Write-Host -NoNewline does. Redirected output still gets plain text.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
         <maml:name>Text</maml:name>
         <maml:description>
@@ -16448,12 +16516,12 @@ Description and RunText.</maml:para>
       <command:noun>ConsoleText</command:noun>
       <maml:description>
         <maml:para>Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.</maml:para>
-        <maml:para>The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and the log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16). In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</maml:para>
+        <maml:para>The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.</maml:para>
-      <maml:para>The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and the log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16). In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</maml:para>
+      <maml:para>The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -16509,7 +16577,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Encoding</maml:name>
           <maml:description>
-            <maml:para>The log file encoding (default utf8 without a byte order mark; Write-Color's names are accepted, plus utf8BOM and utf8NoBOM).</maml:para>
+            <maml:para>The encoding of a new log file: utf8 without a byte order mark by default (Write-Color defaults to unicode, which is UTF-16 LE); Write-Color's names mean the same here (unicode, string and unknown are UTF-16 LE, bigendianunicode UTF-16 BE, utf32 UTF-32 LE), plus utf8BOM and utf8NoBOM. Appending to an existing file always keeps that file's encoding (detected from its byte order mark, or UTF-16 text without one), so a UTF-16 log from Write-Color stays UTF-16; when -Encoding names a different one, a warning says so.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -16942,7 +17010,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Encoding</maml:name>
         <maml:description>
-          <maml:para>The log file encoding (default utf8 without a byte order mark; Write-Color's names are accepted, plus utf8BOM and utf8NoBOM).</maml:para>
+          <maml:para>The encoding of a new log file: utf8 without a byte order mark by default (Write-Color defaults to unicode, which is UTF-16 LE); Write-Color's names mean the same here (unicode, string and unknown are UTF-16 LE, bigendianunicode UTF-16 BE, utf32 UTF-32 LE), plus utf8BOM and utf8NoBOM. Appending to an existing file always keeps that file's encoding (detected from its byte order mark, or UTF-16 text without one), so a UTF-16 log from Write-Color stays UTF-16; when -Encoding names a different one, a warning says so.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>

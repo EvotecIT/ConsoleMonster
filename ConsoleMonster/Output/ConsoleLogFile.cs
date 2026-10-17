@@ -64,8 +64,24 @@ namespace ConsoleMonster.Output {
         /// <summary>The CSV separator (default a comma).</summary>
         public string Separator { get; set; } = ",";
 
-        /// <summary>The encoding (default UTF-8 without a byte order mark); see <see cref="ResolveEncoding"/>.</summary>
+        /// <summary>
+        /// The encoding for a new file (default UTF-8 without a byte order mark; Write-Color defaults to UTF-16 "Unicode");
+        /// see <see cref="ResolveEncoding"/>. An existing file keeps its own encoding (see <see cref="KeepExistingEncoding"/>).
+        /// </summary>
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
+
+        /// <summary>
+        /// Whether appending to an existing file keeps that file's encoding (default true), detected by
+        /// <see cref="DetectEncoding"/>, so a UTF-16 log written by Write-Color is never continued in UTF-8. A file whose
+        /// encoding cannot be told (no byte order mark, not UTF-16 text) is appended to in <see cref="Encoding"/>.
+        /// </summary>
+        public bool KeepExistingEncoding { get; set; } = true;
+
+        /// <summary>
+        /// Whether <see cref="Encoding"/> was chosen by the caller (for example PowerShell's -Encoding). When it differs from
+        /// an existing file's encoding, the file's encoding is kept and <see cref="Warning"/> is told once.
+        /// </summary>
+        public bool EncodingSpecified { get; set; }
 
         /// <summary>Attempts before giving up (default 2).</summary>
         public int Retries { get; set; } = 2;
@@ -91,9 +107,10 @@ namespace ConsoleMonster.Output {
                 try {
                     bool isNew = !File.Exists(Path) || new FileInfo(Path).Length == 0;
                     string text = FormatRecord(record, isNew);
+                    Encoding encoding = isNew ? Encoding : EncodingFor(Path);
                     using (FileStream stream = new FileStream(Path, FileMode.Append, FileAccess.Write, FileShare.Read)) {
-                        byte[] preamble = isNew ? Encoding.GetPreamble() : new byte[0];
-                        byte[] bytes = Encoding.GetBytes(text);
+                        byte[] preamble = isNew ? encoding.GetPreamble() : new byte[0];
+                        byte[] bytes = encoding.GetBytes(text);
                         stream.Write(preamble, 0, preamble.Length);
                         stream.Write(bytes, 0, bytes.Length);
                     }
@@ -109,6 +126,78 @@ namespace ConsoleMonster.Output {
                 }
             }
             return false;
+        }
+
+        private bool _mismatchReported;
+
+        private Encoding EncodingFor(string path) {
+            if (!KeepExistingEncoding) {
+                return Encoding;
+            }
+            Encoding? existing = DetectEncoding(path);
+            if (existing == null) {
+                return Encoding;
+            }
+            if (EncodingSpecified && existing.CodePage != Encoding.CodePage && !_mismatchReported) {
+                _mismatchReported = true;
+                Warning?.Invoke("Log file " + path + " is " + existing.WebName + "; appending in that encoding instead of " + Encoding.WebName + ".");
+            }
+            return existing;
+        }
+
+        /// <summary>
+        /// The encoding of an existing file, from its byte order mark (UTF-8, UTF-16 LE/BE, UTF-32 LE/BE), or UTF-16 text
+        /// without one (every other byte zero); null when the file is missing, empty or cannot be told (plain ASCII or
+        /// UTF-8 without a mark, which <see cref="Encoding"/> handles).
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        /// <returns>The detected encoding (writing no byte order mark of its own when appended), or null.</returns>
+        public static Encoding? DetectEncoding(string path) {
+            byte[] head = new byte[512];
+            int read;
+            try {
+                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) {
+                    read = stream.Read(head, 0, head.Length);
+                }
+            } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is NotSupportedException || ex is System.Security.SecurityException || ex is ArgumentException) {
+                return null;
+            }
+            if (read >= 4 && head[0] == 0xFF && head[1] == 0xFE && head[2] == 0 && head[3] == 0) {
+                return new UTF32Encoding(false, true);
+            }
+            if (read >= 4 && head[0] == 0 && head[1] == 0 && head[2] == 0xFE && head[3] == 0xFF) {
+                return new UTF32Encoding(true, true);
+            }
+            if (read >= 3 && head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF) {
+                return new UTF8Encoding(true);
+            }
+            if (read >= 2 && head[0] == 0xFF && head[1] == 0xFE) {
+                return new UnicodeEncoding(false, true);
+            }
+            if (read >= 2 && head[0] == 0xFE && head[1] == 0xFF) {
+                return new UnicodeEncoding(true, true);
+            }
+            // UTF-16 text without a byte order mark: zero high bytes at odd (LE) or even (BE) positions, none at the other.
+            if (read >= 4) {
+                int pairs = read / 2;
+                int zeroOdd = 0;
+                int zeroEven = 0;
+                for (int i = 0; i + 1 < read; i += 2) {
+                    if (head[i] == 0) {
+                        zeroEven++;
+                    }
+                    if (head[i + 1] == 0) {
+                        zeroOdd++;
+                    }
+                }
+                if (zeroOdd * 2 >= pairs && zeroEven == 0) {
+                    return new UnicodeEncoding(false, true);
+                }
+                if (zeroEven * 2 >= pairs && zeroOdd == 0) {
+                    return new UnicodeEncoding(true, true);
+                }
+            }
+            return null;
         }
 
         /// <summary>The text appended for a record (including the CSV header for a new file).</summary>

@@ -137,7 +137,7 @@ namespace ConsoleMonster.Examples.Showcases {
             options.AfterSubmit = context => Install(context);
             FormResult result = form.Show(options);
             if (!result.Submitted) {
-                Terminal.WriteMarkup("[muted]Setup was cancelled; nothing was changed.[/]");
+                Terminal.WriteMarkupLine("[muted]Setup was cancelled; nothing was changed.[/]");
             }
             return result;
         }

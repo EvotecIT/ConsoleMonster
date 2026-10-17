@@ -1,3 +1,8 @@
+- Spectre markup compatibility: the 256 xterm colour names (`[cadetblue]`, `[grey50]`, `[deepskyblue3]`, numbered duplicates such as `[blue3_1]`), `[link]url[/]` next to `[link=url]text[/]`, OSC 8 only for http, https, mailto and ftp targets (the exporters' filter, now applied to all terminal output), closed unknown tags removed with their text kept, `Markup.Strict` / `Markup.Parse(..., strict: true)` to throw instead, `Markup.Interpolate` for escaped arguments, and `EscapeMarkup()` / `RemoveMarkup()` string helpers. In markup, `darkred`, `darkgreen`, `darkblue`, `darkcyan` and `darkmagenta` now mean the xterm colours, as in Spectre.
+- `Terminal.WriteMarkup` no longer ends the line (Spectre's `Markup`); `Terminal.WriteMarkupLine` does. `Write-ConsoleMarkup -NoNewLine`.
+- `Terminal.Status` / `Terminal.StatusAsync`: a one-call spinner status with `ctx.Update(...)`, removed when the work ends, plain lines in redirected and CI output.
+- `Terminal.Clear()`, `Terminal.HideCursor()` / `ShowCursor()` (restored on exit and Ctrl+C) and `Clear-ConsoleScreen`, no-ops in redirected and CI output.
+- `Write-ConsoleText -LogFile` keeps an existing log's encoding (byte order mark, or UTF-16 text without one), so Write-Color's UTF-16 logs stay UTF-16; a contradicting `-Encoding` warns. `ConsoleLogFile.DetectEncoding`, `KeepExistingEncoding`, `EncodingSpecified`.
 ### 2.0.0 - prototype (unreleased)
 #### What's new
 - Rebuilt as a zero-dependency .NET library (netstandard2.0, net472, net8.0) plus a thin binary PowerShell module for Windows PowerShell 5.1 and PowerShell 7.

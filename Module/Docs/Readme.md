@@ -20,6 +20,11 @@ Compares console output with a golden file (for Pester and other tests).
 
 Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.
 
+### [Clear-ConsoleScreen](Clear-ConsoleScreen.md)
+Clears the console screen, safely.
+
+On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.
+
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
 Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
 
@@ -328,7 +333,7 @@ Writes a line to the log region of a running dashboard.
 ### [Write-ConsoleMarkup](Write-ConsoleMarkup.md)
 Writes Spectre-compatible markup as styled text.
 
-Supports [bold], [italic], [underline], colours ([red], [#ff8800], [rgb(1,2,3)], [white on navy]) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them: [[ and ]]. Colours degrade to 256 or 16 colours, or none, as the terminal requires.
+Supports [bold], [italic], [underline], the 256 xterm colour names of Spectre markup ([red], [cadetblue], [grey50], [deepskyblue3]), [#ff8800], [rgb(1,2,3)], [white on navy], links ([link=https://example.com]text[/] or [link]https://example.com[/], clickable in Windows Terminal and VS Code) and theme tokens ([pass], [fail], [warn], [muted], [accent]). Escape brackets by doubling them ([[ and ]]) or with [ConsoleMonster.Text.Markup]::Escape($value). A tag that is not a known style is removed and its text kept when a [/] closes it; an unclosed unknown tag stays literal. Colours degrade to 256 or 16 colours, or none, as the terminal requires.
 
 ### [Write-ConsoleRule](Write-ConsoleRule.md)
 Writes a horizontal rule, optionally with a title.
@@ -348,7 +353,7 @@ Same parameters as New-ConsoleTable; the table is written immediately in the det
 ### [Write-ConsoleText](Write-ConsoleText.md)
 Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.
 
-The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and the log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16). In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.
+The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.
 
 ### [Write-ConsoleTree](Write-ConsoleTree.md)
 Writes nested hashtables as a console tree.

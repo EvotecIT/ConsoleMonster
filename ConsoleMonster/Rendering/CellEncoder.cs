@@ -21,15 +21,22 @@ namespace ConsoleMonster.Rendering {
         public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false, bool hyperlinks = false) {
             bool drifting = false;
             string? link = null;
+            string? raw = null;
+            string? target = null;
             for (int x = start; x < endExclusive; x++) {
                 Cell cell = buffer[x, y];
                 if (cell.IsContinuation) {
                     continue;
                 }
-                if (hyperlinks && !string.Equals(link, cell.Style.Link, StringComparison.Ordinal)) {
+                // Only absolute http, https, mailto and ftp targets become links (the exporters' filter); others stay text.
+                if (hyperlinks && !ReferenceEquals(raw, cell.Style.Link)) {
+                    raw = cell.Style.Link;
+                    target = raw != null && Export.ExportText.IsSafeLink(raw) ? raw : null;
+                }
+                if (hyperlinks && !string.Equals(link, target, StringComparison.Ordinal)) {
                     // OSC 8: open (or close, with an empty target) a hyperlink around the following cells.
-                    sb.Append('\u001b').Append("]8;;").Append(cell.Style.Link ?? string.Empty).Append('\u001b').Append('\\');
-                    link = cell.Style.Link;
+                    sb.Append('\u001b').Append("]8;;").Append(target ?? string.Empty).Append('\u001b').Append('\\');
+                    link = target;
                 }
                 if (depth != ColorDepth.None && (!current.HasValue || !current.Value.Equals(cell.Style))) {
                     SgrEncoder.Append(sb, cell.Style, depth);

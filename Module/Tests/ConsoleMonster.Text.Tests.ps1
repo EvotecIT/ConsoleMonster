@@ -122,6 +122,23 @@ Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutpu
             ([System.IO.File]::ReadAllBytes($bom)[0..2] -join ',') | Should -Be '239,187,191'
         }
 
+        It 'keeps appending to an existing Write-Color UTF-16 log in UTF-16' {
+            $log = Join-Path $TestDrive 'writecolor-unicode.log'
+            $old = "[2026-09-30 08:00:00] $([char]0x0141)od$([char]0x017A) start"
+            [System.IO.File]::WriteAllText($log, $old + [Environment]::NewLine, [System.Text.UnicodeEncoding]::new($false, $true))
+            $text = Invoke-TextChild -Script @"
+Write-ConsoleText "next `$([char]0x0105)" -LogFile '$log' -NoConsoleOutput -LogTime `$false
+Write-ConsoleText 'forced' -LogFile '$log' -Encoding utf8 -NoConsoleOutput -LogTime `$false -WarningVariable w -WarningAction SilentlyContinue; `$w | ForEach-Object { 'W: ' + `$_ }
+"@
+            $bytes = [System.IO.File]::ReadAllBytes($log)
+            ($bytes[0..1] -join ',') | Should -Be '255,254'
+            $lines = [System.IO.File]::ReadAllText($log, [System.Text.Encoding]::Unicode) -split "`r?`n"
+            $lines[0] | Should -BeExactly $old
+            $lines[1] | Should -BeExactly "next $([char]0x0105)"
+            $lines[2] | Should -BeExactly 'forced'
+            $text | Should -Match 'W: Write-ConsoleText - Log file .+ is utf-16; appending in that encoding instead of utf-8\.'
+        }
+
         It 'retries a locked log file -LogRetry times with Write-Color style warnings' {
             $log = Join-Path $TestDrive 'locked.log'
             $stream = [System.IO.File]::Open($log, 'OpenOrCreate', 'ReadWrite', 'None')
@@ -295,6 +312,37 @@ Write-ConsoleStatus 'finished' -Status Pass -Complete
             @($lines | Where-Object { $_ -eq 'step one' }).Count | Should -Be 1
             $lines | Should -Contain 'step two'
             $lines[-1] | Should -Match 'finished$'
+        }
+    }
+
+    Context 'Spectre markup compatibility and screen helpers' {
+        It 'renders the xterm colour names, drops closed unknown tags and keeps an unclosed one literal' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleMarkup '[cadetblue]cadet[/] [grey50]grey[/] [deepskyblue3]sky[/]'
+Write-ConsoleMarkup '[nosuchcolour]kept text[/] and [x] stays'
+Write-ConsoleMarkup ('[pass]' + [ConsoleMonster.Text.Markup]::Escape('[literal]') + '[/]')
+'@
+            $lines = @($text -split "`n")
+            $lines | Should -Contain 'cadet grey sky'
+            $lines | Should -Contain 'kept text and [x] stays'
+            $lines | Should -Contain '[literal]'
+        }
+
+        It 'leaves the line open with Write-ConsoleMarkup -NoNewLine' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleMarkup '[cadetblue]Checking[/] ' -NoNewLine
+Write-ConsoleMarkup '[pass]done[/]'
+'@
+            @($text -split "`n") | Should -Contain 'Checking done'
+        }
+
+        It 'does nothing with Clear-ConsoleScreen when the output is redirected' {
+            $text = Invoke-TextChild -Script @'
+'before'
+Clear-ConsoleScreen
+'after'
+'@
+            ($text -split "`n" | Where-Object { $_ }) -join '|' | Should -BeExactly 'before|after'
         }
     }
 }

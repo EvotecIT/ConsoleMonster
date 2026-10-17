@@ -11,7 +11,7 @@ using ConsoleMonster.Output;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.</para>
-    /// <para type="description">The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and the log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16). In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</para>
+    /// <para type="description">The parameters and aliases of Write-Color (PSWriteColor) work the same way, so most scripts migrate with a rename: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</para>
     /// <example>
     ///   <para>Write-Color style</para>
     ///   <code>Write-ConsoleText -Text 'Updating group: ', $Group -Color Gray, Green -StartTab 1</code>
@@ -80,7 +80,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int LogRetry { get; set; } = 2;
 
-        /// <summary><para type="description">The log file encoding (default utf8 without a byte order mark; Write-Color's names are accepted, plus utf8BOM and utf8NoBOM).</para></summary>
+        /// <summary><para type="description">The encoding of a new log file: utf8 without a byte order mark by default (Write-Color defaults to unicode, which is UTF-16 LE); Write-Color's names mean the same here (unicode, string and unknown are UTF-16 LE, bigendianunicode UTF-16 BE, utf32 UTF-32 LE), plus utf8BOM and utf8NoBOM. Appending to an existing file always keeps that file's encoding (detected from its byte order mark, or UTF-16 text without one), so a UTF-16 log from Write-Color stays UTF-16; when -Encoding names a different one, a warning says so.</para></summary>
         [Parameter]
         [ValidateSet("unknown", "string", "unicode", "bigendianunicode", "utf8", "utf8BOM", "utf8NoBOM", "utf7", "utf32", "ascii", "default", "oem", IgnoreCase = true)]
         public string Encoding { get; set; } = "utf8";
@@ -198,6 +198,7 @@ namespace ConsoleMonster.PowerShell {
                     Format = (ConsoleLogFormat)Enum.Parse(typeof(ConsoleLogFormat), LogFormat, true),
                     Separator = LogSeparator,
                     Encoding = ConsoleLogFile.ResolveEncoding(Encoding),
+                    EncodingSpecified = MyInvocation.BoundParameters.ContainsKey(nameof(Encoding)),
                     Retries = LogRetry,
                     IncludeTime = LogTime,
                     TimeFormat = DateTimeFormat,

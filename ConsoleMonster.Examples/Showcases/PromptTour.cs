@@ -28,7 +28,7 @@ namespace ConsoleMonster.Examples.Showcases {
                     c.Description = s.Role + " server · " + s.OperatingSystem;
                 }
                 ToolboxServer server = select.Show();
-                Terminal.WriteMarkup("[muted]returned:[/] " + Markup.Escape(server.Name + " (" + server.GetType().Name + ")"));
+                Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (" + server.GetType().Name + ")"));
             }
             if (All("multi")) {
                 MultiSelectPrompt<ToolboxTask> multi = new MultiSelectPrompt<ToolboxTask>("Tasks", ToolboxData.Tasks, t => t.Name, t => t.Category) {
@@ -36,7 +36,7 @@ namespace ConsoleMonster.Examples.Showcases {
                     Preview = ToolboxData.TaskPreview
                 };
                 IReadOnlyList<ToolboxTask> tasks = multi.Show();
-                Terminal.WriteMarkup("[muted]returned:[/] " + Markup.Escape(string.Join(", ", tasks.Select(t => t.Id))));
+                Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(string.Join(", ", tasks.Select(t => t.Id))));
             }
             if (All("confirm")) {
                 Prompt.Confirm("Restart the print spooler on FS01?", true);

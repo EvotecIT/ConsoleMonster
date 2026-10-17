@@ -8,13 +8,17 @@ namespace ConsoleMonster.Text {
     internal readonly struct MarkupStyle {
         private readonly bool _foreground;
         private readonly bool _background;
-        internal MarkupStyle(Style style, bool foreground, bool background) {
+        internal MarkupStyle(Style style, bool foreground, bool background, bool linkFromText = false) {
             Style = style;
             _foreground = foreground;
             _background = background;
+            LinkFromText = linkFromText;
         }
 
         internal Style Style { get; }
+
+        // A bare [link] tag: the text it encloses is the link target.
+        internal bool LinkFromText { get; }
 
         internal Style Apply(Style parent) => new Style(
             _foreground ? Style.Foreground : parent.Foreground,
@@ -34,6 +38,7 @@ namespace ConsoleMonster.Text {
             Style style = Style.Plain;
             bool foreground = false;
             bool background = false;
+            bool linkFromText = false;
             for (int i = 0; i < words.Count; i++) {
                 string word = words[i];
                 string lower = word.ToLowerInvariant();
@@ -74,7 +79,12 @@ namespace ConsoleMonster.Text {
                         decoration = TextDecoration.Reverse;
                         break;
                     case "blink":
+                    case "slowblink":
+                    case "rapidblink":
+                    case "conceal":
+                        continue;
                     case "link":
+                        linkFromText = true;
                         continue;
                     default:
                         if (lower.StartsWith("link=", StringComparison.Ordinal)) {
@@ -99,7 +109,7 @@ namespace ConsoleMonster.Text {
                 }
                 style = style.With(decoration);
             }
-            result = new MarkupStyle(style.Downsample(depth), foreground, background);
+            result = new MarkupStyle(style.Downsample(depth), foreground, background, linkFromText && style.Link == null);
             return true;
         }
 

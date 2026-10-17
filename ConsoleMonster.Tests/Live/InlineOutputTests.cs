@@ -173,7 +173,7 @@ namespace ConsoleMonster.Tests.Live {
                 // A session with its own output does not claim the console; claim it as a console session would.
                 Terminal.ClaimConsole(session);
                 try {
-                    Terminal.WriteMarkup("[#00ff00]table row[/]", profile, null);
+                    Terminal.WriteMarkupLine("[#00ff00]table row[/]", profile, null);
                     Terminal.Write(new TextBlock("a block"), profile);
                     SpinWait.SpinUntil(() => writer.ToString().Contains("a block"), 3000);
                 } finally {

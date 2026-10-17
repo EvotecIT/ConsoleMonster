@@ -92,10 +92,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Writes one line of markup for a cmdlet.</summary>
         /// <param name="cmdlet">The calling cmdlet.</param>
         /// <param name="markup">The markup.</param>
-        internal static void WriteMarkup(PSCmdlet cmdlet, string markup) {
+        /// <param name="newLine">Whether to end the last line (false: -NoNewline).</param>
+        internal static void WriteMarkup(PSCmdlet cmdlet, string markup, bool newLine = true) {
             TerminalProfile p = Terminal.GetCurrentProfile();
             if (!UseHost(cmdlet, p)) {
-                Terminal.WriteMarkup(markup, p, null);
+                Terminal.WriteMarkup(markup, newLine, p, null);
                 return;
             }
             HostRoute route = RouteFor(cmdlet, p);
@@ -103,15 +104,16 @@ namespace ConsoleMonster.PowerShell {
             RenderContext context = Terminal.CreateContext(host);
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
-            foreach (StyledLine line in Markup.Parse(markup, context.Theme, host.ColorDepth).Lines) {
+            IReadOnlyList<StyledLine> lines = Markup.Parse(markup, context.Theme, host.ColorDepth).Lines;
+            for (int i = 0; i < lines.Count; i++) {
                 segments.Clear();
-                foreach (TextSpan span in line) {
+                foreach (TextSpan span in lines[i]) {
                     string text = Clean(span.Text);
                     if (text.Length > 0) {
                         segments.Add(new Segment(text, colors.Foreground(span.Style.Foreground), colors.Background(span.Style.Background)));
                     }
                 }
-                EmitLine(cmdlet, route, segments);
+                EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
             }
         }
 

@@ -15,7 +15,7 @@ namespace ConsoleMonster {
     /// <see cref="Profile"/> or the <c>CONSOLEMONSTER_*</c> environment variables) and writes widgets in the right mode.
     /// Calls are serialized, so concurrent writers never interleave inside a block.
     /// </summary>
-    public static class Terminal {
+    public static partial class Terminal {
         private static readonly object Gate = new object();
         private static TerminalProfile? _profile;
         private static ITheme? _theme;
@@ -235,28 +235,34 @@ namespace ConsoleMonster {
             return new[] { FrameComposer.RenderBlock(widget, width, context) };
         }
 
-        /// <summary>Writes one line of Spectre-compatible markup, for example <c>[pass]Done[/] in [muted]3s[/]</c>.</summary>
+        /// <summary>
+        /// Writes Spectre-compatible markup without ending the line (Spectre's <c>Markup</c>), for example a prompt prefix;
+        /// line breaks inside the markup still start new lines.
+        /// </summary>
         /// <param name="markup">The markup.</param>
-        public static void WriteMarkup(string markup) => WriteMarkup(markup, null, null);
+        public static void WriteMarkup(string markup) => WriteMarkup(markup, false, null, null);
+
+        /// <summary>Writes one line of Spectre-compatible markup (Spectre's <c>MarkupLine</c>), for example <c>[pass]Done[/] in [muted]3s[/]</c>.</summary>
+        /// <param name="markup">The markup.</param>
+        public static void WriteMarkupLine(string markup) => WriteMarkup(markup, true, null, null);
 
         /// <summary>Writes one line of markup to an explicit sink.</summary>
         /// <param name="markup">The markup.</param>
         /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
         /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
-        public static void WriteMarkup(string markup, TerminalProfile? profile, ITerminalWriter? writer) {
+        public static void WriteMarkupLine(string markup, TerminalProfile? profile, ITerminalWriter? writer) => WriteMarkup(markup, true, profile, writer);
+
+        /// <summary>
+        /// Writes markup to an explicit sink; with <paramref name="newLine"/> false the last line is left open. Redirected and
+        /// CI output gets plain text either way.
+        /// </summary>
+        /// <param name="markup">The markup.</param>
+        /// <param name="newLine">Whether to end the last line.</param>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
+        public static void WriteMarkup(string markup, bool newLine, TerminalProfile? profile = null, ITerminalWriter? writer = null) {
             TerminalProfile p = profile ?? GetCurrentProfile();
-            StyledText text = Markup.Parse(markup, Theme, p.ColorDepth);
-            if (writer == null && TryWriteAbove(text.Lines)) {
-                return;
-            }
-            lock (Gate) {
-                using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    foreach (StyledLine line in text.Lines) {
-                        output.WriteLine(line);
-                    }
-                }
-                writer?.Flush();
-            }
+            WriteLines(Markup.Parse(markup, Theme, p.ColorDepth).Lines, newLine, p, writer);
         }
 
         /// <summary>

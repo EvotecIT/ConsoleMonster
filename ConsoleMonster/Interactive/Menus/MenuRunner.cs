@@ -198,7 +198,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         public void ShowToast(Toast toast) {
-            Terminal.WriteMarkup("[" + StatusName(toast.Status) + "]" + Markup.Escape(toast.Text) + "[/]");
+            Terminal.WriteMarkupLine("[" + StatusName(toast.Status) + "]" + Markup.Escape(toast.Text) + "[/]");
         }
 
         private static string StatusName(StatusKind status) {

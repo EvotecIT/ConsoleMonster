@@ -75,9 +75,12 @@ namespace ConsoleMonster.Styling {
         }
 
         /// <summary>
-        /// Parses a colour the way Spectre.Console markup does: a name (<c>red</c>, <c>aqua</c>, <c>orange1</c>,
-        /// <c>grey50</c>, ConsoleColor names such as <c>DarkCyan</c>), <c>default</c>, <c>#rrggbb</c>, <c>#rgb</c>,
-        /// <c>rgb(r,g,b)</c>, or a 256-palette index (<c>208</c> or <c>color(208)</c>).
+        /// Parses a colour the way Spectre.Console markup does: one of the 256 xterm names (<c>red</c>, <c>aqua</c>,
+        /// <c>orange1</c>, <c>cadetblue</c>, <c>grey50</c>, <c>deepskyblue4_1</c>), <c>default</c>, <c>#rrggbb</c>, <c>#rgb</c>,
+        /// <c>rgb(r,g,b)</c>, or a 256-palette index (<c>208</c> or <c>color(208)</c>). Where an xterm name and a ConsoleColor
+        /// name collide (<c>darkred</c>, <c>darkcyan</c>), the xterm colour wins here, as in Spectre markup; ConsoleColor names
+        /// that are not xterm names (<c>gray</c>, <c>darkgray</c>, <c>darkyellow</c>, <c>magenta</c>, <c>cyan</c>) keep the
+        /// PowerShell mapping. <see cref="RichColor.TryParse(string, out RichColor)"/> reads ConsoleColor names first.
         /// </summary>
         /// <param name="text">The text to parse.</param>
         /// <param name="color">The parsed colour.</param>

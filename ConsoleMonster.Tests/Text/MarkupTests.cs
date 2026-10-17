@@ -87,10 +87,10 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Fact]
-        public void BareLinkTag_PreservesTextWithoutATarget() {
+        public void BareLinkTag_UsesItsTextAsTheTarget() {
             TextSpan span = Assert.Single(Markup.Parse("[link]click[/]").Lines[0]);
             Assert.Equal("click", span.Text);
-            Assert.True(span.Style.IsPlain);
+            Assert.Equal("click", span.Style.Link);
         }
 
         [Fact]
@@ -110,17 +110,18 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Theory]
-        [InlineData("[unknown]x[/]", "[unknown]x")]
-        [InlineData("[red on]x[/]", "[red on]x")]
-        [InlineData("[rgb(999,2,3)]x[/]", "[rgb(999,2,3)]x")]
-        [InlineData("[link=]x[/]", "[link=]x")]
+        [InlineData("[unknown]x[/]", "x")]
+        [InlineData("[red on]x[/]", "x")]
+        [InlineData("[rgb(999,2,3)]x[/]", "x")]
+        [InlineData("[link=]x[/]", "x")]
+        [InlineData("[unknown]x", "[unknown]x")]
         [InlineData("[bold", "[bold")]
         [InlineData("[red[blue]x", "[red[blue]x")]
         [InlineData("[/]text", "text")]
         [InlineData("a]b", "a]b")]
         [InlineData("[[red]]", "[red]")]
         [InlineData("[[[red]x[/]]]", "[x]")]
-        public void LenientParsingPreservesInvalidTagsAndEscapes(string markup, string expected) {
+        public void LenientParsingDropsClosedUnknownTagsAndKeepsEscapes(string markup, string expected) {
             Assert.Equal(expected, Markup.Strip(markup));
         }
 

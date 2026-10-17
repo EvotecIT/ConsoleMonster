@@ -250,6 +250,59 @@ updates in place:
 - It ends with `-Complete`.
 - Outside a real console it writes plain lines.
 
+### Markup
+
+Markup follows the Spectre.Console dialect, so markup strings move over unchanged:
+
+- Styles: `[bold]`, `[dim]`, `[italic]`, `[underline]`, `[strikethrough]`, `[invert]`, combined as
+  `[bold red on blue]`; `[/]` closes the innermost tag; `[[` and `]]` are literal brackets.
+- Colours: the 256 xterm names of Spectre markup (`[cadetblue]`, `[grey50]`, `[deepskyblue3]`, `[mediumpurple2]`;
+  a name that appears twice in the xterm list takes `_1`, `_2`, as in `[blue3_1]`), `[#ff8800]`, `[rgb(1,2,3)]`,
+  `[color(208)]` or `[208]`, and `[default]`. They are down-mapped per tier like any colour. Where an xterm name and
+  a ConsoleColor name collide (`darkred`, `darkcyan`), markup uses the xterm colour, as Spectre does; the PowerShell
+  `-Color` parameters keep the Write-Host meaning.
+- Theme tokens: `[pass]`, `[fail]`, `[warn]`, `[muted]`, `[accent]` and the other roles, also as backgrounds
+  (`[white on fail]`).
+- Links: `[link=https://example.com]text[/]` or `[link]https://example.com[/]` become OSC 8 hyperlinks in Windows
+  Terminal and VS Code, and plain text elsewhere. Only absolute `http`, `https`, `mailto` and `ftp` targets link, the
+  same filter as the HTML and SVG exporters.
+- Unknown tags never print as tags. A tag that isn't a known style is removed and its text kept when a `[/]` closes it,
+  so `[nosuchcolour]text[/]` shows `text`. An unknown tag that is never closed stays literal, because it's most likely
+  text such as `[x]`. For tests and migration checks, `Markup.Strict = true` (or `Markup.Parse(..., strict: true)`)
+  throws a `FormatException` instead, and `Markup.Validate` reports the first problem without throwing.
+
+Escape data before putting it into markup: `Markup.Escape(value)` or `value.EscapeMarkup()` in C#,
+`[ConsoleMonster.Text.Markup]::Escape($value)` in PowerShell. `Markup.Interpolate` escapes every argument of an
+interpolated string, after its format specifier:
+
+```csharp
+Terminal.WriteMarkupLine(Markup.Interpolate($"[pass]{server}[/] answered in [muted]{elapsed:N1}s[/]"));
+Terminal.WriteMarkup("[cadetblue]Checking[/] ");   // no newline, like Spectre's Markup; WriteMarkupLine ends the line
+```
+
+### Status, clearing and the cursor from C#
+
+`Terminal.Status` runs work under a one-line spinner, like Spectre's `AnsiConsole.Status().Start`. The line is an
+inline live area: console output written meanwhile scrolls above it, and the line is removed when the work ends, even
+when it throws. Redirected output, CI logs and plain mode get
+each new status text once as a plain line instead, as `Write-ConsoleStatus` does.
+
+```csharp
+Terminal.Status("Resolving…", ctx => {
+    foreach (string dc in controllers) {
+        ctx.Update(Markup.Interpolate($"Querying [accent]{dc}[/]"));
+        Query(dc);
+    }
+});
+int found = await Terminal.StatusAsync("Scanning…", async ctx => await ScanAsync(ctx));
+```
+
+`Terminal.Clear()` clears the screen and scrollback, and `Terminal.HideCursor()` hides the cursor until its handle is
+disposed or `Terminal.ShowCursor()` is called. The cursor also comes back when the process exits or Ctrl+C ends it.
+In PowerShell, `Clear-ConsoleScreen` clears the console and `Write-ConsoleMarkup -NoNewLine` leaves the line open. All of
+them are safe in redirected output and CI: clearing and the cursor do nothing there, and markup becomes plain text.
+Clearing also does nothing while a live dashboard owns the console.
+
 ### Coming from Write-Color
 
 `Write-ConsoleText` takes the parameters and aliases of `Write-Color` from
@@ -267,7 +320,7 @@ no `Write-Color` or `wc` alias.
 | `-NoNewLine` | same | Works in transcripts, jobs and the host route too. |
 | `-HorizontalCenter` | same | Measured in terminal cells, so emoji and CJK centre correctly. |
 | `-LogFile` (`-L`), `-LogTime` (`-LogTimeStamp`), `-LogRetry` | same | Appends under a file lock, with retries and warnings as in Write-Color. |
-| `-Encoding` | same | Defaults to UTF-8 without BOM; Write-Color defaults to UTF-16 "Unicode". Also takes `utf8BOM` and `utf8NoBOM`. |
+| `-Encoding` | same | A new log defaults to UTF-8 without BOM; Write-Color defaults to UTF-16 "Unicode". The names mean the same (`unicode` is UTF-16 LE, `bigendianunicode` UTF-16 BE), plus `utf8BOM` and `utf8NoBOM`. Appending to an existing log always keeps its encoding (from its byte order mark, or UTF-16 text without one), so last month's Write-Color log stays UTF-16; a contradicting `-Encoding` gives a warning. |
 | `-NoConsoleOutput` (`-HideConsole`) | same | |
 | | `-Markup`, `-Style`, `-Link`, `-Role`, `-Gradient` | Markup after the pieces, decorations, hyperlinks, theme roles, colour gradients. |
 | | `-PadLeft`, `-PadRight`, `-PadCenter`, `-PadCharacter` | Padding in terminal cells (PSWriteColor #12). |
