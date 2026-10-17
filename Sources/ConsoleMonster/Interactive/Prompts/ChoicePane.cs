@@ -127,13 +127,34 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        // The selection count sits at the right end of the filter row (fzf style), so the info line below the list keeps its
+        // full width for descriptions and disabled reasons; lists without a filter row show the count on the info line.
         private void DrawFilter(Region row, RenderContext context) {
             row.Write(0, 0, InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent));
+            StyledLine? count = CountLine(context);
+            int inputWidth = row.Width - 2;
+            if (count != null && CountOnFilterRow(row.Width)) {
+                row.Write(row.Width - count.Width - 1, 0, count);
+                inputWidth = row.Width - count.Width - 5;
+            }
             TextInputWidget input = new TextInputWidget(_list.Filter, Caret) {
                 Placeholder = Labels.TypeToFilter,
                 Focused = _list.Focused
             };
-            input.Render(row.Sub(2, 0, Math.Max(1, row.Width - 2), 1), context);
+            input.Render(row.Sub(2, 0, Math.Max(1, inputWidth), 1), context);
+        }
+
+        private bool CountOnFilterRow(int listWidth) => FilterVisible && _list.Multi && ShowCount && listWidth > 16 + PromptLabels.Format(Labels.SelectedCount, _list.Total, _list.Total).Length;
+
+        private StyledLine? CountLine(RenderContext context) {
+            if (!_list.Multi || !ShowCount) {
+                return null;
+            }
+            string text = PromptLabels.Format(Labels.SelectedCount, _list.SelectedCount, _list.Total);
+            if (_list.IsFiltering || _list.SelectedOnly) {
+                text += " " + InteractiveGlyphs.For(context).Separator + " " + PromptLabels.Format(Labels.Shown, _list.VisibleItemCount);
+            }
+            return StyledLine.From(text, context.Style(_list.SelectedCount > 0 ? ThemeToken.Accent : ThemeToken.Muted));
         }
 
         private void DrawInfo(Region row, RenderContext context, int countEdge) {
@@ -153,14 +174,7 @@ namespace ConsoleMonster.Interactive {
             } else {
                 line = StyledLine.Empty;
             }
-            StyledLine? count = null;
-            if (_list.Multi && ShowCount) {
-                string text = PromptLabels.Format(Labels.SelectedCount, _list.SelectedCount, _list.Total);
-                if (_list.IsFiltering || _list.SelectedOnly) {
-                    text += " " + InteractiveGlyphs.For(context).Separator + " " + PromptLabels.Format(Labels.Shown, _list.VisibleItemCount);
-                }
-                count = StyledLine.From(text, context.Style(_list.SelectedCount > 0 ? ThemeToken.Accent : ThemeToken.Muted));
-            }
+            StyledLine? count = CountOnFilterRow(countEdge) ? null : CountLine(context);
             int edge = Math.Min(row.Width, countEdge);
             int right = count == null ? 0 : count.Width + 2;
             row.Write(2, 0, TextWrapper.Truncate(line, Math.Max(1, (count == null ? row.Width : edge) - 3 - right), context.Ellipsis));

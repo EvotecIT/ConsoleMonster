@@ -131,6 +131,15 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        /// <summary>Applies the choices marked selected as the starting values of choice fields without a default.</summary>
+        internal void SeedDefaults() {
+            foreach (Field field in Fields) {
+                if (field is ChoiceField choice) {
+                    choice.SeedFromChoices();
+                }
+            }
+        }
+
         /// <summary>Finds a field by name.</summary>
         /// <param name="name">The name.</param>
         /// <returns>The field, or null.</returns>

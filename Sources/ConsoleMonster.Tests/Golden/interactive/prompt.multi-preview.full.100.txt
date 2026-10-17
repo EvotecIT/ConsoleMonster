@@ -1,6 +1,6 @@
 --- frame 0
 ? Servers
-  › type to filter                         ╭─ FS01 ────────────────────────────────────────────────╮
+  › type to filter        0 of 4 selected  ╭─ FS01 ────────────────────────────────────────────────╮
     ▾ [ ] Warsaw                      0/2  │ Details of fs01                                       │
   ▌   [ ] [FS01]                     File  │                                                       │
       [ ] WEB01                       Web  │                                                       │
@@ -9,11 +9,11 @@
       [ ] FS11                       File  │                                                       │
     ▾ [ ] Lab                         0/1  │                                                       │
       [ ] LAB01                      Test  │                                                       │
-                          0 of 4 selected  ╰───────────────────────────────────────────────────────╯
+                                           ╰───────────────────────────────────────────────────────╯
   ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys
 --- frame 2
 ? Servers
-  › type to filter                         ╭─ WEB01 ───────────────────────────────────────────────╮
+  › type to filter        1 of 4 selected  ╭─ WEB01 ───────────────────────────────────────────────╮
     ▾ [–] Warsaw                      1/2  │ Details of web01                                      │
       [ ] FS01                       File  │                                                       │
   ▌   [✓] [WEB01]                     Web  │                                                       │
@@ -22,7 +22,7 @@
       [ ] FS11                       File  │                                                       │
     ▾ [ ] Lab                         0/1  │                                                       │
       [ ] LAB01                      Test  │                                                       │
-                          1 of 4 selected  ╰───────────────────────────────────────────────────────╯
+                                           ╰───────────────────────────────────────────────────────╯
   ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys
 --- summary
 ✓ Servers  WEB01

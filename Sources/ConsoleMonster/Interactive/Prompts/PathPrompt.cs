@@ -119,8 +119,8 @@ namespace ConsoleMonster.Interactive {
                         break;
                     }
                 }
-                folders.Sort(StringComparer.OrdinalIgnoreCase);
-                files.Sort(StringComparer.OrdinalIgnoreCase);
+                folders.Sort((a, b) => StringComparer.CurrentCultureIgnoreCase.Compare(a.TrimEnd(Path.DirectorySeparatorChar), b.TrimEnd(Path.DirectorySeparatorChar)));
+                files.Sort(StringComparer.CurrentCultureIgnoreCase);
                 result.AddRange(folders);
                 result.AddRange(files);
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException || ex is System.Security.SecurityException) {

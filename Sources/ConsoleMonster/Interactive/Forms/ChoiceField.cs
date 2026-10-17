@@ -41,6 +41,39 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Preview content for the focused choice in the editor.</summary>
         public Func<Choice, IWidget?>? Preview { get; set; }
 
+        /// <summary>
+        /// Takes the starting value from the choices marked <see cref="Choice.Selected"/> when neither a default nor a
+        /// value was given, so they behave as the default (left out of the command line while unchanged).
+        /// </summary>
+        internal void SeedFromChoices() {
+            if (HasExplicitValue || Default != null) {
+                return;
+            }
+            List<object?> selected = new List<object?>();
+            foreach (Choice c in Choices) {
+                if (c.Selected && c.IsEnabled) {
+                    selected.Add(c.Value);
+                }
+            }
+            if (selected.Count == 0) {
+                return;
+            }
+            Default = Multiple ? selected : selected[0];
+        }
+
+        /// <summary>The number of choices that can be picked (the total shown next to a selection count).</summary>
+        internal int EnabledCount {
+            get {
+                int count = 0;
+                foreach (Choice c in Choices) {
+                    if (c.IsEnabled) {
+                        count++;
+                    }
+                }
+                return count;
+            }
+        }
+
         internal Choice? Find(object? value) {
             foreach (Choice c in Choices) {
                 if (Equals(c.Value, value)) {

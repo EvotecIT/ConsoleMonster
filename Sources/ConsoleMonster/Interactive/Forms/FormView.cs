@@ -36,6 +36,7 @@ namespace ConsoleMonster.Interactive {
             if (_form.Pages.Count == 0) {
                 _form.Pages.Add(new FormPage(_form.Title));
             }
+            _form.SeedDefaults();
             foreach (Field field in _form.Fields) {
                 if (field.Value == null && field.Default != null) {
                     field.Value = Clone(field.Default);

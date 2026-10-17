@@ -9,7 +9,7 @@
   This cannot be undone.
   Type FS01 to confirm
   › FS0
-  ✗ Type FS01 to confirm
+  ✗ That doesn't match FS01.
   enter confirm  esc cancel
 --- frame 5
 ! Remove FS01 from the inventory?

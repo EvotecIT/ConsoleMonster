@@ -88,7 +88,7 @@ namespace ConsoleMonster.Interactive {
                     if (_prompt.Matches(_editor.Text)) {
                         Accept(true);
                     } else {
-                        Error = PromptLabels.Format(Labels.TypeToConfirm, _prompt.Expected);
+                        Error = PromptLabels.Format(Labels.TypedMismatch, _prompt.Expected);
                     }
                 }, new KeyChord(ConsoleKey.Enter)) { Order = 30 });
                 bindings.Add(new KeyBinding(Labels.KeyCancel, () => Accept(false), new KeyChord(ConsoleKey.Escape)) { Order = 40 });

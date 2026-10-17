@@ -65,6 +65,21 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
+        public void Show_ChoicesMarkedSelected_StartAsTheDefaultAndStayOutOfTheCommand() {
+            Form form = new Form("Setup") { Command = "Install-Thing" };
+            ChoiceField parts = form.Page("Parts").MultiSelect("Parts", "Parts", new[] {
+                new Choice("a", "A") { Selected = true },
+                new Choice("b", "B"),
+                new Choice("c", "C") { Selected = true, DisabledReason = "not licensed" }
+            });
+            parts.Parameter = "Part";
+            FormResult result = form.Show(new FormOptions { Interactive = new InteractiveOptions { NonInteractive = true } });
+            Assert.True(result.Submitted);
+            Assert.Equal(new[] { "a" }, result.Values.GetList<string>("Parts"));
+            Assert.Equal("Install-Thing", result.CommandLine);
+        }
+
+        [Fact]
         public void Show_RequiredFieldEmpty_BlocksTheNextPageWithAnInlineError() {
             Form form = Wizard();
             RecordingSurface surface = Show(form, "Ctrl+U PageDown \"D:\\\\x\" PageDown Escape Escape y", out FormResult result);

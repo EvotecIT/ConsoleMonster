@@ -232,6 +232,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Typed confirmation: {0} is the text to type.</summary>
         public string TypeToConfirm { get; set; } = "Type {0} to confirm";
 
+        /// <summary>The typed confirmation does not match: {0} is the expected text.</summary>
+        public string TypedMismatch { get; set; } = "That doesn't match {0}.";
+
         /// <summary>The key map heading.</summary>
         public string Keys { get; set; } = "Keys";
 

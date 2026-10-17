@@ -16,6 +16,7 @@ namespace ConsoleMonster.Interactive {
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             ChoiceStore? store = options.Store();
+            form.SeedDefaults();
             switch (interactive.ResolveMode()) {
                 case InteractionMode.None:
                     return NonInteractive(form, labels);

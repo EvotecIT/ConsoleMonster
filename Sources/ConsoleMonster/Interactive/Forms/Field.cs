@@ -62,6 +62,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        /// <summary>Whether a value was set explicitly (rather than taken from the default).</summary>
+        internal bool HasExplicitValue => _valueSet;
+
         internal static object? CloneValue(object? value) {
             if (value is IEnumerable list && !(value is string)) {
                 List<object?> copy = new List<object?>();

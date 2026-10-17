@@ -278,7 +278,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     string display = field.Display(field.Value, Labels);
                     if (field.Kind == FieldKind.MultiChoice && field.Value is System.Collections.ICollection collection && collection.Count > 0) {
-                        display = PromptLabels.Format(Labels.SelectedCount, collection.Count, ((ChoiceField)field).Choices.Count) + "  " + g.Separator + "  " + display;
+                        display = PromptLabels.Format(Labels.SelectedCount, collection.Count, ((ChoiceField)field).EnabledCount) + "  " + g.Separator + "  " + display;
                     }
                     bool empty = display.Length == 0;
                     string shown = empty ? (field.Kind == FieldKind.MultiChoice ? Labels.KeyNone : "—") : display;
@@ -330,7 +330,7 @@ namespace ConsoleMonster.Interactive {
                 foreach (Field field in VisibleFields(p)) {
                     string value = field.Display(field.Value, Labels);
                     if (field is ChoiceField choice && choice.Multiple && field.Value is System.Collections.ICollection items) {
-                        value = items.Count == 0 ? string.Empty : PromptLabels.Format(Labels.SelectedCount, items.Count, choice.Choices.Count) + ": " + value;
+                        value = items.Count == 0 ? string.Empty : PromptLabels.Format(Labels.SelectedCount, items.Count, choice.EnabledCount) + ": " + value;
                     }
                     rows.Add(new KeyValuePair<string, string>(field.Label, value));
                 }
