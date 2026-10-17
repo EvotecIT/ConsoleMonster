@@ -85,6 +85,9 @@ namespace ConsoleMonster.Export {
         /// <summary>Space around the screen in pixels (default 12).</summary>
         public int Padding { get; set; } = 12;
 
+        /// <summary>The session clock widgets show (header clocks, spinners) when a widget is exported; default zero.</summary>
+        public TimeSpan Elapsed { get; set; }
+
         /// <summary>HTML only: writes a fragment (a styled element) instead of a whole page, for embedding.</summary>
         public bool Fragment { get; set; }
 

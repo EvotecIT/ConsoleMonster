@@ -142,8 +142,8 @@ namespace ConsoleMonster.Tests.Export {
             Assert.DoesNotContain("─", svg);
             Assert.DoesNotContain("█", svg);
             Assert.DoesNotContain("⣿", svg);
-            Assert.Equal(8, Regex.Matches(svg, "<circle ").Count);
-            Assert.Equal(2, Regex.Matches(svg, "<path d=").Count);
+            Assert.Equal(16, Regex.Matches(svg, " 0 1 0 ").Count);
+            Assert.Equal(2, Regex.Matches(svg, "A[0-9.]+ [0-9.]+ 0 0 ").Count);
         }
 
         [Fact]

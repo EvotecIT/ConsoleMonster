@@ -93,12 +93,17 @@ namespace ConsoleMonster.Export {
             }
         }
 
-        /// <summary>Appends one row: backgrounds, shapes, then text, at a vertical offset.</summary>
+        /// <summary>
+        /// Appends one row at a vertical offset: background runs, then the shapes of box, block and braille characters (one
+        /// path per colour), then text. Links wrap their text.
+        /// </summary>
         internal static void AppendRow(StringBuilder sb, CellBuffer frame, int y, double top, ExportPalette palette, SvgStyles styles, string prefix, ExportOptions options) {
             double cw = options.CellWidth;
             double ch = options.CellHeight;
             int end = HtmlFrameWriter.ContentEnd(frame, y);
-            // Backgrounds: runs of cells sharing a non-default background.
+            SvgShapes backgrounds = new SvgShapes();
+            SvgShapes shapes = new SvgShapes();
+            StringBuilder texts = new StringBuilder();
             int x = 0;
             while (x < end) {
                 Cell cell = frame[x, y];
@@ -115,13 +120,9 @@ namespace ConsoleMonster.Export {
                     }
                     run++;
                 }
-                sb.Append("<rect class=\"cm-s\" x=\"").Append(ExportText.Num(x * cw)).Append("\" y=\"").Append(ExportText.Num(top)).Append("\" width=\"").Append(ExportText.Num((run - x) * cw))
-                    .Append("\" height=\"").Append(ExportText.Num(ch)).Append('"');
-                ExportText.AppendPaint(sb, "fill", bg);
-                sb.Append("/>");
+                backgrounds.Rect(x * cw, top, (run - x) * cw, ch, bg);
                 x = run;
             }
-            // Shapes and text, per run of one style.
             x = 0;
             while (x < end) {
                 Cell first = frame[x, y];
@@ -135,11 +136,12 @@ namespace ConsoleMonster.Export {
                     runEnd++;
                 }
                 palette.Resolve(style, out string fg, out string _, out bool _);
+                string? cls = styles.ClassFor(style, palette, prefix);
                 string? link = style.Link != null && ExportText.IsSafeLink(style.Link) ? style.Link : null;
                 StringBuilder chars = new StringBuilder();
                 StringBuilder xs = new StringBuilder();
-                StringBuilder extra = new StringBuilder();
-                bool underline = (style.Decoration & (TextDecoration.Underline | TextDecoration.Strikethrough)) != 0;
+                StringBuilder separate = new StringBuilder();
+                bool drawn = false;
                 for (int i = x; i < runEnd; i++) {
                     Cell cell = frame[i, y];
                     if (cell.IsContinuation) {
@@ -154,13 +156,15 @@ namespace ConsoleMonster.Export {
                                 span++;
                             }
                         }
-                        SvgGlyphs.Append(extra, cell.Glyph, left, top, cw * span, ch, fg);
+                        SvgGlyphs.Append(shapes, cell.Glyph, left, top, cw * span, ch, fg);
+                        drawn = true;
                         i += span - 1;
                         continue;
                     }
                     if (cell.Glyph == " ") {
                         continue;
                     }
+                    drawn = true;
                     double centre = left + (cw * (cell.Width == 2 ? 1 : 0.5));
                     if (cell.Glyph.Length == 1) {
                         if (xs.Length > 0) {
@@ -170,43 +174,40 @@ namespace ConsoleMonster.Export {
                         ExportText.AppendEscaped(chars, cell.Glyph);
                     } else {
                         // A grapheme made of several code units gets its own element, so its position cannot shift the rest.
-                        AppendText(extra, ExportText.Num(centre), ExportText.Escape(cell.Glyph), top + (ch / 2), styles.ClassFor(style, palette, prefix), fg, palette);
+                        AppendText(separate, ExportText.Num(centre), ExportText.Escape(cell.Glyph), top + (ch / 2), cls, fg, palette);
                     }
                 }
-                if (link != null) {
-                    sb.Append("<a href=\"");
-                    ExportText.AppendEscaped(sb, link);
-                    sb.Append("\" xlink:href=\"");
-                    ExportText.AppendEscaped(sb, link);
-                    sb.Append("\">");
-                }
-                if (extra.Length > 0) {
-                    sb.Append("<g class=\"cm-s\">").Append(extra).Append("</g>");
-                }
-                if (chars.Length > 0) {
-                    AppendText(sb, xs.ToString(), chars.ToString(), top + (ch / 2), styles.ClassFor(style, palette, prefix), fg, palette);
-                }
-                if (underline && (chars.Length > 0 || extra.Length > 0)) {
+                if (drawn) {
+                    double line = Math.Max(1, ch / 14);
                     if ((style.Decoration & TextDecoration.Underline) != 0) {
-                        sb.Append("<rect class=\"cm-s\" x=\"").Append(ExportText.Num(x * cw)).Append("\" y=\"").Append(ExportText.Num(top + ch - Math.Max(1, ch / 14) - 1)).Append("\" width=\"").Append(ExportText.Num((runEnd - x) * cw))
-                            .Append("\" height=\"").Append(ExportText.Num(Math.Max(1, ch / 14))).Append('"');
-                        ExportText.AppendPaint(sb, "fill", fg);
-                        sb.Append("/>");
+                        shapes.Rect(x * cw, top + ch - line - 1, (runEnd - x) * cw, line, fg);
                     }
                     if ((style.Decoration & TextDecoration.Strikethrough) != 0) {
-                        sb.Append("<rect class=\"cm-s\" x=\"").Append(ExportText.Num(x * cw)).Append("\" y=\"").Append(ExportText.Num(top + (ch / 2))).Append("\" width=\"").Append(ExportText.Num((runEnd - x) * cw))
-                            .Append("\" height=\"").Append(ExportText.Num(Math.Max(1, ch / 14))).Append('"');
-                        ExportText.AppendPaint(sb, "fill", fg);
-                        sb.Append("/>");
+                        shapes.Rect(x * cw, top + (ch / 2), (runEnd - x) * cw, line, fg);
                     }
                 }
-                if (link != null) {
-                    sb.Append("</a>");
+                StringBuilder run2 = new StringBuilder();
+                run2.Append(separate);
+                if (chars.Length > 0) {
+                    AppendText(run2, xs.ToString(), chars.ToString(), top + (ch / 2), cls, fg, palette);
+                }
+                if (run2.Length > 0) {
+                    if (link != null) {
+                        texts.Append("<a href=\"");
+                        ExportText.AppendEscaped(texts, link);
+                        texts.Append("\" xlink:href=\"");
+                        ExportText.AppendEscaped(texts, link);
+                        texts.Append("\">").Append(run2).Append("</a>");
+                    } else {
+                        texts.Append(run2);
+                    }
                 }
                 x = runEnd;
             }
+            backgrounds.AppendTo(sb);
+            shapes.AppendTo(sb);
+            sb.Append(texts);
         }
-
         private static void AppendText(StringBuilder sb, string xs, string escaped, double y, string? cls, string fg, ExportPalette palette) {
             sb.Append("<text class=\"cm-t");
             if (cls != null) {

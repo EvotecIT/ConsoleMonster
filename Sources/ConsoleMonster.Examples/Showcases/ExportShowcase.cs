@@ -55,7 +55,7 @@ namespace ConsoleMonster.Examples.Showcases {
             Frame(written, folder, "prompt-multiselect", prompt.FindFrame("Certificate expiry") != null ? Pick(prompt, "of 11 selected", "Certificate expiry") : prompt.LastFrame, "Multi-select with preview");
 
             // Static widgets: both themes, following the viewer's preference.
-            Widget(written, folder, "dashboard", Dashboard(), new ExportOptions { Width = 120, Height = 36, WindowChrome = true, Title = "Parallel run" });
+            Widget(written, folder, "dashboard", Dashboard(), new ExportOptions { Width = 120, Height = 36, WindowChrome = true, Title = "Parallel run", Elapsed = TimeSpan.FromMilliseconds(LastEventTime()) });
             Widget(written, folder, "tables", TableShowcases.All(), new ExportOptions { Width = 110, WindowChrome = true, Title = "Tables" });
             Widget(written, folder, "gallery", WidgetGallery.Build(), new ExportOptions { Width = 110, WindowChrome = true, Title = "Widget gallery" });
 
@@ -64,8 +64,18 @@ namespace ConsoleMonster.Examples.Showcases {
             List<LiveEvent> events = ParallelRunRecording.Generate();
             Save(written, Path.Combine(folder, "recording-player.html"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Html, run));
             Save(written, Path.Combine(folder, "recording-animated.svg"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Svg, run));
+            RecordingExportOptions compact = new RecordingExportOptions { Width = 120, Height = 36, FramesPerSecond = 2, WindowChrome = true, Title = "Parallel run (recording, compact)" };
+            Save(written, Path.Combine(folder, "recording-animated-compact.svg"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Svg, compact));
             Save(written, Path.Combine(folder, "recording.cast"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Asciicast, run));
             return written;
+        }
+
+        private static long LastEventTime() {
+            long last = 0;
+            foreach (LiveEvent e in ParallelRunRecording.Generate()) {
+                last = Math.Max(last, e.Time);
+            }
+            return last;
         }
 
         private static IEnumerable<Choice> ToolboxTaskChoices() {

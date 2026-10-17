@@ -52,7 +52,7 @@ namespace ConsoleMonster.Export {
         }
 
         /// <summary>Appends the shapes for a glyph in the cell at (x, y) of size w by h. Returns false when not handled.</summary>
-        public static bool Append(StringBuilder sb, string glyph, double x, double y, double w, double h, string fill) {
+        public static bool Append(SvgShapes sb, string glyph, double x, double y, double w, double h, string fill) {
             if (!Handles(glyph)) {
                 return false;
             }
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Export {
             return Box(sb, c, x, y, w, h, fill);
         }
 
-        private static bool Box(StringBuilder sb, char c, double x, double y, double w, double h, string fill) {
+        private static bool Box(SvgShapes sb, char c, double x, double y, double w, double h, string fill) {
             double light = Math.Max(1, Math.Round(h / 14.0, 2));
             double heavy = light * 2;
             double cx = x + (w / 2);
@@ -133,7 +133,7 @@ namespace ConsoleMonster.Export {
             return weight == 2 ? heavy : weight == 1 ? light : 0;
         }
 
-        private static void Dashes(StringBuilder sb, int count, bool horizontal, double x, double y, double w, double h, double t, string fill) {
+        private static void Dashes(SvgShapes sb, int count, bool horizontal, double x, double y, double w, double h, double t, string fill) {
             double length = horizontal ? w : h;
             double step = length / count;
             double dash = step * 0.6;
@@ -148,28 +148,18 @@ namespace ConsoleMonster.Export {
         }
 
         // A rounded corner: from the horizontal edge point to the centre, a quarter circle, then to the vertical edge point.
-        private static void Arc(StringBuilder sb, double cx, double cy, double hx, double hy, double vx, double vy, double w, double h, double t, string fill, bool toRight, bool toBottom) {
+        private static void Arc(SvgShapes sb, double cx, double cy, double hx, double hy, double vx, double vy, double w, double h, double t, string fill, bool toRight, bool toBottom) {
             double r = Math.Min(w, h) / 2;
             double ax = toRight ? cx + r : cx - r;
             double ay = toBottom ? cy + r : cy - r;
             int sweep = (toRight == toBottom) ? 0 : 1;
-            sb.Append("<path d=\"M").Append(ExportText.Num(hx)).Append(' ').Append(ExportText.Num(hy))
-                .Append("H").Append(ExportText.Num(ax))
-                .Append("A").Append(ExportText.Num(r)).Append(' ').Append(ExportText.Num(r)).Append(" 0 0 ").Append(sweep).Append(' ').Append(ExportText.Num(cx)).Append(' ').Append(ExportText.Num(ay))
-                .Append("V").Append(ExportText.Num(vy))
-                .Append("\" fill=\"none\" stroke-width=\"").Append(ExportText.Num(t)).Append('"');
-            ExportText.AppendPaint(sb, "stroke", fill);
-            sb.Append("/>");
+            sb.Stroke("M" + ExportText.Num(hx) + " " + ExportText.Num(hy) + "H" + ExportText.Num(ax) + "A" + ExportText.Num(r) + " " + ExportText.Num(r) + " 0 0 " + sweep + " " + ExportText.Num(cx) + " " + ExportText.Num(ay) + "V" + ExportText.Num(vy), fill, t);
         }
 
-        private static void Line(StringBuilder sb, double x1, double y1, double x2, double y2, double t, string fill) {
-            sb.Append("<line x1=\"").Append(ExportText.Num(x1)).Append("\" y1=\"").Append(ExportText.Num(y1)).Append("\" x2=\"").Append(ExportText.Num(x2)).Append("\" y2=\"").Append(ExportText.Num(y2))
-                .Append("\" stroke-width=\"").Append(ExportText.Num(t)).Append('"');
-            ExportText.AppendPaint(sb, "stroke", fill);
-            sb.Append("/>");
+        private static void Line(SvgShapes sb, double x1, double y1, double x2, double y2, double t, string fill) {
+            sb.Stroke("M" + ExportText.Num(x1) + " " + ExportText.Num(y1) + "L" + ExportText.Num(x2) + " " + ExportText.Num(y2), fill, t);
         }
-
-        private static bool Block(StringBuilder sb, char c, double x, double y, double w, double h, string fill) {
+        private static bool Block(SvgShapes sb, char c, double x, double y, double w, double h, string fill) {
             switch (c) {
                 case '▀': Rect(sb, x, y, w, h / 2, fill); return true;
                 case '█': Rect(sb, x, y, w, h, fill); return true;
@@ -203,7 +193,7 @@ namespace ConsoleMonster.Export {
         }
 
         // Braille: dots 1-3 and 7 down the left column, 4-6 and 8 down the right, in a 2 by 4 grid.
-        private static void Braille(StringBuilder sb, int bits, double x, double y, double w, double h, string fill) {
+        private static void Braille(SvgShapes sb, int bits, double x, double y, double w, double h, string fill) {
             if (bits == 0) {
                 return;
             }
@@ -216,23 +206,12 @@ namespace ConsoleMonster.Export {
                 }
                 double dx = x + (w * (column[dot] == 0 ? 0.3 : 0.7));
                 double dy = y + (h * ((row[dot] * 2) + 1) / 8.0);
-                sb.Append("<circle cx=\"").Append(ExportText.Num(dx)).Append("\" cy=\"").Append(ExportText.Num(dy)).Append("\" r=\"").Append(ExportText.Num(r)).Append('"');
-                ExportText.AppendPaint(sb, "fill", fill);
-                sb.Append("/>");
+                sb.Circle(dx, dy, r, fill);
             }
         }
 
-        private static void Rect(StringBuilder sb, double x, double y, double w, double h, string fill, double opacity = 1) {
-            if (w <= 0 || h <= 0) {
-                return;
-            }
-            sb.Append("<rect x=\"").Append(ExportText.Num(x)).Append("\" y=\"").Append(ExportText.Num(y)).Append("\" width=\"").Append(ExportText.Num(w)).Append("\" height=\"").Append(ExportText.Num(h))
-                .Append('"');
-            ExportText.AppendPaint(sb, "fill", fill);
-            if (opacity < 1) {
-                sb.Append(" fill-opacity=\"").Append(ExportText.Num(opacity)).Append('"');
-            }
-            sb.Append("/>");
+        private static void Rect(SvgShapes sb, double x, double y, double w, double h, string fill, double opacity = 1) {
+            sb.Rect(x, y, w, h, fill, opacity);
         }
     }
 }

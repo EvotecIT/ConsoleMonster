@@ -176,7 +176,7 @@ namespace ConsoleMonster.Export {
             if (options.Culture != null) {
                 profile = profile.WithCulture(options.Culture);
             }
-            return Terminal.CreateContext(profile, theme);
+            return Terminal.CreateContext(profile, theme).WithClock(0, options.Elapsed);
         }
 
         internal static ExportOptions Ready(ExportOptions? options) {
