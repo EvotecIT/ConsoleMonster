@@ -20,7 +20,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageReadmeFile>README.MD</PackageReadmeFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <DebugType>portable</DebugType>
         <NeutralLanguage>en</NeutralLanguage>
@@ -39,6 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.MD" Pack="true" PackagePath="\" />
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

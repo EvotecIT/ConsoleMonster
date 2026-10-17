@@ -39,13 +39,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore
-        run: dotnet restore Sources/ConsoleMonster.sln
+        run: dotnet restore ConsoleMonster.sln
 
       - name: Build (warnings as errors)
-        run: dotnet build Sources/ConsoleMonster.sln --configuration Release --no-restore -warnaserror
+        run: dotnet build ConsoleMonster.sln --configuration Release --no-restore -warnaserror
 
       - name: Test
-        run: dotnet test Sources/ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 15
 
       - name: Upload test results
@@ -78,8 +78,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build the module binaries (Debug, loaded by ConsoleMonster.psm1 in development mode)
-        run: dotnet build Sources/ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
+      - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
+        run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
       - name: Install Pester
         run: |
@@ -92,7 +92,7 @@ jobs:
           Import-Module Pester -MinimumVersion 5.5.0
           Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
-          $configuration.Run.Path = 'Tests'
+          $configuration.Run.Path = 'Module/Tests'
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true

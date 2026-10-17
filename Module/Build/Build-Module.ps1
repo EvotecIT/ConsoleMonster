@@ -5,6 +5,8 @@ param(
 
     [bool] $SignModule = $true,
 
+    [string] $ProjectBuildConfigPath = '..\Build\project.build.json',
+
     [string] $PowerShellGalleryApiKeyPath = 'C:\Support\Important\PowerShellGalleryAPI.txt',
 
     [string] $GitHubApiKeyPath = 'C:\Support\Important\GitHubAPI.txt'
@@ -94,7 +96,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         ResolveBinaryConflicts               = $true
         ResolveBinaryConflictsName           = 'ConsoleMonster.PowerShell'
         NETProjectName                       = 'ConsoleMonster.PowerShell'
-        NETProjectPath                       = 'Sources\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj'
+        NETProjectPath                       = '..\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj'
         NETConfiguration                     = 'Release'
         NETFramework                         = 'net8.0', 'net472'
         NETHandleAssemblyWithSameName        = $true
@@ -109,19 +111,19 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         NETBinaryModuleDocumentation         = $true
         NETDevelopmentBinaries               = $true
         NETDevelopmentBinariesMode           = 'Auto'
-        NETDevelopmentBinariesPath           = 'Sources\ConsoleMonster.PowerShell\bin'
+        NETDevelopmentBinariesPath           = '..\ConsoleMonster.PowerShell\bin'
         NETDevelopmentSourceBootstrapperMode = 'ReplaceSingleFile'
     }
 
     New-ConfigurationBuild @newConfigurationBuildSplat
 
-    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath 'Build\project.build.json' -Enabled:$false -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget
-    New-ConfigurationRelease -StageRoot 'Artefacts\UploadReady' -VersionSource ProjectBuild -PrimaryProject 'ConsoleMonster' -SynchronizeModuleVersion -BuildOrder 'Packages', 'Module' -PublishOrder 'NuGet', 'PowerShellGallery', 'GitHub'
+    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled:$false -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget
+    New-ConfigurationRelease -StageRoot '..\Artefacts\UploadReady' -VersionSource ProjectBuild -PrimaryProject 'ConsoleMonster' -SynchronizeModuleVersion -BuildOrder 'Packages', 'Module' -PublishOrder 'NuGet', 'PowerShellGallery', 'GitHub'
 
     $newConfigurationArtefactSplat = @{
         Type                = 'Unpacked'
         Enable              = $true
-        Path                = 'Artefacts\Unpacked'
+        Path                = '..\Artefacts\Unpacked'
         ModulesPath         = 'Modules'
         RequiredModulesPath = 'Modules'
         AddRequiredModules  = $true
@@ -130,7 +132,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     $newConfigurationArtefactSplat = @{
         Type                = 'Packed'
         Enable              = $true
-        Path                = 'Artefacts\Packed'
+        Path                = '..\Artefacts\Packed'
         ModulesPath         = 'Modules'
         RequiredModulesPath = 'Modules'
         AddRequiredModules  = $true

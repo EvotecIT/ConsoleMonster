@@ -10,13 +10,13 @@
   "AlignPackageVersions": true,
   "VersionBindings": [
     {
-      "Path": "Sources/ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj",
+      "Path": "ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj",
       "Project": "ConsoleMonster",
       "Pattern": "(?m)^[ \\t]*<VersionPrefix>[^<]+</VersionPrefix>\\r?\\n[ \\t]*<AssemblyVersion>[^<]+</AssemblyVersion>\\r?\\n[ \\t]*<FileVersion>[^<]+</FileVersion>",
       "Replacement": "        <VersionPrefix>{Version}</VersionPrefix>\n        <AssemblyVersion>{Version}</AssemblyVersion>\n        <FileVersion>{Version}</FileVersion>"
     },
     {
-      "Path": "ConsoleMonster.psd1",
+      "Path": "Module/ConsoleMonster.psd1",
       "Project": "ConsoleMonster",
       "Pattern": "(?m)^[ \\t]*ModuleVersion[ \\t]*=[ \\t]*'[^']+'",
       "Replacement": "    ModuleVersion          = '{Version}'"

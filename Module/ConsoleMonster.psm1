@@ -11,7 +11,7 @@ $PowerForgeModuleImportCompleted = $false
 try {
 $PowerForgeDevelopmentBinaryLoaded = $false
 # Source development binary loader
-$PowerForgeDevelopmentBinaryRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, 'Sources', 'ConsoleMonster.PowerShell', 'bin'))
+$PowerForgeDevelopmentBinaryRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..', 'ConsoleMonster.PowerShell', 'bin'))
 $PowerForgeDevelopmentBinaryMode = 'Auto'
 $PowerForgeDevelopmentBinaryEnvironmentVariable = 'CONSOLEMONSTER_USE_DEVELOPMENT_BINARIES'
 $PowerForgeDevelopmentConfigurationEnvironmentVariable = 'CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION'
