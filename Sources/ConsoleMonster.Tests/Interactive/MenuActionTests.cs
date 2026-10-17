@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
@@ -69,13 +70,16 @@ namespace ConsoleMonster.Tests.Interactive {
             Menu menu = new Menu("Tools");
             Exception? error = null;
             menu.Item("Leak", i => i.Hotkey('l').Action(ctx => {
-                Task.Run(() => {
+                // A real second thread (Task.Wait could run the work inline on the menu's own thread).
+                Thread stray = new Thread(() => {
                     try {
                         ctx.Confirm("From a stray thread?");
                     } catch (Exception ex) {
                         error = ex;
                     }
-                }).Wait();
+                });
+                stray.Start();
+                stray.Join();
             }));
             menu.Exit("Quit");
             Run(menu, "l Ctrl+Q", MenuLayout.Classic);
