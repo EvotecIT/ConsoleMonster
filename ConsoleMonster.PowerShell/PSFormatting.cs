@@ -13,6 +13,20 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Builds a table from pipeline objects, with optional groups and totals.</summary>
         internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool total, bool autoPresenters = false) {
             IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, property);
+            // Identifier numbers (Id, PID, Port, Index, Year...) never get thousands separators, in every table.
+            foreach (BoundColumn column in columns) {
+                if (column.Column.Presenter == null && IdentifierPresenter.LooksLikeIdentifier(column.Name)) {
+                    foreach (PSObject item in items) {
+                        object? value = PropertyBinder.Unwrap(column.GetValue(item));
+                        if (value != null) {
+                            if (CellPresenters.ForMember(column.Name, value.GetType()) == CellPresenters.Identifier) {
+                                column.Column.Presenter = CellPresenters.Identifier;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
             if (autoPresenters) {
                 // Presenters by member name and .NET type (bytes for Length, dates, durations, status-like enums).
                 foreach (BoundColumn column in columns) {
@@ -163,7 +177,7 @@ namespace ConsoleMonster.PowerShell {
         private static void MarkNumericTotals(IReadOnlyList<BoundColumn> columns, IReadOnlyList<PSObject> items) {
             for (int c = 0; c < columns.Count; c++) {
                 TableColumn column = columns[c].Column;
-                if (column.IsKey || column.Aggregate != ColumnAggregate.None) {
+                if (column.IsKey || column.Aggregate != ColumnAggregate.None || column.Presenter is IdentifierPresenter) {
                     continue;
                 }
                 bool numeric = false;

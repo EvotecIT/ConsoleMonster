@@ -48,6 +48,8 @@ namespace ConsoleMonster.Live {
                             StreamWriter writer = OpenRecording(_options.RecordPath);
                             try { _recorder = new LiveRecorder(writer, false); }
                             catch { writer.Dispose(); throw; }
+                        } else if (_options.AutoRecord > 0) {
+                            _recorder = OpenAutoRecording();
                         }
                         if (_options.CaptureConsole) {
                             lock (CurrentGate) {
@@ -215,6 +217,7 @@ namespace ConsoleMonster.Live {
                 while (Volatile.Read(ref _admission) != int.MinValue) { producers.SpinOnce(); }
                 Attempt(RestoreCapture);
                 Attempt(() => Drain(int.MaxValue));
+                Attempt(() => RecordSlotSnapshots(true));
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;
                 if (drawn) { Attempt(RenderFinal); }

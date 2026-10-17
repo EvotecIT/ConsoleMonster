@@ -100,6 +100,9 @@ namespace ConsoleMonster.Export {
 
         internal ExportPalette Palette => Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
 
+        /// <summary>A render context to use instead of the export one (the in-terminal player renders with the terminal's).</summary>
+        internal RenderContext? Context { get; set; }
+
         internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
     }
 
@@ -126,6 +129,22 @@ namespace ConsoleMonster.Export {
     /// </summary>
     internal static class RecordingFrames {
         public static List<RecordedFrame> Capture(IWidget root, IReadOnlyList<LiveEvent> events, RecordingExportOptions options) {
+            List<RecordedFrame> frames = new List<RecordedFrame>();
+            Sample(root, events, options, (buffer, time) => Add(frames, buffer, time, options.Speed));
+            long hold = (long)options.HoldLastFrame.TotalMilliseconds;
+            RecordedFrame last = frames[frames.Count - 1];
+            last.Duration = Math.Max(last.Duration, hold);
+            for (int i = 0; i < frames.Count - 1; i++) {
+                frames[i].Duration = frames[i + 1].Start - frames[i].Start;
+            }
+            return frames;
+        }
+
+        /// <summary>
+        /// Plays the events into the tree and hands every sampled frame (a new buffer each time) and its recorded time in
+        /// milliseconds to <paramref name="onFrame"/>, without merging.
+        /// </summary>
+        public static void Sample(IWidget root, IReadOnlyList<LiveEvent> events, RecordingExportOptions options, Action<CellBuffer, long> onFrame) {
             if (root == null) {
                 throw new ArgumentNullException(nameof(root));
             }
@@ -141,8 +160,7 @@ namespace ConsoleMonster.Export {
             Dictionary<string, ILiveTarget> targets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
             ILiveTarget? log = null;
             Discover(root, targets, ref log);
-            RenderContext context = ConsoleExporter.CreateContext(frame, options.RenderTheme, options.Height);
-            List<RecordedFrame> frames = new List<RecordedFrame>();
+            RenderContext context = options.Context ?? ConsoleExporter.CreateContext(frame, options.RenderTheme, options.Height);
             int index = 0;
             long tick = 0;
             double next = 0;
@@ -152,19 +170,12 @@ namespace ConsoleMonster.Export {
                     Apply(events[index], targets, log);
                     index++;
                 }
-                Add(frames, Render(root, frame, context, tick++, until), until, options.Speed);
+                onFrame(Render(root, frame, context, tick++, until), until);
                 if (index >= events.Count && until >= end) {
                     break;
                 }
                 next += period;
             }
-            long hold = (long)options.HoldLastFrame.TotalMilliseconds;
-            RecordedFrame last = frames[frames.Count - 1];
-            last.Duration = Math.Max(last.Duration, hold);
-            for (int i = 0; i < frames.Count - 1; i++) {
-                frames[i].Duration = frames[i + 1].Start - frames[i].Start;
-            }
-            return frames;
         }
 
         private static CellBuffer Render(IWidget root, ExportOptions options, RenderContext context, long tick, long time) {

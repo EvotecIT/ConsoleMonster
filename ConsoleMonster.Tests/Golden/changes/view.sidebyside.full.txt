@@ -1,0 +1,13 @@
+Domain users
+
+- bob  Title: Admin; Enabled: True
+
+ ~ anna
+╭──────────────┬──────────┬───────────────╮
+│ Property     │ Before   │ After         │
+├──────────────┼──────────┼───────────────┤
+│ Title        │ Engineer │ Lead engineer │
+│ Address.City │ Warsaw   │ Krakow        │
+╰──────────────┴──────────┴───────────────╯
+
++ dora  Title: Analyst; Enabled: True

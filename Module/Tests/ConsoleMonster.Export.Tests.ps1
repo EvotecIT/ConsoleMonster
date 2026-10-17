@@ -61,8 +61,17 @@ Describe 'ConsoleMonster exports' {
 
         $html = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8
         $html | Should -Match '<script>'
-        $html | Should -Match 'var F=\[\[0,'
+        $html | Should -Match '"frames":\[\[0,'
+        $html | Should -Match 'ConsoleMonsterPlayer'
         $html | Should -Not -Match 'src="http'
+
+        $dataPath = Join-Path $TestDrive 'run.json'
+        Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
+        $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $data.format | Should -Be 'consolemonster-player'
+        $data.width | Should -Be 60
+        @($data.frames).Count | Should -BeGreaterThan 1
+        (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format PlayerData -Width 60 -Height 8 | ConvertFrom-Json).height | Should -Be 8
 
         $svgPath = Join-Path $TestDrive 'run.svg'
         Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $svgPath -Width 60 -Height 8

@@ -6,12 +6,17 @@ using ConsoleMonster.Canvas;
 
 namespace ConsoleMonster.Export {
     /// <summary>
-    /// Writes a recording as a self-contained HTML player: the distinct rows as HTML strings, each frame as a list of row
-    /// numbers with its start time, and a small inline script with play/pause, speed and a scrubber. No external requests.
+    /// Writes recordings for the native player (<see cref="ConsoleExporter.PlayerScript"/>): the player data (the distinct
+    /// rows as HTML, each frame as its start time and row numbers, and the scoped screen CSS), and a self-contained page
+    /// that embeds the data, the player script and its styles. No external requests.
     /// </summary>
     internal static class HtmlPlayerWriter {
-        public static string Write(IReadOnlyList<RecordedFrame> frames, RecordingExportOptions recording) {
+        public const string DataFormat = "consolemonster-player";
+
+        /// <summary>The player data as JSON, safe to embed in a script element.</summary>
+        public static string WriteData(IReadOnlyList<RecordedFrame> frames, RecordingExportOptions recording) {
             ExportOptions options = recording.ToFrameOptions();
+            options.Fragment = true;
             ExportPalette palette = recording.Palette;
             HtmlStyles styles = new HtmlStyles();
             Dictionary<string, int> rowIndex = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -43,57 +48,49 @@ namespace ConsoleMonster.Export {
             }
             frameData.Append(']');
 
-            StringBuilder rowData = new StringBuilder("[");
-            for (int i = 0; i < rows.Count; i++) {
-                if (i > 0) {
-                    rowData.Append(',');
-                }
-                AppendScriptString(rowData, rows[i]);
-            }
-            rowData.Append(']');
-
             List<ExportLayer> layers = new List<ExportLayer> { new ExportLayer(frames[0].Frame, palette, null) };
             StringBuilder css = new StringBuilder();
             HtmlFrameWriter.AppendCss(css, layers, options, recording.Width);
             styles.AppendCss(css);
-            css.Append(".cm-export .cm-controls{display:flex;align-items:center;gap:10px;padding:6px ").Append(options.Padding).Append("px 10px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg);background:var(--cm-bg)}\n");
-            css.Append(".cm-export .cm-controls button{font:inherit;min-width:64px;padding:3px 10px;border-radius:6px;border:1px solid var(--cm-chrome-fg);background:transparent;color:inherit;cursor:pointer}\n");
-            css.Append(".cm-export .cm-controls input[type=range]{flex:1;min-width:80px}\n.cm-export .cm-controls select{font:inherit;background:transparent;color:inherit;border:1px solid var(--cm-chrome-fg);border-radius:6px}\n");
-            css.Append(".cm-export .cm-controls option{color:#000}\n.cm-export .cm-time{font-variant-numeric:tabular-nums;min-width:90px;text-align:right}\n");
 
-            StringBuilder html = new StringBuilder();
-            html.Append("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"color-scheme\" content=\"").Append(palette.Name).Append("\">\n<meta name=\"generator\" content=\"ConsoleMonster\">\n<title>");
-            ExportText.AppendEscaped(html, string.IsNullOrEmpty(options.Title) ? "Console recording" : options.Title);
-            html.Append("</title>\n<style>\n").Append(css).Append("</style>\n</head>\n<body>\n<div class=\"cm-export\">");
-            if (options.WindowChrome) {
-                html.Append("<div class=\"cm-window\"><div class=\"cm-titlebar\"><span class=\"cm-dots\"><i></i><i></i><i></i></span><span class=\"cm-title\">");
-                ExportText.AppendEscaped(html, options.Title ?? string.Empty);
-                html.Append("</span></div>");
-            } else {
-                html.Append("<div class=\"cm-player\">");
+            StringBuilder json = new StringBuilder("{\"format\":\"" + DataFormat + "\",\"version\":1,\"title\":");
+            AppendScriptString(json, options.Title ?? string.Empty);
+            json.Append(",\"width\":").Append(recording.Width.ToString(CultureInfo.InvariantCulture))
+                .Append(",\"height\":").Append(recording.Height.ToString(CultureInfo.InvariantCulture))
+                .Append(",\"fps\":").Append(ExportText.Num(recording.FramesPerSecond * recording.Speed))
+                .Append(",\"duration\":").Append(total.ToString(CultureInfo.InvariantCulture))
+                .Append(",\"chrome\":").Append(options.WindowChrome ? "true" : "false")
+                .Append(",\"theme\":\"").Append(palette.Name).Append("\",\"css\":");
+            AppendScriptString(json, css.ToString());
+            json.Append(",\"rows\":[");
+            for (int i = 0; i < rows.Count; i++) {
+                if (i > 0) {
+                    json.Append(',');
+                }
+                AppendScriptString(json, rows[i]);
             }
-            html.Append("<pre class=\"cm-screen\" id=\"cm-screen\" aria-live=\"off\"></pre>");
-            html.Append("<div class=\"cm-controls\"><button type=\"button\" id=\"cm-play\">Play</button><input type=\"range\" id=\"cm-seek\" min=\"0\" max=\"").Append(total.ToString(CultureInfo.InvariantCulture))
-                .Append("\" value=\"0\" step=\"10\" aria-label=\"Position\"><span class=\"cm-time\" id=\"cm-time\"></span><select id=\"cm-speed\" aria-label=\"Speed\"><option value=\"0.5\">0.5×</option><option value=\"1\" selected>1×</option><option value=\"2\">2×</option><option value=\"4\">4×</option></select></div>");
-            html.Append("</div></div>\n<script>\n(function(){\n");
-            html.Append("var R=").Append(rowData).Append(";\nvar F=").Append(frameData).Append(";\nvar T=").Append(total.ToString(CultureInfo.InvariantCulture)).Append(";\n");
-            html.Append(Script);
-            html.Append("})();\n</script>\n</body>\n</html>\n");
-            return html.ToString();
+            json.Append("],\"frames\":").Append(frameData).Append('}');
+            return json.ToString();
         }
 
-        private const string Script =
-            "var screen=document.getElementById('cm-screen'),play=document.getElementById('cm-play'),seek=document.getElementById('cm-seek'),time=document.getElementById('cm-time'),speed=document.getElementById('cm-speed');\n" +
-            "var t=0,shown=-1,playing=false,last=0;\n" +
-            "function fmt(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2);}\n" +
-            "function at(ms){var lo=0,hi=F.length-1;while(lo<hi){var mid=(lo+hi+1)>>1;if(F[mid][0]<=ms){lo=mid;}else{hi=mid-1;}}return lo;}\n" +
-            "function draw(){var i=at(t);if(i!==shown){shown=i;var rows=F[i][1],out=new Array(rows.length);for(var r=0;r<rows.length;r++){out[r]=R[rows[r]];}screen.innerHTML=out.join('\\n');}seek.value=Math.round(t);time.textContent=fmt(t)+' / '+fmt(T);}\n" +
-            "function tick(now){if(!playing){return;}var dt=now-last;last=now;t=Math.min(T,t+dt*parseFloat(speed.value));draw();if(t>=T){playing=false;play.textContent='Play';return;}requestAnimationFrame(tick);}\n" +
-            "function start(){if(t>=T){t=0;}playing=true;play.textContent='Pause';last=performance.now();requestAnimationFrame(tick);}\n" +
-            "play.addEventListener('click',function(){if(playing){playing=false;play.textContent='Play';}else{start();}});\n" +
-            "seek.addEventListener('input',function(){t=parseFloat(seek.value)||0;draw();});\n" +
-            "document.addEventListener('keydown',function(e){if(e.target===seek||e.target===speed){return;}if(e.key===' '){e.preventDefault();play.click();}});\n" +
-            "var m=/[#&]t=(\\d+)/.exec(location.hash);if(m){t=Math.min(T,parseInt(m[1],10));draw();}else{draw();start();}\n";
+        /// <summary>A self-contained page: the data, the player script and its styles inline; it autoplays unless opened at <c>#t=</c>.</summary>
+        public static string Write(IReadOnlyList<RecordedFrame> frames, RecordingExportOptions recording) {
+            ExportOptions options = recording.ToFrameOptions();
+            ExportPalette palette = recording.Palette;
+            string data = WriteData(frames, recording);
+            StringBuilder html = new StringBuilder(data.Length + 16384);
+            html.Append("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<meta name=\"color-scheme\" content=\"").Append(palette.Name).Append("\">\n<meta name=\"generator\" content=\"ConsoleMonster\">\n<title>");
+            ExportText.AppendEscaped(html, string.IsNullOrEmpty(options.Title) ? "Console recording" : options.Title);
+            html.Append("</title>\n<style>\n");
+            // The page itself: a neutral desk under a window frame, otherwise the terminal background.
+            string background = palette == ExportPalette.Light ? (options.WindowChrome ? "#c9c9cf" : palette.Background) : (options.WindowChrome ? "#3a3a3f" : palette.Background);
+            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.WindowChrome ? "20px" : "0").Append("}\n");
+            html.Append(ConsoleExporter.PlayerStyles).Append("</style>\n</head>\n<body>\n");
+            html.Append("<div class=\"cm-recording\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
+            html.Append("<script type=\"application/json\" id=\"cm-data\">").Append(data).Append("</script>\n");
+            html.Append("<script>\n").Append(ConsoleExporter.PlayerScript.Replace("</script", "<\\/script")).Append("\n</script>\n</body>\n</html>\n");
+            return html.ToString();
+        }
 
         // A JSON string that is also safe inside a script element: <, > and & are escaped, so no row can close the script.
         private static void AppendScriptString(StringBuilder sb, string value) {

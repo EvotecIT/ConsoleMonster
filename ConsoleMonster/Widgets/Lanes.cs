@@ -103,11 +103,11 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(key));
             }
             if (!_byKey.TryGetValue(key, out Lane? lane)) {
-                lane = new Lane(key, label ?? key) { Order = _lanes.Count };
+                lane = new Lane(key, string.IsNullOrEmpty(label) ? key : label!) { Order = _lanes.Count };
                 _byKey[key] = lane;
                 _lanes.Add(lane);
-            } else if (label != null) {
-                lane.Label = label;
+            } else if (!string.IsNullOrEmpty(label)) {
+                lane.Label = label!;
             }
             if (total > 0) {
                 lane.Total = total;
@@ -276,7 +276,7 @@ namespace ConsoleMonster.Widgets {
                         break;
                 }
             }
-            if (liveEvent.Text != null) {
+            if (!string.IsNullOrEmpty(liveEvent.Text)) {
                 lane.Detail = liveEvent.Text;
             }
             if (lane.Status == StatusKind.Pending) {
@@ -305,7 +305,7 @@ namespace ConsoleMonster.Widgets {
                     lane.Done = lane.Total;
                 }
             }
-            if (text != null) {
+            if (!string.IsNullOrEmpty(text)) {
                 lane.Detail = text;
             }
         }

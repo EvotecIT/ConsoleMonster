@@ -72,8 +72,8 @@ namespace ConsoleMonster.Widgets {
                     Status = StatusKind.Running;
                     Started = now;
                     Finished = null;
-                    if (liveEvent.Text != null) {
-                        Label = liveEvent.Text;
+                    if (!string.IsNullOrEmpty(liveEvent.Text)) {
+                        Label = liveEvent.Text!;
                     }
                     break;
                 case "state":
@@ -81,7 +81,7 @@ namespace ConsoleMonster.Widgets {
                         break;
                     }
                     Status = status;
-                    if (liveEvent.Text != null) {
+                    if (!string.IsNullOrEmpty(liveEvent.Text)) {
                         Detail = liveEvent.Text;
                     }
                     if (IsFinished) {

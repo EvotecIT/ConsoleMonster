@@ -36,15 +36,16 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(key));
             }
             if (_byKey.TryGetValue(key, out StatusItem? item)) {
-                if (label != null) {
-                    item.Label = label;
+                // Null or empty keeps the label (PowerShell passes $null to a .NET string as empty).
+                if (!string.IsNullOrEmpty(label)) {
+                    item.Label = label!;
                 }
                 item.Status = status;
-                if (detail != null) {
+                if (!string.IsNullOrEmpty(detail)) {
                     item.Detail = detail;
                 }
             } else {
-                item = new StatusItem(key, label ?? Markup.Escape(key), status, detail);
+                item = new StatusItem(key, string.IsNullOrEmpty(label) ? Markup.Escape(key) : label!, status, string.IsNullOrEmpty(detail) ? null : detail);
                 _byKey[key] = item;
                 _items.Add(item);
             }

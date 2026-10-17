@@ -17,6 +17,31 @@ namespace ConsoleMonster.Export {
     /// the grid, colours and styles are kept, and OSC 8 links become links (web and mail links only).
     /// </summary>
     public static class ConsoleExporter {
+        private static string? _playerScript;
+        private static string? _playerStyles;
+
+        /// <summary>
+        /// The recording player script (a native asset, <c>player.js</c>): include it once on a page with
+        /// <see cref="PlayerStyles"/>, then mark each player with <c>data-cm-recording</c> pointing at data from
+        /// <see cref="Recording.ExportPlayerData(IWidget, TextReader, RecordingExportOptions)"/> (a URL, or <c>#id</c> of an inline
+        /// <c>application/json</c> script element); <c>data-cm-autoplay</c> asks to autoplay. The HTML recording export embeds it.
+        /// </summary>
+        public static string PlayerScript => _playerScript ??= ReadAsset("player.js");
+
+        /// <summary>The recording player styles (a native asset, <c>player.css</c>); see <see cref="PlayerScript"/>.</summary>
+        public static string PlayerStyles => _playerStyles ??= ReadAsset("player.css");
+
+        private static string ReadAsset(string name) {
+            using (Stream? stream = typeof(ConsoleExporter).Assembly.GetManifestResourceStream("ConsoleMonster.Export.Assets." + name)) {
+                if (stream == null) {
+                    throw new InvalidOperationException("The embedded asset " + name + " is missing.");
+                }
+                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
         /// <summary>Exports a widget as an HTML page.</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size, theme, font and window frame.</param>

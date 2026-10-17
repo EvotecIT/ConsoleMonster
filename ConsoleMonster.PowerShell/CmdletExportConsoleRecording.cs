@@ -25,9 +25,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 1)]
         public string Path { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Html, Svg or Asciicast (default: from the -Destination extension, else Html).</para></summary>
+        /// <summary><para type="description">Html, Svg, Asciicast or PlayerData (default: from the -Destination extension, .json for PlayerData, else Html). PlayerData is the JSON the native player script plays, for sites that include the script once (see ConsoleExporter.PlayerScript).</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Asciicast")]
+        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData")]
         public string? Format { get; set; }
 
         /// <summary><para type="description">The file to write. Without it the document goes to the pipeline.</para></summary>
@@ -74,7 +74,9 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-            ExportFormat format = Format != null
+            bool playerData = string.Equals(Format, "PlayerData", System.StringComparison.OrdinalIgnoreCase)
+                || (Format == null && Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".json", System.StringComparison.OrdinalIgnoreCase));
+            ExportFormat format = playerData ? ExportFormat.Html : Format != null
                 ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
                 : Destination != null ? ConsoleExporter.FormatFor(Destination) : ExportFormat.Html;
             if (format == ExportFormat.Text) {
@@ -91,7 +93,7 @@ namespace ConsoleMonster.PowerShell {
             };
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
-                document = Recording.Export(Dashboard, reader, format, options);
+                document = playerData ? Recording.ExportPlayerData(Dashboard, reader, options) : Recording.Export(Dashboard, reader, format, options);
             }
             if (Destination == null) {
                 WriteObject(document);

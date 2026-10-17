@@ -73,7 +73,7 @@ namespace ConsoleMonster.Widgets {
             }
             Activity activity = index >= 0 ? _activities[index] : new Activity(id);
             activity.Parent = parent;
-            activity.Title = liveEvent.Text ?? activity.Title;
+            activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
             activity.Status = liveEvent.State;
             activity.Percent = liveEvent.Value;
             activity.SecondsLeft = liveEvent.Total;

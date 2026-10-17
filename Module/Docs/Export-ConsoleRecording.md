@@ -64,13 +64,13 @@ Accept wildcard characters: False
 ```
 
 ### -Format
-Html, Svg or Asciicast (default: from the -Destination extension, else Html).
+Html, Svg, Asciicast or PlayerData (default: from the -Destination extension, .json for PlayerData, else Html). PlayerData is the JSON the native player script plays, for sites that include the script once (see ConsoleExporter.PlayerScript).
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Html, Svg, Asciicast
+Possible values: Html, Svg, Asciicast, PlayerData
 
 Required: False
 Position: named

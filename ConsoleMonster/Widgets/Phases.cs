@@ -35,15 +35,16 @@ namespace ConsoleMonster.Widgets {
         /// <returns>This instance.</returns>
         public Phases Set(string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (!_byKey.TryGetValue(key, out StatusItem? item)) {
-                item = new StatusItem(key, label ?? Markup.Escape(key), status, detail);
+                item = new StatusItem(key, string.IsNullOrEmpty(label) ? Markup.Escape(key) : label!, status, string.IsNullOrEmpty(detail) ? null : detail);
                 _byKey[key] = item;
                 _phases.Add(item);
             } else {
                 item.Status = status;
-                if (label != null) {
-                    item.Label = label;
+                // Null or empty keeps the label (PowerShell passes $null to a .NET string as empty).
+                if (!string.IsNullOrEmpty(label)) {
+                    item.Label = label!;
                 }
-                if (detail != null) {
+                if (!string.IsNullOrEmpty(detail)) {
                     item.Detail = detail;
                 }
             }

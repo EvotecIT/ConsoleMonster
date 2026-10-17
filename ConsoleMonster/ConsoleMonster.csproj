@@ -43,6 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Localization\Labels.*.txt" LogicalName="ConsoleMonster.Localization.%(Filename)%(Extension)" WithCulture="false" />
+        <EmbeddedResource Include="Export\Assets\player.js;Export\Assets\player.css" LogicalName="ConsoleMonster.Export.Assets.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="Localization\Labels.*.txt" LogicalName="ConsoleMonster.Localization.%(Filename)%(Extension)" WithCulture="false" />
     </ItemGroup>
 </Project>
