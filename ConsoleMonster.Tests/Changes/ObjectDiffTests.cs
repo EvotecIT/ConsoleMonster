@@ -92,6 +92,59 @@ namespace ConsoleMonster.Tests.Changes {
             Golden.Match("changes/view." + mode.ToString().ToLowerInvariant() + "." + glyphs.ToString().ToLowerInvariant() + ".txt", text);
         }
 
+        private static ChangeSet WideDiff() {
+            Dictionary<string, object?> Person(string name, string title) => new Dictionary<string, object?> {
+                ["SamAccountName"] = name, ["DisplayName"] = name + " Miller", ["Title"] = title, ["Office"] = "Berlin", ["Enabled"] = true,
+                ["Department"] = "IT", ["Manager"] = "anna", ["Phone"] = "555-0100", ["Mail"] = name + "@contoso.com"
+            };
+            DiffOptions options = new DiffOptions();
+            options.Key.Add("SamAccountName");
+            return ObjectDiff.Compare(new object?[] { Person("bob", "Admin") }, new object?[] { Person("dora", "Analyst") }, options);
+        }
+
+        [Fact]
+        public void Compare_AddedAndRemovedObjects_CarryTheirComparedValues() {
+            ChangeSet changes = WideDiff();
+            ObjectChange bob = changes.Changes.Single(c => c.Kind == ChangeKind.Removed);
+            Assert.Equal(8, bob.Values.Count);
+            Assert.Equal("DisplayName", bob.Values[0].Path);
+            Assert.Equal("bob Miller", bob.Values[0].Before);
+            Assert.Null(bob.Values[0].After);
+            ObjectChange dora = changes.Changes.Single(c => c.Kind == ChangeKind.Added);
+            Assert.Equal("Analyst", dora.Values.Single(v => v.Path == "Title").After);
+            Assert.DoesNotContain(dora.Values, v => v.Path == "SamAccountName");
+        }
+
+        [Fact]
+        public void ChangeView_AddedAndRemovedRows_ListPropertiesOnTheirOwnLinesWithMore() {
+            string text = TestTerminal.RenderText(new ChangeView(WideDiff(), ChangeViewMode.Table) { MoreHint = "-PassThru or -View SideBySide" }, 100, 0, GlyphTier.Ascii);
+            string[] lines = text.Split('\n');
+            Assert.DoesNotContain(";", text);
+            Assert.Contains(lines, l => l.Contains("bob") && l.Contains("DisplayName") && l.Contains("bob Miller"));
+            Assert.Contains(lines, l => l.Contains("Office") && l.Contains("Berlin"));
+            // Six lines per object at most: five properties, then "+3 more" with the hint.
+            Assert.Equal(2, lines.Count(l => l.Contains("+3 more") && l.Contains("-PassThru or -View SideBySide")));
+            Assert.DoesNotContain(lines, l => l.Contains("Mail"));
+            Golden.Match("changes/view.table.wide.ascii.txt", text);
+        }
+
+        [Fact]
+        public void ChangeView_MaxPropertiesOne_KeepsEachObjectToOneLine() {
+            string text = TestTerminal.RenderText(new ChangeView(WideDiff(), ChangeViewMode.Table) { MaxProperties = 1 }, 100, 0, GlyphTier.Ascii);
+            string[] lines = text.Split('\n');
+            Assert.Contains(lines, l => l.Contains("bob") && l.Contains("+8 more"));
+            Assert.Contains(lines, l => l.Contains("dora") && l.Contains("+8 more"));
+            Assert.DoesNotContain("DisplayName", text);
+        }
+
+        [Fact]
+        public void ChangeView_SideBySide_ListsEveryValueOfAddedAndRemovedObjects() {
+            string text = TestTerminal.RenderText(new ChangeView(WideDiff(), ChangeViewMode.SideBySide), 100, 0, GlyphTier.Ascii);
+            Assert.Contains("dora@contoso.com", text);
+            Assert.Contains("bob@contoso.com", text);
+            Assert.DoesNotContain("more", text);
+        }
+
         [Fact]
         public void Ask_NoChanges_ReturnsFalseWithoutAsking() {
             ChangeSet none = ObjectDiff.Compare(new object?[] { "a" }, new object?[] { "a" });

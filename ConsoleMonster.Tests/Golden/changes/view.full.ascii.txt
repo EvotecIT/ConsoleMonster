@@ -2,11 +2,13 @@ Domain users
 
 +1 added  -1 removed  ~1 changed  1 unchanged
 
-+---+------+--------------+-----------------------------+-------------------------------+
-|   | Item | Property     | Before                      | After                         |
-+---+------+--------------+-----------------------------+-------------------------------+
-| - | bob  |              | Title: Admin; Enabled: True |                               |
-| ~ | anna | Title        | Engineer                    | Lead engineer                 |
-|   |      | Address.City | Warsaw                      | Krakow                        |
-| + | dora |              |                             | Title: Analyst; Enabled: True |
-+---+------+--------------+-----------------------------+-------------------------------+
++---+------+--------------+----------+---------------+
+|   | Item | Property     | Before   | After         |
++---+------+--------------+----------+---------------+
+| - | bob  | Title        | Admin    |               |
+|   |      | Enabled      | True     |               |
+| ~ | anna | Title        | Engineer | Lead engineer |
+|   |      | Address.City | Warsaw   | Krakow        |
+| + | dora | Title        |          | Analyst       |
+|   |      | Enabled      |          | True          |
++---+------+--------------+----------+---------------+

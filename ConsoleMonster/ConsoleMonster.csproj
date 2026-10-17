@@ -42,6 +42,15 @@
         <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <!--
+        The fluent With/Add methods of every widget are generated at build time from the widgets' public properties and
+        compiled into this assembly. The generator is a build-time tool only: it is not referenced at run time and not
+        packed, so consumers on any target framework and C# version get ordinary methods.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster.Generators\ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" SetTargetFramework="TargetFramework=netstandard2.0" />
+    </ItemGroup>
+
     <ItemGroup>
         <EmbeddedResource Include="Export\Assets\player.js;Export\Assets\player.css" LogicalName="ConsoleMonster.Export.Assets.%(Filename)%(Extension)" WithCulture="false" />
     <EmbeddedResource Include="Localization\Labels.*.txt" LogicalName="ConsoleMonster.Localization.%(Filename)%(Extension)" WithCulture="false" />

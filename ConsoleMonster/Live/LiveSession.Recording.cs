@@ -33,6 +33,28 @@ namespace ConsoleMonster.Live {
             Post(new LiveEvent(MarkerTarget, "mark", text: label));
         }
 
+        /// <summary>
+        /// Until the returned scope is disposed, what the calling thread writes to <see cref="Console.Out"/> and
+        /// <see cref="Console.Error"/> goes to the original streams instead of a live session's log. A host that hands a
+        /// session's own output lines on through <c>Console.Out</c> (as PowerShell's console host does with redirected
+        /// output) writes them inside this scope, so they are not captured, drawn and written again.
+        /// </summary>
+        /// <returns>The scope; dispose it on the same thread.</returns>
+        public static IDisposable SuspendCapture() {
+            CaptureWriter.EnterPassThrough();
+            return new CaptureSuspension();
+        }
+
+        private sealed class CaptureSuspension : IDisposable {
+            private bool _disposed;
+
+            public void Dispose() {
+                if (_disposed) { return; }
+                _disposed = true;
+                CaptureWriter.ExitPassThrough();
+            }
+        }
+
         /// <summary>The automatic recording file of this session, or null.</summary>
         public string? RecordingPath { get; private set; }
 

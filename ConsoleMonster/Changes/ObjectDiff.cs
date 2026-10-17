@@ -82,6 +82,13 @@ namespace ConsoleMonster.Changes {
         /// <c>Title: Admin; Enabled: True</c>), or the value itself for simple values; null when not described.
         /// </summary>
         public string? Summary { get; internal set; }
+
+        /// <summary>
+        /// The compared simple properties of an added or removed object (not its key, not empty), each with the value on its
+        /// side: <see cref="PropertyChange.After"/> for added objects, <see cref="PropertyChange.Before"/> for removed ones.
+        /// Empty for other kinds and for simple values.
+        /// </summary>
+        public IReadOnlyList<PropertyChange> Values { get; internal set; } = new PropertyChange[0];
     }
 
     /// <summary>The result of a comparison, with counts by kind.</summary>
@@ -186,10 +193,10 @@ namespace ConsoleMonster.Changes {
             }
             string key = before != null ? KeyOf(before, options, 0) : KeyOf(after!, options, 0);
             if (before == null) {
-                return new ChangeSet(new[] { new ObjectChange(ChangeKind.Added, key, null, after) { Summary = Describe(after!, options) } });
+                return new ChangeSet(new[] { Described(new ObjectChange(ChangeKind.Added, key, null, after), after!, options) });
             }
             if (after == null) {
-                return new ChangeSet(new[] { new ObjectChange(ChangeKind.Removed, key, before, null) { Summary = Describe(before, options) } });
+                return new ChangeSet(new[] { Described(new ObjectChange(ChangeKind.Removed, key, before, null), before, options) });
             }
             IReadOnlyList<PropertyChange> properties = CompareObjects(before, after, options);
             ObjectChange change = new ObjectChange(properties.Count > 0 ? ChangeKind.Changed : ChangeKind.Unchanged, key, before, after, properties);
@@ -231,13 +238,13 @@ namespace ConsoleMonster.Changes {
                         }
                     }
                 } else {
-                    added.Add(new ObjectChange(ChangeKind.Added, key, null, newItems[i]) { Summary = Describe(newItems[i], options) });
+                    added.Add(Described(new ObjectChange(ChangeKind.Added, key, null, newItems[i]), newItems[i], options));
                 }
             }
             List<ObjectChange> removed = new List<ObjectChange>();
             foreach (KeyValuePair<string, Queue<object>> left in oldByKey) {
                 foreach (object old in left.Value) {
-                    removed.Add(new ObjectChange(ChangeKind.Removed, left.Key, old, null) { Summary = Describe(old, options) });
+                    removed.Add(Described(new ObjectChange(ChangeKind.Removed, left.Key, old, null), old, options));
                 }
             }
             List<ObjectChange> all = new List<ObjectChange>();
@@ -315,30 +322,27 @@ namespace ConsoleMonster.Changes {
             }
         }
 
-        // The first few compared simple properties of an object (not its key), for added and removed rows.
-        private static string Describe(object value, DiffOptions options) {
+        // An added or removed object's compared simple properties (not its key, not empty) with the value on its side, and
+        // the short summary of the first few.
+        private static ObjectChange Described(ObjectChange change, object value, DiffOptions options) {
             if (IsLeaf(value) || IsCollection(value)) {
-                return Text(value);
+                change.Summary = Text(value);
+                return change;
             }
-            List<string> parts = new List<string>();
-            int more = 0;
+            bool added = change.Kind == ChangeKind.Added;
+            List<PropertyChange> values = new List<PropertyChange>();
             foreach (KeyValuePair<string, object?> member in Members(value, options)) {
                 if (options.Key.Any(k => string.Equals(k, member.Key, StringComparison.OrdinalIgnoreCase)) || Ignored(member.Key, member.Key, options)
                     || (options.Properties.Count > 0 && !options.Properties.Any(p => string.Equals(p, member.Key, StringComparison.OrdinalIgnoreCase)))
-                    || !IsLeaf(member.Value) || member.Value == null) {
+                    || !IsLeaf(member.Value) || member.Value == null || Text(member.Value).Length == 0) {
                     continue;
                 }
-                string text = Text(member.Value);
-                if (text.Length == 0) {
-                    continue;
-                }
-                if (parts.Count < 5) {
-                    parts.Add(member.Key + ": " + text);
-                } else {
-                    more++;
-                }
+                values.Add(new PropertyChange(member.Key, added ? null : member.Value, added ? member.Value : null));
             }
-            return string.Join("; ", parts) + (more > 0 ? "; …" : string.Empty);
+            change.Values = values;
+            List<string> parts = values.Take(5).Select(v => v.Path + ": " + Text(added ? v.After : v.Before)).ToList();
+            change.Summary = string.Join("; ", parts) + (values.Count > 5 ? "; …" : string.Empty);
+            return change;
         }
 
         private static bool Ignored(string path, string name, DiffOptions options) {

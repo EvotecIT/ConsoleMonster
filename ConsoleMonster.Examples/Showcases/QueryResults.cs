@@ -8,6 +8,36 @@ namespace ConsoleMonster.Examples.Showcases {
     /// records as a table, the delegation as a tree, mail-security checks as a status list and resolver latency as bars.
     /// </summary>
     public static class QueryResults {
+        private sealed class DnsRecord {
+            public DnsRecord(string name, string type, string ttl, string data) {
+                Name = name;
+                Type = type;
+                Ttl = ttl;
+                Data = data;
+            }
+
+            public string Name { get; }
+
+            public string Type { get; }
+
+            public string Ttl { get; }
+
+            public string Data { get; }
+        }
+
+        private static readonly DnsRecord[] Records = {
+            new DnsRecord("evotec.xyz", "A", "300", "104.21.48.12"),
+            new DnsRecord("evotec.xyz", "A", "300", "172.67.161.94"),
+            new DnsRecord("evotec.xyz", "AAAA", "300", "2606:4700:3036::6815:300c"),
+            new DnsRecord("evotec.xyz", "MX", "3600", "10 evotec-xyz.mail.protection.outlook.com"),
+            new DnsRecord("evotec.xyz", "NS", "86400", "dana.ns.cloudflare.com"),
+            new DnsRecord("evotec.xyz", "NS", "86400", "kirk.ns.cloudflare.com"),
+            new DnsRecord("evotec.xyz", "TXT", "3600", "v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all"),
+            new DnsRecord("_dmarc.evotec.xyz", "TXT", "3600", "v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; ruf=mailto:forensic@evotec.xyz; fo=1"),
+            new DnsRecord("evotec.xyz", "CAA", "3600", "0 issue \"letsencrypt.org\""),
+            new DnsRecord("evotec.xyz", "SOA", "3600", "dana.ns.cloudflare.com. dns.cloudflare.com. 2351234567 10000 2400 604800 3600")
+        };
+
         /// <summary>Builds the showcase as one widget.</summary>
         /// <returns>The widget tree.</returns>
         public static IWidget Build() {
@@ -18,22 +48,14 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Records", "14")
                 .Add("DNSSEC", "not signed", StatusKind.Warn);
 
-            Table records = new Table { Border = TableBorder.Rounded, Expand = true, HeaderSeparator = false };
-            records.AddColumn(new TableColumn("Name") { Wrap = false });
-            records.AddColumn(new TableColumn("Type") { Wrap = false });
-            records.AddColumn("TTL");
-            records.AddColumn(new TableColumn("Data") { Flexible = true });
-            records.AddPlainRow("evotec.xyz", "A", "300", "104.21.48.12");
-            records.AddPlainRow("evotec.xyz", "A", "300", "172.67.161.94");
-            records.AddPlainRow("evotec.xyz", "AAAA", "300", "2606:4700:3036::6815:300c");
-            records.AddPlainRow("evotec.xyz", "MX", "3600", "10 evotec-xyz.mail.protection.outlook.com");
-            records.AddPlainRow("evotec.xyz", "NS", "86400", "dana.ns.cloudflare.com");
-            records.AddPlainRow("evotec.xyz", "NS", "86400", "kirk.ns.cloudflare.com");
-            records.AddPlainRow("evotec.xyz", "TXT", "3600", "v=spf1 include:spf.protection.outlook.com include:_spf.google.com include:sendgrid.net ip4:51.38.120.9 -all");
-            records.AddPlainRow("_dmarc.evotec.xyz", "TXT", "3600", "v=DMARC1; p=reject; rua=mailto:dmarc@evotec.xyz; ruf=mailto:forensic@evotec.xyz; fo=1");
-            records.AddPlainRow("evotec.xyz", "CAA", "3600", "0 issue \"letsencrypt.org\"");
-            records.AddPlainRow("evotec.xyz", "SOA", "3600", "dana.ns.cloudflare.com. dns.cloudflare.com. 2351234567 10000 2400 604800 3600");
-
+            // A typed table: each column reads a property, configured fluently.
+            Table records = Table.For(Records)
+                .WithExpand()
+                .WithHeaderSeparator(false)
+                .Column(r => r.Name, c => c.WithWrap(false))
+                .Column(r => r.Type, c => c.WithWrap(false))
+                .Column(r => r.Ttl, c => c.WithHeader("TTL").WithAlignment(HorizontalAlignment.Right))
+                .Column(r => r.Data, c => c.WithFlexible());
             Tree delegation = new Tree("[bold].[/] [muted]root[/]");
             TreeNode xyz = delegation.Add("[bold]xyz.[/]", null, "6 name servers");
             xyz.Add("x.nic.xyz", null, "194.169.218.42");

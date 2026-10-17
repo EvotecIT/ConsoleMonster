@@ -1,0 +1,152 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Widgets;
+using Xunit;
+
+namespace ConsoleMonster.Tests.Building {
+    /// <summary>
+    /// Every public widget property has its generated fluent counterpart: <c>WithX</c> for a settable property and
+    /// <c>AddX</c> for a mutable collection, on the widgets and on the option types they hold. A new property without one
+    /// means the generator skipped it; mark it <c>[NoFluent]</c> only when a setter or Add would bypass the widget.
+    /// </summary>
+    public sealed class FluentCoverageTests {
+        private static readonly Assembly Core = typeof(IWidget).Assembly;
+
+        private static readonly MethodInfo[] Extensions = Core.GetExportedTypes()
+            .Where(t => t.IsAbstract && t.IsSealed && t.Name.EndsWith("Fluent", StringComparison.Ordinal))
+            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            .Where(m => m.IsDefined(typeof(ExtensionAttribute), false))
+            .ToArray();
+
+        public static IEnumerable<object[]> FluentTypes() => Types().Select(t => new object[] { t.FullName! });
+
+        [Theory]
+        [MemberData(nameof(FluentTypes))]
+        public void EveryPublicPropertyHasAFluentMethod(string typeName) {
+            Type type = Core.GetType(typeName, true)!;
+            List<string> missing = new List<string>();
+            foreach (PropertyInfo property in Properties(type)) {
+                if (IsSettable(property) && !Has(type, "With" + property.Name, property.PropertyType)) {
+                    missing.Add("With" + property.Name + "(" + property.PropertyType.Name + ")");
+                }
+                Type? item = CollectionItem(property.PropertyType);
+                if (item != null) {
+                    if (!Extensions.Any(m => m.Name.StartsWith("Add", StringComparison.Ordinal) && Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
+                        missing.Add("Add...(" + item.Name + ") for " + property.Name);
+                    }
+                    if (!Has(type, "Add" + property.Name, typeof(IEnumerable<>).MakeGenericType(item))) {
+                        missing.Add("Add" + property.Name + "(IEnumerable<" + item.Name + ">)");
+                    }
+                }
+            }
+            Assert.True(missing.Count == 0, type.Name + " lacks " + string.Join(", ", missing));
+        }
+
+        [Fact]
+        public void CoverageIncludesWidgetsAndTheirOptionTypes() {
+            List<Type> types = Types().ToList();
+            Assert.Contains(typeof(Table), types);
+            Assert.Contains(typeof(TableColumn), types);
+            Assert.Contains(typeof(Panel), types);
+            Assert.Contains(typeof(Dashboard), types);
+            Assert.True(types.Count >= 35, "Only " + types.Count + " fluent types were found.");
+        }
+
+        [Fact]
+        public void GeneratedMethods_SetAndAddAndReturnTheSameInstance() {
+            HeaderBar header = new HeaderBar("Build");
+            Assert.Same(header, header.WithSubtitle("nightly").WithShowClock().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
+            Assert.Equal("nightly", header.Subtitle);
+            Assert.True(header.ShowClock);
+            Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
+            Assert.False(header.WithShowClock(false).ShowClock);
+        }
+
+        [Fact]
+        public void GeneratedMethods_ConfigureNestedOptionsAndCreateNullableCollections() {
+            Table table = new Table().WithPresentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Same(System.Globalization.CultureInfo.InvariantCulture, table.Presentation.Culture);
+            ProgressBar bar = new ProgressBar("copy").AddColumns(ProgressColumns.Percent(), ProgressColumns.Elapsed());
+            Assert.Equal(2, bar.Columns!.Count);
+        }
+
+        [Fact]
+        public void GeneratedMethods_OnATypedTable_KeepItsType() {
+            Table<int> table = Table.For(new[] { 1, 2 }).WithTitle("Numbers").WithShowHeader(false);
+            Assert.Equal("Numbers", table.Title);
+            Assert.IsType<Table<int>>(table.Column("Value", n => n));
+        }
+
+        // Widgets, then the option types their properties hold or their Add/Set methods take, as the generator walks them.
+        private static IEnumerable<Type> Types() {
+            List<Type> widgets = Core.GetExportedTypes().Where(t => IsCandidate(t) && typeof(IWidget).IsAssignableFrom(t)).OrderBy(t => t.FullName, StringComparer.Ordinal).ToList();
+            HashSet<Type> seen = new HashSet<Type>(widgets);
+            List<Type> result = new List<Type>(widgets);
+            List<Type> frontier = widgets;
+            for (int depth = 0; depth < 3 && frontier.Count > 0; depth++) {
+                List<Type> next = new List<Type>();
+                foreach (Type type in frontier) {
+                    IEnumerable<Type> reached = Properties(type).SelectMany(p => new[] { p.PropertyType, CollectionItem(p.PropertyType) }).Where(t => t != null).Select(t => t!)
+                        .Concat(type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                            .Where(m => !m.IsSpecialName && (m.Name.StartsWith("Add", StringComparison.Ordinal) || m.Name.StartsWith("Set", StringComparison.Ordinal)))
+                            .SelectMany(m => m.GetParameters().Select(p => p.ParameterType)));
+                    foreach (Type candidate in reached) {
+                        if (IsOptionType(candidate) && seen.Add(candidate)) {
+                            next.Add(candidate);
+                        }
+                    }
+                }
+                result.AddRange(next.OrderBy(t => t.FullName, StringComparer.Ordinal));
+                frontier = next;
+            }
+            return result;
+        }
+
+        private static bool IsCandidate(Type type) => type.IsClass && type.IsPublic && !type.IsAbstract && !type.IsGenericType && !NoFluent(type) && !typeof(Delegate).IsAssignableFrom(type);
+
+        private static bool IsOptionType(Type type) => type.Assembly == Core && IsCandidate(type) && Properties(type).Any(p => IsSettable(p) || CollectionItem(p.PropertyType) != null);
+
+        private static IEnumerable<PropertyInfo> Properties(Type type) =>
+            type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.GetIndexParameters().Length == 0 && !NoFluent(p) && !p.IsDefined(typeof(ObsoleteAttribute), true))
+                .GroupBy(p => p.Name).Select(g => g.First());
+
+        private static bool IsSettable(PropertyInfo property) {
+            MethodInfo? setter = property.GetSetMethod();
+            return setter != null && !setter.ReturnParameter.GetRequiredCustomModifiers().Any(m => m.FullName == "System.Runtime.CompilerServices.IsExternalInit");
+        }
+
+        private static Type? CollectionItem(Type type) {
+            if (type == typeof(string) || type.IsArray) {
+                return null;
+            }
+            IEnumerable<Type> interfaces = type.IsInterface ? new[] { type }.Concat(type.GetInterfaces()) : type.GetInterfaces();
+            Type? item = null;
+            foreach (Type candidate in interfaces.Where(i => i.IsGenericType)) {
+                Type definition = candidate.GetGenericTypeDefinition();
+                if (definition == typeof(IDictionary<,>)) {
+                    return null;
+                }
+                if (definition == typeof(ICollection<>)) {
+                    item = candidate.GetGenericArguments()[0];
+                }
+            }
+            return item;
+        }
+
+        private static bool NoFluent(MemberInfo member) => member.GetCustomAttributes(false).Any(a => a.GetType().Name == "NoFluentAttribute");
+
+        private static bool Has(Type type, string name, Type parameter) =>
+            Extensions.Any(m => m.Name == name && Receives(m, type) && m.GetParameters().Length >= 2 && m.GetParameters()[1].ParameterType == parameter);
+
+        // The first parameter is the type itself, or a type parameter constrained to it or a base (Table's generic methods).
+        private static bool Receives(MethodInfo method, Type type) {
+            Type first = method.GetParameters()[0].ParameterType;
+            return first == type || (first.IsGenericParameter && first.GetGenericParameterConstraints().Any(constraint => constraint.IsAssignableFrom(type)));
+        }
+    }
+}

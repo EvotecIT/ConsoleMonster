@@ -12,9 +12,10 @@ namespace ConsoleMonster.Widgets {
     /// <see cref="TableColumn.Priority"/> with a footer that names them (<c>+3 columns (Owner, Site, Notes)</c>); the key
     /// column never hides. Below <see cref="CardsBelow"/> cells the rows become record cards, and a single row becomes a
     /// record view. Rows can be grouped with subtotals, followed by a totals row, and limited to the top N with a
-    /// <c>Showing 50 of 1,234</c> footer. Raw values are formatted by the column presenters.
+    /// <c>Showing 50 of 1,234</c> footer. Raw values are formatted by the column presenters. <see cref="For{T}(IEnumerable{T})"/>
+    /// makes a <see cref="Table{T}"/> whose columns are read from typed items.
     /// </summary>
-    public sealed partial class Table : IWidget {
+    public partial class Table : IWidget {
         private readonly List<TableColumn> _columns = new List<TableColumn>();
         private readonly List<TableCell[]> _rows = new List<TableCell[]>();
         private readonly List<int> _rowGroups = new List<int>();
@@ -23,10 +24,26 @@ namespace ConsoleMonster.Widgets {
         private TableCell[]? _footer;
 
         /// <summary>The columns.</summary>
-        public IReadOnlyList<TableColumn> Columns => _columns;
+        public IReadOnlyList<TableColumn> Columns {
+            get {
+                Prepare();
+                return _columns;
+            }
+        }
 
         /// <summary>The rows.</summary>
-        public IReadOnlyList<TableCell[]> Rows => _rows;
+        public IReadOnlyList<TableCell[]> Rows {
+            get {
+                Prepare();
+                return _rows;
+            }
+        }
+
+        /// <summary>
+        /// With <see cref="ShowTotals"/>, also sums every column whose values are all numbers (not the key column and not
+        /// identifier columns such as Id or Port) when it has no <see cref="TableColumn.Aggregate"/> of its own.
+        /// </summary>
+        public bool AutoTotals { get; set; }
 
         /// <summary>A title shown above the table (markup).</summary>
         public string? Title { get; set; }
@@ -182,6 +199,63 @@ namespace ConsoleMonster.Widgets {
             Draw(region, layout, context);
         }
 
+        /// <summary>
+        /// Makes a table from typed items. Add columns with <see cref="Table{T}.Column(Func{T, object}, Action{TableColumn}, string)"/>
+        /// (the header comes from the expression: <c>s =&gt; s.Name</c> is "Name"); without any, every public property
+        /// of <typeparamref name="T"/> is a column. Rows are read from the items when the table is laid out.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="items">The items.</param>
+        /// <returns>The table.</returns>
+        public static Table<T> For<
+#if NET8_0_OR_GREATER
+            [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+            T>(IEnumerable<T> items) => new Table<T>(items);
+
+        // Columns summed because of AutoTotals, chosen again at every layout from the current rows; the columns'
+        // own Aggregate is never changed.
+        private readonly HashSet<TableColumn> _autoSums = new HashSet<TableColumn>();
+
+        // Called before the columns or rows are read and before every layout: Table<T> reads its items here, and AutoTotals
+        // picks the numeric columns.
+        private protected virtual void Prepare() {
+            _autoSums.Clear();
+            if (!ShowTotals || !AutoTotals) {
+                return;
+            }
+            int key = KeyColumn;
+            for (int c = 0; c < _columns.Count; c++) {
+                TableColumn column = _columns[c];
+                if (c == key || column.IsKey || column.Aggregate != ColumnAggregate.None || column.Presenter is IdentifierPresenter || IdentifierPresenter.LooksLikeIdentifier(column.Id)) {
+                    continue;
+                }
+                bool numeric = false;
+                bool other = false;
+                foreach (TableCell[] row in _rows) {
+                    object? value = c < row.Length && row[c].HasValue ? row[c].Value : null;
+                    if (PresenterValues.IsEmpty(value)) {
+                        continue;
+                    }
+                    if (!(value is string) && PresenterValues.TryGetNumber(value, out _)) {
+                        numeric = true;
+                    } else {
+                        other = true;
+                        break;
+                    }
+                }
+                if (numeric && !other) {
+                    _autoSums.Add(column);
+                }
+            }
+        }
+
+        // The column's own aggregate, or Sum when AutoTotals chose it.
+        private ColumnAggregate EffectiveAggregate(TableColumn column) =>
+            column.Aggregate != ColumnAggregate.None ? column.Aggregate : _autoSums.Contains(column) ? ColumnAggregate.Sum : ColumnAggregate.None;
+
+        // Table<T> replaces the property columns it inferred once explicit columns are added.
+        private protected void RemoveColumn(TableColumn column) => _columns.Remove(column);
         private int KeyColumn {
             get {
                 for (int c = 0; c < _columns.Count; c++) {

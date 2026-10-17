@@ -8,7 +8,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
-    public sealed partial class Table {
+    public partial class Table {
         private bool IsBoxed => Border == TableBorder.Rounded || Border == TableBorder.Square || Border == TableBorder.Double;
 
         private static BoxStyle BoxStyleFor(TableBorder border) {

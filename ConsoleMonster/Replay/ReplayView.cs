@@ -21,6 +21,7 @@ namespace ConsoleMonster.Replay {
         private static readonly double[] Speeds = { 0.25, 0.5, 1, 2, 4, 8, 16 };
 
         private readonly string _title;
+        private readonly bool _explicitTitle;
         private readonly ReplayFrames _frames;
         private readonly IReadOnlyList<ReplayMarker> _markers;
         private readonly LineEditor _search = new LineEditor();
@@ -32,8 +33,9 @@ namespace ConsoleMonster.Replay {
         private int _anchor = -1;
         private bool _searching;
 
-        public ReplayView(string title, ReplayFrames frames, IReadOnlyList<ReplayMarker> markers, ReplayOptions options, PromptLabels labels) : base(labels) {
+        public ReplayView(string title, bool explicitTitle, ReplayFrames frames, IReadOnlyList<ReplayMarker> markers, ReplayOptions options, PromptLabels labels) : base(labels) {
             _title = title;
+            _explicitTitle = explicitTitle;
             _frames = frames;
             _markers = markers;
             _speed = options.Speed;
@@ -82,12 +84,7 @@ namespace ConsoleMonster.Replay {
         protected override IWidget Build(ViewFrame frame) {
             InteractiveGlyphs g = InteractiveGlyphs.For(frame.Context);
             Rows rows = new Rows();
-            HeaderBar header = new HeaderBar(Markup.Escape(_title)) {
-                Status = _playing ? Labels.ReplayPlaying : Labels.ReplayPaused,
-                StatusLevel = _playing ? StatusKind.Running : StatusKind.Pending,
-                Right = ReplayPlayer.FormatTime(TimeSpan.FromMilliseconds(_position)) + " / " + ReplayPlayer.FormatTime(TimeSpan.FromMilliseconds(_frames.End)) + " " + g.Separator + " " + SpeedText(_speed)
-            };
-            rows.Add(header, LayoutSize.Fixed(1));
+            rows.Add(Header(g), LayoutSize.Fixed(1));
             rows.Add(new ReplayScreen(this), frame.Inline ? LayoutSize.Fixed(_frames.Height) : LayoutSize.Fraction());
             rows.Add(new Padding(new ReplayTimeline(this), 1, 0, 1, 0), LayoutSize.Fixed(1));
             rows.Add(new Padding(InfoLine(frame), 1, 0, 1, 0), LayoutSize.Fixed(1));
@@ -96,6 +93,39 @@ namespace ConsoleMonster.Replay {
             rows.Add(new KeyFooter(bindings) { Toast = CurrentToast }, LayoutSize.Fixed(1));
             return rows;
         }
+
+        /// <summary>
+        /// The one header: the run name, then what the recorded dashboard's header showed at this position (its title when
+        /// no name was given or it adds something, its subtitle and its status), the play state, position and speed.
+        /// </summary>
+        internal HeaderBar Header(InteractiveGlyphs g) {
+            ReplayChrome? chrome = CurrentChrome;
+            string state = _playing ? Labels.ReplayPlaying : Labels.ReplayPaused;
+            string position = ReplayPlayer.FormatTime(TimeSpan.FromMilliseconds(_position)) + " / " + ReplayPlayer.FormatTime(TimeSpan.FromMilliseconds(_frames.End)) + " " + g.Separator + " " + SpeedText(_speed);
+            HeaderBar header = new HeaderBar(Markup.Escape(_title));
+            if (chrome != null) {
+                string recordedTitle = Markup.Strip(chrome.Title);
+                if (!_explicitTitle && recordedTitle.Length > 0) {
+                    header.Title = chrome.Title;
+                } else if (recordedTitle.Length > 0 && _title.IndexOf(recordedTitle, StringComparison.OrdinalIgnoreCase) < 0) {
+                    header.Crumbs.Add(recordedTitle);
+                }
+                header.Subtitle = chrome.Subtitle;
+            }
+            if (chrome != null && !string.IsNullOrEmpty(chrome.Status)) {
+                // The recorded status keeps its place; the play state moves to the free text.
+                header.Status = chrome.Status;
+                header.StatusLevel = chrome.StatusLevel;
+                header.Right = state + " " + g.Separator + " " + position;
+            } else {
+                header.Status = state;
+                header.StatusLevel = _playing ? StatusKind.Running : StatusKind.Pending;
+                header.Right = position;
+            }
+            return header;
+        }
+
+        private ReplayChrome? CurrentChrome => _frames.Count == 0 ? null : _frames.Chrome[_frames.IndexAt((long)Math.Round(_position))];
 
         private IWidget InfoLine(ViewFrame frame) {
             if (_searching) {

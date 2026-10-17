@@ -3,9 +3,14 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
+using static ConsoleMonster.Ui;
 
 namespace ConsoleMonster.Examples.Showcases {
-    /// <summary>Every v1 widget printed once, in one composition, for tier and theme comparisons.</summary>
+    /// <summary>
+    /// Every v1 widget printed once, in one composition, for tier and theme comparisons. The widgets are configured with
+    /// object initializers and the composition is written with the nested <see cref="Ui"/> factories, so it reads like the
+    /// screen.
+    /// </summary>
     public static class WidgetGallery {
         /// <summary>Builds the gallery.</summary>
         /// <returns>The widget tree.</returns>
@@ -82,25 +87,23 @@ namespace ConsoleMonster.Examples.Showcases {
                 badgeBase.Add(10 + (6 * Math.Sin(i / 4.0)));
             }
             Stack overlay = new Stack(badgeBase, new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right));
-            Columns containers = new Columns(
-                new Panel(new Rows(resolving, synced), "Spinner"),
-                new Panel(new Align(new TextBlock("[muted]centred with Align[/]")), "Align"),
-                new Panel(overlay, "Stack") { Caption = "badge over a chart" });
-
-            Columns charts = new Columns(
-                new Panel(new Rows(spark, area) { Gap = 1 }, "Sparkline"),
-                new Panel(chart, "Line chart") { Caption = "braille" },
-                new Panel(histogram, "Histogram"));
-
-            return new Rows(
+            return Rows(
                 logo,
-                new Panel(new Rows(build, tests, docs), "Progress"),
-                new Panel(lanes, "Lanes") { Caption = "2 running" },
-                new Panel(phases, "Phases"),
-                new Columns(new Panel(results, "Stacked bar"), new Panel(categories, "Bar chart") { Caption = "failures" }),
-                charts,
-                containers,
-                new Panel(log, "Log region")) { Gap = 0 };
+                Panel("Progress", Rows(build, tests, docs)),
+                Panel("Lanes", lanes).WithCaption("2 running"),
+                Panel("Phases", phases),
+                Columns(
+                    Panel("Stacked bar", results),
+                    Panel("Bar chart", categories).WithCaption("failures")),
+                Columns(
+                    Panel("Sparkline", Rows(spark, area).WithGap(1)),
+                    Panel("Line chart", chart).WithCaption("braille"),
+                    Panel("Histogram", histogram)),
+                Columns(
+                    Panel("Spinner", Rows(resolving, synced)),
+                    Panel("Align", new Align(new TextBlock("[muted]centred with Align[/]"))),
+                    Panel("Stack", overlay).WithCaption("badge over a chart")),
+                Panel("Log region", log));
         }
     }
 }

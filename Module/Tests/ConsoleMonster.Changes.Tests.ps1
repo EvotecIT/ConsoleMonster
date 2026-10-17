@@ -15,6 +15,24 @@ Describe 'ConsoleMonster changes, replay and engine fixes' {
         }
     }
 
+    It 'records each log line once when a dashboard runs with redirected output' {
+        $recording = Join-Path $TestDrive 'redirected.jsonl'
+        $text = Invoke-ChangesChild @"
+`$d = New-ConsoleDashboard -Title 'Redirected' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
+Start-ConsoleDashboard `$d -RecordPath '$recording' {
+    Write-ConsoleLog -Message 'first line' -Level info
+    Start-Sleep -Milliseconds 400
+    Write-ConsoleLog -Message 'second line' -Level warn
+    Start-Sleep -Milliseconds 400
+} | Out-Null
+"@
+        $events = @(Get-Content -LiteralPath $recording | Select-Object -Skip 1 | ConvertFrom-Json)
+        @($events | Where-Object { $_.target -eq '$log' }).Count | Should -Be 2
+        @($events | Where-Object { $_.state -eq 'out' }).Count | Should -Be 0
+        # The narration still reaches the redirected output.
+        $text | Should -Match 'second line'
+    }
+
     It 'returns structured changes with Compare-ConsoleObject -PassThru' {
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'web01'; Role = 'IIS'; Ram = 8 }, [pscustomobject]@{ Name = 'db01'; Role = 'SQL'; Ram = 32 })

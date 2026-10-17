@@ -6,7 +6,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
-    public sealed partial class Table {
+    public partial class Table {
         private static readonly ICellPresenter CountPresenter = new NumberPresenter();
 
         private int DisplayedRowCount => MaxRows > 0 ? Math.Min(MaxRows, _rows.Count) : _rows.Count;
@@ -109,7 +109,7 @@ namespace ConsoleMonster.Widgets {
         private bool HasAggregates {
             get {
                 foreach (TableColumn column in _columns) {
-                    if (column.Aggregate != ColumnAggregate.None) {
+                    if (EffectiveAggregate(column) != ColumnAggregate.None) {
                         return true;
                     }
                 }
@@ -119,17 +119,17 @@ namespace ConsoleMonster.Widgets {
 
         private CellContent[] SummaryCells(List<int> rows, string label, PresenterContext[] contexts, Style tone, bool bold) {
             CellContent[] cells = new CellContent[_columns.Count];
-            int labelColumn = _columns[KeyColumn].Aggregate == ColumnAggregate.None ? KeyColumn : FirstPlainColumn();
+            int labelColumn = EffectiveAggregate(_columns[KeyColumn]) == ColumnAggregate.None ? KeyColumn : FirstPlainColumn();
             for (int c = 0; c < _columns.Count; c++) {
                 TableColumn column = _columns[c];
                 CellContent content;
                 if (c == labelColumn) {
                     content = new CellContent(new List<StyledLine> { StyledLine.From(label, tone) }, null);
-                } else if (column.Aggregate == ColumnAggregate.None) {
+                } else if (EffectiveAggregate(column) == ColumnAggregate.None) {
                     content = new CellContent(new List<StyledLine> { StyledLine.Empty }, null);
                 } else {
                     object? value = AggregateOf(column, c, rows);
-                    ICellPresenter? presenter = column.Aggregate == ColumnAggregate.Count ? CountPresenter : column.Presenter;
+                    ICellPresenter? presenter = EffectiveAggregate(column) == ColumnAggregate.Count ? CountPresenter : column.Presenter;
                     PresentedValue presented = CellPresenters.Present(value, presenter, (IReadOnlyList<ToneRule>)column.ToneRules, contexts[c]);
                     // Totals show the number only; a data bar of a sum would not share the rows' scale.
                     PresentedValue plain = new PresentedValue(presented.Line, presented.Alignment) { Number = presented.Number, Tone = presented.Tone };
@@ -142,7 +142,7 @@ namespace ConsoleMonster.Widgets {
 
         private int FirstPlainColumn() {
             for (int c = 0; c < _columns.Count; c++) {
-                if (_columns[c].Aggregate == ColumnAggregate.None) {
+                if (EffectiveAggregate(_columns[c]) == ColumnAggregate.None) {
                     return c;
                 }
             }
@@ -181,14 +181,15 @@ namespace ConsoleMonster.Widgets {
                 min = Math.Min(min, number);
                 max = Math.Max(max, number);
             }
-            if (column.Aggregate == ColumnAggregate.Count) {
+            ColumnAggregate aggregate = EffectiveAggregate(column);
+            if (aggregate == ColumnAggregate.Count) {
                 return count;
             }
             if (numbers == 0) {
                 return null;
             }
             double result;
-            switch (column.Aggregate) {
+            switch (aggregate) {
                 case ColumnAggregate.Average:
                     result = sum / numbers;
                     break;
