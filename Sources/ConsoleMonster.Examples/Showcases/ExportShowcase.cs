@@ -32,6 +32,9 @@ namespace ConsoleMonster.Examples.Showcases {
             Frame(written, folder, "toolbox-palette", Pick(toolbox, "Search items, actions and presets", "› cert"), "Server toolbox · Command palette");
             Frame(written, folder, "toolbox-review", Pick(toolbox, "Equivalent command", "Review & run"), "Server toolbox · Review & run");
 
+            ScreenCapture blocked = Drive(ServerToolbox.Build(), MenuLayout.Shell, 140, 36, "wait:1600 r wait:300 Ctrl+Q y");
+            Frame(written, folder, "toolbox-review-blocked", Pick(blocked, "Run · 1 problem"), "Server toolbox · Review with a problem");
+
             ScreenCapture narrow = Drive(ServerToolbox.Build(), MenuLayout.Shell, 76, 30, "wait:1600 k wait:300 Ctrl+Q y");
             Frame(written, folder, "toolbox-narrow", Pick(narrow, "Server toolbox › Tasks", "Disk cleanup"), "Server toolbox · narrow window");
 
