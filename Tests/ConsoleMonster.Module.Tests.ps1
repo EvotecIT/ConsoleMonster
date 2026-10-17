@@ -118,6 +118,62 @@ Stop-Transcript | Out-Null
         $text | Should -Match 'CAPTURED=\[captured line\]'
     }
 
+    It 'colours host output in jobs with Write-Host style records: PASS green, FAIL red, WARN yellow' {
+        $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
+            param($ModulePath)
+            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+            Import-Module $ModulePath -Force
+            $checks = @(
+                [pscustomobject] @{ Check = 'SPF'; Status = 'pass' }
+                [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' }
+                [pscustomobject] @{ Check = 'DKIM'; Status = 'warn' }
+            )
+            foreach ($case in @(@('COLOUR', $null, $null), @('NO_COLOR', 'NO_COLOR', '1'), @('NONE', 'CONSOLEMONSTER_COLOR', 'none'))) {
+                if ($case[1]) { [Environment]::SetEnvironmentVariable($case[1], $case[2]) }
+                $records = @($checks | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' } 6>&1)
+                $records | Where-Object { $_.MessageData -is [System.Management.Automation.HostInformationMessage] } | ForEach-Object { $case[0] + '=' + $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor + '|' + $_.MessageData.NoNewLine }
+                if ($case[1]) { [Environment]::SetEnvironmentVariable($case[1], $null) }
+            }
+        }
+        $null = Wait-Job $job -Timeout 180
+        $text = (@(Receive-Job $job) -join "`n")
+        Remove-Job $job -Force
+        $text | Should -Match 'COLOUR=\S+ PASS\|Green\|True'
+        $text | Should -Match 'COLOUR=\S+ FAIL\|Red\|True'
+        $text | Should -Match 'COLOUR=\S+ WARN\|Yellow\|True'
+        # Without colour every line is one plain record.
+        $text | Should -Match 'NO_COLOR=.*PASS.*\|\|False'
+        $text | Should -Match 'NONE=.*PASS.*\|\|False'
+        $text | Should -Not -Match '(NO_COLOR|NONE)=[^\n]*\|(Green|Red|Yellow|DarkGray)\|'
+    }
+    It 'keeps transcripts plain: whole lines, no colour codes' {
+        $transcript = Join-Path $TestDrive 'coloured-transcript.txt'
+        $null = Invoke-ConsoleChild -Script @"
+Start-Transcript -Path '$transcript' | Out-Null
+[pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'DKIM'; Status = 'warn' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+Stop-Transcript | Out-Null
+"@
+        $content = Get-Content -LiteralPath $transcript -Raw
+        $content.IndexOf([char] 27) | Should -Be -1
+        @(Get-Content -LiteralPath $transcript | Where-Object { $_ -match 'SPF' -and $_ -match 'PASS' }).Count | Should -Be 1
+        @(Get-Content -LiteralPath $transcript | Where-Object { $_ -match 'DKIM' -and $_ -match 'WARN' }).Count | Should -Be 1
+    }
+
+    It 'keeps the colours through Receive-Job' {
+        $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
+            param($ModulePath)
+            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+            Import-Module $ModulePath -Force
+            [pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+        }
+        $null = Wait-Job $job -Timeout 180
+        $records = @(Receive-Job $job 6>&1)
+        Remove-Job $job -Force
+        $segments = @($records | Where-Object { $_.MessageData.Message } | ForEach-Object { '{0}|{1}' -f $_.MessageData.Message.Trim(), $_.MessageData.ForegroundColor })
+        ($segments -join "`n") | Should -Match '\S+ PASS\|Green'
+        ($segments -join "`n") | Should -Match '\S+ FAIL\|Red'
+    }
+
     It 'reports updates to an unknown widget name once, through the host, after the dashboard ends' {
         $text = Invoke-ConsoleChild -Script @'
 $d = New-ConsoleDashboard -Title 'Typos' { New-ConsoleLanes -Name lanes; New-ConsoleLog }

@@ -16,6 +16,7 @@
 - Wrapping breaks after spaces, then after separators (path, list and query separators before dots, dashes and colons), then by character; `LogRegion.Wrap` wraps long log entries.
 - Explicit culture for numbers and dates: `CONSOLEMONSTER_CULTURE`, `TerminalProfile.WithCulture`, `LiveSessionOptions.Culture` and `-Culture` on the Format cmdlets (default: the current culture).
 - Outside a real local console (jobs, remoting, SSH, the ISE, redirected output, transcripts) cmdlets write through the PowerShell host like Write-Host, so jobs complete, transcripts record and `6>&1` captures the output.
+- Host output keeps colour: coloured host UI writes on a real console with a transcript and in the ISE (plain lines in the transcript), coloured Write-Host-style records in jobs and remoting; redirected output stays plain.
 - Print-once output reads the window size on every write.
 - Sentinel dates show as "never" and unbounded durations or non-finite numbers as a dash, instead of throwing; charts skip non-finite values.
 - Stream and plain output sanitise escape sequences and control characters.

@@ -57,13 +57,18 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 {
 Where cmdlet output goes:
 
 - On a real local interactive console, output is drawn directly, with colour and live dashboards.
-- Everywhere else, output is written the way `Write-Host` writes it: information records tagged `PSHOST`, one per
-  line, as plain text. "Everywhere else" means background jobs and thread jobs, remoting and SSH, the ISE, redirected
-  output, and any session where `Start-Transcript` is running.
-- So `Receive-Job` gets the text, transcripts record it, and `6>&1` captures it as lines.
+- On a real console while `Start-Transcript` runs, and in the ISE: coloured text through the host UI
+  (`Host.UI.Write` with console colours). The transcript receives the same lines as plain text.
+- In background jobs and remoting: `Write-Host`-style information records (tag `PSHOST`) with foreground and
+  background colours. Windows PowerShell 5.1 shows them in colour after `Receive-Job`. PowerShell 7 keeps the colours
+  in the records but prints received job output without colour, as it does for `Write-Host -ForegroundColor` in a job.
+- Redirected output, thread jobs and other hosts get one plain record per line. So files, transcripts and `6>&1` get
+  whole lines of plain text.
+- Colours map to the 16 console colours by role: pass green, fail red, warn yellow, muted dark grey, accent cyan.
+  The light theme uses the darker variants.
+- `NO_COLOR`, `CONSOLEMONSTER_COLOR=none` and plain mode keep host output uncoloured.
 - As with `Write-Host`, `$x = Write-ConsoleTable ...` captures nothing.
 - A dashboard in those hosts narrates as append-only lines.
-
 Dashboard problems are reported once the screen is restored:
 
 - An update for a widget name the dashboard doesn't have warns once per name, listing the valid names.
