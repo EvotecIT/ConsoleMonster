@@ -210,9 +210,20 @@ namespace ConsoleMonster.PowerShell {
         }
 
         public static IWidget? ToWidget(Collection<PSObject> output) {
+            // Keeps the order of the output: consecutive text lines become one block, objects become a list.
             List<IWidget> widgets = new List<IWidget>();
             List<string> lines = new List<string>();
             List<PSObject> objects = new List<PSObject>();
+            void Flush() {
+                if (lines.Count > 0) {
+                    widgets.Add(new TextBlock(string.Join("\n", lines)) { IsMarkup = false });
+                    lines.Clear();
+                }
+                if (objects.Count > 0) {
+                    widgets.Add(PSFormatting.BuildList(new List<PSObject>(objects), null, null, false, 1, null));
+                    objects.Clear();
+                }
+            }
             foreach (PSObject item in output) {
                 if (item == null) {
                     continue;
@@ -220,25 +231,25 @@ namespace ConsoleMonster.PowerShell {
                 object? raw = item.BaseObject;
                 IWidget? widget = PSWidgets.AsWidget(raw);
                 if (widget != null) {
+                    Flush();
                     widgets.Add(widget);
-                } else if (raw is string s) {
-                    lines.Add(s);
-                } else if (raw is ValueType) {
+                } else if (raw is string || raw is ValueType) {
+                    if (objects.Count > 0) {
+                        Flush();
+                    }
                     lines.Add(Text(raw));
                 } else {
+                    if (lines.Count > 0) {
+                        Flush();
+                    }
                     objects.Add(item);
                 }
             }
-            if (lines.Count > 0) {
-                widgets.Insert(0, new TextBlock(string.Join("\n", lines)) { IsMarkup = false });
-            }
-            if (objects.Count > 0) {
-                widgets.Add(PSFormatting.BuildList(objects, null, null, false, 1, null));
-            }
+            Flush();
             if (widgets.Count == 0) {
                 return null;
             }
-            return widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
+            return widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray());
         }
 
         /// <summary>
