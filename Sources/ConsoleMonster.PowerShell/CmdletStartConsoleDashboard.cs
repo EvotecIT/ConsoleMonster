@@ -2,6 +2,7 @@ using System;
 using System.Management.Automation;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
@@ -64,6 +65,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public IWidget? Summary { get; set; }
 
+        /// <summary><para type="description">Draws the dashboard inline, below the cursor, instead of on the alternate screen: output and log lines scroll above it and the final state stays in the scrollback.</para></summary>
+        [Parameter]
+        public SwitchParameter Inline { get; set; }
+
+        /// <summary><para type="description">Leaves nothing behind when the dashboard ends (no final state in the scrollback).</para></summary>
+        [Parameter]
+        public SwitchParameter Transient { get; set; }
+
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
         public int FramesPerSecond { get; set; } = 15;
@@ -76,10 +85,38 @@ namespace ConsoleMonster.PowerShell {
             return Cancelled;
         }
 
+        // Write-Progress from the dashboard runspaces shows as activities under the dashboard, unless the dashboard already
+        // has an activity list for them. Empty, the list takes no space.
+        private static IWidget WithProgress(IWidget dashboard) {
+            if (Contains(dashboard, ActivityList.ProgressTarget)) {
+                return dashboard;
+            }
+            Rows rows = new Rows();
+            rows.Add(dashboard, LayoutSize.Fraction());
+            rows.Add(new ActivityList());
+            return rows;
+        }
+
+        private static bool Contains(IWidget widget, string name) {
+            if (widget is Live.ILiveTarget target && target.Name == name) {
+                return true;
+            }
+            if (widget is IContainer container) {
+                foreach (IWidget child in container.Children) {
+                    if (Contains(child, name)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
             LiveSessionOptions options = new LiveSessionOptions {
                 FramesPerSecond = FramesPerSecond,
+                Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
+                PrintFinalState = !Transient.IsPresent,
                 Summary = Summary,
                 RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath)
             };
@@ -93,7 +130,7 @@ namespace ConsoleMonster.PowerShell {
                 options.Output = Terminal.CreateOutput(hostProfile, _hostQueue);
             }
             _script = ScriptBlock.ToString();
-            _session = new LiveSession(Dashboard, options);
+            _session = new LiveSession(WithProgress(Dashboard), options);
             try {
                 _host = new DashboardRunspaceHost(_session, ImportModule);
                 _session.Start();

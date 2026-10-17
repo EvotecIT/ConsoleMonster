@@ -21,6 +21,7 @@ namespace ConsoleMonster.PowerShell {
             shell.Streams.Verbose.DataAdded += OnVerbose;
             shell.Streams.Debug.DataAdded += OnDebug;
             shell.Streams.Error.DataAdded += OnError;
+            shell.Streams.Progress.DataAdded += OnProgress;
         }
 
         public void Dispose() {
@@ -29,6 +30,14 @@ namespace ConsoleMonster.PowerShell {
             _shell.Streams.Verbose.DataAdded -= OnVerbose;
             _shell.Streams.Debug.DataAdded -= OnDebug;
             _shell.Streams.Error.DataAdded -= OnError;
+            _shell.Streams.Progress.DataAdded -= OnProgress;
+        }
+
+        // Write-Progress becomes an activity in the session's activity list (added by Start-ConsoleDashboard when the
+        // dashboard has none), nested by ParentActivityId.
+        private void OnProgress(object? sender, DataAddedEventArgs e) {
+            ProgressRecord record = _shell.Streams.Progress[e.Index];
+            _session.Post(ProgressEvents.From(record.ActivityId, record.ParentActivityId, record.Activity, record.StatusDescription, record.PercentComplete, record.SecondsRemaining, record.RecordType == ProgressRecordType.Completed));
         }
 
         private void OnInformation(object? sender, DataAddedEventArgs e) {
