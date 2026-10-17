@@ -402,6 +402,42 @@ that Esc cancels. The review page shows every answer and the equivalent command 
 
 Every built-in word comes from `PromptLabels`, so the interactive layer can be translated.
 
+## Export to HTML, SVG, text and asciicast
+
+Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
+
+```powershell
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
+$dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -WindowChrome
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.svg      # animated, no script
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.html     # player with scrubbing
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.cast     # asciicast v3
+```
+
+```csharp
+string html = ConsoleExporter.ToHtml(widget, new ExportOptions { Width = 120, Title = "Nightly run", WindowChrome = true });
+string svg = ConsoleExporter.ToSvg(session);            // what a live session shows now
+string text = ConsoleExporter.ToText(frame);
+string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
+```
+
+- **HTML**: one page with inline CSS. The text can be selected and copies as lines. The page holds a dark and a light
+  rendering and shows the one the viewer prefers (`prefers-color-scheme`); use `-Theme Dark` or `Light` for one.
+  Glyphs a fallback font might draw at another width are boxed to their cell, so the grid never drifts. Block elements
+  and braille are painted as cell backgrounds, so bars and charts have no seams.
+- **SVG**: box drawing, block and braille characters are drawn as shapes, so borders join and charts line up in any
+  font. Every other glyph is centred in its cell and stays selectable. There are no external assets.
+- **Recordings** are played into the same dashboard definition at a fixed size and frame rate, and identical frames
+  are merged. The animated SVG uses CSS keyframes only. The HTML player has play/pause, speed and a scrubber; add
+  `#t=30000` to the address to open it at 30 seconds. Asciicast v3 files contain output events only.
+- **Links**: OSC 8 links become links for http, https, mailto and ftp only. `javascript:` and every other scheme
+  render as plain text, all text is escaped, and nothing is fetched from the network.
+- **Fonts**: the font stack starts with Cascadia Mono, DejaVu Sans Mono and Menlo, which draw box drawing on the cell
+  grid. Braille in plain text needs a font that has it; Consolas does not and falls back to a system font. The HTML
+  and SVG exports paint braille themselves.
+- **Interactive screens**: `InteractiveOptions.Capture = new ScreenCapture(120, 36)` with a scripted `Input` draws
+  prompts, menus and forms into memory, ready for `ConsoleExporter`.
+
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a

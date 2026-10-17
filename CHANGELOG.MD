@@ -28,6 +28,8 @@
 - Prompts: confirm (with typed confirmation), text, secret, number, selection, multi-selection and path, with fuzzy filtering, groups, hotkeys, badges, previews, inline validation, typed results, line-based and accessible fallbacks, and defaults or a clear error when nobody can answer.
 - Forms and wizards: pages with a progress strip, conditional and dependent fields with async loading, a review page with the equivalent command line, named presets and opt-in remembered choices.
 - Menus and the app shell: Shell, Classic and Inline layouts, breadcrumb navigation, a command palette with providers, a key map and footer generated from the active keys, toasts, prompts over the app, and runs into a live dashboard that return to a results summary.
+- Menu actions: console output, Write-Host, warnings and errors are collected and shown as a toast or an output dialog instead of drawing over the app; async actions ask through the menu's thread; a blocked Run shows its problem count and opens the item that fixes it; leaving a form with unsaved changes asks to discard them.
+- Export: widgets, rendered frames and live-session snapshots to self-contained HTML (light and dark), SVG (box, block and braille drawn as shapes) and text; recordings to an HTML player, an animated SVG and asciicast v3 (ConsoleExporter, Recording, Export-ConsoleFrame, Export-ConsoleRecording, Format-ConsoleTable -AsWidget); ScreenCapture draws interactive screens into memory.
 - 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes
