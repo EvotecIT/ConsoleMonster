@@ -364,7 +364,8 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 
 - Items run actions (scriptblocks run on the pipeline thread) or open a submenu, a form, a selection, a page, a review
   (summary, equivalent command, Run, Copy command, Save preset) or the presets list. They can have hotkeys, icons,
-  badges, state text and a reason when unavailable.
+  badges, state text and a reason when unavailable. Icons are semantic names that follow the glyph tier
+  (`New-ConsoleMenuItem -IconName Targets`, `WithIcon(GlyphIcon.Targets)`: ● in modern fonts, o in ASCII), or free text.
 - The Shell layout shows a breadcrumb title bar, a sidebar, the content pane and a key footer. Below 84 columns the
   sidebar folds into the breadcrumb.
 - Keys: Esc goes back, Ctrl+Home goes home and Ctrl+Q leaves, asking first when a form has unsaved changes. `?` shows
@@ -431,6 +432,29 @@ using (LiveSession session = new LiveSession(new Rows(progress, lanes), new Live
 - `Use-ConsoleProgress` runs an existing script unchanged, with the caller's variables. Its own `Write-Progress` and
   `Write-Host` calls are drawn inline, and its output is returned at the end. Commands inside other modules keep their
   own `Write-Progress`, which PowerShell shows as usual.
+## Pester test runs
+
+`Invoke-ConsolePester` runs Pester 5 or 6 with a live dashboard. It takes the parameters of `Invoke-Pester` (or a
+`-Configuration`), imports Pester the first time it is needed, and returns Pester's own result object with `-PassThru`.
+
+```powershell
+Invoke-ConsolePester .\Tests                                    # inline: files as lanes, the running test, failures
+Invoke-ConsolePester -Configuration $config -FullScreen -ExportHtml .\pester.html -PassThru
+```
+
+- The header bar shows the totals and the clock, the files are lanes with passed, failed and skipped counts, and the
+  running test is shown under them. On the full screen there are also the failures (expected against actual, with the
+  differing characters underlined, and the file and line as a link), the slowest tests and a histogram of durations.
+- When the run ends, a table of results by file, the failures and the totals go to the scrollback. `-ExportHtml` saves
+  the final dashboard. In CI, jobs and redirected output there is one line per failure and a summary line.
+- Write-Host, warnings, errors and other records the tests write appear above the inline area, and one-shot
+  ConsoleMonster output (tables, panels, markup) is printed there too instead of over the frame.
+- Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter.
+  It checks for every internal it uses, and when one is missing (or with `Run.Parallel` or `-Output None`) Pester runs
+  unchanged with its own output, followed by the summary table. Tested with Pester 5.7, 5.8, 6.0, 6.1 and 6.2 on
+  Windows PowerShell 5.1 and PowerShell 7. [Docs/Pester-Upstream-Proposal.md](Docs/Pester-Upstream-Proposal.md) describes the public
+  hook that would replace the adapter.
+- The view is a plain widget (`TestRunView` over a `TestRun`), so other test frameworks can feed it from C#.
 ## Export to HTML, SVG, text and asciicast
 
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:

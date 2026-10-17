@@ -37,6 +37,8 @@
 - SVG exports batch shapes into one path per colour; `ExportOptions.Elapsed` sets the clock of widget exports; `Format-ConsoleTable -AsWidget` keeps `-Culture` (`CultureScope`).
 - A Windows CI workflow runs xUnit (net472, net8.0) and Pester (5.1, 7).
 - Design system (`Docs/Design-System.md`): shared `HeaderBar`, `FooterBar`, `DialogChrome`, status symbols and spinner. Runs from menus and forms (`FormOptions.AfterSubmit`) stay in the same frame, and Write-Host colours are kept above inline areas and in log regions.
+- `Invoke-ConsolePester`: Pester 5 and 6 runs with a live dashboard (inline or full screen), a summary table by file, `-ExportHtml`, stream lines in CI, and Pester's result object; built on the new `TestRun`/`TestRunView`/`TestRunSummary` widgets. One-shot console writes go above a running inline area, and `LiveSessionOptions.Discoverable` keeps a session out of `LiveSession.Current`.
+- Menu icons follow the glyph tier: `GlyphIcon` names (`WithIcon(GlyphIcon.Targets)`, `-IconName`) with Full, Basic and ASCII forms. `Lanes.CountSkipped` and `Histogram.EdgeFormat` added.
 - 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes

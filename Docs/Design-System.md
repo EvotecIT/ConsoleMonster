@@ -89,6 +89,25 @@ marker for status columns (status lists, phases, the dashboard header). `RenderC
 symbol for live widgets, so lanes, phases, status lists, activities and spinners turn together. Destructive questions
 use the warn symbol in the Warn colour.
 
+## Icons (`GlyphIcon`)
+
+Menu items take a semantic icon that follows the glyph tier, or free text when an app needs its own mark. Every icon is
+one cell wide in every tier.
+
+| Icon | Full | Basic | ASCII |
+|---|---|---|---|
+| Item | • | • | * |
+| Targets | ● | ● | o |
+| Tasks | ■ | ■ | # |
+| Settings | ◆ | ♦ | * |
+| Favorite | ★ | ☼ | * |
+| Run | ► | ► | > |
+| Back | ◄ | ◄ | < |
+| List | ≡ | ≡ | = |
+| Help | ? | ? | ? |
+| Warning | ▴ | ! | ! |
+| Done | ✓ | √ | + |
+| Exit | × | × | x |
 ## Empty, loading and error states
 
 - **Empty:** one Muted line inside the panel ("No presets saved yet", "waiting for work…"). A list with no choices
@@ -121,3 +140,18 @@ use the warn symbol in the Warn colour.
   runs in the form's frame and ends on the same results pane as menus.
 - **Inline:** inline areas draw the same widgets as full screen (lanes, progress, status, activities). Output and
   log lines scroll above the area, with Write-Host colours kept.
+
+## Test runs (`TestRunView`, `TestRunSummary`, `TestRunText`)
+
+- **Live view:** the dashboard header bar (title, totals as facts, status, clock) and footer (`ctrl+c stop`). Panels:
+  Files (the test files as lanes, with the skipped count in the third column and "n of m done" as the caption), the
+  running test as the blocks in Muted and the test in Text joined by the breadcrumb separator, and on the full screen
+  Failures, Slowest and Durations. The compact (inline) layout keeps the files, the running test and the first two
+  failures.
+- **A failure** reads the same in the live view, the summary and the export: the fail symbol and the path, then
+  `expected` and `actual` (labels Muted, values in Pass and Fail, the differing characters underlined) or up to three
+  message lines, then the file and line as a link in Muted.
+- **Summary:** a table of results by file whose status cell is the row's one colour signal, a totals row, the failures,
+  and a closing line with the outcome in its status colour and the totals in Muted.
+- **Stream output:** one line per failure (`✗ Block › test: expected 4, actual 3 (File.Tests.ps1:12)`) and one summary
+  line, with the separators of the tier.
