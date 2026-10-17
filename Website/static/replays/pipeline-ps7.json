@@ -1,0 +1,1454 @@
+{
+  "w": 110,
+  "h": 32,
+  "duration": 18000,
+  "count": 86,
+  "frames": [
+    {
+      "t": 0,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:00</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          1,
+          ""
+        ],
+        [
+          2,
+          "<span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Prepare</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Restore <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          3,
+          ""
+        ],
+        [
+          4,
+          "<span class=\"f4b5060 c3\"><i class=g256d>╭</i><i class=g2500>─</i> </span><span class=\"B c5\">Steps</span><span class=c1> </span><span class=\"f4b5060 c60\"><i class=\"g2500 c55\">───────────────────────────────────────────────────────</i><i class=g256e>╮</i> <i class=g256d>╭</i><i class=g2500>─</i> </span><span class=\"B c6\">Module</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c33\">─────────────────────────────────</i><i class=g256e>╮</i></span>"
+        ],
+        [
+          5,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Read Build/project.build.json                               </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Module      </span><span class=c29>ConsoleMonster               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29>-                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f3a3d45 c24\"><i class=\"g2500 c20\">────────────────────</i>    </span><span class=\"f8b8f9a c8\">0%  0/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          13,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Publish to PowerShell Gallery                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          14,
+          "<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c63\">───────────────────────────────────────────────────────────────</i><i class=g256f>╯</i> <i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i><i class=g256f>╯</i></span>"
+        ],
+        [
+          15,
+          ""
+        ],
+        [
+          16,
+          "<span class=\"f4b5060 c3\"><i class=g256d>╭</i><i class=g2500>─</i> </span><span class=\"B c6\">Output</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c99\">───────────────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>"
+        ],
+        [
+          17,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          18,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          19,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          20,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          21,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          22,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          23,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          24,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          25,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          26,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          27,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          28,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          29,
+          "<span class=f4b5060><i class=g2502>│</i>                                                                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          30,
+          "<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c108\">────────────────────────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>"
+        ],
+        [
+          31,
+          "<span class=c1> </span><span class=\"f60a5fa c7\">ctrl+c </span><span class=f8b8f9a>stop</span>"
+        ]
+      ]
+    },
+    {
+      "t": 166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c7\">Prepare</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Restore <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          5,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Read Build/project.build.json                               </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Module      </span><span class=c29>ConsoleMonster               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          17,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:00 </span><span class=c32>Read Build/project.build.json...</span><span class=f4b5060>                                                                     <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c7\">Prepare</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Restore <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          5,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Read Build/project.build.json                               </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Module      </span><span class=c29>ConsoleMonster               </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c7\">Prepare</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Restore <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          5,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Read Build/project.build.json                               </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Module      </span><span class=c29>ConsoleMonster               </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          5,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Read Build/project.build.json                          </span><span class=\"f8b8f9a c4\">0.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Module      </span><span class=c29>ConsoleMonster               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 0.6s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><i class=\"g2501 c2 f60a5fa\">━━</i><span class=\"f3a3d45 c21\"><i class=\"g2500 c18\">──────────────────</i>   </span><span class=\"f8b8f9a c9\">11%  1/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          18,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:00 </span><span class=c25>Restore NuGet packages...</span><span class=f4b5060>                                                                            <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:01</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 1833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 2000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:02</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Restore</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c8\">Build <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Restore NuGet packages                                      </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 2166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          6,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Restore NuGet packages                                 </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Version     </span><span class=c29>2.0.0                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 2.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c5\"><i class=\"g2501 c4\">━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c18\"><i class=\"g2500 c15\">───────────────</i>   </span><span class=\"f8b8f9a c9\">22%  2/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          19,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:02 </span><span class=c40>Compile ConsoleMonster (3 frameworks)...</span><span class=f4b5060>                                                             <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 2333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 2500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 2666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 2833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:03</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 3833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 4000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:04</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 4166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 4333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 4500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster (3 frameworks)                       </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 4666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          7,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Compile ConsoleMonster (3 frameworks)                  </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Frameworks  </span><span class=c29>netstandard2.0 <i class=n>·</i> net472 <i class=n>·</i>    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 4.6s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c7\"><i class=\"g2501 c6\">━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c16\"><i class=\"g2500 c13\">─────────────</i>   </span><span class=\"f8b8f9a c9\">33%  3/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          20,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:04 </span><span class=c36>Compile ConsoleMonster.PowerShell...</span><span class=f4b5060>                                                                 <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 4833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:05</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 5833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 6000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:06</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c5\">Build</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Test <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Compile ConsoleMonster.PowerShell                           </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 6166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          8,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Compile ConsoleMonster.PowerShell                      </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=\"f4b5060 c16\"><i class=g2502>│</i> <i class=g2502>│</i>             </span><span class=c29>net8.0                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><i class=\"g2501 c9 f60a5fa\">━━━━━━━━━</i><span class=\"f3a3d45 c14\"><i class=\"g2500 c11\">───────────</i>   </span><span class=\"f8b8f9a c9\">44%  4/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          21,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:06 </span><span class=c18>Run xUnit tests...</span><span class=f4b5060>                                                                                   <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 6333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 6500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 6666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 6833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:07</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 7833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 8000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:08</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 8166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 8333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 8500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Run xUnit tests                                             </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 6.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 8666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Run xUnit tests                                        </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29> 8.6s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><i class=\"g2501 c11 f60a5fa\">━━━━━━━━━━━</i><span class=\"f3a3d45 c12\"><i class=\"g2500 c9\">─────────</i>   </span><span class=\"f8b8f9a c9\">55%  5/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          22,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:08 </span><span class=c19>Run Pester tests...</span><span class=f4b5060>                                                                                  <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 8833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:09</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 9833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:10</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c4\">Test</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c7\">Docs <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Run Pester tests                                            </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Run xUnit tests                                        </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29>10.6s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n ffbbf24\">▴</i><span class=\"f71717a c1\"> </span><span class=c55>Run Pester tests                                       </span><span class=\"f8b8f9a c4\">2.0s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i> <i class=\"g2500 c40\">────────────────────────────────────────</i> <i class=g2502>│</i></span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          17,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:00 </span><span class=c37>     Read Build/project.build.json...</span><span class=f4b5060>                                                                <i class=g2502>│</i></span>"
+        ],
+        [
+          18,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:00 </span><span class=c30>     Restore NuGet packages...</span><span class=f4b5060>                                                                       <i class=g2502>│</i></span>"
+        ],
+        [
+          19,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:02 </span><span class=c45>     Compile ConsoleMonster (3 frameworks)...</span><span class=f4b5060>                                                        <i class=g2502>│</i></span>"
+        ],
+        [
+          20,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:04 </span><span class=c41>     Compile ConsoleMonster.PowerShell...</span><span class=f4b5060>                                                            <i class=g2502>│</i></span>"
+        ],
+        [
+          21,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:06 </span><span class=c23>     Run xUnit tests...</span><span class=f4b5060>                                                                              <i class=g2502>│</i></span>"
+        ],
+        [
+          22,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:08 </span><span class=c24>     Run Pester tests...</span><span class=f4b5060>                                                                             <i class=g2502>│</i></span>"
+        ],
+        [
+          23,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c6\">00:10 </span><span class=\"ffbbf24 c5\">WARN </span><span class=c56>1 Pester test skipped on PowerShell 7 (requires conhost)</span><span class=f4b5060>                                        <i class=g2502>│</i></span>"
+        ],
+        [
+          24,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c5\">00:10</span><span class=\"f4b5060 c6\">      </span><span class=c30>Generate help (38 commands)...</span><span class=f4b5060>                                                                  <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 10833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:11</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 11833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 12000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:12</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c4\">Docs</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=\"f8b8f9a c10\">Package <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Generate help (38 commands)                                 </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c14\"><i class=\"g2501 c13\">━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c9\"><i class=\"g2500 c6\">──────</i>   </span><span class=\"f8b8f9a c9\">66%  6/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ]
+      ]
+    },
+    {
+      "t": 12166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Run xUnit tests                                        </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29>12.1s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Generate help (38 commands)                            </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f60a5fa c16\"><i class=\"g2501 c15\">━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=\"f3a3d45 c7\"><i class=\"g2500 c4\">────</i>   </span><span class=\"f8b8f9a c9\">77%  7/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          25,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c5\">00:12</span><span class=\"f4b5060 c6\">      </span><span class=c32>Pack module and NuGet package...</span><span class=f4b5060>                                                                <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 12333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 12500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g280f>⠏</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g280f f60a5fa\">⠏</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 12666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 12833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2838>⠸</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2838 f60a5fa\">⠸</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:13</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13166,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13333,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2819>⠙</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2819 f60a5fa\">⠙</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13500,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g283c>⠼</i> </span><span class=\"f60a5fa B c7\">Package</span><span class=\"f8b8f9a c3\"> <i class=n>›</i> </span><span class=\"f71717a c2\"><i class=n>○</i> </span><span class=f8b8f9a>Publish</span>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g283c f60a5fa\">⠼</i><span class=\"f71717a c1\"> </span><span class=c60>Pack module and NuGet package                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13666,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Package </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2826>⠦</i> </span><span class=\"f60a5fa B\">Publish</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Run xUnit tests                                        </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29>13.7s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Generate help (38 commands)                            </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><i class=\"g2501 c18 f60a5fa\">━━━━━━━━━━━━━━━━━━</i><span class=\"f3a3d45 c5\"><i class=\"g2500 c2\">──</i>   </span><span class=\"f8b8f9a c9\">88%  8/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          12,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Pack module and NuGet package                          </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          13,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2826 f60a5fa\">⠦</i><span class=\"f71717a c1\"> </span><span class=c60>Publish to PowerShell Gallery                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          26,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c5\">00:13</span><span class=\"f4b5060 c6\">      </span><span class=c32>Publish to PowerShell Gallery...</span><span class=f4b5060>                                                                <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 13833,
+      "rows": [
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Package </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f60a5fa c2\"><i class=g2807>⠇</i> </span><span class=\"f60a5fa B\">Publish</span>"
+        ],
+        [
+          13,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"g2807 f60a5fa\">⠇</i><span class=\"f71717a c1\"> </span><span class=c60>Publish to PowerShell Gallery                               </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 14000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:14</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ],
+        [
+          2,
+          "<span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Prepare </span><span class=\"f8b8f9a c8\">578ms <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Restore </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c6>Build </span><span class=\"f8b8f9a c7\">4.0s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Test </span><span class=\"f8b8f9a c7\">4.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c5>Docs </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c8>Package </span><span class=\"f8b8f9a c7\">1.5s <i class=n>›</i> </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span><span class=c8>Publish </span><span class=f8b8f9a>311ms</span>"
+        ],
+        [
+          9,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Run xUnit tests                                        </span><span class=\"f8b8f9a c4\">2.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=\"f8b8f9a c12\">Elapsed     </span><span class=c29>14.0s                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n f4ade80\">✓</i><span class=\"f71717a c1\"> </span><span class=c55>Generate help (38 commands)                            </span><span class=\"f8b8f9a c4\">1.5s</span><span class=c1> </span><span class=\"f4b5060 c4\"><i class=g2502>│</i> <i class=g2502>│</i> </span><span class=c9>Overall  </span><span class=\"f4ade80 c22\"><i class=\"g2501 c20\">━━━━━━━━━━━━━━━━━━━━</i>  </span><span class=\"f8b8f9a c10\">100%  9/9 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          13,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><i class=\"n fa1a1aa\">–</i><span class=\"f71717a c1\"> </span><span class=c55>Publish to PowerShell Gallery                          </span><span class=\"f8b8f9a c4\">0.3s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i> <i class=g2502>│</i>                                          <i class=g2502>│</i></span>"
+        ],
+        [
+          27,
+          "<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c5\">00:13</span><span class=\"f4b5060 c6\">      </span><span class=c76>Build completed: Artefacts\\Packed\\ConsoleMonster-PowerShellModule.v2.0.0.zip</span><span class=f4b5060>                    <i class=g2502>│</i></span>"
+        ]
+      ]
+    },
+    {
+      "t": 15000,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c15\">PSPublishModule</span><span class=\"fe2e8f0 k1f2a3c c85\"> <i class=n>·</i> Build-Module ConsoleMonster                                                       </span><span class=\"f93c5fd k1f2a3c B c8\">00:00:15</span><span class=\"fe2e8f0 k1f2a3c\"> </span>"
+        ]
+      ]
+    }
+  ]
+}
