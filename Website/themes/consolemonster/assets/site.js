@@ -64,9 +64,15 @@
     });
   }
 
-  // Syntax highlighting with the self-hosted Prism, loaded the first time a page has code.
+  // Syntax highlighting with the self-hosted Prism, loaded the first time a page has code. Each block's grammar and the
+  // grammars it extends are loaded explicitly, in order, before the block is highlighted (the autoloader's deferred
+  // re-highlight is not relied on: it never ran for C#, whose grammar first needs clike).
   var PRISM = '/assets/prism/';
+  var ALIAS = { cs: 'csharp', 'c#': 'csharp', ps1: 'powershell', pwsh: 'powershell', sh: 'bash', shell: 'bash', html: 'markup', xml: 'markup', yml: 'yaml' };
+  var NEEDS = { csharp: ['clike'], 'xml-doc': ['markup'] };
+  var PLAIN = { text: true, none: true, plaintext: true, txt: true };
   var prismReady = null;
+  var grammars = {};
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
       var script = document.createElement('script');
@@ -77,22 +83,36 @@
     });
   }
   function prism() {
-    if (window.Prism && window.Prism.highlightElement && window.Prism.plugins && window.Prism.plugins.autoloader) return Promise.resolve(window.Prism);
     if (!prismReady) {
       window.Prism = window.Prism || {};
       window.Prism.manual = true;
-      prismReady = loadScript(PRISM + 'prism-core.js')
-        .then(function () { return loadScript(PRISM + 'prism-autoloader.js'); })
-        .then(function () { window.Prism.plugins.autoloader.languages_path = PRISM + 'components/'; return window.Prism; });
+      prismReady = window.Prism.highlightElement ? Promise.resolve(window.Prism) : loadScript(PRISM + 'prism-core.js').then(function () { return window.Prism; });
     }
     return prismReady;
   }
+  function grammar(lang) {
+    if (!grammars[lang]) {
+      grammars[lang] = prism().then(function (p) {
+        if (p.languages[lang]) return p;
+        return Promise.all((NEEDS[lang] || []).map(grammar)).then(function () {
+          return p.languages[lang] ? p : loadScript(PRISM + 'components/prism-' + lang + '.min.js').then(function () { return p; });
+        });
+      });
+    }
+    return grammars[lang];
+  }
   function highlight(code) {
     if (!code || code.dataset.cmHighlighted) return;
+    var match = /\blang(?:uage)?-([\w#-]+)/.exec(code.className);
+    if (!match) return;
+    var lang = ALIAS[match[1].toLowerCase()] || match[1].toLowerCase();
+    if (PLAIN[lang]) return;
     code.dataset.cmHighlighted = '1';
-    prism().then(function (p) { p.highlightElement(code); }, function () { /* plain text stays readable */ });
-  }
-  window.cmHighlight = highlight;
+    if (lang !== match[1]) code.className = code.className.replace(match[0], 'language-' + lang);
+    grammar(lang).then(function (p) {
+      if (p.languages[lang] && !code.querySelector('.token')) p.highlightElement(code);
+    }, function () { /* an unknown language stays plain, readable text */ });
+  }  window.cmHighlight = highlight;
 
   // Markdown fences become the shared code block: a caption with the language and a copy action.
   var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', text: 'Text', xml: 'XML', yaml: 'YAML' };
@@ -121,9 +141,7 @@
     figure.appendChild(bar);
     figure.appendChild(pre);
   });
-  document.querySelectorAll('.cm-code code[class*="language-"]').forEach(function (code) {
-    if (!/language-text/.test(code.className)) highlight(code);
-  });
+  document.querySelectorAll('pre > code[class*="language-"], pre > code[class*="lang-"]').forEach(highlight);
 
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-cm-copy]');
