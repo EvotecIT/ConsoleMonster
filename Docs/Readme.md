@@ -30,6 +30,11 @@ Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
 
 Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
 
+### [Format-ConsoleError](Format-ConsoleError.md)
+Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.
+
+Takes ErrorRecords (from $Error, $_ in a catch block, -ErrorVariable) and .NET exceptions from the pipeline. Each shows the type and the message, the category and error id, PowerShell's position message with the failing line, the script stack, the .NET frames as Type.Method() with shortened paths and file:line links, framework frames collapsed into "+n framework frames", and the inner exceptions as "Caused by". With -AsWidget the views are returned for New-ConsolePanel, dashboards or Export-ConsoleFrame instead of written. Redirected output is plain text.
+
 ### [Format-ConsoleList](Format-ConsoleList.md)
 Formats pipeline objects as record views (labelled values) and writes them to the host.
 
@@ -289,6 +294,11 @@ Adds the item when it does not exist. -Detail shows a right-aligned muted note s
 Runs a script and shows its Write-Progress calls as an inline progress area.
 
 The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Write-ConsoleException](Write-ConsoleException.md)
+Writes an error or exception readably (Format-ConsoleError without -AsWidget).
+
+The same view as Format-ConsoleError: type, message, position, script stack, frames with file:line links, collapsed framework frames and inner errors.
 
 ### [Write-ConsoleKeyValue](Write-ConsoleKeyValue.md)
 Writes an aligned key/value list.

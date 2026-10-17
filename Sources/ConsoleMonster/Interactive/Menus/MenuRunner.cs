@@ -280,7 +280,7 @@ namespace ConsoleMonster.Interactive {
                 rows.Add(new Padding(new UiParagraph(_result.Summary!, ThemeToken.Text, 6), 2, 0, 0, 0));
             }
             if (_result.Error != null) {
-                rows.Add(new Padding(new UiParagraph(_result.Error.Message, ThemeToken.Fail, 6), 2, 0, 0, 0));
+                rows.Add(new Padding(new ConsoleMonster.Widgets.ExceptionView(_result.Error) { MaxFrames = 3, MaxInner = 1 }, 2, 0, 0, 0));
             }
             if (_result.Figures.Count > 0) {
                 rows.Add(new UiLine(context => {

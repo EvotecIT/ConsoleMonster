@@ -141,7 +141,9 @@ $errorInfo = {
         $file = $record.InvocationInfo.ScriptName
         $line = $record.InvocationInfo.ScriptLineNumber
     }
-    @([string]$record.Exception.Message, $file, [int]$line)
+    $type = $null
+    if (-not ($target -is [System.Collections.IDictionary] -and $target['File']) -and $record.Exception -isnot [System.Management.Automation.RuntimeException]) { $type = $record.Exception.GetType().Name }
+    @([string]$record.Exception.Message, $file, [int]$line, $type)
 }.GetNewClosure()
 # Reports a container's tree. All tests ($all) after a plain run, or only the tests that never ran (their block failed) after
 # an adapter run; block failures are reported once, at the block that failed.
@@ -166,16 +168,17 @@ $walk = {
             if ($null -eq $t -or -not $t.ShouldRun) { continue }
             if ($all -and $t.Executed) {
                 $message = $null
+                $type = $null
                 $file = $t.ScriptBlock.File
                 $line = $t.StartLine
                 $testErrors = @($t.ErrorRecord | Where-Object { $null -ne $_ })
-                if ($testErrors.Count -gt 0) { $info = & $errorInfo $testErrors[0] $file $line; $message = $info[0]; $file = $info[1]; $line = $info[2] }
+                if ($testErrors.Count -gt 0) { $info = & $errorInfo $testErrors[0] $file $line; $message = $info[0]; $file = $info[1]; $line = $info[2]; $type = $info[3] }
                 $ms = 0
                 if ($null -ne $t.Duration) { $ms = $t.Duration.TotalMilliseconds }
-                $Bridge.TestFinished($key, (& $blockNames $b), [string]$t.ExpandedName, [string]$t.Result, $ms, $message, $file, [int]$line)
+                $Bridge.TestFinished($key, (& $blockNames $b), [string]$t.ExpandedName, [string]$t.Result, $ms, $message, $file, [int]$line, $type)
             } elseif (-not $t.Executed) {
                 $result = if ($failedAbove) { 'Failed' } else { 'NotRun' }
-                $Bridge.TestFinished($key, (& $blockNames $b), [string]$t.ExpandedName, $result, 0, $null, $t.ScriptBlock.File, [int]$t.StartLine)
+                $Bridge.TestFinished($key, (& $blockNames $b), [string]$t.ExpandedName, $result, 0, $null, $t.ScriptBlock.File, [int]$t.StartLine, $null)
             }
         }
         foreach ($c in @($b.Blocks)) { if ($null -ne $c) { $stack.Push(@($c, $failedAbove)) } }
@@ -240,13 +243,14 @@ if ($adapter) {
             try {
                 $t = $Context.Test
                 $message = $null
+                $type = $null
                 $file = $t.ScriptBlock.File
                 $line = $t.StartLine
                 $errors = @($t.ErrorRecord | Where-Object { $null -ne $_ })
-                if ($errors.Count -gt 0) { $info = & $errorInfo $errors[0] $file $line; $message = $info[0]; $file = $info[1]; $line = $info[2] }
+                if ($errors.Count -gt 0) { $info = & $errorInfo $errors[0] $file $line; $message = $info[0]; $file = $info[1]; $line = $info[2]; $type = $info[3] }
                 $ms = 0
                 if ($null -ne $t.Duration) { $ms = $t.Duration.TotalMilliseconds }
-                $Bridge.TestFinished($state.Container, (& $blockNames $t.Block), [string]$t.ExpandedName, [string]$t.Result, $ms, $message, $file, [int]$line)
+                $Bridge.TestFinished($state.Container, (& $blockNames $t.Block), [string]$t.ExpandedName, [string]$t.Result, $ms, $message, $file, [int]$line, $type)
             } catch { $Bridge.Fault('EachTestTeardownEnd', $_.Exception.Message) }
         }.GetNewClosure()
         ContainerRunEnd = {

@@ -88,13 +88,15 @@ namespace ConsoleMonster.PowerShell.Pester {
         /// <param name="message">The failure message, or null.</param>
         /// <param name="file">The file of the failing line or the test.</param>
         /// <param name="line">The line.</param>
-        public void TestFinished(string? container, string[]? blocks, string name, string? result, double milliseconds, string? message, string? file, int line) {
+        /// <param name="errorType">The exception type of an error that is not an assertion, or null.</param>
+        public void TestFinished(string? container, string[]? blocks, string name, string? result, double milliseconds, string? message, string? file, int line, string? errorType) {
             TestRecord record = new TestRecord(container ?? string.Empty, name ?? string.Empty, Status(result)) {
                 Blocks = blocks ?? new string[0],
                 Duration = TimeSpan.FromMilliseconds(Math.Max(0, milliseconds)),
                 Message = string.IsNullOrEmpty(message) ? null : message,
                 File = string.IsNullOrEmpty(file) ? null : file,
-                Line = Math.Max(0, line)
+                Line = Math.Max(0, line),
+                ErrorType = string.IsNullOrEmpty(errorType) ? null : errorType
             };
             _run.TestFinished(record);
             if (record.Status == StatusKind.Fail && record.Message != null) {

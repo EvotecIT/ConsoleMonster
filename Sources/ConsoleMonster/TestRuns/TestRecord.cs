@@ -43,6 +43,9 @@ namespace ConsoleMonster.TestRuns {
         /// <summary>The failing line (or the test's first line), or 0 when unknown.</summary>
         public int Line { get; set; }
 
+        /// <summary>The exception type of an error that is not an assertion (shown before the message), or null.</summary>
+        public string? ErrorType { get; set; }
+
         /// <summary>Whether the record stands for a block or container that failed outside a test (setup, teardown, discovery).</summary>
         public bool IsBlockFailure { get; set; }
     }

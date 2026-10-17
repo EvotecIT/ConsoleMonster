@@ -131,6 +131,11 @@ namespace ConsoleMonster.TestRuns {
                     if (i == shown - 1 && shown < message.Length) {
                         line += " " + context.Ellipsis;
                     }
+                    if (i == 0 && record.ErrorType != null) {
+                        // An error that is not an assertion names its exception type, as the exception view does.
+                        lines.Add(new StyledLine(new[] { new TextSpan("  "), new TextSpan(record.ErrorType + ": ", context.Style(StatusKind.Fail).With(TextDecoration.Bold)), new TextSpan(line, text) }));
+                        continue;
+                    }
                     lines.Add(StyledLine.From("  " + line, text));
                 }
             }
@@ -152,7 +157,7 @@ namespace ConsoleMonster.TestRuns {
             if (TryParseExpectation(record.Message, out string expected, out string actual)) {
                 sb.Append(": expected ").Append(expected).Append(", actual ").Append(actual);
             } else if (!string.IsNullOrEmpty(record.Message)) {
-                sb.Append(": ").Append(record.Message!.Replace("\r\n", "\n").Trim('\n').Split('\n')[0].Trim());
+                sb.Append(": ").Append(record.ErrorType == null ? string.Empty : record.ErrorType + ": ").Append(record.Message!.Replace("\r\n", "\n").Trim('\n').Split('\n')[0].Trim());
             }
             string? location = Location(record);
             if (location != null) {

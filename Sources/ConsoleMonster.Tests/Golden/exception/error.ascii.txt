@@ -1,0 +1,16 @@
+x ItemNotFoundException
+  Cannot find path 'C:\missing' because it does not exist.
+  ObjectNotFound (C:\missing:String) |
+  PathNotFound,Microsoft.PowerShell.Commands.GetItemCommand
+  At C:\repo\deploy.ps1:12 char:5
+  +     Get-Item C:\missing -ErrorAction Stop
+  +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  at Publish-Inventory  deploy.ps1:12
+  at <ScriptBlock>
+  at Inventory.Load(String path)  src\Inventory.cs:42
+  + 2 framework frames
+  at Program.Main(String[] args)  src\Program.cs:12
+  + 1 framework frame
+  Caused by IOException
+    The device is not ready.
+    + 2 framework frames
