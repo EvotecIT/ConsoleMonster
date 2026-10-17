@@ -13,7 +13,7 @@ A quick section separator for scripts.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleRule [[-Title] <string>] [<CommonParameters>]
+Write-ConsoleRule [[-Title] <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ Write-ConsoleRule -Title 'Value'
 The title (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

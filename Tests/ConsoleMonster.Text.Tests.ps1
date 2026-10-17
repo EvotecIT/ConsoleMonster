@@ -1,0 +1,300 @@
+﻿Describe 'Rich text cmdlets' {
+    BeforeAll {
+        $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
+        $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+        Import-Module $script:ModulePath -Force
+
+        # Runs a script in a child process of the same runtime with redirected output (the plain host route), with every
+        # capability input cleared and en-US culture, so the output is deterministic plain text.
+        function Invoke-TextChild {
+            param([Parameter(Mandatory)][string] $Script)
+            $lines = [System.Collections.Generic.List[string]]::new()
+            $lines.Add("foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'COLORTERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }")
+            $lines.Add("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')")
+            $lines.Add("Import-Module '$($script:ModulePath)' -Force")
+            $lines.Add($Script)
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
+            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            ($output | ForEach-Object { "$_" }) -join "`n"
+        }
+
+        # Runs a script in a background job (the coloured-records host route) and returns its output as strings.
+        function Invoke-TextJob {
+            param([Parameter(Mandatory)][scriptblock] $ScriptBlock)
+            $job = Start-Job -ArgumentList $script:ModulePath, $ScriptBlock.ToString() -ScriptBlock {
+                param($ModulePath, $Body)
+                foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+                Import-Module $ModulePath -Force
+                & ([scriptblock]::Create($Body))
+            }
+            $null = Wait-Job $job -Timeout 180
+            $result = @(Receive-Job $job | ForEach-Object { "$_" })
+            Remove-Job $job -Force
+            $result
+        }
+    }
+
+    Context 'Write-ConsoleText with Write-Color parameters' {
+        It 'writes the pieces on one line and supports the Write-Color aliases' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleText -Text 'Red ', 'Green ', 'Yellow' -Color Red, Green, Yellow
+Write-ConsoleText -T 'alias ', 'pieces' -C Yellow -B Blue
+Write-ConsoleText -Text 'fgc' -FGC Cyan -BGC DarkGray
+Write-ConsoleText 'indent' -Indent 1
+'@
+            $text | Should -Match '(?m)^Red Green Yellow$'
+            $text | Should -Match '(?m)^alias pieces$'
+            $text | Should -Match '(?m)^fgc$'
+            $text | Should -Match '(?m)^ {8}indent$'
+        }
+
+        It 'applies StartTab, StartSpaces, LinesBefore, LinesAfter and NoNewLine' {
+            $text = Invoke-TextChild -Script @'
+'BEGIN'
+Write-ConsoleText 'tabbed' -StartTab 2
+Write-ConsoleText 'spaced' -StartSpaces 3
+Write-ConsoleText 'around' -LinesBefore 2 -LinesAfter 1
+Write-ConsoleText 'no ' -NoNewLine
+Write-ConsoleText 'newline'
+'END'
+'@
+            $lines = $text -split "`n"
+            $lines | Should -Contain (' ' * 16 + 'tabbed')
+            $lines | Should -Contain '   spaced'
+            $index = [array]::IndexOf($lines, 'around')
+            $lines[$index - 1] | Should -BeExactly ''
+            $lines[$index - 2] | Should -BeExactly ''
+            $lines[$index + 1] | Should -BeExactly ''
+            $lines | Should -Contain 'no newline'
+        }
+
+        It 'shows the time with -ShowTime and -DateTimeFormat (and its aliases)' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleText 'timed' -ShowTime -DateTimeFormat 'yyyy'
+Write-ConsoleText 'alias' -ShowTime -TimeFormat 'MM'
+Write-ConsoleText 'alias2' -ShowTime -DateFormat 'dd'
+'@
+            $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('yyyy') + '\] timed$')
+            $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('MM') + '\] alias$')
+            $text | Should -Match ('(?m)^\[' + (Get-Date).ToString('dd') + '\] alias2$')
+        }
+
+        It 'centres with -HorizontalCenter by display width, including emoji and CJK' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleText 'abcd' -HorizontalCenter -Width 20
+Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F44D)) -HorizontalCenter -Width 20
+'@
+            $lines = $text -split "`n"
+            $lines[0] | Should -BeExactly ((' ' * 8) + 'abcd')
+            # Two CJK characters (2 cells each) and an emoji (2 cells) are 6 cells wide: 7 spaces before.
+            $lines[1] | Should -BeExactly ((' ' * 7) + [string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F44D))
+        }
+
+        It 'writes only the log with -NoConsoleOutput (and -HideConsole), with LogTime on by default' {
+            $log = Join-Path $TestDrive 'quiet.log'
+            $text = Invoke-TextChild -Script @"
+Write-ConsoleText 'hidden one' -LogFile '$log' -NoConsoleOutput
+Write-ConsoleText 'hidden two' -L '$log' -HideConsole -LogTime `$false
+Write-ConsoleText 'hidden three' -LogFile '$log' -HideConsole -LogTimeStamp `$false
+'visible'
+"@
+            $text | Should -Not -Match 'hidden'
+            $content = @(Get-Content -LiteralPath $log -Encoding UTF8)
+            $content[0] | Should -Match '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] hidden one$'
+            $content[1] | Should -BeExactly 'hidden two'
+            $content[2] | Should -BeExactly 'hidden three'
+        }
+
+        It 'writes the log with the requested -Encoding (UTF-8 without BOM by default)' {
+            $default = Join-Path $TestDrive 'utf8.log'
+            $unicode = Join-Path $TestDrive 'unicode.log'
+            $bom = Join-Path $TestDrive 'utf8bom.log'
+            $null = Invoke-TextChild -Script @"
+Write-ConsoleText 'zażółć' -LogFile '$default' -NoConsoleOutput -LogTime `$false
+Write-ConsoleText 'zażółć' -LogFile '$unicode' -Encoding unicode -NoConsoleOutput -LogTime `$false
+Write-ConsoleText 'zażółć' -LogFile '$bom' -Encoding utf8BOM -NoConsoleOutput -LogTime `$false
+"@
+            $first = [System.IO.File]::ReadAllBytes($default)[0..2]
+            ($first -join ',') | Should -Not -Be '239,187,191'
+            [System.IO.File]::ReadAllText($default) | Should -Match 'zażółć'
+            ([System.IO.File]::ReadAllBytes($unicode)[0..1] -join ',') | Should -Be '255,254'
+            [System.IO.File]::ReadAllText($unicode, [Text.Encoding]::Unicode) | Should -Match 'zażółć'
+            ([System.IO.File]::ReadAllBytes($bom)[0..2] -join ',') | Should -Be '239,187,191'
+        }
+
+        It 'retries a locked log file -LogRetry times with Write-Color style warnings' {
+            $log = Join-Path $TestDrive 'locked.log'
+            $stream = [System.IO.File]::Open($log, 'OpenOrCreate', 'ReadWrite', 'None')
+            try {
+                # Warnings are collected in the child: a nested redirected host prints them outside the captured output.
+                $text = Invoke-TextChild -Script "Write-ConsoleText 'blocked' -LogFile '$log' -LogRetry 3 -NoConsoleOutput -WarningVariable logWarnings -WarningAction SilentlyContinue; `$logWarnings | ForEach-Object { 'W: ' + `$_ }"
+            } finally {
+                $stream.Dispose()
+            }
+            $text | Should -Match 'Write-ConsoleText - Couldn.t write to log file .*Retrying\.\.\. \(1/3\)'
+            $text | Should -Match 'Retrying\.\.\. \(2/3\)'
+            $text | Should -Match 'Tried \(3/3\)'
+        }
+
+        It 'maps ConsoleColor names exactly as Write-Host shows them' {
+            (New-ConsoleText 'x' -Color Red).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'red'
+            (New-ConsoleText 'x' -Color DarkRed).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'maroon'
+            (New-ConsoleText 'x' -Color Green).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'lime'
+            (New-ConsoleText 'x' -Color Gray).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'silver'
+            (New-ConsoleText 'x' -Color DarkGray).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'grey'
+            (New-ConsoleText 'x' -Color '#ff8800').Segments[0].Style.Foreground.ToMarkup() | Should -Be '#ff8800'
+            (New-ConsoleText 'x' -Role Pass).Segments[0].Style.Foreground.ToMarkup() | Should -Be 'pass'
+            { New-ConsoleText 'x' -Color 'NotAColour' } | Should -Throw '*is not a colour*'
+        }
+
+        It 'gives extra pieces the first colour, as Write-Color does' {
+            $text = New-ConsoleText 'a', 'b', 'c' -Color Yellow, Green
+            ($text.Segments | ForEach-Object { $_.Style.Foreground.ToMarkup() }) -join ',' | Should -Be 'yellow,lime,yellow'
+        }
+
+        It 'carries the piece colours to Receive-Job as Write-Host colours' {
+            $records = Invoke-TextJob -ScriptBlock {
+                Write-ConsoleText 'red ', 'darkgreen ', 'role' -Color Red, DarkGreen, Fail 6>&1 | ForEach-Object { $_.MessageData.Message + '|' + $_.MessageData.ForegroundColor }
+            }
+            ($records -join "`n") | Should -Match 'red \|Red'
+            ($records -join "`n") | Should -Match 'darkgreen \|DarkGreen'
+            ($records -join "`n") | Should -Match 'role\|Red'
+        }
+    }
+
+    Context 'Write-ConsoleText beyond Write-Color' {
+        It 'aligns -SplitLines under the first line after the time stamp' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleText '[info] ', "Execution Path exists`n2. Line`n3. Line" -Color Yellow, White -ShowTime -DateTimeFormat 'HH:mm' -SplitLines "`n"
+'@
+            $lines = $text -split "`n"
+            $lines[0] | Should -Match '^\[\d\d:\d\d\] \[info\] Execution Path exists$'
+            $lines[1] | Should -BeExactly ((' ' * 8) + '2. Line')
+            $lines[2] | Should -BeExactly ((' ' * 8) + '3. Line')
+        }
+
+        It 'pads by display width with -PadLeft, -PadRight, -PadCenter and -PadCharacter' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleText 'left' -PadLeft 10 -PadCharacter '.'
+Write-ConsoleText 'right' -PadRight 10 -PadCharacter '.'
+Write-ConsoleText 'mid' -PadCenter 9 -PadCharacter '-'
+Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587) -PadLeft 8 -PadCharacter '.'
+'@
+            $lines = $text -split "`n"
+            $lines[0] | Should -BeExactly '......left'
+            $lines[1] | Should -BeExactly 'right.....'
+            $lines[2] | Should -BeExactly '---mid---'
+            $lines[3] | Should -BeExactly ('....' + [string] [char] 0x4E2D + [char] 0x6587)
+        }
+
+        It 'wraps with -Wrap under the prefix' {
+            $text = Invoke-TextChild -Script "Write-ConsoleText 'one two three four five six seven' -StartSpaces 4 -Wrap -Width 20"
+            $lines = $text -split "`n"
+            $lines[0] | Should -BeExactly '    one two three'
+            $lines[1] | Should -BeExactly '    four five six'
+            $lines[2] | Should -BeExactly '    seven'
+        }
+
+        It 'mixes literal pieces with -Markup, keeping data literal' {
+            $text = Invoke-TextChild -Script "Write-ConsoleText 'data [red]x[/] ' -Markup '[bold]markup[/] [pass]ok[/]'"
+            $text | Should -Match '(?m)^data \[red\]x\[/\] markup ok$'
+        }
+
+        It 'writes Text, Csv and JsonLines logs with -Level, -Category and -LogSeparator' {
+            $text = Join-Path $TestDrive 'log.txt'
+            $csv = Join-Path $TestDrive 'log.csv'
+            $json = Join-Path $TestDrive 'log.jsonl'
+            $null = Invoke-TextChild -Script @"
+Write-ConsoleText 'started ', 'job' -LogFile '$text' -Level Info -Category Backup -NoConsoleOutput -DateTimeFormat 'HH'
+Write-ConsoleText 'first' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -Level Warning -NoConsoleOutput
+Write-ConsoleText 'second; with separator' -LogFile '$csv' -LogFormat Csv -LogSeparator ';' -NoConsoleOutput
+Write-ConsoleText 'say "hi"' -LogFile '$json' -LogFormat JsonLines -Level Error -Category Mail -NoConsoleOutput
+Write-ConsoleText 'line one', 'line two' -SplitLines '|' -LogFile '$text' -NoConsoleOutput -LogTime `$false
+"@
+            $textLines = @(Get-Content -LiteralPath $text -Encoding UTF8)
+            $textLines[0] | Should -Match '^\[\d\d\] \[Info\] \[Backup\] started job$'
+            $csvLines = @(Get-Content -LiteralPath $csv -Encoding UTF8)
+            $csvLines[0] | Should -BeExactly 'Time;Level;Category;Message'
+            $csvLines[1] | Should -Match '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d;Warning;;first$'
+            $csvLines[2] | Should -Match ';;;"second; with separator"$'
+            $record = Get-Content -LiteralPath $json -Encoding UTF8 | ConvertFrom-Json
+            $record.level | Should -Be 'Error'
+            $record.category | Should -Be 'Mail'
+            $record.message | Should -Be 'say "hi"'
+            $record.time | Should -Match '^\d{4}-'
+        }
+
+        It 'never interprets data: brackets and escape sequences stay literal and are stripped of controls' {
+            $text = Invoke-TextChild -Script @'
+$esc = [char] 27
+Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
+[pscustomobject] @{ Name = '[bold]x[/]' + $esc + '[2J' } | Format-ConsoleTable -Width 40
+'@
+            $text | Should -Match '\[red\]alert\[/\]'
+            $text | Should -Match '\[bold\]x\[/\]'
+            $text.IndexOf([char] 27) | Should -Be -1
+            $text.IndexOf([char] 7) | Should -Be -1
+        }
+    }
+
+    Context 'New-ConsoleText in widgets' {
+        It 'works in Format-ConsoleTable cells through calculated properties, with a rich header' {
+            $text = Invoke-TextChild -Script @'
+@(
+    [pscustomobject] @{ Name = 'SPF'; Status = 'pass' }
+    [pscustomobject] @{ Name = 'DKIM'; Status = 'fail' }
+) | Format-ConsoleTable -Width 50 -Title (New-ConsoleText 'Checks' -Color Cyan) -Property @{ Name = 'Name'; Header = (New-ConsoleText 'Na', 'me' -Color Cyan, Magenta) }, @{ Name = 'Result'; Expression = { if ($_.Status -eq 'pass') { New-ConsoleText 'PASS' -Role Pass } else { New-ConsoleText 'FAIL' -Role Fail -Style Bold } } }
+'@
+            $text | Should -Match 'Checks'
+            $text | Should -Match 'Name\s+.\s+Result'
+            $text | Should -Match 'SPF\s+.\s+PASS'
+            $text | Should -Match 'DKIM\s+.\s+FAIL'
+        }
+
+        It 'keeps the cell colours on the coloured host route' {
+            $records = Invoke-TextJob -ScriptBlock {
+                [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
+            }
+            ($records -join "`n") | Should -Match 'PASS\|Green'
+        }
+
+        It 'opts a string column into markup with Markup = $true only' {
+            $text = Invoke-TextChild -Script "[pscustomobject] @{ Literal = '[bold]a[/]'; Rich = '[bold]b[/]' } | Format-ConsoleTable -Width 40 -Property Literal, @{ Name = 'Rich'; Markup = `$true }"
+            $text | Should -Match '\[bold\]a\[/\]'
+            $text | Should -Match '(?m)\bb\s'
+            $text | Should -Not -Match '\[bold\]b'
+        }
+
+        It 'accepts rich text for panel titles, lanes and log lines' {
+            $text = Invoke-TextChild -Script @'
+$d = New-ConsoleDashboard -Title (New-ConsoleText 'Rich ', 'dashboard' -Color Cyan, Yellow) { New-ConsoleLanes -Name lanes -Lane (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow); New-ConsoleLog }
+Start-ConsoleDashboard $d {
+    Update-ConsoleLane -Key SRV01 -Status Running -Detail (New-ConsoleText 'copying ', 'files' -Color Gray, Green)
+    Write-ConsoleLog -Message (New-ConsoleText 'rich ', 'log' -Color Yellow, Red)
+    Update-ConsoleLane -Key SRV01 -Result Pass
+    Update-ConsoleLane -Key SRV01 -Complete
+}
+New-ConsolePanel -Title (New-ConsoleText 'Panel ', 'title' -Color Cyan, Green) { New-ConsoleText 'body' } | Write-ConsoleWidget -Width 40
+'@
+            $text | Should -Match 'rich log'
+            $text | Should -Match 'SRV01'
+            $text | Should -Match 'Panel title'
+            $text | Should -Not -Match '\[(aqua|yellow|lime)\]'
+        }
+    }
+
+    Context 'Write-ConsoleStatus outside a console' {
+        It 'writes one line per change and the final line, without the spinner' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleStatus 'step one' -Spinner
+Write-ConsoleStatus 'step one' -Spinner
+Write-ConsoleStatus 'step two' -Spinner
+Write-ConsoleStatus 'finished' -Status Pass -Complete
+'@
+            $lines = @($text -split "`n" | Where-Object { $_ })
+            @($lines | Where-Object { $_ -eq 'step one' }).Count | Should -Be 1
+            $lines | Should -Contain 'step two'
+            $lines[-1] | Should -Match 'finished$'
+        }
+    }
+}

@@ -13,7 +13,7 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
+New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 A muted caption below the table.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -147,7 +147,7 @@ Accept wildcard characters: False
 A title above the table.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

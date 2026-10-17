@@ -13,7 +13,7 @@ The line uses the border colour and the glyph tier's line character.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRule [[-Title] <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
+New-ConsoleRule [[-Title] <Object>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 The title (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -13,7 +13,7 @@ Same parameters as New-ConsoleTable; the table is written immediately in the det
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <string>] [-Caption <string>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
+Write-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 A muted caption below the table.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -147,7 +147,7 @@ Accept wildcard characters: False
 A title above the table.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

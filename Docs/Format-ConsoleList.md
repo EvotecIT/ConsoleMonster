@@ -13,7 +13,7 @@ Each object becomes a section titled by its key column (the first property, or o
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleList [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Title <string>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
+Format-ConsoleList [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Title <Object>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -147,7 +147,7 @@ Accept wildcard characters: False
 A title on the summary line (markup).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

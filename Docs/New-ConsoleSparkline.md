@@ -13,7 +13,7 @@ One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCI
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSparkline [[-Name] <string>] [-Value <double[]>] [-Label <string>] [-Height <int>] [-Unit <string>] [<CommonParameters>]
+New-ConsoleSparkline [[-Name] <string>] [-Value <double[]>] [-Label <Object>] [-Height <int>] [-Unit <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 A muted label on the left.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

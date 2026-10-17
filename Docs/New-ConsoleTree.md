@@ -13,7 +13,7 @@ Each key becomes a node. A nested hashtable (or ordered dictionary) becomes chil
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTree [-Data] <IDictionary> [-Title <string>] [<CommonParameters>]
+New-ConsoleTree [-Data] <IDictionary> [-Title <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 The root label; without it the top-level keys are the roots.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

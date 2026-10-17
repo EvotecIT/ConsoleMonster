@@ -13,7 +13,7 @@ The scriptblock emits the panel content (several widgets are stacked vertically)
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <scriptblock>] [-Widget <IWidget>] [-Title <string>] [-Caption <string>] [-Footer <string>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsolePanel [[-Content] <scriptblock>] [-Widget <IWidget>] [-Title <Object>] [-Caption <Object>] [-Footer <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 Text on the right of the top border, for example a count.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -99,7 +99,7 @@ Accept wildcard characters: False
 Text on the right of the bottom border.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -131,7 +131,7 @@ Accept wildcard characters: False
 The title shown in the top border (Spectre-style markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -13,7 +13,7 @@ Adds the item when it does not exist. -Detail shows a right-aligned muted note s
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleStatus [-Key] <string> [-Status <StatusKind>] [-Label <string>] [-Detail <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleStatus [-Key] <string> [-Status <StatusKind>] [-Label <Object>] [-Detail <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -67,7 +67,7 @@ Accept wildcard characters: False
 The item label (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

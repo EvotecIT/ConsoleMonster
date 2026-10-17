@@ -13,7 +13,7 @@ Same parameters as New-ConsoleTree; the tree is written immediately.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleTree [-Data] <IDictionary> [-Title <string>] [<CommonParameters>]
+Write-ConsoleTree [-Data] <IDictionary> [-Title <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 The root label; without it the top-level keys are the roots.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

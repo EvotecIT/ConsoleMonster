@@ -13,7 +13,7 @@ Shows a bar with sub-cell precision for the glyph tier, the percentage and value
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleProgress [[-Label] <string>] [-Value <double>] [-Total <double>] [-Name <string>] [-Shape <BarShape>] [<CommonParameters>]
+New-ConsoleProgress [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Name <string>] [-Shape <BarShape>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ New-ConsoleProgress -Name 'Name'
 The label (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

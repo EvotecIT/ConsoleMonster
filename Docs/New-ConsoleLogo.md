@@ -13,7 +13,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLogo [-Text] <string> [-Tagline <string>] [-From <string>] [-To <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
+New-ConsoleLogo [-Text] <string> [-Tagline <Object>] [-From <string>] [-To <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -67,7 +67,7 @@ Accept wildcard characters: False
 A muted tagline under the banner (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

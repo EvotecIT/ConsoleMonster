@@ -13,7 +13,7 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Start-C
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleDashboard [-Content] <scriptblock> -Title <string> [-Subtitle <string>] [-Footer <string>] [-Name <string>] [-Gap <int>] [<CommonParameters>]
+New-ConsoleDashboard [-Content] <scriptblock> -Title <Object> [-Subtitle <Object>] [-Footer <Object>] [-Name <string>] [-Gap <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 Footer text; defaults to a Ctrl+C hint.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -99,7 +99,7 @@ Accept wildcard characters: False
 A subtitle shown after the title.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -115,7 +115,7 @@ Accept wildcard characters: False
 The title shown in the header bar (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

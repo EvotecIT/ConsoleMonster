@@ -13,7 +13,7 @@ Updates a spinner in a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleSpinner [[-Name] <string>] [-Label <string>] [-Detail <string>] [-Restart] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleSpinner [[-Name] <string>] [-Label <Object>] [-Detail <Object>] [-Restart] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ Update-ConsoleSpinner -Name 'Name'
 A new detail.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 A new label.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

@@ -13,7 +13,7 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-Name] <string>] [-Lane <string[]>] [-Total <double>] [-Shape <BarShape>] [<CommonParameters>]
+New-ConsoleLanes [[-Name] <string>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ New-ConsoleLanes -Name 'Name'
 Lanes to declare up front (key and label).
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

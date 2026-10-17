@@ -99,7 +99,12 @@ namespace ConsoleMonster.Widgets {
                 return null;
             }
             string tag = Tag(liveEvent.State ?? "info");
-            return (tag.Length > 0 ? tag + " " : string.Empty) + (liveEvent.Text ?? string.Empty);
+            // Rich text narrates as its plain text: stream and plain output never show markup tags.
+            string text = liveEvent.Text ?? string.Empty;
+            if (liveEvent.IsMarkup) {
+                text = Markup.Strip(text);
+            }
+            return (tag.Length > 0 ? tag + " " : string.Empty) + text;
         }
 
         /// <inheritdoc />

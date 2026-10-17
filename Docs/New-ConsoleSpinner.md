@@ -13,7 +13,7 @@ While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSpinner [[-Label] <string>] [-Detail <string>] [-Status <StatusKind>] [-Name <string>] [-NoElapsed] [<CommonParameters>]
+New-ConsoleSpinner [[-Label] <Object>] [-Detail <Object>] [-Status <StatusKind>] [-Name <string>] [-NoElapsed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ New-ConsoleSpinner -Name 'Name'
 Muted detail after the label, for example the current item.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 The label (markup allowed).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

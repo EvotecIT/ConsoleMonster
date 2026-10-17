@@ -13,7 +13,7 @@ Updates a progress bar in a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleProgress [[-Name] <string>] [-Value <Double>] [-Total <double>] [-Increment <double>] [-Label <string>] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleProgress [[-Name] <string>] [-Value <Double>] [-Total <double>] [-Increment <double>] [-Label <Object>] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 A new label.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

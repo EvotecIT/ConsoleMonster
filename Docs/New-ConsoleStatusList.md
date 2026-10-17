@@ -13,7 +13,7 @@ Creates a checklist of items with status markers.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleStatusList [[-Data] <IDictionary>] [-Item <string[]>] [-Name <string>] [<CommonParameters>]
+New-ConsoleStatusList [[-Data] <IDictionary>] [-Item <Object[]>] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 Item keys to add as pending (for a live checklist).
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

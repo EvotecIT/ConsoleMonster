@@ -13,7 +13,7 @@ With -Result, counts one completed step (or -Steps steps) as passed, failed, war
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleLane [-Key] <string> [-Name <string>] [-Result <StatusKind>] [-Steps <double>] [-Status <StatusKind>] [-Detail <string>] [-Label <string>] [-Total <double>] [-Complete] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleLane [-Key] <string> [-Name <string>] [-Result <StatusKind>] [-Steps <double>] [-Status <StatusKind>] [-Detail <Object>] [-Label <Object>] [-Total <double>] [-Complete] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 What the lane is doing now.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -83,7 +83,7 @@ Accept wildcard characters: False
 The lane label (when adding or renaming).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

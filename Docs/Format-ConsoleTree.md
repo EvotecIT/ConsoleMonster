@@ -13,7 +13,7 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <string>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
+Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <Object>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -179,7 +179,7 @@ Accept wildcard characters: False
 The root label (default: the object's type name).
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

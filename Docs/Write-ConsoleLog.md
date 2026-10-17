@@ -13,7 +13,7 @@ Writes a line to the log region of a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLog [-Message] <string> [-Level <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLog [-Message] <Object> [-Level <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,7 +51,7 @@ Accept wildcard characters: False
 The message.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -100,7 +100,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.String`
+- `System.Object`
 
 ## OUTPUTS
 
