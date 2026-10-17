@@ -37,7 +37,7 @@
         <p class="cm-story__keys"><span>Keys</span> <code>{{ s.keys | html.escape }}</code></p>
       </div>
       <div class="cm-story__code">
-        {{~ code_lang = "csharp"; code_label = "C#"; code_text = s.csharp ~}}
+        {{~ code_lang = "csharp"; code_label = "C#"; code_text = s.csharp; code_full = s.csharpFull ~}}
         {{ include "code" }}
         {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = s.powershell ~}}
         {{ include "code" }}

@@ -138,6 +138,7 @@ namespace SiteFrames.Pages {
             grid.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
             grid.AddColumn("Start type");
             grid.AddColumn(new TableColumn("Memory") { Presenter = CellPresenters.Bytes });
+            // <more>
             grid.AddRow("Spooler", "Spooler", StatusKind.Pass, "Automatic", 14_221_312L);
             grid.AddRow("MSSQLSERVER", "MSSQLSERVER", StatusKind.Pass, "Automatic", 812_466_176L);
             grid.AddRow("SQLSERVERAGENT", "SQLSERVERAGENT", StatusKind.Warn, "Manual", 42_004_480L);
@@ -145,6 +146,7 @@ namespace SiteFrames.Pages {
             grid.AddRow("WinRM", "WinRM", StatusKind.Pass, "Automatic", 9_830_400L);
             grid.AddRow("DFSR", "DFSR", StatusKind.Fail, "Automatic", 0L);
             grid.AddRow("LanmanServer", "LanmanServer", StatusKind.Pass, "Automatic", 6_553_600L);
+            // </more>
             GridResult picked = grid.Show(new GridOptions { Interactive = options });
             // </example>
         }
@@ -183,16 +185,16 @@ namespace SiteFrames.Pages {
                 }
                 JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 2400, out string poster);
                 site.WriteJson(site.Static("replays/interactive-" + story.Id + ".json"), timeline);
-                // A prompt ends by leaving its one-line answer; the page shows the screen before that without JavaScript.
-                if (story.Inline && screens.Count > 1) {
-                    poster = FrameHtml.Body(FrameHtml.Rows(screens[screens.Count - 2], ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
-                }
+                // Before it plays, a storyboard shows its fullest screen (a prompt ends by collapsing to a one-line answer).
+                int fullest = Fullest(screens);
+                poster = FrameHtml.Body(FrameHtml.Rows(screens[fullest], ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
                 list.Add(new JsonObject {
                     ["id"] = story.Id,
                     ["title"] = story.Title,
                     ["summary"] = story.Summary,
                     ["keys"] = story.Keys,
-                    ["csharp"] = SourceSnippets.Get(source, story.Method),
+                    ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, story.Method)).Short,
+                    ["csharpFull"] = WidgetsPage.Longer(SourceSnippets.Split(SourceSnippets.Get(source, story.Method))),
                     ["powershell"] = story.PowerShell,
                     ["player"] = new JsonObject {
                         ["url"] = "/replays/interactive-" + story.Id + ".json",
@@ -200,6 +202,7 @@ namespace SiteFrames.Pages {
                         ["h"] = story.Height,
                         ["duration"] = timeline["duration"]!.GetValue<long>(),
                         ["frames"] = timeline["count"]!.GetValue<int>(),
+                        ["start"] = frames[fullest].Time,
                         ["poster"] = new JsonObject { ["w"] = story.Width, ["h"] = timeline["h"]!.GetValue<int>(), ["dark"] = poster }
                     }
                 });
@@ -235,6 +238,28 @@ namespace SiteFrames.Pages {
                 }
             }
             return screens;
+        }
+
+        private static int Fullest(List<CellBuffer> screens) {
+            int best = 0;
+            int most = -1;
+            for (int i = 0; i < screens.Count; i++) {
+                CellBuffer screen = screens[i];
+                int count = 0;
+                for (int y = 0; y < screen.Height; y++) {
+                    for (int x = 0; x < screen.Width; x++) {
+                        string g = screen[x, y].Glyph ?? " ";
+                        if (g != " " && g.Length > 0) {
+                            count++;
+                        }
+                    }
+                }
+                if (count > most) {
+                    most = count;
+                    best = i;
+                }
+            }
+            return best;
         }
 
         private static bool Same(CellBuffer a, CellBuffer b) {

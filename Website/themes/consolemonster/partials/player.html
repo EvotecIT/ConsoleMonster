@@ -1,7 +1,7 @@
 {{~ ## A replay: the final frame as a static screen (what shows without JavaScript), the player controls and a note.
      Set player_data (an object with url, w, h, poster), player_title, player_meta, player_label, player_autoplay,
      player_loop and player_max (largest font size). ## ~}}
-<div class="cm-player" data-cm-player="{{ player_data.url }}"{{ if player_autoplay }} data-autoplay{{ end }}{{ if player_loop }} data-loop{{ end }}{{ if player_compact }} data-compact="{{ player_compact }}"{{ end }}{{ if player_data.start }} data-start="{{ player_data.start }}"{{ end }}>
+<div class="cm-player" data-cm-player="{{ player_data.url }}"{{ if player_autoplay }} data-autoplay{{ end }}{{ if player_loop }} data-loop{{ end }}{{ if player_compact }} data-compact="{{ player_compact }}"{{ end }}{{ if player_data.start }} data-start="{{ player_data.start }}"{{ end }}{{ if player_data.loopStart }} data-loop-start="{{ player_data.loopStart }}"{{ end }}{{ if player_alt }} data-compact-start="{{ player_alt.start }}" data-compact-loop-start="{{ player_alt.loopStart }}"{{ end }}>
   {{~ screen_frame = player_data.poster; screen_title = player_title; screen_meta = player_meta; screen_dark = true; screen_label = player_label; screen_max = player_max; screen_class = player_class; screen_alt = player_alt ~}}
   {{ include "screen" }}
   <div class="cm-player__controls" hidden>
@@ -9,7 +9,7 @@
       <svg class="cm-i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"/></svg>
       <svg class="cm-i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z" fill="currentColor"/></svg>
     </button>
-    <input class="cm-player__scrub" type="range" min="0" max="{{ player_data.duration }}" step="10" value="{{ player_data.duration }}" disabled data-cm-scrub aria-label="Replay position" />
+    <input class="cm-player__scrub" type="range" min="0" max="{{ player_data.duration }}" step="10" value="{{ player_data.start ?? player_data.duration }}" disabled data-cm-scrub aria-label="Replay position" />
     <span class="cm-player__clock" data-cm-clock aria-hidden="true"></span>
   </div>
 </div>

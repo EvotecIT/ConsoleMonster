@@ -77,7 +77,7 @@ namespace SiteFrames.Pages {
                 ["ps7"] = FromCast(site, "pipeline-ps7", "PowerShell 7", "Example-BuildPipeline.ps1"),
                 ["ps5"] = FromCast(site, "pipeline-ps5", "Windows PowerShell 5.1", "Example-BuildPipeline.ps1")
             };
-            JsonObject stress = FromCast(site, "stress", "C#", "ConsoleMonster.Examples stress 12", 3);
+            JsonObject stress = FromCast(site, "stress", "C#", "ConsoleMonster.Examples stress 12", 3, 0.85);
             stress["result"] = StressResult(site);
             live["stress"] = stress;
             live["stream"] = Stream(site);
@@ -92,13 +92,8 @@ namespace SiteFrames.Pages {
             List<TimedFrame> frames = Replays.FromEvents(ParallelRun.Build(out _), events, width, height, fps, Theme.Dark, speed);
             JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 4000, out string poster);
             site.WriteJson(site.Static("replays/" + id + ".json"), timeline);
-            if (width < 80) {
-                // Narrow, the finished run's summary in the header bar no longer fits and the bar renders empty (an engine
-                // limit, reported upstream), so the narrow poster is a moment of the running assessment instead.
-                long at = StartOf(events, speed) + 8000;
-                TimedFrame moment = frames.FindLast(f => f.Time <= at);
-                poster = Frames.FrameHtml.Body(Frames.FrameHtml.Rows(moment.Frame, ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
-            }
+            // The poster (and where the replay starts) is the run in full swing, not its empty first second or its end.
+            long posterTime = Poster(site, frames, 0.55, out poster);
             string[] lines = jsonLines.Split('\n');
             JsonArray excerpt = new JsonArray();
             for (int i = 0; i < Math.Min(9, lines.Length); i++) {
@@ -113,10 +108,11 @@ namespace SiteFrames.Pages {
                 ["events"] = events.Count,
                 ["fps"] = fps,
                 ["speed"] = speed,
-                ["start"] = StartOf(events, speed),
+                ["start"] = posterTime,
+                ["loopStart"] = StartOf(events, speed),
                 ["bytes"] = jsonLines.Length,
                 ["excerpt"] = string.Join("\n", ToStrings(excerpt)),
-                ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster }
+                ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster, ["start"] = posterTime, ["loopStart"] = StartOf(events, speed) }
             };
         }
 
@@ -136,7 +132,15 @@ namespace SiteFrames.Pages {
             }
         }
 
-        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6) {
+        /// <summary>The frame shown before a replay plays: the last frame at a share of the run, and its time.</summary>
+        internal static long Poster(Site site, List<TimedFrame> frames, double share, out string html) {
+            long at = (long)Math.Round(frames[frames.Count - 1].Time * share);
+            TimedFrame moment = frames.FindLast(f => f.Time <= at);
+            html = Frames.FrameHtml.Body(Frames.FrameHtml.Rows(moment.Frame, ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
+            return moment.Time;
+        }
+
+        private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55) {
             string path = CastPath(site, id);
             if (!File.Exists(path)) {
                 WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "live");
@@ -145,7 +149,9 @@ namespace SiteFrames.Pages {
             List<TimedFrame> frames = Replays.FromCast(File.ReadAllText(path), fps, true, out CellBuffer scrollback, out int width, out int height);
             JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 3000, out string poster);
             site.WriteJson(site.Static("replays/" + id + ".json"), timeline);
+            long posterTime = Poster(site, frames, share, out poster);
             return new JsonObject {
+                ["start"] = posterTime,
                 ["id"] = id,
                 ["label"] = label,
                 ["command"] = command,
