@@ -14,7 +14,7 @@
     "replayNote": "A TestimoX-style assessment from ConsoleMonster.Examples: {events} recorded events played back at twice their speed into the same dashboard definition; its clock shows the recorded time.",
     "twins": {
       "title": "One engine for C# and PowerShell",
-      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs below ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
+      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
     },
     "tiers": {
       "title": "Readable on every console",
