@@ -16,7 +16,7 @@
 {{~ tb = data.tables; first = tb.sections[0] ~}}
 {{~ capture art ~}}
 <div data-cm-frame="{{ first.id }}">
-{{~ screen_frame = first.frame; screen_title = "TableShowcases.DnsRecords()"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title ~}}
+{{~ screen_frame = first.frame; screen_title = "TableShowcases.DnsRecords()"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title; screen_dark = true ~}}
 {{ include "screen" }}
 </div>
 {{~ end ~}}

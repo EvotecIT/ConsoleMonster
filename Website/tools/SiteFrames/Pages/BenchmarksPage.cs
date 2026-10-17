@@ -88,7 +88,7 @@ namespace SiteFrames.Pages {
                 ["runtime"] = runtime,
                 ["machine"] = machine.DeepClone(),
                 ["output"] = new JsonObject { ["title"] = "ConsoleMonster.Benchmarks 600", ["frame"] = site.Frame(Site.Crop(Parity.Trim(output)), null), ["w"] = width },
-                ["table"] = site.Frame(() => table, 96),
+                ["table"] = site.Frame(() => table, 96, crop: true),
                 ["facts"] = new JsonArray(
                     new JsonObject { ["label"] = "Compose plus diff and VT, per frame", ["value"] = (compose + encode).ToString("0.000", Site.Culture) + " ms" },
                     new JsonObject { ["label"] = "Render CPU at 15 fps", ["value"] = cpu.ToString("0.0", Site.Culture) + "% of a core" },

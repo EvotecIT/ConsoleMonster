@@ -15,7 +15,7 @@
 <main id="main" class="cm-main">
 {{~ b = data.benchmarks; copy = data.copy.benchmarks; m = b.machine ~}}
 {{~ capture art ~}}
-{{~ screen_frame = b.output.frame; screen_title = b.output.title; screen_meta = [b.runtime, "Release"]; screen_dark = true; screen_label = "The output of ConsoleMonster.Benchmarks" ~}}
+{{~ screen_frame = b.table; screen_title = "ConsoleMonster.Benchmarks, as a table"; screen_meta = [b.table.w + "×" + b.table.h, "24-bit", "Full"]; screen_dark = true; screen_label = "Benchmark results drawn as a ConsoleMonster table" ~}}
 {{ include "screen" }}
 {{~ end ~}}
 {{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = art; stage_wide = false ~}}
@@ -30,7 +30,7 @@
       {{~ for f in b.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
     </dl>
     <p class="cm-section__source">{{ copy.machine | string.replace "{processor}" m.processor | string.replace "{threads}" m.logicalProcessors | string.replace "{os}" m.os | string.replace "{runtime}" b.runtime | string.replace "{date}" m.recorded }}</p>
-    {{~ screen_frame = b.table; screen_title = "the results as a ConsoleMonster table"; screen_meta = [b.table.w + "×" + b.table.h, "24-bit", "Full"]; screen_label = "Benchmark results drawn as a ConsoleMonster table" ~}}
+    {{~ screen_frame = b.output.frame; screen_title = b.output.title; screen_meta = [b.runtime, "Release build"]; screen_dark = true; screen_label = "The output of ConsoleMonster.Benchmarks, as it printed it" ~}}
     {{ include "screen" }}
   </section>
 

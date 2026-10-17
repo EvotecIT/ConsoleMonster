@@ -113,7 +113,7 @@
     var group = control.querySelector('[role="radiogroup"]');
     var output = control.querySelector('[data-cm-width-note]');
     idle(function () { control.querySelectorAll('[data-width]').forEach(function (b) { load(base + b.getAttribute('data-width') + '.json'); }); });
-    radios(group, function (option) {
+    var options = radios(group, function (option) {
       var width = option.getAttribute('data-width');
       load(base + width + '.json').then(function (bundle) {
         scope.querySelectorAll('[data-cm-frame]').forEach(function (holder) {
@@ -126,6 +126,17 @@
         if (output) output.textContent = option.getAttribute('data-note') || '';
       });
     });
+    // On a phone the page opens at the widest rendering that fits the screen at the 10 px floor, so the first tables
+    // show what a console that narrow prints instead of scrolling sideways.
+    if (window.matchMedia('(max-width: 560px)').matches) {
+      var fits = Math.floor((document.documentElement.clientWidth - 64) / 6);
+      var pick = null;
+      options.forEach(function (option) {
+        var width = Number(option.getAttribute('data-width'));
+        if (width <= fits && (!pick || width > Number(pick.getAttribute('data-width')))) pick = option;
+      });
+      if (pick && pick.getAttribute('aria-checked') !== 'true') pick.click();
+    }
   });
 
   // Replays. A timeline is { w, h, duration, frames: [{ t, rows: [[row, html], ...] }] }: the first frame lists every
