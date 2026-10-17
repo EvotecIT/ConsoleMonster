@@ -46,9 +46,9 @@ namespace ConsoleMonster.Interactive {
             _context = context;
             _token = token;
             Layout = layout;
-            _sidebar = new MenuListPane(root, ActivateFromSidebar, labels, compact: true);
+            _sidebar = new MenuListPane(root, ActivateFromSidebar, labels, compact: true, context.Glyphs);
             _sidebar.List.ShowInactiveFocus = true;
-            _lists[root] = new MenuListPane(root, Activate, labels, compact: false);
+            _lists[root] = new MenuListPane(root, Activate, labels, compact: false, context.Glyphs);
             RestoreSelections();
             SyncSidebar();
         }
@@ -223,7 +223,7 @@ namespace ConsoleMonster.Interactive {
 
         private MenuListPane ListFor(Menu menu) {
             if (!_lists.TryGetValue(menu, out MenuListPane? list)) {
-                list = new MenuListPane(menu, Activate, Labels, compact: false);
+                list = new MenuListPane(menu, Activate, Labels, compact: false, _context.Glyphs);
                 _lists[menu] = list;
             }
             return list;

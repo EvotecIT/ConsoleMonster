@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using ConsoleMonster.Building;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -57,13 +58,13 @@ namespace ConsoleMonster.Examples.Showcases {
             Menu menu = new Menu("Server toolbox") { Subtitle = "lab · 11 servers", Layout = MenuLayout.Shell };
             MenuItem targets = new MenuItem("Targets")
                 .Hotkey('t')
-                .WithIcon("●")
+                .WithIcon(GlyphIcon.Targets)
                 .Describe("Servers the tasks run on. The list is loaded from the inventory; offline servers cannot be picked.")
                 .LoadChoices((context, token) => ToolboxData.LoadServersAsync(null, token));
             targets.Minimum = 1;
             MenuItem tasks = new MenuItem("Tasks")
                 .Hotkey('k')
-                .WithIcon("■")
+                .WithIcon(GlyphIcon.Tasks)
                 .Describe("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.")
                 .MultiSelect(ToolboxData.Tasks, t => t.Name, t => t.Category, ToolboxData.TaskPreview);
             foreach (Choice c in tasks.Choices) {
@@ -80,12 +81,12 @@ namespace ConsoleMonster.Examples.Showcases {
             Form options = OptionsForm();
             menu.Add(targets);
             menu.Add(tasks);
-            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').WithIcon("◆").Describe("How the run behaves: parallelism, the report and notifications.")
+            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').WithIcon(GlyphIcon.Settings).Describe("How the run behaves: parallelism, the report and notifications.")
                 .Form(options, (context, result) => context.Toast("Options saved"));
             menu.Add(optionsItem);
-            menu.Item("Presets", i => i.Hotkey('p').WithIcon("★").Describe("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
+            menu.Item("Presets", i => i.Hotkey('p').WithIcon(GlyphIcon.Favorite).Describe("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
-            menu.Item("Review & run", i => i.Hotkey('r').WithIcon("►").Review(context => Review(context, targets, tasks, optionsItem, options)));
+            menu.Item("Review & run", i => i.Hotkey('r').WithIcon(GlyphIcon.Run).Review(context => Review(context, targets, tasks, optionsItem, options)));
             menu.Item("History", i => i.Hotkey('h').Page(context => HistoryPage()).State(() => History.Count.ToString(CultureInfo.CurrentCulture) + " runs"));
             menu.Separator();
             menu.Exit("Quit");

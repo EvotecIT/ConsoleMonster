@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -17,8 +18,10 @@ namespace ConsoleMonster.Interactive {
         private readonly Action<MenuItem> _activate;
         private readonly PromptLabels _labels;
         private readonly bool _compact;
+        private readonly IGlyphSet _glyphs;
 
-        public MenuListPane(Menu menu, Action<MenuItem> activate, PromptLabels labels, bool compact) {
+        public MenuListPane(Menu menu, Action<MenuItem> activate, PromptLabels labels, bool compact, IGlyphSet glyphs) {
+            _glyphs = glyphs;
             _menu = menu;
             _activate = activate;
             _labels = labels;
@@ -66,7 +69,10 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private static string Label(MenuItem item) => string.IsNullOrEmpty(item.Icon) ? item.Title : item.Icon + " " + item.Title;
+        private string Label(MenuItem item) {
+            string? icon = item.IconText(_glyphs);
+            return icon == null ? item.Title : icon + " " + item.Title;
+        }
 
         /// <summary>Re-reads badges, states and disabled reasons (they are computed by the app).</summary>
         public void Refresh() {

@@ -175,6 +175,29 @@ namespace ConsoleMonster.Tests.Interactive {
 
         [Theory]
         [MemberData(nameof(Tiers))]
+        public void MenuIcons_FollowTheGlyphTier(GlyphTier tier) {
+            ScreenCapture shell = new ScreenCapture(Width, Height);
+            Menu menu = new Menu("Toolbox");
+            menu.Item("Targets", i => i.Hotkey('t').WithIcon(GlyphIcon.Targets).Action(ctx => { }));
+            menu.Item("Presets", i => i.Hotkey('p').WithIcon(GlyphIcon.Favorite).Action(ctx => { }));
+            menu.Item("Custom", i => i.Hotkey('c').WithIcon("@").Action(ctx => { }));
+            menu.Exit("Quit");
+            menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(shell, "Ctrl+Q", tier), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
+            string text = shell.Frames[0].ToPlainText();
+            IGlyphSet glyphs = GlyphSet.For(tier);
+            Assert.Contains(glyphs.Icon(GlyphIcon.Targets) + " Targets", text);
+            Assert.Contains(glyphs.Icon(GlyphIcon.Favorite) + " Presets", text);
+            Assert.Contains("@ Custom", text);
+            Assert.Equal(tier == GlyphTier.Full ? "★" : tier == GlyphTier.Basic ? "☼" : "*", glyphs.Icon(GlyphIcon.Favorite));
+            if (tier == GlyphTier.Ascii) {
+                foreach (GlyphIcon icon in (GlyphIcon[])Enum.GetValues(typeof(GlyphIcon))) {
+                    Assert.True(glyphs.Icon(icon).Length == 1 && glyphs.Icon(icon)[0] < 128, icon + " is not ASCII");
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(Tiers))]
         public void StatusSet_IsOneVocabularyPerTier(GlyphTier tier) {
             RenderContext context = Context(tier);
             StringBuilder sb = new StringBuilder();

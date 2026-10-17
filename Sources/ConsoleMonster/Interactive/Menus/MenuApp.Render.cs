@@ -95,7 +95,8 @@ namespace ConsoleMonster.Interactive {
         private int SidebarWidth(ViewFrame frame) {
             int widest = 0;
             foreach (MenuItem item in _root.Items) {
-                int width = DisplayWidth.Measure(item.Title) + (item.Icon == null ? 0 : DisplayWidth.Measure(item.Icon) + 1);
+                string? icon = item.IconText(frame.Context.Glyphs);
+                int width = DisplayWidth.Measure(item.Title) + (icon == null ? 0 : DisplayWidth.Measure(icon) + 1);
                 string? state = item.CurrentState;
                 if (!string.IsNullOrEmpty(state)) {
                     width += DisplayWidth.Measure(state) + 2;

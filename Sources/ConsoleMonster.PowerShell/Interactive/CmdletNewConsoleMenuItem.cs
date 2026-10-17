@@ -38,9 +38,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Description { get; set; }
 
-        /// <summary><para type="description">A short mark before the title.</para></summary>
+        /// <summary><para type="description">A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</para></summary>
         [Parameter]
         public string? Icon { get; set; }
+
+        /// <summary><para type="description">A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</para></summary>
+        [Parameter]
+        public ConsoleMonster.Glyphs.GlyphIcon? IconName { get; set; }
 
         /// <summary><para type="description">Right-aligned text: a string, rich text, or a scriptblock recomputed whenever the menu draws.</para></summary>
         [Parameter]
@@ -147,6 +151,7 @@ namespace ConsoleMonster.PowerShell {
             MenuItem item = new MenuItem(Title ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
                 Icon = Icon,
+                IconGlyph = IconName,
                 HotkeyChar = Hotkey
             };
             ApplyDynamic(item);

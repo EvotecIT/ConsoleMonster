@@ -13,7 +13,7 @@ What the item does follows from the parameter you give: -Action (a scriptblock, 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleMenuItem [[-Title] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-Badge <Object>] [-State <Object>] [-Disabled <Object>] [-Submenu <Object>] [-Form <Form>] [-OnSubmit <scriptblock>] [-Select <Object[]>] [-MultiSelect <Object[]>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [-Page <scriptblock>] [-Review <scriptblock>] [-Presets] [-Separator] [-Exit] [<CommonParameters>]
+New-ConsoleMenuItem [[-Title] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-State <Object>] [-Disabled <Object>] [-Submenu <Object>] [-Form <Form>] [-OnSubmit <scriptblock>] [-Select <Object[]>] [-MultiSelect <Object[]>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [-Page <scriptblock>] [-Review <scriptblock>] [-Presets] [-Separator] [-Exit] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -208,13 +208,29 @@ Accept wildcard characters: False
 ```
 
 ### -Icon
-A short mark before the title.
+A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IconName
+A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.
+
+```yaml
+Type: GlyphIcon
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done, Exit
 
 Required: False
 Position: named

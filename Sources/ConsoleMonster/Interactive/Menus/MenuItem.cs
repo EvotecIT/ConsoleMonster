@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
 
@@ -30,8 +31,11 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The key that opens the item directly.</summary>
         public char? HotkeyChar { get; set; }
 
-        /// <summary>A short mark before the title (one or two cells).</summary>
+        /// <summary>A short mark before the title (one or two cells), as free text. <see cref="IconGlyph"/> takes precedence.</summary>
         public string? Icon { get; set; }
+
+        /// <summary>A semantic icon resolved for the glyph tier (shapes in Full, WGL4 in Basic, ASCII in Ascii), or null.</summary>
+        public GlyphIcon? IconGlyph { get; set; }
 
         /// <summary>What the item does.</summary>
         public MenuItemKind Kind { get; set; } = MenuItemKind.Action;
@@ -173,8 +177,22 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The item.</returns>
         public MenuItem WithIcon(string icon) {
             Icon = icon;
+            IconGlyph = null;
             return this;
         }
+
+        /// <summary>Sets a semantic icon that follows the glyph tier (see <see cref="GlyphIcon"/>).</summary>
+        /// <param name="icon">The icon.</param>
+        /// <returns>The item.</returns>
+        public MenuItem WithIcon(GlyphIcon icon) {
+            IconGlyph = icon;
+            return this;
+        }
+
+        /// <summary>The icon text for a glyph set: the semantic icon in its tier, else the free text, else null.</summary>
+        /// <param name="glyphs">The glyph set.</param>
+        /// <returns>The icon text, or null.</returns>
+        public string? IconText(IGlyphSet glyphs) => IconGlyph.HasValue ? glyphs.Icon(IconGlyph.Value) : (string.IsNullOrEmpty(Icon) ? null : Icon);
 
         /// <summary>Sets a computed badge.</summary>
         /// <param name="badge">Returns the badge text.</param>
