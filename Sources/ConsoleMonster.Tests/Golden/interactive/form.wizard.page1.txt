@@ -1,0 +1,24 @@
+ ╭─ Install agent ────────────────────────────────────────────────────── 1/3 ─╮
+ │                                                                            │
+ │  ● Location ── ○ Service ── ○ Review                                       │
+ │                                                                            │
+ │  Location                                                                  │
+ │  Where the files go.                                                       │
+ │                                                                            │
+ │  ▌ Install folder*    [C:\Agent                                        ]   │
+ │    Edition            Standard ▾                                           │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                                                                            │
+ │                       Created when missing.                                │
+ │                                                                            │
+ │                                                                    Next    │
+ ╰────────────────────────────────────────────────────────────────────────────╯
+  ↑↓ move  enter next  pgdn next  esc cancel  f1 keys
