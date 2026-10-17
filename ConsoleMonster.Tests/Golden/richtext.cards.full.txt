@@ -1,0 +1,11 @@
+Cards  ·  2 records
+
+SRV03
+  Result  √ PASS
+  Owner   Przemysław Kłys
+  Note    [red]literal[/] data
+
+SRV04
+  Result  × FAIL
+  Owner   Ada
+  Note    needs a reboot

@@ -1,0 +1,36 @@
+ TestimoX · ad.evotec.xyz fo…  ● evaluating 332 rules on 6 workers  ·  00:00:24
+
+ ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
+
+╭─ Targets ─────────────────────────────── 6 workers ─╮ ╭─ Results ────────────╮
+│ ⠸ ad.evotec.xyz (d…  ━━━━━━──────  50%  ✓ 7 ✗ 0 ▴ 1 │ │ ████████████████▓▓▒░ │
+│ ✗ eu.ad.evotec.xyz…  ━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1 │ │ █ Passed   101  82%  │
+│ ⠴ DC01.ad.evotec.x…  ━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3 │ │ ▓ Warnings  14  11%  │
+│ ⠦ DC02.ad.evotec.x…  ━━━━━━━━━━━─  90%  ✓20 ✗ 0 ▴ 6 │ │ ▒ Failed     4   3%  │
+│ ⠧ DC03.ad.evotec.x…  ━━━━━━━━────  66%  ✓16 ✗ 3 ▴ 1 │ │ ░ Skipped    4   3%  │
+│ ⠇ DC04.ad.evotec.x…  ━━━━━━━━━───  76%  ✓20 ✗ 0 ▴ 2 │ │ ──────────────────── │
+│ ⠏ DC05.ad.evotec.x…  ────────────   0%  ✓ 0 ✗ 0 ▴ 0 │ │ Evaluat…   123 / 332 │
+│ ○ DC06.ad.evotec.x…  ────────────                   │ │ Average…   7.2       │
+│ ○ DC07.eu.ad.evote…  ────────────                   │ │           rules/s    │
+│ ○ DC08.eu.ad.evote…  ────────────                   │ │ Remaini…  ~29s       │
+│ ○ DC09.eu.ad.evote…  ────────────                   │ │ Targets…     1 / 12  │
+│ ○ DC10.eu.ad.evote…  ────────────                   │ │ Targets…     1       │
+╰─────────────────────────────────────────────────────╯ ╰──────────────────────╯
+╭─ Throughput ──── rules/s ─╮ ╭─ Rule duration ──────╮ ╭─ Failures by catego… ─╮
+│ 11│       ⢠⢣  ⡄     ⢠     │ │ 39│  ███▄▄▄          │ │ Domain… ▆▆▆▆▆▆▆▆▆▆▆ 1 │
+│   │ ⡸⡄⢀⢄⡀ ⡜⠈⡆⡸⠸⣀⡠⣀  ⡏⡆ ⡔⠊ │ │   │  ██████          │ │ Replic… ▆▆▆▆▆▆▆▆▆▆▆ 1 │
+│   │ ⡇⠱⠊ ⠈⠲⠁ ⠱⠁ ⠁  ⢣⢸ ⢱⢰⠁  │ │   │  ██████          │ │ DNS     ▆▆▆▆▆▆▆▆▆▆▆ 1 │
+│   │⢸               ⠃ ⠈⡎   │ │   │▅▅██████▂▂▂       │ │ Kerber…             0 │
+│   │⡎                      │ │   │███████████       │ │ Securi…             0 │
+│  0│⣀⣀⣀⣀⡠⠔⢄⣀⣀⣀⠤⠢⣀⣀⣀⣀⣀⣀⠤⠢⡠⠔ │ │   │███████████▅▅▅    │ │ Group …             0 │
+│   └────────────────────── │ │  0│██████████████▁▁▁ │ │ Accoun… ▆▆▆▆▆▆▆▆▆▆▆ 1 │
+│    █ completed   █ failed │ │    0s   0.5s  2s  8s │ │ PKI                 0 │
+╰───────────────────────────╯ ╰──────────────────────╯ ╰───────────────────────╯
+╭─ Log ────────────────────────────────────────────────────────────────────────╮
+│ 00:21 ERR  DC03.ad.evotec.xyz: Lingering objects failed - 3 lingering objec… │
+│ 00:22 WARN eu.ad.evotec.xyz (domain): Site link costs - 2 site links use de… │
+│ 00:23      DC05.ad.evotec.xyz: evaluating 30 rules                           │
+│ 00:23 ERR  DC03.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.d… │
+│ 00:23 WARN DC02.ad.evotec.xyz: Local administrators - nested group in BUILT… │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ Ctrl+C stop

@@ -1,0 +1,122 @@
+using System;
+using ConsoleMonster.Examples.Showcases;
+
+namespace ConsoleMonster.Examples {
+    /// <summary>
+    /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
+    /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
+    /// </summary>
+    public static class Program {
+        /// <summary>Runs an example by name.</summary>
+        /// <param name="args">Command-line arguments.</param>
+        /// <returns>Exit code.</returns>
+        public static int Main(string[] args) {
+            string name = args.Length > 0 ? args[0].ToLowerInvariant() : "query";
+            switch (name) {
+                case "target":
+                    HealthReport.Show();
+                    return 0;
+                case "query":
+                    Terminal.Write(QueryResults.Build());
+                    return 0;
+                case "toolbox":
+                    ServerToolbox.Show(args.Length > 1 && args[1] == "classic" ? Interactive.MenuLayout.Classic : args.Length > 1 && args[1] == "inline" ? Interactive.MenuLayout.Inline : Interactive.MenuLayout.Auto);
+                    return 0;
+                case "installer":
+                    SetupWizard.Show();
+                    return 0;
+                case "prompts":
+                    try {
+                        PromptTour.Run(args.Length > 1 ? args[1] : null);
+                    } catch (Interactive.PromptCancelledException) {
+                        return 130;
+                    }
+                    return 0;
+                case "overlay":
+                    PromptTour.Overlay();
+                    return 0;
+                case "gallery":
+                    Terminal.Write(WidgetGallery.Build());
+                    return 0;
+                case "filmstrip":
+                    Capabilities.GlyphTier tier = args.Length > 2 ? (Capabilities.GlyphTier)Enum.Parse(typeof(Capabilities.GlyphTier), args[2], true) : Capabilities.GlyphTier.Full;
+                    int filmWidth = args.Length > 3 ? int.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture) : 120;
+                    int filmHeight = args.Length > 4 ? int.Parse(args[4], System.Globalization.CultureInfo.InvariantCulture) : 32;
+                    foreach (string page in Filmstrip.Run(args.Length > 1 ? args[1] : "filmstrip", tier, filmWidth, filmHeight)) {
+                        Console.WriteLine(page);
+                    }
+                    return 0;
+                case "large-table":
+                    Console.WriteLine(LargeTable.Measure(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 50000));
+                    return 0;
+                case "export":
+                    foreach (string file in ExportShowcase.Run(args.Length > 1 ? args[1] : "export")) {
+                        Console.WriteLine(file);
+                    }
+                    return 0;
+                case "pipeline":
+                    BuildPipeline.Run();
+                    return 0;
+                case "record":
+                    string target = args.Length > 1 ? args[1] : "testimox-run.jsonl";
+                    int count = ParallelRun.Record(target);
+                    Console.WriteLine("Wrote " + count + " events to " + System.IO.Path.GetFullPath(target));
+                    return 0;
+                case "testimox":
+                    string? recording = null;
+                    double speed = 1.5;
+                    for (int i = 1; i < args.Length; i++) {
+                        if (args[i] == "--speed" && i + 1 < args.Length) {
+                            speed = double.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
+                        } else {
+                            recording = args[i];
+                        }
+                    }
+                    try {
+                        ParallelRun.Replay(recording, speed);
+                    } catch (OperationCanceledException) {
+                        // Ctrl+C: the session has already restored the terminal and printed the summary.
+                        Console.WriteLine("Replay interrupted by Ctrl+C.");
+                        return 130;
+                    }
+                    return 0;
+                case "stress":
+                    int seconds = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 20;
+                    string result = StressTest.Run(seconds);
+                    if (args.Length > 2) {
+                        System.IO.File.WriteAllText(args[2], result + Environment.NewLine);
+                    }
+                    return 0;
+                case "widths":
+                    GraphemeWidths.Run(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 6);
+                    return 0;
+                case "tables":
+                    int tableWidth = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 0;
+                    Capabilities.TerminalProfile tableProfile = tableWidth > 0 ? Terminal.Profile.WithSize(tableWidth, Terminal.Profile.Height) : Terminal.Profile;
+                    Terminal.Write(args.Length > 2 ? TableShowcases.Sections(args[2]) : TableShowcases.All(), tableProfile);
+                    return 0;
+                case "theme":
+                    Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo background);
+                    string themeName = Terminal.Theme is Styling.Theme builtIn ? builtIn.Name : Terminal.Theme.GetType().Name;
+                    Terminal.Write(new Layout.Rows(
+                        new Widgets.KeyValueList()
+                            .Add("Theme", "[bold]" + themeName + "[/]")
+                            .Add("Preference", Terminal.Profile.ThemePreference.ToString())
+                            .Add("Background", Text.Markup.Escape(background.Decision)),
+                        TableShowcases.DomainChecks(),
+                        TableShowcases.TestimoXSummary()) { Gap = 1 });
+                    return 0;
+                case "profile":
+                    Console.WriteLine(Terminal.Profile.ToString());
+                    foreach (string decision in Terminal.Profile.Decisions) {
+                        Console.WriteLine("  " + decision);
+                    }
+                    return 0;
+                default:
+                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, testimox, record, stress or widths.");
+                    return 2;
+            }
+        }
+    }
+}

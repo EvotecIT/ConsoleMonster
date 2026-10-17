@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>ConsoleMonster.Examples</AssemblyName>
+        <AssemblyTitle>ConsoleMonster Examples</AssemblyTitle>
+        <Description>Runnable ConsoleMonster examples and showcases: a parallel run dashboard replayed from recorded events, a build pipeline, query results, and the stress test.</Description>
+        <TargetFrameworks>net8.0;net472</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Data\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>

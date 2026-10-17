@@ -1,0 +1,12 @@
+nothing                 Empty
+plain strings           Text
+json string             Code
+powershell string       Code
+one number              Text
+numbers                 Chart
+scalars                 Text
+one object              Inspector
+objects of one shape    Table
+objects of two shapes   Inspector
+hierarchy               Tree
+hierarchies             Tree

@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Title>ConsoleMonster</Title>
+        <Description>
+            ConsoleMonster is a zero-dependency console rendering library for .NET and PowerShell:
+            capability detection, Unicode-safe output, themes and glyph tiers, tables, trees, panels,
+            charts and live dashboards with thread-safe updates. It's available for .NET 8,
+            .NET Standard 2.0 and .NET Framework 4.7.2.
+        </Description>
+        <AssemblyName>ConsoleMonster</AssemblyName>
+        <AssemblyTitle>ConsoleMonster</AssemblyTitle>
+        <VersionPrefix>2.0.0</VersionPrefix>
+        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <FileVersion>2.0.0</FileVersion>
+        <TargetFrameworks>netstandard2.0;net472;net8.0</TargetFrameworks>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <PackageId>ConsoleMonster</PackageId>
+        <PackageTags>console;terminal;tui;dashboard;table;tree;chart;progress;vt;ansi;powershell;net472;netstandard2.0;net80</PackageTags>
+        <PackageProjectUrl>https://github.com/EvotecIT/ConsoleMonster</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <DebugType>portable</DebugType>
+        <NeutralLanguage>en</NeutralLanguage>
+        <IsPackable>true</IsPackable>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ConsoleMonster.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Export\Assets\player.js;Export\Assets\player.css" LogicalName="ConsoleMonster.Export.Assets.%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="Localization\Labels.*.txt" LogicalName="ConsoleMonster.Localization.%(Filename)%(Extension)" WithCulture="false" />
+    </ItemGroup>
+</Project>

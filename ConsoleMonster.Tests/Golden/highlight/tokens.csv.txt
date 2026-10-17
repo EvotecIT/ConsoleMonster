@@ -1,0 +1,3 @@
+«Key:Name»«Punctuation:,»«String:Count»«Punctuation:,»«Number:Status»
+«Key:alpha»«Punctuation:,»«String:7»«Punctuation:,»«Number:pass»
+«Key:"beta, gamma"»«Punctuation:,»«String:1234»«Punctuation:,»«Number:fail»

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net472;net8.0</TargetFrameworks>
+        <Title>ConsoleMonster PowerShell Module</Title>
+        <Description>Thin PowerShell cmdlets over the ConsoleMonster library: print-once tables, trees, panels and charts, and live dashboards with captured PowerShell streams. Windows PowerShell 5.1 and PowerShell 7.</Description>
+        <AssemblyName>ConsoleMonster.PowerShell</AssemblyName>
+        <AssemblyTitle>ConsoleMonster PowerShell Module</AssemblyTitle>
+        <VersionPrefix>2.0.0</VersionPrefix>
+        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <FileVersion>2.0.0</FileVersion>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- PowerForge enriches module help from the compiler XML documentation file (XmlDoc2CmdletDoc style). -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <!-- We need to remove PowerShell conflicting libraries as it will break output -->
+    <Target Name="RemoveFilesAfterBuild" AfterTargets="Build">
+        <Delete Files="$(OutDir)System.Management.Automation.dll" />
+        <Delete Files="$(OutDir)System.Management.dll" />
+    </Target>
+
+    <ItemGroup>
+        <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
+        <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+    </ItemGroup>
+</Project>

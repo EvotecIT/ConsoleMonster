@@ -1,0 +1,14 @@
+«Header:---»
+«Comment:# pipeline»
+«Key:name»«Punctuation::» build
+«Key:on»«Punctuation::» «Punctuation:[push]»
+«Key:jobs»«Punctuation::»
+  «Key:test»«Punctuation::»
+    «Key:runs-on»«Punctuation::» windows-latest
+    «Key:retries»«Punctuation::» «Number:3»
+    «Key:enabled»«Punctuation::» «Literal:true»  «Comment:# comment»
+    «Key:steps»«Punctuation::»
+      «Punctuation:-» «Key:uses»«Punctuation::» actions/checkout@v4
+      «Punctuation:-» «Key:run»«Punctuation::» «String:"dotnet test"»
+    «Key:base»«Punctuation::» «Variable:&defaults»
+    «Key:copy»«Punctuation::» «Variable:*defaults»

@@ -1,0 +1,15 @@
+--- error frame
+? Share name  default: reports
+  > Bad Name
+  x Lower case letters only
+  enter confirm  esc cancel
+--- frame 11
+? Share name  default: reports
+  > o
+  enter confirm  esc cancel
+--- frame 12
+? Share name  default: reports
+  > ok
+  enter confirm  esc cancel
+--- summary
++ Share name  ok

@@ -1,0 +1,8 @@
+--- frame 0
+? Restart the service now?  [Yes]  No
+  ←→ move  y/n yes/no  enter confirm  esc no
+--- frame 1
+? Restart the service now?   Yes  [No]
+  ←→ move  y/n yes/no  enter confirm  esc no
+--- summary
+✓ Restart the service now?  No

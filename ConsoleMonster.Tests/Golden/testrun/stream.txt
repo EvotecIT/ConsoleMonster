@@ -1,0 +1,8 @@
+✗ Broken: setup broke (Broken.Tests.ps1:2)
+✗ Math › fails string: expected abxde, actual abcde (Sample.Tests.ps1:3)
+✗ Math › fails number: expected 4, actual 3 (Sample.Tests.ps1:4)
+✗ Tests failed: 3 failed · 7 passed · 1 skipped · 1 inconclusive · 1 block failed · 12 tests · 00:00:02
+x Broken: setup broke (Broken.Tests.ps1:2)
+x Math > fails string: expected abxde, actual abcde (Sample.Tests.ps1:3)
+x Math > fails number: expected 4, actual 3 (Sample.Tests.ps1:4)
+x Tests failed: 3 failed | 7 passed | 1 skipped | 1 inconclusive | 1 block failed | 12 tests | 00:00:02

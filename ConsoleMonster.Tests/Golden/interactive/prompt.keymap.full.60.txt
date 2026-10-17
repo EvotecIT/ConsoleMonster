@@ -1,0 +1,20 @@
+╭─ Keys ───────────────────────────────────────────────────╮
+│                                                          │
+│                                                          │
+│ List                                                     │
+│   ↑↓         move                                        │
+│   pgup/pgdn  page                                        │
+│                                                          │
+│ Selection                                                │
+│   space      toggle                                      │
+│   ctrl+a     all                                         │
+│   ctrl+n     none                                        │
+│   ctrl+t     invert                                      │
+│   ctrl+o     selected only                               │
+│                                                          │
+│ General                                                  │
+│   enter      confirm                                     │
+│   esc        cancel                                      │
+│                                                          │
+│ Help                                                     │
+╰───────────────────────────────────────── any key closes ─╯

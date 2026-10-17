@@ -1,0 +1,11 @@
++- Publish-Agent.ps1 --------------------------------------+
+|  1 | # Deploy the agent                                  |
+|  2 | function Publish-Agent {                            |
+|  3 |     param([string] $Path = 'C:\Agent', [int] $Re... |
+|  4 |     <# block #>                                     |
+| >5 |     if ($Retries -gt 0 -and $env:CI) {              |
+| >6 |         Get-ChildItem -Path $Path | Where-Object... |
+|  7 |         Write-Host "Copied $Path to `"$Target`""... |
+|  8 |     }                                               |
+|      + 2 more lines                                      |
++----------------------------------------------------------+

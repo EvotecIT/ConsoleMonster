@@ -1,0 +1,41 @@
+--- frame 0
+? Servers
+  › type to filter        0 of 4 selected
+    ▾ [ ] Warsaw                      0/2
+  ▌   [ ] [FS01]                     File
+      [ ] WEB01                       Web
+    ▾ [ ] Berlin                      0/1
+      [ ] PRN11                     Print
+      [ ] FS11                       File
+    ▾ [ ] Lab                         0/1
+      [ ] LAB01                      Test
+    File server · Windows Server 2022
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+--- frame 6
+? Servers
+  › type to filter        1 of 4 selected
+    ▾ [–] Warsaw                      1/2
+      [✓] FS01                       File
+      [ ] WEB01                       Web
+    ▾ [ ] Berlin                      0/1
+      [ ] PRN11                     Print
+  ▌   [ ] [FS11]                     File
+    ▾ [ ] Lab                         0/1
+      [ ] LAB01                      Test
+
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+--- frame 7
+? Servers
+  › type to filter        2 of 4 selected
+    ▾ [–] Warsaw                      1/2
+      [✓] FS01                       File
+      [ ] WEB01                       Web
+    ▾ [✓] Berlin                      1/1
+      [ ] PRN11                     Print
+  ▌   [✓] [FS11]                     File
+    ▾ [ ] Lab                         0/1
+      [ ] LAB01                      Test
+
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+--- summary
+✓ Servers  FS01, FS11

@@ -1,0 +1,175 @@
+---
+external help file: ConsoleMonster-help.xml
+Module Name: ConsoleMonster
+online version: https://github.com/EvotecIT/ConsoleMonster
+schema: 2.0.0
+---
+# New-ConsoleLiveTable
+## SYNOPSIS
+Creates a table whose rows change while a dashboard runs.
+
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+
+## SYNTAX
+### __AllParameterSets
+```powershell
+New-ConsoleLiveTable [[-Name] <string>] [-Column <string[]>] [-Table <Table>] [-Title <Object>] [-Border <TableBorder>] [-MaxRows <int>] [-SortBy <Object>] [-Descending] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Creates a table whose rows change while a dashboard runs.
+
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+
+## EXAMPLES
+
+### EXAMPLE 1
+```powershell
+New-ConsoleLiveTable -Name 'Name'
+```
+
+
+## PARAMETERS
+
+### -Border
+The border style.
+
+```yaml
+Type: TableBorder
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Rounded, Square, Double, Minimal, None
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Column
+The column headers, in order.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Descending
+Sorts from the largest value down.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxRows
+Keeps only the most recently added rows (0 keeps all).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Name
+The live name used by Update-ConsoleTable (default table).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SortBy
+The column (header or index) to keep rows sorted by.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Table
+A table that defines the columns and options instead (for example from New-ConsoleTable); its rows are replaced.
+
+```yaml
+Type: Table
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+A title above the table (markup).
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+- `None`
+
+## OUTPUTS
+
+- `ConsoleMonster.Widgets.LiveTable`
+
+## RELATED LINKS
+
+- None
