@@ -128,7 +128,10 @@
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-cm-copy]');
     if (!button) return;
-    var code = button.closest('.cm-code').querySelector('pre');
+    var figure = button.closest('.cm-code');
+    var full = figure.querySelector('.cm-code__full');
+    // A shortened sample copies its full program, which is what compiles and runs.
+    var code = full ? full.querySelector('pre') : figure.querySelector('pre');
     var text = code ? code.innerText.replace(/\n$/, '') : '';
     var done = function (label) { button.textContent = label; setTimeout(function () { button.textContent = 'Copy'; }, 1600); };
     if (navigator.clipboard && navigator.clipboard.writeText) {

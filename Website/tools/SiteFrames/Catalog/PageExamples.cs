@@ -17,12 +17,18 @@ namespace SiteFrames.Catalog {
             table.AddColumn(new TableColumn("Name") { IsKey = true });
             table.AddColumn(new TableColumn("Site") { Priority = 2 });
             table.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status, Priority = 9 });
-            table.AddColumn(new TableColumn("Latency") { Presenter = new NumberPresenter("ms"), Priority = 5, ToneRules = { ToneRule.Above(100, ThemeToken.Warn) } });
+            table.AddColumn(new TableColumn("Latency") {
+                Presenter = new NumberPresenter("ms"),
+                Priority = 5,
+                ToneRules = { ToneRule.Above(100, ThemeToken.Warn) }
+            });
             table.AddColumn(new TableColumn("Last sync") { Presenter = CellPresenters.Duration, Priority = 4 });
+            // <more>
             table.AddValues("DC01.ad.evotec.xyz", "Warsaw", StatusKind.Pass, 12, TimeSpan.FromSeconds(42));
             table.AddValues("DC02.ad.evotec.xyz", "Warsaw", StatusKind.Warn, 140, TimeSpan.FromMinutes(42));
             table.AddValues("DC03.eu.ad.evotec.xyz", "Dublin", StatusKind.Pass, 31, TimeSpan.FromSeconds(64));
             table.AddValues("DC04.eu.ad.evotec.xyz", "Dublin", StatusKind.Fail, 0, TimeSpan.FromHours(4));
+            // </more>
             Terminal.Write(table);
             // </example>
         }

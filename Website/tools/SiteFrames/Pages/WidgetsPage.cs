@@ -11,11 +11,11 @@ using SiteFrames.Catalog;
 namespace SiteFrames.Pages {
     /// <summary>The widget gallery: every example at every tier, its C# and PowerShell source and the PowerShell parity check.</summary>
     internal static class WidgetsPage {
-        public static readonly (string Id, string Title)[] Groups = {
-            ("text", "Text"),
-            ("layout", "Layout"),
-            ("status", "Status and progress"),
-            ("charts", "Charts")
+        public static readonly (string Id, string Title, string Summary)[] Groups = {
+            ("text", "Text", "Markup, rules and pixel lettering. Text is measured in terminal cells, so emoji and CJK keep the grid."),
+            ("layout", "Layout", "Containers that place other widgets. Any widget can sit inside any container, including a live dashboard."),
+            ("status", "Status and progress", "The widgets a live session updates: facts, steps, trees, bars, phases, spinners and the log region."),
+            ("charts", "Charts", "Bars, stacked bars, sparklines, histograms and braille line and scatter charts, all scaled to their cells.")
         };
 
         private static string Script(Site site, string id) => Twins.Script(site, "widgets", id);
@@ -40,8 +40,10 @@ namespace SiteFrames.Pages {
                     ["group"] = example.Group,
                     ["summary"] = example.Summary,
                     ["width"] = example.Width,
-                    ["csharp"] = SourceSnippets.Get(source, example.Method),
-                    ["powershell"] = File.Exists(Script(site, example.Id)) ? Site.ReadText(Script(site, example.Id)) : null,
+                    ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, example.Method)).Short,
+                    ["csharpFull"] = Longer(SourceSnippets.Split(SourceSnippets.Get(source, example.Method))),
+                    ["powershell"] = File.Exists(Script(site, example.Id)) ? SourceSnippets.Split(Site.ReadText(Script(site, example.Id))).Short : null,
+                    ["powershellFull"] = File.Exists(Script(site, example.Id)) ? Longer(SourceSnippets.Split(Site.ReadText(Script(site, example.Id)))) : null,
                     ["frame"] = site.Frame(build, example.Width)
                 };
                 foreach (ColorTier color in ColorTier.All) {
@@ -60,14 +62,14 @@ namespace SiteFrames.Pages {
             }
 
             JsonArray groups = new JsonArray();
-            foreach ((string id, string title) in Groups) {
+            foreach ((string id, string title, string summary) in Groups) {
                 int count = 0;
                 foreach (JsonNode? e in examples) {
                     if ((string?)e!["group"] == id) {
                         count++;
                     }
                 }
-                groups.Add(new JsonObject { ["id"] = id, ["title"] = title, ["count"] = count });
+                groups.Add(new JsonObject { ["id"] = id, ["title"] = title, ["summary"] = summary, ["count"] = count });
             }
             JsonArray colors = new JsonArray();
             foreach (ColorTier c in ColorTier.All) {
@@ -90,6 +92,9 @@ namespace SiteFrames.Pages {
             }
             Report(problems, "widgets");
         }
+
+        /// <summary>The full program when it is longer than the short form shown first, otherwise null.</summary>
+        public static string? Longer((string Short, string Full) code) => code.Short == code.Full ? null : code.Full;
 
         public static void Report(List<string> problems, string area) {
             foreach (string problem in problems) {

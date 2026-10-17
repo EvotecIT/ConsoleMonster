@@ -38,8 +38,12 @@ namespace SiteFrames.Catalog {
 
         private static void Markup_() {
             // <example>
-            Terminal.Write(new TextBlock("[bold]Deployed[/] in [accent]48 s[/]: [pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]"));
-            Terminal.Write(new TextBlock("[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] [strikethrough]struck[/] [invert] invert [/]"));
+            Terminal.Write(new TextBlock(
+                "[bold]Deployed[/] in [accent]48 s[/]: " +
+                "[pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]"));
+            Terminal.Write(new TextBlock(
+                "[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] " +
+                "[strikethrough]struck[/] [invert] invert [/]"));
             // </example>
         }
 
@@ -52,7 +56,8 @@ namespace SiteFrames.Catalog {
 
         private static void Panel_() {
             // <example>
-            Panel panel = new Panel(new TextBlock("Four controllers answered. [warn]DC02[/] lags by 42 minutes."), "[bold]Forest[/]") {
+            TextBlock body = new TextBlock("Four controllers answered. [warn]DC02[/] lags by 42 minutes.");
+            Panel panel = new Panel(body, "[bold]Forest[/]") {
                 Caption = "ad.evotec.xyz",
                 Footer = "[muted]checked 14:30[/]"
             };
@@ -62,10 +67,10 @@ namespace SiteFrames.Catalog {
 
         private static void Columns_() {
             // <example>
-            Columns columns = new Columns(
-                new Panel(new TextBlock("[pass]√[/] 412 passed\n[warn]▲[/] 51 warnings"), "Results"),
-                new Panel(new TextBlock("[fail]✗[/] 23 failed\n[muted]-[/] 14 skipped"), "Problems"));
-            Terminal.Write(new Rows(columns, new Rule("[muted]2 domains, 10 controllers[/]")));
+            Panel results = new Panel(new TextBlock("[pass]√[/] 412 passed\n[warn]▲[/] 51 warnings"), "Results");
+            Panel problems = new Panel(new TextBlock("[fail]✗[/] 23 failed\n[muted]-[/] 14 skipped"), "Problems");
+            Rule footer = new Rule("[muted]2 domains, 10 controllers[/]");
+            Terminal.Write(new Rows(new Columns(results, problems), footer));
             // </example>
         }
 
@@ -92,8 +97,10 @@ namespace SiteFrames.Catalog {
         private static void Stack_() {
             // <example>
             Sparkline load = new Sparkline { Height = 3, ShowLatest = false };
-            load.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });
-            Stack stack = new Stack(load, new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right));
+            load.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 });
+            load.AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });
+            Align badge = new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right);
+            Stack stack = new Stack(load, badge);
             Terminal.Write(new Panel(stack, "Stack") { Caption = "badge over a chart" });
             // </example>
         }

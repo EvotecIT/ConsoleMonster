@@ -3,21 +3,25 @@
     {
       "id": "text",
       "title": "Text",
+      "summary": "Markup, rules and pixel lettering. Text is measured in terminal cells, so emoji and CJK keep the grid.",
       "count": 3
     },
     {
       "id": "layout",
       "title": "Layout",
+      "summary": "Containers that place other widgets. Any widget can sit inside any container, including a live dashboard.",
       "count": 5
     },
     {
       "id": "status",
       "title": "Status and progress",
+      "summary": "The widgets a live session updates: facts, steps, trees, bars, phases, spinners and the log region.",
       "count": 7
     },
     {
       "id": "charts",
       "title": "Charts",
+      "summary": "Bars, stacked bars, sparklines, histograms and braille line and scatter charts, all scaled to their cells.",
       "count": 6
     }
   ],
@@ -60,8 +64,10 @@
       "group": "text",
       "summary": "Spectre-style markup: theme roles, colours and decorations, reduced for each tier.",
       "width": 60,
-      "csharp": "Terminal.Write(new TextBlock(\"[bold]Deployed[/] in [accent]48 s[/]: [pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]\"));\nTerminal.Write(new TextBlock(\"[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] [strikethrough]struck[/] [invert] invert [/]\"));",
+      "csharp": "Terminal.Write(new TextBlock(\n    \"[bold]Deployed[/] in [accent]48 s[/]: \" +\n    \"[pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]\"));\nTerminal.Write(new TextBlock(\n    \"[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] \" +\n    \"[strikethrough]struck[/] [invert] invert [/]\"));",
+      "csharpFull": null,
       "powershell": "Write-ConsoleMarkup '[bold]Deployed[/] in [accent]48 s[/]: [pass]√ 12 passed[/] [warn]▲ 2 warned[/] [fail]✗ 1 failed[/]'\nWrite-ConsoleMarkup '[italic]Decorations:[/] [bold]bold[/] [dim]dim[/] [underline]underline[/] [strikethrough]struck[/] [invert] invert [/]'",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 2,
@@ -88,7 +94,9 @@
       "summary": "A horizontal line with an optional title, the separator inside panels and reports.",
       "width": 60,
       "csharp": "Terminal.Write(new Rule(\"[bold]Replication[/]\"));\nTerminal.Write(new Rule());",
+      "csharpFull": null,
       "powershell": "Write-ConsoleRule '[bold]Replication[/]'\nWrite-ConsoleRule",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 2,
@@ -114,8 +122,10 @@
       "group": "layout",
       "summary": "A border around any widget, with a title, a caption on the right and a footer.",
       "width": 60,
-      "csharp": "Panel panel = new Panel(new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\"), \"[bold]Forest[/]\") {\n    Caption = \"ad.evotec.xyz\",\n    Footer = \"[muted]checked 14:30[/]\"\n};\nTerminal.Write(panel);",
+      "csharp": "TextBlock body = new TextBlock(\"Four controllers answered. [warn]DC02[/] lags by 42 minutes.\");\nPanel panel = new Panel(body, \"[bold]Forest[/]\") {\n    Caption = \"ad.evotec.xyz\",\n    Footer = \"[muted]checked 14:30[/]\"\n};\nTerminal.Write(panel);",
+      "csharpFull": null,
       "powershell": "New-ConsolePanel -Title '[bold]Forest[/]' -Caption 'ad.evotec.xyz' -Footer '[muted]checked 14:30[/]' {\n    New-ConsoleText -Markup 'Four controllers answered. [warn]DC02[/] lags by 42 minutes.'\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 3,
@@ -141,8 +151,10 @@
       "group": "layout",
       "summary": "Stack widgets vertically or side by side; columns share the width by weight.",
       "width": 60,
-      "csharp": "Columns columns = new Columns(\n    new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\"),\n    new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\"));\nTerminal.Write(new Rows(columns, new Rule(\"[muted]2 domains, 10 controllers[/]\")));",
+      "csharp": "Panel results = new Panel(new TextBlock(\"[pass]√[/] 412 passed\\n[warn]▲[/] 51 warnings\"), \"Results\");\nPanel problems = new Panel(new TextBlock(\"[fail]✗[/] 23 failed\\n[muted]-[/] 14 skipped\"), \"Problems\");\nRule footer = new Rule(\"[muted]2 domains, 10 controllers[/]\");\nTerminal.Write(new Rows(new Columns(results, problems), footer));",
+      "csharpFull": null,
       "powershell": "New-ConsoleRows {\n    New-ConsoleColumns {\n        New-ConsolePanel -Title 'Results' { \"[pass]√[/] 412 passed`n[warn]▲[/] 51 warnings\" }\n        New-ConsolePanel -Title 'Problems' { \"[fail]✗[/] 23 failed`n[muted]-[/] 14 skipped\" }\n    }\n    New-ConsoleRule '[muted]2 domains, 10 controllers[/]'\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -169,7 +181,9 @@
       "summary": "Equal cells in a fixed number of columns, filled left to right.",
       "width": 60,
       "csharp": "Grid grid = new Grid(3,\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC01\"),\n    new Panel(new TextBlock(\"[warn]▲ lagging[/]\"), \"DC02\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC03\"),\n    new Panel(new TextBlock(\"[fail]✗ offline[/]\"), \"DC04\"),\n    new Panel(new TextBlock(\"[pass]√ healthy[/]\"), \"DC05\"));\nTerminal.Write(grid);",
+      "csharpFull": null,
       "powershell": "New-ConsoleGrid -Columns 3 {\n    New-ConsolePanel -Title 'DC01' { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC02' { '[warn]▲ lagging[/]' }\n    New-ConsolePanel -Title 'DC03' { '[pass]√ healthy[/]' }\n    New-ConsolePanel -Title 'DC04' { '[fail]✗ offline[/]' }\n    New-ConsolePanel -Title 'DC05' { '[pass]√ healthy[/]' }\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 9,
@@ -196,7 +210,9 @@
       "summary": "Space around a widget, and placement inside the space it is given.",
       "width": 60,
       "csharp": "Panel left = new Panel(new Align(new TextBlock(\"[bold]centred[/]\")), \"Align\");\nPanel right = new Panel(new Padding(new TextBlock(\"two cells of padding\"), 2, 1, 2, 1), \"Padding\");\nTerminal.Write(new Columns(left, right));",
+      "csharpFull": null,
       "powershell": "New-ConsoleColumns {\n    New-ConsolePanel -Title 'Align' { New-ConsoleAlign { '[bold]centred[/]' } }\n    New-ConsolePanel -Title 'Padding' {\n        $text = [ConsoleMonster.Widgets.TextBlock]::new('two cells of padding')\n        [ConsoleMonster.Layout.Padding]::new($text, 2, 1, 2, 1)\n    }\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -222,8 +238,10 @@
       "group": "layout",
       "summary": "Layers drawn on top of each other: a badge over a chart.",
       "width": 60,
-      "csharp": "Sparkline load = new Sparkline { Height = 3, ShowLatest = false };\nload.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nStack stack = new Stack(load, new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right));\nTerminal.Write(new Panel(stack, \"Stack\") { Caption = \"badge over a chart\" });",
+      "csharp": "Sparkline load = new Sparkline { Height = 3, ShowLatest = false };\nload.AddRange(new double[] { 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44 });\nload.AddRange(new double[] { 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79 });\nAlign badge = new Align(new TextBlock(\"[pass] LIVE [/]\"), HorizontalAlignment.Right);\nStack stack = new Stack(load, badge);\nTerminal.Write(new Panel(stack, \"Stack\") { Caption = \"badge over a chart\" });",
+      "csharpFull": null,
       "powershell": "$load = New-ConsoleSparkline -Height 3 -Value 12, 14, 13, 18, 22, 26, 25, 31, 36, 34, 40, 44, 41, 47, 52, 49, 55, 61, 58, 64, 70, 66, 73, 79\n$load.ShowLatest = $false\nNew-ConsolePanel -Title 'Stack' -Caption 'badge over a chart' {\n    New-ConsoleStack {\n        $load\n        New-ConsoleAlign -Horizontal Right { '[pass] LIVE [/]' }\n    }\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -250,7 +268,9 @@
       "summary": "Aligned facts with optional status marks, as a summary beside a run.",
       "width": 60,
       "csharp": "KeyValueList facts = new KeyValueList()\n    .Add(\"Module\", \"[bold]ConsoleMonster[/]\")\n    .Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\")\n    .Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\")\n    .Add(\"Signing\", \"skipped\", StatusKind.Skip)\n    .Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn);\nTerminal.Write(facts);",
+      "csharpFull": null,
       "powershell": "$facts = New-ConsoleKeyValue -Markup ([ordered] @{\n    Module     = '[bold]ConsoleMonster[/]'\n    Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'\n    Frameworks = 'netstandard2.0, net472, net8.0'\n})\n$facts.Add('Signing', 'skipped', 'Skip').Add('Tests', '1 skipped on PowerShell 7', 'Warn') | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -277,7 +297,9 @@
       "summary": "Steps with a status symbol and a detail on the right.",
       "width": 60,
       "csharp": "StatusList steps = new StatusList()\n    .Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\")\n    .Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\")\n    .Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\")\n    .Add(\"Sign module files\", StatusKind.Skip, \"skipped\")\n    .Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running)\n    .Add(\"Publish to PowerShell Gallery\", StatusKind.Pending);\nTerminal.Write(steps);",
+      "csharpFull": null,
       "powershell": "$steps = New-ConsoleStatusList\n$steps.Add('Restore NuGet packages', 'Pass', '1.6 s').\n    Add('Compile ConsoleMonster', 'Pass', '4.7 s').\n    Add('Run Pester on PowerShell 7', 'Warn', '1 skipped').\n    Add('Sign module files', 'Skip', 'skipped').\n    Add('Pack ConsoleMonster.2.0.0.nupkg', 'Running').\n    Add('Publish to PowerShell Gallery', 'Pending') | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 6,
@@ -304,7 +326,9 @@
       "summary": "Nested items with guides, status symbols and notes.",
       "width": 60,
       "csharp": "Tree tree = new Tree(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", null, \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\nTerminal.Write(tree);",
+      "csharpFull": null,
       "powershell": "$tree = [ConsoleMonster.Widgets.Tree]::new('[bold]evotec.xyz[/]')\n$mx = $tree.Add('MX', 'Pass', '2 records')\n$mx.Add('evotec-xyz.mail.protection.outlook.com', $null, 'priority 0') | Out-Null\n$spf = $tree.Add('SPF', 'Warn', '9 of 10 DNS lookups')\n$spf.Add('include:spf.protection.outlook.com') | Out-Null\n$spf.Add('include:_spf.salesforce.com') | Out-Null\n$tree.Add('DMARC', 'Fail', 'p=none') | Out-Null\n$tree.Add('DKIM', 'Pass', 'selector1, selector2') | Out-Null\n$tree | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 8,
@@ -331,7 +355,9 @@
       "summary": "Labelled bars with a percentage and a count, in line or block shape.",
       "width": 60,
       "csharp": "Terminal.Write(new Rows(\n    new ProgressBar(\"Build\") { Value = 64, Total = 100 },\n    new ProgressBar(\"Tests\") { Value = 412, Total = 530 },\n    new ProgressBar(\"Docs\") { Value = 100, Total = 100, Status = StatusKind.Pass },\n    new ProgressBar(\"Upload\") { Value = 3, Total = 8, Shape = BarShape.Block }));",
+      "csharpFull": null,
       "powershell": "New-ConsoleRows {\n    New-ConsoleProgress 'Build' -Value 64 -Total 100\n    New-ConsoleProgress 'Tests' -Value 412 -Total 530\n    $docs = New-ConsoleProgress 'Docs' -Value 100 -Total 100\n    $docs.Status = 'Pass'\n    $docs\n    New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 4,
@@ -358,7 +384,9 @@
       "summary": "A pipeline of stages: done, running and waiting.",
       "width": 60,
       "csharp": "Phases phases = new Phases()\n    .Set(\"Discover\", StatusKind.Pass, null, \"2.1s\")\n    .Set(\"Collect\", StatusKind.Pass, null, \"14s\")\n    .Set(\"Evaluate\", StatusKind.Running, null, \"64%\")\n    .Set(\"Report\", StatusKind.Pending);\nTerminal.Write(phases);",
+      "csharpFull": null,
       "powershell": "$phases = New-ConsolePhases -Phase Discover, Collect, Evaluate, Report\n$phases.Set('Discover', 'Pass', 'Discover', '2.1s').\n    Set('Collect', 'Pass', 'Collect', '14s').\n    Set('Evaluate', 'Running', 'Evaluate', '64%') | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 1,
@@ -385,7 +413,9 @@
       "summary": "An activity with a detail, or its final state once it has finished.",
       "width": 60,
       "csharp": "Terminal.Write(new Rows(\n    new Spinner(\"Resolving DNS records\") { Detail = \"zone 4 of 9\" },\n    new Spinner(\"Schema snapshot\") { Status = StatusKind.Pass, Detail = \"cached\" },\n    new Spinner(\"Certificate chain\") { Status = StatusKind.Fail, Detail = \"expired 3 days ago\" }));",
+      "csharpFull": null,
       "powershell": "New-ConsoleRows {\n    New-ConsoleSpinner 'Resolving DNS records' -Detail 'zone 4 of 9'\n    New-ConsoleSpinner 'Schema snapshot' -Detail 'cached' -Status Pass\n    New-ConsoleSpinner 'Certificate chain' -Detail 'expired 3 days ago' -Status Fail\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 3,
@@ -412,7 +442,9 @@
       "summary": "Timed log lines with levels; in a live session it collects Console and PowerShell output.",
       "width": 60,
       "csharp": "LogRegion log = new LogRegion { PreferredHeight = 5 };\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nTerminal.Write(log);",
+      "csharpFull": null,
       "powershell": "$log = New-ConsoleLog -Height 5\n$log.Write('Discovered 4 domain controllers in 2 domains', 'info', [timespan]::FromSeconds(2))\n$log.Write('DC02: replication partner DC05 last success 3h ago', 'warn', [timespan]::FromSeconds(31))\n$log.Write('DC02: USN rollback check failed (event 2095)', 'err', [timespan]::FromSeconds(44))\n$log.Write('Collected 186 rule inputs from DC01', 'info', [timespan]::FromSeconds(52))\n$log.Write('Using cached schema snapshot', 'verbose', [timespan]::FromSeconds(53))\n$log | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -439,7 +471,9 @@
       "summary": "Labelled bars scaled to the largest value, with the values on the right.",
       "width": 60,
       "csharp": "BarChart failures = new BarChart { BarToken = ThemeToken.Fail }\n    .Add(\"Domain controllers\", 14)\n    .Add(\"Group Policy\", 9)\n    .Add(\"Kerberos\", 6)\n    .Add(\"DNS\", 4)\n    .Add(\"PKI\", 2);\nTerminal.Write(failures);",
+      "csharpFull": null,
       "powershell": "$failures = New-ConsoleBarChart ([ordered] @{\n    'Domain controllers' = 14\n    'Group Policy'       = 9\n    'Kerberos'           = 6\n    'DNS'                = 4\n    'PKI'                = 2\n})\n$failures.BarToken = 'Fail'\n$failures | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -466,7 +500,9 @@
       "summary": "Parts of a whole in one bar, with a legend of counts and shares.",
       "width": 60,
       "csharp": "StackedBar results = new StackedBar()\n    .Add(\"Passed\", 412, ThemeToken.Pass)\n    .Add(\"Warnings\", 51, ThemeToken.Warn)\n    .Add(\"Failed\", 23, ThemeToken.Fail)\n    .Add(\"Skipped\", 14, ThemeToken.Skip);\nTerminal.Write(results);",
+      "csharpFull": null,
       "powershell": "$results = New-ConsoleBarChart -Stacked\n$results.Add('Passed', 412, 'Pass').\n    Add('Warnings', 51, 'Warn').\n    Add('Failed', 23, 'Fail').\n    Add('Skipped', 14, 'Skip') | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 3,
@@ -493,7 +529,9 @@
       "summary": "A compact trend in one or more rows, with the latest value.",
       "width": 60,
       "csharp": "double[] rate = { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60 };\nSparkline compact = new Sparkline { Label = \"rules/s\", Unit = \"/s\" };\nSparkline tall = new Sparkline { Height = 3, Unit = \"/s\" };\ncompact.AddRange(rate);\ntall.AddRange(rate);\nTerminal.Write(new Rows(compact, tall) { Gap = 1 });",
+      "csharpFull": null,
       "powershell": "$rate = 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57, 54, 59, 62, 60\nNew-ConsoleRows -Gap 1 {\n    New-ConsoleSparkline -Label 'rules/s' -Unit '/s' -Value $rate\n    New-ConsoleSparkline -Height 3 -Unit '/s' -Value $rate\n} | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,
@@ -520,7 +558,9 @@
       "summary": "Values counted into buckets with labelled edges.",
       "width": 60,
       "csharp": "Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }) { Height = 5, Unit = \"s\" };\nforeach (double seconds in new[] { 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2 }) {\n    durations.Add(seconds);\n}\nTerminal.Write(durations);",
+      "csharpFull": null,
       "powershell": "$seconds = 0.1, 0.2, 0.3, 0.3, 0.4, 0.6, 0.7, 0.7, 0.8, 0.9, 1.2, 1.4, 1.5, 1.9, 2.4, 3.1, 5.2\nNew-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4, 8 -Value $seconds -Height 5 -Unit 's' | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 6,
@@ -547,7 +587,9 @@
       "summary": "Braille line series with an axis and a legend.",
       "width": 60,
       "csharp": "LineChart chart = new LineChart { Height = 7 };\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++) {\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\nTerminal.Write(chart);",
+      "csharpFull": null,
       "powershell": "$chart = New-ConsoleLineChart -Height 7\n$null = $chart.AddSeries('completed', 'Accent')\n$null = $chart.AddSeries('failed', 'Fail')\nforeach ($i in 0..47) {\n    $null = $chart.Add('completed', 20 + 9 * [math]::Sin($i / 7) + $i % 3)\n    $null = $chart.Add('failed', 3 + 2 * [math]::Cos($i / 5))\n}\n$chart | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 8,
@@ -574,7 +616,9 @@
       "summary": "The same braille canvas as points instead of lines.",
       "width": 60,
       "csharp": "LineChart chart = new LineChart { Height = 7, Scatter = true, Unit = \"ms\" };\nchart.AddSeries(\"latency\", ThemeToken.Accent2);\nfor (int i = 0; i < 60; i++) {\n    chart.Add(\"latency\", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));\n}\nTerminal.Write(chart);",
+      "csharpFull": null,
       "powershell": "$chart = New-ConsoleLineChart -Height 7 -Scatter -Unit 'ms'\n$null = $chart.AddSeries('latency', 'Accent2')\nforeach ($i in 0..59) {\n    $null = $chart.Add('latency', 40 + ($i * 37) % 23 + $(if ($i % 7 -eq 0) { 30 } else { 0 }))\n}\n$chart | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 7,
@@ -601,7 +645,9 @@
       "summary": "Large pixel lettering with a gradient and a tagline, for the top of a tool.",
       "width": 60,
       "csharp": "Terminal.Write(new Logo(\"Monster\", \"[muted]zero-dependency console rendering[/]\"));",
+      "csharpFull": null,
       "powershell": "New-ConsoleLogo 'Monster' -Tagline '[muted]zero-dependency console rendering[/]' | Write-ConsoleWidget",
+      "powershellFull": null,
       "frame": {
         "w": 60,
         "h": 5,

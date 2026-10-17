@@ -23,8 +23,10 @@ namespace SiteFrames.Pages {
             string source = Path.Combine(site.Tool, "Catalog", "PageExamples.cs");
             JsonObject controllers = new JsonObject {
                 ["width"] = Wide,
-                ["csharp"] = SourceSnippets.Get(source, "Controllers"),
-                ["powershell"] = Site.ReadText(Twins.Script(site, "home", "controllers")),
+                ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, "Controllers")).Short,
+                ["csharpFull"] = WidgetsPage.Longer(SourceSnippets.Split(SourceSnippets.Get(source, "Controllers"))),
+                ["powershell"] = SourceSnippets.Split(Site.ReadText(Twins.Script(site, "home", "controllers"))).Short,
+                ["powershellFull"] = WidgetsPage.Longer(SourceSnippets.Split(Site.ReadText(Twins.Script(site, "home", "controllers")))),
                 ["frame"] = site.Frame(build, Wide, crop: true),
                 ["narrow"] = site.Frame(build, Narrow),
                 ["parity"] = Twins.Check(site, "home", "controllers", Wide, build, hosts, problems)

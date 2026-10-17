@@ -54,7 +54,7 @@ namespace SiteFrames.Pages {
                     TableShowcases.Certificate, SourceSnippets.Method(showcases, "public static RecordView Certificate()"),
                     new[] { "Sections, groups and nested widgets", "Boolean presenters can mark either value as the problem", "A single record from Format-ConsoleTable renders this way" }),
                 new Section("inspector", "The object inspector", "Nested dictionaries and lists, shown as indented sections and nested tables. The inspector also reads .NET objects, PSObjects and JSON, with depth, item and node limits.",
-                    () => Catalog.Terminal.Capture(PageExamples.Inspector), SourceSnippets.Get(pages, "Inspector"),
+                    () => Catalog.Terminal.Capture(PageExamples.Inspector), SourceSnippets.Split(SourceSnippets.Get(pages, "Inspector")).Full,
                     new[] { "MaxDepth, MaxItems and MaxNodes bound one inspection", "Cycles are detected and marked", "Format-ConsoleTree -AsInspector in PowerShell" })
             };
 
