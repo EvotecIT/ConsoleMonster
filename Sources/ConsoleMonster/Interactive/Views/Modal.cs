@@ -67,7 +67,7 @@ namespace ConsoleMonster.Interactive {
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
             rows.Add(new KeyFooter(bindings));
-            return new Panel(new Padding(rows, 0, 1, 0, 0), Markup.Escape(_title)) { BorderToken = ThemeToken.Accent };
+            return DialogChrome.Frame(rows, _title);
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Interactive {
                 rows.Add(UiLine.Empty);
             }
             rows.Add(new UiLine(context => new StyledLine(Buttons.Spans(new[] { _labels.Yes, _labels.No }, _focus, context))));
-            return new Panel(new Padding(rows, 0, 1, 0, 0), Markup.Escape(_title)) { BorderToken = _destructive ? ThemeToken.Warn : ThemeToken.Accent };
+            return DialogChrome.Frame(rows, _title, _destructive ? ThemeToken.Warn : ThemeToken.Accent);
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {

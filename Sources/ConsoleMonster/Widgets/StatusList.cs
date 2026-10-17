@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -133,7 +134,7 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < _items.Count && i < region.Height; i++) {
                 StatusItem item = _items[i];
                 string marker = item.Status == StatusKind.Running && context.Glyphs.Tier != Capabilities.GlyphTier.Ascii
-                    ? context.Glyphs.SpinnerFrames[(int)(context.Tick % context.Glyphs.SpinnerFrames.Count)]
+                    ? context.Spinner()
                     : context.Glyphs.StatusMarker(item.Status);
                 region.Write(0, i, marker, context.Style(item.Status));
                 int labelX = markerWidth + 1;

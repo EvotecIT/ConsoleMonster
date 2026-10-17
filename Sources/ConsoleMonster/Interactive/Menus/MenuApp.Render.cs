@@ -62,7 +62,7 @@ namespace ConsoleMonster.Interactive {
 
         private IWidget BuildShell(ViewFrame frame) {
             Rows rows = new Rows();
-            rows.Add(new UiLine(context => HeaderLine(context)) { Fill = ThemeToken.Surface }, LayoutSize.Fixed(1));
+            rows.Add(Header(), LayoutSize.Fixed(1));
             IWidget body;
             bool narrow = frame.Width < _options.SidebarMinimumWidth;
             if (!narrow) {
@@ -160,32 +160,28 @@ namespace ConsoleMonster.Interactive {
             return new Centered(column, width);
         }
 
-        private StyledLine HeaderLine(RenderContext context) {
-            InteractiveGlyphs g = InteractiveGlyphs.For(context);
-            Style bar = context.Style(ThemeToken.Surface);
-            List<TextSpan> spans = new List<TextSpan> {
-                new TextSpan(" " + _root.Title, context.Style(ThemeToken.SurfaceAccent))
-            };
+        // The same header bar as dashboards and runs: the app title, the breadcrumb, and the app's subtitle on the right.
+        private HeaderBar Header() {
+            HeaderBar header = new HeaderBar(Markup.Escape(_root.Title)) { Right = _root.Subtitle };
             foreach (string crumb in Crumbs()) {
-                spans.Add(new TextSpan(" " + g.Breadcrumb + " ", bar));
-                spans.Add(new TextSpan(crumb, bar));
+                header.Crumbs.Add(crumb);
             }
-            return new StyledLine(spans);
+            return header;
         }
 
-        private KeyFooter Footer(ViewFrame frame, bool surface) {
+        private KeyFooter Footer(ViewFrame frame, bool shell) {
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
-            KeyFooter footer = new KeyFooter(bindings) { OnSurface = surface, Indent = 1, Toast = CurrentToast };
-            if (!string.IsNullOrEmpty(_root.Subtitle) && surface) {
-                footer.Right = StyledLine.From(_root.Subtitle!, frame.Context.Style(ThemeToken.Surface));
-            }
-            return footer;
+            return new KeyFooter(bindings) { Toast = CurrentToast };
         }
-
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
             if (_modals.Count > 0) {
                 _modals[_modals.Count - 1].AddBindings(bindings, frame);
+                return;
+            }
+            if (CurrentPane is RunPane run) {
+                // During a run only its own keys apply (the menu's keys wait for the results).
+                run.AddBindings(bindings, frame);
                 return;
             }
             bool sidebar = UsesSidebar && !_contentFocused;

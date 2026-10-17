@@ -5,6 +5,7 @@ using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
@@ -34,12 +35,13 @@ namespace ConsoleMonster.Interactive {
                     owns = true;
                 }
                 try {
-                    FormHostView view = new FormHostView(form, labels, store, options.RememberLastChoices);
+                    FormHostView view = new FormHostView(form, labels, store, options.RememberLastChoices, options, surface, lease.Source, context, cancellationToken);
                     if (!string.IsNullOrEmpty(options.Preset)) {
                         view.Pane.ApplyPreset(options.Preset!);
                     }
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     FormResult result = view.Result ?? new FormResult(false, form.GetValues(), form.BuildCommand(), null);
+                    result.RunResult = view.RunResult;
                     surface.Complete(Summary(form, result, context, labels));
                     return result;
                 } finally {
@@ -190,14 +192,42 @@ namespace ConsoleMonster.Interactive {
         }
     }
 
-    /// <summary>A form shown on its own: a framed page (or inline block), the footer, dialogs and the key map.</summary>
-    internal sealed class FormHostView : InteractiveView, IViewHost {
+    /// <summary>
+    /// A form on its own screen, in the same frame as the Shell app and dashboards: the shared header bar (title and the
+    /// current step), the content panel (step title, step count) and the shared footer. With FormOptions.AfterSubmit the
+    /// submitted form can run work with a live dashboard in the same frame and end on a results summary, so going from the
+    /// last step to the run changes only the content.
+    /// </summary>
+    internal sealed class FormHostView : InteractiveView, IViewHost, IMenuHost {
         private readonly List<Modal> _modals = new List<Modal>();
+        private readonly Form _form;
+        private readonly FormOptions _options;
+        private readonly IPromptSurface? _surface;
+        private readonly IInputSource? _input;
+        private readonly RenderContext? _context;
+        private readonly CancellationToken _token;
+        private IPane? _override;
 
-        public FormHostView(Form form, PromptLabels labels, ChoiceStore? store, bool remember) : base(labels) {
+        public FormHostView(Form form, PromptLabels labels, ChoiceStore? store, bool remember) : this(form, labels, store, remember, new FormOptions(), null, null, null, CancellationToken.None) {
+        }
+
+        public FormHostView(Form form, PromptLabels labels, ChoiceStore? store, bool remember, FormOptions options, IPromptSurface? surface, IInputSource? input, RenderContext? context, CancellationToken token) : base(labels) {
+            _form = form;
+            _options = options;
+            _surface = surface;
+            _input = input;
+            _context = context;
+            _token = token;
             Pane = new FormView(form, this, store, remember);
             Pane.Submitted = result => {
                 Result = result;
+                if (_options.AfterSubmit != null && _surface != null && _context != null && _input != null) {
+                    _options.AfterSubmit(new MenuContext(this, new Menu(_form.Title), null, result.Values, _token) { FormResult = result });
+                    if (_override == null) {
+                        IsDone = true;
+                    }
+                    return;
+                }
                 IsDone = true;
             };
         }
@@ -206,16 +236,21 @@ namespace ConsoleMonster.Interactive {
 
         public FormResult? Result { get; private set; }
 
-        public override bool IsAnimating => Pane.IsAnimating;
+        /// <summary>The result of a run started after submitting, when there was one.</summary>
+        public RunResult? RunResult { get; private set; }
+
+        public override bool IsAnimating => (_override?.IsAnimating ?? false) || Pane.IsAnimating;
 
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
         public override bool Poll(TimeSpan now) {
             bool changed = base.Poll(now);
-            changed |= Pane.Poll(now);
+            changed |= _override != null ? _override.Poll(now) : Pane.Poll(now);
             changed |= _modals.RemoveAll(m => m.IsClosed) > 0;
             return changed;
         }
+
+        private IPane Current => _override ?? Pane;
 
         protected override IWidget Build(ViewFrame frame) {
             _modals.RemoveAll(m => m.IsClosed);
@@ -226,20 +261,26 @@ namespace ConsoleMonster.Interactive {
                     new TextSpan(InteractiveGlyphs.For(context).Question + " ", context.Style(ThemeToken.Accent).With(TextDecoration.Bold)),
                     new TextSpan(Pane.Title, context.Style(ThemeToken.Title))
                 })));
-                rows.Add(new Padding(Pane.Build(frame, _modals.Count == 0), 2, 0, 0, 0));
+                rows.Add(new Padding(Current.Build(frame, _modals.Count == 0), 2, 0, 0, 0));
                 rows.Add(Footer(frame));
                 content = rows;
             } else {
-                int width = Math.Min(frame.Width - 2, 100);
-                Panel panel = new Panel(new Padding(Pane.Build(frame, _modals.Count == 0), 1, 1, 1, 0), Markup.Escape(Pane.Title)) {
-                    Caption = Pane.Caption,
-                    BorderToken = ThemeToken.Border,
-                    Height = Math.Max(8, frame.Height - 2)
+                IPane pane = Current;
+                HeaderBar header = new HeaderBar(Markup.Escape(_form.Title));
+                IReadOnlyList<string> crumbs = _override != null ? new[] { _override.Title } : Pane.Crumbs;
+                foreach (string crumb in crumbs) {
+                    header.Crumbs.Add(crumb);
+                }
+                string title = _override?.Title ?? (Pane.Crumbs.Count > 0 ? Pane.Crumbs[0] : Pane.Title);
+                Panel panel = new Panel(new Padding(pane.Build(frame, _modals.Count == 0), 1, 1, 1, 0), Markup.Escape(title)) {
+                    Caption = pane.Caption == null ? null : Markup.Escape(pane.Caption),
+                    BorderToken = ThemeToken.Border
                 };
                 Rows rows = new Rows();
-                rows.Add(new Sized(panel, LayoutSize.Fraction()));
-                rows.Add(Footer(frame));
-                content = new Centered(rows, width);
+                rows.Add(header, LayoutSize.Fixed(1));
+                rows.Add(panel, LayoutSize.Fraction());
+                rows.Add(Footer(frame), LayoutSize.Fixed(1));
+                content = rows;
             }
             if (_modals.Count > 0) {
                 Modal top = _modals[_modals.Count - 1];
@@ -257,6 +298,13 @@ namespace ConsoleMonster.Interactive {
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
             if (_modals.Count > 0) {
                 _modals[_modals.Count - 1].AddBindings(bindings, frame);
+                return;
+            }
+            if (_override != null) {
+                _override.AddBindings(bindings, frame);
+                if (!(_override is RunPane)) {
+                    bindings.Add(HelpBinding(false));
+                }
                 return;
             }
             Pane.AddBindings(bindings, frame);
@@ -290,10 +338,44 @@ namespace ConsoleMonster.Interactive {
             if (_modals.Count > 0) {
                 return _modals[_modals.Count - 1].HandleUnbound(input);
             }
-            return Pane.HandleUnbound(input);
+            return Current.HandleUnbound(input);
+        }
+
+        // ---- the services a run after submitting uses ----------------------------------------------------------------
+
+        MenuLayout IMenuHost.Layout => MenuLayout.Shell;
+
+        void IMenuHost.ShowToast(Toast toast) => ShowToast(toast);
+
+        T IMenuHost.Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) {
+            InteractiveOptions o = (_options.Interactive ?? InteractiveOptions.Default).Clone();
+            o.Mode = InteractionMode.Rich;
+            o.Input = _input;
+            o.Labels = Labels;
+            return prompt.Show(o, cancellationToken);
+        }
+
+        RunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
+            RunResult result = RunHost.Run(this, _surface!, _surface as ScreenSurface, _input!, _context!, context, dashboard, work, options, pane => _override = pane, () => _override = null, _form.Title);
+            RunResult = result;
+            ShowResultPane(result);
+            return result;
+        }
+
+        void IMenuHost.ShowResult(RunResult result) => ShowResultPane(result);
+
+        void IMenuHost.Open(MenuItem item) {
+        }
+
+        void IMenuHost.Exit() => IsDone = true;
+
+        void IMenuHost.Log(string text, StatusKind status) => ShowToast(new Toast(text, status));
+
+        private void ShowResultPane(RunResult result) {
+            RunResult = result;
+            _override = new ResultPane(result, Labels, item => { }, () => IsDone = true);
         }
     }
-
     /// <summary>Centres a child horizontally at a width and gives it the full height.</summary>
     internal sealed class Centered : IWidget {
         private readonly IWidget _child;

@@ -4,6 +4,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -20,40 +21,16 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Draws on the surface bar style (shell footers) instead of plain text.</summary>
-        public bool OnSurface { get; set; }
-
-        /// <summary>A toast shown instead of the hints.</summary>
         public Toast? Toast { get; set; }
 
-        /// <summary>Text drawn right-aligned (counts, positions).</summary>
         public StyledLine? Right { get; set; }
 
-        public int Indent { get; set; }
+        public int Indent { get; set; } = 1;
 
         public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
 
+        // The footer's look lives in FooterBar (shared with dashboards and runs); this only picks the hints to show.
         public void Render(Region region, RenderContext context) {
-            if (region.Width <= 0 || region.Height <= 0) {
-                return;
-            }
-            Style bar = OnSurface ? context.Style(ThemeToken.Surface) : Style.Plain;
-            if (OnSurface) {
-                region.Fill(0, 0, region.Width, 1, " ", bar);
-            }
-            int rightWidth = Right?.Width ?? 0;
-            int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
-            if (Toast != null) {
-                StyledLine toast = Toast.Line(context, bar);
-                region.Write(Indent, 0, TextWrapper.Truncate(toast, Math.Max(1, available), context.Ellipsis));
-            } else {
-                region.Write(Indent, 0, Build(context, bar, available));
-            }
-            if (Right != null && rightWidth > 0 && region.Width - 1 - rightWidth > Indent) {
-                region.Write(region.Width - 1 - rightWidth, 0, Right.WithBaseStyle(bar));
-            }
-        }
-
-        private StyledLine Build(RenderContext context, Style bar, int available) {
             List<KeyBinding> shown = new List<KeyBinding>();
             KeyBinding? help = null;
             foreach (KeyBinding b in _bindings) {
@@ -67,37 +44,18 @@ namespace ConsoleMonster.Interactive {
                 shown.Add(b);
             }
             shown.Sort((a, b) => a.Order.CompareTo(b.Order));
-            Style key = OnSurface ? context.Style(ThemeToken.SurfaceAccent) : bar.Combine(context.Style(ThemeToken.Highlight));
-            Style label = OnSurface ? bar : context.Style(ThemeToken.Muted);
-            List<TextSpan> spans = new List<TextSpan>();
-            int used = 0;
-            int helpWidth = help == null ? 0 : Width(help) + 2;
-            bool dropped = false;
+            FooterBar bar = new FooterBar { Indent = Indent, Right = Right, KeepLast = help != null };
             foreach (KeyBinding b in shown) {
-                int w = Width(b) + (spans.Count > 0 ? 2 : 0);
-                if (used + w + (help != null ? helpWidth : 0) > available) {
-                    dropped = true;
-                    break;
-                }
-                if (spans.Count > 0) {
-                    spans.Add(new TextSpan("  ", label));
-                }
-                spans.Add(new TextSpan(b.DisplayKeys(), key));
-                spans.Add(new TextSpan(" " + b.Label, label));
-                used += w;
+                bar.Hints.Add(new KeyHint(b.DisplayKeys(), b.Label));
             }
-            if (help != null && (dropped || used + helpWidth <= available)) {
-                if (spans.Count > 0) {
-                    spans.Add(new TextSpan("  ", label));
-                }
-                spans.Add(new TextSpan(help.DisplayKeys(), key));
-                spans.Add(new TextSpan(" " + help.Label, label));
+            if (help != null) {
+                bar.Hints.Add(new KeyHint(help.DisplayKeys(), help.Label));
             }
-            return new StyledLine(spans);
+            if (Toast != null) {
+                bar.Message = Toast.Line(context, Style.Plain);
+            }
+            bar.Render(region, context);
         }
-
-        private static int Width(KeyBinding b) => DisplayWidth.Measure(b.DisplayKeys()) + 1 + DisplayWidth.Measure(b.Label);
-
         public static bool Dispatch(IReadOnlyList<KeyBinding> bindings, Input.InputEvent input) {
             foreach (KeyBinding b in bindings) {
                 if (b.Chords.Count > 0 && b.Matches(input)) {

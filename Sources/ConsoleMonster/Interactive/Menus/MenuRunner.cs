@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
                 RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
                 IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile);
                 try {
-                    MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface as ScreenSurface, context, layout, cancellationToken);
+                    MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                     try {
                         InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
                     } finally {
@@ -274,7 +274,7 @@ namespace ConsoleMonster.Interactive {
             rows.Add(new UiLine(context => new StyledLine(new[] {
                 new TextSpan(context.Glyphs.StatusMarker(_result.Status) + " ", context.Style(_result.Status).With(TextDecoration.Bold)),
                 new TextSpan(_result.Title, context.Style(ThemeToken.Title)),
-                new TextSpan(_result.Elapsed > TimeSpan.Zero ? "  " + _result.Elapsed.TotalSeconds.ToString("0.0", context.Culture) + "s" : string.Empty, context.Style(ThemeToken.Muted))
+                new TextSpan(_result.Elapsed > TimeSpan.Zero ? "  " + Widgets.NumberFormat.Clock(_result.Elapsed) : string.Empty, context.Style(ThemeToken.Muted))
             })));
             if (!string.IsNullOrEmpty(_result.Summary)) {
                 rows.Add(new Padding(new UiParagraph(_result.Summary!, ThemeToken.Text, 6), 2, 0, 0, 0));

@@ -39,7 +39,9 @@ namespace ConsoleMonster.Interactive {
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
             rows.Add(new KeyFooter(bindings));
-            return new Panel(rows, Markup.Escape(_labels.Commands)) { BorderToken = ThemeToken.Accent, Caption = Markup.Escape(_labels.SearchCommands) };
+            Panel panel = DialogChrome.Frame(rows, _labels.Commands);
+            panel.Caption = Markup.Escape(_labels.SearchCommands);
+            return panel;
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {

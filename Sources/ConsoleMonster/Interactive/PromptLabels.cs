@@ -106,6 +106,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: run the action.</summary>
         public string KeyRun { get; set; } = "run";
 
+        /// <summary>Footer label for ctrl+c during a run.</summary>
+        public string KeyStop { get; set; } = "stop";
+
         /// <summary>Footer label for Enter on a blocked Run button (it opens the item that fixes the first problem).</summary>
         public string KeyFix { get; set; } = "fix";
 

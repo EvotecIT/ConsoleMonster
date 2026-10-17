@@ -1,4 +1,4 @@
- Toolbox › Targets
+ Toolbox › Targets                                                                              lab
 ╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 2 of 3 selected ─╮
 │                    │ │                                                                           │
 │▌ t  Targets   2/3  │ │  Where tasks run.                                                         │
@@ -23,4 +23,4 @@
 │                    │ │                                                                           │
 │                    │ │                                                                           │
 ╰────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc back  ? keys                lab
+ ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc back  ctrl+k commands  ? keys

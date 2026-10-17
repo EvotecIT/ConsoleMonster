@@ -119,10 +119,10 @@ namespace ConsoleMonster.Widgets {
             string marker;
             Style markerStyle;
             if (lane.Status == StatusKind.Running) {
-                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.SpinnerFrames[(int)(context.Tick % glyphs.SpinnerFrames.Count)] : glyphs.SpinnerFrames[(int)((context.Tick + lane.Order) % glyphs.SpinnerFrames.Count)];
+                marker = context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : lane.Order);
                 markerStyle = context.Style(ThemeToken.Running);
             } else {
-                marker = glyphs.Tier == GlyphTier.Ascii ? AsciiMarker(lane.Status) : glyphs.StatusMarker(lane.Status);
+                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(lane.Status) : glyphs.StatusMarker(lane.Status);
                 markerStyle = context.Style(lane.Status);
             }
             region.Write(0, y, marker, markerStyle);
@@ -157,21 +157,6 @@ namespace ConsoleMonster.Widgets {
                     richDetail = lane.DetailText;
                 }
                 region.Write(x, y, TextWrapper.Truncate(RichLines.Line(richDetail, detail, muted, context), detailWidth, context.Ellipsis));
-            }
-        }
-
-        private static string AsciiMarker(StatusKind status) {
-            switch (status) {
-                case StatusKind.Pass:
-                    return "+";
-                case StatusKind.Fail:
-                    return "x";
-                case StatusKind.Warn:
-                    return "!";
-                case StatusKind.Skip:
-                    return "-";
-                default:
-                    return ".";
             }
         }
 

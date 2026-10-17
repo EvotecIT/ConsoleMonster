@@ -1,4 +1,4 @@
- Toolbox › Targets
+ Toolbox › Targets                                                                              lab
 ╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 0 of 3 selected ─╮
 │                    │ │                                                                           │
 │▌ t  [Target…  0/3  │ │  Where tasks run.                                                         │
@@ -23,4 +23,4 @@
 │                    │ │                                                                           │
 │                    │ │                                                                           │
 ╰────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  enter open  / filter  ctrl+q quit  ctrl+k commands  ? keys                            lab
+ ↑↓ move  enter open  / filter  ctrl+q quit  ctrl+k commands  ? keys

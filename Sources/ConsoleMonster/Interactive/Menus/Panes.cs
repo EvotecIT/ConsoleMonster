@@ -524,20 +524,14 @@ namespace ConsoleMonster.Interactive {
 
         public string Title => _labels.Results;
 
-        public string? Caption => _result.Elapsed > TimeSpan.Zero ? Format(_result.Elapsed) : null;
+        // The same clock the run showed in this place a moment before, so the caption does not change format.
+        public string? Caption => _result.Elapsed > TimeSpan.Zero ? Widgets.NumberFormat.Clock(_result.Elapsed) : null;
 
         public bool IsAnimating => false;
 
         public bool IsDirty => false;
 
         public IReadOnlyList<string> Crumbs => new string[0];
-
-        private static string Format(TimeSpan elapsed) {
-            if (elapsed.TotalMinutes >= 1) {
-                return ((int)elapsed.TotalMinutes).ToString(CultureInfo.CurrentCulture) + "m " + elapsed.Seconds.ToString("00", CultureInfo.CurrentCulture) + "s";
-            }
-            return elapsed.TotalSeconds.ToString("0.0", CultureInfo.CurrentCulture) + "s";
-        }
 
         public IWidget Build(ViewFrame frame, bool focused) {
             _next.Focused = focused;

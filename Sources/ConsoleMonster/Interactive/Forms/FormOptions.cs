@@ -24,6 +24,13 @@ namespace ConsoleMonster.Interactive {
         /// <summary>A preset to apply before showing.</summary>
         public string? Preset { get; set; }
 
+        /// <summary>
+        /// Called with the submitted values (on the form's screen, full-screen mode): call <c>context.Run(dashboard, work)</c>
+        /// to run the work with a live dashboard in the form's own frame, ending on a results summary, so the last step,
+        /// the run and the result read as one screen. The run's result is on <see cref="FormResult.RunResult"/>.
+        /// </summary>
+        public System.Action<MenuContext>? AfterSubmit { get; set; }
+
         internal ChoiceStore? Store() => string.IsNullOrEmpty(AppName) ? null : new ChoiceStore(AppName!, StorageRoot);
     }
 }

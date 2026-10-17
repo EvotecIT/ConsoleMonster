@@ -1,4 +1,4 @@
- Toolbox
+ Toolbox › Targets                                                lab
 ╭─ Toolbox ──────────────────────────────────────────────────────────╮
 │                                                                    │
 │  ▌ t  [Targets]                   0/3  ›                           │
@@ -17,4 +17,4 @@
 │                                                                    │
 │    Where tasks run.                                                │
 ╰────────────────────────────────────────────────────────────────────╯
- ↑↓ move  enter open  / filter  esc back  ? keys                  lab
+ ↑↓ move  enter open  / filter  esc back  ctrl+k commands  ? keys

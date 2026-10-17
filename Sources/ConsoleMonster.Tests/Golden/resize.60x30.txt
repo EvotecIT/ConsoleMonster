@@ -1,4 +1,4 @@
- Testimo…  ● evaluating 332 rules on 6 workers  │  00:00:24
+ Testimo…  ● evaluating 332 rules on 6 workers  ·  00:00:24
 
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
 

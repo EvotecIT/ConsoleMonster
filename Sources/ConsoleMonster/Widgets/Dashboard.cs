@@ -36,7 +36,12 @@ namespace ConsoleMonster.Widgets {
         public StatusKind? StatusLevel { get; set; }
 
         /// <summary>The footer text (markup), or <c>null</c> for no footer.</summary>
-        public string? Footer { get; set; } = "[muted]Ctrl+C[/] stop";
+        public string? Footer { get; set; }
+
+        /// <summary>The key hints in the footer when <see cref="Footer"/> is not set (default: ctrl+c stop).</summary>
+        public IList<KeyHint> FooterHints { get; } = new List<KeyHint> { new KeyHint("ctrl+c", "stop") };
+
+        private bool HasFooter => !string.IsNullOrEmpty(Footer) || FooterHints.Count > 0;
 
         /// <summary>Whether the elapsed clock is shown in the header (default true).</summary>
         public bool ShowClock { get; set; } = true;
@@ -73,7 +78,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int chrome = 1 + (string.IsNullOrEmpty(Footer) ? 0 : 1);
+            int chrome = 1 + (HasFooter ? 1 : 0);
             Size body = Body.Measure(constraints.Shrink(0, chrome + 1), context);
             int height = body.Height + chrome + 1;
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -85,62 +90,27 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             DrawHeader(region.Sub(0, 0, region.Width, 1), context);
-            bool footer = !string.IsNullOrEmpty(Footer) && region.Height > 3;
+            bool footer = HasFooter && region.Height > 3;
             int bodyHeight = region.Height - 2 - (footer ? 1 : 0);
             if (bodyHeight > 0) {
                 Body.Render(region.Sub(0, 2, region.Width, bodyHeight), context);
             }
             if (footer) {
-                Region bar = region.Sub(0, region.Height - 1, region.Width, 1);
-                StyledLine text = TextWrapper.Truncate(context.Markup(Footer!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted)), bar.Width - 2, context.Ellipsis);
-                bar.Write(1, 0, text);
+                DrawFooter(region.Sub(0, region.Height - 1, region.Width, 1), context);
             }
         }
 
+        // Header and footer are the shared bars, so a dashboard looks the same full screen, inline and inside a menu run.
         private void DrawHeader(Region bar, RenderContext context) {
-            Style surface = context.Style(ThemeToken.Surface);
-            bool hasSurface = context.HasColor && !surface.Background.IsDefault;
-            if (hasSurface) {
-                bar.Fill(surface);
-            }
-            Style accent = hasSurface ? context.Style(ThemeToken.SurfaceAccent) : context.Style(ThemeToken.Title);
-            Style text = hasSurface ? surface : context.Style(ThemeToken.Text);
-            Style quiet = hasSurface ? surface.Without(TextDecoration.Bold) : context.Style(ThemeToken.Muted);
+            new HeaderBar(Title) { Subtitle = Subtitle, Status = Status, StatusLevel = StatusLevel, ShowClock = ShowClock }.Render(bar, context);
+        }
 
-            List<TextSpan> right = new List<TextSpan>();
-            if (!string.IsNullOrEmpty(Status)) {
-                if (StatusLevel.HasValue) {
-                    Style marker = context.Style(StatusLevel.Value);
-                    right.Add(new TextSpan(context.Glyphs.StatusMarker(StatusLevel.Value) + " ", hasSurface ? marker.WithBackground(surface.Background) : marker));
-                }
-                foreach (TextSpan span in context.Markup(Status!).Lines[0]) {
-                    right.Add(new TextSpan(span.Text, text.Combine(span.Style)));
-                }
+        private void DrawFooter(Region bar, RenderContext context) {
+            FooterBar footer = new FooterBar(FooterHints);
+            if (!string.IsNullOrEmpty(Footer)) {
+                footer.Message = context.Markup(Footer!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
             }
-            if (ShowClock) {
-                if (right.Count > 0) {
-                    right.Add(new TextSpan("  " + context.Glyphs.Get(Glyph.Separator) + "  ", quiet));
-                }
-                right.Add(new TextSpan(NumberFormat.Clock(context.Elapsed), accent));
-            }
-            StyledLine rightLine = new StyledLine(right);
-            int rightX = Math.Max(0, bar.Width - rightLine.Width - 1);
-
-            List<TextSpan> left = new List<TextSpan>();
-            foreach (TextSpan span in context.Markup(Title).Lines[0]) {
-                left.Add(new TextSpan(span.Text, accent.Combine(span.Style)));
-            }
-            if (!string.IsNullOrEmpty(Subtitle)) {
-                left.Add(new TextSpan("  " + context.Glyphs.Get(Glyph.Dot) + "  ", quiet));
-                foreach (TextSpan span in context.Markup(Subtitle!).Lines[0]) {
-                    left.Add(new TextSpan(span.Text, text.Combine(span.Style)));
-                }
-            }
-            StyledLine leftLine = TextWrapper.Truncate(new StyledLine(left), Math.Max(0, rightX - 3), context.Ellipsis);
-            bar.Write(1, 0, leftLine);
-            if (rightLine.Width > 0 && rightX > leftLine.Width + 2) {
-                bar.Write(rightX, 0, rightLine);
-            }
+            footer.Render(bar, context);
         }
     }
 }

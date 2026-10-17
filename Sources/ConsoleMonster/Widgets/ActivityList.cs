@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -106,7 +107,7 @@ namespace ConsoleMonster.Widgets {
             if (width < 8) {
                 return;
             }
-            string glyph = activity.Percent >= 0 ? context.Glyphs.Get(Glyphs.Glyph.Running) : context.Glyphs.Get(Glyphs.Glyph.Pending);
+            string glyph = activity.Percent >= 0 ? context.Spinner(activity.Id) : context.Glyphs.StatusSymbol(StatusKind.Pending);
             region.Write(indent, y, glyph, context.Style(ThemeToken.Running));
             // The title column ends at the same place for every depth, so bars line up under each other.
             int titleWidth = Math.Max(4, Math.Max(6, Math.Min(Math.Min(32, region.Width / 3), _titleWidth)) - indent);
@@ -123,7 +124,7 @@ namespace ConsoleMonster.Widgets {
             string tail = activity.Status ?? string.Empty;
             if (activity.SecondsLeft >= 0) {
                 string left = "~" + Durations(TimeSpan.FromSeconds(activity.SecondsLeft), context.Culture) + " left";
-                tail = tail.Length == 0 ? left : tail + " " + context.Glyphs.Get(Glyphs.Glyph.Separator) + " " + left;
+                tail = tail.Length == 0 ? left : tail + " " + Interactive.InteractiveGlyphs.For(context).Separator + " " + left;
             }
             if (tail.Length > 0 && x < region.Width - 1) {
                 region.Write(x, y, TextWrapper.Truncate(tail, region.Width - x, context.Ellipsis), context.Style(ThemeToken.Muted));

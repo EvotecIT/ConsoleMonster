@@ -124,53 +124,56 @@ namespace ConsoleMonster.Examples.Showcases {
             }
         }
 
-        /// <summary>Shows the wizard and, when submitted, a progress run.</summary>
+        /// <summary>Shows the wizard and, when submitted, the install run in the same frame, ending on a summary.</summary>
         public static void Show() {
-            Form form = Build();
-            FormResult result = form.Show(new FormOptions { AppName = "ConsoleMonster setup wizard" });
-            if (!result.Submitted) {
-                Terminal.WriteMarkup("[muted]Setup was cancelled; nothing was changed.[/]");
-                return;
-            }
-            Install(result);
+            Show(new FormOptions { AppName = "ConsoleMonster setup wizard" });
         }
 
-        private static void Install(FormResult result) {
+        /// <summary>Shows the wizard with options (scripted input, a capture) and runs the install after submitting.</summary>
+        /// <param name="options">The options; AfterSubmit is set here.</param>
+        /// <returns>The form result (with the run's result).</returns>
+        public static FormResult Show(FormOptions options) {
+            Form form = Build();
+            options.AfterSubmit = context => Install(context);
+            FormResult result = form.Show(options);
+            if (!result.Submitted) {
+                Terminal.WriteMarkup("[muted]Setup was cancelled; nothing was changed.[/]");
+            }
+            return result;
+        }
+
+        private static void Install(MenuContext context) {
+            FormValues values = context.Values!;
             string[] steps = { "Copy files", "Register service", "Configure connection", "Start service" };
             StatusList list = new StatusList("steps");
             foreach (string step in steps) {
                 list.Set(step, step, StatusKind.Pending);
             }
-            ProgressBar progress = new ProgressBar("Install", "progress") { Total = steps.Length * 10, LabelWidth = 8 };
-            Dashboard dashboard = new DashboardBuilder("[bold]Install Toolbox Agent[/]")
-                .Subtitle(Markup.Escape(result.Values.Get<string>("Path")))
+            ProgressBar progress = new ProgressBar("Install", "progress") { Total = steps.Length * 10, LabelWidth = 22 };
+            Dashboard dashboard = new DashboardBuilder("Installing")
+                .Subtitle(Markup.Escape(values.Get<string>("Path")))
                 .Panel("Steps", list)
                 .Add(new Padding(progress, 1, 0, 1, 0))
                 .BuildDashboard();
-            Table summary = new Table { Border = TableBorder.Minimal, Title = "[pass]Installed[/] Toolbox Agent" };
-            summary.AddColumn("Setting");
-            summary.AddColumn(new TableColumn("Value") { Flexible = true });
-            summary.AddRow("Folder", Markup.Escape(result.Values.Get<string>("Path")));
-            summary.AddRow("Components", Markup.Escape(string.Join(", ", result.Values.GetList<object>("Components"))));
-            summary.AddRow("Server", Markup.Escape(result.Values.Get<string>("Server")));
-            summary.AddRow("Command", "[accent]" + Markup.Escape(result.CommandLine) + "[/]");
-            using (LiveSession session = new LiveSession(dashboard, new LiveSessionOptions { Summary = new Padding(summary, 1, 1, 1, 0) })) {
-                session.Run(s => {
-                    StatusListHandle handle = list.Handle(s);
-                    ProgressHandle bar = progress.Handle(s);
-                    foreach (string step in steps) {
-                        handle.Set(step, StatusKind.Running);
-                        bar.Label(step);
-                        for (int i = 0; i < 10 && !s.Cancellation.IsCancellationRequested; i++) {
-                            Thread.Sleep(90);
-                            bar.Advance();
-                        }
-                        handle.Set(step, StatusKind.Pass);
+            context.Run(dashboard, run => {
+                StatusListHandle handle = list.Handle(run.Session);
+                ProgressHandle bar = progress.Handle(run.Session);
+                foreach (string step in steps) {
+                    handle.Set(step, StatusKind.Running);
+                    bar.Label(step);
+                    for (int i = 0; i < 10 && !run.CancellationToken.IsCancellationRequested; i++) {
+                        Thread.Sleep(90);
+                        bar.Advance();
                     }
-                    bar.Complete();
-                    Thread.Sleep(500);
-                });
-            }
-        }
-    }
+                    handle.Set(step, StatusKind.Pass);
+                }
+                bar.Complete();
+                Thread.Sleep(300);
+                RunResult result = new RunResult("Toolbox Agent installed") {
+                    Summary = Markup.Escape(values.Get<string>("Path")) + " · " + string.Join(", ", values.GetList<object>("Components")) + " · " + Markup.Escape(values.Get<string>("Server"))
+                };
+                result.Figure("steps done", steps.Length.ToString(System.Globalization.CultureInfo.CurrentCulture), StatusKind.Pass);
+                return result;
+            });
+        }    }
 }

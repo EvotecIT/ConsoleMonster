@@ -1,12 +1,12 @@
- Toolbox › Targets
+ Toolbox › Targets                                                                              lab
 ╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 0 of 3 selected ─╮
 │           ╭─ Commands ─────────────────────────── Search items, actions and presets ─╮           │
-│▌ t  Target│ › rev                                                                    │           │
-│  m  Mode  │ ▌ [Review]                                                     Go to  r  │           │
-│  o  Option│                                                                          │           │
-│  p  Preset│ ↑↓ move  enter select  esc cancel                                        │           │
-│  Run      ╰──────────────────────────────────────────────────────────────────────────╯           │
-│  r  Review         │ │      [ ] SRV02                                                            │
+│▌ t  Target│                                                                          │           │
+│  m  Mode  │ › rev                                                                    │           │
+│  o  Option│ ▌ [Review]                                                     Go to  r  │           │
+│  p  Preset│                                                                          │           │
+│  Run      │  ↑↓ move  enter select  esc cancel                                       │           │
+│  r  Review╰──────────────────────────────────────────────────────────────────────────╯           │
 │  c  Clean          │ │    ▾ [ ] Web                         0/1                                  │
 │     Quit           │ │      [ ] WEB01                                                            │
 │                    │ │                                                                           │
@@ -23,4 +23,4 @@
 │                    │ │                                                                           │
 │                    │ │                                                                           │
 ╰────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  enter select  esc cancel                                                              lab
+ ↑↓ move  enter select  esc cancel

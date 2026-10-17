@@ -24,5 +24,8 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>The preset that was last applied or saved, if any.</summary>
         public string? Preset { get; }
+
+        /// <summary>The result of the run started from FormOptions.AfterSubmit, or null.</summary>
+        public RunResult? RunResult { get; internal set; }
     }
 }

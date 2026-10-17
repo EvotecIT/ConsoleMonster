@@ -1,0 +1,12 @@
+Pass: symbol '+' marker '[PASS]'
+Warn: symbol '!' marker '[WARN]'
+Fail: symbol 'x' marker '[FAIL]'
+Skip: symbol '-' marker '[SKIP]'
+Running: symbol '*' marker '[BUSY]'
+Pending: symbol '.' marker '[WAIT]'
+Info: symbol 'i' marker '[INFO]'
+[PASS] Copy files
+[WARN] Register
+[FAIL] Verify
+[SKIP] Optional
+[WAIT] Queued

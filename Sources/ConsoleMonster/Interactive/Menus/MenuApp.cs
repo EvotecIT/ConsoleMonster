@@ -21,6 +21,7 @@ namespace ConsoleMonster.Interactive {
         private readonly ChoiceStore? _store;
         private readonly IInputSource _input;
         private readonly ScreenSurface? _screen;
+        private readonly IPromptSurface _surface;
         private readonly RenderContext _context;
         private readonly CancellationToken _token;
         private readonly List<Modal> _modals = new List<Modal>();
@@ -35,12 +36,13 @@ namespace ConsoleMonster.Interactive {
         private ActionPane? _asyncPane;
         private MenuItem? _asyncItem;
 
-        public MenuApp(Menu root, MenuOptions options, PromptLabels labels, ChoiceStore? store, IInputSource input, ScreenSurface? screen, RenderContext context, MenuLayout layout, CancellationToken token) : base(labels) {
+        public MenuApp(Menu root, MenuOptions options, PromptLabels labels, ChoiceStore? store, IInputSource input, IPromptSurface surface, RenderContext context, MenuLayout layout, CancellationToken token) : base(labels) {
             _root = root;
             _options = options;
             _store = store;
             _input = input;
-            _screen = screen;
+            _surface = surface;
+            _screen = surface as ScreenSurface;
             _context = context;
             _token = token;
             Layout = layout;
@@ -91,50 +93,21 @@ namespace ConsoleMonster.Interactive {
             return _screen == null ? null : new BoxedSurface(_screen, LastRendered, context);
         }
 
+        // A run stays inside the app: the live session draws the app frame with a run pane as the content (same header,
+        // sidebar and footer), on the app's own screen or capture, so nothing clears or jumps between choosing and running.
         public RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
-            if (_screen == null) {
-                throw new InvalidOperationException("A run needs the app screen.");
-            }
-            LiveSessionOptions o = options ?? new LiveSessionOptions();
-            o.Output = new BorrowedOutput(_screen.Output);
-            o.PrintFinalState = false;
-            o.Summary = null;
-            if (o.Profile == null) {
-                o.Profile = _context.Profile.WithSize(_screen.Width, _screen.Height);
-            }
-            if (o.Theme == null) {
-                o.Theme = _context.Theme;
-            }
-            WindowsConsoleInput? raw = _input as WindowsConsoleInput;
-            raw?.Suspend();
-            Stopwatch watch = Stopwatch.StartNew();
-            RunResult result;
-            LiveSession session = new LiveSession(dashboard, o);
-            Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
-            PromptHost.Current = null;
-            try {
-                session.Start();
-                try {
-                    result = work(new RunContext(session, context)) ?? new RunResult(context.Item?.Title ?? _root.Title);
-                } catch (OperationCanceledException) {
-                    result = new RunResult(context.Item?.Title ?? _root.Title, StatusKind.Warn) { Summary = Labels.Cancelled };
-                } catch (Exception ex) {
-                    result = new RunResult(context.Item?.Title ?? _root.Title, StatusKind.Fail) { Error = ex };
-                } finally {
-                    session.Stop();
+            Location? location = null;
+            RunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
+                location = new Location(pane.Title, pane, null);
+                Push(location);
+            }, () => {
+                if (location != null) {
+                    _stack.Remove(location);
                 }
-            } finally {
-                PromptHost.Current = previous;
-                raw?.Resume();
-                _screen.Invalidate();
-            }
-            if (result.Elapsed == TimeSpan.Zero) {
-                result.Elapsed = watch.Elapsed;
-            }
+            }, context.Item?.Title ?? _root.Title);
             ShowResult(result);
             return result;
         }
-
         public void ShowResult(RunResult result) {
             ResultPane pane = new ResultPane(result, Labels, Activate, Back);
             Push(new Location(Labels.Results, pane, null));

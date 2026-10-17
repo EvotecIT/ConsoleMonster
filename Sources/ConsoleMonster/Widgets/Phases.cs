@@ -140,7 +140,7 @@ namespace ConsoleMonster.Widgets {
         private static StyledLine Chip(StatusItem phase, RenderContext context) {
             IGlyphSet glyphs = context.Glyphs;
             string marker = phase.Status == StatusKind.Running && glyphs.Tier != GlyphTier.Ascii
-                ? glyphs.SpinnerFrames[(int)(context.Tick % glyphs.SpinnerFrames.Count)]
+                ? context.Spinner()
                 : glyphs.StatusMarker(phase.Status);
             List<TextSpan> spans = new List<TextSpan> {
                 new TextSpan(marker, context.Style(phase.Status)),

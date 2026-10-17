@@ -53,7 +53,8 @@ namespace ConsoleMonster.Interactive {
 
             protected override IWidget Build(ViewFrame frame) {
                 Rows rows = new Rows();
-                rows.Add(Header(null, ThemeToken.Fail, "!"));
+                // Destructive questions carry the warning symbol in the warn colour, like a destructive confirm.
+                rows.Add(Header(null, ThemeToken.Warn, frame.Context.Glyphs.Get(Glyphs.Glyph.Warning)));
                 string? text = _prompt.Warning ?? _prompt.Description;
                 if (!string.IsNullOrEmpty(text)) {
                     rows.Add(new Padding(new UiParagraph(text!, ThemeToken.Warn), 2, 0, 0, 0));

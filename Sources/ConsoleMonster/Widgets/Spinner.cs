@@ -1,5 +1,6 @@
 using System;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -180,8 +181,7 @@ namespace ConsoleMonster.Widgets {
         private static readonly StatusKind[] FinalStatuses = { StatusKind.Pending, StatusKind.Pass, StatusKind.Fail, StatusKind.Warn, StatusKind.Skip };
 
         private static string Frame(RenderContext context) {
-            int count = context.Glyphs.SpinnerFrames.Count;
-            return count == 0 ? "*" : context.Glyphs.SpinnerFrames[(int)(context.Tick % count)];
+            return context.Spinner();
         }
     }
 }

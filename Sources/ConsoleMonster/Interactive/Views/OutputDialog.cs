@@ -73,10 +73,9 @@ namespace ConsoleMonster.Interactive {
 
         public override IWidget Build(ViewFrame frame, CaretSlot caret) {
             int visible = Math.Max(3, Math.Min(_lines.Count, frame.Height - 8));
-            return new Panel(new Padding(new Body(this, visible), 0, 1, 0, 0), Markup.Escape(_title)) {
-                BorderToken = ThemeToken.Accent,
-                Footer = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]"
-            };
+            Panel panel = DialogChrome.Frame(new Body(this, visible), _title);
+            panel.Footer = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]";
+            return panel;
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {

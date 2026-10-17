@@ -48,11 +48,8 @@ namespace ConsoleMonster.Interactive {
                 width = region.Width;
             }
             Size size = _dialog.Measure(new Constraints(width, Math.Max(1, region.Height - 2)), context);
-            int w = Math.Min(width, Math.Max(size.Width, 10));
-            int h = Math.Min(region.Height, size.Height);
-            int x = Math.Max(0, (region.Width - w) / 2);
-            int y = Top ? Math.Min(2, Math.Max(0, region.Height - h)) : Math.Max(0, (region.Height - h) / 3);
-            Region area = region.Sub(x, y, w, h);
+            Rect place = DialogChrome.Place(region.Width, region.Height, Math.Min(width, Math.Max(size.Width, 10)), size.Height, Top);
+            Region area = region.Sub(place.X, place.Y, place.Width, place.Height);
             area.Fill(Style.Plain);
             _dialog.Render(area, context);
         }

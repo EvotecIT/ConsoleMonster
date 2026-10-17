@@ -60,7 +60,7 @@ namespace ConsoleMonster.Interactive {
                 rows.Add(new UiLine(context => {
                     InteractiveGlyphs g = InteractiveGlyphs.For(context);
                     List<TextSpan> spans = new List<TextSpan> {
-                        new TextSpan((_prompt.Destructive ? "!" : g.Question) + " ", context.Style(_prompt.Destructive ? ThemeToken.Warn : ThemeToken.Accent).With(TextDecoration.Bold)),
+                        new TextSpan((_prompt.Destructive ? context.Glyphs.Get(Glyphs.Glyph.Warning) : g.Question) + " ", context.Style(_prompt.Destructive ? ThemeToken.Warn : ThemeToken.Accent).With(TextDecoration.Bold)),
                         new TextSpan(_prompt.Title, context.Style(ThemeToken.Title)),
                         new TextSpan("  ", Style.Plain)
                     };
