@@ -85,6 +85,13 @@ namespace ConsoleMonster.Live {
         /// <summary>Intercepts the first Ctrl+C for cooperative cancellation; defaults to true.</summary>
         public bool HandleCancelKey { get; set; } = true;
 
+        /// <summary>
+        /// Whether the session can be found through <see cref="LiveSession.Current"/> (default true), so update cmdlets and prompts
+        /// started elsewhere reach it. A session that runs other code, such as a test run, turns it off: that code's own updates and
+        /// prompts then behave as if no dashboard were running.
+        /// </summary>
+        public bool Discoverable { get; set; } = true;
+
         /// <summary>Maximum render-thread join wait; defaults to two seconds. Must be between zero and Int32.MaxValue milliseconds.</summary>
         public TimeSpan StopTimeout {
             get => _stopTimeout;

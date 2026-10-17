@@ -23,7 +23,9 @@ namespace ConsoleMonster.Live {
         private readonly ConcurrentDictionary<string, ILiveTarget> _targets = new ConcurrentDictionary<string, ILiveTarget>(StringComparer.Ordinal);
         private readonly List<ILiveTarget> _logTargets = new List<ILiveTarget>();
         private readonly ConcurrentQueue<LiveEvent> _queue = new ConcurrentQueue<LiveEvent>();
-        private readonly ConcurrentQueue<string> _unroutedLines = new ConcurrentQueue<string>();
+        // Output for above the area (inline) or after the screen (full screen): captured or log text (string), styled lines
+        // and blocks written by Terminal while the session owns the console.
+        private readonly ConcurrentQueue<object> _unroutedLines = new ConcurrentQueue<object>();
         private readonly object _lifecycle = new object();
         private readonly object _finishGate = new object();
         private readonly object _outputGate = new object();

@@ -153,5 +153,39 @@ namespace ConsoleMonster.Tests.Live {
             int alert = output.IndexOf("alert", StringComparison.Ordinal);
             Assert.True(alert > 0, output);
             Assert.Contains("38;2;255;0;0", output.Substring(Math.Max(0, alert - 30), 30));
-        }    }
+        }
+
+        [Fact]
+        public void OneShotWrites_WhileASessionOwnsTheConsole_GoAboveTheArea() {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(40, 10, ColorDepth.TrueColor);
+            LiveSessionOptions options = new LiveSessionOptions {
+                Mode = LiveMode.Inline,
+                Output = new InlineOutput(writer, profile, false),
+                Profile = profile,
+                HandleCancelKey = false,
+                CaptureConsole = false,
+                FramesPerSecond = 60,
+                WindowSource = () => new[] { 0, 0, 40, 10 }
+            };
+            using (LiveSession session = new LiveSession(new Rows(new ProgressBar("Build", "build")), options)) {
+                session.Start();
+                // A session with its own output does not claim the console; claim it as a console session would.
+                Terminal.ClaimConsole(session);
+                try {
+                    Terminal.WriteMarkup("[#00ff00]table row[/]", profile, null);
+                    Terminal.Write(new TextBlock("a block"), profile);
+                    SpinWait.SpinUntil(() => writer.ToString().Contains("a block"), 3000);
+                } finally {
+                    Terminal.ReleaseConsole(session);
+                }
+                session.Stop();
+            }
+            Assert.Null(Terminal.ConsoleOwner);
+            string output = writer.ToString();
+            int row = output.IndexOf("table row", StringComparison.Ordinal);
+            Assert.True(row > 0 && output.IndexOf("a block", StringComparison.Ordinal) > row, output);
+            Assert.Contains("38;2;0;255;0", output.Substring(Math.Max(0, row - 30), 30));
+        }
+    }
 }

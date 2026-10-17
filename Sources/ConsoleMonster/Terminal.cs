@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -135,6 +136,35 @@ namespace ConsoleMonster {
             return width > 0 && height > 0 && (width != p.Width || height != p.Height) ? p.WithSize(width, height) : p;
         }
 
+        private static Live.LiveSession? _consoleOwner;
+
+        /// <summary>The live session drawing on the console, if any (see <see cref="ClaimConsole"/>).</summary>
+        internal static Live.LiveSession? ConsoleOwner => Volatile.Read(ref _consoleOwner);
+
+        /// <summary>
+        /// A live session that draws on the console claims it: while it runs, one-shot writes to the console (Write,
+        /// WriteMarkup, WriteRich, WriteLines without a writer) go through the session, above an inline area or after the
+        /// full screen, instead of over the frame. The most recent claim wins.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        internal static void ClaimConsole(Live.LiveSession session) => Volatile.Write(ref _consoleOwner, session);
+
+        /// <summary>Releases the console claimed by a session (a later claim by another session is kept).</summary>
+        /// <param name="session">The session.</param>
+        internal static void ReleaseConsole(Live.LiveSession session) => Interlocked.CompareExchange(ref _consoleOwner, null, session);
+
+        private static bool TryWriteAbove(IReadOnlyList<StyledLine> lines) {
+            Live.LiveSession? owner = ConsoleOwner;
+            if (owner == null) {
+                return false;
+            }
+            foreach (StyledLine line in lines) {
+                if (!owner.TryWriteAbove(line)) {
+                    return false;
+                }
+            }
+            return true;
+        }
         /// <summary>Writes a widget once, as wide as the terminal.</summary>
         /// <param name="widget">The widget.</param>
         public static void Write(IWidget widget) => Write(widget, null);
@@ -157,6 +187,16 @@ namespace ConsoleMonster {
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             RenderContext context = CreateContext(p);
+            Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
+            if (owner != null) {
+                bool taken = true;
+                foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
+                    taken &= owner.TryWriteAbove(block);
+                }
+                if (taken) {
+                    return;
+                }
+            }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
@@ -206,6 +246,9 @@ namespace ConsoleMonster {
         public static void WriteMarkup(string markup, TerminalProfile? profile, ITerminalWriter? writer) {
             TerminalProfile p = profile ?? GetCurrentProfile();
             StyledText text = Markup.Parse(markup, Theme, p.ColorDepth);
+            if (writer == null && TryWriteAbove(text.Lines)) {
+                return;
+            }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     foreach (StyledLine line in text.Lines) {
@@ -242,6 +285,9 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(lines));
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
+            if (writer == null && TryWriteAbove(lines)) {
+                return;
+            }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     for (int i = 0; i < lines.Count; i++) {

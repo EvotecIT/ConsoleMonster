@@ -57,7 +57,12 @@ namespace ConsoleMonster.Live {
                             _fontWatcher = new ConsoleFontWatcher();
                             _fontWatcher.CheckChanged(out _, out _);
                         }
-                        lock (CurrentGate) { Running.Add(this); }
+                        if (_options.Output == null) {
+                            Terminal.ClaimConsole(this);
+                        }
+                        if (_options.Discoverable) {
+                            lock (CurrentGate) { Running.Add(this); }
+                        }
                         _thread = new Thread(RenderLoop) { IsBackground = true, Name = "ConsoleMonster render" };
                         _thread.Start();
                     } catch {
@@ -190,6 +195,7 @@ namespace ConsoleMonster.Live {
             lock (_finishGate) {
                 if (Volatile.Read(ref _state) == 3 || _finishing) { return; }
                 _finishing = true;
+                Terminal.ReleaseConsole(this);
                 CancelWork();
                 // A producer admitted just before Stop must finish publishing before the final drain.
                 SpinWait producers = new SpinWait();
@@ -205,7 +211,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => _recorder?.Dispose());
                 if (drawn && _output != null && _context != null) {
                     Attempt(() => {
-                        while (_unroutedLines.TryDequeue(out string? line)) { WriteUnrouted(line, _context); }
+                        while (_unroutedLines.TryDequeue(out object? line)) { WriteUnrouted(line, _context); }
                         IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
                         if (summary != null) {
                             _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));

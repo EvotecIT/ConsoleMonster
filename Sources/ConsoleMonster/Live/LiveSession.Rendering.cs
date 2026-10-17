@@ -143,7 +143,7 @@ namespace ConsoleMonster.Live {
                 RenderContext context = _context.WithClock(FramesRendered, Elapsed);
                 if (_output is InlineOutput) {
                     // Inline: output captured during the run goes above the area, and the area is as tall as its content.
-                    while (_unroutedLines.TryDequeue(out string? line)) {
+                    while (_unroutedLines.TryDequeue(out object? line)) {
                         WriteUnrouted(line, context);
                     }
                     // One column narrower than the window: the last column would make the terminal wrap the row.
@@ -166,7 +166,16 @@ namespace ConsoleMonster.Live {
         // marked by a leading control character that never occurs in captured text.
         internal const string MarkupLine = "\u0001";
 
-        private void WriteUnrouted(string line, RenderContext context) {
+        private void WriteUnrouted(object item, RenderContext context) {
+            if (item is CellBuffer block) {
+                _output!.WriteBlock(block);
+                return;
+            }
+            if (item is StyledLine styledLine) {
+                _output!.WriteLine(styledLine);
+                return;
+            }
+            string line = (string)item;
             if (line.StartsWith(MarkupLine, StringComparison.Ordinal)) {
                 foreach (StyledLine styled in context.Markup(line.Substring(1)).Lines) {
                     _output!.WriteLine(styled);
