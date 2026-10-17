@@ -1,5 +1,6 @@
 ﻿Describe 'Format-Console cmdlets' {
     BeforeAll {
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
@@ -18,8 +19,7 @@
             $lines.Add("    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1); Path = 'C:\Build\Artefacts\Packed\Docs.zip'; Notes = `$null }")
             $lines.Add(')')
             $lines.Add($Script)
-            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
             ($output | ForEach-Object { "$_" }) -join "`n"
         }
     }

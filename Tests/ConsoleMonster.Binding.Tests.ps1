@@ -1,5 +1,6 @@
 ﻿Describe 'ConsoleMonster PowerShell property binding' {
     BeforeAll {
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = (Resolve-Path (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1')).Path
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
@@ -10,8 +11,7 @@
                 "Import-Module '$($script:ModulePath)' -Force -ErrorAction Stop"
                 $Script
             )
-            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
             if ($LASTEXITCODE -ne 0) {
                 throw (($output | ForEach-Object { "$_" }) -join "`n")
             }

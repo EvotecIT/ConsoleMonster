@@ -90,6 +90,7 @@ jobs:
       - name: Run Pester
         run: |
           Import-Module Pester -MinimumVersion 5.5.0
+          Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Tests'
           $configuration.Run.Exit = $true

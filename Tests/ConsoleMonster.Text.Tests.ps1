@@ -1,5 +1,6 @@
 ﻿Describe 'Rich text cmdlets' {
     BeforeAll {
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
         Import-Module $script:ModulePath -Force
@@ -13,8 +14,7 @@
             $lines.Add("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')")
             $lines.Add("Import-Module '$($script:ModulePath)' -Force")
             $lines.Add($Script)
-            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
             ($output | ForEach-Object { "$_" }) -join "`n"
         }
 

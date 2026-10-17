@@ -1,5 +1,6 @@
 ﻿Describe 'ConsoleMonster test helpers, progress and inline sessions' {
     BeforeAll {
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         Import-Module $script:ModulePath -Force
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
@@ -12,8 +13,7 @@
                 "Import-Module '$($script:ModulePath)' -Force"
                 $Script
             )
-            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
-            $output = & $script:Runtime -NoLogo -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1
+            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
             ($output | ForEach-Object { "$_" }) -join "`n"
         }
     }
