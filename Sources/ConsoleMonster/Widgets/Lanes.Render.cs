@@ -165,7 +165,7 @@ namespace ConsoleMonster.Widgets {
             bool ascii = g.Tier == GlyphTier.Ascii;
             string pass = ascii ? "P" : g.Get(Glyph.Check);
             string fail = ascii ? "F" : g.Get(Glyph.Cross);
-            string warn = ascii ? "W" : g.Get(Glyph.Warning);
+            string warn = CountSkipped ? (ascii ? "S" : g.Get(Glyph.Skip)) : ascii ? "W" : g.Get(Glyph.Warning);
             int passed = 0;
             int failed = 0;
             int warned = 0;
@@ -173,7 +173,7 @@ namespace ConsoleMonster.Widgets {
             foreach (Lane lane in _lanes) {
                 passed = Math.Max(passed, lane.Passed);
                 failed = Math.Max(failed, lane.Failed);
-                warned = Math.Max(warned, lane.Warned);
+                warned = Math.Max(warned, CountSkipped ? lane.Skipped : lane.Warned);
                 total = Math.Max(total, lane.Total);
             }
             // A lane can never count more steps than its total, so a known total reserves every column from the first frame.
@@ -198,7 +198,8 @@ namespace ConsoleMonster.Widgets {
             Style muted = context.Style(ThemeToken.Muted);
             x = DrawCount(region, x, y, counts.PassSymbol, counts.PassWidth, lane.Passed, muted, muted);
             x = DrawCount(region, x + 1, y, counts.FailSymbol, counts.FailWidth, lane.Failed, lane.Failed > 0 ? context.Style(ThemeToken.Fail) : muted, muted);
-            DrawCount(region, x + 1, y, counts.WarnSymbol, counts.WarnWidth, lane.Warned, lane.Warned > 0 ? context.Style(ThemeToken.Warn) : muted, muted);
+            int third = CountSkipped ? lane.Skipped : lane.Warned;
+            DrawCount(region, x + 1, y, counts.WarnSymbol, counts.WarnWidth, third, third > 0 ? context.Style(CountSkipped ? ThemeToken.Skip : ThemeToken.Warn) : muted, muted);
         }
 
         private int DrawCount(Region region, int x, int y, string symbol, int width, int value, Style style, Style muted) {

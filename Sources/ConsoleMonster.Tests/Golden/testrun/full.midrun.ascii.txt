@@ -1,0 +1,34 @@
+ Pester | 3 failed | 5 passed | 1 skipped | 1 block failed | 9 of 12              [BUSY] running  |  00:00:00
+
++- Files -------------------------------------------------------------------------------------- 2 of 3 done -+
+|                                                                                                            |
+| x Broken.Tests.ps1  ############################### 100%  P0 F1 S0  done in 40ms                           |
+| x Sample.Tests.ps1  ############################### 100%  P3 F2 S1  done in 1.6s                           |
+| | Module.Tests.ps1  ############-------------------  40%  P2 F0 S0  has help for every cmdlet              |
++------------------------------------------------------------------------------------------------------------+
+ | Module > Help > has help for every cmdlet
++- Failures ------------------------------------------------ 3 -+ +- Slowest --------------------------------+
+|                                                               | |                                          |
+| x Broken                                                      | |   1.2s  slow 2  Sample.Tests.ps1         |
+|   setup broke                                                 | |  320ms  imports  Module.Tests.ps1        |
+|   Broken.Tests.ps1:2                                          | |  149ms  slow 1  Sample.Tests.ps1         |
+|                                                               | |  104ms  adds  Sample.Tests.ps1           |
+| x Math > fails string                                         | |   27ms  fails string  Sample.Tests.ps1   |
+|   expected abxde                                              | +------------------------------------------+
+|   actual   abcde                                              | +- Durations ------------------------------+
+|   Sample.Tests.ps1:3                                          | |                                          |
+|                                                               | | 2|#### ####       ####                   |
+| x Math > fails number                                         | |  |#### ####       ####                   |
+|   expected 4                                                  | |  |#### ####       ####                   |
+|   actual   3                                                  | |  |#### ####       ####                   |
+|   Sample.Tests.ps1:4                                          | |  |#### ####       ####                   |
+|                                                               | |  |#### ####       ####                   |
+|                                                               | |  |#### ####       #### #####      #####  |
+|                                                               | |  |#### ####       #### #####      #####  |
+|                                                               | |  |#### ####       #### #####      #####  |
+|                                                               | |  |#### ####       #### #####      #####  |
+|                                                               | |  |#### ####       #### #####      #####  |
+|                                                               | | 0|#### ####       #### #####      #####  |
+|                                                               | |   0ms  10ms 50ms  100ms      500ms    5s |
++---------------------------------------------------------------+ +------------------------------------------+
+ ctrl+c stop

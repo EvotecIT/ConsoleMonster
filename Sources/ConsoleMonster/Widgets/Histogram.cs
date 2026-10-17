@@ -43,6 +43,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A unit for bucket labels (for example <c>s</c>).</summary>
         public string? Unit { get; set; }
 
+        /// <summary>Formats the bucket edge labels (for example milliseconds as 250ms and 1s), or null for the compact number and <see cref="Unit"/>.</summary>
+        public Func<double, string>? EdgeFormat { get; set; }
+
         /// <summary>Counts a value.</summary>
         /// <param name="value">The value.</param>
         /// <returns>This instance.</returns>
@@ -152,6 +155,6 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private string EdgeLabel(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
+        private string EdgeLabel(double value) => EdgeFormat != null ? EdgeFormat(value) : NumberFormat.Compact(value) + (Unit ?? string.Empty);
     }
 }

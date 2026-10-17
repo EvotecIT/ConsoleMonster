@@ -59,6 +59,9 @@ namespace ConsoleMonster.Widgets {
             set => _percentColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        /// <summary>Whether the third count column shows skipped steps (– / -) instead of warnings (▴ / !), for runs where skips matter more, such as test runs.</summary>
+        public bool CountSkipped { get; set; }
+
         private readonly StatColumn _passColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _failColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _warnColumn = new StatColumn(new ColumnFormat());
