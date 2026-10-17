@@ -69,7 +69,7 @@ namespace SiteFrames.Pages {
             site.Write(Path.Combine(downloads, "testimox-run.jsonl"), jsonLines);
             List<LiveEvent> events = Replays.Read(jsonLines);
             live["testimox"] = Assessment(site, events, jsonLines, 120, 36, "testimox", 5, 2);
-            live["testimoxCompact"] = Assessment(site, events, jsonLines, 62, 30, "testimox-compact", 3, 2.5);
+            live["testimoxCompact"] = Assessment(site, events, jsonLines, 64, 30, "testimox-compact", 3, 2.5);
 
             // Recorded runs.
             live["pipeline"] = new JsonObject {
@@ -92,6 +92,13 @@ namespace SiteFrames.Pages {
             List<TimedFrame> frames = Replays.FromEvents(ParallelRun.Build(out _), events, width, height, fps, Theme.Dark, speed);
             JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 4000, out string poster);
             site.WriteJson(site.Static("replays/" + id + ".json"), timeline);
+            if (width < 80) {
+                // Narrow, the finished run's summary in the header bar no longer fits and the bar renders empty (an engine
+                // limit, reported upstream), so the narrow poster is a moment of the running assessment instead.
+                long at = StartOf(events, speed) + 8000;
+                TimedFrame moment = frames.FindLast(f => f.Time <= at);
+                poster = Frames.FrameHtml.Body(Frames.FrameHtml.Rows(moment.Frame, ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
+            }
             string[] lines = jsonLines.Split('\n');
             JsonArray excerpt = new JsonArray();
             for (int i = 0; i < Math.Min(9, lines.Length); i++) {

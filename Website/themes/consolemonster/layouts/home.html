@@ -44,7 +44,7 @@
       </div>
     </div>
     <div class="cm-hero__stage">
-      {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = [live.testimox.w + "×" + live.testimox.h, "24-bit", "Full"]; player_label = "A live TestimoX-style assessment dashboard, replayed from a recording"; player_autoplay = true; player_loop = true; player_max = 15; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster; player_class = "cm-window--center" ~}}
+      {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = ["24-bit", "Full"]; player_label = "A live TestimoX-style assessment dashboard, replayed from a recording"; player_autoplay = true; player_loop = true; player_max = 15; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster; player_class = "cm-window--center" ~}}
       {{ include "player" }}
       <p class="cm-hero__note">{{ copy.replayNote | string.replace "{events}" (live.testimox.events | math.format "N0") }} <a href="/recordings/testimox-run.jsonl" download>Download the recording</a> ({{ (live.testimox.bytes / 1024) | math.round }} KB of JSON lines).</p>
     </div>

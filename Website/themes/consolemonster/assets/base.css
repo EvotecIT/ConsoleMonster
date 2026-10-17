@@ -74,7 +74,8 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-footer__col h2 { margin: 4px 0 12px; font: 600 13px/1 var(--cm-mono); color: var(--cm-ink); letter-spacing: 0; }
 .cm-footer__col ul { margin: 0; padding: 0; list-style: none; }
 .cm-footer__col li { margin: 0 0 8px; }
-.cm-footer__col a { color: var(--cm-muted); font-size: 14px; text-decoration: none; }
+.cm-footer__col a { display: block; width: fit-content; margin: 0 0 9px; color: var(--cm-muted); font-size: 14px; text-decoration: none; }
+.cm-footer__col a.is-active { color: var(--cm-ink); }
 .cm-footer__col a:hover { color: var(--cm-ink); text-decoration: underline; }
 .cm-footer__family { display: flex; flex-wrap: wrap; gap: 8px 20px; width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; padding: 18px 0 28px; border-top: 1px solid var(--cm-line); color: var(--cm-muted); font-size: 13px; }
 .cm-footer__family span { color: var(--cm-ink-2); font-family: var(--cm-mono); }

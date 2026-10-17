@@ -43,7 +43,7 @@
       <h2 id="testimox-title">{{ copy.testimox.title }}</h2>
       <p>{{ copy.testimox.body | string.replace "{events}" (live.testimox.events | math.format "N0") }}</p>
     </div>
-    {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = [live.testimox.w + "×" + live.testimox.h, "24-bit", "Full"]; player_label = "The TestimoX-style assessment dashboard, replayed from its recording"; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster ~}}
+    {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = ["24-bit", "Full"]; player_label = "The TestimoX-style assessment dashboard, replayed from its recording"; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster ~}}
     {{ include "player" }}
     <div class="cm-steps">
       <div>
