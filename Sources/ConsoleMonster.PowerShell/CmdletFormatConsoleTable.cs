@@ -97,7 +97,7 @@ namespace ConsoleMonster.PowerShell {
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
             table.MaxRows = Top > 0 ? Top : 0;
             if (AsWidget.IsPresent) {
-                WriteObject(table);
+                WriteObject(Culture != null ? (object)new Layout.CultureScope(table, Culture) : table);
                 return;
             }
             PSFormatting.Write(this, table, Width, Culture);
