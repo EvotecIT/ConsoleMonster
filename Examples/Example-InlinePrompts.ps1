@@ -15,8 +15,8 @@ $components = @(
     [pscustomobject] @{ Name = 'Public API'; Id = 'api'; Area = 'Applications'; Summary = 'REST API behind the load balancer'; Size = '18 MB' }
     [pscustomobject] @{ Name = 'Worker service'; Id = 'worker'; Area = 'Applications'; Summary = 'Background jobs and schedules'; Size = '9 MB' }
     [pscustomobject] @{ Name = 'Database migrations'; Id = 'db'; Area = 'Data'; Summary = 'Schema changes, run once per release'; Size = '1 MB' }
-    [pscustomobject] @{ Name = 'Search index rebuild'; Id = 'search'; Area = 'Data'; Summary = 'Takes about 20 minutes on production'; Size = '-' }
-    [pscustomobject] @{ Name = 'CDN purge'; Id = 'cdn'; Area = 'Edge'; Summary = 'Clears cached pages and assets'; Size = '-' }
+    [pscustomobject] @{ Name = 'Search index rebuild'; Id = 'search'; Area = 'Data'; Summary = 'Takes about 20 minutes on production'; Size = $null }
+    [pscustomobject] @{ Name = 'CDN purge'; Id = 'cdn'; Area = 'Edge'; Summary = 'Clears cached pages and assets'; Size = $null }
 )
 
 Write-ConsoleText 'Release helper' -Role Accent -Style Bold

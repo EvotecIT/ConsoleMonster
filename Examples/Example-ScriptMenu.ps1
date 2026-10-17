@@ -34,6 +34,7 @@ $menu = New-ConsoleMenu 'Backup helper' -Description 'Back up and restore the re
             $result.Summary = '1 284 files copied, 312 MB.'
             [void] $result.Figure('files', '1 284')
             [void] $result.Figure('copied', '312 MB')
+            [void] $result.Next('Show where the log is', [Action[ConsoleMonster.Interactive.MenuContext]] { param($m) $m.Toast('Log: D:\Backups\backup.log') })
             $result
         }) | Out-Null
     }

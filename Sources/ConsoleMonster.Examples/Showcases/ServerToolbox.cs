@@ -84,7 +84,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Form(options, (context, result) => context.Toast("Options saved")));
             menu.Item("Presets", i => i.Hotkey('p').WithIcon("★").Describe("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
-            menu.Item("Review & run", i => i.Hotkey('r').WithIcon("▶").Review(context => Review(context, targets, tasks, options)));
+            menu.Item("Review & run", i => i.Hotkey('r').WithIcon("►").Review(context => Review(context, targets, tasks, options)));
             menu.Item("History", i => i.Hotkey('h').Page(context => HistoryPage()).State(() => History.Count.ToString(CultureInfo.CurrentCulture) + " runs"));
             menu.Separator();
             menu.Exit("Quit");
@@ -148,6 +148,9 @@ namespace ConsoleMonster.Examples.Showcases {
             }
             if (selected.Count == 0) {
                 review.Problem("Pick at least one task");
+            }
+            if (values.Get<bool>("Notify") && string.IsNullOrWhiteSpace(values.Get<string>("Email"))) {
+                review.Problem("Enter the email recipient in Options, or turn off Email the report");
             }
             List<string> arguments = new List<string> {
                 CommandLine.Argument("ComputerName", servers.Select(s => s.Name).ToList(), CommandStyle.PowerShell),
