@@ -36,6 +36,9 @@ namespace ConsoleMonster.Examples {
                 case "gallery":
                     Terminal.Write(WidgetGallery.Build());
                     return 0;
+                case "large-table":
+                    Console.WriteLine(LargeTable.Measure(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 50000));
+                    return 0;
                 case "export":
                     foreach (string file in ExportShowcase.Run(args.Length > 1 ? args[1] : "export")) {
                         Console.WriteLine(file);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -22,10 +23,85 @@ namespace ConsoleMonster.Widgets {
         }
 
         private void Draw(Region region, TableLayout layout, RenderContext context) {
+            int y = DrawHead(region, 0, layout, context);
+            y = DrawRows(region, y, layout, 0, layout.Rows.Count, context);
+            DrawTail(region, y, layout, context);
+        }
+
+        /// <summary>
+        /// Renders a long table in blocks of about <paramref name="chunkLines"/> rows: the head (title, top rule, header),
+        /// then the body rows a block at a time, then the tail (total, bottom rule, footers). Column widths are computed once,
+        /// so every block lines up, and only one block of cells exists at a time.
+        /// </summary>
+        internal IEnumerable<CellBuffer> RenderChunks(int width, RenderContext context, int chunkLines) {
+            TableLayout layout = ComputeLayout(width, context, true);
+            if (layout.Record != null) {
+                Size size = layout.Record.Measure(new Constraints(width), context);
+                CellBuffer record = new CellBuffer(width, size.Height);
+                layout.Record.Render(new Region(record), context);
+                yield return record;
+                yield break;
+            }
+            int head = HeadHeight(layout);
+            if (head > 0) {
+                CellBuffer buffer = new CellBuffer(width, head);
+                DrawHead(new Region(buffer), 0, layout, context);
+                yield return buffer;
+            }
+            PresenterContext[] contexts = ColumnContexts(Presentation.CreateContext(context));
+            int index = 0;
+            while (index < layout.Rows.Count) {
+                int end = index;
+                int lines = 0;
+                while (end < layout.Rows.Count && lines < chunkLines) {
+                    TableLayoutRow row = layout.Rows[end];
+                    if (row.Cells == null && row.Source >= 0) {
+                        row.Cells = Present(_rows[row.Source], contexts);
+                    }
+                    FitRow(row, layout, context);
+                    lines += layout.Rows[end].Height;
+                    end++;
+                }
+                CellBuffer buffer = new CellBuffer(width, lines);
+                DrawRows(new Region(buffer), 0, layout, index, end, context);
+                for (int i = index; i < end; i++) {
+                    // Drawn: release the row's text so memory stays at one block.
+                    layout.Rows[i].Lines = null;
+                    layout.Rows[i].Cells = null;
+                }
+                yield return buffer;
+                index = end;
+            }
+            int tail = TailHeight(layout);
+            if (tail > 0) {
+                CellBuffer buffer = new CellBuffer(width, tail);
+                DrawTail(new Region(buffer), 0, layout, context);
+                yield return buffer;
+            }
+        }
+
+        private int HeadHeight(TableLayout layout) {
+            bool boxed = IsBoxed;
+            int height = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (boxed ? 1 : 0);
+            if (ShowHeader) {
+                height += layout.HeaderHeight + (HeaderSeparator && (boxed || Border == TableBorder.Minimal) ? 1 : 0);
+            }
+            return height;
+        }
+
+        private int TailHeight(TableLayout layout) {
+            bool boxed = IsBoxed;
+            int height = (boxed ? 1 : 0) + (layout.HiddenMarker != null ? 1 : 0) + (layout.ShowingLine != null ? 1 : 0) + (!string.IsNullOrEmpty(Caption) ? 1 : 0);
+            if (layout.Total != null) {
+                height += layout.Total.Height + (boxed || Border == TableBorder.Minimal ? 1 : 0);
+            }
+            return height;
+        }
+
+        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context) {
             Style border = context.Style(ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
-            int y = 0;
             if (!string.IsNullOrEmpty(Title)) {
                 StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
                 region.Write(boxed ? 1 : 0, y++, title);
@@ -43,13 +119,27 @@ namespace ConsoleMonster.Widgets {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }
             }
-            foreach (TableLayoutRow row in layout.Rows) {
+            return y;
+        }
+
+        private int DrawRows(Region region, int y, TableLayout layout, int start, int end, RenderContext context) {
+            Style border = context.Style(ThemeToken.Border);
+            BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
+            for (int i = start; i < end; i++) {
+                TableLayoutRow row = layout.Rows[i];
                 if (row.Kind == TableRowKind.Group) {
                     y = DrawSpanning(region, y, layout, row.Spanning!, box, border, context);
                 } else {
                     y = DrawCells(region, y, layout, row.Lines!, row.Cells, row.VisualCells, row.Height, box, border, context);
                 }
             }
+            return y;
+        }
+
+        private void DrawTail(Region region, int y, TableLayout layout, RenderContext context) {
+            Style border = context.Style(ThemeToken.Border);
+            bool boxed = IsBoxed;
+            BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             if (layout.Total != null) {
                 if (boxed) {
                     DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
@@ -73,7 +163,6 @@ namespace ConsoleMonster.Widgets {
                 region.Write(indent, y, caption);
             }
         }
-
         private void DrawRule(Region region, int y, TableLayout layout, string left, string joint, string right, string line, Style style) {
             if (y >= region.Height) {
                 return;

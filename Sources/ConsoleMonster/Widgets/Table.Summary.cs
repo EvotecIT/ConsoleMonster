@@ -41,7 +41,7 @@ namespace ConsoleMonster.Widgets {
             return contents;
         }
 
-        private List<TableLayoutRow> BuildRows(PresenterContext presenter) {
+        private List<TableLayoutRow> BuildRows(PresenterContext presenter, StreamStats? stats = null) {
             PresenterContext[] contexts = ColumnContexts(presenter);
             List<TableLayoutRow> rows = new List<TableLayoutRow>();
             int shown = DisplayedRowCount;
@@ -57,7 +57,13 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 groupRows.Add(r);
-                rows.Add(new TableLayoutRow(TableRowKind.Data) { Cells = Present(_rows[r], contexts) });
+                CellContent[] cells = Present(_rows[r], contexts);
+                if (stats != null) {
+                    stats.Add(cells);
+                    rows.Add(new TableLayoutRow(TableRowKind.Data) { Source = r });
+                } else {
+                    rows.Add(new TableLayoutRow(TableRowKind.Data) { Cells = cells });
+                }
             }
             AddSubtotal(rows, groupRows, contexts);
             return rows;

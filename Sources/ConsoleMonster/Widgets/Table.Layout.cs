@@ -11,16 +11,15 @@ namespace ConsoleMonster.Widgets {
     public sealed partial class Table {
         private const int WordCap = 16;
 
-        private TableLayout ComputeLayout(int maxWidth, RenderContext context) {
+        // With deferFit the body rows are not fitted to their column widths yet: a streaming render fits each block just before
+        // drawing it and lets it go afterwards.
+        private TableLayout ComputeLayout(int maxWidth, RenderContext context, bool deferFit = false) {
             PresenterContext presenter = Presentation.CreateContext(context);
             if (RecordViewRows > 0 && _rows.Count > 0 && _rows.Count <= RecordViewRows && _columns.Count > 2) {
                 return new TableLayout(TableMode.Record) { Record = BuildRecordView(presenter) };
             }
             int count = _columns.Count;
             int gap = IsBoxed ? 0 : 2;
-            List<TableLayoutRow> rows = BuildRows(presenter);
-            TableLayoutRow? total = BuildTotalRow(presenter);
-
             StyledLine[] headers = new StyledLine[count];
             int[] desired = new int[count];
             int[] minimum = new int[count];
@@ -31,6 +30,11 @@ namespace ConsoleMonster.Widgets {
                 // Headers stay whole up to a word's length; very long headers may shorten.
                 minimum[c] = ShowHeader ? Math.Min(headers[c].Width, WordCap) : 1;
             }
+            // Streaming: every data row is presented and measured once here, then only its index is kept; its cells are
+            // presented again when its block is drawn. Column widths still come from every row.
+            StreamStats? stats = deferFit ? new StreamStats(this, count, desired, minimum) : null;
+            List<TableLayoutRow> rows = BuildRows(presenter, stats);
+            TableLayoutRow? total = BuildTotalRow(presenter);
             foreach (TableLayoutRow row in Enumerate(rows, total)) {
                 if (row.Cells == null) {
                     continue;
@@ -39,7 +43,7 @@ namespace ConsoleMonster.Widgets {
                     Measure(row.Cells[c], _columns[c], ref desired[c], ref minimum[c]);
                 }
             }
-            _keyComfort = KeyComfort(rows);
+            _keyComfort = stats != null ? stats.KeyComfort() : KeyComfort(rows);
             for (int c = 0; c < count; c++) {
                 ApplyColumnLimits(c, desired, minimum);
             }
@@ -85,12 +89,14 @@ namespace ConsoleMonster.Widgets {
             layout.HeaderLines = new List<StyledLine>[visible.Count];
             for (int v = 0; v < visible.Count; v++) {
                 int c = visible[v];
-                layout.Alignments[v] = _columns[c].Alignment ?? AutomaticAlignment(c, rows);
+                layout.Alignments[v] = _columns[c].Alignment ?? (stats != null ? stats.Alignment(c) ?? AutomaticAlignment(c, rows) : AutomaticAlignment(c, rows));
                 layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
                 layout.HeaderHeight = Math.Max(layout.HeaderHeight, layout.HeaderLines[v].Count);
             }
             foreach (TableLayoutRow row in rows) {
-                FitRow(row, layout, context);
+                if (!deferFit) {
+                    FitRow(row, layout, context);
+                }
                 layout.Rows.Add(row);
             }
             if (total != null) {

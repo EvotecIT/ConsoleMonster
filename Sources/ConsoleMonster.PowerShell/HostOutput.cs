@@ -44,11 +44,12 @@ namespace ConsoleMonster.PowerShell {
             TerminalProfile host = HostProfile(cmdlet, p, explicitWidth, route);
             RenderContext context = Terminal.CreateContext(host);
             HostColorMap colors = new HostColorMap(context, route != HostRoute.Plain);
-            CellBuffer block = Terminal.Render(widget, host, context.Theme);
             List<Segment> segments = new List<Segment>();
-            for (int y = 0; y < block.Height; y++) {
-                CollectRow(block, y, colors, segments);
-                EmitLine(cmdlet, route, segments);
+            foreach (CellBuffer block in Terminal.RenderChunks(widget, host.Width, context)) {
+                for (int y = 0; y < block.Height; y++) {
+                    CollectRow(block, y, colors, segments);
+                    EmitLine(cmdlet, route, segments);
+                }
             }
         }
 

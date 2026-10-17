@@ -35,6 +35,9 @@ namespace ConsoleMonster.Widgets {
         internal StyledLine? Spanning { get; set; }
 
         internal int Height { get; set; } = 1;
+
+        /// <summary>The source row index for a streaming layout, whose cells are presented again just before drawing.</summary>
+        internal int Source { get; set; } = -1;
     }
 
     /// <summary>The negotiated layout of a table for one width.</summary>

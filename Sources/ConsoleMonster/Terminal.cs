@@ -157,13 +157,42 @@ namespace ConsoleMonster {
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             RenderContext context = CreateContext(p);
-            CellBuffer block = FrameComposer.RenderBlock(widget, p.Width, context);
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    output.WriteBlock(block);
+                    foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
+                        output.WriteBlock(block);
+                    }
                 }
                 writer?.Flush();
             }
+        }
+
+        /// <summary>
+        /// The rows above which a table is printed in blocks (default 2000): column widths are still computed from every
+        /// row, but cells are rendered and written a block at a time, so memory stays flat for very long tables.
+        /// </summary>
+        public static int StreamingRowThreshold { get; set; } = 2000;
+
+        /// <summary>
+        /// Renders a widget for print-once output as one or more blocks written one after another: a long table comes as a
+        /// sequence of blocks with stable column widths (see <see cref="StreamingRowThreshold"/>), anything else as one block.
+        /// </summary>
+        /// <param name="widget">The widget.</param>
+        /// <param name="width">The width in cells.</param>
+        /// <param name="context">The render context.</param>
+        /// <param name="chunkLines">Lines per block for long tables (default 500).</param>
+        /// <returns>The blocks, top to bottom.</returns>
+        public static IEnumerable<CellBuffer> RenderChunks(IWidget widget, int width, RenderContext context, int chunkLines = 500) {
+            if (widget == null) {
+                throw new ArgumentNullException(nameof(widget));
+            }
+            if (context == null) {
+                throw new ArgumentNullException(nameof(context));
+            }
+            if (widget is Widgets.Table table && table.Rows.Count > StreamingRowThreshold) {
+                return table.RenderChunks(width, context, Math.Max(1, chunkLines));
+            }
+            return new[] { FrameComposer.RenderBlock(widget, width, context) };
         }
 
         /// <summary>Writes one line of Spectre-compatible markup, for example <c>[pass]Done[/] in [muted]3s[/]</c>.</summary>
