@@ -567,6 +567,19 @@ Start-ConsoleDashboard $d {
 
 A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
 
+### Tab and taskbar progress
+
+In Windows Terminal (and ConEmu) the tab and the taskbar button show the progress of a live session: a percentage
+from progress bars and lanes, red once a lane, a test or the dashboard status fails, yellow for warnings, and
+indeterminate work for spinners and status lines. `Write-ConsoleStatus`, `Terminal.Status`, `Use-ConsoleProgress`
+and `Invoke-ConsolePester` drive it too. It is written with the `OSC 9;4` sequence, only to terminals known to show it,
+never in CI, redirected or plain output, and it is cleared when the run ends, on Ctrl+C and on process exit.
+
+- `CONSOLEMONSTER_TASKBAR=0`, `TaskbarProgress.Enabled = false` or `LiveSessionOptions.TaskbarProgress = false` turn it
+  off; `LiveSessionOptions.NotifyOnFinish` rings the terminal bell when a session ends.
+- Custom widgets take part by implementing `ITaskbarProgressSource`; `TaskbarProgress.Set(state, percent)` and
+  `TaskbarProgress.Clear()` drive it by hand.
+
 ## Pester test runs
 
 `Invoke-ConsolePester` runs Pester 5 or 6 with a live dashboard. It takes the parameters of `Invoke-Pester` (or a
@@ -777,6 +790,44 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
 inspector's item counts use invariant digits regardless, because they are compact status text rather than data.
+
+## Show-Console and default formatting
+
+`Show-Console` shows any pipeline input in the view that fits it, and `ConsoleView.Auto(data)` does the same in C#:
+
+| Data | View |
+|---|---|
+| One object | An inspector (record view with nested members). |
+| Objects of one shape | A table (cards when the window is narrow), from the DefaultDisplayPropertySet, with presenters by type: bytes for integer members named Length, Size or Memory, dates, durations, Yes/No, status markers for enums such as Running/Stopped. |
+| Objects with children of the same type, or `-ChildProperty` | A tree. |
+| A numeric series, or `-Chart` | A bar chart. |
+| Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |
+
+`-View Table|Cards|Tree|Inspector|Chart|Code|Text|Grid` overrides the choice; `Grid` opens `Show-ConsoleGrid` and
+returns what you pick.
+
+`Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),
+processes (`Get-Process`), services (`Get-Service`) and any type registered with `Register-ConsoleView` as ConsoleMonster
+tables. `Disable-ConsoleFormatting` turns it off.
+
+```powershell
+Enable-ConsoleFormatting
+Get-ChildItem; Get-Process | Select-Object -First 10
+Register-ConsoleView -TypeName 'Contoso.Server' -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime
+```
+
+How it works, and why: PowerShell's format files (`*.format.ps1xml`) format one object at a time, so they cannot lay out
+a table with widths measured across all rows. Instead, `Enable-ConsoleFormatting` defines an `Out-Default` function for
+the session, the command the host sends every interactive result to. It hands objects to `Out-ConsoleDefault`, which
+collects consecutive objects of registered types into one ConsoleMonster view and passes everything else (strings,
+errors, `Format-*` output, other types) to PowerShell's own `Out-Default` unchanged. As a result:
+
+- the objects are never changed, and pipelines into other commands, `Format-*` and `Out-String` behave exactly as before,
+  because they never reach `Out-Default`;
+- redirected output, background and thread jobs, remoting and other hosts keep PowerShell's output, because
+  `Out-ConsoleDefault` only takes over on a real local console (`-Force` renders anyway);
+- an `Out-Default` function you already have is kept unless you pass `-Force`, and if ConsoleMonster is removed the
+  function falls back to PowerShell's `Out-Default`.
 
 ## Emoji and symbols on every terminal
 

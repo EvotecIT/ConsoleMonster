@@ -37,6 +37,10 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
   `Emoji` cell presenter.
 - `Use-ConsoleTarget` to send PowerShell output to a file, a writer, a target or a string.
+- The terminal's progress indicator (OSC 9;4, the Windows Terminal tab and taskbar) driven by progress bars, lanes,
+  dashboards, status lines, `Use-ConsoleProgress` and `Invoke-ConsolePester`, cleared on every exit path.
+- `Show-Console` (the best view for any data, `ConsoleView` in C#) and opt-in default formatting
+  (`Enable-ConsoleFormatting`, `Register-ConsoleView`) for files, processes, services and registered types.
 
 ## Next
 
@@ -64,6 +68,14 @@ executables use a command-line parser today.
 - Per-log highlighting in log regions (today highlighting applies per line through `Write-ConsoleLog -Highlight`).
 - Collapsing long JSON arrays.
 - Logging provider and adapter packages, when a consumer needs them.
+- QR codes and barcodes in the terminal through CodeGlyphX.
+- Watching a live run remotely: a local browser mirror built on the HTML exporter, and `Watch-ConsoleSession` to attach
+  from another terminal, including over SSH.
+- One definition, every output: the same view rendered to the terminal, an HtmlForgeX report, an HtmlForgeX.Email
+  message, and OfficeIMO Word and Excel documents.
+- Replay scrubbing in the terminal (`Show-ConsoleReplay`): seek through a recording and jump to the first failure.
+- What-if change previews: a `Compare-ConsoleObject` diff with counts and a typed confirmation before applying.
+- Interactive terminal charts through ChartForgeX: zoom and pan, a crosshair, and charts linked to tables.
 
 ## Not planned
 

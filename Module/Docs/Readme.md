@@ -25,6 +25,16 @@ Clears the console screen, safely.
 
 On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.
 
+### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
+Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).
+
+Removes the session's Out-Default function when it is ConsoleMonster's, so PowerShell's own Out-Default is used again. Registrations stay for the next Enable-ConsoleFormatting.
+
+### [Enable-ConsoleFormatting](Enable-ConsoleFormatting.md)
+Shows the default output of common types through ConsoleMonster for this session (opt-in).
+
+Files and folders (Get-ChildItem), processes (Get-Process) and services (Get-Service), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.
+
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
 Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
 
@@ -220,6 +230,11 @@ Creates a console tree from nested hashtables.
 
 Each key becomes a node. A nested hashtable (or ordered dictionary) becomes child nodes; an array becomes leaf nodes; any other value is shown as a muted note after the key. Use [ordered] to keep order.
 
+### [Out-ConsoleDefault](Out-ConsoleDefault.md)
+Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.
+
+This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; files and folders, processes and services after Enable-ConsoleFormatting) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.
+
 ### [Read-ConsoleConfirm](Read-ConsoleConfirm.md)
 Asks a yes/no question and returns $true or $false.
 
@@ -260,6 +275,11 @@ Asks for a line of text.
 
 A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
+### [Register-ConsoleView](Register-ConsoleView.md)
+Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
+
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.
+
 ### [Send-ConsoleEvent](Send-ConsoleEvent.md)
 Sends a raw live event to any widget of a running dashboard.
 
@@ -279,6 +299,11 @@ Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colou
 Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.
 
 Sends a "set" update to the named widget. For a key/value list the value is shown as text; for bar charts and stacked bars it must be numeric.
+
+### [Show-Console](Show-Console.md)
+Shows pipeline input in the view that fits it best.
+
+One object becomes an inspector; objects of one shape a table (cards when the window is narrow), using their DefaultDisplayPropertySet and presenters by type (bytes for Length and Size, dates, durations, Yes/No, status markers for enums such as Running/Stopped); hierarchical objects (a child collection of the same type, or -ChildProperty) a tree; a numeric series a bar chart; strings highlighted code when a language is detected, otherwise text. -View overrides the choice; Grid opens the interactive Show-ConsoleGrid and returns what you pick.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.

@@ -13,7 +13,7 @@ namespace ConsoleMonster.TestRuns {
     /// link), the slowest tests and a histogram of test durations. The compact layout (for inline areas) keeps the files,
     /// the running test and the first failures. Each frame renders a fresh snapshot, so the run can be fed from any thread.
     /// </summary>
-    public sealed class TestRunView : IWidget {
+    public sealed class TestRunView : IWidget, Output.ITaskbarProgressSource {
         private static readonly double[] DurationEdges = { 0, 10, 50, 100, 250, 500, 1000, 5000 };
         private readonly TestRun _run;
 
@@ -25,6 +25,22 @@ namespace ConsoleMonster.TestRuns {
 
         /// <summary>The header title, or null (default) for the built-in word ("Tests" in English).</summary>
         public string? Title { get; set; }
+
+        /// <summary>The run for the terminal's indicator: tests done of the total, red once a test failed.</summary>
+        /// <param name="state">The state.</param>
+        /// <param name="fraction">The fraction done, or NaN while the total is unknown.</param>
+        /// <returns>False once the run passed.</returns>
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            TestRunSnapshot snapshot = _run.Snapshot();
+            bool failed = snapshot.Failed > 0 || snapshot.BlockFailures > 0;
+            fraction = snapshot.Total.HasValue && snapshot.Total.Value > 0 ? Math.Min(1, snapshot.Done / (double)snapshot.Total.Value) : (snapshot.IsFinished ? 1 : double.NaN);
+            if (snapshot.IsFinished && !failed) {
+                state = Output.TaskbarState.Clear;
+                return false;
+            }
+            state = failed ? Output.TaskbarState.Error : double.IsNaN(fraction) ? Output.TaskbarState.Indeterminate : Output.TaskbarState.Normal;
+            return true;
+        }
 
         /// <summary>Draws the compact layout (files, running test, first failures) at the height it needs.</summary>
         public bool Compact { get; set; }

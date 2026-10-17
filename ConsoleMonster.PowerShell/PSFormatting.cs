@@ -11,8 +11,23 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shared building and output for the Format-Console* cmdlets (the cmdlets only bind parameters).</summary>
     internal static class PSFormatting {
         /// <summary>Builds a table from pipeline objects, with optional groups and totals.</summary>
-        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool total) {
+        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool total, bool autoPresenters = false) {
             IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, property);
+            if (autoPresenters) {
+                // Presenters by member name and .NET type (bytes for Length, dates, durations, status-like enums).
+                foreach (BoundColumn column in columns) {
+                    if (column.Column.Presenter != null) {
+                        continue;
+                    }
+                    foreach (PSObject item in items) {
+                        object? value = PropertyBinder.Unwrap(column.GetValue(item));
+                        if (value != null) {
+                            column.Column.Presenter = CellPresenters.ForMember(column.Name, value.GetType());
+                            break;
+                        }
+                    }
+                }
+            }
             Table table = new Table();
             foreach (BoundColumn column in columns) {
                 table.AddColumn(column.Column);

@@ -11,6 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
         private bool _onConsole;
+        private volatile bool _taskbarUsed;
         private Styling.ITheme? _theme;
 
         /// <summary>Starts the dedicated background render thread. Repeated calls while running are harmless.</summary>
@@ -192,6 +193,10 @@ namespace ConsoleMonster.Live {
 
         private void RestoreTerminal() {
             RestoreCapture();
+            if (_taskbarUsed) {
+                // Ctrl+C, an exception or process exit: the tab and taskbar must not keep showing progress.
+                TaskbarProgress.Clear();
+            }
             lock (_outputGate) {
                 if (_restored) { return; }
                 _restored = true;
@@ -214,6 +219,12 @@ namespace ConsoleMonster.Live {
                 bool drawn = _began && _output != null && _context != null;
                 if (drawn) { Attempt(RenderFinal); }
                 Attempt(RestoreTerminal);
+                if (_taskbarUsed) {
+                    Attempt(TaskbarProgress.Clear);
+                }
+                if (_options.NotifyOnFinish && _onConsole) {
+                    Attempt(TaskbarProgress.Bell);
+                }
                 _guardRegistration.Dispose();
                 Attempt(() => _guard?.Dispose());
                 Attempt(() => _recorder?.Dispose());

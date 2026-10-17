@@ -65,6 +65,15 @@ namespace ConsoleMonster.Live {
         /// </summary>
         public ITerminalTarget? Target { get; set; }
 
+        /// <summary>
+        /// Whether the session drives the terminal's progress indicator (the Windows Terminal tab and taskbar) from its
+        /// progress bars, lanes, spinners and status, and clears it at the end (default true; see <see cref="TaskbarProgress"/>).
+        /// </summary>
+        public bool TaskbarProgress { get; set; } = true;
+
+        /// <summary>Whether the session rings the terminal bell when it ends, to call attention to a finished run (default false).</summary>
+        public bool NotifyOnFinish { get; set; }
+
         /// <summary>UTF-8 recording destination, mutually exclusive with RecordWriter.</summary>
         public string? RecordPath { get; set; }
 

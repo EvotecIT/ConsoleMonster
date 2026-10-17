@@ -53,7 +53,7 @@ namespace ConsoleMonster.Widgets {
             for (int c = 0; c < count; c++) {
                 visible.Add(c);
             }
-            if (CardsBelow > 0 && maxWidth < CardsBelow && _rows.Count > 0 && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
+            if (_rows.Count > 0 && (AlwaysCards || (CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth))) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
             // Hide columns by ascending priority (ties: rightmost first) until the minimums fit; the key column stays.

@@ -11,7 +11,7 @@ namespace ConsoleMonster.Widgets {
     /// A labelled progress bar with percentage and count: <c>Build  ████████▌░░░░  64%  32/50</c>.
     /// Live operations: <c>set</c> (Value, Total), <c>advance</c> (Value = amount), <c>label</c> (Text), <c>state</c> (State).
     /// </summary>
-    public sealed class ProgressBar : LiveWidget, ILiveSummary {
+    public sealed class ProgressBar : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         /// <summary>Creates a progress bar.</summary>
         /// <param name="label">The label (markup).</param>
         /// <param name="name">The live name (default <c>progress</c>).</param>
@@ -79,6 +79,25 @@ namespace ConsoleMonster.Widgets {
             }
             RenderContext context = new RenderContext(Capabilities.TerminalProfile.Fixed(200, 1, Capabilities.ColorDepth.None, Capabilities.GlyphTier.Ascii, Capabilities.OutputMode.Stream), Theme.Dark, null, 0, _lastEventTime);
             return ProgressLayout.Summarize(Columns, Row(_lastEventTime), context);
+        }
+
+        /// <inheritdoc />
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            fraction = Total > 0 ? Fraction : double.NaN;
+            switch (Status) {
+                case StatusKind.Fail:
+                    state = Output.TaskbarState.Error;
+                    return true;
+                case StatusKind.Warn:
+                    state = Output.TaskbarState.Paused;
+                    return true;
+                case StatusKind.Running:
+                    state = Total > 0 ? Output.TaskbarState.Normal : Output.TaskbarState.Indeterminate;
+                    return true;
+                default:
+                    state = Output.TaskbarState.Clear;
+                    return false;
+            }
         }
 
         private ProgressRow Row(TimeSpan now) {

@@ -14,7 +14,7 @@ namespace ConsoleMonster.Widgets {
     /// Live operations: <c>label</c> (Text), <c>detail</c> (Text), <c>state</c> (State, optional Text as the detail),
     /// <c>start</c> (restarts the clock and returns to running).
     /// </summary>
-    public sealed class Spinner : LiveWidget, ILiveSummary {
+    public sealed class Spinner : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         /// <summary>Creates a spinner.</summary>
         /// <param name="label">The label (markup).</param>
         /// <param name="name">The live name (default <c>spinner</c>).</param>
@@ -50,6 +50,13 @@ namespace ConsoleMonster.Widgets {
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
         public SpinnerHandle Handle(ILiveDispatcher dispatcher) => new SpinnerHandle(dispatcher, Name);
+
+        /// <inheritdoc />
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            fraction = double.NaN;
+            state = Status == StatusKind.Running ? Output.TaskbarState.Indeterminate : Status == StatusKind.Fail ? Output.TaskbarState.Error : Output.TaskbarState.Clear;
+            return state != Output.TaskbarState.Clear;
+        }
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {

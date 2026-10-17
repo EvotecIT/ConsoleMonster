@@ -17,7 +17,7 @@ namespace ConsoleMonster.Widgets {
     /// Live operations (Key = lane): <c>add</c> (Text = label, Total), <c>advance</c> (Value = steps, State = step result,
     /// Text = detail), <c>state</c> (State, Text), <c>detail</c> (Text), <c>total</c> (Total), <c>complete</c> (State).
     /// </summary>
-    public sealed partial class Lanes : LiveWidget, ILiveSummary {
+    public sealed partial class Lanes : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         private readonly List<Lane> _lanes = new List<Lane>();
         private readonly Dictionary<string, Lane> _byKey = new Dictionary<string, Lane>(StringComparer.Ordinal);
 
@@ -130,6 +130,41 @@ namespace ConsoleMonster.Widgets {
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
         public LanesHandle Handle(ILiveDispatcher dispatcher) => new LanesHandle(dispatcher, Name);
+
+        /// <summary>
+        /// The overall progress for the terminal's indicator: the share of all steps done (finished lanes count in full),
+        /// red when a lane failed, yellow with warnings, indeterminate while totals are unknown. Nothing once all passed.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <param name="fraction">The fraction done, or NaN.</param>
+        /// <returns>False when there is nothing to report.</returns>
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            state = Output.TaskbarState.Clear;
+            fraction = double.NaN;
+            if (_lanes.Count == 0) {
+                return false;
+            }
+            double total = 0;
+            double done = 0;
+            bool failed = false;
+            bool warned = false;
+            bool open = false;
+            foreach (Lane lane in _lanes) {
+                failed |= lane.Status == StatusKind.Fail || lane.Failed > 0;
+                warned |= lane.Status == StatusKind.Warn || lane.Warned > 0;
+                open |= !lane.IsFinished;
+                if (lane.Total > 0) {
+                    total += lane.Total;
+                    done += lane.IsFinished ? lane.Total : Math.Min(lane.Total, lane.Done);
+                }
+            }
+            if (!open && !failed && !warned) {
+                return false;
+            }
+            fraction = total > 0 ? done / total : (open ? double.NaN : 1);
+            state = failed ? Output.TaskbarState.Error : warned ? Output.TaskbarState.Paused : total > 0 ? Output.TaskbarState.Normal : Output.TaskbarState.Indeterminate;
+            return true;
+        }
 
         /// <summary>A one-line summary (used for heartbeats in Stream/Plain mode).</summary>
         /// <returns>The summary, or <c>null</c> when there are no lanes.</returns>

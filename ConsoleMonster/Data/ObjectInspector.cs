@@ -62,7 +62,10 @@ namespace ConsoleMonster.Data {
             return options.Unwrap(value);
         }
 
-        internal static bool IsScalarValue(object? value) {
+        /// <summary>Whether a value is shown as one value rather than as members: null, primitives, enums, strings, decimals, dates, durations, GUIDs, URIs, versions and types.</summary>
+        /// <param name="value">The value.</param>
+        /// <returns>True for a scalar.</returns>
+        public static bool IsScalarValue(object? value) {
             if (value == null)
                 return true;
             Type type = value.GetType();

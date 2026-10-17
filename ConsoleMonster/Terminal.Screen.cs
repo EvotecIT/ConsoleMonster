@@ -76,7 +76,7 @@ namespace ConsoleMonster {
             }
         }
 
-        private static void WriteControl(TerminalProfile p, string sequence) {
+        internal static void WriteControl(TerminalProfile p, string sequence) {
             lock (Gate) {
                 try {
                     using (ITerminalWriter writer = TerminalWriterFactory.Create(p)) {

@@ -174,6 +174,32 @@ namespace ConsoleMonster.Live {
                 }
                 _output.RenderFrame(_frame);
                 Interlocked.Increment(ref _framesRendered);
+                UpdateTaskbar();
+            }
+        }
+
+        // The terminal's progress indicator follows the widgets that report progress (see ITaskbarProgressSource).
+        private void UpdateTaskbar() {
+            if (!_options.TaskbarProgress || !_onConsole || _context == null || !TaskbarProgress.IsSupported(_context.Profile)) {
+                return;
+            }
+            List<KeyValuePair<TaskbarState, double>> sources = new List<KeyValuePair<TaskbarState, double>>();
+            CollectTaskbar(_root, sources, 0);
+            TaskbarState state = TaskbarProgress.Combine(sources, out int percent);
+            if (state != TaskbarState.Clear || _taskbarUsed) {
+                _taskbarUsed = true;
+                Attempt(() => TaskbarProgress.Set(state, percent));
+            }
+        }
+
+        private static void CollectTaskbar(IWidget widget, List<KeyValuePair<TaskbarState, double>> sources, int depth) {
+            if (widget is ITaskbarProgressSource source && source.TryGetTaskbarProgress(out TaskbarState state, out double fraction)) {
+                sources.Add(new KeyValuePair<TaskbarState, double>(state, fraction));
+            }
+            if (widget is IContainer container && depth < 32) {
+                foreach (IWidget child in container.Children) {
+                    CollectTaskbar(child, sources, depth + 1);
+                }
             }
         }
 

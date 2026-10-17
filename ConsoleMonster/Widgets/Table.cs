@@ -55,6 +55,9 @@ namespace ConsoleMonster.Widgets {
         /// </summary>
         public int CardsBelow { get; set; } = 60;
 
+        /// <summary>Shows the rows as record cards at any width (the Cards view of Show-Console).</summary>
+        public bool AlwaysCards { get; set; }
+
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;
 
