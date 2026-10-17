@@ -17,7 +17,8 @@ Describe 'Show-Console, default formatting and the taskbar indicator' {
             $lines.Add("Import-Module '$($script:ModulePath)' -Force")
             $lines.Add($Script)
             $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
-            ($output | ForEach-Object { "$_" }) -join "`n"
+            # PowerShell 7 may colour its own table headers (PSStyle); the assertions read the plain text.
+            (($output | ForEach-Object { "$_" }) -join "`n") -replace "$([char] 27)\[[0-9;]*m", ''
         }
     }
 
