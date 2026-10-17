@@ -176,7 +176,7 @@ namespace ConsoleMonster.Widgets {
                 x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
             }
             if (levelWidth > 0) {
-                StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment);
+                StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment, context.Ellipsis);
                 x += levelWidth + 1;
             }
             return x;

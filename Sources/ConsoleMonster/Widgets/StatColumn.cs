@@ -43,14 +43,14 @@ namespace ConsoleMonster.Widgets {
             _highWater = 0;
         }
 
-        /// <summary>Writes text aligned inside a column, truncated to the column width.</summary>
-        internal static void Write(Region region, int x, int y, int width, string text, Style style, HorizontalAlignment alignment) {
+        /// <summary>Writes text aligned inside a column, truncated to the column width with the tier's ellipsis.</summary>
+        internal static void Write(Region region, int x, int y, int width, string text, Style style, HorizontalAlignment alignment, string ellipsis = TextWrapper.Ellipsis) {
             if (width <= 0 || string.IsNullOrEmpty(text)) {
                 return;
             }
             int textWidth = DisplayWidth.Measure(text);
             if (textWidth > width) {
-                text = TextWrapper.Truncate(text, width);
+                text = TextWrapper.Truncate(text, width, ellipsis);
                 textWidth = DisplayWidth.Measure(text);
             }
             int offset = alignment == HorizontalAlignment.Right ? width - textWidth : alignment == HorizontalAlignment.Center ? (width - textWidth) / 2 : 0;

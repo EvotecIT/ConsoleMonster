@@ -135,7 +135,7 @@ namespace ConsoleMonster.Widgets {
             x += barWidth + 1;
             if (percentWidth > 0) {
                 string percent = lane.Status == StatusKind.Pending ? string.Empty : NumberFormat.Percent(lane.Fraction);
-                StatColumn.Write(region, x, y, percentWidth, percent, muted, PercentColumn.Alignment);
+                StatColumn.Write(region, x, y, percentWidth, percent, muted, PercentColumn.Alignment, context.Ellipsis);
                 x += percentWidth + 2;
             } else {
                 x += 1;

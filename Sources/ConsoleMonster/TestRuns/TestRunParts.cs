@@ -40,7 +40,7 @@ namespace ConsoleMonster.TestRuns {
                 }
                 spans.Add(new TextSpan(_snapshot.CurrentName, context.Style(ThemeToken.Text)));
             }
-            region.Write(0, 0, new StyledLine(spans));
+            region.Write(0, 0, TextWrapper.Truncate(new StyledLine(spans), region.Width, context.Ellipsis));
         }
     }
 
@@ -87,7 +87,7 @@ namespace ConsoleMonster.TestRuns {
                     y++;
                 }
                 foreach (StyledLine line in lines) {
-                    region.Write(0, y++, line);
+                    region.Write(0, y++, TextWrapper.Truncate(line, region.Width, context.Ellipsis));
                 }
                 shown++;
             }

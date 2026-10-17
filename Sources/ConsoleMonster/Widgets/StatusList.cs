@@ -142,7 +142,7 @@ namespace ConsoleMonster.Widgets {
                 StyledLine label = TextWrapper.Truncate(context.Markup(item.Label).Lines[0], labelWidth, context.Ellipsis);
                 region.Write(labelX, i, label);
                 if (detailColumn > 0 && !string.IsNullOrEmpty(item.Detail)) {
-                    StatColumn.Write(region, region.Width - detailColumn, i, detailColumn, item.Detail!, muted, DetailColumn.Alignment);
+                    StatColumn.Write(region, region.Width - detailColumn, i, detailColumn, item.Detail!, muted, DetailColumn.Alignment, context.Ellipsis);
                 }
             }
         }

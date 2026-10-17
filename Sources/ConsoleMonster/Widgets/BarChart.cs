@@ -127,7 +127,7 @@ namespace ConsoleMonster.Widgets {
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
                 BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(item.Token ?? BarToken), context, false, Shape);
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value, context), muted, ValueColumn.Alignment);
+                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value, context), muted, ValueColumn.Alignment, context.Ellipsis);
                 }
             }
         }

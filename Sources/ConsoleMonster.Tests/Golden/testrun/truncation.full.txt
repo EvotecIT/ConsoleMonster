@@ -1,0 +1,30 @@
+ Pester · 1 failed · 1 passed · 2 tests                            ● running  ·  00:00:00
+
+╭─ Files ────────────────────────────────────────────────────────────────── 0 of 1 done ─╮
+│                                                                                        │
+│ ⠋ Sample.Tests.ps1  ━━━━━━━━━━━━━━╾───────  66%  ✓1 ✗1 –0  applies StartTab, StartSpa… │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+ ⠋ Rich text cmdlets › Write-ConsoleText with Write-Color parameters › applies StartTab,…
+╭─ Failures ──────────────────────────────────── 1 ─╮ ╭─ Slowest ────────────────────────╮
+│                                                   │ │                                  │
+│ ✗ Interactive cmdlets › Without a user (redirect… │ │   2.7s  writes the pieces on on… │
+│   Cannot convert the value 'abc' of the paramete… │ │    0ms  fails with a message th… │
+│   Sample.Tests.ps1:40                             │ │                                  │
+│                                                   │ │                                  │
+│                                                   │ │                                  │
+│                                                   │ ╰──────────────────────────────────╯
+│                                                   │ ╭─ Durations ──────────────────────╮
+│                                                   │ │                                  │
+│                                                   │ │ 1│███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │  │███                      ████  │
+│                                                   │ │ 0│███                      ████  │
+│                                                   │ │   0ms 10ms    100ms    500ms  5s │
+╰───────────────────────────────────────────────────╯ ╰──────────────────────────────────╯
+ ctrl+c stop

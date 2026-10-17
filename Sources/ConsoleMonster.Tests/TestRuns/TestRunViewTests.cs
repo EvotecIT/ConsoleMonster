@@ -123,6 +123,28 @@ namespace ConsoleMonster.Tests.TestRuns {
         }
 
         [Theory]
+        [InlineData(GlyphTier.Full)]
+        [InlineData(GlyphTier.Ascii)]
+        public void LongNames_AreTruncatedWithTheTierEllipsis(GlyphTier tier) {
+            TestRun run = NewRun();
+            run.ContainerStarted(Sample, "Sample.Tests.ps1", Sample, 3);
+            run.TestFinished(Test(Sample, "writes the pieces on one line and survives a narrow window without cutting words", StatusKind.Pass, 2700));
+            run.TestFinished(new TestRecord(Sample, "fails with a message that names the parameter and the value it could not convert", StatusKind.Fail) {
+                Blocks = new[] { "Interactive cmdlets", "Without a user (redirected input, -NonInteractive)" }, File = Sample, Line = 40,
+                Message = "Cannot convert the value 'abc' of the parameter -Count to the type System.Int32 because it is not a number at all"
+            });
+            run.TestStarted(Sample, new[] { "Rich text cmdlets", "Write-ConsoleText with Write-Color parameters" }, "applies StartTab, StartSpaces, LinesBefore and LinesAfter");
+            string text = TestTerminal.RenderText(new TestRunView(run) { Title = "Pester" }, 90, 30, tier);
+            Golden.Match("testrun/truncation." + tier.ToString().ToLowerInvariant() + ".txt", text);
+            string ellipsis = tier == GlyphTier.Ascii ? "..." : "…";
+            Assert.Contains("writes the pieces on", text);
+            foreach (string line in text.Split('\n')) {
+                if (line.Contains("writes the pieces") || line.Contains("applies StartTab") || line.Contains("Cannot convert")) {
+                    Assert.Contains(ellipsis, line);
+                }
+            }
+        }
+        [Theory]
         [InlineData("Expected 4, but got 3.", "4", "3")]
         [InlineData("Expected strings to be the same, but they were different.\nExpected: 'abxde'\nBut was:  'abcde'", "abxde", "abcde")]
         [InlineData("Expected [int] 4, but got [int] 3.", "[int] 4", "[int] 3")]

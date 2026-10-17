@@ -105,7 +105,7 @@ namespace ConsoleMonster.TestRuns {
             public void Render(Region region, RenderContext context) {
                 List<StyledLine> lines = Lines(context);
                 for (int y = 0; y < lines.Count && y < region.Height; y++) {
-                    region.Write(0, y, lines[y]);
+                    region.Write(0, y, TextWrapper.Truncate(lines[y], region.Width, context.Ellipsis));
                 }
             }
         }
