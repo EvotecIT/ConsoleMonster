@@ -146,6 +146,18 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int MinLength { get; set; }
 
+        /// <summary><para type="description">The most characters (TextArea).</para></summary>
+        [Parameter]
+        public int MaxLength { get; set; } = int.MaxValue;
+
+        /// <summary><para type="description">The most lines (TextArea).</para></summary>
+        [Parameter]
+        public int MaxLines { get; set; } = int.MaxValue;
+
+        /// <summary><para type="description">The visible rows of the text area dialog (TextArea, default 8).</para></summary>
+        [Parameter]
+        public int Height { get; set; } = 8;
+
         /// <summary><para type="description">What stands in for a secret in the equivalent command.</para></summary>
         [Parameter]
         public string? CommandPlaceholder { get; set; }
@@ -182,6 +194,12 @@ namespace ConsoleMonster.PowerShell {
 
         private Field Create() {
             switch (Type) {
+                case ConsoleFieldType.TextArea:
+                    TextAreaField area = new TextAreaField(Name, Label) { Placeholder = Placeholder, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
+                    if (Default != null) {
+                        area.Default = PSInteractive.Text(Default);
+                    }
+                    return area;
                 case ConsoleFieldType.Secret:
                     SecretField secret = new SecretField(Name, Label) { MinLength = MinLength, Required = Required.IsPresent };
                     if (CommandPlaceholder != null) {

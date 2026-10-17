@@ -4323,6 +4323,18 @@
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>The visible rows of the text area dialog (TextArea, default 8).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Help</maml:name>
           <maml:description>
             <maml:para>Help shown while the field has focus.</maml:para>
@@ -4395,6 +4407,30 @@
           <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
           <dev:type>
             <maml:name>Decimal</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>MaxLength</maml:name>
+          <maml:description>
+            <maml:para>The most characters (TextArea).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>MaxLines</maml:name>
+          <maml:description>
+            <maml:para>The most lines (TextArea).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -4593,6 +4629,7 @@
             <command:parameterValue required="false" variableLength="false">Select</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">MultiSelect</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">TextArea</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ConsoleFieldType</maml:name>
@@ -4736,6 +4773,18 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>The visible rows of the text area dialog (TextArea, default 8).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Help</maml:name>
         <maml:description>
           <maml:para>Help shown while the field has focus.</maml:para>
@@ -4808,6 +4857,30 @@
         <command:parameterValue required="false" variableLength="false">Decimal</command:parameterValue>
         <dev:type>
           <maml:name>Decimal</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>MaxLength</maml:name>
+        <maml:description>
+          <maml:para>The most characters (TextArea).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>MaxLines</maml:name>
+        <maml:description>
+          <maml:para>The most lines (TextArea).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -5006,6 +5079,7 @@
           <command:parameterValue required="false" variableLength="false">Select</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">MultiSelect</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">TextArea</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ConsoleFieldType</maml:name>
@@ -11927,6 +12001,18 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>The visible rows of the text area (-Multiline, default 6).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>History</maml:name>
           <maml:description>
@@ -11943,6 +12029,18 @@ Description and RunText.</maml:para>
           <maml:name>MaxLength</maml:name>
           <maml:description>
             <maml:para>The most characters.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>MaxLines</maml:name>
+          <maml:description>
+            <maml:para>The most lines (-Multiline).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -11977,6 +12075,18 @@ Description and RunText.</maml:para>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>InteractionMode</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Multiline</maml:name>
+          <maml:description>
+            <maml:para>Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -12104,6 +12214,18 @@ Description and RunText.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>The visible rows of the text area (-Multiline, default 6).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>History</maml:name>
         <maml:description>
@@ -12120,6 +12242,18 @@ Description and RunText.</maml:para>
         <maml:name>MaxLength</maml:name>
         <maml:description>
           <maml:para>The most characters.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>MaxLines</maml:name>
+        <maml:description>
+          <maml:para>The most lines (-Multiline).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -12154,6 +12288,18 @@ Description and RunText.</maml:para>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>InteractionMode</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Multiline</maml:name>
+        <maml:description>
+          <maml:para>Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

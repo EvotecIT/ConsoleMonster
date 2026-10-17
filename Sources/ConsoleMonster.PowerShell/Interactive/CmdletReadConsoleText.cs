@@ -59,8 +59,33 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Prefill { get; set; }
 
+        /// <summary><para type="description">Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</para></summary>
+        [Parameter]
+        public SwitchParameter Multiline { get; set; }
+
+        /// <summary><para type="description">The most lines (-Multiline).</para></summary>
+        [Parameter]
+        public int MaxLines { get; set; } = int.MaxValue;
+
+        /// <summary><para type="description">The visible rows of the text area (-Multiline, default 6).</para></summary>
+        [Parameter]
+        public int Height { get; set; } = 6;
+
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (Multiline.IsPresent) {
+                TextAreaPrompt area = new TextAreaPrompt(Title) { Placeholder = Placeholder, Required = Required.IsPresent, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
+                Configure(area);
+                if (Default != null) {
+                    area.Default = Default;
+                }
+                if (Validate != null) {
+                    ScriptBlock check = Validate;
+                    area.Validator = text => PSInteractive.Validation(check, text, PromptLabels.Default);
+                }
+                WriteObject(Ask(area));
+                return;
+            }
             TextPrompt prompt = new TextPrompt(Title) {
                 Placeholder = Placeholder,
                 Required = Required.IsPresent,

@@ -13,7 +13,7 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validate <scriptblock>] [-History <string[]>] [-Prefill] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validate <scriptblock>] [-History <string[]>] [-Prefill] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -63,6 +63,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Height
+The visible rows of the text area (-Multiline, default 6).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -History
 Earlier answers offered with Up and Down (oldest first).
 
@@ -81,6 +97,22 @@ Accept wildcard characters: False
 
 ### -MaxLength
 The most characters.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxLines
+The most lines (-Multiline).
 
 ```yaml
 Type: Int32
@@ -119,6 +151,22 @@ Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Rich, Line, Accessible, None
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Multiline
+Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

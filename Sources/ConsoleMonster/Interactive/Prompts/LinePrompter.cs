@@ -98,6 +98,33 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        /// <summary>Several lines of text, ended by an empty line (or the end of input).</summary>
+        public string Lines(string title, string? description, string? defaultValue, Func<string, string?>? validate, CancellationToken token) {
+            WriteDescription(description);
+            while (true) {
+                token.ThrowIfCancellationRequested();
+                _io.WriteLine(title + " (" + _labels.EndWithEmptyLine + "):");
+                List<string> lines = new List<string>();
+                while (true) {
+                    string? line = _io.ReadLine();
+                    if (line == null || line.Length == 0) {
+                        break;
+                    }
+                    lines.Add(line);
+                }
+                string answer = string.Join("\n", lines);
+                if (answer.Length == 0 && defaultValue != null) {
+                    answer = defaultValue;
+                }
+                string? error = validate?.Invoke(answer);
+                if (error != null) {
+                    _io.WriteLine(error);
+                    continue;
+                }
+                Confirmed(lines.Count <= 1 ? answer : PromptLabels.Format(_labels.TextAreaCounter, lines.Count, answer.Length));
+                return answer;
+            }
+        }
         public int Select(string title, string? description, IReadOnlyList<Choice> choices, int defaultIndex, CancellationToken token) {
             if (choices.Count == 0) {
                 throw new ArgumentException("There is nothing to choose from.", nameof(choices));

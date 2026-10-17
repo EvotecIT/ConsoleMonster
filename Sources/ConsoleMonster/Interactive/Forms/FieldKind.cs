@@ -25,6 +25,9 @@ namespace ConsoleMonster.Interactive {
         MultiChoice,
 
         /// <summary>A file or folder path.</summary>
-        Path
+        Path,
+
+        /// <summary>Several lines of text.</summary>
+        TextArea
     }
 }

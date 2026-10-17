@@ -106,6 +106,24 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: run the action.</summary>
         public string KeyRun { get; set; } = "run";
 
+        /// <summary>Key hint: a new line in a multi-line text box.</summary>
+        public string KeyNewLine { get; set; } = "new line";
+
+        /// <summary>Key hint: save a multi-line text.</summary>
+        public string KeySave { get; set; } = "save";
+
+        /// <summary>The line-mode hint of a multi-line answer.</summary>
+        public string EndWithEmptyLine { get; set; } = "end with an empty line";
+
+        /// <summary>Too long: {0} characters at most.</summary>
+        public string MaximumLength { get; set; } = "Enter at most {0} characters.";
+
+        /// <summary>Too many lines: {0} at most.</summary>
+        public string MaximumLines { get; set; } = "Enter at most {0} lines.";
+
+        /// <summary>The counter under a multi-line text box: {0} lines, {1} characters.</summary>
+        public string TextAreaCounter { get; set; } = "{0} lines · {1} characters";
+
         /// <summary>Footer label for ctrl+c during a run.</summary>
         public string KeyStop { get; set; } = "stop";
 

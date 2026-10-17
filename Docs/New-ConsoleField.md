@@ -13,7 +13,7 @@ A field has a name (its key in the result), a label, help shown while it has foc
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleField [-Name] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Page <string>] [-Help <string>] [-Parameter <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validate <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
+New-ConsoleField [-Name] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Page <string>] [-Help <string>] [-Parameter <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validate <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -175,6 +175,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Height
+The visible rows of the text area dialog (TextArea, default 8).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Help
 Help shown while the field has focus.
 
@@ -260,6 +276,38 @@ The largest number, or the most choices of a MultiSelect field.
 
 ```yaml
 Type: Decimal
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxLength
+The most characters (TextArea).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxLines
+The most lines (TextArea).
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -518,7 +566,7 @@ The kind: Text (default), Secret, Number, Toggle, Select, MultiSelect or Path.
 Type: ConsoleFieldType
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Text, Secret, Number, Toggle, Select, MultiSelect, Path
+Possible values: Text, Secret, Number, Toggle, Select, MultiSelect, Path, TextArea
 
 Required: False
 Position: named

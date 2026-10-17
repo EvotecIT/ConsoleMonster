@@ -26,6 +26,9 @@ namespace ConsoleMonster.PowerShell {
         MultiSelect,
 
         /// <summary>A file or folder path.</summary>
-        Path
+        Path,
+
+        /// <summary>Several lines of text (opens a text area dialog).</summary>
+        TextArea
     }
 }

@@ -36,6 +36,12 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The field.</returns>
         public TextField Text(string name, string? label = null) => Add(new TextField(name, label));
 
+        /// <summary>Adds a field for several lines of text.</summary>
+        /// <param name="name">The key.</param>
+        /// <param name="label">The label.</param>
+        /// <returns>The field.</returns>
+        public TextAreaField TextArea(string name, string? label = null) => Add(new TextAreaField(name, label));
+
         /// <summary>Adds a secret field.</summary>
         /// <param name="name">The key.</param>
         /// <param name="label">The label.</param>

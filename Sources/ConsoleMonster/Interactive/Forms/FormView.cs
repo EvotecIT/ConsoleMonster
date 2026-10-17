@@ -525,6 +525,10 @@ namespace ConsoleMonster.Interactive {
                         bindings.Add(new KeyBinding(string.Empty, () => Cycle(choice, -1), new KeyChord(ConsoleKey.LeftArrow)) { InFooter = false });
                     }
                     break;
+                case FieldKind.TextArea:
+                    TextAreaField area = (TextAreaField)field;
+                    bindings.Add(new KeyBinding(Labels.KeyEdit, () => EditText(area), new KeyChord(ConsoleKey.Enter), new KeyChord(ConsoleKey.Spacebar), new KeyChord(' ')) { Order = 20, Group = "Form" });
+                    break;
                 case FieldKind.Number:
                     bindings.Add(new KeyBinding(Labels.KeyNext, () => MoveFocus(1), new KeyChord(ConsoleKey.Enter)) { Order = 20, Group = "Form" });
                     bindings.Add(new KeyBinding(Labels.KeyStep, () => { }) { KeyText = "ctrl+" + g.KeyUpDown, Order = 26, Group = "Form", InFooter = false });
@@ -586,6 +590,19 @@ namespace ConsoleMonster.Interactive {
                 Changed(field);
             }
             return true;
+        }
+
+        // Several lines of text are edited in a dialog over the form; Ctrl+Enter saves, Esc keeps the old value.
+        private void EditText(TextAreaField field) {
+            _host.ShowModal(new TextAreaDialog(field.Label, field.Value as string, field.MaxLength, field.MaxLines, field.Height, field.Placeholder,
+                text => field.Check(text.Length == 0 ? null : text, _form.GetValues(), Labels),
+                text => {
+                    object? value = text.Length == 0 ? null : text;
+                    if (!Equals(field.Value, value)) {
+                        field.Value = value;
+                        Changed(field);
+                    }
+                }, Labels));
         }
 
         private void SetToggle(Field field, bool value) {

@@ -120,6 +120,20 @@ $v = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab'
             $text | Should -Match 'value=Staging'
         }
 
+        It 'reads several lines with -Multiline until an empty line' {
+            $text = Invoke-PromptChild -InputText "first`nsecond`n`n" -Script @'
+$v = Read-ConsoleText 'Reason' -Multiline -Mode Accessible
+"value=$($v -replace "`n", '|')"
+'@
+            $text | Should -Match 'value=first\|second'
+        }
+
+        It 'creates a text area field' {
+            $field = New-ConsoleField Reason 'Reason' -Type TextArea -MaxLines 3 -Height 5
+            $field.GetType().Name | Should -Be 'TextAreaField'
+            $field.MaxLines | Should -Be 3
+        }
+
         It 'accepts several numbers for a multi-selection' {
             $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
 $v = @(Read-ConsoleMultiSelection 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible)
