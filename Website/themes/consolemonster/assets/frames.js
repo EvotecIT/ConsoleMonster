@@ -15,6 +15,9 @@
     return bundles[url];
   }
 
+  // Bundles the reader is likely to ask for next are fetched while the browser is idle, so switching feels instant.
+  function idle(fn) { (window.requestIdleCallback || function (f) { return setTimeout(f, 1200); })(fn, { timeout: 4000 }); }
+
   // Puts a frame ({ w, h, dark, light }) into the screens inside a window.
   function show(win, frame) {
     win.querySelectorAll('pre.cm-screen').forEach(function (pre) {
@@ -82,6 +85,11 @@
         tiers.removeAttribute('aria-busy');
       });
     };
+    idle(function () {
+      tiers.querySelectorAll('[data-color]').forEach(function (c) {
+        tiers.querySelectorAll('[data-glyphs]').forEach(function (g) { load('/frames/widgets/' + c.getAttribute('data-color') + '-' + g.getAttribute('data-glyphs') + '.json'); });
+      });
+    });
     tiers.querySelectorAll('[role="radiogroup"]').forEach(function (group) {
       var kind = group.querySelector('[data-color]') ? 'color' : 'glyphs';
       group.querySelectorAll('[role="radio"]').forEach(function (option) {
@@ -104,6 +112,7 @@
     var scope = control.closest('[data-cm-width-scope]') || document;
     var group = control.querySelector('[role="radiogroup"]');
     var output = control.querySelector('[data-cm-width-note]');
+    idle(function () { control.querySelectorAll('[data-width]').forEach(function (b) { load(base + b.getAttribute('data-width') + '.json'); }); });
     radios(group, function (option) {
       var width = option.getAttribute('data-width');
       load(base + width + '.json').then(function (bundle) {
@@ -120,11 +129,28 @@
   });
 
   // Replays. A timeline is { w, h, duration, frames: [{ t, rows: [[row, html], ...] }] }: the first frame lists every
-  // row, later frames only the rows that changed. Without JavaScript the page shows the final frame.
+  // row, later frames only the rows that changed. Without JavaScript the page shows the poster frame.
+  // A replay keeps one element per row and rewrites only the rows a frame changes. It wakes when the next recorded
+  // frame is due (or the clock's next second), not on every display frame, and only one replay runs at a time: the one
+  // the viewer started, while it is in view, or else the first autoplaying replay in view.
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var observe = 'IntersectionObserver' in window;
+  var players = [];
+  var chosen = null;
   function format(ms) {
-    var s = Math.max(0, Math.round(ms / 1000));
+    var s = Math.max(0, Math.floor(ms / 1000));
     return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+  function schedule() {
+    var run = null;
+    if (!document.hidden) {
+      if (chosen && chosen.intent === 'on' && chosen.visible()) run = chosen;
+      for (var i = 0; !run && i < players.length; i++) {
+        if (players[i].intent === 'auto' && players[i].visible()) run = players[i];
+      }
+    }
+    players.forEach(function (p) { if (p !== run) p.suspend(); });
+    if (run) run.resume();
   }
 
   document.querySelectorAll('[data-cm-player]').forEach(function (player) {
@@ -139,24 +165,64 @@
     var url = compactUrl && pre && pre.classList.contains('cm-screen--narrow') ? compactUrl : player.getAttribute('data-cm-player');
     if (!controls || !button || !scrub || !pre) return;
     controls.hidden = false;
+    var narrow = url === compactUrl;
+    var start = Number(player.getAttribute(narrow ? 'data-compact-start' : 'data-start')) || 0;
+    var loopStart = Number(player.getAttribute(narrow ? 'data-compact-loop-start' : 'data-loop-start')) || 0;
+    var loop = player.hasAttribute('data-loop');
     var timeline = null;
     var rows = [];
+    var cells = null;
+    var shown = [];
     var index = -1;
-    var playing = false;
+    var running = false;
+    var wanted = false;
     var started = 0;
     var offset = 0;
-    var raf = 0;
-    var hold = 0;
-    var loop = player.hasAttribute('data-loop');
+    var timer = 0;
+    var second = -1;
+    var scrubbed = -1;
+    var pixel = 1;
+    var self = {
+      intent: player.hasAttribute('data-autoplay') && !reduced.matches && observe ? 'auto' : 'off',
+      // A replay the viewer started keeps running while any of it shows; an autoplaying one needs 30% in view.
+      ratio: observe ? 0 : 1,
+      visible: function () { return (self.intent === 'on' ? self.ratio > 0 : self.ratio >= 0.3) && !player.closest('[hidden]'); },
+      resume: function () {
+        if (running || wanted) return;
+        wanted = true;
+        ready().then(function () {
+          if (!wanted || running) return;
+          if (index < 0) { offset = Math.min(start, timeline.duration); setTime(offset, true); }
+          if (offset >= timeline.duration) offset = loopStart;
+          setRunning(true);
+        }, function () { controls.hidden = true; wanted = false; });
+      },
+      suspend: function () { wanted = false; if (running) setRunning(false); }
+    };
 
-    var paint = function () { pre.innerHTML = rows.join('\n'); };
+    var grow = function (count) {
+      if (!cells) { cells = []; pre.textContent = ''; }
+      while (cells.length < count) {
+        var row = document.createElement('span');
+        row.className = 'cm-row';
+        pre.appendChild(row);
+        cells.push(row);
+      }
+    };
+    var draw = function (row) {
+      var html = rows[row] || '';
+      if (shown[row] !== html) { cells[row].innerHTML = html; shown[row] = html; }
+    };
     var seekIndex = function (target) {
+      if (target === index) return;
+      var dirty = target > index && cells ? {} : null;
       if (target < index) { index = -1; rows = []; }
       for (var i = index + 1; i <= target; i++) {
-        timeline.frames[i].rows.forEach(function (row) { rows[row[0]] = row[1]; });
+        timeline.frames[i].rows.forEach(function (row) { rows[row[0]] = row[1]; if (dirty) dirty[row[0]] = true; });
       }
       index = target;
-      paint();
+      grow(Math.max(timeline.h || 0, rows.length));
+      if (dirty) { for (var key in dirty) draw(Number(key)); } else { for (var r = 0; r < cells.length; r++) draw(r); }
     };
     var frameAt = function (ms) {
       var lo = 0, hi = timeline.frames.length - 1;
@@ -166,47 +232,62 @@
       }
       return lo;
     };
-    var setTime = function (ms) {
+    // The clock and the accessible value change once a second; the scrub thumb when it would move by a pixel.
+    var setTime = function (ms, moveThumb) {
       seekIndex(frameAt(ms));
-      scrub.value = String(Math.round(ms));
-      scrub.setAttribute('aria-valuetext', format(ms) + ' of ' + format(timeline.duration));
-      if (clock) clock.textContent = format(ms) + ' / ' + format(timeline.duration);
+      if (moveThumb || Math.abs(ms - scrubbed) >= pixel) { scrub.value = String(Math.round(ms)); scrubbed = ms; }
+      var s = Math.floor(ms / 1000);
+      if (s !== second) {
+        second = s;
+        var at = format(ms), of = format(timeline.duration);
+        scrub.setAttribute('aria-valuetext', at + ' of ' + of);
+        if (clock) clock.textContent = at + ' / ' + of;
+      }
     };
-    var setPlaying = function (on) {
-      playing = on;
+    var wake = function () {
+      var next = index + 1 < timeline.frames.length ? timeline.frames[index + 1].t : timeline.duration;
+      var due = Math.min(next, (Math.floor(offset / 1000) + 1) * 1000, timeline.duration);
+      timer = setTimeout(step, Math.max(40, due - offset));
+    };
+    var step = function () {
+      timer = 0;
+      offset = performance.now() - started;
+      if (offset < timeline.duration) { setTime(offset); wake(); return; }
+      setTime(timeline.duration, true);
+      if (loop && !reduced.matches) {
+        timer = setTimeout(function () {
+          timer = 0;
+          offset = loopStart;
+          started = performance.now() - loopStart;
+          setTime(loopStart, true);
+          wake();
+        }, 2400);
+        return;
+      }
+      offset = timeline.duration;
+      self.intent = 'off';
+      setRunning(false);
+      schedule();
+    };
+    var setRunning = function (on) {
+      running = on;
+      wanted = on;
       button.setAttribute('aria-pressed', on ? 'true' : 'false');
       button.setAttribute('aria-label', on ? 'Pause the replay' : 'Play the replay');
       player.classList.toggle('is-playing', on);
-      cancelAnimationFrame(raf);
-      clearTimeout(hold);
+      clearTimeout(timer);
+      timer = 0;
       if (on) {
-        if (offset >= timeline.duration) offset = 0;
+        pixel = timeline.duration / Math.max(60, scrub.clientWidth || 300);
         started = performance.now() - offset;
-        raf = requestAnimationFrame(tick);
+        wake();
       }
-    };
-    var tick = function (now) {
-      offset = now - started;
-      if (offset >= timeline.duration) {
-        setTime(timeline.duration);
-        if (loop && !reduced.matches) {
-          hold = setTimeout(function () { if (playing) { offset = 0; started = performance.now(); raf = requestAnimationFrame(tick); } }, 2400);
-          return;
-        }
-        offset = timeline.duration;
-        setPlaying(false);
-        return;
-      }
-      setTime(offset);
-      raf = requestAnimationFrame(tick);
     };
     var ready = function () {
       if (timeline) return Promise.resolve(timeline);
       return load(url).then(function (data) {
         timeline = data;
         pre.style.setProperty('--cols', data.w);
-        var win = player.querySelector('.cm-window');
-        if (win) chips(win, [data.w + '×' + data.h]);
         scrub.max = String(data.duration);
         scrub.disabled = false;
         return data;
@@ -215,15 +296,24 @@
 
     button.addEventListener('click', function () {
       ready().then(function () {
-        if (!playing && index < 0) { offset = 0; setTime(0); }
-        setPlaying(!playing);
+        if (running) {
+          self.intent = 'off';
+          if (chosen === self) chosen = null;
+        } else {
+          players.forEach(function (p) { if (p !== self && p.intent === 'on') p.intent = 'off'; });
+          self.intent = 'on';
+          chosen = self;
+          if (index < 0) { offset = Math.min(start, timeline.duration); setTime(offset, true); }
+        }
+        schedule();
       }, function () { controls.hidden = true; });
     });
     scrub.addEventListener('input', function () {
       ready().then(function () {
         offset = Number(scrub.value);
+        scrubbed = offset;
         setTime(offset);
-        if (playing) started = performance.now() - offset;
+        if (running) { clearTimeout(timer); started = performance.now() - offset; wake(); }
       });
     });
     player.addEventListener('keydown', function (event) {
@@ -231,23 +321,30 @@
       if (event.key === 'k' || (event.key === ' ' && event.target === player)) { event.preventDefault(); button.click(); }
     });
 
-    // Timelines load on demand: when the viewer plays or scrubs, or when an autoplaying player scrolls into view.
+    // Timelines load on demand: when the viewer plays or scrubs, or when an autoplaying replay comes into view.
     var total = Number(scrub.max) || 0;
-    if (clock) clock.textContent = format(total) + ' / ' + format(total);
+    offset = Math.min(start, total);
+    scrub.value = String(offset);
+    if (clock) clock.textContent = format(offset) + ' / ' + format(total);
     scrub.disabled = false;
-    if (player.hasAttribute('data-autoplay') && !reduced.matches && 'IntersectionObserver' in window) {
-      var seen = false;
-      new IntersectionObserver(function (entries, observer) {
-        if (seen || !entries[0].isIntersecting) return;
-        seen = true;
-        observer.disconnect();
-        ready().then(function () {
-          offset = Math.min(Number(player.getAttribute('data-start')) || 0, timeline.duration);
-          setTime(offset);
-          setPlaying(true);
-        }, function () { controls.hidden = true; });
-      }, { threshold: 0.35 }).observe(player);
-    }    document.addEventListener('visibilitychange', function () { if (document.hidden && playing) setPlaying(false); });
-    document.addEventListener('cm:tab', function () { if (playing && player.closest('[hidden]')) setPlaying(false); });
+    players.push(self);
+    if (observe) {
+      new IntersectionObserver(function (entries) {
+        var entry = entries[entries.length - 1];
+        self.ratio = entry.isIntersecting ? Math.max(entry.intersectionRatio, 0.001) : 0;
+        schedule();
+      }, { threshold: [0, 0.3, 0.6] }).observe(player);
+    }
   });
+
+  if (players.length) {
+    document.addEventListener('visibilitychange', schedule);
+    document.addEventListener('cm:tab', schedule);
+    var calm = function () {
+      if (!reduced.matches) return;
+      players.forEach(function (p) { if (p.intent === 'auto') p.intent = 'off'; });
+      schedule();
+    };
+    if (reduced.addEventListener) reduced.addEventListener('change', calm); else if (reduced.addListener) reduced.addListener(calm);
+  }
 })();
