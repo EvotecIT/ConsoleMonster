@@ -1,0 +1,10 @@
+{{~ # The title band of inner pages. Set masthead_title, masthead_lede and masthead_extra (HTML under the lede) before including it. ~}}
+<header class="cm-masthead">
+  <div class="cm-wrap cm-masthead__inner">
+    <h1>{{ masthead_title }}</h1>
+    {{~ if masthead_lede && masthead_lede != "" ~}}
+    <p class="cm-lede">{{ masthead_lede }}</p>
+    {{~ end ~}}
+    {{~ if masthead_extra && masthead_extra != "" ~}}<div class="cm-masthead__extra">{{ masthead_extra }}</div>{{~ end ~}}
+  </div>
+</header>

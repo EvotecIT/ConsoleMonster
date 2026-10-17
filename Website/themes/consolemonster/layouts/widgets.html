@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--widgets{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ w = data.widgets; hero = data.figures["tier-ribbon"] ~}}
+{{~ capture ribbon ~}}
+<div class="cm-ribbon">
+  {{~ for t in hero.tiers ~}}
+  {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
+  {{ include "screen" }}
+  {{~ end ~}}
+</div>
+{{~ end ~}}
+{{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = ribbon; stage_wide = true ~}}
+{{ include "stage" }}
+
+<div class="cm-toolbar" data-cm-tiers hidden>
+  <div class="cm-wrap cm-toolbar__inner">
+    <div class="cm-seg" role="radiogroup" aria-label="Colour tier">
+      <span class="cm-seg__label" aria-hidden="true">Colour</span>
+      {{~ for c in w.colors ~}}
+      <button type="button" role="radio" aria-checked="{{ if for.first }}true{{ else }}false{{ end }}" data-color="{{ c.id }}">{{ c.label }}</button>
+      {{~ end ~}}
+    </div>
+    <div class="cm-seg" role="radiogroup" aria-label="Glyph tier">
+      <span class="cm-seg__label" aria-hidden="true">Glyphs</span>
+      {{~ for g in w.glyphs ~}}
+      <button type="button" role="radio" aria-checked="{{ if for.first }}true{{ else }}false{{ end }}" data-glyphs="{{ g.id }}">{{ g.label }}</button>
+      {{~ end ~}}
+    </div>
+    <p class="cm-toolbar__note" aria-live="polite" data-cm-tier-note>Every frame below is drawn for 24-bit colour and the full glyph set.</p>
+  </div>
+</div>
+
+<div class="cm-wrap cm-gallery">
+  <nav class="cm-gallery__index" aria-label="Widget groups">
+    {{~ for g in w.groups ~}}
+    <a href="#{{ g.id }}">{{ g.title }} <span class="cm-seg__count">{{ g.count }}</span></a>
+    {{~ end ~}}
+  </nav>
+  <div class="cm-prose cm-gallery__intro">
+{{ content }}
+  </div>
+  {{~ for g in w.groups ~}}
+  <section class="cm-gallery__group" id="{{ g.id }}" aria-labelledby="{{ g.id }}-title">
+    <header class="cm-gallery__heading">
+      <h2 id="{{ g.id }}-title">{{ g.title }}</h2>
+      <p>{{ g.summary }}</p>
+    </header>
+    {{~ for e in w.examples; if e.group != g.id; continue; end ~}}
+    <article class="cm-specimen" id="w-{{ e.id }}" data-cm-widget="{{ e.id }}">
+      <header class="cm-specimen__head">
+        <h3>{{ e.title }}</h3>
+        <span class="cm-specimen__size" data-cm-size>{{ e.frame.w }} × {{ e.frame.h }}</span>
+      </header>
+      <p class="cm-specimen__summary">{{ e.summary }}</p>
+      <div class="cm-specimen__body">
+        <div class="cm-specimen__output">
+          {{~ screen_frame = e.frame; screen_title = e.title; screen_meta = [e.frame.w + "×" + e.frame.h, "24-bit", "Full"]; screen_label = e.title + " rendered by ConsoleMonster" ~}}
+          {{ include "screen" }}
+          {{~ if e.parity.ps7 || e.parity.ps5 ~}}
+          <p class="cm-parity">
+            <span class="cm-parity__lead">Same cells from PowerShell</span>
+            {{~ for h in [e.parity.ps7, e.parity.ps5]; if h ~}}
+            <span class="cm-parity__host{{ if !h.identical }} is-different{{ end }}">{{ if h.identical }}<span aria-hidden="true">√</span>{{ else }}<span aria-hidden="true">✗</span>{{ end }} {{ h.host }}</span>
+            {{~ end; end ~}}
+          </p>
+          {{~ end ~}}
+        </div>
+        <div class="cm-specimen__code">
+          {{~ code_lang = "csharp"; code_label = "C#"; code_text = e.csharp; code_full = e.csharpFull ~}}
+          {{ include "code" }}
+          {{~ if e.powershell ~}}
+          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = e.powershell; code_full = e.powershellFull ~}}
+          {{ include "code" }}
+          {{~ end ~}}
+        </div>
+      </div>
+    </article>
+    {{~ end ~}}
+  </section>
+  {{~ end ~}}
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

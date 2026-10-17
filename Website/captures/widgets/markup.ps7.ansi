@@ -1,0 +1,3 @@
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[1mDeployed[22m in [38;2;96;165;250m48 s[m: [38;2;74;222;128m√ 12 passed [38;2;251;191;36m▲ 2 warned [38;2;248;113;113m✗ 1 failed
+[m[3mDecorations:[23m [1mbold[22m [2mdim[22m [4munderline[24m [9mstruck[29m [7m invert 
+[?9001l[?1004l[27m

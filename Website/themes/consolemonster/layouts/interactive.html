@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--interactive{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ it = data.interactive; shell = null; for s in it.stories; if s.id == "shell"; shell = s; end; end ~}}
+{{~ capture art ~}}
+{{~ player_data = shell.player; player_title = "ConsoleMonster.Examples toolbox"; player_meta = [shell.player.w + "×" + shell.player.h, "24-bit", "Full"]; player_label = "The server toolbox menu in the Shell layout, driven by scripted keys"; player_autoplay = true; player_loop = true; player_class = "cm-window--center" ~}}
+{{ include "player" }}
+{{~ end ~}}
+{{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = art; stage_wide = true ~}}
+{{ include "stage" }}
+<div class="cm-wrap cm-page">
+  <div class="cm-prose cm-page__intro">
+{{ content }}
+  </div>
+  {{~ for s in it.stories ~}}
+  <section class="cm-showcase cm-story" id="{{ s.id }}" aria-labelledby="{{ s.id }}-title">
+    <div class="cm-showcase__head">
+      <h2 id="{{ s.id }}-title">{{ s.title }}</h2>
+      <p>{{ s.summary }}</p>
+    </div>
+    <div class="cm-story__body">
+      <div class="cm-story__screen">
+        {{~ player_data = s.player; player_title = s.title; player_meta = [s.player.w + "×" + s.player.h, "24-bit", "Full"]; player_label = s.title + ", driven by scripted keys" ~}}
+        {{ include "player" }}
+        <p class="cm-story__keys"><span>Keys</span> <code>{{ s.keys | html.escape }}</code></p>
+      </div>
+      <div class="cm-story__code">
+        {{~ code_lang = "csharp"; code_label = "C#"; code_text = s.csharp; code_full = s.csharpFull ~}}
+        {{ include "code" }}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = s.powershell ~}}
+        {{ include "code" }}
+      </div>
+    </div>
+  </section>
+  {{~ end ~}}
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

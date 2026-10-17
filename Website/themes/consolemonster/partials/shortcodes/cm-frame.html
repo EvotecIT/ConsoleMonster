@@ -1,0 +1,16 @@
+{{~ ## Docs figure shortcode (cm-frame with id and caption): shows a frame from data/figures.json in a terminal window;
+     ids="a,b" sets several side by side; script="true" adds the PowerShell script that produced it. ## ~}}
+{{~ a = shortcode.attrs; ids = (a.ids ?? a.id) | string.split "," ~}}
+<figure class="cm-figure{{ if ids.size > 1 }} cm-figure--strip{{ end }}">
+<div class="cm-figure__frames">
+{{~ for id in ids; key = id | string.strip; fig = data.figures[key] ~}}
+{{~ screen_frame = fig.frame; screen_title = fig.title; screen_meta = fig.meta; screen_label = fig.label; screen_dark = !fig.frame.light ~}}
+{{ include "screen" }}
+{{~ if a.script == "true" && fig.script ~}}
+{{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = fig.title; code_text = fig.script ~}}
+{{ include "code" }}
+{{~ end ~}}
+{{~ end ~}}
+</div>
+{{~ if a.caption ~}}<figcaption>{{ a.caption }}</figcaption>{{~ end ~}}
+</figure>

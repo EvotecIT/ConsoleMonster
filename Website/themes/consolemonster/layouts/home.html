@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--home{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ h = data.home; live = data.live; copy = data.copy.home; ribbon = data.figures["tier-ribbon"] ~}}
+<section class="cm-stage cm-tone-dark cm-hero" aria-labelledby="cm-hero-title">
+  <div class="cm-wrap">
+    <div class="cm-hero__top">
+      <div>
+        <h1 id="cm-hero-title">{{ copy.title }}</h1>
+        <p class="cm-stage__lede">{{ copy.lede }}</p>
+        <div class="cm-hero__actions">
+          <a class="cm-btn" href="/widgets/">See every widget</a>
+          <a class="cm-btn cm-btn--ghost" href="/docs/install/">Install</a>
+        </div>
+      </div>
+      <div class="cm-install" data-cm-tabs>
+        <div class="cm-seg" role="tablist" aria-label="Install for">
+          <button type="button" role="tab" id="cm-install-ps-tab" aria-selected="true" aria-controls="cm-install-ps" style="--key: var(--cm-s3)">PowerShell</button>
+          <button type="button" role="tab" id="cm-install-net-tab" aria-selected="false" aria-controls="cm-install-net" tabindex="-1" style="--key: var(--cm-s5)">.NET</button>
+        </div>
+        <div id="cm-install-ps" role="tabpanel" aria-labelledby="cm-install-ps-tab">
+          {{~ code_lang = "powershell"; code_label = "ConsoleMonster 2.0 · 5.1 and 7"; code_text = copy.installPowerShell ~}}
+          {{ include "code" }}
+        </div>
+        <div id="cm-install-net" role="tabpanel" aria-labelledby="cm-install-net-tab" hidden>
+          {{~ code_lang = "bash"; code_label = "ConsoleMonster 2.0 · .NET"; code_text = copy.installDotnet ~}}
+          {{ include "code" }}
+        </div>
+        <p class="cm-install__note">{{ copy.installNote }}</p>
+        <ul class="cm-hero__facts">
+          {{~ for f in copy.facts ~}}<li>{{ f }}</li>{{~ end ~}}
+        </ul>
+      </div>
+    </div>
+    <div class="cm-hero__stage">
+      {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = ["24-bit", "Full"]; player_label = "A live TestimoX-style assessment dashboard, replayed from a recording"; player_autoplay = true; player_loop = true; player_max = 15; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster; player_class = "cm-window--center" ~}}
+      {{ include "player" }}
+      <p class="cm-hero__note">{{ copy.replayNote | string.replace "{events}" (live.testimox.events | math.format "N0") }} <a href="/recordings/testimox-run.jsonl" download>Download the recording</a> ({{ (live.testimox.bytes / 1024) | math.round }} KB of JSON lines).</p>
+    </div>
+  </div>
+</section>
+
+<section class="cm-section cm-wrap cm-twins" aria-labelledby="cm-twins-title">
+  <div class="cm-twins__output">
+    <div class="cm-section__head">
+      <h2 id="cm-twins-title">{{ copy.twins.title }}</h2>
+      <p>{{ copy.twins.body }}</p>
+    </div>
+    {{~ c = h.controllers; screen_frame = c.frame; screen_title = "Format-ConsoleTable"; screen_meta = [h.controllers.width + " columns", "24-bit", "Full"]; screen_label = "The domain controllers table"; screen_max = 15 ~}}
+    {{ include "screen" }}
+    <p class="cm-parity">
+      <span class="cm-parity__lead">Drawn identically by</span>
+      <span class="cm-parity__host"><span aria-hidden="true">√</span> C# on .NET 8</span>
+      {{~ for p in [c.parity.ps7, c.parity.ps5]; if p && p.identical ~}}
+      <span class="cm-parity__host"><span aria-hidden="true">√</span> {{ p.host }}</span>
+      {{~ end; end ~}}
+    </p>
+  </div>
+  <div class="cm-twins__code">
+    {{~ code_lang = "csharp"; code_label = "C#"; code_text = c.csharp; code_full = c.csharpFull ~}}
+    {{ include "code" }}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = c.powershell; code_full = c.powershellFull ~}}
+    {{ include "code" }}
+  </div>
+</section>
+<div class="cm-band cm-band--surface">
+<section class="cm-wrap cm-split" aria-labelledby="cm-tiers-title">
+  <div class="cm-section__head">
+    <h2 id="cm-tiers-title">{{ copy.tiers.title }}</h2>
+    <p>{{ copy.tiers.body }}</p>
+    <ul class="cm-points">
+      {{~ for p in copy.tiers.points ~}}<li>{{ p }}</li>{{~ end ~}}
+    </ul>
+    <p><a href="/widgets/">Switch tiers on every widget</a></p>
+  </div>
+  <div class="cm-ribbon cm-ribbon--home">
+    {{~ for t in ribbon.tiers ~}}
+    {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
+    {{ include "screen" }}
+    {{~ end ~}}
+  </div>
+</section>
+</div>
+
+<section class="cm-section cm-wrap cm-split cm-split--narrow" aria-labelledby="cm-fit-title">
+  <div class="cm-section__head">
+    <h2 id="cm-fit-title">{{ copy.fit.title }}</h2>
+    <p>{{ copy.fit.body }}</p>
+    <ul class="cm-points">
+      {{~ for p in copy.fit.points ~}}<li>{{ p }}</li>{{~ end ~}}
+    </ul>
+    <p><a href="/tables/">Change the width on the tables page</a></p>
+  </div>
+  <div>
+    {{~ screen_frame = h.controllers.narrow; screen_title = "the same table"; screen_meta = [h.controllers.narrow.w + "×" + h.controllers.narrow.h, "24-bit", "Full"]; screen_label = "The domain controllers table at 44 columns, as cards" ~}}
+    {{ include "screen" }}
+  </div>
+</section>
+
+<div class="cm-band cm-band--dark cm-tone-dark">
+<section class="cm-wrap" aria-labelledby="cm-live-title">
+  <div class="cm-section__head">
+    <h2 id="cm-live-title">{{ copy.live.title }}</h2>
+    <p>{{ copy.live.body }}</p>
+  </div>
+  <dl class="cm-facts">
+    {{~ for f in copy.live.facts ~}}
+    <div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>
+    {{~ end ~}}
+  </dl>
+  <p class="cm-section__source">{{ copy.live.source }} <a href="/benchmarks/">See the benchmarks</a>.</p>
+  <div class="cm-compare cm-compare--live">
+    <div>
+      <h3>{{ copy.live.richTitle }}</h3>
+      {{~ p = live.pipeline.csharp; player_data = p; player_title = p.command; player_meta = [p.w + "×" + p.h, "24-bit", "Full"]; player_label = "The build pipeline dashboard, recorded from a real run" ~}}
+      {{ include "player" }}
+    </div>
+    <div>
+      <h3>{{ copy.live.streamTitle }}</h3>
+      {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines in stream mode" ~}}
+      {{ include "screen" }}
+    </div>
+  </div>
+</section>
+</div>
+
+<section class="cm-section cm-wrap" aria-labelledby="cm-start-title">
+  <div class="cm-section__head">
+    <h2 id="cm-start-title">{{ copy.start.title }}</h2>
+    <p>{{ copy.start.body | string.replace "{cmdlets}" h.cmdlets | string.replace "{widgets}" h.widgets }}</p>
+  </div>
+  <ul class="cm-start">
+    {{~ for l in copy.start.links ~}}
+    <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong><span class="cm-key" aria-hidden="true"></span>{{ l.title }}</strong><span>{{ l.body }}</span></a></li>
+    {{~ end ~}}
+  </ul>
+</section>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

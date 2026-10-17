@@ -1,0 +1,128 @@
+{
+  "markup": {
+    "w": 60,
+    "h": 2,
+    "dark": "Deployed in 48 s: <i class=n>√</i> 12 passed <i class=n>▲</i> 2 warned x 1 failed\nDecorations: bold dim underline struck  invert",
+    "light": "Deployed in 48 s: <i class=n>√</i> 12 passed <i class=n>▲</i> 2 warned x 1 failed\nDecorations: bold dim underline struck  invert"
+  },
+  "rule": {
+    "w": 60,
+    "h": 2,
+    "dark": "-- Replication ---------------------------------------------\n------------------------------------------------------------",
+    "light": "-- Replication ---------------------------------------------\n------------------------------------------------------------"
+  },
+  "panel": {
+    "w": 60,
+    "h": 3,
+    "dark": "+- Forest --------------------------------- ad.evotec.xyz -+\n| Four controllers answered. DC02 lags by 42 minutes.      |\n+------------------------------------------ checked 14:30 -+",
+    "light": "+- Forest --------------------------------- ad.evotec.xyz -+\n| Four controllers answered. DC02 lags by 42 minutes.      |\n+------------------------------------------ checked 14:30 -+"
+  },
+  "columns": {
+    "w": 60,
+    "h": 5,
+    "dark": "+- Results -----------------+ +- Problems -----------------+\n| <i class=n>√</i> 412 passed              | | x 23 failed                |\n| <i class=n>▲</i> 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------",
+    "light": "+- Results -----------------+ +- Problems -----------------+\n| <i class=n>√</i> 412 passed              | | x 23 failed                |\n| <i class=n>▲</i> 51 warnings             | | - 14 skipped               |\n+---------------------------+ +----------------------------+\n-- 2 domains, 10 controllers -------------------------------"
+  },
+  "grid": {
+    "w": 60,
+    "h": 9,
+    "dark": "+- DC01 ---------------------+ +- DC02 --------------------+\n| <i class=n>√</i> healthy                  | | <i class=n>▲</i> lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| <i class=n>√</i> healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| <i class=n>√</i> healthy                  |\n+----------------------------+",
+    "light": "+- DC01 ---------------------+ +- DC02 --------------------+\n| <i class=n>√</i> healthy                  | | <i class=n>▲</i> lagging                 |\n+----------------------------+ +---------------------------+\n+- DC03 ---------------------+ +- DC04 --------------------+\n| <i class=n>√</i> healthy                  | | x offline                 |\n+----------------------------+ +---------------------------+\n+- DC05 ---------------------+\n| <i class=n>√</i> healthy                  |\n+----------------------------+"
+  },
+  "align": {
+    "w": 60,
+    "h": 5,
+    "dark": "+- Align -------------------+ +- Padding ------------------+\n|          centred          | |                            |\n|                           | |   two cells of padding     |\n|                           | |                            |\n+---------------------------+ +----------------------------+",
+    "light": "+- Align -------------------+ +- Padding ------------------+\n|          centred          | |                            |\n|                           | |   two cells of padding     |\n|                           | |                            |\n+---------------------------+ +----------------------------+"
+  },
+  "stack": {
+    "w": 60,
+    "h": 5,
+    "dark": "+- Stack ----------------------------- badge over a chart -+\n|                                                    LIVE  |\n|                                           ....#.######## |\n|                                 .....################### |\n+----------------------------------------------------------+",
+    "light": "+- Stack ----------------------------- badge over a chart -+\n|                                                    LIVE  |\n|                                           ....#.######## |\n|                                 .....################### |\n+----------------------------------------------------------+"
+  },
+  "keyvalue": {
+    "w": 60,
+    "h": 5,
+    "dark": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN]     1 skipped on PowerShell 7",
+    "light": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN]     1 skipped on PowerShell 7"
+  },
+  "statuslist": {
+    "w": 60,
+    "h": 6,
+    "dark": "[PASS] Restore NuGet packages                          1.6 s\n[PASS] Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery",
+    "light": "[PASS] Restore NuGet packages                          1.6 s\n[PASS] Compile ConsoleMonster                          4.7 s\n[WARN] Run Pester on PowerShell 7                  1 skipped\n[SKIP] Sign module files                             skipped\n[BUSY] Pack ConsoleMonster.2.0.0.nupkg\n[WAIT] Publish to PowerShell Gallery"
+  },
+  "tree": {
+    "w": 60,
+    "h": 8,
+    "dark": "evotec.xyz\n|-- [PASS] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [PASS] DKIM  selector1, selector2",
+    "light": "evotec.xyz\n|-- [PASS] MX  2 records\n|   `-- evotec-xyz.mail.protection.outlook.com  priority 0\n|-- [WARN] SPF  9 of 10 DNS lookups\n|   |-- include:spf.protection.outlook.com\n|   `-- include:_spf.salesforce.com\n|-- [FAIL] DMARC  p=none\n`-- [PASS] DKIM  selector1, selector2"
+  },
+  "progress": {
+    "w": 60,
+    "h": 4,
+    "dark": "Build  ########################--------------   64%   64/100\nTests  #############################---------   77%  412/530\nDocs  #######################################  100%  100/100\nUpload  ###############--------------------------   37%  3/8",
+    "light": "Build  ########################--------------   64%   64/100\nTests  #############################---------   77%  412/530\nDocs  #######################################  100%  100/100\nUpload  ###############--------------------------   37%  3/8"
+  },
+  "phases": {
+    "w": 60,
+    "h": 2,
+    "dark": "[PASS] Discover 2.1s &gt; [PASS] Collect 14s\n[BUSY] Evaluate 64% &gt; [WAIT] Report",
+    "light": "[PASS] Discover 2.1s &gt; [PASS] Collect 14s\n[BUSY] Evaluate 64% &gt; [WAIT] Report"
+  },
+  "spinner": {
+    "w": 60,
+    "h": 3,
+    "dark": "|      Resolving DNS records  zone 4 of 9\n[PASS] Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago",
+    "light": "|      Resolving DNS records  zone 4 of 9\n[PASS] Schema snapshot  cached\n[FAIL] Certificate chain  expired 3 days ago"
+  },
+  "log": {
+    "w": 60,
+    "h": 5,
+    "dark": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h...\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot",
+    "light": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h...\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot"
+  },
+  "bar": {
+    "w": 60,
+    "h": 5,
+    "dark": "Domain controllers ###################################### 14\nGroup Policy       ########################                9\nKerberos           ################                        6\nDNS                ##########                              4\nPKI                #####                                   2",
+    "light": "Domain controllers ###################################### 14\nGroup Policy       ########################                9\nKerberos           ################                        6\nDNS                ##########                              4\nPKI                #####                                   2"
+  },
+  "stacked": {
+    "w": 60,
+    "h": 3,
+    "dark": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   4%   - Skipped   14   2%",
+    "light": "#################################################======+++--\n# Passed   412  82%   = Warnings  51  10%\n+ Failed    23   4%   - Skipped   14   2%"
+  },
+  "sparkline": {
+    "w": 60,
+    "h": 5,
+    "dark": "rules/s                        :-:---===++++*****###@@@ 60/s\n\n                                                 ....#.\n                                     . ...#.###########\n                               .#.##################### 60/s",
+    "light": "rules/s                        :-:---===++++*****###@@@ 60/s\n\n                                                 ....#.\n                                     . ...#.###########\n                               .#.##################### 60/s"
+  },
+  "histogram": {
+    "w": 60,
+    "h": 6,
+    "dark": "5|                   #########\n |                   ######### ########\n |         ######### ######### ########\n |######## ######### ######### ######## #########\n0|######## ######### ######### ######## ######### #########\n  0s       0.25s     0.5s      1s       2s        4s      8s",
+    "light": "5|                   #########\n |                   ######### ########\n |         ######### ######### ########\n |######## ######### ######### ######## #########\n0|######## ######### ######### ######## ######### #########\n  0s       0.25s     0.5s      1s       2s        4s      8s"
+  },
+  "line": {
+    "w": 60,
+    "h": 8,
+    "dark": "31|        **********\n  | *******          *******                           *  **\n  |*                        *******               ***** **\n  |                                ***************\n  |*********                   *******************\n 0|         *******************                   **********\n  +---------------------------------------------------------\n   * completed   * failed",
+    "light": "31|        **********\n  | *******          *******                           *  **\n  |*                        *******               ***** **\n  |                                ***************\n  |*********                   *******************\n 0|         *******************                   **********\n  +---------------------------------------------------------\n   * completed   * failed"
+  },
+  "scatter": {
+    "w": 60,
+    "h": 7,
+    "dark": "89ms|         *      *                    *      *\n    |  *                    *      *                    *\n    | * ** ***  ****  * **** **** * ** ***  ** ** * **** ***\n    |*    *    *    *  *         *    *    *  *    *\n    |\n 0ms|\n    +-------------------------------------------------------",
+    "light": "89ms|         *      *                    *      *\n    |  *                    *      *                    *\n    | * ** ***  ****  * **** **** * ** ***  ** ** * **** ***\n    |*    *    *    *  *         *    *    *  *    *\n    |\n 0ms|\n    +-------------------------------------------------------"
+  },
+  "logo": {
+    "w": 60,
+    "h": 8,
+    "dark": "#   #  ###  #   #  #### ##### ##### ####\n## ## #   # #   # #       #   #     #   #\n# # # #   # ##  # #       #   #     #   #\n# # # #   # # # #  ###    #   ####  ####\n#   # #   # #  ##     #   #   #     # #\n#   # #   # #   #     #   #   #     #  #\n#   #  ###  #   # ####    #   ##### #   #\nzero-dependency console rendering",
+    "light": "#   #  ###  #   #  #### ##### ##### ####\n## ## #   # #   # #       #   #     #   #\n# # # #   # ##  # #       #   #     #   #\n# # # #   # # # #  ###    #   ####  ####\n#   # #   # #  ##     #   #   #     # #\n#   # #   # #   #     #   #   #     #  #\n#   #  ###  #   # ####    #   ##### #   #\nzero-dependency console rendering"
+  }
+}

@@ -1,0 +1,6 @@
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:100 800;font-display:swap;src:url(/fonts/jetbrains-mono-latin.woff2) format("woff2")}
+html{background:var(--cm-page,#eceff3);color:var(--cm-ink,#141a24)}
+html[data-theme="dark"]{background:#10151f;color:#e2e8f0}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.cm-header{position:sticky;top:0;z-index:30;height:64px}
+[hidden]{display:none!important}

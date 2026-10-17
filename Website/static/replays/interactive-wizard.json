@@ -1,0 +1,287 @@
+{
+  "w": 110,
+  "h": 30,
+  "duration": 7600,
+  "count": 3,
+  "frames": [
+    {
+      "t": 0,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c21\">Install Toolbox Agent</span><span class=\"fe2e8f0 k1f2a3c\"> <i class=n>›</i> Components                                                                           </span>"
+        ],
+        [
+          1,
+          "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c10\">Components</span><span class=c1> </span><i class=\"g2500 c89 f4b5060\">─────────────────────────────────────────────────────────────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c3\">2/5</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>"
+        ],
+        [
+          2,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          3,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f60a5fa c2\"><i class=n>●</i> </span><span class=c8>Location</span><span class=\"f60a5fa c4\"> <i class=\"g2500 c2\">──</i> </span><span class=\"f60a5fa B c12\"><i class=n>●</i> Components</span><span class=\"f3a3d45 c6\"> <i class=\"g2500 c2\">──</i> <i class=n>○</i> </span><span class=\"f8b8f9a c7\">Service</span><span class=\"f3a3d45 c6\"> <i class=\"g2500 c2\">──</i> <i class=n>○</i> </span><span class=\"f8b8f9a c10\">Connection</span><span class=\"f3a3d45 c6\"> <i class=\"g2500 c2\">──</i> <i class=n>○</i> </span><span class=\"f8b8f9a c6\">Review</span><span class=c39>                                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          4,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          5,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"B c10\">Components</span><span class=c96>                                                                                                </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          6,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f8b8f9a c45\">Pick what to install. You can add more later.</span><span class=c61>                                                             </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          7,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          8,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g258c f60a5fa k243b5e\">▌</i><span class=\"ff1f5f9 k243b5e c1\"> </span><span class=\"ff1f5f9 k243b5e B c10\">Components</span><span class=\"ff1f5f9 k243b5e c70\">   3 of 6 selected  <i class=n>·</i>  Agent service, Command-line tools, HTML reports</span><span class=\"f60a5fa k243b5e c2\"> <i class=n>▾</i></span><span class=\"ff1f5f9 k243b5e c20\">                    </span><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          12,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          13,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          14,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          15,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          16,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          17,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          18,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          19,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          20,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          21,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          22,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          23,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          24,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          25,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c17>                 </span><span class=\"f8b8f9a c57\">Space toggles, Ctrl+A selects all, Enter closes the list.</span><span class=c34>                                  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          26,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          27,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c92>                                                                                            </span><span class=\"f8b8f9a c6\"> Back </span><span class=c10>  Next    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          28,
+          "<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c108\">────────────────────────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>"
+        ],
+        [
+          29,
+          "<span class=c1> </span><span class=\"f60a5fa c2\"><i class=n>↑</i><i class=n>↓</i></span><span class=\"f8b8f9a c7\"> move  </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c7\"> open  </span><span class=\"f60a5fa c4\">pgdn</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c3\">esc</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c2\">f1</span><span class=f8b8f9a> keys</span>"
+        ]
+      ]
+    },
+    {
+      "t": 2600,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c21\">Install Toolbox Agent</span><span class=\"fe2e8f0 k1f2a3c\"> <i class=n>›</i> Connection                                                                           </span>"
+        ],
+        [
+          1,
+          "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c10\">Connection</span><span class=c1> </span><i class=\"g2500 c89 f4b5060\">─────────────────────────────────────────────────────────────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c3\">4/5</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>"
+        ],
+        [
+          3,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f60a5fa c2\"><i class=n>●</i> </span><span class=c8>Location</span><span class=\"f60a5fa c6\"> <i class=\"g2500 c2\">──</i> <i class=n>●</i> </span><span class=c10>Components</span><span class=\"f60a5fa c6\"> <i class=\"g2500 c2\">──</i> <i class=n>●</i> </span><span class=c7>Service</span><span class=\"f60a5fa c4\"> <i class=\"g2500 c2\">──</i> </span><span class=\"f60a5fa B c12\"><i class=n>●</i> Connection</span><span class=\"f3a3d45 c6\"> <i class=\"g2500 c2\">──</i> <i class=n>○</i> </span><span class=\"f8b8f9a c6\">Review</span><span class=c39>                                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          5,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"B c10\">Connection</span><span class=c96>                                                                                                </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          6,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f8b8f9a c27\">Where the agent reports to.</span><span class=c79>                                                                               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          8,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c6\">Region</span><span class=\"f60a5fa c1\">*</span><span class=c13>       Europe</span><span class=\"f3a3d45 c2\"> <i class=n>▾</i></span><span class=c82>                                                                                  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g258c f60a5fa k243b5e\">▌</i><span class=\"ff1f5f9 k243b5e c1\"> </span><span class=\"ff1f5f9 k243b5e B c6\">Server</span><span class=\"f60a5fa k243b5e c1\">*</span><span class=\"ff1f5f9 k243b5e c7\">       </span><i class=\"g2807 f60a5fa k243b5e\">⠇</i><span class=\"ff1f5f9 k243b5e c1\"> </span><span class=\"f8b8f9a k243b5e I c8\">Loading<i class=n>…</i></span><span class=\"ff1f5f9 k243b5e c78\">                                                                              </span><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c4\">Port</span><span class=c100>          443                                                                                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c11\">Use a proxy</span><span class=c3>   </span><span class=\"f8b8f9a c3\">[ ]</span><span class=c1> </span><span class=\"f8b8f9a c2\">No</span><span class=c84>                                                                                    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          25,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c18>                  </span><span class=\"f8b8f9a c50\">Loaded for the chosen region; Esc cancels loading.</span><span class=c40>                                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          27,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c90>                                                                                          </span><span class=\"f8b8f9a c6\"> Back </span><span class=c12>  Review    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          29,
+          "<span class=c1> </span><span class=\"f60a5fa c2\"><i class=n>↑</i><i class=n>↓</i></span><span class=\"f8b8f9a c7\"> move  </span><span class=\"f60a5fa c3\">esc</span><span class=\"f8b8f9a c9\"> cancel  </span><span class=\"f60a5fa c4\">pgdn</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c2\">f1</span><span class=f8b8f9a> keys</span>"
+        ]
+      ]
+    },
+    {
+      "t": 5200,
+      "rows": [
+        [
+          0,
+          "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c21\">Install Toolbox Agent</span><span class=\"fe2e8f0 k1f2a3c\"> <i class=n>›</i> Review                                                                               </span>"
+        ],
+        [
+          1,
+          "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Review</span><span class=c1> </span><i class=\"g2500 c93 f4b5060\">─────────────────────────────────────────────────────────────────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c3\">5/5</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>"
+        ],
+        [
+          3,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f60a5fa c2\"><i class=n>●</i> </span><span class=c8>Location</span><span class=\"f60a5fa c6\"> <i class=\"g2500 c2\">──</i> <i class=n>●</i> </span><span class=c10>Components</span><span class=\"f60a5fa c6\"> <i class=\"g2500 c2\">──</i> <i class=n>●</i> </span><span class=c7>Service</span><span class=\"f60a5fa c6\"> <i class=\"g2500 c2\">──</i> <i class=n>●</i> </span><span class=c10>Connection</span><span class=\"f60a5fa c4\"> <i class=\"g2500 c2\">──</i> </span><span class=\"f60a5fa B c8\"><i class=n>●</i> Review</span><span class=c39>                                       </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          5,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"B c6\">Review</span><span class=c100>                                                                                                    </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          6,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          7,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c14\">Install folder</span><span class=c90>         C:\\Program Files\\Toolbox Agent                                                   </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          8,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c11\">Data folder</span><span class=c93>            C:\\ProgramData\\Toolbox Agent                                                     </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          9,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c20\">Start menu shortcuts</span><span class=c84>   Yes                                                                              </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          10,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c10\">Components</span><span class=c94>             3 of 6 selected: Agent service, Command-line tools, HTML reports                 </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          11,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c15\">Service account</span><span class=c89>        A specific account                                                               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          12,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c9\">User name</span><span class=c95>              svc-toolbox                                                                      </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          13,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c8\">Password</span><span class=c96>               <i class=n>•</i><i class=n>•</i><i class=n>•</i><i class=n>•</i><i class=n>•</i><i class=n>•</i><i class=n>•</i><i class=n>•</i>                                                                         </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          14,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c19\">Start automatically</span><span class=c85>    Yes                                                                              </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          15,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c6\">Region</span><span class=c98>                 Europe                                                                           </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          16,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c6\">Server</span><span class=c98>                 eu-west-1                                                                        </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          17,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c4\">Port</span><span class=c100>                   443                                                                              </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          18,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c4>    </span><span class=\"f8b8f9a c11\">Use a proxy</span><span class=c93>            No                                                                               </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          20,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c18\">Equivalent command</span><span class=c1> </span><span class=\"f4b5060 c82\"><i class=\"g2500 c81\">─────────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          21,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c96\">Install-ToolboxAgent -Account Custom -UserName svc-toolbox -Password (Read-Host -AsSecureString)</span><span class=c5>     </span><i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          22,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c28\">-Region eu -Server eu-west-1</span><span class=c73>                                                                         </span><i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          23,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c2>  </span><span class=\"f4b5060 c104\"><i class=g2570>╰</i><i class=\"g2500 c102\">──────────────────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          25,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c108>                                                                                                            </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          27,
+          "<i class=\"g2502 f4b5060\">│</i><span class=c74>                                                                          </span><span class=\"ff1f5f9 k243b5e B c9\"> Install </span><span class=c1> </span><span class=\"f8b8f9a c14\"> Copy command </span><span class=c1> </span><span class=\"f8b8f9a c6\"> Back </span><span class=c3>   </span><i class=\"g2502 f4b5060\">│</i>"
+        ],
+        [
+          29,
+          "<span class=c1> </span><span class=\"f60a5fa c2\"><i class=n>←</i><i class=n>→</i></span><span class=\"f8b8f9a c7\"> move  </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c10\"> install  </span><span class=\"f60a5fa c3\">esc</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c2\">f1</span><span class=f8b8f9a> keys</span>"
+        ]
+      ]
+    }
+  ]
+}
