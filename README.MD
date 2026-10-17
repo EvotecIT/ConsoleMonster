@@ -29,7 +29,7 @@ Each layer can be used without the ones above it.
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
 | L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; rich text, text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
 | L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, resize, font and too-small handling, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 47 thin PowerShell cmdlets with a plain `Console` noun. |
+| L5 Surfaces | The C# object model and a fluent builder; 60 thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
@@ -280,6 +280,117 @@ Behaviour that differs because of the host routes:
 
 For an updating line (PSWriteColor #15), use `Write-ConsoleStatus 'Copying ', $file -Color Gray, Cyan -Spinner
 -ShowElapsed` and end it with `-Complete`.
+
+## Prompts, menus and forms
+
+Scripts and tools can ask questions, show menus and run wizards that look like the rest of ConsoleMonster.
+
+- Every list filters as you type. Matches are highlighted, and groups, hotkeys, badges, descriptions and a preview
+  pane are available.
+- A footer always lists the keys that work right now; `?` (or F1 in prompts) shows them all.
+- Answers come back as typed values or as the chosen objects themselves, not strings.
+- Forms and reviews show the equivalent command line, so people learn how to automate what they just did.
+
+### Prompts
+
+Prompts draw below the cursor and leave a one-line answer in the scrollback:
+
+```powershell
+$environment = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment'
+$services = Get-Service | Read-ConsoleMultiSelection 'Services' -Display DisplayName -GroupBy Status -Minimum 1
+$name = Read-ConsoleText 'Share name' -Pattern '[a-z][a-z0-9-]+' -PatternMessage 'Lower case letters, digits and dashes'
+$port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
+$token = Read-ConsoleSecret 'Token'
+$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
+if (Read-ConsoleConfirm 'Remove FS01?' -TypedConfirmation 'FS01') { ... }
+```
+
+```csharp
+string environment = Prompt.Select("Environment", new[] { "Production", "Staging", "Lab" });
+IReadOnlyList<ToolTask> tasks = new MultiSelectPrompt<ToolTask>("Tasks", allTasks, t => t.Name, t => t.Category) { Minimum = 1, Preview = TaskPreview }.Show();
+bool go = Prompt.Confirm("Continue?", true);
+```
+
+| Prompt | What it adds |
+|---|---|
+| Selection | Fuzzy filter, groups, hotkeys (`/` filters then), badges, descriptions, disabled choices with their reason, a preview pane beside or below the list. |
+| Multi-selection | Tri-state group checkboxes (Space toggles a group; ←→ collapse it), Ctrl+A all, Ctrl+N none, Ctrl+T invert, Ctrl+O selected only, minimum and maximum, a live count. |
+| Text | Default (Enter accepts it, Tab edits it), placeholder, required, length, pattern and scriptblock validation shown inline, history. |
+| Secret | Masked or hidden, Ctrl+R reveals it; a SecureString in PowerShell unless `-AsPlainText`. |
+| Number | Whole or decimal, minimum and maximum, Up and Down step. |
+| Path | Folder entries listed while typing, Tab completes, must-exist and file/folder checks. |
+| Confirm | Y/N answer at once, the default focused; `-TypedConfirmation` for destructive actions. |
+
+Prompts asked while a live dashboard runs pause it and appear in front of it, and the dashboard resumes afterwards.
+Prompts asked from a menu action appear in front of the app.
+
+### When nobody can answer
+
+| Situation | What prompts do |
+|---|---|
+| CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1` | Return the default, or fail: *Prompt 'Environment' needs a value in a non-interactive session; pass -Environment or set a default.* |
+| Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
+| `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
+
+Esc and Ctrl+C end a prompt with a `PromptCancelled` error (a typed confirmation answers `$false` instead).
+
+### Menus
+
+A menu runs as an app (`Shell`), a centred menu (`Classic`) or a list in the scrollback (`Inline`):
+
+```powershell
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
+    New-ConsoleMenuItem 'Restore' -Hotkey r -Action { $backup = Read-ConsoleSelection 'Backup' -Choices (Get-Backup) -Display Name }
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings -OnSubmit { $MenuContext.Toast("Saved: $($Values.Keep) days") }
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu -Layout Classic
+```
+
+```csharp
+Menu menu = new Menu("Server toolbox")
+    .Item("Targets", i => i.Hotkey('t').LoadChoices(LoadServersAsync))
+    .Item("Tasks", i => i.Hotkey('k').MultiSelect(tasks, t => t.Name, t => t.Category, TaskPreview))
+    .Item("Options", i => i.Form(optionsForm))
+    .Item("Presets", i => i.Presets())
+    .Item("Review & run", i => i.Review(BuildReview))
+    .Exit("Quit");
+menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox", RememberLastChoices = true });
+```
+
+- Items run actions (scriptblocks run on the pipeline thread) or open a submenu, a form, a selection, a page, a review
+  (summary, equivalent command, Run, Copy command, Save preset) or the presets list. They can have hotkeys, icons,
+  badges, state text and a reason when unavailable.
+- The Shell layout shows a breadcrumb title bar, a sidebar, the content pane and a key footer. Below 84 columns the
+  sidebar folds into the breadcrumb.
+- Keys: Esc goes back, Ctrl+Home goes home and Ctrl+Q leaves, asking first when a form has unsaved changes. `?` shows
+  every key, and Ctrl+K (or `:`) opens the command palette with every item, preset and the app's own providers.
+- `$MenuContext.Run($dashboard, { param($run) ... })` runs work with a live dashboard on the app's screen. The menu
+  comes back with a results summary and next actions.
+- Selections and form values survive navigation and can be saved as presets. With `-RememberLastChoices` they are kept
+  between runs (`%APPDATA%\ConsoleMonster\<app>\`, or the XDG config folder on Linux and macOS).
+
+### Forms and wizards
+
+```powershell
+$form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' {
+    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Default 'C:\Program Files\Agent' -Page Location -Parameter Path
+    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -Parameter Region
+    New-ConsoleField Server 'Server' -Type Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -Parameter Server
+    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -Parameter UseProxy
+    New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -Parameter Proxy
+}
+$answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
+```
+
+Fields with `-Page` make a wizard with a progress strip. `-VisibleWhen` shows a field only while a condition holds.
+`-DependsOn` resets a field when another changes, and its options load again in their own runspace, with a spinner
+that Esc cancels. The review page shows every answer and the equivalent command line, built from each field's
+`-Parameter`: PowerShell, POSIX or Windows style, with defaults left out and secrets as a placeholder.
+
+Every built-in word comes from `PromptLabels`, so the interactive layer can be translated.
+
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a

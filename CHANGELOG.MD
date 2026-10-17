@@ -24,7 +24,11 @@
 - Stream and plain output sanitise escape sequences and control characters.
 - Dashboards report unknown widget names, failed updates, failed frames and early ends through the host; `LiveSession.GetCounters()`; a dashboard that cannot start leaves the screen untouched.
 - The object inspector has a node budget (`MaxNodes`, `-MaxNodes`), skips blocking getters and lets Ctrl+C through.
-- 47 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
+- Input core: Windows console keys through `ReadConsoleInputW` (Ctrl/Alt combinations, Shift+Tab, function keys, AltGr, pastes, resizes, focus), VT input decoding, scripted input for tests and demos, and one keyboard owner shared by prompts and live sessions.
+- Prompts: confirm (with typed confirmation), text, secret, number, selection, multi-selection and path, with fuzzy filtering, groups, hotkeys, badges, previews, inline validation, typed results, line-based and accessible fallbacks, and defaults or a clear error when nobody can answer.
+- Forms and wizards: pages with a progress strip, conditional and dependent fields with async loading, a review page with the equivalent command line, named presets and opt-in remembered choices.
+- Menus and the app shell: Shell, Classic and Inline layouts, breadcrumb navigation, a command palette with providers, a key map and footer generated from the active keys, toasts, prompts over the app, and runs into a live dashboard that return to a results summary.
+- 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes
 - The Spectre.Console / Terminal.Gui functions of 0.0.x (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 remains on the PowerShell Gallery.

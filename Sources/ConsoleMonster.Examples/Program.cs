@@ -4,7 +4,7 @@ using ConsoleMonster.Examples.Showcases;
 namespace ConsoleMonster.Examples {
     /// <summary>
     /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
-    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c>, <c>stress</c> or <c>widths</c>. Terminal detection can be
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one) or <c>overlay</c> (a prompt over a live dashboard). Terminal detection can be
     /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
     /// </summary>
     public static class Program {
@@ -16,6 +16,22 @@ namespace ConsoleMonster.Examples {
             switch (name) {
                 case "query":
                     Terminal.Write(QueryResults.Build());
+                    return 0;
+                case "toolbox":
+                    ServerToolbox.Show(args.Length > 1 && args[1] == "classic" ? Interactive.MenuLayout.Classic : args.Length > 1 && args[1] == "inline" ? Interactive.MenuLayout.Inline : Interactive.MenuLayout.Auto);
+                    return 0;
+                case "installer":
+                    SetupWizard.Show();
+                    return 0;
+                case "prompts":
+                    try {
+                        PromptTour.Run(args.Length > 1 ? args[1] : null);
+                    } catch (Interactive.PromptCancelledException) {
+                        return 130;
+                    }
+                    return 0;
+                case "overlay":
+                    PromptTour.Overlay();
                     return 0;
                 case "gallery":
                     Terminal.Write(WidgetGallery.Build());
