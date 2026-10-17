@@ -1,0 +1,6 @@
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[38;2;139;143;154m00:02      [mDiscovered 4 domain controllers in 2 domains[38;2;139;143;154m
+00:31 [38;2;251;191;36mWARN [mDC02: replication partner DC05 last success 3h a…[38;2;139;143;154m
+00:44 [38;2;248;113;113mERR  [mDC02: USN rollback check failed (event 2095)[38;2;139;143;154m
+00:52      [mCollected 186 rule inputs from DC01[38;2;139;143;154m
+00:53 VERB Using cached schema snapshot
+[m[?9001l[?1004l

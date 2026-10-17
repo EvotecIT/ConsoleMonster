@@ -1,0 +1,3 @@
+# Captured VT streams and recordings are byte-exact program output.
+captures/** -text -diff
+static/recordings/** -text

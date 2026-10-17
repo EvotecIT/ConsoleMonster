@@ -1,0 +1,667 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
+
+namespace SiteFrames.Vt {
+    /// <summary>
+    /// A small VT/ANSI terminal model: it reads the byte stream a program wrote to a pseudo console and keeps the screen as
+    /// ConsoleMonster cells, so captured output goes through the same HTML converter as frames rendered in-process.
+    /// It covers what console programs and ConPTY emit: SGR colours (16, 256, 24-bit) and decorations, cursor movement,
+    /// erase, insert and delete, scroll regions, the alternate screen, autowrap and OSC 8 hyperlinks. Widths come from
+    /// ConsoleMonster's own display-width tables, so wide glyphs take two cells exactly as the library laid them out.
+    /// </summary>
+    internal sealed class VtScreen {
+        private readonly Decoder _decoder = new UTF8Encoding(false).GetDecoder();
+        private readonly char[] _chars = new char[8192];
+        private CellBuffer _main;
+        private CellBuffer _alternate;
+        private bool _onAlternate;
+        private readonly List<Cell[]> _scrollback = new List<Cell[]>();
+        private int _x;
+        private int _y;
+        private int _savedX;
+        private int _savedY;
+        private bool _pendingWrap;
+        private bool _autowrap = true;
+        private int _top;
+        private int _bottom;
+        private Style _style = Style.Plain;
+        private string? _link;
+        private char _pendingHigh;
+
+        // Parser state.
+        private int _state;
+        private readonly StringBuilder _params = new StringBuilder();
+        private readonly StringBuilder _osc = new StringBuilder();
+        private char _intermediate;
+
+        public VtScreen(int width, int height) {
+            Width = width;
+            Height = height;
+            _main = new CellBuffer(width, height);
+            _alternate = new CellBuffer(width, height);
+            _top = 0;
+            _bottom = height - 1;
+        }
+
+        public int Width { get; }
+
+        public int Height { get; }
+
+        /// <summary>Whether the program is drawing on the alternate screen (a live dashboard).</summary>
+        public bool OnAlternate => _onAlternate;
+
+        private CellBuffer Current => _onAlternate ? _alternate : _main;
+
+        public void Feed(byte[] data, int count) {
+            int offset = 0;
+            while (offset < count) {
+                int take = Math.Min(count - offset, 4096);
+                int chars = _decoder.GetChars(data, offset, take, _chars, 0, false);
+                for (int i = 0; i < chars; i++) {
+                    Process(_chars[i]);
+                }
+                offset += take;
+            }
+        }
+
+        public void Feed(string text) {
+            foreach (char c in text) {
+                Process(c);
+            }
+        }
+
+        /// <summary>A copy of the visible screen.</summary>
+        public CellBuffer Snapshot() {
+            CellBuffer copy = new CellBuffer(Width, Height);
+            copy.CopyFrom(Current);
+            return copy;
+        }
+
+        /// <summary>The main screen with everything that scrolled off its top above it (print-once output).</summary>
+        public CellBuffer Transcript() {
+            int rows = _scrollback.Count + Height;
+            CellBuffer all = new CellBuffer(Width, rows);
+            for (int y = 0; y < _scrollback.Count; y++) {
+                Cell[] row = _scrollback[y];
+                for (int x = 0; x < Width; x++) {
+                    Put(all, x, y, row[x]);
+                }
+            }
+            for (int y = 0; y < Height; y++) {
+                for (int x = 0; x < Width; x++) {
+                    Put(all, x, _scrollback.Count + y, _main[x, y]);
+                }
+            }
+            return all;
+        }
+
+        private static void Put(CellBuffer buffer, int x, int y, Cell cell) {
+            if (cell.IsContinuation) {
+                return;
+            }
+            buffer.Set(x, y, string.IsNullOrEmpty(cell.Glyph) ? " " : cell.Glyph, cell.Style, Math.Max(1, (int)cell.Width));
+        }
+
+        private void Process(char c) {
+            switch (_state) {
+                case 0:
+                    Ground(c);
+                    return;
+                case 1: // ESC
+                    Escape(c);
+                    return;
+                case 2: // CSI
+                    if (c >= 0x30 && c <= 0x3F) {
+                        _params.Append(c);
+                    } else if (c >= 0x20 && c <= 0x2F) {
+                        _intermediate = c;
+                    } else if (c >= 0x40 && c <= 0x7E) {
+                        _state = 0;
+                        Csi(c);
+                    } else if (c == '\u001b') {
+                        _state = 1;
+                    }
+                    return;
+                case 3: // OSC
+                    if (c == '\u0007') {
+                        _state = 0;
+                        Osc(_osc.ToString());
+                    } else if (c == '\u001b') {
+                        _state = 4;
+                    } else {
+                        _osc.Append(c);
+                    }
+                    return;
+                case 4: // ESC inside OSC: expect '\' (ST)
+                    _state = 0;
+                    Osc(_osc.ToString());
+                    if (c != '\\') {
+                        Process(c);
+                    }
+                    return;
+                case 5: // charset designation: one more character
+                    _state = 0;
+                    return;
+                case 6: // DCS / SOS / PM / APC: skip to ST
+                    if (c == '\u001b') {
+                        _state = 7;
+                    }
+                    return;
+                case 7:
+                    _state = c == '\\' ? 0 : 6;
+                    return;
+            }
+        }
+
+        private void Ground(char c) {
+            if (_pendingHigh != '\0') {
+                char high = _pendingHigh;
+                _pendingHigh = '\0';
+                if (char.IsLowSurrogate(c)) {
+                    Print(new string(new[] { high, c }));
+                    return;
+                }
+            }
+            switch (c) {
+                case '\u001b':
+                    _state = 1;
+                    return;
+                case '\r':
+                    _x = 0;
+                    _pendingWrap = false;
+                    return;
+                case '\n':
+                case '\u000b':
+                case '\u000c':
+                    LineFeed();
+                    return;
+                case '\b':
+                    if (_x > 0) {
+                        _x--;
+                    }
+                    _pendingWrap = false;
+                    return;
+                case '\t':
+                    _x = Math.Min(Width - 1, ((_x / 8) + 1) * 8);
+                    return;
+                case '\u0007':
+                case '\0':
+                    return;
+            }
+            if (c < 0x20 || c == 0x7F) {
+                return;
+            }
+            if (char.IsHighSurrogate(c)) {
+                _pendingHigh = c;
+                return;
+            }
+            Print(c.ToString());
+        }
+
+        private void Print(string glyph) {
+            int codePoint = char.ConvertToUtf32(glyph, 0);
+            int width = DisplayWidth.GetWidth(codePoint);
+            CellBuffer screen = Current;
+            if (width == 0) {
+                // A combining mark, variation selector or joiner: it belongs to the previous cell.
+                int px = _pendingWrap ? _x : _x - 1;
+                if (px >= 0) {
+                    Cell prev = screen[px, _y];
+                    if (prev.IsContinuation && px > 0) {
+                        px--;
+                        prev = screen[px, _y];
+                    }
+                    screen.Set(px, _y, (prev.Glyph ?? string.Empty) + glyph, prev.Style, Math.Max(1, (int)prev.Width));
+                }
+                return;
+            }
+            if (_pendingWrap) {
+                if (_autowrap) {
+                    _x = 0;
+                    LineFeed();
+                }
+                _pendingWrap = false;
+            }
+            if (width == 2 && _x == Width - 1) {
+                if (_autowrap) {
+                    screen.Set(_x, _y, " ", _style);
+                    _x = 0;
+                    LineFeed();
+                } else {
+                    return;
+                }
+            }
+            Style style = _link != null ? _style.WithLink(_link) : _style;
+            screen.Set(_x, _y, glyph, style, width);
+            if (_x + width >= Width) {
+                _x = Width - 1;
+                _pendingWrap = true;
+            } else {
+                _x += width;
+            }
+        }
+
+        private void LineFeed() {
+            _pendingWrap = false;
+            if (_y == _bottom) {
+                ScrollUp(1);
+            } else if (_y < Height - 1) {
+                _y++;
+            }
+        }
+
+        private void ScrollUp(int lines) {
+            CellBuffer screen = Current;
+            for (int n = 0; n < lines; n++) {
+                if (!_onAlternate && _top == 0) {
+                    Cell[] row = new Cell[Width];
+                    for (int x = 0; x < Width; x++) {
+                        row[x] = screen[x, 0];
+                    }
+                    _scrollback.Add(row);
+                }
+                for (int y = _top; y < _bottom; y++) {
+                    CopyRow(screen, y + 1, y);
+                }
+                ClearRow(screen, _bottom, 0, Width);
+            }
+        }
+
+        private void ScrollDown(int lines) {
+            CellBuffer screen = Current;
+            for (int n = 0; n < lines; n++) {
+                for (int y = _bottom; y > _top; y--) {
+                    CopyRow(screen, y - 1, y);
+                }
+                ClearRow(screen, _top, 0, Width);
+            }
+        }
+
+        private void CopyRow(CellBuffer screen, int from, int to) {
+            for (int x = 0; x < Width; x++) {
+                Cell cell = screen[x, from];
+                if (cell.IsContinuation) {
+                    continue;
+                }
+                screen.Set(x, to, string.IsNullOrEmpty(cell.Glyph) ? " " : cell.Glyph, cell.Style, Math.Max(1, (int)cell.Width));
+                if (cell.Width < 2 && x + 1 < Width && screen[x + 1, to].IsContinuation && !screen[x + 1, from].IsContinuation) {
+                    screen.Set(x + 1, to, " ", Style.Plain);
+                }
+            }
+        }
+
+        private void ClearRow(CellBuffer screen, int y, int from, int to) {
+            // Erased cells take the current background, as terminals do (back-colour erase).
+            Style blank = _style.Background.IsDefault ? Style.Plain : new Style(Color.Default, _style.Background);
+            for (int x = Math.Max(0, from); x < Math.Min(Width, to); x++) {
+                screen.Set(x, y, " ", blank);
+            }
+        }
+
+        private void Escape(char c) {
+            _state = 0;
+            switch (c) {
+                case '[':
+                    _params.Clear();
+                    _intermediate = '\0';
+                    _state = 2;
+                    return;
+                case ']':
+                    _osc.Clear();
+                    _state = 3;
+                    return;
+                case 'P':
+                case 'X':
+                case '^':
+                case '_':
+                    _state = 6;
+                    return;
+                case '(':
+                case ')':
+                case '*':
+                case '+':
+                    _state = 5;
+                    return;
+                case '7':
+                    _savedX = _x;
+                    _savedY = _y;
+                    return;
+                case '8':
+                    _x = _savedX;
+                    _y = _savedY;
+                    _pendingWrap = false;
+                    return;
+                case 'M':
+                    if (_y == _top) {
+                        ScrollDown(1);
+                    } else if (_y > 0) {
+                        _y--;
+                    }
+                    return;
+                case 'D':
+                    LineFeed();
+                    return;
+                case 'E':
+                    _x = 0;
+                    LineFeed();
+                    return;
+                case 'c':
+                    Reset();
+                    return;
+            }
+        }
+
+        private void Reset() {
+            _main = new CellBuffer(Width, Height);
+            _alternate = new CellBuffer(Width, Height);
+            _onAlternate = false;
+            _x = _y = 0;
+            _style = Style.Plain;
+            _top = 0;
+            _bottom = Height - 1;
+        }
+
+        private int[] Params(out bool privateMode) {
+            string text = _params.ToString();
+            privateMode = text.StartsWith("?", StringComparison.Ordinal);
+            if (privateMode || text.StartsWith(">", StringComparison.Ordinal) || text.StartsWith("=", StringComparison.Ordinal)) {
+                text = text.Substring(1);
+            }
+            if (text.Length == 0) {
+                return Array.Empty<int>();
+            }
+            string[] parts = text.Split(';');
+            int[] values = new int[parts.Length];
+            for (int i = 0; i < parts.Length; i++) {
+                string part = parts[i];
+                int colon = part.IndexOf(':');
+                if (colon >= 0) {
+                    part = part.Substring(0, colon);
+                }
+                values[i] = int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out int v) ? v : 0;
+            }
+            return values;
+        }
+
+        private static int Arg(int[] p, int index, int fallback) => index < p.Length && p[index] > 0 ? p[index] : fallback;
+
+        private void Csi(char final) {
+            int[] p = Params(out bool priv);
+            if (_intermediate != '\0') {
+                return; // cursor style (SP q) and similar
+            }
+            CellBuffer screen = Current;
+            switch (final) {
+                case 'm':
+                    if (!priv) {
+                        Sgr(p);
+                    }
+                    return;
+                case 'H':
+                case 'f':
+                    _y = Clamp(Arg(p, 0, 1) - 1, 0, Height - 1);
+                    _x = Clamp(Arg(p, 1, 1) - 1, 0, Width - 1);
+                    _pendingWrap = false;
+                    return;
+                case 'A':
+                    _y = Math.Max(_y < _top ? 0 : _top, _y - Arg(p, 0, 1));
+                    _pendingWrap = false;
+                    return;
+                case 'B':
+                    _y = Math.Min(_y > _bottom ? Height - 1 : _bottom, _y + Arg(p, 0, 1));
+                    _pendingWrap = false;
+                    return;
+                case 'C':
+                    _x = Math.Min(Width - 1, _x + Arg(p, 0, 1));
+                    _pendingWrap = false;
+                    return;
+                case 'D':
+                    _x = Math.Max(0, _x - Arg(p, 0, 1));
+                    _pendingWrap = false;
+                    return;
+                case 'E':
+                    _y = Math.Min(Height - 1, _y + Arg(p, 0, 1));
+                    _x = 0;
+                    _pendingWrap = false;
+                    return;
+                case 'F':
+                    _y = Math.Max(0, _y - Arg(p, 0, 1));
+                    _x = 0;
+                    _pendingWrap = false;
+                    return;
+                case 'G':
+                case '`':
+                    _x = Clamp(Arg(p, 0, 1) - 1, 0, Width - 1);
+                    _pendingWrap = false;
+                    return;
+                case 'd':
+                    _y = Clamp(Arg(p, 0, 1) - 1, 0, Height - 1);
+                    _pendingWrap = false;
+                    return;
+                case 'K': {
+                    int mode = p.Length > 0 ? p[0] : 0;
+                    if (mode == 0) {
+                        ClearRow(screen, _y, _x, Width);
+                    } else if (mode == 1) {
+                        ClearRow(screen, _y, 0, _x + 1);
+                    } else {
+                        ClearRow(screen, _y, 0, Width);
+                    }
+                    return;
+                }
+                case 'J': {
+                    int mode = p.Length > 0 ? p[0] : 0;
+                    if (mode == 0) {
+                        ClearRow(screen, _y, _x, Width);
+                        for (int y = _y + 1; y < Height; y++) {
+                            ClearRow(screen, y, 0, Width);
+                        }
+                    } else if (mode == 1) {
+                        for (int y = 0; y < _y; y++) {
+                            ClearRow(screen, y, 0, Width);
+                        }
+                        ClearRow(screen, _y, 0, _x + 1);
+                    } else {
+                        for (int y = 0; y < Height; y++) {
+                            ClearRow(screen, y, 0, Width);
+                        }
+                        if (mode == 3) {
+                            _scrollback.Clear();
+                        }
+                    }
+                    return;
+                }
+                case 'X': {
+                    int n = Arg(p, 0, 1);
+                    ClearRow(screen, _y, _x, _x + n);
+                    return;
+                }
+                case '@': {
+                    int n = Arg(p, 0, 1);
+                    for (int x = Width - 1; x >= _x + n; x--) {
+                        Cell cell = screen[x - n, _y];
+                        screen.Set(x, _y, cell.IsContinuation ? " " : cell.Glyph, cell.Style);
+                    }
+                    ClearRow(screen, _y, _x, _x + n);
+                    return;
+                }
+                case 'P': {
+                    int n = Arg(p, 0, 1);
+                    for (int x = _x; x < Width; x++) {
+                        if (x + n < Width) {
+                            Cell cell = screen[x + n, _y];
+                            screen.Set(x, _y, cell.IsContinuation ? " " : cell.Glyph, cell.Style);
+                        } else {
+                            screen.Set(x, _y, " ", Style.Plain);
+                        }
+                    }
+                    return;
+                }
+                case 'L': {
+                    if (_y < _top || _y > _bottom) {
+                        return;
+                    }
+                    int saveTop = _top;
+                    _top = _y;
+                    ScrollDown(Arg(p, 0, 1));
+                    _top = saveTop;
+                    return;
+                }
+                case 'M': {
+                    if (_y < _top || _y > _bottom) {
+                        return;
+                    }
+                    int saveTop = _top;
+                    _top = _y;
+                    bool saveAlt = _onAlternate;
+                    for (int n = 0; n < Arg(p, 0, 1); n++) {
+                        for (int y = _top; y < _bottom; y++) {
+                            CopyRow(screen, y + 1, y);
+                        }
+                        ClearRow(screen, _bottom, 0, Width);
+                    }
+                    _onAlternate = saveAlt;
+                    _top = saveTop;
+                    return;
+                }
+                case 'S':
+                    ScrollUp(Arg(p, 0, 1));
+                    return;
+                case 'T':
+                    ScrollDown(Arg(p, 0, 1));
+                    return;
+                case 'r':
+                    _top = Clamp(Arg(p, 0, 1) - 1, 0, Height - 1);
+                    _bottom = Clamp(Arg(p, 1, Height) - 1, 0, Height - 1);
+                    if (_bottom <= _top) {
+                        _top = 0;
+                        _bottom = Height - 1;
+                    }
+                    _x = 0;
+                    _y = 0;
+                    return;
+                case 's':
+                    _savedX = _x;
+                    _savedY = _y;
+                    return;
+                case 'u':
+                    _x = _savedX;
+                    _y = _savedY;
+                    _pendingWrap = false;
+                    return;
+                case 'h':
+                case 'l':
+                    if (priv) {
+                        Mode(p, final == 'h');
+                    }
+                    return;
+            }
+        }
+
+        private void Mode(int[] p, bool set) {
+            foreach (int mode in p) {
+                switch (mode) {
+                    case 7:
+                        _autowrap = set;
+                        break;
+                    case 47:
+                    case 1047:
+                    case 1049:
+                        if (set && !_onAlternate) {
+                            if (mode == 1049) {
+                                _savedX = _x;
+                                _savedY = _y;
+                            }
+                            _onAlternate = true;
+                            _alternate = new CellBuffer(Width, Height);
+                        } else if (!set && _onAlternate) {
+                            _onAlternate = false;
+                            if (mode == 1049) {
+                                _x = _savedX;
+                                _y = _savedY;
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void Osc(string text) {
+            // OSC 8 ; params ; URI
+            if (text.StartsWith("8;", StringComparison.Ordinal)) {
+                int second = text.IndexOf(';', 2);
+                string uri = second >= 0 ? text.Substring(second + 1) : string.Empty;
+                _link = uri.Length == 0 ? null : uri;
+            }
+        }
+
+        private void Sgr(int[] p) {
+            if (p.Length == 0) {
+                _style = Style.Plain;
+                return;
+            }
+            for (int i = 0; i < p.Length; i++) {
+                int code = p[i];
+                switch (code) {
+                    case 0: _style = Style.Plain; break;
+                    case 1: _style = _style.With(TextDecoration.Bold); break;
+                    case 2: _style = _style.With(TextDecoration.Dim); break;
+                    case 3: _style = _style.With(TextDecoration.Italic); break;
+                    case 4: _style = _style.With(TextDecoration.Underline); break;
+                    case 7: _style = _style.With(TextDecoration.Reverse); break;
+                    case 9: _style = _style.With(TextDecoration.Strikethrough); break;
+                    case 21:
+                    case 22: _style = _style.Without(TextDecoration.Bold | TextDecoration.Dim); break;
+                    case 23: _style = _style.Without(TextDecoration.Italic); break;
+                    case 24: _style = _style.Without(TextDecoration.Underline); break;
+                    case 27: _style = _style.Without(TextDecoration.Reverse); break;
+                    case 29: _style = _style.Without(TextDecoration.Strikethrough); break;
+                    case 39: _style = _style.WithForeground(Color.Default); break;
+                    case 49: _style = _style.WithBackground(Color.Default); break;
+                    case 38:
+                    case 48: {
+                        Color color = Extended(p, ref i);
+                        _style = code == 38 ? _style.WithForeground(color) : _style.WithBackground(color);
+                        break;
+                    }
+                    default:
+                        if (code >= 30 && code <= 37) {
+                            _style = _style.WithForeground(Color.FromAnsi16(code - 30));
+                        } else if (code >= 40 && code <= 47) {
+                            _style = _style.WithBackground(Color.FromAnsi16(code - 40));
+                        } else if (code >= 90 && code <= 97) {
+                            _style = _style.WithForeground(Color.FromAnsi16(code - 90 + 8));
+                        } else if (code >= 100 && code <= 107) {
+                            _style = _style.WithBackground(Color.FromAnsi16(code - 100 + 8));
+                        }
+                        break;
+                }
+            }
+        }
+
+        private static Color Extended(int[] p, ref int i) {
+            if (i + 1 >= p.Length) {
+                return Color.Default;
+            }
+            if (p[i + 1] == 5 && i + 2 < p.Length) {
+                int index = p[i + 2];
+                i += 2;
+                return index < 16 ? Color.FromAnsi16(index) : Color.FromAnsi256(index);
+            }
+            if (p[i + 1] == 2 && i + 4 < p.Length) {
+                byte r = (byte)Clamp(p[i + 2], 0, 255), g = (byte)Clamp(p[i + 3], 0, 255), b = (byte)Clamp(p[i + 4], 0, 255);
+                i += 4;
+                return Color.FromRgb(r, g, b);
+            }
+            i = p.Length;
+            return Color.Default;
+        }
+
+        private static int Clamp(int value, int min, int max) => value < min ? min : value > max ? max : value;
+    }
+}

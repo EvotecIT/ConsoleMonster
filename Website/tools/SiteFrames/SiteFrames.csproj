@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+        The consolemonster.dev site tool. It renders every visual on the site through ConsoleMonster itself and writes
+        HTML frames, replay timelines, SVG thumbnails and page data into Website/. See Website/AGENTS.md.
+    -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>SiteFrames</AssemblyName>
+        <RootNamespace>SiteFrames</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\ConsoleMonster\ConsoleMonster.csproj" />
+        <ProjectReference Include="..\..\..\ConsoleMonster.Examples\ConsoleMonster.Examples.csproj" />
+    </ItemGroup>
+</Project>

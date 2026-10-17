@@ -1,0 +1,12 @@
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[1mmail.evotec.xyz certificate[38;2;139;143;154m[22m  ·  5 members
+Subject       [mCN=mail.evotec.xyz[38;2;139;143;154m
+Issuer        [mCN=R11, O=Let's Encrypt, C=US[38;2;139;143;154m
+KeyAlgorithm  [mECDSA P-256[1m[6;1HSubjectAlternativeNames[38;2;139;143;154m[22m  3 items[m
+  [38;2;139;143;154m[0]  [mmail.evotec.xyz
+  [38;2;139;143;154m[1]  [mautodiscover.evotec.xyz
+  [38;2;139;143;154m[2]  [mmta-sts.evotec.xyz[1m[11;1HChain[38;2;139;143;154m[22m  3 items[m
+  [1mSubject[22m[18X[1m[18CKey[22m[10X[1m[10CRevoked[22m
+  [38;2;75;80;96m───────────────────────  ───────────  ───────[m
+  CN=mail.evotec.xyz       ECDSA P-256  [38;2;139;143;154m– no[m
+  CN=R11, O=Let's Encrypt  RSA 2048     [38;2;139;143;154m– no[m
+  CN=ISRG Root X1          RSA 4096     [38;2;139;143;154m– no[18;1H[?25h[m[?9001l[?1004l

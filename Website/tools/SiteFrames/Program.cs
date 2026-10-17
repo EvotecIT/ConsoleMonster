@@ -1,0 +1,95 @@
+using System;
+using System.Globalization;
+using System.IO;
+using System.Text.Json.Nodes;
+using System.Threading;
+using SiteFrames.Capture;
+using SiteFrames.Pages;
+
+namespace SiteFrames {
+    /// <summary>
+    /// The consolemonster.dev site tool.
+    /// <list type="bullet">
+    /// <item><c>render [Website]</c>: renders every frame, replay, thumbnail and page data file from the ConsoleMonster sources
+    /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
+    /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
+    /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// </list>
+    /// </summary>
+    public static class Program {
+        internal static int Failures;
+
+        public static int Main(string[] args) {
+            CultureInfo culture = Site.Culture;
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+            string command = args.Length > 0 ? args[0] : "render";
+            string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
+            string? only = args.Length > 2 ? args[2] : null;
+            switch (command) {
+                case "render":
+                    return Render(new Site(website), only);
+                case "capture":
+                    return CaptureAll(new Site(website), only);
+                default:
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture [WebsiteRoot] [area]");
+                    return 2;
+            }
+        }
+
+        private static bool Wants(string? only, string area) => only == null || string.Equals(only, area, StringComparison.OrdinalIgnoreCase);
+
+        private static int CaptureAll(Site site, string? only) {
+            JsonObject hosts = new JsonObject();
+            foreach (PowerShellHost host in PowerShellHost.All) {
+                hosts[host.Id] = PowerShellRunner.Version(host);
+            }
+            site.WriteJson(Path.Combine(site.Captures, "hosts.json"), hosts);
+            if (Wants(only, "widgets")) {
+                WidgetsPage.Capture(site);
+            }
+            if (Wants(only, "live")) {
+                LivePage.Capture(site);
+            }
+            if (Wants(only, "home")) {
+                HomePage.Capture(site);
+            }
+            if (Wants(only, "powershell")) {
+                PowerShellPage.Capture(site);
+            }
+            if (Wants(only, "benchmarks")) {
+                BenchmarksPage.Capture(site);
+            }
+            if (Wants(only, "docs")) {
+                DocsPage.Capture(site);
+            }
+            return 0;
+        }
+
+        private static int Render(Site site, string? only) {
+            JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
+            Figures.Render(site);
+            WidgetsPage.Render(site, hosts);
+            LivePage.Render(site);
+            TablesPage.Render(site);
+            InteractivePage.Render(site);
+            PowerShellPage.Render(site, hosts);
+            BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
+            DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            HomePage.Render(site, hosts);
+            Visuals.Render(site);
+            Figures.Write(site);
+            site.Write(site.Static("css/frames.css"), site.Styles.Css());
+            SiteImages.Render(site);
+            site.Write(Path.Combine(site.Tool, "glyphs.txt"), string.Join("\n", site.Styles.Glyphs) + "\n");
+            Console.WriteLine("Wrote " + site.Written.Count + " files.");
+            if (Failures > 0) {
+                Console.Error.WriteLine(Failures + " problem(s); see above.");
+                return 1;
+            }
+            return 0;
+        }
+    }
+}
