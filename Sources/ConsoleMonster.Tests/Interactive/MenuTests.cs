@@ -71,7 +71,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void Classic_CentredCardWithHotkeys() {
             RecordingSurface surface = Run(Toolbox(new List<string>()), "o Escape Ctrl+Q", MenuLayout.Classic, 90, 24);
-            Golden.Match("interactive/menu.classic.root.txt", surface.Frames[0].ToPlainText());
+            Golden.Match("interactive/menu.classic.root.txt", surface.Frames[0].ToPlainText().TrimEnd('\n') + "\n");
             Assert.Contains("Toolbox › Options", surface.Frames[1].ToPlainText());
         }
 

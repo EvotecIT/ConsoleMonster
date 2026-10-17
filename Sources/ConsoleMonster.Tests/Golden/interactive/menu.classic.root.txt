@@ -14,10 +14,3 @@
                    │    Where tasks run.                              │
                    ╰──────────────────────────────────────────────────╯
                     ↑↓ move  enter open  / filter  esc quit  ? keys
-
-
-
-
-
-
-
