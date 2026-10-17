@@ -31,7 +31,11 @@ namespace ConsoleMonster.Interactive {
                 IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile);
                 try {
                     MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface as ScreenSurface, context, layout, cancellationToken);
-                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
+                    try {
+                        InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
+                    } finally {
+                        app.Shutdown();
+                    }
                     surface.Complete(null);
                 } finally {
                     if (interactive.Surface == null) {
@@ -64,6 +68,11 @@ namespace ConsoleMonster.Interactive {
         }
 
         public MenuLayout Layout => MenuLayout.Inline;
+
+        // Inline menus live in the scrollback, so action output is simply written there.
+        public void Log(string text, StatusKind status) {
+            Terminal.WriteRich(status == StatusKind.Info || status == StatusKind.Pass ? RichText.Plain(text) : RichText.Plain(text, new RichStyle(status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn)));
+        }
 
         private InteractiveOptions Interactive => _options.Interactive ?? InteractiveOptions.Default;
 

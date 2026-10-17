@@ -292,6 +292,21 @@ namespace ConsoleMonster.Interactive {
             Push(new Location(item.Title, PaneFor(item), item));
         }
 
+        /// <summary>
+        /// Leaves the current pane, asking first when it is a form with changes that were not saved: Discard puts back the
+        /// values it had when it was opened or last saved, so nothing unsaved leaks into reviews and runs; No stays.
+        /// </summary>
+        private void LeaveForm(Action leave) {
+            if (CurrentPane is FormView form && form.IsDirty) {
+                ShowModal(new ConfirmDialog(Labels.Discard, PromptLabels.Format(Labels.DiscardFormChanges, form.Title), () => {
+                    form.Revert();
+                    leave();
+                }, Labels, true));
+                return;
+            }
+            leave();
+        }
+
         private void RequestExit() {
             bool dirty = false;
             foreach (IPane pane in _panes.Values) {
@@ -320,6 +335,7 @@ namespace ConsoleMonster.Interactive {
         private void Invoke(MenuItem? item, Action<MenuContext> action, FormResult? form) {
             Func<RenderContext, IPromptSurface?>? previous = PromptHost.Current;
             PromptHost.Current = ResolvePromptSurface;
+            bool collecting = BeginOutput(item?.Title ?? _root.Title);
             try {
                 MenuContext context = Context(item, form?.Values);
                 context.FormResult = form;
@@ -330,6 +346,9 @@ namespace ConsoleMonster.Interactive {
                 ShowResult(new RunResult(item?.Title ?? _root.Title, StatusKind.Fail) { Error = ex });
             } finally {
                 PromptHost.Current = previous;
+                if (collecting) {
+                    EndOutput();
+                }
                 _screen?.Invalidate();
             }
         }
@@ -347,6 +366,7 @@ namespace ConsoleMonster.Interactive {
             }
             MenuContext context = Context(item);
             CancellationToken token = _asyncCancel.Token;
+            BeginOutput(item.Title);
             _asyncAction = Task.Run(() => item.AsyncHandler!(context, token), token);
         }
 
@@ -360,7 +380,8 @@ namespace ConsoleMonster.Interactive {
                 _asyncPane.Running = false;
                 _asyncPane.Cancel = null;
             }
-            if (task.IsCanceled) {
+            EndOutput();
+            if (task.IsCanceled || (task.IsFaulted && task.Exception!.GetBaseException() is PromptCancelledException)) {
                 ShowToast(new Toast(_asyncItem?.Title + ": " + Labels.Cancelled, StatusKind.Warn));
             } else if (task.IsFaulted) {
                 ShowResult(new RunResult(_asyncItem?.Title ?? _root.Title, StatusKind.Fail) { Error = task.Exception!.GetBaseException() });
@@ -570,7 +591,7 @@ namespace ConsoleMonster.Interactive {
             if (!hasExit) {
                 commands.Add(new PaletteCommand(Labels.Exit, _ => RequestExit()) { Category = Labels.AppCommands, Keys = "ctrl+q" });
             }
-            ShowModal(new PaletteModal(commands, command => Invoke(null, command.Invoke, null), Labels));
+            ShowModal(new PaletteModal(commands, command => LeaveForm(() => Invoke(null, command.Invoke, null)), Labels));
         }
 
         private void AddNavigation(Menu menu, List<string> path, List<PaletteCommand> commands) {
@@ -649,6 +670,7 @@ namespace ConsoleMonster.Interactive {
             if (_modals.Count > 0) {
                 changed |= _modals[_modals.Count - 1].Poll(now);
             }
+            changed |= DrainCalls();
             changed |= PollAsync();
             return changed;
         }

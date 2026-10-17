@@ -21,5 +21,7 @@ namespace ConsoleMonster.Interactive {
         void Open(MenuItem item);
 
         void Exit();
+
+        void Log(string text, StatusKind status);
     }
 }

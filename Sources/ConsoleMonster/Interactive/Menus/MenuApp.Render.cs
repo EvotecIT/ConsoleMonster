@@ -200,7 +200,7 @@ namespace ConsoleMonster.Interactive {
             } else if (CurrentPane != null) {
                 CurrentPane.AddBindings(bindings, frame);
                 if (UsesSidebar) {
-                    bindings.Add(new KeyBinding(Labels.KeyPane, () => _contentFocused = false, new KeyChord(ConsoleKey.Tab, KeyModifiers.Shift)) { KeyText = "shift+tab", Order = 55, Group = "App", InFooter = false });
+                    bindings.Add(new KeyBinding(Labels.KeyPane, () => LeaveForm(() => _contentFocused = false), new KeyChord(ConsoleKey.Tab, KeyModifiers.Shift)) { KeyText = "shift+tab", Order = 55, Group = "App", InFooter = false });
                 }
                 if (!HasEscape(bindings)) {
                     bool canGoBack = _stack.Count > 1 || UsesSidebar || CurrentPane.Crumbs.Count > 0 || Layout != MenuLayout.Classic;
@@ -209,7 +209,7 @@ namespace ConsoleMonster.Interactive {
                             return;
                         }
                         if (_stack.Count > 1 || UsesSidebar) {
-                            Back();
+                            LeaveForm(Back);
                         } else if (Layout == MenuLayout.Classic) {
                             RequestExit();
                         }
@@ -224,7 +224,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 bindings.Add(new KeyBinding(Labels.KeyPalette, OpenPalette, palette.ToArray()) { KeyText = "ctrl+k", Order = 80, Group = "App" });
             }
-            bindings.Add(new KeyBinding(Labels.KeyHome, Home, new KeyChord(ConsoleKey.Home, KeyModifiers.Control)) { Order = 85, Group = "App", InFooter = false });
+            bindings.Add(new KeyBinding(Labels.KeyHome, () => LeaveForm(Home), new KeyChord(ConsoleKey.Home, KeyModifiers.Control)) { Order = 85, Group = "App", InFooter = false });
             bindings.Add(new KeyBinding(Labels.KeyQuit, RequestExit, new KeyChord(ConsoleKey.Q, KeyModifiers.Control)) { Order = sidebar ? 75 : 90, Group = "App", InFooter = sidebar });
             foreach (KeyBinding custom in _root.KeyBindings) {
                 bindings.Add(custom);

@@ -56,7 +56,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         public void Render(Region region, RenderContext context) {
-            Panel panel = new Panel(new Body(this), _labels.Keys) { BorderToken = ThemeToken.Accent, Footer = "[muted]any key closes[/]" };
+            Panel panel = new Panel(new Body(this), _labels.Keys) { BorderToken = ThemeToken.Accent, Footer = "[muted]" + Markup.Escape(_labels.AnyKeyCloses) + "[/]" };
             panel.Render(region, context);
         }
 

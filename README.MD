@@ -370,6 +370,17 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
   comes back with a results summary and next actions.
 - Selections and form values survive navigation and can be saved as presets. With `-RememberLastChoices` they are kept
   between runs (`%APPDATA%\ConsoleMonster\<app>\`, or the XDG config folder on Linux and macOS).
+- A form opened from a menu changes nothing until you press its Save button. Leaving it with changes asks
+  "Discard the changes to Options?"; Discard puts back the values it had when it was opened or last saved, so unsaved
+  edits never reach a review or a run.
+- While an action runs, what it writes (`Write-Host`, warnings, errors, `Console.Out` and `Console.Error`) is collected
+  instead of drawn over the app. One line comes back as a toast, more lines in an output dialog. `$MenuContext.Log()`
+  adds a line yourself. Programs that write to the console handle directly are not captured.
+- A review blocks Run while it has problems: the button reads "Run · 1 problem", the problems sit above the buttons,
+  and Enter opens the item that fixes the first one (`review.Problem("Pick a target", targetsItem)` in C#).
+- Async C# actions (`ActionAsync`) run on a worker. Their prompts, runs, toasts and navigation are passed to the menu's
+  thread, which owns the keyboard, and the worker waits for the answer. Calls from any other thread throw a clear
+  `InvalidOperationException` instead of racing the menu for the console.
 
 ### Forms and wizards
 

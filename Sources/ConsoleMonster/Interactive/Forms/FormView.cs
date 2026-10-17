@@ -51,6 +51,33 @@ namespace ConsoleMonster.Interactive {
             }
             StartPendingLoads();
             FocusFirstField();
+            TakeSnapshot();
+        }
+
+        private Dictionary<Field, object?> _saved = new Dictionary<Field, object?>();
+
+        // The values as last opened or saved, so leaving with Discard puts them back.
+        private void TakeSnapshot() {
+            _saved = new Dictionary<Field, object?>();
+            foreach (Field field in _form.Fields) {
+                _saved[field] = Clone(field.Value);
+            }
+        }
+
+        /// <summary>
+        /// Puts back the values the form had when it was opened or last saved and clears the unsaved state (used when the
+        /// user leaves a form opened from a menu and chooses Discard).
+        /// </summary>
+        public void Revert() {
+            foreach (KeyValuePair<Field, object?> pair in _saved) {
+                pair.Key.Value = Clone(pair.Value);
+                _states[pair.Key] = new FieldState(pair.Key);
+            }
+            _editor = null;
+            _page = 0;
+            _dirty = false;
+            StartPendingLoads();
+            FocusFirstField();
         }
 
         /// <summary>Raised when the form is submitted (Run on the review page, or Done).</summary>
@@ -374,6 +401,7 @@ namespace ConsoleMonster.Interactive {
                 TryStore(() => _store.SaveLast(_form.Key, _form.ToStored()));
             }
             _dirty = false;
+            TakeSnapshot();
             Submitted?.Invoke(new FormResult(true, _form.GetValues(), _form.BuildCommand(), _preset));
         }
 

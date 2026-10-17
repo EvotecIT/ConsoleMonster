@@ -76,5 +76,14 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Leaves the menu.</summary>
         public void Exit() => _host.Exit();
+
+        /// <summary>
+        /// Reports a line of output from the action. While the app owns the screen the line is kept and shown when the
+        /// action returns (a toast for one line, an output dialog for several) instead of being drawn over the app; in the
+        /// inline layout it is written to the console.
+        /// </summary>
+        /// <param name="text">The line.</param>
+        /// <param name="status">Info for plain output, Warn or Fail to colour it.</param>
+        public void Log(string text, StatusKind status = StatusKind.Info) => _host.Log(text ?? string.Empty, status);
     }
 }
