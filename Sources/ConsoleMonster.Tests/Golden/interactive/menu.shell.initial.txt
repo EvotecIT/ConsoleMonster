@@ -1,0 +1,26 @@
+ Toolbox › Targets
+╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 0 of 3 selected ─╮
+│                    │ │                                                                           │
+│▌ t  [Target…  0/3  │ │  Where tasks run.                                                         │
+│  m  Mode           │ │                                                                           │
+│  o  Options        │ │  › type to filter                                                         │
+│  p  Presets        │ │    ▾ [ ] Servers                     0/2                                  │
+│  Run               │ │      [ ] SRV01                                                            │
+│  r  Review         │ │      [ ] SRV02                                                            │
+│  c  Clean          │ │    ▾ [ ] Web                         0/1                                  │
+│     Quit           │ │      [ ] WEB01                                                            │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+╰────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  enter open  / filter  ctrl+q quit  ctrl+k commands  ? keys                            lab

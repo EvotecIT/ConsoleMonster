@@ -1,0 +1,26 @@
+ Toolbox › Targets
+╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 2 of 3 selected ─╮
+│                    │ │                                                                           │
+│▌ t  Targets   2/3  │ │  Where tasks run.                                                         │
+│  m  Mode           │ │                                                                           │
+│  o  Options        │ │  › type to filter                                                         │
+│  p  Presets        │ │    ▾ [✓] Servers                     2/2                                  │
+│  Run               │ │      [✓] SRV01                                                            │
+│  r  Review         │ │  ▌   [✓] [SRV02]                                                          │
+│  c  Clean          │ │    ▾ [ ] Web                         0/1                                  │
+│     Quit           │ │      [ ] WEB01                                                            │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+│                    │ │                                                                           │
+╰────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc back  ? keys                lab
