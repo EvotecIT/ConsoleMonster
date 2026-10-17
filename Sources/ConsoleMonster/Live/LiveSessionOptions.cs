@@ -7,8 +7,26 @@ using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Live {
+    /// <summary>Where a live session draws.</summary>
+    public enum LiveMode {
+        /// <summary>The whole window, on the alternate screen; the final state is printed when it ends.</summary>
+        FullScreen = 0,
+
+        /// <summary>
+        /// A live area as tall as its content, anchored below the cursor in the normal screen: output and log lines scroll
+        /// above it, and the final state stays in the scrollback (or nothing, with PrintFinalState off).
+        /// </summary>
+        Inline = 1
+    }
+
     /// <summary>Configuration for a single-use live session. Set before starting the session.</summary>
     public sealed class LiveSessionOptions {
+        /// <summary>
+        /// Full screen (default) or an inline area below the cursor. Without a VT console (CI, redirected output) both fall
+        /// back to stream lines.
+        /// </summary>
+        public LiveMode Mode { get; set; }
+
         private int _framesPerSecond = 15;
         private TimeSpan _stopTimeout = TimeSpan.FromSeconds(2);
 

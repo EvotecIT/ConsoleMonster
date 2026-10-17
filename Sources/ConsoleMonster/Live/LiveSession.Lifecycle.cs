@@ -28,7 +28,7 @@ namespace ConsoleMonster.Live {
                         }
                         _context = Terminal.CreateContext(profile, _options.Theme);
                         _streamTimestamps = _options.StreamTimestamps ?? profile.IsContinuousIntegration;
-                        _output = _options.Output ?? Terminal.CreateOutput(profile);
+                        _output = _options.Output ?? (_options.Mode == LiveMode.Inline ? Terminal.CreateInlineOutput(profile) : Terminal.CreateOutput(profile));
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);

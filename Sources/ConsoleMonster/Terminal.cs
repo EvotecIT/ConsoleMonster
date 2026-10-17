@@ -249,6 +249,23 @@ namespace ConsoleMonster {
             return new LineOutput(w, p, owns);
         }
 
+        /// <summary>
+        /// Creates the output for an inline live area (<see cref="Rendering.InlineOutput"/>) on a VT console, or stream lines
+        /// where in-place drawing is not possible (CI, redirected output, no VT).
+        /// </summary>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="Profile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console (then owned by the output).</param>
+        /// <returns>The output.</returns>
+        public static ITerminalOutput CreateInlineOutput(TerminalProfile? profile = null, ITerminalWriter? writer = null) {
+            TerminalProfile p = profile ?? Profile;
+            bool owns = writer == null;
+            ITerminalWriter w = writer ?? TerminalWriterFactory.Create(p);
+            if (p.Mode == OutputMode.Interactive && p.SupportsVirtualTerminal) {
+                return new InlineOutput(w, p, owns);
+            }
+            return new LineOutput(w, p, owns);
+        }
+
         /// <summary>Renders a widget to a cell buffer (for tests, snapshots and custom outputs).</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="profile">The profile.</param>

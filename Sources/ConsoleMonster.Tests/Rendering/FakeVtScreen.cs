@@ -46,7 +46,11 @@ namespace ConsoleMonster.Tests.Rendering {
                     continue;
                 }
                 if (c == '\n') {
-                    _y = Math.Min(Height - 1, _y + 1);
+                    if (_y == Height - 1) {
+                        ScrollUp();
+                    } else {
+                        _y++;
+                    }
                     i++;
                     continue;
                 }
@@ -164,8 +168,43 @@ namespace ConsoleMonster.Tests.Rendering {
                 case 'J':
                     if (First(0) == 2) {
                         Clear();
+                    } else {
+                        for (int y = _y; y < Height; y++) {
+                            for (int x = y == _y ? _x : 0; x < Width; x++) {
+                                _cells[x, y] = " ";
+                            }
+                        }
                     }
                     break;
+                case 'K':
+                    for (int x = _x; x < Width; x++) {
+                        _cells[x, _y] = " ";
+                    }
+                    break;
+                case 'A':
+                    _y = Math.Max(0, _y - First(1));
+                    break;
+                case 'B':
+                    _y = Math.Min(Height - 1, _y + First(1));
+                    break;
+            }
+        }
+
+        /// <summary>Rows that scrolled off the top, oldest first (the scrollback).</summary>
+        internal List<string> Scrollback { get; } = new List<string>();
+
+        internal int CursorY => _y;
+
+        // A line feed on the last row scrolls the screen up, as terminals do; the top row goes to the scrollback.
+        private void ScrollUp() {
+            Scrollback.Add(Row(0));
+            for (int y = 1; y < Height; y++) {
+                for (int x = 0; x < Width; x++) {
+                    _cells[x, y - 1] = _cells[x, y];
+                }
+            }
+            for (int x = 0; x < Width; x++) {
+                _cells[x, Height - 1] = " ";
             }
         }
 

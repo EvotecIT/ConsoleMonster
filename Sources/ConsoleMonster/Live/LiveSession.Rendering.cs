@@ -64,6 +64,11 @@ namespace ConsoleMonster.Live {
 
         private void ApplyOne(LiveEvent liveEvent) {
             if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
+                if (liveEvent.Target == "$log" && liveEvent.Text != null && _options.Mode == LiveMode.Inline) {
+                    // An inline area without a log region prints log lines above itself.
+                    _unroutedLines.Enqueue(liveEvent.Text);
+                    return;
+                }
                 Interlocked.Increment(ref _eventsDropped);
                 _unknownTargets.AddOrUpdate(liveEvent.Target ?? string.Empty, 1, (name, count) => count + 1);
                 return;
@@ -118,8 +123,8 @@ namespace ConsoleMonster.Live {
                 if (_restored) {
                     return;
                 }
-                bool resized = _frame != null && (_frame.Width != width || _frame.Height != height);
-                bool moved = left != _windowLeft || top != _windowTop;
+                bool resized = _frame != null && (_frame.Width != width || (!(_output is InlineOutput) && _frame.Height != height));
+                bool moved = !(_output is InlineOutput) && (left != _windowLeft || top != _windowTop);
                 if (resized) {
                     // Coalesce drag-resizes: at most one full redraw per 100 ms settle period while the size keeps changing; the
                     // frame after the last change always redraws, so the final size is never missed.
@@ -136,6 +141,15 @@ namespace ConsoleMonster.Live {
                 _windowLeft = left;
                 _windowTop = top;
                 RenderContext context = _context.WithClock(FramesRendered, Elapsed);
+                if (_output is InlineOutput) {
+                    // Inline: output captured during the run goes above the area, and the area is as tall as its content.
+                    while (_unroutedLines.TryDequeue(out string? line)) {
+                        _output.WriteLine(StyledLine.From(line));
+                    }
+                    // One column narrower than the window: the last column would make the terminal wrap the row.
+                    width = Math.Max(1, width - 1);
+                    height = Math.Max(1, Math.Min(height - 1, InlineHeight(width, context)));
+                }
                 try {
                     _frame = FrameComposer.Compose(_root, width, height, context, _frame);
                 } catch (Exception ex) {
@@ -145,6 +159,15 @@ namespace ConsoleMonster.Live {
                 }
                 _output.RenderFrame(_frame);
                 Interlocked.Increment(ref _framesRendered);
+            }
+        }
+
+        private int InlineHeight(int width, RenderContext context) {
+            try {
+                return _root.Measure(new Layout.Constraints(width), context).Height;
+            } catch (Exception ex) {
+                Error(ex);
+                return 1;
             }
         }
 
