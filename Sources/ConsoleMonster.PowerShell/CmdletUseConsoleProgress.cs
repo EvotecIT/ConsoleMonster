@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -47,7 +48,7 @@ param(
     [System.ConsoleColor] $ForegroundColor,
     [System.ConsoleColor] $BackgroundColor
 )
-$__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collections.IEnumerable] -and $_ -isnot [string]) { $_ -join $Separator } else { ""$_"" } }) -join $Separator), $NoNewline.IsPresent)
+$__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collections.IEnumerable] -and $_ -isnot [string]) { $_ -join $Separator } else { ""$_"" } }) -join $Separator), $NoNewline.IsPresent, $PSBoundParameters['ForegroundColor'], $PSBoundParameters['BackgroundColor'])
 ";
 
         /// <summary><para type="description">The script to run.</para></summary>
@@ -121,18 +122,27 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
             _session.Post(ProgressEvents.From(id, parentId, activity, status, percent, secondsRemaining, completed));
         }
 
-        /// <summary>One Write-Host call: the text is written above the progress area.</summary>
+        /// <summary>One Write-Host call: the text is written above the progress area, in its colours.</summary>
         /// <param name="text">The text.</param>
         /// <param name="noNewLine">Whether the line continues with the next call.</param>
-        public void Host(string? text, bool noNewLine) {
-            _pending.Append(text);
+        /// <param name="foreground">The foreground colour, or null.</param>
+        /// <param name="background">The background colour, or null.</param>
+        public void Host(string? text, bool noNewLine, object? foreground = null, object? background = null) {
+            ConsoleColor? fg = ToColor(foreground);
+            ConsoleColor? bg = ToColor(background);
+            _pending.Append(fg.HasValue || bg.HasValue ? HostColors.Markup(text, fg, bg) : Text.Markup.Escape(text ?? string.Empty));
             if (noNewLine) {
                 return;
             }
             foreach (string line in _pending.ToString().Replace("\r\n", "\n").Split('\n')) {
-                _session.Post(new LiveEvent("$log", "write", text: line, state: "host"));
+                _session.Post(new LiveEvent("$log", "write", text: line, state: "host", isMarkup: true));
             }
             _pending.Clear();
+        }
+
+        private static ConsoleColor? ToColor(object? value) {
+            object? raw = value is PSObject ps ? ps.BaseObject : value;
+            return raw is ConsoleColor color ? color : (ConsoleColor?)null;
         }
     }
 }

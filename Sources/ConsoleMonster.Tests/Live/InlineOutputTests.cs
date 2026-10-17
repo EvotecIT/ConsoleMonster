@@ -129,5 +129,29 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Contains("100%", rows[2]);
             Assert.Equal(string.Empty, rows[3]);
         }
-    }
+
+        [Fact]
+        public void InlineSession_KeepsTheColoursOfLinesWrittenAbove() {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(40, 10, ColorDepth.TrueColor);
+            LiveSessionOptions options = new LiveSessionOptions {
+                Mode = LiveMode.Inline,
+                Output = new InlineOutput(writer, profile, false),
+                Profile = profile,
+                HandleCancelKey = false,
+                CaptureConsole = false,
+                FramesPerSecond = 60,
+                WindowSource = () => new[] { 0, 0, 40, 10 }
+            };
+            using (LiveSession session = new LiveSession(new Rows(new ProgressBar("Build", "build")), options)) {
+                session.Start();
+                session.Post(new LiveEvent("$log", "write", text: "[#ff0000]alert[/] plain", isMarkup: true));
+                SpinWait.SpinUntil(() => writer.ToString().Contains("alert"), 3000);
+                session.Stop();
+            }
+            string output = writer.ToString();
+            int alert = output.IndexOf("alert", StringComparison.Ordinal);
+            Assert.True(alert > 0, output);
+            Assert.Contains("38;2;255;0;0", output.Substring(Math.Max(0, alert - 30), 30));
+        }    }
 }

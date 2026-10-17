@@ -205,7 +205,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => _recorder?.Dispose());
                 if (drawn && _output != null && _context != null) {
                     Attempt(() => {
-                        while (_unroutedLines.TryDequeue(out string? line)) { _output.WriteLine(StyledLine.From(line)); }
+                        while (_unroutedLines.TryDequeue(out string? line)) { WriteUnrouted(line, _context); }
                         IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
                         if (summary != null) {
                             _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));

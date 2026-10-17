@@ -66,7 +66,7 @@ namespace ConsoleMonster.Live {
             if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
                 if (liveEvent.Target == "$log" && liveEvent.Text != null && _options.Mode == LiveMode.Inline) {
                     // An inline area without a log region prints log lines above itself.
-                    _unroutedLines.Enqueue(liveEvent.Text);
+                    _unroutedLines.Enqueue(liveEvent.IsMarkup ? MarkupLine + liveEvent.Text : liveEvent.Text);
                     return;
                 }
                 Interlocked.Increment(ref _eventsDropped);
@@ -144,7 +144,7 @@ namespace ConsoleMonster.Live {
                 if (_output is InlineOutput) {
                     // Inline: output captured during the run goes above the area, and the area is as tall as its content.
                     while (_unroutedLines.TryDequeue(out string? line)) {
-                        _output.WriteLine(StyledLine.From(line));
+                        WriteUnrouted(line, context);
                     }
                     // One column narrower than the window: the last column would make the terminal wrap the row.
                     width = Math.Max(1, width - 1);
@@ -160,6 +160,20 @@ namespace ConsoleMonster.Live {
                 _output.RenderFrame(_frame);
                 Interlocked.Increment(ref _framesRendered);
             }
+        }
+
+        // Lines for the output (not a log region) may carry styles, for example Write-Host colours: those are markup,
+        // marked by a leading control character that never occurs in captured text.
+        internal const string MarkupLine = "\u0001";
+
+        private void WriteUnrouted(string line, RenderContext context) {
+            if (line.StartsWith(MarkupLine, StringComparison.Ordinal)) {
+                foreach (StyledLine styled in context.Markup(line.Substring(1)).Lines) {
+                    _output!.WriteLine(styled);
+                }
+                return;
+            }
+            _output!.WriteLine(StyledLine.From(line));
         }
 
         private int InlineHeight(int width, RenderContext context) {

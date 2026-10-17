@@ -43,7 +43,13 @@ namespace ConsoleMonster.PowerShell {
         private void OnInformation(object? sender, DataAddedEventArgs e) {
             InformationRecord record = _shell.Streams.Information[e.Index];
             bool host = record.Tags.Contains("PSHOST");
-            string text = record.MessageData is HostInformationMessage message ? message.Message : PSWidgets.ToText(record.MessageData);
+            if (record.MessageData is HostInformationMessage message && (message.ForegroundColor.HasValue || message.BackgroundColor.HasValue)) {
+                // Write-Host colours are kept: the line travels as markup to the log region or above an inline area.
+                string markup = HostColors.Markup(message.Message, message.ForegroundColor, message.BackgroundColor);
+                _session.Post(new LiveEvent("$log", "write", text: _prefix == null ? markup : Text.Markup.Escape(_prefix) + markup, state: "host", isMarkup: true));
+                return;
+            }
+            string text = record.MessageData is HostInformationMessage plain ? plain.Message : PSWidgets.ToText(record.MessageData);
             Write(text, host ? "host" : "info");
         }
 
