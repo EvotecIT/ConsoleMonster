@@ -24,6 +24,10 @@ namespace ConsoleMonster.Rendering {
         /// <param name="line">The line.</param>
         void WriteLine(StyledLine line);
 
+        /// <summary>Writes one styled line without ending it (Write-ConsoleText -NoNewLine); the next write continues on it.</summary>
+        /// <param name="line">The line.</param>
+        void WriteInline(StyledLine line);
+
         /// <summary>Starts live rendering (VT: alternate screen, hidden cursor). No effect for line-based outputs.</summary>
         void BeginLive();
 

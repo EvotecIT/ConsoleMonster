@@ -43,11 +43,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A title above the table (markup).</para></summary>
         [Parameter]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <summary><para type="description">A caption below the table (markup, muted).</para></summary>
         [Parameter]
-        public string? Caption { get; set; }
+        public object? Caption { get; set; }
 
         /// <summary><para type="description">Border style: Rounded, Square, Double, Minimal or None.</para></summary>
         [Parameter]
@@ -86,8 +86,8 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             Table table = PSFormatting.BuildTable(_items, Property, GroupBy, Total.IsPresent);
-            table.Title = Title;
-            table.Caption = Caption;
+            table.Title = PSText.Markup(Title);
+            table.Caption = PSText.Markup(Caption);
             table.Border = Border;
             table.CardsBelow = CardsBelow;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;

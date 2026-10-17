@@ -21,11 +21,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The root label; without it the top-level keys are the roots.</para></summary>
         [Parameter]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Tree tree = new Tree(Title);
+            Tree tree = new Tree(PSText.Markup(Title));
             Fill(tree.Root, Data);
             Emit(tree);
         }

@@ -39,11 +39,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">What the lane is doing now.</para></summary>
         [Parameter]
-        public string? Detail { get; set; }
+        public object? Detail { get; set; }
 
         /// <summary><para type="description">The lane label (when adding or renaming).</para></summary>
         [Parameter]
-        public string? Label { get; set; }
+        public object? Label { get; set; }
 
         /// <summary><para type="description">Planned steps for the lane.</para></summary>
         [Parameter]
@@ -55,15 +55,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            string? detail = PSText.EventText(Detail, out bool detailMarkup);
             if (Label != null || Total > 0) {
-                Send(new LiveEvent(Name, "add", Key, Label, total: Total));
+                string? label = PSText.EventText(Label, out bool labelMarkup);
+                Send(new LiveEvent(Name, "add", Key, label, total: Total, isMarkup: labelMarkup));
             }
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", Key, Detail, Status.Value.ToString()));
+                Send(new LiveEvent(Name, "state", Key, detail, Status.Value.ToString(), isMarkup: detailMarkup));
             } else if (Result.HasValue) {
-                Send(new LiveEvent(Name, "advance", Key, Detail, Result.Value.ToString(), Steps));
+                Send(new LiveEvent(Name, "advance", Key, detail, Result.Value.ToString(), Steps, isMarkup: detailMarkup));
             } else if (Detail != null) {
-                Send(new LiveEvent(Name, "detail", Key, Detail));
+                Send(new LiveEvent(Name, "detail", Key, detail, isMarkup: detailMarkup));
             }
             if (Complete.IsPresent) {
                 Send(new LiveEvent(Name, "complete", Key));

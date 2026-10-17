@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Item keys to add as pending (for a live checklist).</para></summary>
         [Parameter]
-        public string[]? Item { get; set; }
+        public object[]? Item { get; set; }
 
         /// <summary><para type="description">The live name (default status).</para></summary>
         [Parameter]
@@ -32,8 +32,8 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             StatusList list = new StatusList(Name);
             if (Item != null) {
-                foreach (string item in Item) {
-                    list.Set(item, Markup.Escape(item), StatusKind.Pending);
+                foreach (object item in Item) {
+                    list.Set(PSText.PlainText(item), PSText.LiteralMarkup(item), StatusKind.Pending);
                 }
             }
             if (Data != null) {

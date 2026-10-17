@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A muted tagline under the banner (markup allowed).</para></summary>
         [Parameter]
-        public string? Tagline { get; set; }
+        public object? Tagline { get; set; }
 
         /// <summary><para type="description">Gradient start colour.</para></summary>
         [Parameter]
@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Logo logo = new Logo(Text, Tagline) { Alignment = Alignment };
+            Logo logo = new Logo(Text, PSText.Markup(Tagline)) { Alignment = Alignment };
             if (From != null && Color.TryParse(From, out Color from)) {
                 logo.From = from;
             }

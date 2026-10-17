@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A new label.</para></summary>
         [Parameter]
-        public string? Label { get; set; }
+        public object? Label { get; set; }
 
         /// <summary><para type="description">A final status (Pass, Fail, Warn).</para></summary>
         [Parameter]
@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
                 Send(new LiveEvent(Name, "advance", value: Increment));
             }
             if (Label != null) {
-                Send(new LiveEvent(Name, "label", text: Label));
+                Send(new LiveEvent(Name, "label", text: PSText.Markup(Label)));
             }
             if (Status.HasValue) {
                 Send(new LiveEvent(Name, "state", state: Status.Value.ToString()));

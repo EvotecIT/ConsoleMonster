@@ -17,11 +17,11 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleSpinner : PSCmdlet {
         /// <summary><para type="description">The label (markup allowed).</para></summary>
         [Parameter(Position = 0)]
-        public string Label { get; set; } = string.Empty;
+        public object Label { get; set; } = string.Empty;
 
         /// <summary><para type="description">Muted detail after the label, for example the current item.</para></summary>
         [Parameter]
-        public string? Detail { get; set; }
+        public object? Detail { get; set; }
 
         /// <summary><para type="description">The initial status (default Running).</para></summary>
         [Parameter]
@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new Spinner(Label, Name) { Detail = Detail, Status = Status, ShowElapsed = !NoElapsed.IsPresent });
+            WriteObject(new Spinner(PSText.Markup(Label) ?? string.Empty, Name) { Detail = PSText.Markup(Detail), Status = Status, ShowElapsed = !NoElapsed.IsPresent });
         }
     }
 }

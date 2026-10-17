@@ -55,7 +55,12 @@ namespace ConsoleMonster.Rendering {
         }
 
         /// <inheritdoc />
-        public void WriteLine(StyledLine line) {
+        public void WriteLine(StyledLine line) => WriteStyled(line, true);
+
+        /// <inheritdoc />
+        public void WriteInline(StyledLine line) => WriteStyled(line, false);
+
+        private void WriteStyled(StyledLine line, bool newLine) {
             if (line == null) {
                 throw new ArgumentNullException(nameof(line));
             }
@@ -68,7 +73,9 @@ namespace ConsoleMonster.Rendering {
             if (depth != ColorDepth.None && line.Count > 0) {
                 _sb.Append(SgrEncoder.Reset);
             }
-            _sb.Append(Environment.NewLine);
+            if (newLine) {
+                _sb.Append(Environment.NewLine);
+            }
             Emit();
         }
 

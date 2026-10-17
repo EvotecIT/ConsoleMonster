@@ -14,11 +14,11 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletWriteConsoleRule : PSCmdlet {
         /// <summary><para type="description">The title (markup allowed).</para></summary>
         [Parameter(Position = 0)]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            HostOutput.Write(this, new Rule(Title));
+            HostOutput.Write(this, new Rule(PSText.Markup(Title)));
         }
     }
 }

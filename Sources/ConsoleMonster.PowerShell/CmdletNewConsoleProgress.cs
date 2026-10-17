@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleProgress : PSCmdlet {
         /// <summary><para type="description">The label (markup allowed).</para></summary>
         [Parameter(Position = 0)]
-        public string Label { get; set; } = string.Empty;
+        public object Label { get; set; } = string.Empty;
 
         /// <summary><para type="description">The current value.</para></summary>
         [Parameter]
@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new ProgressBar(Label, Name) { Value = Value, Total = Total, Shape = Shape });
+            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Shape = Shape });
         }
     }
 }

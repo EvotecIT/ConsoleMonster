@@ -20,11 +20,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A new label.</para></summary>
         [Parameter]
-        public string? Label { get; set; }
+        public object? Label { get; set; }
 
         /// <summary><para type="description">A new detail.</para></summary>
         [Parameter]
-        public string? Detail { get; set; }
+        public object? Detail { get; set; }
 
         /// <summary><para type="description">Restart the clock and return to running.</para></summary>
         [Parameter]
@@ -37,14 +37,14 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Restart.IsPresent) {
-                Send(new LiveEvent(Name, "start", text: Label));
+                Send(new LiveEvent(Name, "start", text: PSText.Markup(Label)));
             } else if (Label != null) {
-                Send(new LiveEvent(Name, "label", text: Label));
+                Send(new LiveEvent(Name, "label", text: PSText.Markup(Label)));
             }
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", text: Detail, state: Status.Value.ToString()));
+                Send(new LiveEvent(Name, "state", text: PSText.Markup(Detail), state: Status.Value.ToString()));
             } else if (Detail != null) {
-                Send(new LiveEvent(Name, "detail", text: Detail));
+                Send(new LiveEvent(Name, "detail", text: PSText.Markup(Detail)));
             }
         }
     }

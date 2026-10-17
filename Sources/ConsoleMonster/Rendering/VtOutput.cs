@@ -58,7 +58,39 @@ namespace ConsoleMonster.Rendering {
         }
 
         /// <inheritdoc />
-        public void WriteLine(StyledLine line) {
+        public void WriteLine(StyledLine line) => WriteStyled(line, true);
+
+        /// <inheritdoc />
+        public void WriteInline(StyledLine line) => WriteStyled(line, false);
+
+        /// <summary>
+        /// Redraws one line in place (an updating status line): carriage return, the line, clear to the end of the line.
+        /// With <paramref name="final"/> the line ends and later output starts below it.
+        /// </summary>
+        /// <param name="line">The line; keep it narrower than the window so it never wraps.</param>
+        /// <param name="final">Whether this is the last version of the line.</param>
+        public void WriteInPlace(StyledLine line, bool final) {
+            if (line == null) {
+                throw new ArgumentNullException(nameof(line));
+            }
+            _sb.Clear();
+            _sb.Append('\r');
+            ColorDepth depth = Profile.ColorDepth;
+            foreach (TextSpan span in line) {
+                SgrEncoder.Append(_sb, span.Style, depth);
+                TextSanitizer.Append(_sb, span.Text);
+            }
+            if (depth != ColorDepth.None) {
+                _sb.Append(SgrEncoder.Reset);
+            }
+            _sb.Append((char)27).Append("[K");
+            if (final) {
+                _sb.Append("\r\n");
+            }
+            Emit();
+        }
+
+        private void WriteStyled(StyledLine line, bool newLine) {
             if (line == null) {
                 throw new ArgumentNullException(nameof(line));
             }
@@ -71,7 +103,9 @@ namespace ConsoleMonster.Rendering {
             if (depth != ColorDepth.None) {
                 _sb.Append(SgrEncoder.Reset);
             }
-            _sb.Append("\r\n");
+            if (newLine) {
+                _sb.Append("\r\n");
+            }
             Emit();
         }
 

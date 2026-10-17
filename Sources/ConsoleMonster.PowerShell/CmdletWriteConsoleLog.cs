@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The message.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
         [AllowEmptyString]
-        public string Message { get; set; } = string.Empty;
+        public object Message { get; set; } = string.Empty;
 
         /// <summary><para type="description">The level: info, warn, err, verbose, debug or pass.</para></summary>
         [Parameter]
@@ -28,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Send(new LiveEvent(Name, "write", text: Message, state: Level));
+            string? text = PSText.EventText(Message, out bool isMarkup);
+            Send(new LiveEvent(Name, "write", text: text, state: Level, isMarkup: isMarkup));
         }
     }
 }

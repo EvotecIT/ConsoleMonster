@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Lanes to declare up front (key and label).</para></summary>
         [Parameter]
-        public string[]? Lane { get; set; }
+        public object[]? Lane { get; set; }
 
         /// <summary><para type="description">Planned steps per declared lane.</para></summary>
         [Parameter]
@@ -33,8 +33,14 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             Lanes lanes = new Lanes(Name) { Shape = Shape };
             if (Lane != null) {
-                foreach (string lane in Lane) {
-                    lanes.Add(lane, lane, Total);
+                foreach (object lane in Lane) {
+                    Text.RichText? rich = PSText.Rich(lane);
+                    if (rich != null) {
+                        lanes.Add(rich.PlainText, rich, Total);
+                    } else {
+                        string label = PSText.PlainText(lane);
+                        lanes.Add(label, label, Total);
+                    }
                 }
             }
             WriteObject(lanes);

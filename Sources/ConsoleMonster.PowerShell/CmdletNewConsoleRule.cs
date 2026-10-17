@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletNewConsoleRule : PSCmdlet {
         /// <summary><para type="description">The title (markup allowed).</para></summary>
         [Parameter(Position = 0)]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <summary><para type="description">Title alignment: Left, Center or Right.</para></summary>
         [Parameter]
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new Rule(Title) { Alignment = Alignment });
+            WriteObject(new Rule(PSText.Markup(Title)) { Alignment = Alignment });
         }
     }
 }

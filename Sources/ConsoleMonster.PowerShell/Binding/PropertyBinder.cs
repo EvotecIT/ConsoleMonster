@@ -34,6 +34,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             "Aggregate",
             "Flexible",
             "Header",
+            "Markup",
             "FailAbove",
             "WarnAbove",
             "PassAbove",
@@ -113,9 +114,14 @@ namespace ConsoleMonster.PowerShell.Binding {
             value is PSObject wrapped ? wrapped.BaseObject : value;
 
         private static BoundColumn Create(string name, object expression, IDictionary? options) {
-            string header = GetOption(options, "Header") is object configuredHeader
-                ? Convert.ToString(configuredHeader, CultureInfo.InvariantCulture) ?? name
-                : name;
+            // Property names are data: shown literally. A Header option is written by the script author: a string is
+            // markup (as before), rich text keeps its colours.
+            object? configuredHeader = Unwrap(GetOption(options, "Header"));
+            string header = configuredHeader is ConsoleMonster.Text.RichText richHeader
+                ? richHeader.ToMarkup()
+                : configuredHeader != null
+                    ? Convert.ToString(configuredHeader, CultureInfo.InvariantCulture) ?? ConsoleMonster.Text.Markup.Escape(name)
+                    : ConsoleMonster.Text.Markup.Escape(name);
             TableColumn column = new TableColumn(header) { Key = name };
             ApplyOptions(column, options);
             return new BoundColumn(name, column, expression);
@@ -183,6 +189,11 @@ namespace ConsoleMonster.PowerShell.Binding {
                     Convert.ToString(presenter, CultureInfo.InvariantCulture) ?? string.Empty,
                     OptionString(options, "Unit")
                 );
+            // Markup = $true: string values are markup ([pass]OK[/]); data stays literal otherwise.
+            SetBool(options, "Markup", value => {
+                if (value && column.Presenter == null)
+                    column.Presenter = CellPresenters.Markup;
+            });
             AddThreshold(options, "FailAbove", true, ThemeToken.Fail, column);
             AddThreshold(options, "WarnAbove", true, ThemeToken.Warn, column);
             AddThreshold(options, "PassAbove", true, ThemeToken.Pass, column);

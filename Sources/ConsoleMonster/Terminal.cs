@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
@@ -180,6 +181,46 @@ namespace ConsoleMonster {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     foreach (StyledLine line in text.Lines) {
                         output.WriteLine(line);
+                    }
+                }
+                writer?.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Writes rich text as lines (not as a laid-out block): line breaks inside it start new lines, nothing is wrapped
+        /// or padded, and with <paramref name="newLine"/> false the last line is left open, as Write-Host -NoNewline does.
+        /// </summary>
+        /// <param name="text">The rich text.</param>
+        /// <param name="newLine">Whether to end the last line.</param>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
+        public static void WriteRich(RichText text, bool newLine = true, TerminalProfile? profile = null, ITerminalWriter? writer = null) {
+            if (text == null) {
+                throw new ArgumentNullException(nameof(text));
+            }
+            TerminalProfile p = profile ?? GetCurrentProfile();
+            WriteLines(text.ToStyledText(CreateContext(p)).Lines, newLine, p, writer);
+        }
+
+        /// <summary>Writes styled lines; with <paramref name="newLine"/> false the last line is left open.</summary>
+        /// <param name="lines">The lines.</param>
+        /// <param name="newLine">Whether to end the last line.</param>
+        /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
+        /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
+        public static void WriteLines(IReadOnlyList<StyledLine> lines, bool newLine = true, TerminalProfile? profile = null, ITerminalWriter? writer = null) {
+            if (lines == null) {
+                throw new ArgumentNullException(nameof(lines));
+            }
+            TerminalProfile p = profile ?? GetCurrentProfile();
+            lock (Gate) {
+                using (ITerminalOutput output = CreateOutput(p, writer)) {
+                    for (int i = 0; i < lines.Count; i++) {
+                        if (i < lines.Count - 1 || newLine) {
+                            output.WriteLine(lines[i]);
+                        } else {
+                            output.WriteInline(lines[i]);
+                        }
                     }
                 }
                 writer?.Flush();

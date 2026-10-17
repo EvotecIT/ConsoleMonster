@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A chart with a status badge in its top-right corner</para>
     ///   <code>New-ConsoleStack {
     ///     New-ConsoleLineChart -Name latency
-    ///     New-ConsoleAlign -Horizontal Right { New-ConsoleText '[pass]LIVE[/]' }
+    ///     New-ConsoleAlign -Horizontal Right { New-ConsoleText -Markup '[pass]LIVE[/]' }
     /// }</code>
     /// </example>
     /// </summary>

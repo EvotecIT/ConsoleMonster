@@ -47,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The root label (default: the object's type name).</para></summary>
         [Parameter]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <summary><para type="description">Shows a record view (sections and nested tables) instead of a tree.</para></summary>
         [Parameter]
@@ -83,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
 #pragma warning restore IL2026
-                widgets.Add(AsInspector.IsPresent ? new InspectorView(node, Title) : (IWidget)InspectorTree.Build(node, Title));
+                widgets.Add(AsInspector.IsPresent ? new InspectorView(node, PSText.Markup(Title)) : (IWidget)InspectorTree.Build(node, PSText.Markup(Title)));
             }
             IWidget output = widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
             PSFormatting.Write(this, output, Width, Culture);

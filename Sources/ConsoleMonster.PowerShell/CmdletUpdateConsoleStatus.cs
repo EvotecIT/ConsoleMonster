@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The item label (markup allowed).</para></summary>
         [Parameter]
-        public string? Label { get; set; }
+        public object? Label { get; set; }
 
         /// <summary><para type="description">A right-aligned detail.</para></summary>
         [Parameter]
@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Send(new LiveEvent(Name, "set", Key, Label, Status.ToString()));
+            Send(new LiveEvent(Name, "set", Key, PSText.Markup(Label), Status.ToString()));
             if (Detail != null) {
                 Send(new LiveEvent(Name, "detail", Key, Detail));
             }

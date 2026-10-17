@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A title on the summary line (markup).</para></summary>
         [Parameter]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <summary><para type="description">Shows empty values (hidden by default).</para></summary>
         [Parameter]
@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            RecordView view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, Title, Culture);
+            RecordView view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture);
             PSFormatting.Write(this, view, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {

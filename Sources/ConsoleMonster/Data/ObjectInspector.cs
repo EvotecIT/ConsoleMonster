@@ -79,7 +79,8 @@ namespace ConsoleMonster.Data {
                 || value is Type
                 || value is IPAddress
                 || value is byte[]
-                || value is DBNull;
+                || value is DBNull
+                || value is Text.RichText;
         }
 
         internal static bool MemberIncluded(string name, InspectorOptions options) {

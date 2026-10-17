@@ -26,6 +26,8 @@ namespace ConsoleMonster.Tests.Live {
 
         public void WriteLine(StyledLine line) { Lines.Enqueue(line.PlainText); Calls.Enqueue("line"); }
 
+        public void WriteInline(StyledLine line) { Lines.Enqueue(line.PlainText); Calls.Enqueue("inline"); }
+
         public void BeginLive() { Calls.Enqueue("begin"); Beginning?.Invoke(); }
 
         internal int LastFrameWidth;

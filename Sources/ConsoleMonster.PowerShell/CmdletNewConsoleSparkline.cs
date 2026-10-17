@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A muted label on the left.</para></summary>
         [Parameter]
-        public string? Label { get; set; }
+        public object? Label { get; set; }
 
         /// <summary><para type="description">Rows (default 1).</para></summary>
         [Parameter]
@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Sparkline sparkline = new Sparkline(Name) { Label = Label, Height = Height, Unit = Unit };
+            Sparkline sparkline = new Sparkline(Name) { Label = PSText.Markup(Label), Height = Height, Unit = Unit };
             if (Value != null) {
                 sparkline.AddRange(Value);
             }

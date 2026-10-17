@@ -114,6 +114,62 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
+        /// <summary>
+        /// Writes lines (not a laid-out block) for a cmdlet, built for the route's profile: <paramref name="build"/> receives
+        /// the render context and the line width. With <paramref name="newLine"/> false the last line stays open.
+        /// </summary>
+        /// <param name="cmdlet">The calling cmdlet.</param>
+        /// <param name="build">Builds the styled lines for a context and width.</param>
+        /// <param name="newLine">Whether to end the last line.</param>
+        /// <param name="width">An explicit width, or 0 for the terminal or host width.</param>
+        internal static void WriteLines(PSCmdlet cmdlet, Func<RenderContext, int, IReadOnlyList<StyledLine>> build, bool newLine, int width = 0) {
+            TerminalProfile p = Terminal.GetCurrentProfile();
+            if (width > 0) {
+                p = p.WithSize(width, p.Height);
+            }
+            if (!UseHost(cmdlet, p)) {
+                Terminal.WriteLines(build(Terminal.CreateContext(p), p.Width), newLine, p, null);
+                return;
+            }
+            HostRoute route = RouteFor(cmdlet, p);
+            TerminalProfile host = HostProfile(cmdlet, p, width > 0, route);
+            RenderContext context = Terminal.CreateContext(host);
+            HostColorMap colors = new HostColorMap(context, route != HostRoute.Plain);
+            IReadOnlyList<StyledLine> lines = build(context, host.Width);
+            List<Segment> segments = new List<Segment>();
+            for (int i = 0; i < lines.Count; i++) {
+                CollectSpans(lines[i], colors, segments);
+                EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
+            }
+        }
+
+        // Spans whose colours map to the same console colours become one segment; spaces join the current run.
+        private static void CollectSpans(StyledLine line, HostColorMap colors, List<Segment> segments) {
+            segments.Clear();
+            System.Text.StringBuilder run = new System.Text.StringBuilder();
+            ConsoleColor? foreground = null;
+            ConsoleColor? background = null;
+            foreach (TextSpan span in line) {
+                string text = Clean(span.Text);
+                if (text.Length == 0) {
+                    continue;
+                }
+                ConsoleColor? spanBackground = colors.Background(span.Style.Background);
+                bool blank = text.Trim().Length == 0;
+                ConsoleColor? spanForeground = blank && spanBackground == background ? foreground : colors.Foreground(span.Style.Foreground);
+                if (run.Length > 0 && (spanForeground != foreground || spanBackground != background)) {
+                    segments.Add(new Segment(run.ToString(), foreground, background));
+                    run.Clear();
+                }
+                foreground = spanForeground;
+                background = spanBackground;
+                run.Append(text);
+            }
+            if (run.Length > 0) {
+                segments.Add(new Segment(run.ToString(), foreground, background));
+            }
+        }
+
         // Markup spans are not cell-rendered, so control characters are dropped here, as the cell path does.
         private static string Clean(string text) {
             System.Text.StringBuilder sb = new System.Text.StringBuilder(text.Length);
@@ -173,8 +229,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Writes one uncoloured line as Write-Host does (an information record tagged PSHOST).</summary>
         /// <param name="cmdlet">The cmdlet on whose pipeline thread this runs.</param>
         /// <param name="line">The line.</param>
-        internal static void WriteHostLine(PSCmdlet cmdlet, string line) {
-            cmdlet.WriteInformation(new HostInformationMessage { Message = line, NoNewLine = false }, HostTags);
+        /// <param name="endLine">Whether the line ends (false leaves it open, like -NoNewline).</param>
+        internal static void WriteHostLine(PSCmdlet cmdlet, string line, bool endLine = true) {
+            cmdlet.WriteInformation(new HostInformationMessage { Message = line, NoNewLine = !endLine }, HostTags);
             Transcribe(cmdlet, line);
         }
 
@@ -205,30 +262,30 @@ namespace ConsoleMonster.PowerShell {
             return HostRoute.Plain;
         }
 
-        private static void EmitLine(PSCmdlet cmdlet, HostRoute route, List<Segment> segments) {
+        private static void EmitLine(PSCmdlet cmdlet, HostRoute route, List<Segment> segments, bool endLine = true) {
             switch (route) {
                 case HostRoute.ColourInterface:
-                    WriteInterface(cmdlet, segments);
+                    WriteInterface(cmdlet, segments, endLine);
                     break;
                 case HostRoute.ColourRecords:
-                    WriteSegments(cmdlet, segments);
+                    WriteSegments(cmdlet, segments, endLine);
                     break;
                 default:
                     System.Text.StringBuilder line = new System.Text.StringBuilder();
                     foreach (Segment segment in segments) {
                         line.Append(segment.Text);
                     }
-                    WriteHostLine(cmdlet, line.ToString());
+                    WriteHostLine(cmdlet, line.ToString(), endLine);
                     break;
             }
         }
 
         // Coloured runs straight to the host UI (one Write per run, then WriteLine); the UI does not transcribe these
         // writes, so the plain line goes to the transcript separately.
-        private static void WriteInterface(PSCmdlet cmdlet, List<Segment> segments) {
+        private static void WriteInterface(PSCmdlet cmdlet, List<Segment> segments, bool endLine = true) {
             PSHostUserInterface? ui = cmdlet.Host?.UI;
             if (ui == null) {
-                WriteSegments(cmdlet, segments);
+                WriteSegments(cmdlet, segments, endLine);
                 return;
             }
             ConsoleColor defaultForeground = ConsoleColor.Gray;
@@ -248,14 +305,16 @@ namespace ConsoleMonster.PowerShell {
                 }
                 line.Append(segment.Text);
             }
-            ui.WriteLine();
+            if (endLine) {
+                ui.WriteLine();
+            }
             TranscribeLine(ui, line.ToString());
         }
 
         // One line as coloured segments, as Write-Host -ForegroundColor -NoNewline writes them; the last segment ends the line.
-        private static void WriteSegments(PSCmdlet cmdlet, List<Segment> segments) {
+        private static void WriteSegments(PSCmdlet cmdlet, List<Segment> segments, bool endLine = true) {
             if (segments.Count == 0) {
-                WriteHostLine(cmdlet, string.Empty);
+                WriteHostLine(cmdlet, string.Empty, endLine);
                 return;
             }
             System.Text.StringBuilder line = new System.Text.StringBuilder();
@@ -263,7 +322,7 @@ namespace ConsoleMonster.PowerShell {
                 Segment segment = segments[i];
                 HostInformationMessage message = new HostInformationMessage {
                     Message = segment.Text,
-                    NoNewLine = i < segments.Count - 1,
+                    NoNewLine = i < segments.Count - 1 || !endLine,
                     ForegroundColor = segment.Foreground,
                     BackgroundColor = segment.Background
                 };

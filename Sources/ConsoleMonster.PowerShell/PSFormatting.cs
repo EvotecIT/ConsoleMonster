@@ -101,7 +101,7 @@ namespace ConsoleMonster.PowerShell {
             int fieldLevel = level;
             if (heading) {
                 object? title = columns[key].GetValue(item);
-                view.AddHeading(Text.Markup.Escape(PresenterValues.ToText(title, culture)), level);
+                view.AddHeading(title is ConsoleMonster.Text.RichText richTitle ? richTitle.ToMarkup() : Text.Markup.Escape(PresenterValues.ToText(title, culture)), level);
                 fieldLevel = level + 1;
             }
             for (int c = 0; c < columns.Count; c++) {

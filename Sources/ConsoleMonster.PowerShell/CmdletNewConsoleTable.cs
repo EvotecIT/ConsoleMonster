@@ -30,11 +30,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A title above the table.</para></summary>
         [Parameter]
-        public string? Title { get; set; }
+        public object? Title { get; set; }
 
         /// <summary><para type="description">A muted caption below the table.</para></summary>
         [Parameter]
-        public string? Caption { get; set; }
+        public object? Caption { get; set; }
 
         /// <summary><para type="description">Border: Rounded, Square, Double, Minimal or None.</para></summary>
         [Parameter]
@@ -64,8 +64,8 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The table.</returns>
         protected Table BuildTable() {
             Table table = PSTableMapper.Build(_items, Property, StatusProperty);
-            table.Title = Title;
-            table.Caption = Caption;
+            table.Title = PSText.Markup(Title);
+            table.Caption = PSText.Markup(Caption);
             table.Border = Border;
             table.Expand = Expand.IsPresent;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;

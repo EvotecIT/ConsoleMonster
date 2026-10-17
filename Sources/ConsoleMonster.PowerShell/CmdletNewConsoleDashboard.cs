@@ -21,15 +21,15 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The title shown in the header bar (markup allowed).</para></summary>
         [Parameter(Mandatory = true)]
-        public string Title { get; set; } = string.Empty;
+        public object Title { get; set; } = string.Empty;
 
         /// <summary><para type="description">A subtitle shown after the title.</para></summary>
         [Parameter]
-        public string? Subtitle { get; set; }
+        public object? Subtitle { get; set; }
 
         /// <summary><para type="description">Footer text; defaults to a Ctrl+C hint.</para></summary>
         [Parameter]
-        public string? Footer { get; set; }
+        public object? Footer { get; set; }
 
         /// <summary><para type="description">Live name of the dashboard (for Send-ConsoleEvent title/status updates).</para></summary>
         [Parameter]
@@ -42,9 +42,9 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             List<IWidget> children = PSWidgets.Collect(Content);
-            Dashboard dashboard = new Dashboard(Title, new Rows(children.ToArray()) { Gap = Gap }, Name) { Subtitle = Subtitle };
+            Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, Name) { Subtitle = PSText.Markup(Subtitle) };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Footer))) {
-                dashboard.Footer = Footer;
+                dashboard.Footer = PSText.Markup(Footer);
             }
             WriteObject(dashboard);
         }
