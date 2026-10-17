@@ -13,10 +13,6 @@ namespace ConsoleMonster.Styling {
     /// 16-colour codes, so the terminal's own palette shows them exactly like Write-Host -ForegroundColor.
     /// </remarks>
     public readonly struct RichColor : IEquatable<RichColor> {
-        // ConsoleColor (Black, DarkBlue, DarkGreen, DarkCyan, DarkRed, DarkMagenta, DarkYellow, Gray, DarkGray, Blue, Green,
-        // Cyan, Red, Magenta, Yellow, White) to the ANSI index the Windows console uses for it.
-        private static readonly int[] ConsoleToAnsi = { 0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15 };
-
         // Markup names for the 16 ANSI indices (Spectre-compatible), so a ConsoleColor serialises without changing meaning.
         private static readonly string[] AnsiNames = { "black", "maroon", "green", "olive", "navy", "purple", "teal", "silver", "grey", "red", "lime", "yellow", "blue", "fuchsia", "aqua", "white" };
 
@@ -52,7 +48,7 @@ namespace ConsoleMonster.Styling {
         /// <summary>A ConsoleColor exactly as PowerShell shows it (see the remarks).</summary>
         /// <param name="color">The console colour.</param>
         /// <returns>The rich colour.</returns>
-        public static RichColor FromConsoleColor(ConsoleColor color) => new RichColor(Color.FromAnsi16(ConsoleToAnsi[(int)color & 15]), null);
+        public static RichColor FromConsoleColor(ConsoleColor color) => new RichColor(ColorNames.FromConsole(color), null);
 
         /// <summary>A 24-bit colour.</summary>
         /// <param name="r">Red.</param>
@@ -74,9 +70,10 @@ namespace ConsoleMonster.Styling {
         public static implicit operator RichColor(ThemeToken role) => FromRole(role);
 
         /// <summary>
-        /// Parses a colour: a ConsoleColor name with the PowerShell mapping (<c>Red</c>, <c>DarkCyan</c>), a theme role
-        /// (<c>Pass</c>, <c>Muted</c>), <c>#RRGGBB</c>, <c>rgb(r,g,b)</c>, <c>r,g,b</c>, a 256-colour index or a markup colour
-        /// name (<c>orange1</c>).
+        /// Parses a colour: a ConsoleColor name with the PowerShell mapping (<c>Red</c>, <c>DarkCyan</c>; <c>grey</c> and
+        /// <c>darkgrey</c> spell Gray and DarkGray), a theme role (<c>Pass</c>, <c>Muted</c>), <c>#RRGGBB</c>,
+        /// <c>rgb(r,g,b)</c>, <c>r,g,b</c>, a 256-colour index, or a markup palette name (<c>orange1</c>, <c>cadetblue</c>).
+        /// <c>palette.darkred</c> asks for the palette colour where a bare name would be the ConsoleColor.
         /// </summary>
         /// <param name="text">The text.</param>
         /// <param name="color">The colour.</param>
@@ -88,8 +85,8 @@ namespace ConsoleMonster.Styling {
                 return false;
             }
             bool word = char.IsLetter(value[0]);
-            if (word && Enum.TryParse(value, true, out ConsoleColor console) && Enum.IsDefined(typeof(ConsoleColor), console)) {
-                color = FromConsoleColor(console);
+            if (word && ColorNames.TryGetConsole(value, out Color console)) {
+                color = From(console);
                 return true;
             }
             if (word && Enum.TryParse(value, true, out ThemeToken role) && Enum.IsDefined(typeof(ThemeToken), role)) {

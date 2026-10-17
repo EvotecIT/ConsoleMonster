@@ -1,4 +1,7 @@
-# ConsoleMonster roadmap
+# ConsoleMonster engineering tasks
+
+Granular tasks: validation, review follow-ups and small fixes. Decisions, the next rounds and the backlog are in
+[ROADMAP.md](ROADMAP.md).
 
 ## Before the first 2.0.0 release
 - Validate on Windows Server 2016 (16 colours), 2019, 2022, 2025, Server Core, VS Code, SSH (ConPTY) and the PowerShell ISE fallback.

@@ -110,6 +110,45 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal(Color.FromAnsi16(1), console.Color);
         }
 
+        // Colliding names: markup follows the 256-colour palette, -Color / ConsoleColor parameters follow Write-Host, and the
+        // console. / palette. prefixes ask for either meaning in both places. 16:n is the 16-colour index, 256:n the palette.
+        private const string CollisionGolden =
+            "name          markup   -Color   [console.name]  -Color palette.name\n" +
+            "red           16:9     16:9     16:9            16:9\n" +
+            "darkred       256:52   16:1     16:1            256:52\n" +
+            "blue          16:12    16:12    16:12           16:12\n" +
+            "darkblue      256:18   16:4     16:4            256:18\n" +
+            "grey          16:8     16:7     16:7            16:8\n" +
+            "gray          16:8     16:7     16:7            16:8\n" +
+            "darkgray      16:8     16:8     16:8            16:8\n";
+
+        [Fact]
+        public void CollidingNames_FollowThePaletteInMarkupAndWriteHostInColorParameters() {
+            StringBuilder table = new StringBuilder("name          markup   -Color   [console.name]  -Color palette.name\n");
+            foreach (string name in new[] { "red", "darkred", "blue", "darkblue", "grey", "gray", "darkgray" }) {
+                Color markup = Single("[" + name + "]x[/]", ColorDepth.TrueColor).Style.Foreground;
+                Color console = Single("[console." + name + "]x[/]", ColorDepth.TrueColor).Style.Foreground;
+                Assert.True(RichColor.TryParse(name, out RichColor parameter));
+                Assert.True(RichColor.TryParse("palette." + name, out RichColor palette));
+                table.Append(name.PadRight(14)).Append(Code(markup).PadRight(9)).Append(Code(parameter.Color).PadRight(9))
+                    .Append(Code(console).PadRight(16)).Append(Code(palette.Color)).Append('\n');
+            }
+            Assert.Equal(CollisionGolden, table.ToString());
+        }
+
+        [Fact]
+        public void ExplicitForms_WorkInBothPlaces() {
+            Assert.Equal(Color.FromRgb(0x87, 0, 0), Single("[#870000]x[/]", ColorDepth.TrueColor).Style.Foreground);
+            Assert.True(RichColor.TryParse("#870000", out RichColor hex));
+            Assert.Equal(Color.FromRgb(0x87, 0, 0), hex.Color);
+            Assert.True(RichColor.TryParse("console.DarkRed", out RichColor console));
+            Assert.Equal(Color.FromAnsi16(1), console.Color);
+            Assert.Equal(Color.FromAnsi16(1), Single("[on console.darkred]x[/]", ColorDepth.TrueColor).Style.Background);
+            Assert.False(Markup.TryParseStyle("console.cadetblue", null, ColorDepth.TrueColor, out Style _));
+        }
+
+        private static string Code(Color color) => (color.Kind == ColorKind.Ansi16 ? "16:" : "256:") + color.Index.ToString(CultureInfo.InvariantCulture);
+
         [Theory]
         [InlineData("[nosuchcolour]text[/]", "text")]
         [InlineData("a [bold nosuch]b[/] c", "a b c")]

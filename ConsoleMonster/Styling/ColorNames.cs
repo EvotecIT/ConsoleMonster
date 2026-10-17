@@ -51,6 +51,49 @@ namespace ConsoleMonster.Styling {
 
         private static readonly Dictionary<string, Color> Names = Build();
 
+        // ConsoleColor (Black, DarkBlue, DarkGreen, DarkCyan, DarkRed, DarkMagenta, DarkYellow, Gray, DarkGray, Blue, Green,
+        // Cyan, Red, Magenta, Yellow, White) to the ANSI index the Windows console, and so Write-Host, uses for it.
+        private static readonly int[] ConsoleToAnsi = { 0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15 };
+
+        public const string ConsolePrefix = "console.";
+        public const string PalettePrefix = "palette.";
+
+        /// <summary>A ConsoleColor as Write-Host shows it (DarkRed is ANSI red, Red bright red).</summary>
+        public static Color FromConsole(ConsoleColor color) => Color.FromAnsi16(ConsoleToAnsi[(int)color & 15]);
+
+        /// <summary>
+        /// A ConsoleColor name with the PowerShell mapping; <c>grey</c> and <c>darkgrey</c> are accepted as spellings of
+        /// Gray and DarkGray.
+        /// </summary>
+        public static bool TryGetConsole(string name, out Color color) {
+            string value = name.Trim();
+            if (string.Equals(value, "grey", StringComparison.OrdinalIgnoreCase)) {
+                value = "Gray";
+            } else if (string.Equals(value, "darkgrey", StringComparison.OrdinalIgnoreCase)) {
+                value = "DarkGray";
+            }
+            if (value.Length > 0 && char.IsLetter(value[0]) && Enum.TryParse(value, true, out ConsoleColor console) && Enum.IsDefined(typeof(ConsoleColor), console)) {
+                color = FromConsole(console);
+                return true;
+            }
+            color = Color.Default;
+            return false;
+        }
+
+        /// <summary>
+        /// A colour name: <c>console.&lt;ConsoleColor&gt;</c> always means the PowerShell mapping, <c>palette.&lt;name&gt;</c>
+        /// always the 256-colour palette name, and a bare name the palette (with the extras listed on the class).
+        /// </summary>
+        public static bool TryGetQualified(string lowerName, out Color color) {
+            if (lowerName.StartsWith(ConsolePrefix, StringComparison.Ordinal)) {
+                return TryGetConsole(lowerName.Substring(ConsolePrefix.Length), out color);
+            }
+            if (lowerName.StartsWith(PalettePrefix, StringComparison.Ordinal)) {
+                return TryGet(lowerName.Substring(PalettePrefix.Length), out color);
+            }
+            return TryGet(lowerName, out color);
+        }
+
         public static bool TryGet(string lowerName, out Color color) {
             if (Names.TryGetValue(lowerName, out color)) {
                 return true;
