@@ -27,6 +27,13 @@ namespace ConsoleMonster.Text {
         /// </summary>
         public static bool Strict { get; set; }
 
+        /// <summary>
+        /// When true, <c>:name:</c> shortcodes in the text of markup become emoji (<c>:white_check_mark:</c> is ✅; see
+        /// <see cref="Glyphs.Shortcodes"/>). Off by default, so colons in data are never touched. On glyph tiers that cannot
+        /// show emoji, the symbol fallback turns them into ASCII or Basic equivalents.
+        /// </summary>
+        public static bool Shortcodes { get; set; }
+
         /// <summary>Parses markup; lenient unless <see cref="Strict"/> is set (see the remarks on <see cref="Markup"/>).</summary>
         /// <param name="markup">Markup, or null for empty text.</param>
         /// <param name="theme">Theme token resolver; defaults to the built-in dark theme.</param>
@@ -48,6 +55,14 @@ namespace ConsoleMonster.Text {
                 throw new FormatException("Invalid markup: " + error);
             }
             Process(text, theme, depth, false, out List<TextSpan> spans, out string? _);
+            if (Shortcodes) {
+                for (int i = 0; i < spans.Count; i++) {
+                    string replaced = Glyphs.Shortcodes.Replace(spans[i].Text);
+                    if (!ReferenceEquals(replaced, spans[i].Text)) {
+                        spans[i] = new TextSpan(replaced, spans[i].Style);
+                    }
+                }
+            }
             return StyledText.FromSpans(spans);
         }
 

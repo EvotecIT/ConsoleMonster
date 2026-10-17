@@ -61,7 +61,13 @@ namespace ConsoleMonster.Live {
         /// <summary>Returns a copy stamped with a time.</summary>
         /// <param name="time">Milliseconds since the session started.</param>
         /// <returns>The stamped event.</returns>
-        public LiveEvent WithTime(long time) => new LiveEvent(Target, Operation, Key, Text, State, Value, Total, time, IsMarkup);
+        public LiveEvent WithTime(long time) => new LiveEvent(Target, Operation, Key, Text, State, Value, Total, time, IsMarkup) { Payload = Payload };
+
+        /// <summary>
+        /// An in-process object for the target (a replacement widget for a <see cref="Widgets.Slot"/>, row values for a
+        /// <see cref="Widgets.LiveTable"/>), or null. It is not recorded: a replayed recording sees only the text fields.
+        /// </summary>
+        public object? Payload { get; set; }
 
         /// <inheritdoc />
         public override string ToString() => Time + "ms " + Target + "." + Operation + (Key == null ? string.Empty : "[" + Key + "]");

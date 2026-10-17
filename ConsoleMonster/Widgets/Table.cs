@@ -133,6 +133,13 @@ namespace ConsoleMonster.Widgets {
             return AddRow(cells);
         }
 
+        /// <summary>Removes every row (columns, options and remembered column widths stay), so the table can be refilled.</summary>
+        public void ClearRows() {
+            _rows.Clear();
+            _rowGroups.Clear();
+            _groups.Clear();
+        }
+
         /// <summary>Adds a row of plain text values (brackets are shown literally).</summary>
         /// <param name="values">The values.</param>
         /// <returns>This instance.</returns>

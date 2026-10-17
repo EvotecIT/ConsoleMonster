@@ -28,10 +28,10 @@ namespace ConsoleMonster.TestRuns {
             if (_snapshot.IsFinished) {
                 StatusKind status = _snapshot.Status;
                 spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " ", context.Style(status)));
-                spans.Add(new TextSpan(status == StatusKind.Fail ? "Finished with failures" : "Finished", context.Style(ThemeToken.Text)));
+                spans.Add(new TextSpan(status == StatusKind.Fail ? context.Labels.TestsFinishedWithFailures : context.Labels.TestsFinished, context.Style(ThemeToken.Text)));
             } else if (_snapshot.CurrentName == null) {
                 spans.Add(new TextSpan(context.Spinner() + " ", context.Style(StatusKind.Running)));
-                spans.Add(new TextSpan(_snapshot.Containers.Count == 0 ? "Discovering tests" + context.Ellipsis : "Starting" + context.Ellipsis, muted));
+                spans.Add(new TextSpan((_snapshot.Containers.Count == 0 ? context.Labels.TestsDiscovering : context.Labels.TestsStarting) + context.Ellipsis, muted));
             } else {
                 spans.Add(new TextSpan(context.Spinner() + " ", context.Style(StatusKind.Running)));
                 string chevron = " " + Interactive.InteractiveGlyphs.For(context).Breadcrumb + " ";
@@ -70,7 +70,7 @@ namespace ConsoleMonster.TestRuns {
         public void Render(Region region, RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             if (_failures.Count == 0) {
-                region.Write(0, 0, "No failures", muted);
+                region.Write(0, 0, context.Labels.TestsNoFailures, muted);
                 return;
             }
             int y = 0;
@@ -93,7 +93,7 @@ namespace ConsoleMonster.TestRuns {
             }
             int more = _failures.Count - shown;
             if (more > 0 && y < region.Height) {
-                region.Write(0, Math.Min(region.Height - 1, y), "+ " + more.ToString(CultureInfo.InvariantCulture) + (more == 1 ? " more failure" : " more failures"), muted);
+                region.Write(0, Math.Min(region.Height - 1, y), Localization.WidgetLabels.Format(more == 1 ? context.Labels.TestsOneMoreFailure : context.Labels.TestsManyMoreFailures, more.ToString(CultureInfo.InvariantCulture)), muted);
             }
         }
     }
@@ -114,7 +114,7 @@ namespace ConsoleMonster.TestRuns {
         public void Render(Region region, RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             if (_slowest.Count == 0) {
-                region.Write(0, 0, "No tests finished yet", muted);
+                region.Write(0, 0, context.Labels.TestsNoneFinished, muted);
                 return;
             }
             Style text = context.Style(ThemeToken.Text);

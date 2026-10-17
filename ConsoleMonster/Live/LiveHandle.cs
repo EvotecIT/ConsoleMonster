@@ -30,5 +30,14 @@ namespace ConsoleMonster.Live {
         protected void Post(string operation, string? key = null, string? text = null, string? state = null, double value = 0, double total = 0) {
             Dispatcher.Post(new LiveEvent(Target, operation, key, text, state, value, total));
         }
+
+        /// <summary>Posts an operation with an in-process payload (see <see cref="LiveEvent.Payload"/>).</summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="payload">The payload.</param>
+        /// <param name="key">The item key, or null.</param>
+        /// <param name="text">A text form of the payload for recordings and stream output, or null.</param>
+        protected void PostPayload(string operation, object? payload, string? key = null, string? text = null) {
+            Dispatcher.Post(new LiveEvent(Target, operation, key, text) { Payload = payload });
+        }
     }
 }

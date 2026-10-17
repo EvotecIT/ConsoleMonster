@@ -188,6 +188,31 @@ namespace ConsoleMonster.Live {
             }
         }
 
+        /// <summary>
+        /// A handle to the <see cref="Widgets.Slot"/> named <paramref name="name"/>: <c>session.Region("main").Set(widget)</c>
+        /// replaces its content between frames, from any thread.
+        /// </summary>
+        /// <param name="name">The slot name.</param>
+        /// <returns>The handle.</returns>
+        /// <exception cref="ArgumentException">No slot has that name.</exception>
+        public Widgets.SlotHandle Region(string name) {
+            if (name == null) { throw new ArgumentNullException(nameof(name)); }
+            if (!_targets.TryGetValue(name, out ILiveTarget? target) || !(target is Widgets.Slot slot)) {
+                throw new ArgumentException("The session has no region (Slot) named '" + name + "'.", nameof(name));
+            }
+            return slot.Handle(this);
+        }
+
+        // Live widgets inside newly shown content join the session, replacing older widgets with the same names.
+        private void Adopt(IWidget widget) {
+            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name) && target.Name != "$log") {
+                _targets[target.Name] = target;
+            }
+            if (widget is IContainer container) {
+                foreach (IWidget child in container.Children) { Adopt(child); }
+            }
+        }
+
         /// <summary>Looks up a registered target, including the reserved log alias.</summary>
         /// <param name="name">Target name.</param>
         /// <param name="target">Matching target, or null.</param>

@@ -172,6 +172,120 @@ namespace ConsoleMonster.Localization {
         /// <summary>Several items in a collection.</summary>
         public string ManyItems { get; set; } = "{0} items";
 
+        /// <summary>The test-run dashboard title.</summary>
+        public string TestsTitle { get; set; } = "Tests";
+
+        /// <summary>A finished test run.</summary>
+        public string TestsFinished { get; set; } = "Finished";
+
+        /// <summary>A test run that finished with failures.</summary>
+        public string TestsFinishedWithFailures { get; set; } = "Finished with failures";
+
+        /// <summary>A test run before the first file.</summary>
+        public string TestsDiscovering { get; set; } = "Discovering tests";
+
+        /// <summary>A test run between files.</summary>
+        public string TestsStarting { get; set; } = "Starting";
+
+        /// <summary>The failure list of a clean run.</summary>
+        public string TestsNoFailures { get; set; } = "No failures";
+
+        /// <summary>One failure not shown: <c>+ {0} more failure</c>.</summary>
+        public string TestsOneMoreFailure { get; set; } = "+ {0} more failure";
+
+        /// <summary>Failures not shown: <c>+ {0} more failures</c>.</summary>
+        public string TestsManyMoreFailures { get; set; } = "+ {0} more failures";
+
+        /// <summary>The slowest list before any test finished.</summary>
+        public string TestsNoneFinished { get; set; } = "No tests finished yet";
+
+        /// <summary>The title of the per-file summary table.</summary>
+        public string TestsResultsByFile { get; set; } = "Results by file";
+
+        /// <summary>The file column.</summary>
+        public string TestsFile { get; set; } = "File";
+
+        /// <summary>The test count column.</summary>
+        public string TestsCount { get; set; } = "Tests";
+
+        /// <summary>The passed column.</summary>
+        public string TestsPassedColumn { get; set; } = "Passed";
+
+        /// <summary>The failed column.</summary>
+        public string TestsFailedColumn { get; set; } = "Failed";
+
+        /// <summary>The skipped column.</summary>
+        public string TestsSkippedColumn { get; set; } = "Skipped";
+
+        /// <summary>The time column.</summary>
+        public string TestsTimeColumn { get; set; } = "Time";
+
+        /// <summary>The failures heading.</summary>
+        public string TestsFailures { get; set; } = "Failures";
+
+        /// <summary>The outcome of a failed run.</summary>
+        public string TestsFailed { get; set; } = "Tests failed";
+
+        /// <summary>The outcome of an inconclusive run.</summary>
+        public string TestsInconclusive { get; set; } = "Tests inconclusive";
+
+        /// <summary>The outcome of a passed run.</summary>
+        public string TestsPassed { get; set; } = "Tests passed";
+
+        /// <summary>The expected value of a failed assertion.</summary>
+        public string TestsExpected { get; set; } = "expected";
+
+        /// <summary>The actual value of a failed assertion.</summary>
+        public string TestsActual { get; set; } = "actual";
+
+        /// <summary>Passed tests: <c>{0} passed</c>.</summary>
+        public string TestsPassedCount { get; set; } = "{0} passed";
+
+        /// <summary>Inconclusive tests: <c>{0} inconclusive</c>.</summary>
+        public string TestsInconclusiveCount { get; set; } = "{0} inconclusive";
+
+        /// <summary>Tests not run: <c>{0} not run</c>.</summary>
+        public string TestsNotRunCount { get; set; } = "{0} not run";
+
+        /// <summary>One failed block: <c>{0} block failed</c>.</summary>
+        public string TestsOneBlockFailed { get; set; } = "{0} block failed";
+
+        /// <summary>Failed blocks: <c>{0} blocks failed</c>.</summary>
+        public string TestsManyBlocksFailed { get; set; } = "{0} blocks failed";
+
+        /// <summary>Tests run: <c>{0} tests</c>.</summary>
+        public string TestsDoneCount { get; set; } = "{0} tests";
+
+        /// <summary>Tests run of the total: <c>{0} of {1}</c>.</summary>
+        public string TestsDoneOfTotal { get; set; } = "{0} of {1}";
+
+        /// <summary>The slowest tests panel.</summary>
+        public string TestsSlowest { get; set; } = "Slowest";
+
+        /// <summary>The durations panel.</summary>
+        public string TestsDurations { get; set; } = "Durations";
+
+        /// <summary>The files panel.</summary>
+        public string TestsFiles { get; set; } = "Files";
+
+        /// <summary>Files done: <c>{0} of {1} done</c>.</summary>
+        public string TestsFilesDone { get; set; } = "{0} of {1} done";
+
+        /// <summary>The dashboard status while tests run.</summary>
+        public string TestsStatusRunning { get; set; } = "running";
+
+        /// <summary>The dashboard status after failures.</summary>
+        public string TestsStatusFailed { get; set; } = "failed";
+
+        /// <summary>The dashboard status of an inconclusive run.</summary>
+        public string TestsStatusInconclusive { get; set; } = "inconclusive";
+
+        /// <summary>The dashboard status of a passed run.</summary>
+        public string TestsStatusPassed { get; set; } = "passed";
+
+        /// <summary>A frame that failed to render: <c>render error at {0}: {1}</c>.</summary>
+        public string RenderError { get; set; } = "render error at {0}: {1}";
+
         /// <summary>The members of an inspected object: <c>{0} members</c>.</summary>
         public string Members { get; set; } = "{0} members";
 

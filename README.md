@@ -528,6 +528,45 @@ New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, Byt
 - The same columns render full screen and inline. In stream mode (CI, redirected output) the heartbeat line summarises
   the running lanes through them, for example `servers: 2 running, 3 done, 1 queued; DC01 45% 18/40 12s left`.
 
+### Replaceable regions and live tables
+
+Any place in a layout can hold a `Slot`: a named region whose widget is replaced while the session runs. The swap goes
+through the update queue, so it is thread-safe and lands between frames; a surrounding panel keeps its frame and only
+the changed cells are redrawn. Live widgets inside the new content (lanes, logs, live tables) join the session under
+their names right away.
+
+`LiveTable` is a table whose rows change: rows have stable keys and are added, updated, removed or cleared. Column
+widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows, and `SortColumn` keeps them sorted.
+In stream mode each added or updated row prints as a line.
+
+```csharp
+Dashboard dashboard = new DashboardBuilder("Domain health")
+    .Region("Domain controllers", "main", new Spinner("Querying domain controllers"))
+    .Panel("Jobs", new LiveTable(new Table().AddColumn("Job").AddColumn("State").AddColumn("Took"), "jobs") { MaxRows = 8 }, out LiveTable jobs, fill: true)
+    .BuildDashboard();
+using (LiveSession session = new LiveSession(dashboard)) {
+    session.Start();
+    LiveTableHandle rows = jobs.Handle(session);
+    rows.AddRow("dns@DC01", "dns", StatusKind.Running, TimeSpan.Zero);
+    rows.UpdateRow("dns@DC01", "dns", StatusKind.Pass, TimeSpan.FromSeconds(4));
+    session.Region("main").Set(controllersTable);          // from any thread
+}
+```
+
+```powershell
+$d = New-ConsoleDashboard -Title 'Domain health' {
+    New-ConsolePanel -Title 'Domain controllers' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
+    New-ConsolePanel -Title 'Jobs' -Fill { New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+}
+Start-ConsoleDashboard $d {
+    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
+    Set-ConsoleRegion -Name main { $controllers | Format-ConsoleTable -AsWidget }
+    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Remove
+}
+```
+
+A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
+
 ## Pester test runs
 
 `Invoke-ConsolePester` runs Pester 5 or 6 with a live dashboard. It takes the parameters of `Invoke-Pester` (or a
@@ -715,6 +754,15 @@ new HealthReport(new WriterTarget(logWriter, width: 100)).Run(servers);   // a l
 `LiveSessionOptions.Target` and `InteractiveOptions.Target` take a target too. Only the console target claims the
 console, probes widths and reads the keyboard; on any other target a prompt without scripted input uses its default.
 
+In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going elsewhere: `-Path` writes a
+UTF-8 file, `-Writer` a TextWriter, `-Target` any target, and with none of them the output comes back as a string.
+`-Width`, `-Glyphs` and `-Colors` lay it out.
+
+```powershell
+Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }
+$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
+```
+
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a
@@ -729,6 +777,21 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
 inspector's item counts use invariant digits regardless, because they are compact status text rather than data.
+
+## Emoji and symbols on every terminal
+
+Emoji and special symbols in text that goes through markup, rich text or table cells are replaced on glyph tiers
+that cannot show them, before the text is measured, so widths stay right: ✅ is √ on the Basic tier and `[OK]` on
+ASCII, ⚠️ is `!`, ❌ is `×` or `x`, ➜ is `→` or `->`, 🚀 is `»` or `>>`, and `…` and `—` become `...` and `-` on ASCII.
+The Full tier shows the text as written. `SymbolFallback.Register("🦄", "U", "[unicorn]")` adds a symbol and
+`SymbolFallback.Enabled = false` turns the replacement off.
+
+`:shortcode:` emoji are opt-in, because colons in data must stay as they are:
+
+- `Markup.Shortcodes = true` turns `:white_check_mark: deployed` in markup into `✅ deployed`;
+- the `Emoji` cell presenter (`Presenter = CellPresenters.Emoji`, or `Presenter = 'Emoji'` in a PowerShell column
+  option) does the same for one column;
+- `Shortcodes.Replace(text)` does it for any string, and `Shortcodes.Register("deploy", "🚀")` adds a name.
 
 ## Languages
 

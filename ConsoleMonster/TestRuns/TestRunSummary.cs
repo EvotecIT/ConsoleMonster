@@ -47,13 +47,14 @@ namespace ConsoleMonster.TestRuns {
         }
 
         private Table FileTable() {
-            Table table = new Table { Title = "Results by file" };
-            table.AddColumn("File");
-            table.AddColumn("Tests", HorizontalAlignment.Right);
-            table.AddColumn("Passed", HorizontalAlignment.Right);
-            table.AddColumn("Failed", HorizontalAlignment.Right);
-            table.AddColumn("Skipped", HorizontalAlignment.Right);
-            table.AddColumn("Time", HorizontalAlignment.Right);
+            Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+            Table table = new Table { Title = Text.Markup.Escape(labels.TestsResultsByFile) };
+            table.AddColumn(Text.Markup.Escape(labels.TestsFile));
+            table.AddColumn(Text.Markup.Escape(labels.TestsCount), HorizontalAlignment.Right);
+            table.AddColumn(Text.Markup.Escape(labels.TestsPassedColumn), HorizontalAlignment.Right);
+            table.AddColumn(Text.Markup.Escape(labels.TestsFailedColumn), HorizontalAlignment.Right);
+            table.AddColumn(Text.Markup.Escape(labels.TestsSkippedColumn), HorizontalAlignment.Right);
+            table.AddColumn(Text.Markup.Escape(labels.TestsTimeColumn), HorizontalAlignment.Right);
             TimeSpan time = TimeSpan.Zero;
             foreach (TestContainerState container in _snapshot.Containers) {
                 time += container.Duration;
@@ -65,7 +66,7 @@ namespace ConsoleMonster.TestRuns {
                     Number(container.Skipped + container.NotRun),
                     NumberFormat.Duration(container.Duration));
             }
-            table.SetFooter("Total", Number(_snapshot.Done), Number(_snapshot.Passed), Number(_snapshot.Failed), Number(_snapshot.Skipped + _snapshot.NotRun), NumberFormat.Duration(time));
+            table.SetFooter(Text.Markup.Escape(labels.Total), Number(_snapshot.Done), Number(_snapshot.Passed), Number(_snapshot.Failed), Number(_snapshot.Skipped + _snapshot.NotRun), NumberFormat.Duration(time));
             return table;
         }
 
@@ -83,7 +84,7 @@ namespace ConsoleMonster.TestRuns {
             private List<StyledLine> Lines(RenderContext context) {
                 List<StyledLine> lines = new List<StyledLine> { StyledLine.Empty };
                 Style title = context.Style(ThemeToken.Title);
-                lines.Add(StyledLine.From(" Failures", title));
+                lines.Add(StyledLine.From(" " + context.Labels.TestsFailures, title));
                 int shown = Math.Min(_failures.Count, _limit);
                 for (int i = 0; i < shown; i++) {
                     lines.Add(StyledLine.Empty);
@@ -95,7 +96,7 @@ namespace ConsoleMonster.TestRuns {
                 }
                 if (shown < _failures.Count) {
                     int more = _failures.Count - shown;
-                    lines.Add(StyledLine.From(" + " + more.ToString(CultureInfo.InvariantCulture) + (more == 1 ? " more failure" : " more failures"), context.Style(ThemeToken.Muted)));
+                    lines.Add(StyledLine.From(" " + Localization.WidgetLabels.Format(more == 1 ? context.Labels.TestsOneMoreFailure : context.Labels.TestsManyMoreFailures, more.ToString(CultureInfo.InvariantCulture)), context.Style(ThemeToken.Muted)));
                 }
                 return lines;
             }
@@ -120,7 +121,7 @@ namespace ConsoleMonster.TestRuns {
             // The outcome and the totals share a line when they fit; otherwise the totals go on the next line, indented.
             private bool Wraps(int width, RenderContext context, out string outcome, out string totals) {
                 StatusKind status = Outcome();
-                outcome = " " + context.Glyphs.StatusSymbol(status) + " " + (status == StatusKind.Fail ? "Tests failed" : status == StatusKind.Warn ? "Tests inconclusive" : "Tests passed");
+                outcome = " " + context.Glyphs.StatusSymbol(status) + " " + TestRunText.Outcome(status);
                 totals = TestRunText.Totals(_snapshot, context.Glyphs);
                 return DisplayWidth.Measure(outcome) + 2 + DisplayWidth.Measure(totals) > width;
             }

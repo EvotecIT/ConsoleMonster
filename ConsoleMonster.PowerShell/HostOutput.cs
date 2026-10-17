@@ -191,6 +191,10 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="profile">The detected profile.</param>
         /// <returns>True for anything but a real local interactive console.</returns>
         internal static bool UseHost(PSCmdlet cmdlet, TerminalProfile profile) {
+            // Use-ConsoleTarget (or a host) sent the output to another target: it goes there, not to the host.
+            if (!Terminal.IsConsole(Terminal.Target)) {
+                return false;
+            }
             // Background jobs ("ServerRemoteHost"), thread jobs and dashboard runspaces ("Default Host"), remoting and the ISE.
             if (!string.Equals(cmdlet.Host?.Name, "ConsoleHost", StringComparison.Ordinal)) {
                 return true;

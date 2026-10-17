@@ -88,6 +88,10 @@ namespace ConsoleMonster.Live {
                 return;
             }
             Interlocked.Increment(ref _eventsApplied);
+            if (target is Widgets.Slot slot && liveEvent.Operation == "set") {
+                foreach (IWidget child in slot.Children) { Adopt(child); }
+                Interlocked.Exchange(ref _invalidate, 1);
+            }
             if (_recorder != null) {
                 Attempt(() => _recorder.Write(liveEvent));
             }
@@ -207,7 +211,7 @@ namespace ConsoleMonster.Live {
 
         private static CellBuffer RenderErrorFrame(int width, int height, RenderContext context, Exception ex) {
             CellBuffer buffer = new CellBuffer(Math.Max(1, width), Math.Max(1, height));
-            string text = "render error at " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + ": " + ex.GetType().Name;
+            string text = Localization.WidgetLabels.Format(context.Labels.RenderError, width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture), ex.GetType().Name);
             new Region(buffer).Write(0, 0, TextWrapper.Truncate(text, Math.Max(1, width - 1), context.Ellipsis), context.Style(ThemeToken.Warn));
             return buffer;
         }

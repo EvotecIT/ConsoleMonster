@@ -7,6 +7,7 @@ namespace ConsoleMonster.Presenters {
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
             string text = PresenterValues.ToText(value, context.Culture).Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
+            text = Glyphs.SymbolFallback.Apply(text, context.Render.Glyphs.Tier);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text))) { IsEmpty = text.Length == 0 };
         }
     }

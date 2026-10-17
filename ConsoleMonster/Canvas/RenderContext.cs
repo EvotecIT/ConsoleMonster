@@ -87,7 +87,7 @@ namespace ConsoleMonster.Canvas {
                 return StyledText.FromPlain(string.Empty);
             }
             if (!_markupCache.TryGetValue(markup, out StyledText? text)) {
-                text = Text.Markup.Parse(markup, Theme, Depth);
+                text = global::ConsoleMonster.Glyphs.SymbolFallback.Apply(Text.Markup.Parse(markup, Theme, Depth), Glyphs.Tier);
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }
