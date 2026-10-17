@@ -1,4 +1,4 @@
-﻿Describe 'ConsoleMonster module' {
+Describe 'ConsoleMonster module' {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
@@ -27,7 +27,7 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 60
+        $commands.Count | Should -Be 62
         $commands.Name | Should -Contain 'Write-ConsoleTable'
         $commands.Name | Should -Contain 'Start-ConsoleDashboard'
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty

@@ -73,6 +73,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter PassThru { get; set; }
 
+        /// <summary><para type="description">Writes the table widget to the pipeline instead of drawing it (for Export-ConsoleFrame, New-ConsolePanel or a dashboard).</para></summary>
+        [Parameter]
+        public SwitchParameter AsWidget { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -92,6 +96,10 @@ namespace ConsoleMonster.PowerShell {
             table.CardsBelow = CardsBelow;
             table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
             table.MaxRows = Top > 0 ? Top : 0;
+            if (AsWidget.IsPresent) {
+                WriteObject(table);
+                return;
+            }
             PSFormatting.Write(this, table, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {

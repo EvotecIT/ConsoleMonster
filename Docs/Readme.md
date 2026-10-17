@@ -15,6 +15,16 @@ Adds a value to a chart in a running dashboard.
 
 Appends to a sparkline or line-chart series (-Key names the series), counts a value in a histogram, or adds to a bar or stacked-bar segment (-Key names it).
 
+### [Export-ConsoleFrame](Export-ConsoleFrame.md)
+Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
+
+Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
+
+### [Export-ConsoleRecording](Export-ConsoleRecording.md)
+Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
+
+Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
+
 ### [Format-ConsoleList](Format-ConsoleList.md)
 Formats pipeline objects as record views (labelled values) and writes them to the host.
 

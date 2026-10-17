@@ -13,7 +13,7 @@ Columns come from -Property (like Format-Table: names, wildcards and calculated 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-PassThru] [<CommonParameters>]
+Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-PassThru] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,11 +25,27 @@ Columns come from -Property (like Format-Table: names, wildcards and calculated 
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleTable -Border 'Value'
+Format-ConsoleTable -AsWidget
 ```
 
 
 ## PARAMETERS
+
+### -AsWidget
+Writes the table widget to the pipeline instead of drawing it (for Export-ConsoleFrame, New-ConsolePanel or a dashboard).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Border
 Border style: Rounded, Square, Double, Minimal or None.
