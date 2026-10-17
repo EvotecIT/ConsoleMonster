@@ -1,0 +1,21 @@
+--- frame 0
+! Remove FS01 from the inventory?
+  This cannot be undone.
+  Type FS01 to confirm
+  ›
+  enter confirm  esc cancel
+--- frame 4
+! Remove FS01 from the inventory?
+  This cannot be undone.
+  Type FS01 to confirm
+  › FS0
+  ✗ Type FS01 to confirm
+  enter confirm  esc cancel
+--- frame 5
+! Remove FS01 from the inventory?
+  This cannot be undone.
+  Type FS01 to confirm
+  › FS01
+  enter confirm  esc cancel
+--- summary
+✓ Remove FS01 from the inventory?  Yes

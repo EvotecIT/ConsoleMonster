@@ -38,7 +38,8 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series3] = new ThemeStyle(ThemeColor.Hex("#fbbf24", 11, 214)),
                 [ThemeToken.Series4] = new ThemeStyle(ThemeColor.Hex("#f87171", 9, 203)),
                 [ThemeToken.Series5] = new ThemeStyle(ThemeColor.Hex("#c084fc", 13, 141)),
-                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#2dd4bf", 14, 43))
+                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#2dd4bf", 14, 43)),
+                [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#f1f5f9", 15, 255), ThemeColor.Hex("#243b5e", 4, 237))
             };
             return new Theme("Dark", s);
         }
@@ -68,7 +69,8 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series3] = new ThemeStyle(ThemeColor.Hex("#d97706", 3, 172)),
                 [ThemeToken.Series4] = new ThemeStyle(ThemeColor.Hex("#dc2626", 1, 160)),
                 [ThemeToken.Series5] = new ThemeStyle(ThemeColor.Hex("#7c3aed", 5, 92)),
-                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#0d9488", 6, 30))
+                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#0d9488", 6, 30)),
+                [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#0f172a", 0, 233), ThemeColor.Hex("#d6e4fa", 7, 189))
             };
             return new Theme("Light", s);
         }
@@ -98,7 +100,8 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series3] = new ThemeStyle(ThemeColor.Hex("#ffff00", 11, 226)),
                 [ThemeToken.Series4] = new ThemeStyle(ThemeColor.Hex("#ff3030", 9, 196)),
                 [ThemeToken.Series5] = new ThemeStyle(ThemeColor.Hex("#ff00ff", 13, 201)),
-                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#ffffff", 15, 231))
+                [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#ffffff", 15, 231)),
+                [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#000000", 0, 16), ThemeColor.Hex("#00ffff", 14, 51), TextDecoration.Bold)
             };
             return new Theme("HighContrast", s);
         }

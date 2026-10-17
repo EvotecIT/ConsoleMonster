@@ -1,0 +1,41 @@
+--- frame 0
+? Servers
+  > type to filter
+    v [ ] Warsaw                      0/2
+  >   [ ] [FS01]                     File
+      [ ] WEB01                       Web
+    v [ ] Berlin                      0/1
+      [ ] PRN11                     Print
+      [ ] FS11                       File
+    v [ ] Lab                         0/1
+      [ ] LAB01                      Test
+    File server · Win...  0 of 4 selected
+  Up/Down move  space toggle  enter confirm  f1 keys
+--- frame 6
+? Servers
+  > type to filter
+    v [-] Warsaw                      1/2
+      [x] FS01                       File
+      [ ] WEB01                       Web
+    v [ ] Berlin                      0/1
+      [ ] PRN11                     Print
+  >   [ ] [FS11]                     File
+    v [ ] Lab                         0/1
+      [ ] LAB01                      Test
+                          1 of 4 selected
+  Up/Down move  space toggle  enter confirm  f1 keys
+--- frame 7
+? Servers
+  > type to filter
+    v [-] Warsaw                      1/2
+      [x] FS01                       File
+      [ ] WEB01                       Web
+    v [x] Berlin                      1/1
+      [ ] PRN11                     Print
+  >   [x] [FS11]                     File
+    v [ ] Lab                         0/1
+      [ ] LAB01                      Test
+                          2 of 4 selected
+  Up/Down move  space toggle  enter confirm  f1 keys
+--- summary
++ Servers  FS01, FS11

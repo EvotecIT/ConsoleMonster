@@ -1,0 +1,29 @@
+--- frame 0
+? Target server
+  › type to filter
+    Warsaw
+  ▌ [FS01]                     File
+    WEB01                       Web
+    Berlin
+    PRN11                     Print
+    FS11                       File
+    Lab
+    LAB01                      Test
+    File server · Windows Server 2…
+  ↑↓ move  enter select  f1 keys
+--- frame 4
+? Target server
+  › fs
+  ▌ [FS01]  · Warsaw           File
+    FS11  · Berlin             File
+    File server · Windows Server 2…
+  ↑↓ move  enter select  f1 keys
+--- frame 5
+? Target server
+  › fs
+    FS01  · Warsaw             File
+  ▌ [FS11]  · Berlin           File
+
+  ↑↓ move  enter select  f1 keys
+--- summary
+✓ Target server  FS11

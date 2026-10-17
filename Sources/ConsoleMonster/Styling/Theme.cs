@@ -30,7 +30,7 @@ namespace ConsoleMonster.Styling {
             _styles = styles;
         }
 
-        private static int TokenCount => (int)ThemeToken.Series6 + 1;
+        private static int TokenCount => (int)ThemeToken.Focus + 1;
 
         /// <inheritdoc />
         public string Name { get; }

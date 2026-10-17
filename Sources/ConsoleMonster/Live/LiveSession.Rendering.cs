@@ -27,7 +27,9 @@ namespace ConsoleMonster.Live {
                     // nor cap throughput (a fixed per-tick count capped a 15 fps loop near 60k events/s).
                     Drain(int.MaxValue, Math.Max(20, period * 0.6));
                     if (_output!.SupportsLiveFrames) {
-                        RenderFinal();
+                        if (Volatile.Read(ref _paused) == 0) {
+                            RenderFinal();
+                        }
                     } else if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - heartbeat >= _options.StreamHeartbeat) {
                         Heartbeat();
                         heartbeat = Elapsed;

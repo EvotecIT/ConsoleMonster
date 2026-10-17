@@ -75,6 +75,9 @@ namespace ConsoleMonster.Styling {
         Series5,
 
         /// <summary>Chart series 6.</summary>
-        Series6
+        Series6,
+
+        /// <summary>The focused row or control in interactive prompts, menus and forms (carries a background).</summary>
+        Focus
     }
 }
