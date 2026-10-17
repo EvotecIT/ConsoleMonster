@@ -12,8 +12,50 @@ namespace ConsoleMonster.Widgets {
     public sealed partial class Lanes {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int rows = Math.Max(1, _lanes.Count);
+            int rows = DesiredRows();
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? rows : Math.Min(rows, constraints.MaxHeight));
+        }
+
+        private bool AllFinished() {
+            if (_lanes.Count == 0) {
+                return false;
+            }
+            foreach (Lane lane in _lanes) {
+                if (!lane.IsFinished) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Rows the display wants: zero once a transient display is done, one when collapsed, otherwise a row per shown lane
+        // plus the summary line for finished lanes that HideCompleted keeps out.
+        private int DesiredRows() {
+            if (_lanes.Count == 0) {
+                return 1;
+            }
+            bool finished = AllFinished();
+            if (finished && Transient) {
+                return 0;
+            }
+            if (finished && CollapseWhenFinished) {
+                return 1;
+            }
+            List<Lane> candidates = Candidates();
+            return Math.Max(1, candidates.Count + (candidates.Count < _lanes.Count ? 1 : 0));
+        }
+
+        private List<Lane> Candidates() {
+            if (!HideCompleted) {
+                return _lanes;
+            }
+            List<Lane> open = new List<Lane>();
+            foreach (Lane lane in _lanes) {
+                if (!lane.IsFinished) {
+                    open.Add(lane);
+                }
+            }
+            return open;
         }
 
         /// <inheritdoc />
@@ -22,12 +64,30 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             Style muted = context.Style(ThemeToken.Muted);
+            Localization.WidgetLabels labels = context.Labels;
             if (_lanes.Count == 0) {
-                region.Write(0, 0, "waiting for work" + context.Ellipsis, muted);
+                region.Write(0, 0, labels.WaitingForWork + context.Ellipsis, muted);
                 return;
             }
-            List<Lane> visible = SelectVisible(region.Height);
+            bool finished = AllFinished();
+            if (finished && Transient) {
+                return;
+            }
+            if (finished && CollapseWhenFinished) {
+                DrawCollapsed(region, context);
+                return;
+            }
+            List<Lane> candidates = Candidates();
+            bool reserved = candidates.Count < _lanes.Count;
+            List<Lane> visible = SelectVisible(candidates, region.Height - (reserved ? 1 : 0), reserved);
             int hidden = _lanes.Count - visible.Count;
+            if (Columns != null && Columns.Count > 0) {
+                RenderColumns(region, visible, context);
+                if (hidden > 0) {
+                    DrawMore(region, visible, hidden, context);
+                }
+                return;
+            }
 
             int labelWidth = 0;
             foreach (Lane lane in _lanes) {
@@ -62,38 +122,120 @@ namespace ConsoleMonster.Widgets {
                 DrawLane(region, i, visible[i], labelWidth, barWidth, percentWidth, counts, detailWidth, context);
             }
             if (hidden > 0) {
-                int done = 0;
-                int queued = 0;
-                foreach (Lane lane in _lanes) {
-                    if (visible.Contains(lane)) {
-                        continue;
-                    }
-                    if (lane.IsFinished) {
-                        done++;
-                    } else {
-                        queued++;
-                    }
-                }
-                string more = "+" + hidden.ToString(CultureInfo.InvariantCulture) + " more " + context.Glyphs.Get(Glyph.Dot) + " "
-                    + done.ToString(CultureInfo.InvariantCulture) + " done " + context.Glyphs.Get(Glyph.Dot) + " "
-                    + queued.ToString(CultureInfo.InvariantCulture) + " queued";
-                region.Write(2, visible.Count, more, muted);
+                DrawMore(region, visible, hidden, context);
             }
         }
 
-        private List<Lane> SelectVisible(int height) {
-            if (_lanes.Count <= height) {
-                return _lanes;
+        // "+3 more · 2 done · 1 queued" for the lanes that are not shown.
+        private void DrawMore(Region region, List<Lane> visible, int hidden, RenderContext context) {
+            if (visible.Count >= region.Height) {
+                return;
             }
-            int slots = Math.Max(0, height - 1);
-            List<Lane> chosen = new List<Lane>();
+            Localization.WidgetLabels labels = context.Labels;
+            int done = 0;
+            int queued = 0;
             foreach (Lane lane in _lanes) {
+                if (visible.Contains(lane)) {
+                    continue;
+                }
+                if (lane.IsFinished) {
+                    done++;
+                } else {
+                    queued++;
+                }
+            }
+            string dot = " " + context.Glyphs.Get(Glyph.Dot) + " ";
+            List<string> parts = new List<string>();
+            if (hidden > done || !HideCompleted) {
+                parts.Add(Localization.WidgetLabels.Format(labels.MoreCount, hidden.ToString(CultureInfo.InvariantCulture)));
+            }
+            parts.Add(Localization.WidgetLabels.Format(labels.DoneCount, done.ToString(CultureInfo.InvariantCulture)));
+            if (queued > 0 || !HideCompleted) {
+                parts.Add(Localization.WidgetLabels.Format(labels.QueuedCount, queued.ToString(CultureInfo.InvariantCulture)));
+            }
+            region.Write(2, visible.Count, string.Join(dot, parts.ToArray()), context.Style(ThemeToken.Muted));
+        }
+
+        // Every lane finished and CollapseWhenFinished: "✓ 12 done in 1m 05s · 1 failed".
+        private void DrawCollapsed(Region region, RenderContext context) {
+            Localization.WidgetLabels labels = context.Labels;
+            int failed = 0;
+            TimeSpan? first = null;
+            TimeSpan? last = null;
+            foreach (Lane lane in _lanes) {
+                if (lane.Status == StatusKind.Fail) {
+                    failed++;
+                }
+                if (lane.Started.HasValue && (!first.HasValue || lane.Started.Value < first.Value)) {
+                    first = lane.Started;
+                }
+                if (lane.Finished.HasValue && (!last.HasValue || lane.Finished.Value > last.Value)) {
+                    last = lane.Finished;
+                }
+            }
+            StatusKind overall = failed > 0 ? StatusKind.Fail : StatusKind.Pass;
+            string marker = context.Glyphs.Tier == GlyphTier.Ascii ? context.Glyphs.StatusSymbol(overall) : context.Glyphs.StatusMarker(overall);
+            region.Write(0, 0, marker, context.Style(overall));
+            string count = _lanes.Count.ToString(CultureInfo.InvariantCulture);
+            string text = first.HasValue && last.HasValue
+                ? Localization.WidgetLabels.Format(labels.AllDoneIn, count, NumberFormat.Duration(last.Value - first.Value))
+                : Localization.WidgetLabels.Format(labels.DoneCount, count);
+            if (failed > 0) {
+                text += " " + context.Glyphs.Get(Glyph.Dot) + " " + Localization.WidgetLabels.Format(labels.FailedCount, failed.ToString(CultureInfo.InvariantCulture));
+            }
+            region.Write(2, 0, TextWrapper.Truncate(text, Math.Max(1, region.Width - 2), context.Ellipsis), context.Style(ThemeToken.Muted));
+        }
+
+        private void RenderColumns(Region region, List<Lane> visible, RenderContext context) {
+            List<ProgressRow> all = new List<ProgressRow>(_lanes.Count);
+            Dictionary<Lane, ProgressRow> byLane = new Dictionary<Lane, ProgressRow>();
+            foreach (Lane lane in _lanes) {
+                ProgressRow row = RowFor(lane, context.Elapsed);
+                all.Add(row);
+                byLane[lane] = row;
+            }
+            IList<ProgressColumn> columns = Columns!;
+            int[] widths = ProgressLayout.Arrange(columns, all, region.Width, context);
+            for (int i = 0; i < visible.Count && i < region.Height; i++) {
+                ProgressLayout.Draw(region, i, columns, widths, byLane[visible[i]], context);
+            }
+        }
+
+        // The running lanes through the columns, for the stream heartbeat line: "; srv01 45% 12/30 6s left".
+        private string RunningSummary() {
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(200, 1, ColorDepth.None, GlyphTier.Ascii, OutputMode.Stream), Theme.Dark, null, 0, _lastEventTime);
+            List<string> parts = new List<string>();
+            foreach (Lane lane in _lanes) {
+                if (lane.Status == StatusKind.Running && parts.Count < 3) {
+                    parts.Add(ProgressLayout.Summarize(Columns!, RowFor(lane, _lastEventTime), context));
+                }
+            }
+            return parts.Count == 0 ? string.Empty : "; " + string.Join("; ", parts.ToArray());
+        }
+
+        private ProgressRow RowFor(Lane lane, TimeSpan now) {
+            lane.Meter.Window = RateWindow;
+            double rate = lane.IsFinished ? 0 : lane.Meter.Rate(now);
+            return new ProgressRow(lane.Key, lane.Label, lane.LabelText, lane.Detail, lane.DetailText, lane.Status, lane.Done, lane.Total,
+                lane.Passed, lane.Failed, lane.Warned, lane.Skipped, lane.Started, lane.Finished, now, rate, lane.Order);
+        }
+
+        // Running lanes first, then the most recently finished, then queued ones; a row is kept for the summary line unless
+        // the caller reserved it already.
+        private static List<Lane> SelectVisible(List<Lane> lanes, int height, bool summaryReserved) {
+            height = Math.Max(1, height);
+            if (lanes.Count <= height) {
+                return lanes;
+            }
+            int slots = Math.Max(0, summaryReserved ? height : height - 1);
+            List<Lane> chosen = new List<Lane>();
+            foreach (Lane lane in lanes) {
                 if (chosen.Count < slots && lane.Status == StatusKind.Running) {
                     chosen.Add(lane);
                 }
             }
             List<Lane> finished = new List<Lane>();
-            foreach (Lane lane in _lanes) {
+            foreach (Lane lane in lanes) {
                 if (lane.IsFinished) {
                     finished.Add(lane);
                 }
@@ -104,7 +246,7 @@ namespace ConsoleMonster.Widgets {
                     chosen.Add(lane);
                 }
             }
-            foreach (Lane lane in _lanes) {
+            foreach (Lane lane in lanes) {
                 if (chosen.Count < slots && !lane.IsFinished && lane.Status != StatusKind.Running) {
                     chosen.Add(lane);
                 }
@@ -149,9 +291,9 @@ namespace ConsoleMonster.Widgets {
                 RichText? richDetail = null;
                 if (lane.IsFinished) {
                     bool timed = lane.Started.HasValue && lane.Finished.HasValue && lane.Finished.Value > lane.Started.Value;
-                    detail = timed ? "done in " + NumberFormat.Duration(lane.Finished!.Value - lane.Started!.Value) : "done";
+                    detail = timed ? Localization.WidgetLabels.Format(context.Labels.DoneIn, NumberFormat.Duration(lane.Finished!.Value - lane.Started!.Value)) : context.Labels.Done;
                 } else if (lane.Status == StatusKind.Pending) {
-                    detail = "queued";
+                    detail = context.Labels.Queued;
                 } else {
                     detail = lane.Detail ?? string.Empty;
                     richDetail = lane.DetailText;

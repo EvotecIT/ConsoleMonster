@@ -39,7 +39,7 @@ namespace ConsoleMonster.Widgets {
         public string? Footer { get; set; }
 
         /// <summary>The key hints in the footer when <see cref="Footer"/> is not set (default: ctrl+c stop).</summary>
-        public IList<KeyHint> FooterHints { get; } = new List<KeyHint> { new KeyHint("ctrl+c", "stop") };
+        public IList<KeyHint> FooterHints { get; } = new List<KeyHint> { new KeyHint("ctrl+c", Localization.WidgetLabels.Current.Stop) };
 
         private bool HasFooter => !string.IsNullOrEmpty(Footer) || FooterHints.Count > 0;
 

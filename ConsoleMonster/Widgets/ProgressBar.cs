@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -10,7 +11,7 @@ namespace ConsoleMonster.Widgets {
     /// A labelled progress bar with percentage and count: <c>Build  ████████▌░░░░  64%  32/50</c>.
     /// Live operations: <c>set</c> (Value, Total), <c>advance</c> (Value = amount), <c>label</c> (Text), <c>state</c> (State).
     /// </summary>
-    public sealed class ProgressBar : LiveWidget {
+    public sealed class ProgressBar : LiveWidget, ILiveSummary {
         /// <summary>Creates a progress bar.</summary>
         /// <param name="label">The label (markup).</param>
         /// <param name="name">The live name (default <c>progress</c>).</param>
@@ -53,6 +54,40 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The fraction complete (0-1).</summary>
         public double Fraction => Total <= 0 ? 0 : Math.Max(0, Math.Min(1, Value / Total));
 
+        /// <summary>
+        /// The columns of the bar's row (see <see cref="ProgressColumns"/>: description, bar, percent, count, elapsed,
+        /// remaining time, rate, custom...), or null (default) for the classic label, bar, percentage and count. With columns
+        /// set, the stream heartbeat line summarises the bar through them.
+        /// </summary>
+        public IList<ProgressColumn>? Columns { get; set; }
+
+        /// <summary>The moving window that smooths the rate and the remaining time (default 10 seconds).</summary>
+        public TimeSpan RateWindow {
+            get => _meter.Window;
+            set => _meter.Window = value;
+        }
+
+        private readonly RateMeter _meter = new RateMeter();
+        private TimeSpan? _started;
+        private TimeSpan? _finished;
+        private TimeSpan _lastEventTime;
+
+        /// <inheritdoc />
+        public string? GetSummaryLine() {
+            if (Columns == null || Columns.Count == 0) {
+                return null;
+            }
+            RenderContext context = new RenderContext(Capabilities.TerminalProfile.Fixed(200, 1, Capabilities.ColorDepth.None, Capabilities.GlyphTier.Ascii, Capabilities.OutputMode.Stream), Theme.Dark, null, 0, _lastEventTime);
+            return ProgressLayout.Summarize(Columns, Row(_lastEventTime), context);
+        }
+
+        private ProgressRow Row(TimeSpan now) {
+            string label = Markup.Strip(Label);
+            StatusKind status = Status == StatusKind.Running && !_started.HasValue && Value <= 0 ? StatusKind.Pending : Status;
+            return new ProgressRow(Name, label, RichText.FromMarkup(Label), null, null, status, Value, Total, 0, 0, 0, 0, _started, _finished, now,
+                status == StatusKind.Running ? _meter.Rate(now) : 0, 0);
+        }
+
         /// <summary>Returns a handle that updates this bar through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
@@ -60,6 +95,23 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
+            TimeSpan now = TimeSpan.FromMilliseconds(liveEvent.Time);
+            if (now > _lastEventTime) {
+                _lastEventTime = now;
+            }
+            if ((liveEvent.Operation == "set" || liveEvent.Operation == "advance") && !_started.HasValue) {
+                _started = now;
+                _meter.Record(now, Value);
+            }
+            ApplyOperation(liveEvent);
+            if (liveEvent.Operation == "set" || liveEvent.Operation == "advance") {
+                _meter.Record(now, Value);
+            } else if (liveEvent.Operation == "state" && Status != StatusKind.Running && Status != StatusKind.Pending && !_finished.HasValue) {
+                _finished = now;
+            }
+        }
+
+        private void ApplyOperation(LiveEvent liveEvent) {
             switch (liveEvent.Operation) {
                 case "set":
                     Value = liveEvent.Value;
@@ -96,6 +148,12 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             if (region.Height <= 0) {
+                return;
+            }
+            if (Columns != null && Columns.Count > 0) {
+                ProgressRow row = Row(context.Elapsed > _lastEventTime ? context.Elapsed : _lastEventTime);
+                ProgressRow[] rows = { row };
+                ProgressLayout.Draw(region, 0, Columns, ProgressLayout.Arrange(Columns, rows, region.Width, context), row, context);
                 return;
             }
             StyledLine label = context.Markup(Label).Lines[0];

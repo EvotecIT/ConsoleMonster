@@ -26,16 +26,13 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Export to HTML, SVG, text and asciicast; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
 - `Write-ConsoleText` with the Write-Color parameters, log formats and correct log-file encoding handling.
+- Targets (`ITerminalTarget`): console, recording, writer and null targets behind every write, live session, prompt
+  and status helper, with a scoped ambient default and a documented pattern for libraries.
+- Progress columns for lanes and progress bars: built-ins, custom columns, smoothed rate and remaining time,
+  hide-completed, collapse-when-finished and transient modes, and column summaries in stream output.
+- Built-in labels in English, Polish, German, Spanish, French and Italian, following the UI language.
 
 ## Next
-
-### Round B
-
-- An injectable console and output abstraction (profile, writer, theme and input in one object), accepted by
-  `Terminal.Write`, prompts and live sessions, plus ambient redirection for a scope. It serves tests and redirection in
-  code that writes globally today.
-- Extensible progress columns: elapsed, remaining time and rate per row; a custom column delegate; a transient mode
-  that hides finished rows.
 
 ### Round C
 

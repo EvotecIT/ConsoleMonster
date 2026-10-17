@@ -321,14 +321,14 @@ namespace ConsoleMonster.Widgets {
             layout.TotalWidth = TrackAllocator.Sum(layout.Widths) + Overhead(layout.Visible.Length, layout.Gap);
             if (layout.Hidden.Count > 0 && ShowHiddenColumns) {
                 string names = string.Join(", ", layout.Hidden.ToArray());
-                string text = "+" + layout.Hidden.Count.ToString(CultureInfo.InvariantCulture) + (layout.Hidden.Count == 1 ? " column (" : " columns (") + names + ")";
+                string text = Localization.WidgetLabels.Format(layout.Hidden.Count == 1 ? context.Labels.OneHiddenColumn : context.Labels.ManyHiddenColumns, layout.Hidden.Count.ToString(CultureInfo.InvariantCulture), names);
                 layout.HiddenMarker = TextWrapper.Truncate(StyledLine.From(text, context.Style(ThemeToken.Muted)), Math.Max(1, maxWidth - (IsBoxed ? 1 : 0)), context.Ellipsis);
             }
             int shown = DisplayedRowCount;
             int all = TotalRowCount ?? _rows.Count;
             if (shown < all) {
                 CultureInfo culture = Presentation.Culture ?? context.Culture;
-                string text = "Showing " + shown.ToString("N0", culture) + " of " + all.ToString("N0", culture);
+                string text = Localization.WidgetLabels.Format(context.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture));
                 layout.ShowingLine = TextWrapper.Truncate(StyledLine.From(text, context.Style(ThemeToken.Muted)), Math.Max(1, maxWidth - (IsBoxed ? 1 : 0)), context.Ellipsis);
             }
             int height = 0;

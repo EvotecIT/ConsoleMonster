@@ -123,9 +123,17 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>
         /// The culture for numbers and dates in rendered output (thousand and decimal separators, date formats), or null to
         /// follow the current culture at render time, as PowerShell does. Set by <c>CONSOLEMONSTER_CULTURE</c> or
-        /// <see cref="WithCulture"/>. Labels stay English either way.
+        /// <see cref="WithCulture"/>. Built-in labels follow <see cref="Language"/>.
         /// </summary>
         public CultureInfo? Culture { get; }
+
+        /// <summary>
+        /// The language of built-in labels (prompt keys, status words, "Showing 5 of 20"), or null for the current UI
+        /// culture (<c>$PSUICulture</c> in PowerShell), unless <c>CONSOLEMONSTER_LANGUAGE</c> names one. English, Polish,
+        /// German, Spanish, French and Italian are built in; other languages fall back to English. Set with
+        /// <see cref="WithLanguage"/>.
+        /// </summary>
+        public CultureInfo? Language { get; private set; }
 
         /// <summary>Whether the profile allows live redraw (interactive mode with VT support).</summary>
         public bool IsLive => Mode == OutputMode.Interactive && SupportsVirtualTerminal;
@@ -168,7 +176,16 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>The copy.</returns>
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
-                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture);
+                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture) { Language = Language };
+        }
+
+        /// <summary>Returns a copy whose built-in labels use the given language (see <see cref="Language"/>).</summary>
+        /// <param name="language">The language, or null to follow the current UI culture.</param>
+        /// <returns>The copy.</returns>
+        public TerminalProfile WithLanguage(CultureInfo? language) {
+            TerminalProfile copy = Copy();
+            copy.Language = language;
+            return copy;
         }
 
         /// <summary>Returns a copy with a different size (used on resize).</summary>
@@ -213,7 +230,7 @@ namespace ConsoleMonster.Capabilities {
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
                 themePreference ?? ThemePreference,
-                Culture);
+                Culture) { Language = Language };
         }
     }
 }

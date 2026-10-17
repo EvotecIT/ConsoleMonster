@@ -35,7 +35,7 @@ namespace ConsoleMonster.Presenters {
         public PresentedValue Present(object? value, PresenterContext context) {
             if (IsSentinel(value)) {
                 // DateTime.MinValue/MaxValue are the usual "never" values (directory attributes, default structs).
-                return new PresentedValue(StyledLine.From("never", context.Render.Style(ThemeToken.Muted)));
+                return new PresentedValue(StyledLine.From(context.Render.Labels.Never, context.Render.Style(ThemeToken.Muted)));
             }
             if (!TryGetTime(value, out DateTimeOffset time)) {
                 return new TextPresenter().Present(value, context);

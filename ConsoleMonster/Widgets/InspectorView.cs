@@ -132,7 +132,7 @@ namespace ConsoleMonster.Widgets {
                 table.AddValues(values);
             }
             if (collection.HiddenColumns > 0) {
-                table.Caption = "+" + collection.HiddenColumns.ToString(CultureInfo.InvariantCulture) + " more columns";
+                table.Caption = Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.MoreColumns, collection.HiddenColumns.ToString(CultureInfo.InvariantCulture));
             }
             return table;
         }
@@ -188,20 +188,20 @@ namespace ConsoleMonster.Widgets {
         private static string? SummaryOf(InspectNode node) {
             if (node is InspectCollection collection) {
                 int count = collection.Count ?? collection.Items.Count;
-                string text = count.ToString("N0", CultureInfo.InvariantCulture) + (count == 1 ? " item" : " items");
+                string text = Localization.WidgetLabels.Format(count == 1 ? Localization.WidgetLabels.Current.OneItem : Localization.WidgetLabels.Current.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture));
                 return collection.Count == null && collection.Omitted != 0 ? text + "+" : text;
             }
             if (node is InspectObject obj) {
-                return obj.Members.Count.ToString("N0", CultureInfo.InvariantCulture) + " members";
+                return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Members, obj.Members.Count.ToString("N0", CultureInfo.InvariantCulture));
             }
             return null;
         }
 
         private static string? MoreText(InspectCollection collection) {
             if (collection.Omitted > 0) {
-                return "+" + collection.Omitted.ToString("N0", CultureInfo.InvariantCulture) + " more";
+                return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.MoreCount, collection.Omitted.ToString("N0", CultureInfo.InvariantCulture));
             }
-            return collection.Omitted < 0 ? "+ more" : null;
+            return collection.Omitted < 0 ? Localization.WidgetLabels.Current.MoreUnknown : null;
         }
     }
 }

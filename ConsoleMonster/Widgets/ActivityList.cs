@@ -97,7 +97,7 @@ namespace ConsoleMonster.Widgets {
                 DrawActivity(region, y, ordered[i].Key, ordered[i].Value, context);
             }
             if (ordered.Count > shown && y < region.Height) {
-                region.Write(0, y, "+" + (ordered.Count - shown).ToString(context.Culture) + " more", context.Style(ThemeToken.Muted));
+                region.Write(0, y, Localization.WidgetLabels.Format(context.Labels.MoreCount, (ordered.Count - shown).ToString(context.Culture)), context.Style(ThemeToken.Muted));
             }
         }
 
@@ -123,7 +123,7 @@ namespace ConsoleMonster.Widgets {
             }
             string tail = activity.Status ?? string.Empty;
             if (activity.SecondsLeft >= 0) {
-                string left = "~" + Durations(TimeSpan.FromSeconds(activity.SecondsLeft), context.Culture) + " left";
+                string left = "~" + Localization.WidgetLabels.Format(context.Labels.TimeLeft, Durations(TimeSpan.FromSeconds(activity.SecondsLeft), context.Culture));
                 tail = tail.Length == 0 ? left : tail + " " + Interactive.InteractiveGlyphs.For(context).Separator + " " + left;
             }
             if (tail.Length > 0 && x < region.Width - 1) {

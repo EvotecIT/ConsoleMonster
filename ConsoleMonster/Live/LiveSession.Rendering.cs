@@ -17,6 +17,13 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
         private void RenderLoop() {
+            // Stream lines and summaries built without a context use the session's language.
+            using (Localization.WidgetLabels.Scope(_context!.Labels)) {
+                RenderLoopCore();
+            }
+        }
+
+        private void RenderLoopCore() {
             FrameSchedule frames = new FrameSchedule(_options.FramesPerSecond);
             double period = frames.Period;
             TimeSpan heartbeat = Elapsed;
@@ -86,7 +93,11 @@ namespace ConsoleMonster.Live {
             }
             if (_output != null && !_output.SupportsLiveFrames) {
                 Attempt(() => {
-                    string? description = target!.Describe(liveEvent);
+                    string? description;
+                    // Events left at stop are applied on the stopping thread, so the language is scoped here too.
+                    using (Localization.WidgetLabels.Scope(_context?.Labels ?? Localization.WidgetLabels.Current)) {
+                        description = target!.Describe(liveEvent);
+                    }
                     if (description != null) {
                         lock (_outputGate) {
                             _output.WriteLine(StyledLine.From(Stamp(description)));
@@ -203,7 +214,7 @@ namespace ConsoleMonster.Live {
 
         // After a size change in Windows Terminal the font may have changed with it (zoom), so widths are measured again.
         private void OnResized() {
-            if (_context != null && _context.Profile.Kind == TerminalKind.WindowsTerminal && _output is VtOutput vt) {
+            if (_onConsole && _context != null && _context.Profile.Kind == TerminalKind.WindowsTerminal && _output is VtOutput vt) {
                 ReprobeWidths(vt);
             }
         }
@@ -240,7 +251,10 @@ namespace ConsoleMonster.Live {
             foreach (ILiveTarget target in _targets.Values) {
                 if (target is ILiveSummary summary) {
                     Attempt(() => {
-                        string? line = summary.GetSummaryLine();
+                        string? line;
+                        using (Localization.WidgetLabels.Scope(_context?.Labels ?? Localization.WidgetLabels.Current)) {
+                            line = summary.GetSummaryLine();
+                        }
                         if (line != null) { lines.Add(line); }
                     });
                 }

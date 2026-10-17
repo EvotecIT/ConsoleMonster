@@ -93,11 +93,11 @@ namespace ConsoleMonster.Widgets {
         public override string? Describe(LiveEvent liveEvent) {
             string label = Markup.Strip(Label);
             if (liveEvent.Operation == "start") {
-                return label + " started";
+                return label + " " + Localization.WidgetLabels.Current.Started;
             }
             if (liveEvent.Operation == "state" && IsFinished) {
                 string detail = string.IsNullOrEmpty(Detail) ? string.Empty : ": " + Detail;
-                return label + " " + Status.ToWord() + detail + " in " + NumberFormat.Duration(Duration(TimeSpan.Zero));
+                return label + " " + Status.ToWord() + detail + " " + Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.TookDuration, NumberFormat.Duration(Duration(TimeSpan.Zero)));
             }
             return null;
         }

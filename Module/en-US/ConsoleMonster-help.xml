@@ -5873,6 +5873,56 @@
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleLanes</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CollapseWhenFinished</maml:name>
+          <maml:description>
+            <maml:para>Collapses the display to one summary line once every lane has finished.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Column</maml:name>
+          <maml:description>
+            <maml:para>The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Spinner</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Description</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Percent</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Count</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Elapsed</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Remaining</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rate</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ByteRate</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Results</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Status</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>HideCompleted</maml:name>
+          <maml:description>
+            <maml:para>Finished lanes leave the display and are counted in the summary line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Lane</maml:name>
           <maml:description>
@@ -5925,9 +5975,71 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Transient</maml:name>
+          <maml:description>
+            <maml:para>The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>CollapseWhenFinished</maml:name>
+        <maml:description>
+          <maml:para>Collapses the display to one summary line once every lane has finished.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Column</maml:name>
+        <maml:description>
+          <maml:para>The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Spinner</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Description</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Percent</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Count</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Elapsed</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Remaining</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Rate</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ByteRate</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Results</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Status</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>HideCompleted</maml:name>
+        <maml:description>
+          <maml:para>Finished lanes leave the display and are counted in the summary line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Lane</maml:name>
         <maml:description>
@@ -5976,6 +6088,18 @@
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
           <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Transient</maml:name>
+        <maml:description>
+          <maml:para>The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -7919,6 +8043,32 @@ Description and RunText.</maml:para>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleProgress</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Column</maml:name>
+          <maml:description>
+            <maml:para>The columns of the row, in order: Standard, or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Rate and Remaining are smoothed over the last 10 seconds. Without it the classic label, bar, percentage and count show.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Spinner</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Description</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Percent</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Count</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Elapsed</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Remaining</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Rate</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ByteRate</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Results</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Status</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
@@ -7986,6 +8136,32 @@ Description and RunText.</maml:para>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Column</maml:name>
+        <maml:description>
+          <maml:para>The columns of the row, in order: Standard, or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Rate and Remaining are smoothed over the last 10 seconds. Without it the classic label, bar, percentage and count show.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Spinner</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Description</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Percent</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Count</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Elapsed</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Remaining</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Rate</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ByteRate</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Results</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Status</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>

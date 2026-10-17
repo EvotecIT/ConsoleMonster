@@ -13,7 +13,7 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-Name] <string>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [<CommonParameters>]
+New-ConsoleLanes [[-Name] <string>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,6 +30,54 @@ New-ConsoleLanes -Name 'Name'
 
 
 ## PARAMETERS
+
+### -CollapseWhenFinished
+Collapses the display to one summary line once every lane has finished.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Column
+The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Standard, Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results, Status
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HideCompleted
+Finished lanes leave the display and are counted in the summary line.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Lane
 Lanes to declare up front (key and label).
@@ -84,6 +132,22 @@ Planned steps per declared lane.
 
 ```yaml
 Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Transient
+The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

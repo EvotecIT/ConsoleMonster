@@ -33,9 +33,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Line;
 
+        /// <summary><para type="description">The columns of the row, in order: Standard, or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Rate and Remaining are smoothed over the last 10 seconds. Without it the classic label, bar, percentage and count show.</para></summary>
+        [Parameter]
+        [ValidateSet("Standard", "Spinner", "Description", "Bar", "Percent", "Count", "Elapsed", "Remaining", "Rate", "ByteRate", "Results", "Status", IgnoreCase = true)]
+        public string[]? Column { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Shape = Shape });
+            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Shape = Shape, Columns = Column == null ? null : ProgressColumns.FromNames(Column) });
         }
     }
 }
