@@ -48,7 +48,7 @@
         packed, so consumers on any target framework and C# version get ordinary methods.
     -->
     <ItemGroup>
-        <ProjectReference Include="..\ConsoleMonster.Generators\ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\ConsoleMonster.Generators\ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
