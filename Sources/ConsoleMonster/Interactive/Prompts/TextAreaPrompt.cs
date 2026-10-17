@@ -89,8 +89,8 @@ namespace ConsoleMonster.Interactive {
                     rows.Add(new Padding(new UiParagraph(Prompt.Description!), 2, 0, 0, 0));
                 }
                 rows.Add(new Padding(_widget, 2, 0, 1, 0));
-                string counter = PromptLabels.Format(Labels.TextAreaCounter, _editor.LineCount, _editor.Length)
-                    + (_prompt.MaxLines < int.MaxValue ? " / " + _prompt.MaxLines.ToString(CultureInfo.InvariantCulture) + " lines" : string.Empty);
+                string lines = _prompt.MaxLines < int.MaxValue ? _editor.LineCount.ToString(CultureInfo.InvariantCulture) + " of " + _prompt.MaxLines.ToString(CultureInfo.InvariantCulture) : _editor.LineCount.ToString(CultureInfo.InvariantCulture);
+                string counter = PromptLabels.Format(Labels.TextAreaCounter, lines, _editor.Length);
                 rows.Add(MessageLine(Error, counter));
                 rows.Add(Footer(frame));
                 return rows;

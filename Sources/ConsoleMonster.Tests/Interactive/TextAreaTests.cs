@@ -37,7 +37,7 @@ namespace ConsoleMonster.Tests.Interactive {
             PromptHarness.Guard(surface, () => prompt.Show(options));
             string frame = surface.Frames.Last(f => f.ToPlainText().Contains("Owner: ops")).ToPlainText();
             Golden.Match("interactive/textarea." + tier.ToString().ToLowerInvariant() + ".txt", frame.TrimEnd() + "\n");
-            Assert.Contains("2 lines", frame);
+            Assert.Contains("2 of 10 lines", frame);
         }
 
         [Fact]

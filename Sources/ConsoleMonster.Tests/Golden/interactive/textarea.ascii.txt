@@ -5,5 +5,5 @@
   | Owner: ops
   |
   |
-  2 lines · 96 characters / 10 lines
+  2 of 10 lines · 96 characters
   ctrl+enter save  enter new line  esc cancel

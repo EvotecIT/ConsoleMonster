@@ -39,6 +39,11 @@
 - Design system (`Docs/Design-System.md`): shared `HeaderBar`, `FooterBar`, `DialogChrome`, status symbols and spinner. Runs from menus and forms (`FormOptions.AfterSubmit`) stay in the same frame, and Write-Host colours are kept above inline areas and in log regions.
 - `Invoke-ConsolePester`: Pester 5 and 6 runs with a live dashboard (inline or full screen), a summary table by file, `-ExportHtml`, stream lines in CI, and Pester's result object; built on the new `TestRun`/`TestRunView`/`TestRunSummary` widgets. One-shot console writes go above a running inline area, and `LiveSessionOptions.Discoverable` keeps a session out of `LiveSession.Current`.
 - Menu icons follow the glyph tier: `GlyphIcon` names (`WithIcon(GlyphIcon.Targets)`, `-IconName`) with Full, Basic and ASCII forms. `Lanes.CountSkipped` and `Histogram.EdgeFormat` added.
+- `ExceptionView`, `Format-ConsoleError` and `Write-ConsoleException`: readable exceptions and ErrorRecords with source lines, script stacks, collapsed framework frames and inner errors.
+- A dependency-free highlighting engine (`ITextHighlighter`, `Highlighters`, `RegexHighlighter`, smart values) with `CodeView`, `Format-ConsoleCode`, `Format-ConsoleJson`, `Write-ConsoleLog -Highlight` and the `Highlight` table column option.
+- `TextAreaPrompt` and `TextAreaField` (`Read-ConsoleText -Multiline`, `New-ConsoleField -Type TextArea`) for multi-line text.
+- `Grid` and `Show-ConsoleGrid`: an interactive table viewer with filter, sort, marks, column chooser and details.
+- Clipped text in test runs and stat columns ends with the tier's ellipsis.
 - 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes

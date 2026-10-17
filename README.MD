@@ -455,6 +455,67 @@ Invoke-ConsolePester -Configuration $config -FullScreen -ExportHtml .\pester.htm
   Windows PowerShell 5.1 and PowerShell 7. [Docs/Pester-Upstream-Proposal.md](Docs/Pester-Upstream-Proposal.md) describes the public
   hook that would replace the adapter.
 - The view is a plain widget (`TestRunView` over a `TestRun`), so other test frameworks can feed it from C#.
+## Errors and exceptions
+
+```powershell
+try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Format-ConsoleError }
+$Error[0] | Write-ConsoleException -ShowFrameworkFrames
+```
+
+`ExceptionView` (C#) and `Format-ConsoleError` / `Write-ConsoleException` show an exception or ErrorRecord with its
+type and message, the PowerShell category, error id and position message, the source lines around the failing line
+(highlighted, the line marked), the script stack, .NET frames as `Type.Method()` with paths relative to the current
+folder and file:line links, framework frames collapsed into "+n framework frames", and inner exceptions as "Caused by".
+Failed runs in menus and forms show their exception the same way, and Pester failures that are not assertions name
+their exception type.
+
+## Syntax highlighting
+
+```powershell
+Format-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
+Get-Content .\agent.log -Tail 20 | Format-ConsoleCode -Language Log
+Get-Process -Id $PID | Select-Object Name, Id | Format-ConsoleJson
+$hosts | Format-ConsoleTable -Property Name, @{ Name = 'Address'; Highlight = 'Smart' }
+Write-ConsoleLog 'GET https://example.com took 412ms' -Highlight Smart
+```
+
+```csharp
+Terminal.Write(new CodeView(File.ReadAllText(path), Highlighters.ForPath(path)) { Title = "deploy.ps1", LineNumbers = true }.HighlightLines(12, 13));
+Highlighters.Register(new RegexHighlighter("ini2").Rule(@"^\s*;.*$", HighlightRole.Comment).Words(HighlightRole.Keyword, "include"), "ini2");
+```
+
+- One engine without dependencies: `ITextHighlighter` turns literal text into tokens with roles (keyword, string,
+  number, comment, key, type, variable, error, added, removed, timestamp, link and more) that map onto theme roles, so
+  the colours follow the theme and the colour depth.
+- Languages: JSON, XML/HTML, YAML, PowerShell, log lines and diffs, CSV/TSV (column colours) with hand-written lexers;
+  C#, SQL, INI/TOML and Markdown with rule highlighters (`RegexHighlighter`, with a time limit) that you can extend.
+- `Smart` highlights values in plain text: numbers, booleans and null, GUIDs, IPv4 and IPv6, URLs and e-mail addresses
+  (as links), paths, dates and times, distinguished names and quoted strings.
+- `-Language Auto` picks the language from the file extension, then from the content, and falls back to plain text.
+- Text is literal: markup is not read and control characters are dropped. `CodeView` tokenizes only the lines it
+  shows (`MaxLines`, default 2000), and long lines are truncated with an ellipsis or wrapped.
+
+## Multi-line text
+
+```powershell
+$reason = Read-ConsoleText 'Change reason' -Multiline -MaxLines 10
+New-ConsoleField Reason 'Change reason' -Type TextArea -MaxLines 10
+```
+
+`TextAreaPrompt` and `TextAreaField` take notes and change reasons: soft wrap, Enter for a new line, Ctrl+Enter (or
+Ctrl+S) to save, paste with line breaks kept, a line and length limit, and validation with the inline error. In a form
+the field shows the first line and opens the text in a dialog. In line mode the answer ends with an empty line.
+
+## Interactive grid
+
+```powershell
+Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf
+```
+
+`Grid` (C#) and `Show-ConsoleGrid` are an Out-GridView for the console on 5.1 and 7: typing filters, F3/Shift+F3 sort
+by column and F4 reverses, Space and Ctrl+A mark rows, Enter shows a row with every column, F2 chooses columns, and
+Ctrl+Enter returns the original objects (`-OutputMode Multiple`, `Single` or `None`). Columns use the table's width
+negotiation, presenters and tone rules, and the screen has the same header bar, panel and footer as menus and forms.
 ## Export to HTML, SVG, text and asciicast
 
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:

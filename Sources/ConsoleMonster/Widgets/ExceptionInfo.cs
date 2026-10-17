@@ -110,7 +110,9 @@ namespace ConsoleMonster.Widgets {
                 || method.StartsWith("Microsoft.", StringComparison.Ordinal)
                 || method.StartsWith("Internal.", StringComparison.Ordinal)
                 || method.StartsWith("lambda_method", StringComparison.Ordinal)
-                || method.StartsWith("Pester.", StringComparison.Ordinal);
+                || method.StartsWith("Pester.", StringComparison.Ordinal)
+                || method.StartsWith("CallSite.", StringComparison.Ordinal)
+                || method.StartsWith("DynamicClass.", StringComparison.Ordinal);
         }
     }
 
