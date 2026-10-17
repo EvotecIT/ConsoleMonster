@@ -80,11 +80,12 @@ namespace ConsoleMonster.Examples.Showcases {
             Form options = OptionsForm();
             menu.Add(targets);
             menu.Add(tasks);
-            menu.Item("Options", i => i.Hotkey('o').WithIcon("◆").Describe("How the run behaves: parallelism, the report and notifications.")
-                .Form(options, (context, result) => context.Toast("Options saved")));
+            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').WithIcon("◆").Describe("How the run behaves: parallelism, the report and notifications.")
+                .Form(options, (context, result) => context.Toast("Options saved"));
+            menu.Add(optionsItem);
             menu.Item("Presets", i => i.Hotkey('p').WithIcon("★").Describe("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
-            menu.Item("Review & run", i => i.Hotkey('r').WithIcon("►").Review(context => Review(context, targets, tasks, options)));
+            menu.Item("Review & run", i => i.Hotkey('r').WithIcon("►").Review(context => Review(context, targets, tasks, optionsItem, options)));
             menu.Item("History", i => i.Hotkey('h').Page(context => HistoryPage()).State(() => History.Count.ToString(CultureInfo.CurrentCulture) + " runs"));
             menu.Separator();
             menu.Exit("Quit");
@@ -132,7 +133,7 @@ namespace ConsoleMonster.Examples.Showcases {
             return form;
         }
 
-        private static ReviewModel Review(MenuContext context, MenuItem targets, MenuItem tasks, Form options) {
+        private static ReviewModel Review(MenuContext context, MenuItem targets, MenuItem tasks, MenuItem optionsItem, Form options) {
             ReviewModel review = new ReviewModel("Review & run") { Description = "Everything the run will use. The command does the same without the menu." };
             List<ToolboxServer> servers = targets.GetSelection<ToolboxServer>().ToList();
             List<ToolboxTask> selected = tasks.GetSelection<ToolboxTask>().ToList();
@@ -144,13 +145,13 @@ namespace ConsoleMonster.Examples.Showcases {
             review.Row("Email", values.Get<bool>("Notify") ? values.Get<string>("Email") : "off");
             review.Row("Dry run", values.Get<bool>("DryRun") ? "yes" : "no");
             if (servers.Count == 0) {
-                review.Problem("Pick at least one target");
+                review.Problem("Pick at least one target", targets);
             }
             if (selected.Count == 0) {
-                review.Problem("Pick at least one task");
+                review.Problem("Pick at least one task", tasks);
             }
             if (values.Get<bool>("Notify") && string.IsNullOrWhiteSpace(values.Get<string>("Email"))) {
-                review.Problem("Enter the email recipient in Options, or turn off Email the report");
+                review.Problem("Enter the email recipient in Options, or turn off Email the report", optionsItem);
             }
             List<string> arguments = new List<string> {
                 CommandLine.Argument("ComputerName", servers.Select(s => s.Name).ToList(), CommandStyle.PowerShell),

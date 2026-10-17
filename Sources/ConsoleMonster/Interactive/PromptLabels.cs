@@ -106,6 +106,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: run the action.</summary>
         public string KeyRun { get; set; } = "run";
 
+        /// <summary>Footer label for Enter on a blocked Run button (it opens the item that fixes the first problem).</summary>
+        public string KeyFix { get; set; } = "fix";
+
         /// <summary>The answer "yes".</summary>
         public string Yes { get; set; } = "Yes";
 
@@ -252,6 +255,30 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>How many problems block a review's run: {0}.</summary>
         public string ToFix { get; set; } = "{0} to fix";
+
+        /// <summary>The problem count on a blocked Run button when there is one problem.</summary>
+        public string OneProblem { get; set; } = "1 problem";
+
+        /// <summary>The hint on dialogs that close on any key (the key map, action output).</summary>
+        public string AnyKeyCloses { get; set; } = "any key closes";
+
+        /// <summary>Footer label for closing a dialog.</summary>
+        public string KeyClose { get; set; } = "close";
+
+        /// <summary>The title of the dialog that shows what an action wrote.</summary>
+        public string Output { get; set; } = "Output";
+
+        /// <summary>The line above action output when older lines are not shown: {0} is how many.</summary>
+        public string EarlierLines { get; set; } = "{0} earlier lines";
+
+        /// <summary>The question when leaving a form opened from a menu with changes that were not saved.</summary>
+        public string DiscardFormChanges { get; set; } = "Discard the changes to {0}?";
+
+        /// <summary>The button that discards unsaved form changes.</summary>
+        public string Discard { get; set; } = "Discard";
+
+        /// <summary>The problem count on a blocked Run button: {0} is the number of problems.</summary>
+        public string ManyProblems { get; set; } = "{0} problems";
 
         /// <summary>The home breadcrumb.</summary>
         public string Home { get; set; } = "Home";

@@ -50,5 +50,23 @@ namespace ConsoleMonster.Interactive {
             Problems.Add(problem);
             return this;
         }
+
+        /// <summary>
+        /// Adds a problem that blocks running and the item that fixes it: Enter on the dimmed Run button opens that item
+        /// (for example the Targets list when no target is picked).
+        /// </summary>
+        /// <param name="problem">The problem.</param>
+        /// <param name="fix">The item to open, or null.</param>
+        /// <returns>The review.</returns>
+        public ReviewModel Problem(string problem, MenuItem? fix) {
+            Problems.Add(problem);
+            if (fix != null && !Fixes.ContainsKey(problem)) {
+                Fixes.Add(problem, fix);
+            }
+            return this;
+        }
+
+        /// <summary>The item that fixes each problem, by problem text.</summary>
+        public IDictionary<string, MenuItem> Fixes { get; } = new Dictionary<string, MenuItem>(StringComparer.Ordinal);
     }
 }
