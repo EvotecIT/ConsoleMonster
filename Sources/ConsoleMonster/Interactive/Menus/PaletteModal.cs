@@ -24,7 +24,7 @@ namespace ConsoleMonster.Interactive {
                     Badge = command.Category == null ? null : RichText.Plain(command.Category + (command.Keys == null ? string.Empty : "  " + command.Keys))
                 });
             }
-            _list = new ChoiceList(choices, false) { Labels = labels };
+            _list = new ChoiceList(choices, false) { Labels = labels, FillWidth = true };
             _pane = new ChoicePane(_list, _caret) { PageSize = 12 };
         }
 

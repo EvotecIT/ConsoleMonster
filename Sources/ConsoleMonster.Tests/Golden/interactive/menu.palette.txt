@@ -2,7 +2,7 @@
 ╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 0 of 3 selected ─╮
 │           ╭─ Commands ─────────────────────────── Search items, actions and presets ─╮           │
 │▌ t  Target│ › rev                                                                    │           │
-│  m  Mode  │ ▌ [Review]                     Go to  r                                  │           │
+│  m  Mode  │ ▌ [Review]                                                     Go to  r  │           │
 │  o  Option│                                                                          │           │
 │  p  Preset│ ↑↓ move  enter select  esc cancel                                        │           │
 │  Run      ╰──────────────────────────────────────────────────────────────────────────╯           │

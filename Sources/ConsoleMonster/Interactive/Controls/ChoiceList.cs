@@ -68,11 +68,17 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The narrowest a row gets when titles are short.</summary>
         public int MinRowWidth { get; set; } = 40;
 
+        /// <summary>Whether rows always span the available width (dialogs whose description line uses the full width).</summary>
+        public bool FillWidth { get; set; }
+
         /// <summary>
         /// The width rows need: the widest title with its marks and badge, between <see cref="MinRowWidth"/> and
         /// <see cref="MaxRowWidth"/>, so a short list stays compact instead of spreading badges across the pane.
         /// </summary>
         public int RowWidth(RenderContext context, int available) {
+            if (FillWidth) {
+                return available;
+            }
             int widest = 0;
             foreach (Choice c in _choices) {
                 int badge = c.Badge == null ? 0 : DisplayWidth.Measure(c.Badge.PlainText) + 3;
