@@ -31,6 +31,7 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
   tabs in cell text are dropped.
 - L11: calculated-property errors (`BoundColumn.LastError`) are never shown; warn once per failing column.
 - L12: `Build-Module.ps1` signs by default with a hard-coded thumbprint, while the release note above says it is empty.
+- Rows measures auto-sized children without a height limit but lays them out with the remaining height, so a log region with fewer entries than `PreferredHeight` takes extra blank rows in print-once layouts (live dashboards rely on the stable height).
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
 

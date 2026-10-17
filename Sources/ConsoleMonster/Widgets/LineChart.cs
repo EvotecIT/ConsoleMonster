@@ -185,7 +185,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     spans.Add(new TextSpan(marker, context.Style(series.Token)));
                     spans.Add(new TextSpan(" ", muted));
-                spans.AddRange(RichLines.Line(series.NameText, series.Name, muted, context));
+                    spans.AddRange(RichLines.Line(series.NameText, series.Name, muted, context));
                 }
                 region.Write(axisWidth, region.Height - 1, new StyledLine(spans));
             }
