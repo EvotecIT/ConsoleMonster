@@ -55,6 +55,16 @@ Defines a live console dashboard: a header with title and clock, the body and a 
 
 The scriptblock emits the body widgets top to bottom. Pass the result to Start-ConsoleDashboard to run it live, or to Write-ConsoleWidget to print it once.
 
+### [New-ConsoleField](New-ConsoleField.md)
+Creates a form field for New-ConsoleForm.
+
+A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).
+
+### [New-ConsoleForm](New-ConsoleForm.md)
+Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
+
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.
+
 ### [New-ConsoleGrid](New-ConsoleGrid.md)
 Lays console widgets out in an equal-width grid.
 
@@ -89,6 +99,16 @@ In a live dashboard the log region receives Write-Host, Write-Information, Write
 Creates banner text drawn with a pixel font and a colour gradient.
 
 Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().
+
+### [New-ConsoleMenu](New-ConsoleMenu.md)
+Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
+
+The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.
+
+### [New-ConsoleMenuItem](New-ConsoleMenuItem.md)
+Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
+
+What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.
 
 ### [New-ConsolePanel](New-ConsolePanel.md)
 Creates a bordered panel with a title around other console widgets.
@@ -150,6 +170,46 @@ Creates a console tree from nested hashtables.
 
 Each key becomes a node. A nested hashtable (or ordered dictionary) becomes child nodes; an array becomes leaf nodes; any other value is shown as a muted note after the key. Use [ordered] to keep order.
 
+### [Read-ConsoleConfirm](Read-ConsoleConfirm.md)
+Asks a yes/no question and returns $true or $false.
+
+Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.
+
+### [Read-ConsoleForm](Read-ConsoleForm.md)
+Shows a form or wizard and returns the answers.
+
+The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\<app>. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.
+
+### [Read-ConsoleMultiSelection](Read-ConsoleMultiSelection.md)
+Asks the user to pick any number of the choices and returns the chosen objects.
+
+Everything Read-ConsoleSelection does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.
+
+### [Read-ConsoleNumber](Read-ConsoleNumber.md)
+Asks for a number.
+
+Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).
+
+### [Read-ConsolePath](Read-ConsolePath.md)
+Asks for a file or folder path, with completion.
+
+Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).
+
+### [Read-ConsoleSecret](Read-ConsoleSecret.md)
+Asks for a secret and returns a SecureString (or a string with -AsPlainText).
+
+The typed text is masked (or not shown at all with -Hidden); Ctrl+R reveals it while held open. The answer never appears in the scrollback summary. In remoting and the ISE the host reads it (ReadLineAsSecureString).
+
+### [Read-ConsoleSelection](Read-ConsoleSelection.md)
+Asks the user to pick one of the choices and returns the chosen object.
+
+Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-Disabled) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
+
+### [Read-ConsoleText](Read-ConsoleText.md)
+Asks for a line of text.
+
+A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
+
 ### [Send-ConsoleEvent](Send-ConsoleEvent.md)
 Sends a raw live event to any widget of a running dashboard.
 
@@ -164,6 +224,11 @@ Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colou
 Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.
 
 Sends a "set" update to the named widget. For a key/value list the value is shown as text; for bar charts and stacked bars it must be numeric.
+
+### [Show-ConsoleMenu](Show-ConsoleMenu.md)
+Shows a menu until the user exits.
+
+Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.
 
 ### [Start-ConsoleDashboard](Start-ConsoleDashboard.md)
 Runs a console dashboard live while a script does the work.
