@@ -28,6 +28,22 @@ namespace ConsoleMonster.Live {
             return new LivePause(this, backdrop);
         }
 
+        /// <summary>
+        /// A copy of the last frame the session drew (for exports and screenshots), or null before the first frame and for
+        /// line-based outputs that draw no frames. Safe to call from any thread.
+        /// </summary>
+        /// <returns>The frame copy, or null.</returns>
+        public CellBuffer? Snapshot() {
+            lock (_outputGate) {
+                if (_frame == null) {
+                    return null;
+                }
+                CellBuffer copy = new CellBuffer(_frame.Width, _frame.Height);
+                copy.CopyFrom(_frame);
+                return copy;
+            }
+        }
+
         internal bool CanOverlay => IsRunning && _output != null && _output.SupportsLiveFrames && !_restored;
 
         internal void PresentOverlay(CellBuffer frame) {

@@ -45,13 +45,24 @@ namespace ConsoleMonster.Interactive {
         /// Where prompts draw in <see cref="InteractionMode.Rich"/> mode (tests use a recording surface). Null picks the
         /// right one: inline below the cursor, or an overlay over a running live dashboard.
         /// </summary>
-        internal IPromptSurface? Surface { get; set; }
+        /// <summary>
+        /// Draws into memory instead of the terminal (with a scripted <see cref="Input"/>): every frame is kept on the capture,
+        /// and the terminal profile defaults to the capture's size.
+        /// </summary>
+        public ScreenCapture? Capture { get; set; }
+
+        private IPromptSurface? _surface;
+
+        internal IPromptSurface? Surface {
+            get => _surface ?? Capture?.Surface;
+            set => _surface = value;
+        }
 
         internal PromptLabels ResolveLabels() => Labels ?? PromptLabels.Default;
 
         internal ILineConsole ResolveLineConsole() => LineConsole ?? ConsoleLineConsole.Instance;
 
-        internal TerminalProfile ResolveProfile() => Profile ?? Terminal.GetCurrentProfile();
+        internal TerminalProfile ResolveProfile() => Profile ?? (Capture != null ? TerminalProfile.Fixed(Capture.Width, Capture.Height) : Terminal.GetCurrentProfile());
 
         internal ITheme ResolveTheme() => Theme ?? Terminal.Theme;
 
