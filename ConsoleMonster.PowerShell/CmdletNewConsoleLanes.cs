@@ -29,9 +29,32 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Line;
 
+        /// <summary><para type="description">The columns of each row, in order: Standard (spinner, description, bar, percent, count, elapsed, remaining time, status), or any of Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate, ByteRate, Results and Status. Without it the classic layout shows the label, bar, percentage, pass/fail/warning counts and detail.</para></summary>
+        [Parameter]
+        [ValidateSet("Standard", "Spinner", "Description", "Bar", "Percent", "Count", "Elapsed", "Remaining", "Rate", "ByteRate", "Results", "Status", IgnoreCase = true)]
+        public string[]? Column { get; set; }
+
+        /// <summary><para type="description">Finished lanes leave the display and are counted in the summary line.</para></summary>
+        [Parameter]
+        public SwitchParameter HideCompleted { get; set; }
+
+        /// <summary><para type="description">Collapses the display to one summary line once every lane has finished.</para></summary>
+        [Parameter]
+        public SwitchParameter CollapseWhenFinished { get; set; }
+
+        /// <summary><para type="description">The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).</para></summary>
+        [Parameter]
+        public SwitchParameter Transient { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Lanes lanes = new Lanes(Name) { Shape = Shape };
+            Lanes lanes = new Lanes(Name) {
+                Shape = Shape,
+                Columns = Column == null ? null : ProgressColumns.FromNames(Column),
+                HideCompleted = HideCompleted.IsPresent,
+                CollapseWhenFinished = CollapseWhenFinished.IsPresent,
+                Transient = Transient.IsPresent
+            };
             if (Lane != null) {
                 foreach (object lane in Lane) {
                     Text.RichText? rich = PSText.Rich(lane);

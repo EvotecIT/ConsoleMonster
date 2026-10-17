@@ -73,8 +73,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether a totals row summarises all rows (columns with an <see cref="TableColumn.Aggregate"/>), unless a footer is set.</summary>
         public bool ShowTotals { get; set; }
 
-        /// <summary>The label of the totals row (default <c>Total</c>).</summary>
-        public string TotalLabel { get; set; } = "Total";
+        /// <summary>The label of the totals row, or null (default) for the built-in word (<c>Total</c> in English).</summary>
+        public string? TotalLabel { get; set; }
 
         /// <summary>Shows only the first N rows (0 = all) followed by <c>Showing N of M</c>; totals still cover every row.</summary>
         public int MaxRows { get; set; }
@@ -131,6 +131,13 @@ namespace ConsoleMonster.Widgets {
                 cells[i] = values![i] is TableCell cell ? cell : TableCell.FromValue(values[i]);
             }
             return AddRow(cells);
+        }
+
+        /// <summary>Removes every row (columns, options and remembered column widths stay), so the table can be refilled.</summary>
+        public void ClearRows() {
+            _rows.Clear();
+            _rowGroups.Clear();
+            _groups.Clear();
         }
 
         /// <summary>Adds a row of plain text values (brackets are shown literally).</summary>

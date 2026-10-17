@@ -26,23 +26,21 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Export to HTML, SVG, text and asciicast; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
 - `Write-ConsoleText` with the Write-Color parameters, log formats and correct log-file encoding handling.
+- Targets (`ITerminalTarget`): console, recording, writer and null targets behind every write, live session, prompt
+  and status helper, with a scoped ambient default and a documented pattern for libraries.
+- Progress columns for lanes and progress bars: built-ins, custom columns, smoothed rate and remaining time,
+  hide-completed, collapse-when-finished and transient modes, and column summaries in stream output.
+- Built-in labels in English, Polish, German, Spanish, French and Italian, following the UI language, including the
+  test-run view.
+- Replaceable regions (`Slot`, `LiveSession.Region`, `New-ConsoleRegion`, `Set-ConsoleRegion`) and keyed live tables
+  (`LiveTable`, `New-ConsoleLiveTable`, `Update-ConsoleTable`) with stable widths, a recent-rows window and sorting.
+- Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
+  `Emoji` cell presenter.
+- `Use-ConsoleTarget` to send PowerShell output to a file, a writer, a target or a string.
 
 ## Next
 
-### Round B
-
-- An injectable console and output abstraction (profile, writer, theme and input in one object), accepted by
-  `Terminal.Write`, prompts and live sessions, plus ambient redirection for a scope. It serves tests and redirection in
-  code that writes globally today.
-- Extensible progress columns: elapsed, remaining time and rate per row; a custom column delegate; a transient mode
-  that hides finished rows.
-
-### Round C
-
-- Swapping live-region content: a slot whose child can be replaced from any thread.
-- Row-level live table updates by key.
-- Emoji and symbol fallback per glyph tier through the glyph set, so literal emoji degrade on consoles that can't show
-  them.
+No round is scheduled. The next work comes from the pending decision below or from the backlog.
 
 ## Decision pending: command-line parsing
 

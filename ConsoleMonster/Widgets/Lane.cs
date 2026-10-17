@@ -91,6 +91,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Insertion order, used to keep rows stable.</summary>
         public int Order { get; set; }
 
+        // The smoothed rate for the Rate and Remaining progress columns.
+        internal RateMeter Meter { get; } = new RateMeter();
+
         /// <summary>Whether the lane has finished.</summary>
         public bool IsFinished => Status == StatusKind.Pass || Status == StatusKind.Fail || Status == StatusKind.Warn || Status == StatusKind.Skip;
 

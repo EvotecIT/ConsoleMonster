@@ -50,6 +50,11 @@ namespace ConsoleMonster.Canvas {
         /// <summary>The culture for numbers and dates: <see cref="TerminalProfile.Culture"/>, or the current culture when that is null.</summary>
         public System.Globalization.CultureInfo Culture => Profile.Culture ?? System.Globalization.CultureInfo.CurrentCulture;
 
+        /// <summary>The built-in widget words for <see cref="TerminalProfile.Language"/> (or the default language).</summary>
+        public Localization.WidgetLabels Labels => _labels ?? (_labels = Localization.WidgetLabels.For(Profile.Language));
+
+        private Localization.WidgetLabels? _labels;
+
         /// <summary>Animation frame counter.</summary>
         public long Tick { get; }
 
@@ -82,7 +87,7 @@ namespace ConsoleMonster.Canvas {
                 return StyledText.FromPlain(string.Empty);
             }
             if (!_markupCache.TryGetValue(markup, out StyledText? text)) {
-                text = Text.Markup.Parse(markup, Theme, Depth);
+                text = global::ConsoleMonster.Glyphs.SymbolFallback.Apply(Text.Markup.Parse(markup, Theme, Depth), Glyphs.Tier);
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }

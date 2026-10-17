@@ -86,7 +86,7 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override string? Describe(LiveEvent liveEvent) {
             if (liveEvent.Operation == "state" && liveEvent.Key != null && _byKey.TryGetValue(liveEvent.Key, out StatusItem? item)) {
-                return "phase " + Markup.Strip(item.Label) + " " + item.Status.ToWord() + (string.IsNullOrEmpty(item.Detail) ? string.Empty : " (" + item.Detail + ")");
+                return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(item.Label)) + " " + item.Status.ToWord() + (string.IsNullOrEmpty(item.Detail) ? string.Empty : " (" + item.Detail + ")");
             }
             return null;
         }

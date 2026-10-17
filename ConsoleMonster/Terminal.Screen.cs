@@ -61,7 +61,7 @@ namespace ConsoleMonster {
         public static bool IsCursorHidden => Volatile.Read(ref _cursorHidden) == 1;
 
         private static bool CanControlScreen(TerminalProfile p) {
-            return p.Mode == OutputMode.Interactive && !p.IsOutputRedirected && !p.IsContinuousIntegration;
+            return Target is ConsoleTarget && p.Mode == OutputMode.Interactive && !p.IsOutputRedirected && !p.IsContinuousIntegration;
         }
 
         private static void SetCursor(TerminalProfile p, bool visible) {
@@ -137,7 +137,7 @@ namespace ConsoleMonster {
             if (action == null) {
                 throw new ArgumentNullException(nameof(action));
             }
-            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup)) {
+            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup, Target.Writer)) {
                 action(context);
             }
         }
@@ -151,7 +151,7 @@ namespace ConsoleMonster {
             if (func == null) {
                 throw new ArgumentNullException(nameof(func));
             }
-            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup)) {
+            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup, Target.Writer)) {
                 return func(context);
             }
         }
@@ -164,7 +164,7 @@ namespace ConsoleMonster {
             if (action == null) {
                 throw new ArgumentNullException(nameof(action));
             }
-            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup)) {
+            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup, Target.Writer)) {
                 await action(context).ConfigureAwait(false);
             }
         }
@@ -178,7 +178,7 @@ namespace ConsoleMonster {
             if (func == null) {
                 throw new ArgumentNullException(nameof(func));
             }
-            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup)) {
+            using (StatusContext context = new StatusContext(GetCurrentProfile(), markup, Target.Writer)) {
                 return await func(context).ConfigureAwait(false);
             }
         }

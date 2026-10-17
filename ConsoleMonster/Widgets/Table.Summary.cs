@@ -88,7 +88,7 @@ namespace ConsoleMonster.Widgets {
             if (!ShowSubtotals || groupRows.Count == 0 || _groups.Count == 0 || !HasAggregates) {
                 return;
             }
-            rows.Add(new TableLayoutRow(TableRowKind.Subtotal) { Cells = SummaryCells(groupRows, "Subtotal", contexts, contexts[0].Render.Style(ThemeToken.Muted), false) });
+            rows.Add(new TableLayoutRow(TableRowKind.Subtotal) { Cells = SummaryCells(groupRows, contexts[0].Render.Labels.Subtotal, contexts, contexts[0].Render.Style(ThemeToken.Muted), false) });
         }
 
         private TableLayoutRow? BuildTotalRow(PresenterContext presenter) {
@@ -103,7 +103,7 @@ namespace ConsoleMonster.Widgets {
             for (int r = 0; r < _rows.Count; r++) {
                 all.Add(r);
             }
-            return new TableLayoutRow(TableRowKind.Total) { Cells = SummaryCells(all, TotalLabel, contexts, presenter.Render.Style(ThemeToken.Text), true) };
+            return new TableLayoutRow(TableRowKind.Total) { Cells = SummaryCells(all, TotalLabel ?? presenter.Render.Labels.Total, contexts, presenter.Render.Style(ThemeToken.Text), true) };
         }
 
         private bool HasAggregates {

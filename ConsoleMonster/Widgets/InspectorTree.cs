@@ -36,9 +36,9 @@ namespace ConsoleMonster.Widgets {
                         index++;
                     }
                     if (collection.Omitted > 0) {
-                        parent.Add("[muted]+" + collection.Omitted.ToString("N0", CultureInfo.InvariantCulture) + " more[/]");
+                        parent.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.MoreCount, collection.Omitted.ToString("N0", CultureInfo.InvariantCulture))) + "[/]");
                     } else if (collection.Omitted < 0) {
-                        parent.Add("[muted]+ more[/]");
+                        parent.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Current.MoreUnknown) + "[/]");
                     }
                     break;
             }
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Widgets {
                     break;
                 case InspectCollection collection:
                     int count = collection.Count ?? collection.Items.Count;
-                    Fill(parent.Add(label, null, count.ToString("N0", CultureInfo.InvariantCulture) + (count == 1 ? " item" : " items")), collection);
+                    Fill(parent.Add(label, null, Localization.WidgetLabels.Format(count == 1 ? Localization.WidgetLabels.Current.OneItem : Localization.WidgetLabels.Current.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture))), collection);
                     break;
                 case InspectScalar scalar:
                     parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] bytes ? bytes.Length + " bytes" : scalar.Value) });

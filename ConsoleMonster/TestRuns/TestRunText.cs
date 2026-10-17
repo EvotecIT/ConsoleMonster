@@ -119,8 +119,8 @@ namespace ConsoleMonster.TestRuns {
             head.Add(new TextSpan(record.Name, text.With(TextDecoration.Bold)));
             lines.Add(new StyledLine(head));
             if (TryParseExpectation(record.Message, out string expected, out string actual)) {
-                lines.Add(new StyledLine(new[] { new TextSpan("  expected ", muted), new TextSpan(expected, context.Style(StatusKind.Pass)) }));
-                List<TextSpan> got = new List<TextSpan> { new TextSpan("  actual   ", muted) };
+                lines.Add(new StyledLine(new[] { new TextSpan("  " + Pad(context.Labels.TestsExpected, context.Labels.TestsActual) + " ", muted), new TextSpan(expected, context.Style(StatusKind.Pass)) }));
+                List<TextSpan> got = new List<TextSpan> { new TextSpan("  " + Pad(context.Labels.TestsActual, context.Labels.TestsExpected) + " ", muted) };
                 got.AddRange(Diff(expected, actual, context.Style(StatusKind.Fail)));
                 lines.Add(new StyledLine(got));
             } else if (!string.IsNullOrEmpty(record.Message)) {
@@ -155,7 +155,7 @@ namespace ConsoleMonster.TestRuns {
             StringBuilder sb = new StringBuilder();
             sb.Append(glyphs.StatusSymbol(StatusKind.Fail)).Append(' ').Append(Path(record.Blocks, record.Name, glyphs));
             if (TryParseExpectation(record.Message, out string expected, out string actual)) {
-                sb.Append(": expected ").Append(expected).Append(", actual ").Append(actual);
+                sb.Append(": ").Append(Localization.WidgetLabels.Current.TestsExpected).Append(' ').Append(expected).Append(", ").Append(Localization.WidgetLabels.Current.TestsActual).Append(' ').Append(actual);
             } else if (!string.IsNullOrEmpty(record.Message)) {
                 sb.Append(": ").Append(record.ErrorType == null ? string.Empty : record.ErrorType + ": ").Append(record.Message!.Replace("\r\n", "\n").Trim('\n').Split('\n')[0].Trim());
             }
@@ -173,24 +173,27 @@ namespace ConsoleMonster.TestRuns {
         /// <returns>The facts.</returns>
         public static string Totals(TestRunSnapshot snapshot, IGlyphSet glyphs, bool clock = true) {
             string dot = " " + Interactive.InteractiveGlyphs.For(glyphs.Tier).Separator + " ";
+            Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
             List<string> facts = new List<string>();
             if (snapshot.Failed > 0 || snapshot.BlockFailures > 0) {
-                facts.Add(Count(snapshot.Failed) + " failed");
+                facts.Add(Localization.WidgetLabels.Format(labels.FailedCount, Count(snapshot.Failed)));
             }
-            facts.Add(Count(snapshot.Passed) + " passed");
+            facts.Add(Localization.WidgetLabels.Format(labels.TestsPassedCount, Count(snapshot.Passed)));
             if (snapshot.Skipped > 0) {
-                facts.Add(Count(snapshot.Skipped) + " skipped");
+                facts.Add(Localization.WidgetLabels.Format(labels.SkippedCount, Count(snapshot.Skipped)));
             }
             if (snapshot.Inconclusive > 0) {
-                facts.Add(Count(snapshot.Inconclusive) + " inconclusive");
+                facts.Add(Localization.WidgetLabels.Format(labels.TestsInconclusiveCount, Count(snapshot.Inconclusive)));
             }
             if (snapshot.NotRun > 0) {
-                facts.Add(Count(snapshot.NotRun) + " not run");
+                facts.Add(Localization.WidgetLabels.Format(labels.TestsNotRunCount, Count(snapshot.NotRun)));
             }
             if (snapshot.BlockFailures > 0) {
-                facts.Add(Count(snapshot.BlockFailures) + (snapshot.BlockFailures == 1 ? " block failed" : " blocks failed"));
+                facts.Add(Localization.WidgetLabels.Format(snapshot.BlockFailures == 1 ? labels.TestsOneBlockFailed : labels.TestsManyBlocksFailed, Count(snapshot.BlockFailures)));
             }
-            facts.Add(snapshot.IsFinished || !snapshot.Total.HasValue ? Count(snapshot.Done) + " tests" : Count(snapshot.Done) + " of " + Count(snapshot.Total.Value));
+            facts.Add(snapshot.IsFinished || !snapshot.Total.HasValue
+                ? Localization.WidgetLabels.Format(labels.TestsDoneCount, Count(snapshot.Done))
+                : Localization.WidgetLabels.Format(labels.TestsDoneOfTotal, Count(snapshot.Done), Count(snapshot.Total.Value)));
             if (clock) {
                 facts.Add(NumberFormat.Clock(snapshot.Elapsed));
             }
@@ -203,9 +206,19 @@ namespace ConsoleMonster.TestRuns {
         /// <returns>The line (plain text).</returns>
         public static string SummaryLine(TestRunSnapshot snapshot, IGlyphSet glyphs) {
             StatusKind status = snapshot.Status;
-            string outcome = status == StatusKind.Fail ? "Tests failed" : status == StatusKind.Warn ? "Tests inconclusive" : "Tests passed";
-            return glyphs.StatusSymbol(status) + " " + outcome + ": " + Totals(snapshot, glyphs);
+            return glyphs.StatusSymbol(status) + " " + Outcome(status) + ": " + Totals(snapshot, glyphs);
         }
+
+        /// <summary>The outcome words for a run status (Tests failed, Tests inconclusive, Tests passed), translated.</summary>
+        /// <param name="status">The run status.</param>
+        /// <returns>The words.</returns>
+        public static string Outcome(StatusKind status) {
+            Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+            return status == StatusKind.Fail ? labels.TestsFailed : status == StatusKind.Warn ? labels.TestsInconclusive : labels.TestsPassed;
+        }
+
+        // "expected" and "actual" padded to the same width, so the two values line up.
+        private static string Pad(string word, string other) => word.PadRight(Math.Max(word.Length, other.Length));
 
         private static string Count(int value) => value.ToString(CultureInfo.InvariantCulture);
 

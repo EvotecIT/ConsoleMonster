@@ -82,12 +82,12 @@ Write-ConsoleText 'alias2' -ShowTime -DateFormat 'dd'
         It 'centres with -HorizontalCenter by display width, including emoji and CJK' {
             $text = Invoke-TextChild -Script @'
 Write-ConsoleText 'abcd' -HorizontalCenter -Width 20
-Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F44D)) -HorizontalCenter -Width 20
+Write-ConsoleText ([string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A)) -HorizontalCenter -Width 20
 '@
             $lines = $text -split "`n"
             $lines[0] | Should -BeExactly ((' ' * 8) + 'abcd')
-            # Two CJK characters (2 cells each) and an emoji (2 cells) are 6 cells wide: 7 spaces before.
-            $lines[1] | Should -BeExactly ((' ' * 7) + [string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F44D))
+            # Two CJK characters (2 cells each) and an emoji without a fallback (2 cells) are 6 cells wide: 7 spaces before.
+            $lines[1] | Should -BeExactly ((' ' * 7) + [string] [char] 0x4E2D + [char] 0x6587 + [char]::ConvertFromUtf32(0x1F98A))
         }
 
         It 'writes only the log with -NoConsoleOutput (and -HideConsole), with LogTime on by default' {

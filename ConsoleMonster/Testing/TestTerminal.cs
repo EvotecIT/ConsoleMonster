@@ -5,6 +5,7 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 
@@ -23,7 +24,26 @@ namespace ConsoleMonster.Testing {
         /// <param name="culture">The culture; null for the invariant culture.</param>
         /// <returns>The profile.</returns>
         public static TerminalProfile Profile(int width = 80, int height = 24, GlyphTier glyphs = GlyphTier.Full, ColorDepth colors = ColorDepth.None, CultureInfo? culture = null) {
-            return TerminalProfile.Fixed(width, height, colors, glyphs).WithCulture(culture ?? CultureInfo.InvariantCulture);
+            CultureInfo fixedCulture = culture ?? CultureInfo.InvariantCulture;
+            return TerminalProfile.Fixed(width, height, colors, glyphs).WithCulture(fixedCulture).WithLanguage(fixedCulture);
+        }
+
+        /// <summary>
+        /// An in-memory target with a fixed profile (append-only output, no detection): pass it to code that takes an
+        /// <see cref="ITerminalTarget"/>, or scope the static <see cref="Terminal"/> methods to it with
+        /// <see cref="Terminal.Use"/>. Its <see cref="RecordingTarget.Text"/> goes to <see cref="GoldenFile"/> through
+        /// <see cref="RecordingTarget.MatchGolden"/>; scripted keys answer prompts, which draw into
+        /// <see cref="RecordingTarget.Screens"/>.
+        /// </summary>
+        /// <param name="width">Width in cells.</param>
+        /// <param name="height">Height in cells (the screen size for prompts).</param>
+        /// <param name="glyphs">The glyph tier.</param>
+        /// <param name="colors">The colour depth (none by default, so the text is plain).</param>
+        /// <param name="culture">The culture for numbers, dates and labels; null for the invariant culture (English labels).</param>
+        /// <param name="keys">Scripted keys for prompts (see <see cref="Keys"/>), or null so prompts use their defaults.</param>
+        /// <returns>The target.</returns>
+        public static RecordingTarget Target(int width = 80, int height = 24, GlyphTier glyphs = GlyphTier.Full, ColorDepth colors = ColorDepth.None, CultureInfo? culture = null, string? keys = null) {
+            return new RecordingTarget(Profile(width, height, glyphs, colors, culture).WithMode(OutputMode.Stream), keys);
         }
 
         /// <summary>Renders a widget into cells: as tall as it measures, or exactly <paramref name="height"/> rows.</summary>

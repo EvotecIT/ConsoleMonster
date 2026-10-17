@@ -1,6 +1,7 @@
 using System;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Interactive {
@@ -24,7 +25,18 @@ namespace ConsoleMonster.Interactive {
         public bool NonInteractive { get; set; }
 
         /// <summary>An input source instead of the console (a script in tests and demos).</summary>
-        public IInputSource? Input { get; set; }
+        public IInputSource? Input {
+            get {
+                if (_input != null) {
+                    return _input;
+                }
+                ITerminalTarget target = ResolveTarget();
+                return target is ConsoleTarget ? null : target.Input;
+            }
+            set => _input = value;
+        }
+
+        private IInputSource? _input;
 
         /// <summary>The terminal profile; null uses <see cref="Terminal.GetCurrentProfile"/>.</summary>
         public TerminalProfile? Profile { get; set; }
@@ -54,15 +66,25 @@ namespace ConsoleMonster.Interactive {
         private IPromptSurface? _surface;
 
         internal IPromptSurface? Surface {
-            get => _surface ?? Capture?.Surface;
+            get => _surface ?? Capture?.Surface ?? (Input != null && ResolveTarget() is RecordingTarget recording ? recording.Screens.Surface : null);
             set => _surface = value;
         }
 
-        internal PromptLabels ResolveLabels() => Labels ?? PromptLabels.Default;
+        internal PromptLabels ResolveLabels() => Labels ?? PromptLabels.For(ResolveProfile().Language);
 
         internal ILineConsole ResolveLineConsole() => LineConsole ?? ConsoleLineConsole.Instance;
 
-        internal TerminalProfile ResolveProfile() => Profile ?? (Capture != null ? TerminalProfile.Fixed(Capture.Width, Capture.Height) : Terminal.GetCurrentProfile());
+        internal TerminalProfile ResolveProfile() => Profile ?? (Capture != null ? TerminalProfile.Fixed(Capture.Width, Capture.Height) : ResolveTarget() is ConsoleTarget ? Terminal.GetCurrentProfile() : ResolveTarget().Profile);
+
+        /// <summary>
+        /// Where the prompt runs (see <see cref="ITerminalTarget"/>), or null for <see cref="Terminal.Target"/>. A target
+        /// other than the console supplies the input (null input: nobody can answer, so defaults apply), the profile, and
+        /// for a <see cref="RecordingTarget"/> the screen capture. <see cref="Input"/>, <see cref="Profile"/> and
+        /// <see cref="Capture"/> still win when set.
+        /// </summary>
+        public ITerminalTarget? Target { get; set; }
+
+        internal ITerminalTarget ResolveTarget() => Target ?? Terminal.Target;
 
         internal ITheme ResolveTheme() => Theme ?? Terminal.Theme;
 
@@ -82,6 +104,10 @@ namespace ConsoleMonster.Interactive {
                 return InteractionMode.None;
             }
             bool accessible = IsSet("CONSOLEMONSTER_ACCESSIBLE");
+            if (_input == null && Capture == null && !(ResolveTarget() is ConsoleTarget)) {
+                // Another target answers with its own input, or nobody can answer.
+                return Input != null ? (accessible ? InteractionMode.Accessible : InteractionMode.Rich) : InteractionMode.None;
+            }
             if (Input != null || ConsoleInput.Override != null) {
                 return accessible ? InteractionMode.Accessible : InteractionMode.Rich;
             }

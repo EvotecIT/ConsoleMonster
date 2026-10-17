@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 
@@ -56,6 +57,13 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Borrowed output, or null to create and own the terminal output.</summary>
         public ITerminalOutput? Output { get; set; }
+
+        /// <summary>
+        /// Where the session draws: its profile, theme and writer (see <see cref="ITerminalTarget"/>), or null for
+        /// <see cref="Terminal.Target"/> at start. <see cref="Profile"/>, <see cref="Theme"/> and <see cref="Output"/> still win
+        /// when set. Only the console target claims the console, probes widths and watches the font.
+        /// </summary>
+        public ITerminalTarget? Target { get; set; }
 
         /// <summary>UTF-8 recording destination, mutually exclusive with RecordWriter.</summary>
         public string? RecordPath { get; set; }

@@ -84,9 +84,13 @@ namespace ConsoleMonster {
             }
             return Styling.Theme.Dark;
         }
-        /// <summary>The active theme.</summary>
+        /// <summary>The active theme: the target's (see <see cref="Target"/>), or the console's.</summary>
         public static ITheme Theme {
             get {
+                ITerminalTarget target = Target;
+                if (!(target is ConsoleTarget)) {
+                    return target.Theme ?? ResolveTheme(target.Profile);
+                }
                 lock (Gate) {
                     return _theme ?? (_theme = ResolveTheme(Profile));
                 }
@@ -111,7 +115,14 @@ namespace ConsoleMonster {
         /// redirected output and non-interactive modes keep their size.
         /// </summary>
         /// <returns>The profile for a write happening now.</returns>
+        /// <remarks>With a non-console <see cref="Target"/> in effect, this is that target's profile.</remarks>
         public static TerminalProfile GetCurrentProfile() {
+            ITerminalTarget target = Target;
+            return target is ConsoleTarget ? GetConsoleProfile() : target.Profile;
+        }
+
+        // The console's cached profile with the current window size (see GetCurrentProfile).
+        internal static TerminalProfile GetConsoleProfile() {
             TerminalProfile p = Profile;
             bool explicitProfile;
             lock (Gate) {
@@ -186,6 +197,7 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(widget));
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
+            writer = writer ?? Target.Writer;
             RenderContext context = CreateContext(p);
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
@@ -291,6 +303,7 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(lines));
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
+            writer = writer ?? Target.Writer;
             if (writer == null && TryWriteAbove(lines)) {
                 return;
             }

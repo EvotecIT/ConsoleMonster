@@ -61,6 +61,20 @@ namespace ConsoleMonster.Building {
             return Add(new Panel(content, title) { Caption = caption }, fill ? LayoutSize.Fraction() : (LayoutSize?)null);
         }
 
+        /// <summary>
+        /// Adds a panel whose content can be replaced while the session runs: the panel frame stays and the content is a
+        /// <see cref="Widgets.Slot"/> named <paramref name="name"/> (see <see cref="Live.LiveSession.Region"/>).
+        /// </summary>
+        /// <param name="title">The panel title.</param>
+        /// <param name="name">The region name.</param>
+        /// <param name="content">The first content, or null for an empty region.</param>
+        /// <param name="fill">Whether the panel takes the remaining height.</param>
+        /// <param name="caption">A caption in the bottom border, or null.</param>
+        /// <returns>This builder.</returns>
+        public TSelf Region(string title, string name, IWidget? content = null, bool fill = false, string? caption = null) {
+            return Panel(title, new Widgets.Slot(name, content), fill, caption);
+        }
+
         /// <summary>Adds a row of columns.</summary>
         /// <param name="configure">Configures the columns.</param>
         /// <param name="size">Its height specification (default auto).</param>

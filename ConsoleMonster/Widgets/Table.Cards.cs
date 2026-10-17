@@ -34,8 +34,8 @@ namespace ConsoleMonster.Widgets {
             int all = TotalRowCount ?? _rows.Count;
             CultureInfo culture = presenter.Culture;
             view.Summary = shown < all
-                ? "Showing " + shown.ToString("N0", culture) + " of " + all.ToString("N0", culture)
-                : all.ToString("N0", culture) + (all == 1 ? " record" : " records");
+                ? Localization.WidgetLabels.Format(presenter.Render.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture))
+                : Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture));
             int group = int.MinValue;
             int level = 0;
             for (int r = 0; r < shown; r++) {
@@ -51,7 +51,7 @@ namespace ConsoleMonster.Widgets {
             }
             TableLayoutRow? total = BuildTotalRow(presenter);
             if (total?.Cells != null) {
-                view.AddHeading(Markup.Escape(TotalLabel), 0);
+                view.AddHeading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
                 for (int c = 0; c < _columns.Count; c++) {
                     if (c == key || total.Cells[c].IsEmpty) {
                         continue;

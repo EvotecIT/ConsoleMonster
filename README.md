@@ -496,6 +496,77 @@ using (LiveSession session = new LiveSession(new Rows(progress, lanes), new Live
 - `Use-ConsoleProgress` runs an existing script unchanged, with the caller's variables. Its own `Write-Progress` and
   `Write-Host` calls are drawn inline, and its output is returned at the end. Commands inside other modules keep their
   own `Write-Progress`, which PowerShell shows as usual.
+
+### Progress columns
+
+`Lanes` and `ProgressBar` take a column model. Set `Columns` to choose what each row shows; without it they keep the
+classic layout (label, bar, percentage, pass/fail/warning counts, detail).
+
+```csharp
+lanes.Columns = ProgressColumns.Standard();                // spinner, description, bar, %, count, elapsed, ETA, status
+lanes.Columns.Insert(7, ProgressColumns.Rate(unit: "files"));   // "12 files/s"; Rate(bytes: true) shows "1.5 MB/s"
+lanes.Columns.Add(ProgressColumns.Custom("Phase", row => row.IsFinished ? "verified" : "copying"));
+lanes.HideCompleted = true;          // finished lanes leave; the summary line counts them
+lanes.CollapseWhenFinished = true;   // one line at the end: "12 done in 1m 05s · 1 failed"
+lanes.Transient = true;              // nothing left at the end (with PrintFinalState off, a fully transient session)
+```
+
+```powershell
+New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted
+New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
+```
+
+- Built-in columns: Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate (items or bytes per second),
+  Results (pass/fail/warning counts) and Status (detail, `done in 12s`, `queued`). Derive from `ProgressColumn`, or use
+  `ProgressColumns.Custom`, for your own; each row reaches a column as a `ProgressRow` with its counts, timing, smoothed
+  rate and remaining time.
+- Rate and remaining time are smoothed over a moving window (`RateWindow`, 10 seconds by default), so a stalled task's
+  rate falls instead of freezing.
+- Fixed columns take the width of their widest row (counts reserve the width of the total, so nothing moves while
+  counting); the bar and the status text share the rest. When the region is too narrow, the lowest `Priority` goes
+  first: status text, rate, elapsed time, results, remaining time, count, then the percentage.
+- The same columns render full screen and inline. In stream mode (CI, redirected output) the heartbeat line summarises
+  the running lanes through them, for example `servers: 2 running, 3 done, 1 queued; DC01 45% 18/40 12s left`.
+
+### Replaceable regions and live tables
+
+Any place in a layout can hold a `Slot`: a named region whose widget is replaced while the session runs. The swap goes
+through the update queue, so it is thread-safe and lands between frames; a surrounding panel keeps its frame and only
+the changed cells are redrawn. Live widgets inside the new content (lanes, logs, live tables) join the session under
+their names right away.
+
+`LiveTable` is a table whose rows change: rows have stable keys and are added, updated, removed or cleared. Column
+widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows, and `SortColumn` keeps them sorted.
+In stream mode each added or updated row prints as a line.
+
+```csharp
+Dashboard dashboard = new DashboardBuilder("Domain health")
+    .Region("Domain controllers", "main", new Spinner("Querying domain controllers"))
+    .Panel("Jobs", new LiveTable(new Table().AddColumn("Job").AddColumn("State").AddColumn("Took"), "jobs") { MaxRows = 8 }, out LiveTable jobs, fill: true)
+    .BuildDashboard();
+using (LiveSession session = new LiveSession(dashboard)) {
+    session.Start();
+    LiveTableHandle rows = jobs.Handle(session);
+    rows.AddRow("dns@DC01", "dns", StatusKind.Running, TimeSpan.Zero);
+    rows.UpdateRow("dns@DC01", "dns", StatusKind.Pass, TimeSpan.FromSeconds(4));
+    session.Region("main").Set(controllersTable);          // from any thread
+}
+```
+
+```powershell
+$d = New-ConsoleDashboard -Title 'Domain health' {
+    New-ConsolePanel -Title 'Domain controllers' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
+    New-ConsolePanel -Title 'Jobs' -Fill { New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+}
+Start-ConsoleDashboard $d {
+    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
+    Set-ConsoleRegion -Name main { $controllers | Format-ConsoleTable -AsWidget }
+    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Remove
+}
+```
+
+A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
+
 ## Pester test runs
 
 `Invoke-ConsolePester` runs Pester 5 or 6 with a live dashboard. It takes the parameters of `Invoke-Pester` (or a
@@ -640,10 +711,62 @@ It 'renders the report' {
   then write `$widget | Should -MatchConsoleGolden "$PSScriptRoot\Golden\x.txt"`.
 - `.github/workflows/test.yml` runs xUnit on net472 and net8.0 and Pester on Windows PowerShell 5.1 and PowerShell 7
   on every push and pull request.
+
+## Targets: tests, redirection and hosting
+
+Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a capability profile (size, colour
+depth, glyph tier, culture, language), a theme, a writer and an input source. The built-ins:
+
+| Target | Use |
+|---|---|
+| `ConsoleTarget.Instance` | The process console (the default): detection, live redraw, keyboard input. |
+| `TestTerminal.Target(...)` → `RecordingTarget` | Tests: a fixed profile, output in `Text`, scripted keys for prompts, the screens prompts draw in `Screens`, and `MatchGolden(path)` through `GoldenFile`. |
+| `new WriterTarget(textWriter, width, glyphs, colors)` | A log or a host's stream: append-only lines at that width and tier, plain unless colours are asked for. |
+| `NullTarget.Instance` | Quiet runs: output is discarded and prompts use their defaults. |
+
+The static `Terminal` methods write to `Terminal.Target`: the console, unless a scope says otherwise.
+`using (Terminal.Use(target)) { ... }` sends everything in that block to the target, including prompts, live sessions
+and `Terminal.Status`. The scope flows with `async` calls and stays local to them, so parallel tests never see each
+other's target. `Terminal.DefaultTarget` changes the process-wide default, for hosts that own the whole process.
+
+For a library, take the target through the constructor or options, default to `Terminal.Target`, and write only to it.
+Don't change anything global. `ConsoleMonster.Examples target` runs this example:
+
+```csharp
+public sealed class HealthReport {
+    private readonly ITerminalTarget _target;
+    public HealthReport(ITerminalTarget? target = null) => _target = target ?? Terminal.Target;
+
+    public void Run(string[] servers) {
+        _target.Status("Checking servers", status => { foreach (string s in servers) { status.Update(Markup.Interpolate($"Checking [accent]{s}[/]")); /* ... */ } });
+        _target.Write(table);
+        _target.WriteMarkupLine("[muted]done[/]");
+    }
+}
+
+new HealthReport().Run(servers);                                   // a script: the console
+RecordingTarget test = TestTerminal.Target(60);
+new HealthReport(test).Run(servers);                               // a test
+test.MatchGolden("Golden/health.txt");
+new HealthReport(new WriterTarget(logWriter, width: 100)).Run(servers);   // a log file
+```
+
+`LiveSessionOptions.Target` and `InteractiveOptions.Target` take a target too. Only the console target claims the
+console, probes widths and reads the keyboard; on any other target a prompt without scripted input uses its default.
+
+In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going elsewhere: `-Path` writes a
+UTF-8 file, `-Writer` a TextWriter, `-Target` any target, and with none of them the output comes back as a string.
+`-Width`, `-Glyphs` and `-Colors` lay it out.
+
+```powershell
+Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }
+$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
+```
+
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a
-table shows `71,5 %`, `1,41 MB` and `Showing 5 of 1 234` next to English labels. To fix the culture:
+table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI language (see Languages). To fix the culture:
 
 - `CONSOLEMONSTER_CULTURE=en-US` (any culture name, `invariant`, or `current`). An unknown name is ignored and noted in
   the profile's decisions.
@@ -652,9 +775,37 @@ table shows `71,5 %`, `1,41 MB` and `Showing 5 of 1 234` next to English labels.
 - `-Culture en-US` on `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree`.
 
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
-the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Labels stay English. Live dashboard counters (lanes,
-rates, clocks) and the inspector's item counts use invariant digits regardless, because they are compact status text
-rather than data.
+the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
+inspector's item counts use invariant digits regardless, because they are compact status text rather than data.
+
+## Emoji and symbols on every terminal
+
+Emoji and special symbols in text that goes through markup, rich text or table cells are replaced on glyph tiers
+that cannot show them, before the text is measured, so widths stay right: ✅ is √ on the Basic tier and `[OK]` on
+ASCII, ⚠️ is `!`, ❌ is `×` or `x`, ➜ is `→` or `->`, 🚀 is `»` or `>>`, and `…` and `—` become `...` and `-` on ASCII.
+The Full tier shows the text as written. `SymbolFallback.Register("🦄", "U", "[unicorn]")` adds a symbol and
+`SymbolFallback.Enabled = false` turns the replacement off.
+
+`:shortcode:` emoji are opt-in, because colons in data must stay as they are:
+
+- `Markup.Shortcodes = true` turns `:white_check_mark: deployed` in markup into `✅ deployed`;
+- the `Emoji` cell presenter (`Presenter = CellPresenters.Emoji`, or `Presenter = 'Emoji'` in a PowerShell column
+  option) does the same for one column;
+- `Shortcodes.Replace(text)` does it for any string, and `Shortcodes.Register("deploy", "🚀")` adds a name.
+
+## Languages
+
+Built-in words are translated: prompt keys and footers, validation messages, the review page, status badges
+(`PASS`, `FAIL`...), `+3 more`, `Showing 5 of 20`, `done in 12s`, `window too small` and the like. English, Polish,
+German, Spanish, French and Italian are built in; other languages fall back to English.
+
+- The language follows the current UI culture (`$PSUICulture` in PowerShell), separately from the number culture.
+- `CONSOLEMONSTER_LANGUAGE=pl` overrides it for the process; `TerminalProfile.WithLanguage(culture)` sets it per profile,
+  so a test or a target can fix it (`TestTerminal` uses its culture, English by default).
+- To change words, start from `PromptLabels.For(culture).Clone()` or `WidgetLabels.For(culture).Clone()`, then assign
+  `PromptLabels.Default` or `WidgetLabels.Override`, or pass `InteractiveOptions.Labels` for one prompt.
+- The translations live in `ConsoleMonster/Localization/Labels.<language>.txt`; a test checks that every language has
+  every label with the same placeholders.
 
 ## Window size, fonts and themes
 

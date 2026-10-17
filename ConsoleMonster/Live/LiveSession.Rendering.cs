@@ -17,6 +17,13 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
         private void RenderLoop() {
+            // Stream lines and summaries built without a context use the session's language.
+            using (Localization.WidgetLabels.Scope(_context!.Labels)) {
+                RenderLoopCore();
+            }
+        }
+
+        private void RenderLoopCore() {
             FrameSchedule frames = new FrameSchedule(_options.FramesPerSecond);
             double period = frames.Period;
             TimeSpan heartbeat = Elapsed;
@@ -81,12 +88,20 @@ namespace ConsoleMonster.Live {
                 return;
             }
             Interlocked.Increment(ref _eventsApplied);
+            if (target is Widgets.Slot slot && liveEvent.Operation == "set") {
+                foreach (IWidget child in slot.Children) { Adopt(child); }
+                Interlocked.Exchange(ref _invalidate, 1);
+            }
             if (_recorder != null) {
                 Attempt(() => _recorder.Write(liveEvent));
             }
             if (_output != null && !_output.SupportsLiveFrames) {
                 Attempt(() => {
-                    string? description = target!.Describe(liveEvent);
+                    string? description;
+                    // Events left at stop are applied on the stopping thread, so the language is scoped here too.
+                    using (Localization.WidgetLabels.Scope(_context?.Labels ?? Localization.WidgetLabels.Current)) {
+                        description = target!.Describe(liveEvent);
+                    }
                     if (description != null) {
                         lock (_outputGate) {
                             _output.WriteLine(StyledLine.From(Stamp(description)));
@@ -196,14 +211,14 @@ namespace ConsoleMonster.Live {
 
         private static CellBuffer RenderErrorFrame(int width, int height, RenderContext context, Exception ex) {
             CellBuffer buffer = new CellBuffer(Math.Max(1, width), Math.Max(1, height));
-            string text = "render error at " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + ": " + ex.GetType().Name;
+            string text = Localization.WidgetLabels.Format(context.Labels.RenderError, width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture), ex.GetType().Name);
             new Region(buffer).Write(0, 0, TextWrapper.Truncate(text, Math.Max(1, width - 1), context.Ellipsis), context.Style(ThemeToken.Warn));
             return buffer;
         }
 
         // After a size change in Windows Terminal the font may have changed with it (zoom), so widths are measured again.
         private void OnResized() {
-            if (_context != null && _context.Profile.Kind == TerminalKind.WindowsTerminal && _output is VtOutput vt) {
+            if (_onConsole && _context != null && _context.Profile.Kind == TerminalKind.WindowsTerminal && _output is VtOutput vt) {
                 ReprobeWidths(vt);
             }
         }
@@ -240,7 +255,10 @@ namespace ConsoleMonster.Live {
             foreach (ILiveTarget target in _targets.Values) {
                 if (target is ILiveSummary summary) {
                     Attempt(() => {
-                        string? line = summary.GetSummaryLine();
+                        string? line;
+                        using (Localization.WidgetLabels.Scope(_context?.Labels ?? Localization.WidgetLabels.Current)) {
+                            line = summary.GetSummaryLine();
+                        }
                         if (line != null) { lines.Add(line); }
                     });
                 }

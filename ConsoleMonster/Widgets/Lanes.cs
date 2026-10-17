@@ -62,6 +62,32 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the third count column shows skipped steps (– / -) instead of warnings (▴ / !), for runs where skips matter more, such as test runs.</summary>
         public bool CountSkipped { get; set; }
 
+        /// <summary>
+        /// The columns of each row (see <see cref="ProgressColumns"/>, for example <see cref="ProgressColumns.Standard"/>
+        /// plus <see cref="ProgressColumns.Rate"/> or a custom column), or null (default) for the classic layout: marker,
+        /// label, bar, percentage, pass/fail/warning counts and detail. With columns set, the stream heartbeat line also
+        /// summarises the running lanes through them.
+        /// </summary>
+        public IList<ProgressColumn>? Columns { get; set; }
+
+        /// <summary>Whether finished lanes leave the display (counted in the summary line), so only running and queued work shows.</summary>
+        public bool HideCompleted { get; set; }
+
+        /// <summary>Whether the display collapses to one summary line (<c>12 done in 1m 05s</c>) once every lane has finished.</summary>
+        public bool CollapseWhenFinished { get; set; }
+
+        /// <summary>
+        /// Whether the display disappears once every lane has finished (it measures zero rows), so an inline session ends
+        /// with nothing left of it. Combine with <see cref="Live.LiveSessionOptions.PrintFinalState"/> off for a fully
+        /// transient session.
+        /// </summary>
+        public bool Transient { get; set; }
+
+        /// <summary>The moving window that smooths rates and remaining-time estimates (default 10 seconds).</summary>
+        public TimeSpan RateWindow { get; set; } = TimeSpan.FromSeconds(10);
+
+        private TimeSpan _lastEventTime;
+
         private readonly StatColumn _passColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _failColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _warnColumn = new StatColumn(new ColumnFormat());
@@ -127,9 +153,12 @@ namespace ConsoleMonster.Widgets {
                     queued++;
                 }
             }
-            return Name + ": " + running.ToString(CultureInfo.InvariantCulture) + " running, "
-                + done.ToString(CultureInfo.InvariantCulture) + " done" + (failed > 0 ? " (" + failed.ToString(CultureInfo.InvariantCulture) + " failed)" : string.Empty)
-                + ", " + queued.ToString(CultureInfo.InvariantCulture) + " queued";
+            Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+            string line = Name + ": " + Localization.WidgetLabels.Format(labels.RunningCount, running.ToString(CultureInfo.InvariantCulture)) + ", "
+                + Localization.WidgetLabels.Format(labels.DoneCount, done.ToString(CultureInfo.InvariantCulture))
+                + (failed > 0 ? " (" + Localization.WidgetLabels.Format(labels.FailedCount, failed.ToString(CultureInfo.InvariantCulture)) + ")" : string.Empty)
+                + ", " + Localization.WidgetLabels.Format(labels.QueuedCount, queued.ToString(CultureInfo.InvariantCulture));
+            return Columns == null || Columns.Count == 0 ? line : line + RunningSummary();
         }
 
         /// <inheritdoc />
@@ -138,6 +167,9 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             TimeSpan now = TimeSpan.FromMilliseconds(liveEvent.Time);
+            if (now > _lastEventTime) {
+                _lastEventTime = now;
+            }
             switch (liveEvent.Operation) {
                 case "add":
                     Add(liveEvent.Key, liveEvent.Text, liveEvent.Total);
@@ -176,18 +208,22 @@ namespace ConsoleMonster.Widgets {
                 return null;
             }
             if ((liveEvent.Operation == "state" || liveEvent.Operation == "complete") && lane.IsFinished) {
-                string duration = lane.Started.HasValue && lane.Finished.HasValue ? " in " + NumberFormat.Duration(lane.Finished.Value - lane.Started.Value) : string.Empty;
+                string duration = lane.Started.HasValue && lane.Finished.HasValue ? " " + Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.TookDuration, NumberFormat.Duration(lane.Finished.Value - lane.Started.Value)) : string.Empty;
                 return lane.Label + " " + lane.Status.ToWord() + ": " + Counts(lane) + duration;
             }
             if (liveEvent.Operation == "state" && lane.Status == StatusKind.Running) {
-                return lane.Label + " started";
+                return lane.Label + " " + Localization.WidgetLabels.Current.Started;
             }
             return null;
         }
 
         private static void ApplyAdvance(Lane lane, LiveEvent liveEvent, TimeSpan now) {
             double amount = liveEvent.Value == 0 ? 1 : liveEvent.Value;
+            if (!lane.Started.HasValue) {
+                lane.Meter.Record(now, lane.Done);
+            }
             lane.Done += amount;
+            lane.Meter.Record(now, lane.Done);
             if (liveEvent.State != null && StatusKinds.TryParse(liveEvent.State, out StatusKind result)) {
                 int steps = (int)Math.Max(1, Math.Round(amount));
                 switch (result) {
@@ -223,6 +259,7 @@ namespace ConsoleMonster.Widgets {
             lane.Status = status;
             if (status == StatusKind.Running && !lane.Started.HasValue) {
                 lane.Started = now;
+                lane.Meter.Record(now, lane.Done);
             }
             if (lane.IsFinished) {
                 lane.Finished = now;
@@ -239,10 +276,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static string Counts(Lane lane) {
-            return lane.Passed.ToString(CultureInfo.InvariantCulture) + " passed, "
-                + lane.Failed.ToString(CultureInfo.InvariantCulture) + " failed, "
-                + lane.Warned.ToString(CultureInfo.InvariantCulture) + " warnings"
-                + (lane.Skipped > 0 ? ", " + lane.Skipped.ToString(CultureInfo.InvariantCulture) + " skipped" : string.Empty);
+            Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
+            return Localization.WidgetLabels.Format(labels.StepCounts, lane.Passed.ToString(CultureInfo.InvariantCulture), lane.Failed.ToString(CultureInfo.InvariantCulture), lane.Warned.ToString(CultureInfo.InvariantCulture))
+                + (lane.Skipped > 0 ? ", " + Localization.WidgetLabels.Format(labels.SkippedCount, lane.Skipped.ToString(CultureInfo.InvariantCulture)) : string.Empty);
         }
     }
 }

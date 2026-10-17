@@ -130,6 +130,11 @@ Creates a line or scatter chart (braille on modern fonts, half blocks on Consola
 
 -Data maps series names to arrays of values; values are spaced evenly. Append values live with Add-ConsoleValue -Key series.
 
+### [New-ConsoleLiveTable](New-ConsoleLiveTable.md)
+Creates a table whose rows change while a dashboard runs.
+
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+
 ### [New-ConsoleLog](New-ConsoleLog.md)
 Creates a log region: the newest lines of a log, bottom-aligned.
 
@@ -164,6 +169,11 @@ The active phase is emphasised and finished phases show their duration. Update p
 Creates a labelled progress bar.
 
 Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. Update it live with Update-ConsoleProgress.
+
+### [New-ConsoleRegion](New-ConsoleRegion.md)
+Creates a named region whose content can be replaced while a dashboard runs.
+
+Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -Name with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ### [New-ConsoleRows](New-ConsoleRows.md)
 Stacks console widgets vertically.
@@ -255,6 +265,11 @@ Sends a raw live event to any widget of a running dashboard.
 
 The general form behind the Update-* cmdlets, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
 
+### [Set-ConsoleRegion](Set-ConsoleRegion.md)
+Replaces the content of a region (New-ConsoleRegion) in the running dashboard.
+
+The new widget is shown from the next frame on; the surrounding frame stays, and live widgets inside the new content (lanes, logs, live tables) can be updated by name right away. Use it from the dashboard script, like the Update-Console* commands.
+
 ### [Set-ConsoleTheme](Set-ConsoleTheme.md)
 Selects the theme used by every ConsoleMonster widget.
 
@@ -310,10 +325,20 @@ Updates an item of a status list in a running dashboard.
 
 Adds the item when it does not exist. -Detail shows a right-aligned muted note such as a duration.
 
+### [Update-ConsoleTable](Update-ConsoleTable.md)
+Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.
+
+-Key identifies the row: a new key adds a row, an existing key replaces its values. -Remove deletes the row and -Clear deletes them all; the column widths stay.
+
 ### [Use-ConsoleProgress](Use-ConsoleProgress.md)
 Runs a script and shows its Write-Progress calls as an inline progress area.
 
 The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Use-ConsoleTarget](Use-ConsoleTarget.md)
+Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
+
+Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
 
 ### [Write-ConsoleException](Write-ConsoleException.md)
 Writes an error or exception readably (Format-ConsoleError without -AsWidget).

@@ -154,7 +154,7 @@ namespace ConsoleMonster.Widgets {
             int total = TotalLines();
             if (total > shown) {
                 int more = total - shown;
-                rows.Add(StyledLine.From(new string(' ', gutter) + "+ " + more.ToString(CultureInfo.InvariantCulture) + (more == 1 ? " more line" : " more lines"), muted));
+                rows.Add(StyledLine.From(new string(' ', gutter) + Localization.WidgetLabels.Format(more == 1 ? Localization.WidgetLabels.Current.OneMoreLine : Localization.WidgetLabels.Current.ManyMoreLines, more.ToString(CultureInfo.InvariantCulture)), muted));
             }
             return rows;
         }

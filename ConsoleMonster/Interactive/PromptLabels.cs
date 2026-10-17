@@ -4,17 +4,33 @@ using System.Globalization;
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// Every built-in word the interactive layer shows: key hints in footers, button captions, validation messages,
-    /// accessible-mode questions. Replace <see cref="Default"/> (or pass labels in <see cref="InteractiveOptions.Labels"/>)
-    /// to localize. Format strings use <see cref="string.Format(IFormatProvider, string, object[])"/> placeholders.
+    /// accessible-mode questions. They follow the prompt's language (<see cref="Capabilities.TerminalProfile.Language"/>,
+    /// <c>CONSOLEMONSTER_LANGUAGE</c> or the current UI culture): English, Polish, German, Spanish, French and Italian are
+    /// built in. Assign <see cref="Default"/> to use your own everywhere, or pass labels in
+    /// <see cref="InteractiveOptions.Labels"/>; start from <see cref="For"/> and <see cref="Clone"/> to change a few words.
+    /// Format strings use <see cref="string.Format(IFormatProvider, string, object[])"/> placeholders.
     /// </summary>
     public sealed class PromptLabels {
-        private static PromptLabels _default = new PromptLabels();
+        private static readonly System.Reflection.PropertyInfo[] LabelProperties = typeof(PromptLabels).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        private static PromptLabels? _default;
 
-        /// <summary>The labels used when none are passed.</summary>
+        /// <summary>
+        /// The labels used when none are passed: the assigned ones, otherwise the translation for
+        /// <see cref="Localization.LabelLanguage.Default"/>.
+        /// </summary>
         public static PromptLabels Default {
-            get => _default;
+            get => _default ?? For(Localization.LabelLanguage.Default);
             set => _default = value ?? throw new ArgumentNullException(nameof(value));
         }
+
+        /// <summary>The labels for a language: the assigned <see cref="Default"/>, otherwise the built-in translation (English when there is none).</summary>
+        /// <param name="language">The language, or null for <see cref="Localization.LabelLanguage.Default"/>.</param>
+        /// <returns>The labels; don't modify the shared instance, use <see cref="Clone"/>.</returns>
+        public static PromptLabels For(CultureInfo? language) => _default ?? Localization.LabelCatalog.Get(language ?? Localization.LabelLanguage.Default, "Prompt.", () => new PromptLabels(), LabelProperties);
+
+        /// <summary>A copy to modify.</summary>
+        /// <returns>The copy.</returns>
+        public PromptLabels Clone() => (PromptLabels)MemberwiseClone();
 
         /// <summary>Key hint: move the focus.</summary>
         public string KeyMove { get; set; } = "move";

@@ -65,12 +65,12 @@ namespace ConsoleMonster.Widgets {
                 spans.Add(new TextSpan(NumberFormat.Clock(context.Elapsed), context.Style(ThemeToken.Accent)));
             }
             string times = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "x" : "×";
-            string note = "window too small: " + width.ToString(CultureInfo.InvariantCulture) + times + height.ToString(CultureInfo.InvariantCulture)
-                + ", needs " + MinimumSize.Width.ToString(CultureInfo.InvariantCulture) + times + MinimumSize.Height.ToString(CultureInfo.InvariantCulture);
+            string needs = MinimumSize.Width.ToString(CultureInfo.InvariantCulture) + times + MinimumSize.Height.ToString(CultureInfo.InvariantCulture);
+            string note = Localization.WidgetLabels.Format(context.Labels.WindowTooSmall, width.ToString(CultureInfo.InvariantCulture) + times + height.ToString(CultureInfo.InvariantCulture), needs);
             StyledLine noteLine = StyledLine.From(dot + note, muted);
             if (width - noteLine.Width < 24) {
                 // Keep the progress readable: the short form still says what the window needs.
-                note = "needs " + MinimumSize.Width.ToString(CultureInfo.InvariantCulture) + times + MinimumSize.Height.ToString(CultureInfo.InvariantCulture);
+                note = Localization.WidgetLabels.Format(context.Labels.Needs, needs);
                 noteLine = StyledLine.From(dot + note, muted);
             }
             if (noteLine.Width >= width - 8) {

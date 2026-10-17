@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
             Style text = context.Style(ThemeToken.Text);
             List<TextSpan> head = new List<TextSpan> { new TextSpan(pad) };
             if (inner) {
-                head.Add(new TextSpan("Caused by ", muted));
+                head.Add(new TextSpan(context.Labels.CausedBy + " ", muted));
             } else {
                 head.Add(new TextSpan(context.Glyphs.StatusSymbol(StatusKind.Fail) + " ", fail));
             }
@@ -186,7 +186,7 @@ namespace ConsoleMonster.Widgets {
             }
             FlushFramework(lines, body, ref hiddenFramework, muted);
             if (hiddenApp > 0) {
-                lines.Add(StyledLine.From(body + "+ " + hiddenApp.ToString(CultureInfo.InvariantCulture) + (hiddenApp == 1 ? " more frame" : " more frames"), muted));
+                lines.Add(StyledLine.From(body + Localization.WidgetLabels.Format(hiddenApp == 1 ? Localization.WidgetLabels.Current.OneMoreFrame : Localization.WidgetLabels.Current.ManyMoreFrames, hiddenApp.ToString(CultureInfo.InvariantCulture)), muted));
             }
         }
 
@@ -194,7 +194,7 @@ namespace ConsoleMonster.Widgets {
             if (hidden == 0) {
                 return;
             }
-            lines.Add(StyledLine.From(body + "+ " + hidden.ToString(CultureInfo.InvariantCulture) + (hidden == 1 ? " framework frame" : " framework frames"), muted));
+            lines.Add(StyledLine.From(body + Localization.WidgetLabels.Format(hidden == 1 ? Localization.WidgetLabels.Current.OneFrameworkFrame : Localization.WidgetLabels.Current.ManyFrameworkFrames, hidden.ToString(CultureInfo.InvariantCulture)), muted));
             hidden = 0;
         }
 

@@ -85,10 +85,15 @@ namespace ConsoleMonster.Styling {
             }
         }
 
-        /// <summary>A short upper-case word for a status (PASS, FAIL, WARN, SKIP, RUN, WAIT, INFO).</summary>
+        /// <summary>A short upper-case word for a status (PASS, FAIL, WARN, SKIP, RUN, WAIT, INFO in English), in the language of <see cref="Localization.WidgetLabels.Current"/>.</summary>
         /// <param name="status">The status.</param>
         /// <returns>The word.</returns>
-        public static string ToWord(this StatusKind status) {
+        public static string ToWord(this StatusKind status) => Localization.WidgetLabels.Current.StatusWord(status);
+
+        /// <summary>The English status word (PASS, FAIL...), for logs and machine-read output.</summary>
+        /// <param name="status">The status.</param>
+        /// <returns>The word.</returns>
+        public static string ToEnglishWord(this StatusKind status) {
             switch (status) {
                 case StatusKind.Running:
                     return "RUN";

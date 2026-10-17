@@ -10,6 +10,9 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
+        private bool _onConsole;
+        private Styling.ITheme? _theme;
+
         /// <summary>Starts the dedicated background render thread. Repeated calls while running are harmless.</summary>
         public void Start() {
             bool cleanup = false;
@@ -22,13 +25,18 @@ namespace ConsoleMonster.Live {
                     }
                     try {
                         ResolveLogTarget();
-                        TerminalProfile profile = _options.Profile ?? Terminal.Profile;
+                        ITerminalTarget target = _options.Target ?? Terminal.Target;
+                        bool console = target is ConsoleTarget;
+                        ITerminalWriter? targetWriter = console ? null : target.Writer;
+                        _onConsole = _options.Output == null && targetWriter == null;
+                        _theme = _options.Theme ?? target.Theme;
+                        TerminalProfile profile = _options.Profile ?? (console ? Terminal.Profile : target.Profile);
                         if (_options.Culture != null) {
                             profile = profile.WithCulture(_options.Culture);
                         }
-                        _context = Terminal.CreateContext(profile, _options.Theme);
+                        _context = Terminal.CreateContext(profile, _theme);
                         _streamTimestamps = _options.StreamTimestamps ?? profile.IsContinuousIntegration;
-                        _output = _options.Output ?? (_options.Mode == LiveMode.Inline ? Terminal.CreateInlineOutput(profile) : Terminal.CreateOutput(profile));
+                        _output = _options.Output ?? (_options.Mode == LiveMode.Inline ? Terminal.CreateInlineOutput(profile, targetWriter) : Terminal.CreateOutput(profile, targetWriter));
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);
@@ -53,11 +61,11 @@ namespace ConsoleMonster.Live {
                         _output.BeginLive();
                         _began = true;
                         ApplyWidthProbe(profile);
-                        if (profile.Kind == TerminalKind.Conhost && _options.Output == null && _output is VtOutput) {
+                        if (profile.Kind == TerminalKind.Conhost && _onConsole && _output is VtOutput) {
                             _fontWatcher = new ConsoleFontWatcher();
                             _fontWatcher.CheckChanged(out _, out _);
                         }
-                        if (_options.Output == null) {
+                        if (_onConsole) {
                             Terminal.ClaimConsole(this);
                         }
                         if (_options.Discoverable) {
@@ -84,7 +92,7 @@ namespace ConsoleMonster.Live {
         // process-wide measurement profile. An ambiguous-wide terminal also gets ASCII glyphs, since box drawing and
         // block elements are ambiguous too.
         private void ApplyWidthProbe(TerminalProfile profile) {
-            if (!profile.ProbeWidths || _options.Output != null || !(_output is VtOutput vt)) {
+            if (!profile.ProbeWidths || !_onConsole || !(_output is VtOutput vt)) {
                 return;
             }
             bool measuredOk = vt.TryProbeWidths(TimeSpan.FromMilliseconds(500), out TerminalWidthProfile measured, out string decision);
@@ -102,7 +110,7 @@ namespace ConsoleMonster.Live {
             DisplayWidth.Profile = measured;
             if (measured.AmbiguousWidth == 2 && profile.Glyphs != GlyphTier.Ascii) {
                 TerminalProfile downgraded = profile.WithGlyphs(GlyphTier.Ascii).WithWidthProfile(measured).WithDecision("glyphs downgraded: the probe measured ambiguous width 2");
-                _context = Terminal.CreateContext(downgraded, _options.Theme);
+                _context = Terminal.CreateContext(downgraded, _theme);
             }
         }
 

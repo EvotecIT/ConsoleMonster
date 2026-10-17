@@ -12,6 +12,9 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Plain text.</summary>
         public static ICellPresenter Text { get; } = new TextPresenter();
 
+        /// <summary>Text with <c>:shortcode:</c> emoji, degraded per glyph tier (see <see cref="EmojiPresenter"/>).</summary>
+        public static ICellPresenter Emoji { get; } = new EmojiPresenter();
+
         /// <summary>Chooses by value type.</summary>
         public static ICellPresenter Auto { get; } = new AutoPresenter();
 
@@ -60,6 +63,8 @@ namespace ConsoleMonster.Presenters {
             switch ((name ?? string.Empty).Trim().ToLowerInvariant()) {
                 case "text":
                     return Text;
+                case "emoji":
+                    return Emoji;
                 case "auto":
                 case "":
                     return Auto;
@@ -97,7 +102,7 @@ namespace ConsoleMonster.Presenters {
                 case "url":
                     return Link;
                 default:
-                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Auto, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress or Link.", nameof(name));
+                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Emoji, Auto, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress or Link.", nameof(name));
             }
         }
 

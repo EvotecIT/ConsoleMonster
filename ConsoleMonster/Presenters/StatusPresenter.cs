@@ -32,7 +32,7 @@ namespace ConsoleMonster.Presenters {
             string marker = context.Render.Glyphs.StatusMarker(status);
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, style) };
             if (ShowWord && context.Render.Glyphs.Tier != GlyphTier.Ascii) {
-                spans.Add(new TextSpan(" " + status.ToWord(), style));
+                spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), style));
             }
             return new PresentedValue(new StyledLine(spans)) { Tone = status.ToToken() };
         }

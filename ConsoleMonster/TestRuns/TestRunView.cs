@@ -23,8 +23,8 @@ namespace ConsoleMonster.TestRuns {
             _run = run ?? throw new ArgumentNullException(nameof(run));
         }
 
-        /// <summary>The header title (default "Tests").</summary>
-        public string Title { get; set; } = "Tests";
+        /// <summary>The header title, or null (default) for the built-in word ("Tests" in English).</summary>
+        public string? Title { get; set; }
 
         /// <summary>Draws the compact layout (files, running test, first failures) at the height it needs.</summary>
         public bool Compact { get; set; }
@@ -75,21 +75,21 @@ namespace ConsoleMonster.TestRuns {
                 body.Add(FilesPanel(snapshot, context), LayoutSize.Fixed(fileRows + 3));
                 body.Add(new Padding(new CurrentTestLine(snapshot), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 Rows side = new Rows();
-                side.Add(new Panel(new SlowestList(snapshot.Slowest), "Slowest") { PaddingTop = 1 }, LayoutSize.Fixed(Math.Max(1, _run.SlowestCount) + 3));
+                side.Add(new Panel(new SlowestList(snapshot.Slowest), Text.Markup.Escape(context.Labels.TestsSlowest)) { PaddingTop = 1 }, LayoutSize.Fixed(Math.Max(1, _run.SlowestCount) + 3));
                 Histogram histogram = new Histogram(DurationEdges, "durations") { EdgeFormat = Milliseconds, Token = ThemeToken.Series1 };
                 foreach (double duration in snapshot.Durations) {
                     histogram.Add(duration);
                 }
-                side.Add(new Panel(histogram, "Durations") { PaddingTop = 1 }, LayoutSize.Fraction(1, 6));
+                side.Add(new Panel(histogram, Text.Markup.Escape(context.Labels.TestsDurations)) { PaddingTop = 1 }, LayoutSize.Fraction(1, 6));
                 Columns bottom = new Columns();
                 bottom.Add(FailuresPanel(snapshot, new FailureList(snapshot.Failures, int.MaxValue)), LayoutSize.Fraction(3, 40));
                 bottom.Add(side, LayoutSize.Fraction(2, 34));
                 body.Add(bottom, LayoutSize.Fraction());
             }
             StatusKind status = snapshot.Status;
-            return new Dashboard(Title, body) {
+            return new Dashboard(Title ?? Text.Markup.Escape(context.Labels.TestsTitle), body) {
                 Subtitle = TestRunText.Totals(snapshot, context.Glyphs, false),
-                Status = status == StatusKind.Running ? "running" : status == StatusKind.Fail ? "failed" : status == StatusKind.Warn ? "inconclusive" : "passed",
+                Status = status == StatusKind.Running ? context.Labels.TestsStatusRunning : status == StatusKind.Fail ? context.Labels.TestsStatusFailed : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed,
                 StatusLevel = status,
                 ShowClock = true
             };
@@ -123,13 +123,13 @@ namespace ConsoleMonster.TestRuns {
                     done++;
                 }
             }
-            string caption = done.ToString(CultureInfo.InvariantCulture) + " of " + snapshot.Containers.Count.ToString(CultureInfo.InvariantCulture) + " done";
-            return new Panel(lanes, "Files") { PaddingTop = 1, Caption = caption };
+            string caption = Localization.WidgetLabels.Format(context.Labels.TestsFilesDone, done.ToString(CultureInfo.InvariantCulture), snapshot.Containers.Count.ToString(CultureInfo.InvariantCulture));
+            return new Panel(lanes, Text.Markup.Escape(context.Labels.TestsFiles)) { PaddingTop = 1, Caption = caption };
         }
 
         private static Panel FailuresPanel(TestRunSnapshot snapshot, FailureList list) {
             int count = snapshot.Failures.Count;
-            return new Panel(list, "Failures") {
+            return new Panel(list, Text.Markup.Escape(Localization.WidgetLabels.Current.TestsFailures)) {
                 PaddingTop = 1,
                 Caption = count == 0 ? null : count.ToString(CultureInfo.InvariantCulture)
             };
