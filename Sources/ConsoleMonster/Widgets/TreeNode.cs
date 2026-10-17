@@ -44,6 +44,15 @@ namespace ConsoleMonster.Widgets {
             return node;
         }
 
+        /// <summary>Adds a child with a multicolour label.</summary>
+        /// <param name="label">The label.</param>
+        /// <param name="status">An optional status.</param>
+        /// <param name="note">An optional muted note.</param>
+        /// <returns>The new child.</returns>
+        public TreeNode Add(Text.RichText label, StatusKind? status = null, string? note = null) {
+            return Add((label ?? throw new ArgumentNullException(nameof(label))).ToMarkup(), status, note);
+        }
+
         /// <summary>Adds an existing node as a child.</summary>
         /// <param name="node">The node.</param>
         /// <returns>This node.</returns>

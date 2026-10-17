@@ -36,6 +36,7 @@ namespace ConsoleMonster.Live {
             Field(json, "state", liveEvent.State);
             if (liveEvent.Value != 0) { json.Append("\"value\":").Append(liveEvent.Value.ToString("R", CultureInfo.InvariantCulture)).Append(','); }
             if (liveEvent.Total != 0) { json.Append("\"total\":").Append(liveEvent.Total.ToString("R", CultureInfo.InvariantCulture)).Append(','); }
+            if (liveEvent.IsMarkup) { json.Append("\"markup\":1,"); }
             json.Length--;
             json.Append('}');
             _writer.WriteLine(json.ToString());

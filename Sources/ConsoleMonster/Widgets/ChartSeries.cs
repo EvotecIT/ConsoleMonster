@@ -17,6 +17,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The name.</summary>
         public string Name { get; }
 
+        /// <summary>A multicolour legend name shown instead of <see cref="Name"/> (which stays the key), or null.</summary>
+        public Text.RichText? NameText { get; set; }
+
         /// <summary>The colour token.</summary>
         public ThemeToken Token { get; set; }
 

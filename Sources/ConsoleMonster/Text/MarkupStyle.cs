@@ -19,7 +19,8 @@ namespace ConsoleMonster.Text {
         internal Style Apply(Style parent) => new Style(
             _foreground ? Style.Foreground : parent.Foreground,
             _background ? Style.Background : parent.Background,
-            parent.Decoration | Style.Decoration);
+            parent.Decoration | Style.Decoration,
+            Style.Link ?? parent.Link);
 
         internal static bool TryParse(string? specification, ITheme? theme, ColorDepth depth, out MarkupStyle result) {
             result = default;
@@ -37,10 +38,17 @@ namespace ConsoleMonster.Text {
                 string word = words[i];
                 string lower = word.ToLowerInvariant();
                 if (lower == "on") {
-                    if (++i >= words.Count || !Color.TryParse(words[i], out Color bg)) {
+                    if (++i >= words.Count) {
                         return false;
                     }
-                    style = style.WithBackground(bg);
+                    if (Color.TryParse(words[i], out Color bg)) {
+                        style = style.WithBackground(bg);
+                    } else if ((theme ?? Theme.Dark).TryResolve(words[i], depth, out Style role) && !role.Foreground.IsDefault) {
+                        // A theme role as the background ("on pass", "on muted") uses that role's colour.
+                        style = style.WithBackground(role.Foreground);
+                    } else {
+                        return false;
+                    }
                     background = true;
                     continue;
                 }
@@ -73,6 +81,8 @@ namespace ConsoleMonster.Text {
                             if (word.Length == 5) {
                                 return false;
                             }
+                            // The target as written (case kept); OSC 8 output is limited to terminals that support it.
+                            style = style.WithLink(word.Substring(5));
                             continue;
                         }
                         if (Color.TryParse(word, out Color color)) {

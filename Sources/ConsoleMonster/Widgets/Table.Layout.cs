@@ -404,14 +404,8 @@ namespace ConsoleMonster.Widgets {
             return result;
         }
 
-        private static StyledLine TruncateMiddle(StyledLine line, int width, RenderContext context) {
-            Style style = Style.Plain;
-            foreach (TextSpan span in line) {
-                style = span.Style;
-                break;
-            }
-            return StyledLine.From(TextWrapper.TruncateMiddle(line.PlainText, width, context.Ellipsis), style);
-        }
+        // Keeps each part's styles (multicolour paths, rich text) up to the ellipsis.
+        private static StyledLine TruncateMiddle(StyledLine line, int width, RenderContext context) => TextWrapper.TruncateMiddle(line, width, context.Ellipsis);
 
         private bool IsNumericColumn(int column) {
             bool any = false;

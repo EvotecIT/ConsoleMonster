@@ -15,7 +15,8 @@ namespace ConsoleMonster.Live {
         /// <param name="value">A numeric value (increment, sample, current value).</param>
         /// <param name="total">A second numeric value (maximum, total, duration).</param>
         /// <param name="time">Milliseconds since the session started; the session stamps it when 0.</param>
-        public LiveEvent(string target, string operation, string? key = null, string? text = null, string? state = null, double value = 0, double total = 0, long time = 0) {
+        /// <param name="isMarkup">Whether <paramref name="text"/> is markup (rich text) rather than literal text.</param>
+        public LiveEvent(string target, string operation, string? key = null, string? text = null, string? state = null, double value = 0, double total = 0, long time = 0, bool isMarkup = false) {
             Target = target ?? throw new ArgumentNullException(nameof(target));
             Operation = operation ?? throw new ArgumentNullException(nameof(operation));
             Key = key;
@@ -24,7 +25,14 @@ namespace ConsoleMonster.Live {
             Value = value;
             Total = total;
             Time = time;
+            IsMarkup = isMarkup;
         }
+
+        /// <summary>
+        /// Whether <see cref="Text"/> is markup (rich text, for example from <c>New-ConsoleText</c>) rather than literal text.
+        /// Targets that show text literally (lane labels and detail, log lines) render it with its styles when set.
+        /// </summary>
+        public bool IsMarkup { get; }
 
         /// <summary>The name of the target widget.</summary>
         public string Target { get; }
@@ -53,7 +61,7 @@ namespace ConsoleMonster.Live {
         /// <summary>Returns a copy stamped with a time.</summary>
         /// <param name="time">Milliseconds since the session started.</param>
         /// <returns>The stamped event.</returns>
-        public LiveEvent WithTime(long time) => new LiveEvent(Target, Operation, Key, Text, State, Value, Total, time);
+        public LiveEvent WithTime(long time) => new LiveEvent(Target, Operation, Key, Text, State, Value, Total, time, IsMarkup);
 
         /// <inheritdoc />
         public override string ToString() => Time + "ms " + Target + "." + Operation + (Key == null ? string.Empty : "[" + Key + "]");

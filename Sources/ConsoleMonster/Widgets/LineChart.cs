@@ -42,6 +42,19 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A unit appended to axis labels.</summary>
         public string? Unit { get; set; }
 
+        /// <summary>Adds a series with a multicolour legend name (its plain text is the key), or returns the existing one.</summary>
+        /// <param name="name">The rich name.</param>
+        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <returns>The series.</returns>
+        public ChartSeries AddSeries(Text.RichText name, ThemeToken? token = null) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            ChartSeries series = AddSeries(name.PlainText, token);
+            series.NameText = name;
+            return series;
+        }
+
         /// <summary>Adds a series, or returns the existing one with that name.</summary>
         /// <param name="name">The name.</param>
         /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
@@ -171,7 +184,8 @@ namespace ConsoleMonster.Widgets {
                         spans.Add(new TextSpan("   "));
                     }
                     spans.Add(new TextSpan(marker, context.Style(series.Token)));
-                    spans.Add(new TextSpan(" " + series.Name, muted));
+                    spans.Add(new TextSpan(" ", muted));
+                spans.AddRange(RichLines.Line(series.NameText, series.Name, muted, context));
                 }
                 region.Write(axisWidth, region.Height - 1, new StyledLine(spans));
             }

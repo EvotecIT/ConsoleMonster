@@ -45,6 +45,9 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Hyperlinks.</summary>
         public static ICellPresenter Link { get; } = new LinkPresenter();
 
+        /// <summary>Text values interpreted as markup (<c>[pass]OK[/]</c>); invalid markup is shown literally. Data stays literal unless a column opts in with this presenter.</summary>
+        public static ICellPresenter Markup { get; } = new MarkupPresenter();
+
         /// <summary>
         /// Returns a built-in presenter by name (case-insensitive): Text, Auto, Status, Number, Bytes, Duration, Date,
         /// DateRelative, DateBoth, Boolean, Bar (DataBar), Sparkline, Progress, Link.
@@ -87,6 +90,9 @@ namespace ConsoleMonster.Presenters {
                     return Sparkline;
                 case "progress":
                     return Progress;
+                case "markup":
+                case "rich":
+                    return Markup;
                 case "link":
                 case "url":
                     return Link;
@@ -105,6 +111,10 @@ namespace ConsoleMonster.Presenters {
         /// <param name="context">The presenter context.</param>
         /// <returns>The presented value.</returns>
         public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
+            if (value is Text.RichText rich) {
+                // Rich text brings its own colours; presenters and tone rules do not restyle it.
+                return MarkupPresenter.FromStyledText(rich.ToStyledText(context.Render), rich.PlainText.Length == 0);
+            }
             if (PresenterValues.IsNonFinite(value)) {
                 // NaN and infinities (a rate computed over zero elapsed time) have no meaningful display.
                 return new PresentedValue(StyledLine.From(PresenterValues.Dash(context), context.Render.Style(ThemeToken.Muted)), Layout.HorizontalAlignment.Right);

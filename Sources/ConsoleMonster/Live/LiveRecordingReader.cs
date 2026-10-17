@@ -40,7 +40,7 @@ namespace ConsoleMonster.Live {
             }
             return new LiveEvent(GetString(fields, strings, "target", true)!, GetString(fields, strings, "op", true)!,
                 GetString(fields, strings, "key"), GetString(fields, strings, "text"), GetString(fields, strings, "state"),
-                GetNumber(fields, strings, "value"), GetNumber(fields, strings, "total"), time);
+                GetNumber(fields, strings, "value"), GetNumber(fields, strings, "total"), time, GetNumber(fields, strings, "markup") == 1);
         }
 
         private static string? GetString(Dictionary<string, string?> fields, HashSet<string> strings, string name, bool required = false) {

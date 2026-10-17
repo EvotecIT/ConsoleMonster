@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
@@ -85,13 +86,27 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal(line[0].Style, line[2].Style);
         }
 
-        [Theory]
-        [InlineData("[link]click[/]")]
-        [InlineData("[link=https://example.com]click[/]")]
-        public void LinksPreserveTextWithoutEmittingHyperlinks(string markup) {
-            TextSpan span = Assert.Single(Markup.Parse(markup).Lines[0]);
+        [Fact]
+        public void BareLinkTag_PreservesTextWithoutATarget() {
+            TextSpan span = Assert.Single(Markup.Parse("[link]click[/]").Lines[0]);
             Assert.Equal("click", span.Text);
             Assert.True(span.Style.IsPlain);
+        }
+
+        [Fact]
+        public void LinkTarget_SetsTheStyleLinkAndSurvivesNestedStyles() {
+            StyledLine line = Markup.Parse("[link=https://example.com/a(1)]click [bold]here[/][/] after").Lines[0];
+            List<TextSpan> spans = new List<TextSpan>(line);
+            Assert.Equal("https://example.com/a(1)", spans[0].Style.Link);
+            Assert.Equal("https://example.com/a(1)", spans[1].Style.Link);
+            Assert.True((spans[1].Style.Decoration & TextDecoration.Bold) != 0);
+            Assert.Null(spans[2].Style.Link);
+        }
+
+        [Fact]
+        public void RoleBackground_UsesTheRoleColour() {
+            TextSpan span = Assert.Single(Markup.Parse("[white on fail]x[/]", Theme.Dark).Lines[0]);
+            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Foreground, span.Style.Background);
         }
 
         [Theory]

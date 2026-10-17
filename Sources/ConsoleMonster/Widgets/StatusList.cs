@@ -57,6 +57,16 @@ namespace ConsoleMonster.Widgets {
         /// <returns>This instance.</returns>
         public StatusList Add(string label, StatusKind status, string? detail = null) => Set(label, label, status, detail);
 
+        /// <summary>Adds or updates an item with a multicolour label (its plain text is the key).</summary>
+        /// <param name="label">The label.</param>
+        /// <param name="status">The status.</param>
+        /// <param name="detail">An optional muted detail.</param>
+        /// <returns>This instance.</returns>
+        public StatusList Add(Text.RichText label, StatusKind status, string? detail = null) {
+            Text.RichText rich = label ?? throw new ArgumentNullException(nameof(label));
+            return Set(rich.PlainText, rich.ToMarkup(), status, detail);
+        }
+
         /// <summary>Returns a handle that updates this list through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>

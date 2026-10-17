@@ -8,8 +8,13 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>A horizontal line across the width, optionally with a title: <c>── Results ──────</c>.</summary>
     public sealed class Rule : IWidget {
-        /// <summary>Creates a rule.</summary>
-        /// <param name="title">The title (markup), or <c>null</c> for a plain line.</param>
+        /// <summary>Creates a rule with a multicolour title.</summary>
+        /// <param name="title">The title.</param>
+        public Rule(Text.RichText title) : this((title ?? throw new System.ArgumentNullException(nameof(title))).ToMarkup()) {
+        }
+
+        /// <summary>Creates a rule with an optional title (markup).</summary>
+        /// <param name="title">The title, or null.</param>
         public Rule(string? title = null) {
             Title = title;
         }

@@ -57,6 +57,24 @@ namespace ConsoleMonster.Widgets {
         private readonly StatColumn _countColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _percentColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Right, 4));
 
+        /// <summary>Adds or updates a segment with a multicolour legend label (its plain text is the key).</summary>
+        /// <param name="label">The rich label.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <returns>This instance.</returns>
+        public StackedBar Add(Text.RichText label, double value, ThemeToken? token = null) {
+            if (label == null) {
+                throw new ArgumentNullException(nameof(label));
+            }
+            Add(label.PlainText, value, token);
+            foreach (ChartItem segment in _segments) {
+                if (string.Equals(segment.Label, label.PlainText, StringComparison.Ordinal)) {
+                    segment.LabelText = label;
+                }
+            }
+            return this;
+        }
+
         /// <summary>Adds or updates a segment.</summary>
         /// <param name="label">The label.</param>
         /// <param name="value">The value.</param>
@@ -228,9 +246,15 @@ namespace ConsoleMonster.Widgets {
                     current.Add(new TextSpan(new string(' ', Gap)));
                 }
                 ChartItem segment = _segments[i];
-                string label = TextWrapper.Truncate(segment.Label, labelWidth, context.Ellipsis);
+                Style textStyle = context.Style(ThemeToken.Text);
+                StyledLine label = TextWrapper.Truncate(RichLines.Line(segment.LabelText, segment.Label, textStyle, context), labelWidth, context.Ellipsis);
                 current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Token ?? ThemeToken.Series1)));
-                current.Add(new TextSpan(" " + StatColumn.Pad(label, labelWidth, LabelColumn.Alignment), context.Style(ThemeToken.Text)));
+                // The label keeps its own colours; padding fills the column per its alignment.
+                int padding = Math.Max(0, labelWidth - label.Width);
+                int before = LabelColumn.Alignment == HorizontalAlignment.Right ? padding : LabelColumn.Alignment == HorizontalAlignment.Center ? padding / 2 : 0;
+                current.Add(new TextSpan(" " + new string(' ', before), textStyle));
+                current.AddRange(label);
+                current.Add(new TextSpan(new string(' ', padding - before), textStyle));
                 current.Add(new TextSpan(" " + StatColumn.Pad(Count(segment.Value, context), countWidth, CountColumn.Alignment), context.Style(ThemeToken.Text)));
                 if (percentWidth > 0) {
                     string percent = NumberFormat.IsFinite(segment.Value) ? NumberFormat.Percent(NumberFormat.PositiveOrZero(segment.Value) / total) : NumberFormat.Missing(context.Glyphs.Tier);

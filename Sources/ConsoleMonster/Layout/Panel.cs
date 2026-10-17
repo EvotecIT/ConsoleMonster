@@ -12,9 +12,15 @@ namespace ConsoleMonster.Layout {
     /// <c>+-|</c> on Ascii). Inside a <see cref="Columns"/> row, panels stretch to the row height.
     /// </summary>
     public sealed class Panel : IContainer {
-        /// <summary>Creates a panel.</summary>
+        /// <summary>Creates a panel with a multicolour title.</summary>
         /// <param name="child">The content.</param>
-        /// <param name="title">The title (markup), or <c>null</c>.</param>
+        /// <param name="title">The title.</param>
+        public Panel(IWidget child, Text.RichText title) : this(child, (title ?? throw new ArgumentNullException(nameof(title))).ToMarkup()) {
+        }
+
+        /// <summary>Creates a panel around a child with an optional title (markup).</summary>
+        /// <param name="child">The child.</param>
+        /// <param name="title">The title, or null.</param>
         public Panel(IWidget child, string? title = null) {
             Child = child ?? throw new ArgumentNullException(nameof(child));
             Title = title;

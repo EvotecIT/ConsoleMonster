@@ -59,6 +59,23 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
+        /// <summary>Appends a multicolour line (line breaks inside it create several entries, each keeping its styles).</summary>
+        /// <param name="text">The rich text.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="time">Session time.</param>
+        public void Write(RichText text, string level = "info", TimeSpan time = default) {
+            if (text == null) {
+                throw new ArgumentNullException(nameof(text));
+            }
+            foreach (string line in text.ToMarkup().Replace("\r\n", "\n").Split('\n')) {
+                _entries.Enqueue(new LogEntry(time, level ?? "info", RichText.FromMarkup(line)));
+                TotalLines++;
+                while (_entries.Count > Math.Max(1, Capacity)) {
+                    _entries.Dequeue();
+                }
+            }
+        }
+
         /// <summary>Returns a handle that writes through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
@@ -67,7 +84,12 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation == "write") {
-                Write(liveEvent.Text ?? string.Empty, liveEvent.State ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
+                string text = liveEvent.Text ?? string.Empty;
+                if (liveEvent.IsMarkup) {
+                    Write(RichLines.FromEventText(text, true), liveEvent.State ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
+                } else {
+                    Write(text, liveEvent.State ?? "info", TimeSpan.FromMilliseconds(liveEvent.Time));
+                }
             }
         }
 
@@ -99,7 +121,7 @@ namespace ConsoleMonster.Widgets {
             }
             int rows = 0;
             for (int i = all.Length - 1; i >= all.Length - count && rows < PreferredHeight; i--) {
-                rows += WrapEntry(all[i].Text, Style.Plain, Math.Max(1, width - PrefixWidth(all[i], levelWidth)), context).Count;
+                rows += WrapEntry(all[i], Style.Plain, Math.Max(1, width - PrefixWidth(all[i], levelWidth)), context).Count;
             }
             return rows;
         }
@@ -138,7 +160,7 @@ namespace ConsoleMonster.Widgets {
                 int y = startRow + i;
                 int x = WritePrefix(region, y, entry, levelWidth, muted, context);
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
-                StyledLine line = TextWrapper.Truncate(StyledLine.From(entry.Text, textStyle), region.Width - x, context.Ellipsis);
+                StyledLine line = TextWrapper.Truncate(RichLines.Line(entry.RichText, entry.Text, textStyle, context), region.Width - x, context.Ellipsis);
                 region.Write(x, y, line);
             }
         }
@@ -167,7 +189,7 @@ namespace ConsoleMonster.Widgets {
             for (int i = all.Length - 1; i >= all.Length - count; i--) {
                 LogEntry entry = all[i];
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
-                IReadOnlyList<StyledLine> lines = WrapEntry(entry.Text, textStyle, Math.Max(1, region.Width - PrefixWidth(entry, levelWidth)), context);
+                IReadOnlyList<StyledLine> lines = WrapEntry(entry, textStyle, Math.Max(1, region.Width - PrefixWidth(entry, levelWidth)), context);
                 if (shown.Count > 0 && rows + lines.Count > region.Height) {
                     break;
                 }
@@ -190,8 +212,9 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private IReadOnlyList<StyledLine> WrapEntry(string text, Style style, int width, RenderContext context) {
-            IReadOnlyList<StyledLine> lines = TextWrapper.Wrap(StyledLine.From(text, style), width);
+        // Wrapping keeps styles across lines; the last kept row of a cut entry ends with an ellipsis.
+        private IReadOnlyList<StyledLine> WrapEntry(LogEntry entry, Style style, int width, RenderContext context) {
+            IReadOnlyList<StyledLine> lines = TextWrapper.Wrap(RichLines.Line(entry.RichText, entry.Text, style, context), width);
             int max = Math.Max(1, MaxLinesPerEntry);
             if (lines.Count <= max) {
                 return lines;
@@ -200,15 +223,16 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < max - 1; i++) {
                 kept.Add(lines[i]);
             }
-            // The last kept row shows that more text was cut.
-            string last = lines[max - 1].PlainText;
+            // The last kept row shows that more text was cut: the ellipsis follows the text, cutting it when needed.
+            StyledLine last = lines[max - 1];
             string marker = context.Ellipsis;
             int markerWidth = DisplayWidth.Measure(marker);
-            string cut = DisplayWidth.Measure(last) + markerWidth <= width ? last + marker : TextWrapper.Truncate(last, Math.Max(0, width - markerWidth), string.Empty) + marker;
-            kept.Add(StyledLine.From(cut, style));
+            StyledLine body = last.Width + markerWidth <= width ? last : TextWrapper.Truncate(last, Math.Max(0, width - markerWidth), string.Empty);
+            List<TextSpan> spans = new List<TextSpan>(body);
+            spans.Add(new TextSpan(marker, style));
+            kept.Add(new StyledLine(spans));
             return kept;
         }
-
         private static bool IsQuiet(string level) => level == "verbose" || level == "debug";
 
         private static string Tag(string level) {

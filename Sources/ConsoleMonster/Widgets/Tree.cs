@@ -32,6 +32,13 @@ namespace ConsoleMonster.Widgets {
         /// <returns>The new node.</returns>
         public TreeNode Add(string label, StatusKind? status = null, string? note = null) => Root.Add(label, status, note);
 
+        /// <summary>Adds a top-level node with a multicolour label.</summary>
+        /// <param name="label">The label.</param>
+        /// <param name="status">An optional status.</param>
+        /// <param name="note">An optional muted note.</param>
+        /// <returns>The new node.</returns>
+        public TreeNode Add(Text.RichText label, StatusKind? status = null, string? note = null) => Root.Add(label, status, note);
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             List<TreeRow> rows = Flatten(context);

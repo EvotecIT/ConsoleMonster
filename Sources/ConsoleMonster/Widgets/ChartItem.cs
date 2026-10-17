@@ -16,6 +16,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The label.</summary>
         public string Label { get; }
 
+        /// <summary>A multicolour label shown instead of <see cref="Label"/> (which stays the key), or null.</summary>
+        public Text.RichText? LabelText { get; set; }
+
         /// <summary>The value.</summary>
         public double Value { get; set; }
 

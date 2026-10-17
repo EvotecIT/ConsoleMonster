@@ -48,6 +48,20 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A unit appended to values (for example <c>ms</c>).</summary>
         public string? Unit { get; set; }
 
+        /// <summary>Adds or updates an item with a multicolour label (its plain text is the key).</summary>
+        /// <param name="label">The rich label.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="token">An optional colour token.</param>
+        /// <returns>This instance.</returns>
+        public BarChart Add(Text.RichText label, double value, ThemeToken? token = null) {
+            if (label == null) {
+                throw new ArgumentNullException(nameof(label));
+            }
+            Add(label.PlainText, value, token);
+            Find(label.PlainText)!.LabelText = label;
+            return this;
+        }
+
         /// <summary>Adds or updates an item.</summary>
         /// <param name="label">The label.</param>
         /// <param name="value">The value.</param>
@@ -109,7 +123,7 @@ namespace ConsoleMonster.Widgets {
             Style muted = context.Style(ThemeToken.Muted);
             for (int i = 0; i < _items.Count && i < region.Height; i++) {
                 ChartItem item = _items[i];
-                region.Write(0, i, TextWrapper.Truncate(item.Label, labelWidth, context.Ellipsis), context.Style(ThemeToken.Text));
+                region.Write(0, i, TextWrapper.Truncate(RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context), labelWidth, context.Ellipsis));
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
                 BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(item.Token ?? BarToken), context, false, Shape);
                 if (ShowValues) {

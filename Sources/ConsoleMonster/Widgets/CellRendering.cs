@@ -55,12 +55,13 @@ namespace ConsoleMonster.Widgets {
     internal static class CellRendering {
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
-            if (cell.HasValue) {
+            if (cell.HasValue && !(cell.Value is RichText)) {
                 PresentedValue presented = CellPresenters.Present(cell.Value, presenter, rules, context);
                 return new CellContent(new List<StyledLine> { presented.Line }, presented);
             }
             RenderContext render = context.Render;
-            StyledText text = render.Markup(cell.Markup);
+            // Rich text values keep their own colours and line breaks, like markup cells.
+            StyledText text = cell.Value is RichText rich ? rich.ToStyledText(render) : render.Markup(cell.Markup);
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);

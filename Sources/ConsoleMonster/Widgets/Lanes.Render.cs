@@ -127,7 +127,7 @@ namespace ConsoleMonster.Widgets {
             }
             region.Write(0, y, marker, markerStyle);
             Style labelStyle = lane.Status == StatusKind.Pending ? muted : context.Style(ThemeToken.Text);
-            region.Write(2, y, TextWrapper.Truncate(lane.Label, labelWidth, context.Ellipsis), labelStyle);
+            region.Write(2, y, TextWrapper.Truncate(RichLines.Line(lane.LabelText, lane.Label, labelStyle, context), labelWidth, context.Ellipsis));
 
             int x = 2 + labelWidth + 2;
             Style fill = lane.IsFinished ? context.Style(ThemeToken.Muted) : context.Style(ThemeToken.Accent);
@@ -146,6 +146,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (detailWidth > 0) {
                 string detail;
+                RichText? richDetail = null;
                 if (lane.IsFinished) {
                     bool timed = lane.Started.HasValue && lane.Finished.HasValue && lane.Finished.Value > lane.Started.Value;
                     detail = timed ? "done in " + NumberFormat.Duration(lane.Finished!.Value - lane.Started!.Value) : "done";
@@ -153,8 +154,9 @@ namespace ConsoleMonster.Widgets {
                     detail = "queued";
                 } else {
                     detail = lane.Detail ?? string.Empty;
+                    richDetail = lane.DetailText;
                 }
-                region.Write(x, y, TextWrapper.Truncate(detail, detailWidth, context.Ellipsis), muted);
+                region.Write(x, y, TextWrapper.Truncate(RichLines.Line(richDetail, detail, muted, context), detailWidth, context.Ellipsis));
             }
         }
 

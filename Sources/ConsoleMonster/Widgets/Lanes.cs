@@ -86,6 +86,17 @@ namespace ConsoleMonster.Widgets {
             return lane;
         }
 
+        /// <summary>Adds a lane with a multicolour label, or updates its label and total.</summary>
+        /// <param name="key">Unique key.</param>
+        /// <param name="label">The rich label.</param>
+        /// <param name="total">Planned steps (0 = unknown).</param>
+        /// <returns>The lane.</returns>
+        public Lane Add(string key, RichText label, double total = 0) {
+            Lane lane = Add(key, (string?)null, total);
+            lane.LabelText = label ?? throw new ArgumentNullException(nameof(label));
+            return lane;
+        }
+
         /// <summary>Returns a handle that updates these lanes through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
@@ -145,6 +156,14 @@ namespace ConsoleMonster.Widgets {
                 case "total":
                     Add(liveEvent.Key).Total = liveEvent.Total > 0 ? liveEvent.Total : liveEvent.Value;
                     break;
+            }
+            if (liveEvent.IsMarkup && liveEvent.Text != null && _byKey.TryGetValue(liveEvent.Key, out Lane? rich)) {
+                // Rich text from New-ConsoleText: the label for "add", the detail for the operations that set one.
+                if (liveEvent.Operation == "add") {
+                    rich.LabelText = RichLines.FromEventText(liveEvent.Text, true);
+                } else if (liveEvent.Operation != "total" && rich.Detail == liveEvent.Text) {
+                    rich.DetailText = RichLines.FromEventText(liveEvent.Text, true);
+                }
             }
         }
 

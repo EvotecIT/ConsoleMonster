@@ -18,6 +18,12 @@ namespace ConsoleMonster.Widgets {
             Header = header ?? string.Empty;
         }
 
+        /// <summary>Creates a column with a multicolour header.</summary>
+        /// <param name="header">The header.</param>
+        public TableColumn(Text.RichText header) {
+            Header = (header ?? throw new System.ArgumentNullException(nameof(header))).ToMarkup();
+        }
+
         /// <summary>The header (markup).</summary>
         public string Header { get; set; }
 

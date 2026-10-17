@@ -252,6 +252,45 @@ namespace ConsoleMonster.Text {
             return map.Slice(0, leftEnd).PlainText + marker + map.Slice(rightStart, map.Clusters.Count).PlainText;
         }
 
+        /// <summary>Truncates the middle of a styled line, keeping both ends and their styles; the marker takes the style of the text before it.</summary>
+        /// <param name="line">Styled line.</param>
+        /// <param name="width">Maximum cells.</param>
+        /// <param name="ellipsis">Marker inserted between the retained ends.</param>
+        /// <returns>A line within the budget, on grapheme boundaries.</returns>
+        public static StyledLine TruncateMiddle(StyledLine line, int width, string ellipsis = Ellipsis) {
+            if (line == null) {
+                throw new ArgumentNullException(nameof(line));
+            }
+            if (width <= 0) {
+                return StyledLine.Empty;
+            }
+            TerminalWidthProfile profile = DisplayWidth.Profile;
+            StyledLineMap map = new StyledLineMap(line, profile);
+            if (map.Width <= width) {
+                return line;
+            }
+            string marker = ClipMarker(ellipsis, width, profile);
+            int budget = width - DisplayWidth.Measure(marker, profile);
+            int leftEnd = map.PrefixEnd(0, (budget + 1) / 2);
+            int used = 0;
+            for (int i = 0; i < leftEnd; i++) {
+                used += map.Clusters[i].Width;
+            }
+            int rightStart = map.Clusters.Count;
+            while (rightStart > leftEnd && map.Clusters[rightStart - 1].Width <= budget - used) {
+                used += map.Clusters[--rightStart].Width;
+            }
+            while (leftEnd < rightStart && map.Clusters[leftEnd].Width <= budget - used) {
+                used += map.Clusters[leftEnd++].Width;
+            }
+            List<TextSpan> spans = new List<TextSpan>(map.Slice(0, leftEnd));
+            if (marker.Length > 0) {
+                spans.Add(new TextSpan(marker, map.StyleAt(leftEnd > 0 ? leftEnd - 1 : 0)));
+            }
+            spans.AddRange(map.Slice(rightStart, map.Clusters.Count));
+            return new StyledLine(spans);
+        }
+
         private static string ClipMarker(string? marker, int width, TerminalWidthProfile? profile = null) {
             marker = marker ?? string.Empty;
             int length = 0;
