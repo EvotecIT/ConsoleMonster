@@ -54,11 +54,16 @@
   </div>
   {{~ for g in w.groups ~}}
   <section class="cm-gallery__group" id="{{ g.id }}" aria-labelledby="{{ g.id }}-title">
-    <h2 id="{{ g.id }}-title" class="cm-gallery__heading">{{ g.title }}</h2>
+    <header class="cm-gallery__heading">
+      <h2 id="{{ g.id }}-title">{{ g.title }}</h2>
+      <p>{{ g.summary }}</p>
+    </header>
     {{~ for e in w.examples; if e.group != g.id; continue; end ~}}
-    <article class="cm-panel cm-specimen" id="w-{{ e.id }}" data-cm-widget="{{ e.id }}">
-      <h3 class="cm-panel__title">{{ e.title }}</h3>
-      <span class="cm-panel__caption" data-cm-size>{{ e.frame.w }} × {{ e.frame.h }}</span>
+    <article class="cm-specimen" id="w-{{ e.id }}" data-cm-widget="{{ e.id }}">
+      <header class="cm-specimen__head">
+        <h3>{{ e.title }}</h3>
+        <span class="cm-specimen__size" data-cm-size>{{ e.frame.w }} × {{ e.frame.h }}</span>
+      </header>
       <p class="cm-specimen__summary">{{ e.summary }}</p>
       <div class="cm-specimen__body">
         <div class="cm-specimen__output">
@@ -74,10 +79,10 @@
           {{~ end ~}}
         </div>
         <div class="cm-specimen__code">
-          {{~ code_lang = "csharp"; code_label = "C#"; code_text = e.csharp ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_text = e.csharp; code_full = e.csharpFull ~}}
           {{ include "code" }}
           {{~ if e.powershell ~}}
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = e.powershell ~}}
+          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = e.powershell; code_full = e.powershellFull ~}}
           {{ include "code" }}
           {{~ end ~}}
         </div>

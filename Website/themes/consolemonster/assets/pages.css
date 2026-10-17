@@ -19,13 +19,22 @@
 .cm-gallery__index a:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
 .cm-gallery__intro { margin-bottom: 8px; }
 .cm-gallery__group { padding-top: 40px; scroll-margin-top: 140px; }
-.cm-gallery__heading { margin: 0 0 30px; font-size: 26px; font-weight: 800; }
-.cm-specimen { margin: 0 0 40px; scroll-margin-top: 150px; }
-.cm-specimen__summary { margin: 0 0 18px; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-gallery__heading { display: grid; gap: 8px; margin: 0 0 36px; padding-bottom: 18px; border-bottom: 2px solid var(--cm-ink); }
+.cm-gallery__heading h2 { font-size: 30px; font-weight: 800; }
+.cm-gallery__heading p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
+/* A specimen opens with a rule like ConsoleMonster's Rule widget: the title set into the line, the size on the right. */
+.cm-specimen { margin: 0 0 64px; scroll-margin-top: 150px; }
+.cm-specimen__head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.cm-specimen__head::before { content: ""; flex: none; width: 18px; height: 1px; background: var(--cm-line-strong); }
+.cm-specimen__head h3 { flex: none; font-size: 19px; font-weight: 700; }
+.cm-specimen__head::after { content: ""; flex: 1; height: 1px; background: var(--cm-line-strong); order: 2; }
+.cm-specimen__size { order: 3; flex: none; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
+.cm-specimen__summary { margin: 0 0 18px 30px; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-specimen__body { margin-left: 30px; }
 .cm-specimen__body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: start; }
 .cm-specimen__output { display: grid; gap: 10px; min-width: 0; max-width: 520px; }
 .cm-specimen__code { display: grid; gap: 14px; min-width: 0; }
-.cm-specimen__code .cm-code pre { font-size: 12.5px; max-height: 380px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cm-specimen__code .cm-code pre { font-size: 12.5px; max-height: 380px; }
 
 .cm-parity { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0; color: var(--cm-muted); font: 500 12.5px/1.4 var(--cm-mono); }
 .cm-parity__host { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 4px; background: color-mix(in srgb, var(--cm-pass) 13%, transparent); color: var(--cm-ink); }
@@ -40,6 +49,8 @@
 
 /* Width controls on the tables page. */
 .cm-widths { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 22px; }
+.cm-toolbar .cm-widths { margin: 0; }
+@media (max-width: 560px) { .cm-widths .cm-seg__label { display: none; } .cm-widths .cm-seg button { padding: 0 9px 0 17px; } .cm-widths .cm-seg button::before { left: 6px; } }
 .cm-widths__note { margin: 0; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
 
 /* Players. */
@@ -130,7 +141,7 @@
 .cm-story__body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
 .cm-story__screen { display: grid; gap: 10px; min-width: 0; }
 .cm-story__code { display: grid; gap: 14px; min-width: 0; }
-.cm-story__code .cm-code pre { font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; }
+.cm-story__code .cm-code pre { font-size: 12.5px; max-height: 420px; }
 .cm-story__keys { margin: 0; color: var(--cm-muted); font-size: 13px; overflow-wrap: anywhere; }
 .cm-story__keys span { font-family: var(--cm-mono); font-weight: 600; color: var(--cm-ink-2); margin-right: 6px; }
 .cm-story__keys code { font-size: 12.5px; color: var(--cm-ink); }
@@ -149,4 +160,6 @@
 .cm-family li span { display: block; color: var(--cm-muted); font-size: 13.5px; line-height: 1.45; }
 @media (max-width: 860px) { .cm-quad { grid-template-columns: minmax(0, 1fr); } }
 .cm-compare--stack { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 760px) { .cm-specimen__summary, .cm-specimen__body { margin-left: 0; } }
 

@@ -31,13 +31,14 @@
           <button type="button" role="tab" id="cm-install-net-tab" aria-selected="false" aria-controls="cm-install-net" tabindex="-1" style="--key: var(--cm-s5)">.NET</button>
         </div>
         <div id="cm-install-ps" role="tabpanel" aria-labelledby="cm-install-ps-tab">
-          {{~ code_lang = "powershell"; code_label = "PowerShell 5.1 and 7"; code_text = copy.installPowerShell ~}}
+          {{~ code_lang = "powershell"; code_label = "ConsoleMonster 2.0 · 5.1 and 7"; code_text = copy.installPowerShell ~}}
           {{ include "code" }}
         </div>
         <div id="cm-install-net" role="tabpanel" aria-labelledby="cm-install-net-tab" hidden>
-          {{~ code_lang = "bash"; code_label = "netstandard2.0, net472, net8.0"; code_text = copy.installDotnet ~}}
+          {{~ code_lang = "bash"; code_label = "ConsoleMonster 2.0 · .NET"; code_text = copy.installDotnet ~}}
           {{ include "code" }}
         </div>
+        <p class="cm-install__note">{{ copy.installNote }}</p>
         <ul class="cm-hero__facts">
           {{~ for f in copy.facts ~}}<li>{{ f }}</li>{{~ end ~}}
         </ul>
@@ -68,13 +69,14 @@
     </p>
   </div>
   <div class="cm-twins__code">
-    {{~ code_lang = "csharp"; code_label = "C#"; code_text = c.csharp ~}}
+    {{~ code_lang = "csharp"; code_label = "C#"; code_text = c.csharp; code_full = c.csharpFull ~}}
     {{ include "code" }}
-    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = c.powershell ~}}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = c.powershell; code_full = c.powershellFull ~}}
     {{ include "code" }}
   </div>
 </section>
-<section class="cm-section cm-wrap cm-split" aria-labelledby="cm-tiers-title">
+<div class="cm-band cm-band--surface">
+<section class="cm-wrap cm-split" aria-labelledby="cm-tiers-title">
   <div class="cm-section__head">
     <h2 id="cm-tiers-title">{{ copy.tiers.title }}</h2>
     <p>{{ copy.tiers.body }}</p>
@@ -90,6 +92,7 @@
     {{~ end ~}}
   </div>
 </section>
+</div>
 
 <section class="cm-section cm-wrap cm-split cm-split--narrow" aria-labelledby="cm-fit-title">
   <div class="cm-section__head">
@@ -106,7 +109,8 @@
   </div>
 </section>
 
-<section class="cm-section cm-wrap" aria-labelledby="cm-live-title">
+<div class="cm-band cm-band--dark cm-tone-dark">
+<section class="cm-wrap" aria-labelledby="cm-live-title">
   <div class="cm-section__head">
     <h2 id="cm-live-title">{{ copy.live.title }}</h2>
     <p>{{ copy.live.body }}</p>
@@ -130,6 +134,7 @@
     </div>
   </div>
 </section>
+</div>
 
 <section class="cm-section cm-wrap" aria-labelledby="cm-start-title">
   <div class="cm-section__head">
