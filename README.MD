@@ -27,9 +27,9 @@ Each layer can be used without the ones above it.
 | L0 Terminal | Capability detection (VT, colour depth, glyph tier from the console font, size, redirection, CI) with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_MODE`, `CONSOLEMONSTER_THEME`, `CONSOLEMONSTER_CULTURE` and `NO_COLOR` overrides; light/dark background detection; UTF-16 output through `WriteConsoleW` on Windows consoles, UTF-8 when redirected; Ctrl+C restore. |
 | L1 Text and style | Display-width measurement (Unicode 17), Spectre-compatible markup (`[bold red]text[/]`, `[pass]`), semantic themes mapped to 24-bit, 256 and 16 colours, glyph sets (Full, Basic, ASCII). |
 | L2 Canvas | Cell buffer, braille and half-block pixel canvases, frame diff. |
-| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
+| L3 Layout and widgets | `IWidget` / `IContainer`; Rows, Columns, Grid, Panel, Padding, Align, Stack; rich text, text, rule, table (width negotiation, cards, groups, totals), record view, object inspector, tree, key/value, status list, spinner, progress, lanes, phases, bar and stacked bar, sparkline, histogram, line/scatter chart, log region, logo, dashboard; cell presenters shared by tables, cards, key/value lists and trees. |
 | L4 Live | `LiveSession`: lock-free update queue, ~15 fps coalesced diff rendering, resize, font and too-small handling, typed handles and names, ambient `TerminalScope`, Console.Out/Error capture into the log region, JSON-lines record and replay. |
-| L5 Surfaces | The C# object model and a fluent builder; 45 thin PowerShell cmdlets with a plain `Console` noun. |
+| L5 Surfaces | The C# object model and a fluent builder; 47 thin PowerShell cmdlets with a plain `Console` noun. |
 
 Every widget renders in every mode: a live dashboard becomes append-only lines when output is redirected or in CI,
 and plain ASCII lines without colour with `CONSOLEMONSTER_MODE=plain`. Status is never shown by colour alone.
@@ -194,6 +194,92 @@ Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
 `Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DnsClientX, DomainDetective,
 TestimoX and PSPublishModule style data at any width.
 
+## Rich text
+
+Rich text is multicolour text that works anywhere text appears:
+
+- table cells and headers, cards, key/value lists and record views;
+- tree labels, panel and rule titles, the dashboard header and footer, the logo tagline;
+- lane names and lane detail, status list items, log lines, and chart labels and legends.
+
+It's built from spans, and each span has:
+
+- a foreground and a background: a ConsoleColor, a theme role (`Pass`, `Fail`, `Warn`, `Info`, `Muted`, `Accent`),
+  `#RRGGBB`, `rgb(r,g,b)` or `r,g,b`;
+- decorations: bold, dim, italic, underline, strikethrough, invert;
+- an optional link.
+
+How it renders:
+
+- Colours are down-mapped per tier (24-bit, 256, 16, none), and theme roles follow the light or dark theme.
+- ConsoleColor names render exactly as PowerShell shows them. PowerShell's `DarkRed` is ANSI red and `Red` is bright
+  red, so a script looks the same as with `Write-Host -ForegroundColor`.
+- Wrapping, truncation (also in the middle), padding and alignment keep the styles.
+- Without colour (`NO_COLOR`, CI, redirected output) the text and status symbols stay readable.
+
+It's safe by default. Plain strings from data are always literal: no markup interpretation, and control characters
+are removed. Rich text is opt-in:
+
+- a `RichText` object, including one returned by a calculated property;
+- the column option `Markup = $true`;
+- a presenter.
+
+```powershell
+Get-Service | Select-Object -First 5 | Format-ConsoleTable -Property Name, @{
+    Name = 'Status'; Expression = {
+        if ($_.Status -eq 'Running') { New-ConsoleText '√ ', 'Running' -Role Pass } else { New-ConsoleText '× ', $_.Status -Role Fail -Style Bold }
+    }
+}
+New-ConsolePanel -Title (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow) { New-ConsoleText 'body' } | Write-ConsoleWidget
+```
+
+```csharp
+RichText status = new RichTextBuilder().Append("√ ", ThemeToken.Pass).Append("PASS", ThemeToken.Pass, TextDecoration.Bold).Build();
+table.AddValues(new RichTextBuilder().Append("SRV", ConsoleColor.Cyan).Append("01", ConsoleColor.Yellow).Build(), status);
+lanes.Add("srv01", RichText.Gradient("SRV01", RichColor.FromRgb(0, 198, 255), RichColor.FromRgb(255, 0, 170)));
+```
+
+`Write-ConsoleText` writes multicolour lines and optionally a log. `Write-ConsoleStatus` shows one line that
+updates in place:
+
+- It can show a spinner, a clock and the elapsed time.
+- It stops refreshing when anything else writes.
+- It ends with `-Complete`.
+- Outside a real console it writes plain lines.
+
+### Coming from Write-Color
+
+`Write-ConsoleText` takes the parameters and aliases of `Write-Color` from
+[PSWriteColor](https://github.com/EvotecIT/PSWriteColor), so most scripts migrate with a rename. There is deliberately
+no `Write-Color` or `wc` alias.
+
+| Write-Color | Write-ConsoleText | Notes |
+|---|---|---|
+| `-Text` (`-T`) | `-Text` (`-T`) | Pieces are literal. Rich text from `New-ConsoleText` is accepted too. |
+| `-Color` (`-C`, `-ForegroundColor`, `-FGC`) | same | Also theme roles, `#RRGGBB`, `rgb()`, `r,g,b`. Extra pieces take the first colour, as in Write-Color. Without `-Color`, the terminal's own colour is used; Write-Color uses White. |
+| `-BackGroundColor` (`-B`, `-BGC`) | same | Counts don't have to match: extra pieces take the first background. |
+| `-StartTab` (`-Indent`) | same | Eight cells per tab. |
+| `-StartSpaces`, `-LinesBefore`, `-LinesAfter` | same | |
+| `-ShowTime`, `-DateTimeFormat` (`-DateFormat`, `-TimeFormat`) | same | |
+| `-NoNewLine` | same | Works in transcripts, jobs and the host route too. |
+| `-HorizontalCenter` | same | Measured in terminal cells, so emoji and CJK centre correctly. |
+| `-LogFile` (`-L`), `-LogTime` (`-LogTimeStamp`), `-LogRetry` | same | Appends under a file lock, with retries and warnings as in Write-Color. |
+| `-Encoding` | same | Defaults to UTF-8 without BOM; Write-Color defaults to UTF-16 "Unicode". Also takes `utf8BOM` and `utf8NoBOM`. |
+| `-NoConsoleOutput` (`-HideConsole`) | same | |
+| | `-Markup`, `-Style`, `-Link`, `-Role`, `-Gradient` | Markup after the pieces, decorations, hyperlinks, theme roles, colour gradients. |
+| | `-PadLeft`, `-PadRight`, `-PadCenter`, `-PadCharacter` | Padding in terminal cells (PSWriteColor #12). |
+| | `-Wrap`, `-Width` | Wraps with a hanging indent under the time and prefix. |
+| | `-SplitLines` | Splits at a separator and aligns the following lines under the first (PSWriteColor #7). |
+| | `-LogFormat Text\|Csv\|JsonLines`, `-LogSeparator`, `-Level`, `-Category` | Structured logs (PSWriteColor #11). |
+
+Behaviour that differs because of the host routes:
+
+- In transcripts, each call is one line (PSWriteColor #8–#10).
+- In jobs and remoting, the colours travel with the output.
+- Redirected output is plain text.
+
+For an updating line (PSWriteColor #15), use `Write-ConsoleStatus 'Copying ', $file -Color Gray, Cyan -Spinner
+-ShowElapsed` and end it with `-Complete`.
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a

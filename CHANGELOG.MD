@@ -17,12 +17,14 @@
 - Explicit culture for numbers and dates: `CONSOLEMONSTER_CULTURE`, `TerminalProfile.WithCulture`, `LiveSessionOptions.Culture` and `-Culture` on the Format cmdlets (default: the current culture).
 - Outside a real local console (jobs, remoting, SSH, the ISE, redirected output, transcripts) cmdlets write through the PowerShell host like Write-Host, so jobs complete, transcripts record and `6>&1` captures the output.
 - Host output keeps colour: coloured host UI writes on a real console with a transcript and in the ISE (plain lines in the transcript), coloured Write-Host-style records in jobs and remoting; redirected output stays plain.
+- Rich text: multicolour spans (ConsoleColors exactly as Write-Host shows them, theme roles, hex/RGB, decorations, links, gradients) accepted in every widget, safe by default (data stays literal), with `RichText`/`RichTextBuilder` in C# and `New-ConsoleText` in PowerShell.
+- `Write-ConsoleText` with Write-Color parameter parity plus markup, styles, gradients, padding, wrapping, split lines and Text/CSV/JSON-lines logs; `Write-ConsoleStatus` for an updating status line.
 - Print-once output reads the window size on every write.
 - Sentinel dates show as "never" and unbounded durations or non-finite numbers as a dash, instead of throwing; charts skip non-finite values.
 - Stream and plain output sanitise escape sequences and control characters.
 - Dashboards report unknown widget names, failed updates, failed frames and early ends through the host; `LiveSession.GetCounters()`; a dashboard that cannot start leaves the screen untouched.
 - The object inspector has a node budget (`MaxNodes`, `-MaxNodes`), skips blocking getters and lets Ctrl+C through.
-- 45 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
+- 47 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, ...).
 
 #### Breaking changes
 - The Spectre.Console / Terminal.Gui functions of 0.0.x (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 remains on the PowerShell Gallery.
