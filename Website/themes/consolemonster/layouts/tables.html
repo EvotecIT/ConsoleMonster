@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--tables{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main" data-cm-width-scope>
+{{~ tb = data.tables; first = tb.sections[0] ~}}
+{{~ capture art ~}}
+<div data-cm-frame="{{ first.id }}">
+{{~ screen_frame = first.frame; screen_title = "TableShowcases.DnsRecords()"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title ~}}
+{{ include "screen" }}
+</div>
+{{~ end ~}}
+{{~ capture side ~}}
+<h2 class="cm-stage__subhead">{{ first.title }}</h2>
+<p class="cm-stage__small">{{ first.summary }}</p>
+<ul class="cm-points">
+  {{~ for p in first.points ~}}<li>{{ p }}</li>{{~ end ~}}
+</ul>
+{{~ end ~}}
+{{~ stage_title = page.title; stage_lede = page.description; stage_side = side; stage_art = art; stage_wide = false ~}}
+{{ include "stage" }}
+<div class="cm-toolbar">
+  <div class="cm-wrap cm-toolbar__inner">
+    {{~ widths_list = tb.widths; widths_default = tb.default; widths_base = "/frames/tables/"; widths_label = "Terminal width for every table on this page" ~}}
+    {{ include "widths" }}
+  </div>
+</div>
+<div class="cm-wrap cm-page">
+  <div class="cm-prose cm-page__intro">
+{{ content }}
+  </div>
+  {{~ for s in tb.sections offset:1 ~}}
+  <section class="cm-showcase cm-table-showcase" id="{{ s.id }}" aria-labelledby="{{ s.id }}-title">
+    <div class="cm-showcase__head">
+      <h2 id="{{ s.id }}-title">{{ s.title }}</h2>
+      <p>{{ s.summary }}</p>
+    </div>
+    <div class="cm-table-showcase__body">
+      <div data-cm-frame="{{ s.id }}">
+        {{~ screen_frame = s.frame; screen_title = s.title; screen_meta = [s.frame.w + "×" + s.frame.h, "24-bit", "Full"]; screen_label = s.title ~}}
+        {{ include "screen" }}
+      </div>
+      <div class="cm-table-showcase__side">
+        <ul class="cm-points">
+          {{~ for p in s.points ~}}<li>{{ p }}</li>{{~ end ~}}
+        </ul>
+      </div>
+    </div>
+    <details class="cm-source">
+      <summary>C# source</summary>
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = (s.id == "inspector" ? "Website/tools/SiteFrames/Catalog/PageExamples.cs" : "ConsoleMonster.Examples/Showcases/TableShowcases.cs"); code_text = s.csharp ~}}
+      {{ include "code" }}
+    </details>
+  </section>
+  {{~ end ~}}
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

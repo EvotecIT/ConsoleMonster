@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--benchmarks{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ b = data.benchmarks; copy = data.copy.benchmarks; m = b.machine ~}}
+{{~ capture art ~}}
+{{~ screen_frame = b.output.frame; screen_title = b.output.title; screen_meta = [b.runtime, "Release"]; screen_dark = true; screen_label = "The output of ConsoleMonster.Benchmarks" ~}}
+{{ include "screen" }}
+{{~ end ~}}
+{{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = art; stage_wide = false ~}}
+{{ include "stage" }}
+<div class="cm-wrap cm-page">
+  <section class="cm-showcase" aria-labelledby="bench-frame-title">
+    <div class="cm-showcase__head">
+      <h2 id="bench-frame-title">{{ copy.frame.title }}</h2>
+      <p>{{ copy.frame.body }}</p>
+    </div>
+    <dl class="cm-facts">
+      {{~ for f in b.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
+    </dl>
+    <p class="cm-section__source">{{ copy.machine | string.replace "{processor}" m.processor | string.replace "{threads}" m.logicalProcessors | string.replace "{os}" m.os | string.replace "{runtime}" b.runtime | string.replace "{date}" m.recorded }}</p>
+    {{~ screen_frame = b.table; screen_title = "the results as a ConsoleMonster table"; screen_meta = [b.table.w + "×" + b.table.h, "24-bit", "Full"]; screen_label = "Benchmark results drawn as a ConsoleMonster table" ~}}
+    {{ include "screen" }}
+  </section>
+
+  {{~ if b.stress ~}}
+  <section class="cm-showcase" aria-labelledby="bench-stress-title">
+    <div class="cm-showcase__head">
+      <h2 id="bench-stress-title">{{ copy.stress.title }}</h2>
+      <p>{{ copy.stress.body }}</p>
+    </div>
+    <dl class="cm-facts">
+      {{~ for f in b.stress.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
+    </dl>
+    <p class="cm-section__source"><a href="/live/">Watch the recorded run</a>.</p>
+  </section>
+  {{~ end ~}}
+
+  <section class="cm-showcase" aria-labelledby="bench-reported-title">
+    <div class="cm-showcase__head">
+      <h2 id="bench-reported-title">{{ copy.reported.title }}</h2>
+      <p>{{ copy.reported.body }}</p>
+    </div>
+    <div class="cm-tablewrap">
+      <table class="cm-table">
+        <thead><tr><th>Measure</th><th>Reported</th><th>Source</th></tr></thead>
+        <tbody>
+          {{~ for r in copy.reported.rows ~}}<tr><td>{{ r.measure }}</td><td>{{ r.value }}</td><td>{{ r.source }}</td></tr>{{~ end ~}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="cm-prose">
+{{ content }}
+  </div>
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

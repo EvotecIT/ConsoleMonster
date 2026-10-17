@@ -1,0 +1,56 @@
+{{~ ## Grouped navigation from the "main" menu in site.json. Each group opens a panel of destinations with a one-line
+     description and a miniature of real output for it (data.visuals.nav, keyed by menu item Id). The page you are on is
+     shown as a chip after the groups, so marking it never moves another header element. Without JavaScript the panels
+     open on hover and focus and every destination stays a plain link. ## ~}}
+{{~ navmenu = pf.menu "main"; thumbs = data.visuals.nav; here_item = null
+    for g in navmenu.items; for it in g.items; if it.is_active || it.is_ancestor; here_item = it; end; end; end ~}}
+<a class="cm-skip" href="#main">Skip to content</a>
+<header class="cm-header" data-cm-header>
+  <div class="cm-header__inner">
+    <a class="cm-brand" href="/" aria-label="ConsoleMonster home">{{ include "logo" }}<span>ConsoleMonster</span></a>
+    <input type="checkbox" id="cm-nav-toggle" class="cm-nav-toggle" aria-label="Show navigation" />
+    <label for="cm-nav-toggle" class="cm-nav-toggle__label" aria-hidden="true"><span></span><span></span><span></span></label>
+    <nav class="cm-nav" aria-label="Main">
+      <ul class="cm-nav__groups">
+        {{~ for g in navmenu.items ~}}
+        {{~ current = null; for it in g.items; if it.is_active || it.is_ancestor; current = it; end; end ~}}
+        <li class="cm-navgroup{{ if current }} is-current{{ end }}" data-cm-navgroup>
+          <button type="button" class="cm-navgroup__trigger" id="cm-nav-{{ g.id }}-trigger" aria-expanded="false" aria-controls="cm-nav-{{ g.id }}">
+            <span class="cm-navgroup__mark"{{ if current }} style="--key: var(--cm-s{{ current.meta.key }})"{{ end }} aria-hidden="true"></span>
+            <span>{{ g.title }}</span>{{ if current }}<span class="cm-visually-hidden">, holds the current page</span>{{ end }}
+            <svg class="cm-navgroup__chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5l3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="cm-navpanel" id="cm-nav-{{ g.id }}">
+            <p class="cm-navpanel__lede">{{ g.description }}</p>
+            <ul class="cm-navpanel__items">
+              {{~ for item in g.items ~}}
+              {{~ t = thumbs[item.id]; here = item.is_active || item.is_ancestor ~}}
+              <li class="cm-navitem" style="--key: var(--cm-s{{ item.meta.key }})">
+                <span class="cm-navitem__thumb" aria-hidden="true">
+                  {{~ if t ~}}
+                  <img class="cm-only-light" src="{{ t.light }}" width="{{ t.w }}" height="{{ t.h }}" loading="lazy" decoding="async" alt="" />
+                  <img class="cm-only-dark" src="{{ t.dark }}" width="{{ t.w }}" height="{{ t.h }}" loading="lazy" decoding="async" alt="" />
+                  {{~ end ~}}
+                </span>
+                <a class="cm-navitem__link" href="{{ item.url }}" aria-describedby="cm-nav-{{ item.id }}-desc"{{ if here }} aria-current="{{ if item.is_active }}page{{ else }}true{{ end }}"{{ end }}><span class="cm-key" aria-hidden="true"></span>{{ item.title }}</a>
+                <span class="cm-navitem__desc" id="cm-nav-{{ item.id }}-desc">{{ item.description }}</span>
+              </li>
+              {{~ end ~}}
+            </ul>
+          </div>
+        </li>
+        {{~ end ~}}
+        {{~ if here_item ~}}
+        <li class="cm-nav__here" style="--key: var(--cm-s{{ here_item.meta.key }})"><span class="cm-key" aria-hidden="true"></span><span class="cm-visually-hidden">Current section: </span>{{ here_item.title }}</li>
+        {{~ end ~}}
+      </ul>
+      <div class="cm-nav__actions">
+        <button type="button" class="cm-theme-toggle" data-cm-theme-toggle aria-label="Switch between light and dark theme">
+          <svg class="cm-theme-toggle__sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg class="cm-theme-toggle__moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.6A8 8 0 0 1 9.4 4a8 8 0 1 0 10.6 10.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+        {{ pf.nav_actions }}
+      </div>
+    </nav>
+  </div>
+</header>

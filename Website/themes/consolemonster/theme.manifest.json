@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/EvotecIT/PSPublishModule/main/Schemas/powerforge.web.themespec.schema.json",
+  "name": "consolemonster",
+  "schemaVersion": 2,
+  "engine": "scriban",
+  "defaultLayout": "page",
+  "layoutsPath": "layouts",
+  "partialsPath": "partials",
+  "assetsPath": "assets",
+  "scriptsPath": "assets",
+  "slots": {
+    "site-header": "header",
+    "site-footer": "footer",
+    "theme-tokens": "theme-tokens",
+    "docs-sidebar": "docs-sidebar"
+  },
+  "tokens": {
+    "color": {
+      "page": "#eceff3",
+      "card": "#ffffff",
+      "ink": "#141a24",
+      "accent": "#2563eb",
+      "signal": "#7c3aed"
+    },
+    "font": {
+      "body": "system-ui, sans-serif",
+      "mono": "JetBrains Mono, Cascadia Mono, Consolas, monospace"
+    },
+    "layout": {
+      "maxWidth": "1240px"
+    }
+  },
+  "features": ["docs", "notFound"],
+  "featureContracts": {
+    "docs": {
+      "requiredLayouts": ["docs"],
+      "requiredPartials": ["docs-sidebar"],
+      "requiredSlots": [],
+      "requiredSurfaces": ["docs"],
+      "cssHrefs": ["/themes/consolemonster/assets/docs.css"],
+      "requiredCssSelectors": [".cm-docs", ".cm-docs__nav", ".cm-prose"]
+    }
+  }
+}

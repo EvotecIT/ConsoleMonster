@@ -1,0 +1,11 @@
+{{~ ## The width control: radio buttons for each pre-rendered width. Set widths_list, widths_default, widths_base (the
+     folder of width bundles) and widths_label. Hidden without JavaScript, when every frame shows the default width. ## ~}}
+<div class="cm-widths" data-cm-widths="{{ widths_base }}" hidden>
+  <div class="cm-seg" role="radiogroup" aria-label="{{ widths_label }}">
+    <span class="cm-seg__label" aria-hidden="true">Width</span>
+    {{~ for w in widths_list ~}}
+    <button type="button" role="radio" aria-checked="{{ if w == widths_default }}true{{ else }}false{{ end }}" data-width="{{ w }}" data-note="{{ w }} columns{{ if w < 60 }}: below CardsBelow (60), rows become cards when the columns no longer fit{{ end }}">{{ w }}</button>
+    {{~ end ~}}
+  </div>
+  <p class="cm-widths__note" aria-live="polite" data-cm-width-note>{{ widths_default }} columns</p>
+</div>

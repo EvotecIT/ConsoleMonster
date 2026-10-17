@@ -1,0 +1,6 @@
+{{~ # A code block. Set code_lang (csharp, powershell, json), code_label (shown in the bar), code_file (optional) and code_text. ~}}
+<figure class="cm-code" data-lang="{{ code_lang }}">
+  <figcaption class="cm-code__bar"><span class="cm-code__lang">{{ code_label }}</span>{{ if code_file }}<span class="cm-code__file">{{ code_file }}</span>{{ end }}<button type="button" class="cm-code__copy" data-cm-copy>Copy</button></figcaption>
+  <pre><code class="language-{{ code_lang }}">{{ code_text | html.escape }}</code></pre>
+</figure>
+{{~ code_file = null ~}}

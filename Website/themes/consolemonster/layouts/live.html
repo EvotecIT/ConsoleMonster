@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--live{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ live = data.live; copy = data.copy.live; st = live.stress ~}}
+{{~ capture art ~}}
+{{~ player_data = st; player_title = st.command; player_meta = [st.w + "×" + st.h, "24-bit", "Full"]; player_label = "The stress test dashboard with 32 workers, recorded from a real run"; player_class = "cm-window--center"; player_max = 13 ~}}
+{{ include "player" }}
+<p class="cm-stage__note">{{ copy.stressNote | string.replace "{fps}" st.fps }}</p>
+{{~ end ~}}
+{{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = art; stage_wide = true ~}}
+{{ include "stage" }}
+
+<div class="cm-wrap cm-page">
+  <section class="cm-showcase" aria-labelledby="stress-title">
+    <div class="cm-showcase__head">
+      <h2 id="stress-title">{{ copy.stress.title }}</h2>
+      <p>{{ copy.stress.body }}</p>
+    </div>
+    {{~ if st.result ~}}
+    <dl class="cm-facts">
+      {{~ for f in st.result.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
+    </dl>
+    <p class="cm-section__source">{{ copy.stress.source }}</p>
+    {{~ end ~}}
+    {{~ code_lang = "text"; code_label = "Result line"; code_text = st.result.line ~}}
+    {{ include "code" }}
+  </section>
+
+  <section class="cm-showcase" aria-labelledby="testimox-title">
+    <div class="cm-showcase__head">
+      <h2 id="testimox-title">{{ copy.testimox.title }}</h2>
+      <p>{{ copy.testimox.body | string.replace "{events}" (live.testimox.events | math.format "N0") }}</p>
+    </div>
+    {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = [live.testimox.w + "×" + live.testimox.h, "24-bit", "Full"]; player_label = "The TestimoX-style assessment dashboard, replayed from its recording"; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster ~}}
+    {{ include "player" }}
+    <div class="cm-steps">
+      <div>
+        <h3>{{ copy.testimox.recordTitle }}</h3>
+        <p>{{ copy.testimox.recordBody }}</p>
+        {{~ code_lang = "json"; code_label = "JSON lines"; code_file = "testimox-run.jsonl, first lines"; code_text = live.testimox.excerpt ~}}
+        {{ include "code" }}
+        <p><a href="/recordings/testimox-run.jsonl" download>Download the whole recording</a> ({{ live.testimox.events | math.format "N0" }} events).</p>
+      </div>
+      <div>
+        <h3>{{ copy.testimox.layoutTitle }}</h3>
+        <p>{{ copy.testimox.layoutBody }}</p>
+        <details class="cm-source">
+          <summary>C# source of the dashboard</summary>
+          {{~ code_lang = "csharp"; code_label = "C#"; code_file = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.testimoxSource ~}}
+          {{ include "code" }}
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cm-showcase" aria-labelledby="pipeline-title">
+    <div class="cm-showcase__head">
+      <h2 id="pipeline-title">{{ copy.pipeline.title }}</h2>
+      <p>{{ copy.pipeline.body }}</p>
+    </div>
+    <div data-cm-tabs class="cm-tabset">
+      <div class="cm-seg" role="tablist" aria-label="Recorded run">
+        {{~ for v in [live.pipeline.csharp, live.pipeline.ps7, live.pipeline.ps5] ~}}
+        <button type="button" role="tab" id="pipe-{{ v.id }}-tab" aria-controls="pipe-{{ v.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ for.index + 1 }})">{{ v.label }}</button>
+        {{~ end ~}}
+      </div>
+      {{~ for v in [live.pipeline.csharp, live.pipeline.ps7, live.pipeline.ps5] ~}}
+      <div id="pipe-{{ v.id }}" role="tabpanel" aria-labelledby="pipe-{{ v.id }}-tab"{{ if !for.first }} hidden{{ end }}>
+        {{~ player_data = v; player_title = v.command; player_meta = [v.w + "×" + v.h, "24-bit", "Full"]; player_label = "The build pipeline dashboard: " + v.label ~}}
+        {{ include "player" }}
+      </div>
+      {{~ end ~}}
+    </div>
+    <div class="cm-steps">
+      <div>
+        <h3>{{ copy.pipeline.scriptTitle }}</h3>
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "Module/Examples/Example-BuildPipeline.ps1"; code_text = live.pipelineScript ~}}
+        {{ include "code" }}
+      </div>
+      <div>
+        <h3>{{ copy.pipeline.afterTitle }}</h3>
+        <p>{{ copy.pipeline.afterBody }}</p>
+        {{~ sb = live.pipeline.csharp.scrollback; screen_frame = sb; screen_title = "after the session ends"; screen_meta = [sb.w + "×" + sb.h]; screen_dark = true; screen_label = "What the build pipeline leaves in the scrollback" ~}}
+        {{ include "screen" }}
+      </div>
+    </div>
+  </section>
+
+  <section class="cm-showcase" aria-labelledby="stream-title">
+    <div class="cm-showcase__head">
+      <h2 id="stream-title">{{ copy.stream.title }}</h2>
+      <p>{{ copy.stream.body }}</p>
+    </div>
+    {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines" ~}}
+    {{ include "screen" }}
+  </section>
+
+  <section class="cm-showcase" aria-labelledby="query-title">
+    <div class="cm-showcase__head">
+      <h2 id="query-title">{{ copy.query.title }}</h2>
+      <p>{{ copy.query.body }}</p>
+    </div>
+    {{~ q = live.query; screen_frame = q.frame; screen_title = q.title; screen_meta = q.meta; screen_label = q.label ~}}
+    {{ include "screen" }}
+  </section>
+
+  <div class="cm-prose">
+{{ content }}
+  </div>
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>
