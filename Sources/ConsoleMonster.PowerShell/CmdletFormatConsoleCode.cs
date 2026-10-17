@@ -1,0 +1,225 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Management.Automation;
+using System.Text;
+using ConsoleMonster.Highlighting;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Widgets;
+
+namespace ConsoleMonster.PowerShell {
+    /// <summary>
+    /// <para type="synopsis">Shows source text with syntax highlighting, line numbers and highlighted lines.</para>
+    /// <para type="description">Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, log lines and Markdown, or plain text with -Language Smart (numbers, booleans, GUIDs, IP addresses, URLs, paths, dates, DNs, quoted strings). -Language Auto (the default) picks the language from the file extension, then from the content, and falls back to plain text. Text comes from -Path or from pipeline strings (joined as lines). The text is always literal: markup is not read and control characters are dropped. -LineNumbers adds a gutter, -Highlight marks lines (10, '10-14'), long lines are truncated with an ellipsis or wrapped with -Wrap, and output stops after -MaxLines lines with "+n more lines". A file is shown on a panel titled with its name (-Title changes it, -NoTitle leaves the panel out). Redirected output is plain text.</para>
+    /// <example>
+    ///   <para>A script with line numbers and two lines marked</para>
+    ///   <code>Format-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'</code>
+    /// </example>
+    /// <example>
+    ///   <para>A log file's last lines</para>
+    ///   <code>Get-Content .\agent.log -Tail 20 | Format-ConsoleCode -Language Log</code>
+    /// </example>
+    /// </summary>
+    [Cmdlet(VerbsCommon.Format, "ConsoleCode", DefaultParameterSetName = "Text")]
+    [OutputType(typeof(IWidget))]
+    public sealed class CmdletFormatConsoleCode : PSCmdlet {
+        private readonly StringBuilder _text = new StringBuilder();
+
+        /// <summary><para type="description">Text to show (pipeline strings are joined as lines).</para></summary>
+        [Parameter(Position = 0, ValueFromPipeline = true, ParameterSetName = "Text")]
+        [AllowEmptyString]
+        public object? InputObject { get; set; }
+
+        /// <summary><para type="description">A file to show.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Path")]
+        [Alias("FullName")]
+        public string Path { get; set; } = string.Empty;
+
+        /// <summary><para type="description">The language: Auto (default), Json, Xml, Yaml, PowerShell, CSharp, Sql, Ini, Csv, Diff, Log, Markdown, Smart, Text, or a language registered from C#.</para></summary>
+        [Parameter]
+        public string Language { get; set; } = "Auto";
+
+        /// <summary><para type="description">Shows line numbers.</para></summary>
+        [Parameter]
+        public SwitchParameter LineNumbers { get; set; }
+
+        /// <summary><para type="description">Lines to mark: numbers or ranges such as 10, '10-14'.</para></summary>
+        [Parameter]
+        public string[]? Highlight { get; set; }
+
+        /// <summary><para type="description">The number of the first line (default 1), for excerpts.</para></summary>
+        [Parameter]
+        public int FirstLine { get; set; } = 1;
+
+        /// <summary><para type="description">Wraps long lines instead of truncating them.</para></summary>
+        [Parameter]
+        public SwitchParameter Wrap { get; set; }
+
+        /// <summary><para type="description">The most lines shown (default 2000).</para></summary>
+        [Parameter]
+        public int MaxLines { get; set; } = 2000;
+
+        /// <summary><para type="description">The panel title (default the file name with -Path; none for pipeline text).</para></summary>
+        [Parameter]
+        public string? Title { get; set; }
+
+        /// <summary><para type="description">Leaves the panel out.</para></summary>
+        [Parameter]
+        public SwitchParameter NoTitle { get; set; }
+
+        /// <summary><para type="description">Lays the output out for this width instead of the terminal's.</para></summary>
+        [Parameter]
+        public int Width { get; set; }
+
+        /// <summary><para type="description">Returns the view instead of writing it.</para></summary>
+        [Parameter]
+        public SwitchParameter AsWidget { get; set; }
+
+        /// <inheritdoc />
+        protected override void ProcessRecord() {
+            if (ParameterSetName != "Text" || InputObject == null) {
+                return;
+            }
+            object value = InputObject is PSObject ps ? ps.BaseObject : InputObject;
+            if (_text.Length > 0) {
+                _text.Append('\n');
+            }
+            _text.Append(value as string ?? LanguagePrimitives.ConvertTo<string>(value));
+        }
+
+        /// <inheritdoc />
+        protected override void EndProcessing() {
+            string? path = null;
+            string text;
+            if (ParameterSetName == "Path") {
+                path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+                text = File.ReadAllText(path);
+            } else {
+                text = _text.ToString();
+            }
+            WriteView(this, text, Language, path, view => {
+                view.LineNumbers = LineNumbers.IsPresent;
+                view.FirstLine = FirstLine;
+                view.Wrap = Wrap.IsPresent;
+                view.MaxLines = Math.Max(1, MaxLines);
+                view.Title = NoTitle.IsPresent ? null : Title ?? (path == null ? null : System.IO.Path.GetFileName(path));
+                foreach (string range in Highlight ?? new string[0]) {
+                    AddRange(view, range);
+                }
+            }, Width, AsWidget.IsPresent);
+        }
+
+        internal static void WriteView(PSCmdlet cmdlet, string text, string language, string? path, Action<CodeView> configure, int width, bool asWidget) {
+            CodeView view;
+            if (string.Equals(language, "Text", StringComparison.OrdinalIgnoreCase) || string.Equals(language, "Plain", StringComparison.OrdinalIgnoreCase)) {
+                view = new CodeView(text, null);
+            } else if (string.Equals(language, "Auto", StringComparison.OrdinalIgnoreCase)) {
+                view = new CodeView(text, Highlighters.Detect(text, path));
+            } else {
+                ITextHighlighter highlighter = Highlighters.Get(language) ?? throw new PSArgumentException("Unknown language '" + language + "'. Use Auto, Text, Smart or one of: " + string.Join(", ", Highlighters.Names) + ".");
+                view = new CodeView(text, highlighter);
+            }
+            configure(view);
+            if (asWidget) {
+                cmdlet.WriteObject(view);
+            } else {
+                PSFormatting.Write(cmdlet, view, width, null);
+            }
+        }
+
+        private static void AddRange(CodeView view, string range) {
+            string[] parts = range.Split(new[] { '-', '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0 || !int.TryParse(parts[0].Trim(), out int from)) {
+                throw new PSArgumentException("Highlight '" + range + "' is not a line number or a range such as 10-14.");
+            }
+            int to = parts.Length > 1 && int.TryParse(parts[parts.Length - 1].Trim(), out int end) ? end : from;
+            view.HighlightLines(from, to);
+        }
+    }
+
+    /// <summary>
+    /// <para type="synopsis">Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.</para>
+    /// <para type="description">A thin convenience over Format-ConsoleCode -Language Json. Strings are taken as JSON text (pipeline strings are joined, so Get-Content works); other objects are collected and converted with ConvertTo-Json -Depth (default 4) first.</para>
+    /// <example>
+    ///   <para>An object as highlighted JSON</para>
+    ///   <code>Get-Process -Id $PID | Select-Object Name, Id, StartTime | Format-ConsoleJson</code>
+    /// </example>
+    /// <example>
+    ///   <para>A JSON file with line numbers</para>
+    ///   <code>Get-Content .\settings.json | Format-ConsoleJson -LineNumbers</code>
+    /// </example>
+    /// </summary>
+    [Cmdlet(VerbsCommon.Format, "ConsoleJson")]
+    [OutputType(typeof(IWidget))]
+    public sealed class CmdletFormatConsoleJson : PSCmdlet {
+        private readonly List<object> _objects = new List<object>();
+        private readonly StringBuilder _text = new StringBuilder();
+
+        /// <summary><para type="description">JSON text or objects (pipeline input).</para></summary>
+        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [AllowEmptyString]
+        public object? InputObject { get; set; }
+
+        /// <summary><para type="description">The depth for ConvertTo-Json (default 4).</para></summary>
+        [Parameter]
+        public int Depth { get; set; } = 4;
+
+        /// <summary><para type="description">Shows line numbers.</para></summary>
+        [Parameter]
+        public SwitchParameter LineNumbers { get; set; }
+
+        /// <summary><para type="description">The most lines shown (default 2000).</para></summary>
+        [Parameter]
+        public int MaxLines { get; set; } = 2000;
+
+        /// <summary><para type="description">A panel title, or none.</para></summary>
+        [Parameter]
+        public string? Title { get; set; }
+
+        /// <summary><para type="description">Lays the output out for this width instead of the terminal's.</para></summary>
+        [Parameter]
+        public int Width { get; set; }
+
+        /// <summary><para type="description">Returns the view instead of writing it.</para></summary>
+        [Parameter]
+        public SwitchParameter AsWidget { get; set; }
+
+        /// <inheritdoc />
+        protected override void ProcessRecord() {
+            if (InputObject == null) {
+                return;
+            }
+            object value = InputObject is PSObject ps && !(ps.BaseObject is PSCustomObject) ? ps.BaseObject : InputObject;
+            if (value is string text) {
+                if (_text.Length > 0) {
+                    _text.Append('\n');
+                }
+                _text.Append(text);
+            } else {
+                _objects.Add(InputObject);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void EndProcessing() {
+            string json = _text.ToString();
+            if (_objects.Count > 0) {
+                object input = _objects.Count == 1 ? _objects[0] : _objects.ToArray();
+                ScriptBlock convert = ScriptBlock.Create("param($InputValue, $Depth) ConvertTo-Json -InputObject $InputValue -Depth $Depth");
+                StringBuilder sb = new StringBuilder(json);
+                foreach (PSObject line in convert.Invoke(input, Depth)) {
+                    if (sb.Length > 0) {
+                        sb.Append('\n');
+                    }
+                    sb.Append(line?.ToString());
+                }
+                json = sb.ToString();
+            }
+            CmdletFormatConsoleCode.WriteView(this, json, "json", null, view => {
+                view.LineNumbers = LineNumbers.IsPresent;
+                view.MaxLines = Math.Max(1, MaxLines);
+                view.Title = Title;
+            }, Width, AsWidget.IsPresent);
+        }
+    }
+}

@@ -13,7 +13,7 @@ Writes a line to the log region of a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLog [-Message] <Object> [-Level <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLog [-Message] <Object> [-Level <string>] [-Name <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,6 +30,22 @@ Write-ConsoleLog -Message 'Value'
 
 
 ## PARAMETERS
+
+### -Highlight
+Highlights the message: Smart (numbers, booleans, GUIDs, IP addresses, URLs, paths, dates, DNs, quoted strings) or a language such as Json or PowerShell. The message stays literal.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Level
 The level: info, warn, err, verbose, debug or pass.

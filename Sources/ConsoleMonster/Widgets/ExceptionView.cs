@@ -40,6 +40,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>How many inner errors are shown (default 4).</summary>
         public int MaxInner { get; set; } = 4;
 
+        /// <summary>Shows the source lines around the first app frame whose file can be read (default true), highlighted.</summary>
+        public bool ShowSource { get; set; } = true;
+
         /// <summary>The folder paths are shown relative to (default the current directory).</summary>
         public string? BasePath { get; set; }
 
@@ -104,6 +107,9 @@ namespace ConsoleMonster.Widgets {
                     lines.Add(StyledLine.From(body + line, marker ? fail : muted));
                 }
             }
+            if (ShowSource && !inner) {
+                AddSource(lines, info, body, width, context);
+            }
             if (!ShowStack) {
                 return;
             }
@@ -111,6 +117,47 @@ namespace ConsoleMonster.Widgets {
             AddFrames(lines, info.Frames, body, context);
         }
 
+        private List<StyledLine>? _sourceCache;
+        private int _sourceWidth = -1;
+
+        // The lines around the first app frame with a readable file: line numbers, the failing line marked, highlighted.
+        private void AddSource(List<StyledLine> lines, ExceptionInfo info, string body, int width, RenderContext context) {
+            if (_sourceCache == null || _sourceWidth != width) {
+                _sourceCache = new List<StyledLine>();
+                _sourceWidth = width;
+                ExceptionFrame? frame = null;
+                foreach (ExceptionFrame candidate in info.ScriptFrames) {
+                    if (candidate.File != null && candidate.Line > 0 && File.Exists(candidate.File)) {
+                        frame = candidate;
+                        break;
+                    }
+                }
+                if (frame == null) {
+                    foreach (ExceptionFrame candidate in info.Frames) {
+                        if (!candidate.IsFramework && candidate.File != null && candidate.Line > 0 && File.Exists(candidate.File)) {
+                            frame = candidate;
+                            break;
+                        }
+                    }
+                }
+                if (frame != null) {
+                    try {
+                        string[] all = File.ReadAllLines(frame.File!);
+                        int first = Math.Max(1, frame.Line - 1);
+                        int last = Math.Min(all.Length, frame.Line + 1);
+                        if (first <= last) {
+                            string excerpt = string.Join("\n", all, first - 1, last - first + 1);
+                            CodeView view = new CodeView(excerpt, Highlighting.Highlighters.ForPath(frame.File)) { LineNumbers = true, FirstLine = first }.HighlightLines(frame.Line);
+                            _sourceCache.AddRange(view.Rows(Math.Max(20, width - body.Length), context));
+                        }
+                    } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException || ex is NotSupportedException || ex is ArgumentException) {
+                    }
+                }
+            }
+            foreach (StyledLine row in _sourceCache) {
+                lines.Add(Prefixed(body, row));
+            }
+        }
         private void AddFrames(List<StyledLine> lines, List<ExceptionFrame> frames, string body, RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             Style text = context.Style(ThemeToken.Text);

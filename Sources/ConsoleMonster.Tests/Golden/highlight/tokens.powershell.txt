@@ -1,0 +1,10 @@
+«Comment:# Deploy the agent»
+«Keyword:function» «Type:Publish-Agent» «Punctuation:{»
+    «Keyword:param»«Punctuation:(»«Type:[string]» «Variable:$Path» «Operator:=» «String:'C:\Agent'»«Punctuation:,» «Type:[int]» «Variable:$Retries» «Operator:=» «Number:3»«Punctuation:)»
+    «Comment:<# block #>»
+    «Keyword:if» «Punctuation:(»«Variable:$Retries» «Operator:-gt» «Number:0» «Operator:-and» «Variable:$env:CI»«Punctuation:)» «Punctuation:{»
+        «Type:Get-ChildItem» «Key:-Path» «Variable:$Path» «Operator:|» «Type:Where-Object» «Punctuation:{» «Variable:$_»«Punctuation:.»Length «Operator:-gt» «Number:10MB» «Punctuation:}»
+        «Type:Write-Host» «String:"Copied $Path to `"$Target`""» «Key:-ForegroundColor» Green
+    «Punctuation:}»
+    «Keyword:return» «Literal:$true»
+«Punctuation:}»

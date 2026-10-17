@@ -80,5 +80,22 @@ namespace ConsoleMonster.Tests.Errors {
             Assert.True(lines.Count(l => l.Contains("not a number") || l.Contains("wrap at")) >= 2);
             Assert.All(lines, l => Assert.True(l.TrimEnd().Length <= 50, l));
         }
+
+        [Fact]
+        public void SourceLines_AroundTheFirstReadableFrame_AreShownHighlighted() {
+            string file = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cm-exception-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".ps1");
+            System.IO.File.WriteAllText(file, "$a = 1\nGet-Item C:\\missing -ErrorAction Stop\n$b = 2\n$c = 3\n");
+            try {
+                ExceptionInfo info = new ExceptionInfo("ItemNotFoundException", "Cannot find path.");
+                info.ScriptFrames.Add(new ExceptionFrame("<ScriptBlock>", file, 2, false));
+                string text = TestTerminal.RenderText(new ExceptionView(info), 80);
+                Assert.Contains("1 │ $a = 1", text);
+                Assert.Contains("▌2 │ Get-Item C:\\missing -ErrorAction Stop", text);
+                Assert.Contains("3 │ $b = 2", text);
+                Assert.DoesNotContain("$c = 3", text);
+            } finally {
+                System.IO.File.Delete(file);
+            }
+        }
     }
 }

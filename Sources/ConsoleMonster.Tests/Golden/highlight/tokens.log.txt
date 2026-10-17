@@ -1,0 +1,4 @@
+«Timestamp:2026-10-17 14:03:11.204» «Info:INFO»  «Type:[Agent]» Started on «Identifier:10.0.0.12» in «Number:412ms»
+«Timestamp:2026-10-17 14:03:12.010» «Warning:WARN»  «Type:[Disk]» «Identifier:C:\Data» is «Number:91%» full
+«Timestamp:2026-10-17 14:03:13.555» «Error:ERROR» «Type:[Http]» GET «Link:https://example.com/api» failed: «String:"timeout"»
+«Timestamp:14:03:14» «Comment:DEBUG» id=«Identifier:3f2504e0-4f89-11d3-9a0c-0305e82c3301» ok=«Literal:true»

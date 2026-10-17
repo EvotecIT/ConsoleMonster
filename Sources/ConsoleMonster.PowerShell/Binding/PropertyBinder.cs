@@ -30,6 +30,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             "Width",
             "Alignment",
             "Presenter",
+            "Highlight",
             "Unit",
             "Aggregate",
             "Flexible",
@@ -189,6 +190,12 @@ namespace ConsoleMonster.PowerShell.Binding {
                     Convert.ToString(presenter, CultureInfo.InvariantCulture) ?? string.Empty,
                     OptionString(options, "Unit")
                 );
+            // Highlight = 'Smart' (or a language): the cell text is highlighted, and stays literal.
+            if (TryOption(options, "Highlight", out object? highlight)) {
+                string language = Convert.ToString(highlight, CultureInfo.InvariantCulture) ?? string.Empty;
+                ConsoleMonster.Highlighting.ITextHighlighter highlighter = ConsoleMonster.Highlighting.Highlighters.Get(language) ?? throw new ArgumentException("Unknown highlight language '" + language + "'. Use Smart or one of: " + string.Join(", ", ConsoleMonster.Highlighting.Highlighters.Names) + ".");
+                column.Presenter = new ConsoleMonster.Presenters.HighlightPresenter(highlighter);
+            }
             // Markup = $true: string values are markup ([pass]OK[/]); data stays literal otherwise.
             SetBool(options, "Markup", value => {
                 if (value && column.Presenter == null)

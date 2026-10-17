@@ -1,0 +1,5 @@
+«Heading:# Title»
+Some «Emphasis:*emphasis*», «Strong:**strong**» and «String:`code`».
+«Punctuation:-» item with «Link:[link](https://example.com)»
+«Comment:> quote»
+«Comment:```powershell»

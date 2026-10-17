@@ -1,0 +1,6 @@
+Visit «Link:https://example.com/docs?x=1», or mail «Link:ops@example.com».
+id «Identifier:3F2504E0-4F89-11D3-9A0C-0305E82C3301» at «Identifier:192.168.1.10/24» and «Identifier:fe80::1ff:fe23:4567:890a»
+path «Identifier:C:\Program» Files\Agent\agent.exe and «Identifier:/var/log/agent/today.log»
+user «Identifier:CN=Jane Doe,OU=Admins,DC=ad,DC=example,DC=com» changed «Timestamp:2026-10-17T14:03:11Z»
+took «Number:412ms», «Number:91%», «Number:-3.5» and «Number:1e6»; enabled=«Literal:true», owner=«Literal:null», name=«String:'alpha'» «String:"beta"»
+version2 and abc123 stay plain, «Timestamp:12:30:45» is a time
