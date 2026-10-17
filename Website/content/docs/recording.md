@@ -48,6 +48,10 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\r
 
 This site does not use the exporters: its own site tool converts frames and VT streams with a small converter of its own, so the pages share one stylesheet and follow the site theme. The [site tool's notes](https://github.com/EvotecIT/ConsoleMonster/blob/master/Website/AGENTS.md) describe how.
 
+## Targets
+
+Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a profile, a theme, a writer and an input source. `ConsoleTarget.Instance` is the process console; `TestTerminal.Target(...)` returns a `RecordingTarget` for tests, `WriterTarget` writes append-only lines to a `TextWriter`, and `NullTarget.Instance` discards output. `using (Terminal.Use(target)) { ... }` sends everything in the block to a target, and the scope flows with `async` calls. In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going to a file (`-Path`), a writer or a target, or returned as a string.
+
 ## Testing output
 
 The helpers ConsoleMonster's own tests use are public: `TestTerminal.RenderText(widget, width: 80, glyphs: GlyphTier.Ascii)` renders at a fixed size, tier and culture, `GoldenFile.Match` compares with a golden file and shows the first differing line, and `ScreenCapture` with scripted keys captures prompts, menus and forms. In Pester, `Assert-ConsoleOutput -GoldenPath` does the same.

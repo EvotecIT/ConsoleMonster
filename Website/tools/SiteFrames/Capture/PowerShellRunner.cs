@@ -39,6 +39,7 @@ namespace SiteFrames.Capture {
                 ["CONSOLEMONSTER_GLYPHS"] = glyphs,
                 ["CONSOLEMONSTER_THEME"] = theme,
                 ["CONSOLEMONSTER_CULTURE"] = "en-US",
+                ["CONSOLEMONSTER_LANGUAGE"] = "en",
                 ["CONSOLEMONSTER_MODE"] = mode,
                 ["CONSOLEMONSTER_EMOJI_WIDTH"] = null,
                 ["CONSOLEMONSTER_AMBIGUOUS_WIDTH"] = null,

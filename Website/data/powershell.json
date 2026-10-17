@@ -307,7 +307,7 @@
     },
     {
       "verb": "New",
-      "count": 27,
+      "count": 29,
       "commands": [
         {
           "name": "New-ConsoleAlign",
@@ -365,6 +365,11 @@
           "url": "/powershell/commands/new-consolelinechart/"
         },
         {
+          "name": "New-ConsoleLiveTable",
+          "synopsis": "Creates a table whose rows change while a dashboard runs.",
+          "url": "/powershell/commands/new-consolelivetable/"
+        },
+        {
           "name": "New-ConsoleLog",
           "synopsis": "Creates a log region: the newest lines of a log, bottom-aligned.",
           "url": "/powershell/commands/new-consolelog/"
@@ -398,6 +403,11 @@
           "name": "New-ConsoleProgress",
           "synopsis": "Creates a labelled progress bar.",
           "url": "/powershell/commands/new-consoleprogress/"
+        },
+        {
+          "name": "New-ConsoleRegion",
+          "synopsis": "Creates a named region whose content can be replaced while a dashboard runs.",
+          "url": "/powershell/commands/new-consoleregion/"
         },
         {
           "name": "New-ConsoleRows",
@@ -464,7 +474,7 @@
     },
     {
       "verb": "Update",
-      "count": 5,
+      "count": 6,
       "commands": [
         {
           "name": "Update-ConsoleLane",
@@ -490,6 +500,11 @@
           "name": "Update-ConsoleStatus",
           "synopsis": "Updates an item of a status list in a running dashboard.",
           "url": "/powershell/commands/update-consolestatus/"
+        },
+        {
+          "name": "Update-ConsoleTable",
+          "synopsis": "Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.",
+          "url": "/powershell/commands/update-consoletable/"
         }
       ]
     },
@@ -639,8 +654,13 @@
     },
     {
       "verb": "Set",
-      "count": 2,
+      "count": 3,
       "commands": [
+        {
+          "name": "Set-ConsoleRegion",
+          "synopsis": "Replaces the content of a region (New-ConsoleRegion) in the running dashboard.",
+          "url": "/powershell/commands/set-consoleregion/"
+        },
         {
           "name": "Set-ConsoleTheme",
           "synopsis": "Selects the theme used by every ConsoleMonster widget.",
@@ -655,12 +675,17 @@
     },
     {
       "verb": "Use",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Use-ConsoleProgress",
           "synopsis": "Runs a script and shows its Write-Progress calls as an inline progress area.",
           "url": "/powershell/commands/use-consoleprogress/"
+        },
+        {
+          "name": "Use-ConsoleTarget",
+          "synopsis": "Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.",
+          "url": "/powershell/commands/use-consoletarget/"
         }
       ]
     }

@@ -15,6 +15,7 @@ Variables are read when the profile is detected. An invalid value is ignored and
 | `CONSOLEMONSTER_MODE` | `interactive` (or `live`), `stream`, `plain` | Interactive redraws in place; stream writes append-only lines; plain writes ASCII lines without colour or escape sequences. |
 | `CONSOLEMONSTER_THEME` | `dark`, `light`, `auto` | The theme preference. `auto` reads the background in conhost. |
 | `CONSOLEMONSTER_CULTURE` | a culture name, `invariant` or `current` | Numbers and dates in tables and presenters. An unknown name is ignored. |
+| `CONSOLEMONSTER_LANGUAGE` | a language name such as `de` or `pl` | The language of built-in labels, separately from the number culture. German, Spanish, French and Italian are built in; others fall back to English. |
 | `CONSOLEMONSTER_EMOJI_WIDTH` | `1`, `2` or `auto` | The width of emoji, for consoles that draw them narrow. |
 | `CONSOLEMONSTER_AMBIGUOUS_WIDTH` | `1`, `2` or `auto` | The width of East Asian ambiguous characters. |
 | `CONSOLEMONSTER_NONINTERACTIVE` | `1` | Prompts return their default or fail with a message that names the parameter to pass. |
