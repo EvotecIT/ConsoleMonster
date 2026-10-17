@@ -208,6 +208,48 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-code code { font: inherit; background: none; padding: 0; }
 .cm-tone-dark .cm-code { background: #111824; }
 
+/* Code token colours, part of the shared code block on every page (Prism adds the .token spans). They follow
+   ConsoleMonster's own highlight roles (Highlighting/HighlightStyles.cs): keywords Series5, strings Series2, numbers
+   and literals Series3, types Series6, keys Series1, comments and punctuation Muted, variables Accent2. Light values
+   are the darker shades of the same hues so every role keeps at least 4.5:1 on the code surface. */
+:root {
+  --cm-tok-comment: #5b6474;
+  --cm-tok-keyword: #7c3aed;
+  --cm-tok-string: #15803d;
+  --cm-tok-number: #b45309;
+  --cm-tok-type: #0f766e;
+  --cm-tok-function: #1d4ed8;
+  --cm-tok-key: #2563eb;
+  --cm-tok-variable: #a21caf;
+  --cm-tok-operator: #3c4555;
+  --cm-tok-punct: #5b6474;
+}
+:root[data-theme="dark"], .cm-tone-dark {
+  --cm-tok-comment: #8b93a3;
+  --cm-tok-keyword: #c084fc;
+  --cm-tok-string: #4ade80;
+  --cm-tok-number: #fbbf24;
+  --cm-tok-type: #2dd4bf;
+  --cm-tok-function: #60a5fa;
+  --cm-tok-key: #93c5fd;
+  --cm-tok-variable: #f0abfc;
+  --cm-tok-operator: #c3cad6;
+  --cm-tok-punct: #8b93a3;
+}
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--cm-tok-comment); font-style: italic; }
+.token.keyword, .token.important, .token.atrule, .token.rule { color: var(--cm-tok-keyword); }
+.token.string, .token.char, .token.attr-value, .token.regex, .token.url { color: var(--cm-tok-string); }
+.token.interpolation-string > .token.string { color: var(--cm-tok-string); }
+.token.number, .token.constant, .token.symbol { color: var(--cm-tok-number); }
+.token.boolean { color: var(--cm-tok-number); font-weight: 600; }
+.token.class-name, .token.namespace, .token.type-expression, .token.return-type, .token.type-list, .token.builtin, .token.tag { color: var(--cm-tok-type); }
+.token.function, .token.method, .token.selector, .token.generic-method > .token.function { color: var(--cm-tok-function); }
+.token.property, .token.attr-name, .token.named-parameter, .token.key, .token.parameter { color: var(--cm-tok-key); }
+.token.variable, .token.interpolation > .token.punctuation { color: var(--cm-tok-variable); }
+.token.operator { color: var(--cm-tok-operator); }
+.token.punctuation { color: var(--cm-tok-punct); }
+.token.namespace > .token.punctuation { color: inherit; }
+
 /* Prose for docs, guides and Markdown sections. */
 .cm-prose { max-width: 74ch; }
 .cm-prose > * + * { margin-top: 0; }

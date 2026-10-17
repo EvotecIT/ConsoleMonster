@@ -71,6 +71,17 @@
   var ALIAS = { cs: 'csharp', 'c#': 'csharp', ps1: 'powershell', pwsh: 'powershell', sh: 'bash', shell: 'bash', html: 'markup', xml: 'markup', yml: 'yaml' };
   var NEEDS = { csharp: ['clike'], 'xml-doc': ['markup'] };
   var PLAIN = { text: true, none: true, plaintext: true, txt: true };
+  // Prism's PowerShell grammar has no token for parameters (-Title, -Scope); ConsoleMonster's own highlighter colours
+  // them as keys. Operators such as -eq and -join keep their own token.
+  var EXTEND = {
+    powershell: function (p) {
+      if (p.languages.powershell && !p.languages.powershell.parameter) {
+        p.languages.insertBefore('powershell', 'operator', {
+          parameter: { pattern: /(^|[\s(\[{,;|=])-(?![ci]?(?:and|x?or|as|not(?:contains|in|like|match)?|contains|in|like|match|eq|ge|gt|le|lt|ne|is(?:not)?|band|bnot|bor|bxor|join|split|replace|f|shl|shr)\b)[a-z]\w*/i, lookbehind: true }
+        });
+      }
+    }
+  };
   var prismReady = null;
   var grammars = {};
   function loadScript(src) {
@@ -110,7 +121,9 @@
     code.dataset.cmHighlighted = '1';
     if (lang !== match[1]) code.className = code.className.replace(match[0], 'language-' + lang);
     grammar(lang).then(function (p) {
-      if (p.languages[lang] && !code.querySelector('.token')) p.highlightElement(code);
+      if (EXTEND[lang]) EXTEND[lang](p);
+      // highlightElement re-reads the text, so a block another script highlighted first is redone with the extension.
+      if (p.languages[lang]) p.highlightElement(code);
     }, function () { /* an unknown language stays plain, readable text */ });
   }  window.cmHighlight = highlight;
 
