@@ -4,6 +4,7 @@
     "lede": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell. It has no package dependencies, runs on Windows PowerShell 5.1 and PowerShell 7, and turns into plain lines when the output is a log.",
     "installPowerShell": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster",
     "installDotnet": "dotnet add package ConsoleMonster",
+    "installNote": "These commands install 2.0 once it is published. It is not on the PowerShell Gallery or NuGet yet; the Gallery's current ConsoleMonster is the 0.0.x module it replaces.",
     "facts": [
       "No package dependencies",
       "netstandard2.0, net472 and net8.0",
