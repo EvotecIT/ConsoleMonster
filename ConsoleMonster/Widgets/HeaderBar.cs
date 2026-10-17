@@ -64,30 +64,37 @@ namespace ConsoleMonster.Widgets {
             Style quiet = hasSurface ? surface.Without(TextDecoration.Bold) : context.Style(ThemeToken.Muted);
             string separator = " " + InteractiveGlyphs.For(context).Separator + " ";
 
-            List<TextSpan> right = new List<TextSpan>();
-            void Gap() {
-                if (right.Count > 0) {
-                    right.Add(new TextSpan(" " + separator + " ", quiet));
-                }
-            }
+            // The right side in parts; when the row is narrow they give way in this order: the free text, the clock, then
+            // the status is shortened and finally dropped, so the title always stays.
+            StyledLine? status = null;
             if (!string.IsNullOrEmpty(Status)) {
+                List<TextSpan> spans = new List<TextSpan>();
                 if (StatusLevel.HasValue) {
                     Style marker = context.Style(StatusLevel.Value);
-                    right.Add(new TextSpan(context.Glyphs.StatusMarker(StatusLevel.Value) + " ", hasSurface ? marker.WithBackground(surface.Background) : marker));
+                    spans.Add(new TextSpan(context.Glyphs.StatusMarker(StatusLevel.Value) + " ", hasSurface ? marker.WithBackground(surface.Background) : marker));
                 }
                 foreach (TextSpan span in context.Markup(Status!).Lines[0]) {
-                    right.Add(new TextSpan(span.Text, text.Combine(span.Style)));
+                    spans.Add(new TextSpan(span.Text, text.Combine(span.Style)));
                 }
+                status = new StyledLine(spans);
             }
-            if (!string.IsNullOrEmpty(Right)) {
-                Gap();
-                right.Add(new TextSpan(Right!, quiet));
+            StyledLine? free = string.IsNullOrEmpty(Right) ? null : StyledLine.From(Right!, quiet);
+            StyledLine? clock = ShowClock ? StyledLine.From(NumberFormat.Clock(Clock ?? context.Elapsed), accent) : null;
+            StyledLine titleOnly = context.Markup(Title).Lines[0];
+            int available = Math.Max(0, bar.Width - 2);
+            // The title keeps its full width whenever it fits; the right side takes what is left.
+            int titleKeep = Math.Min(titleOnly.Width, available);
+            StyledLine rightLine = JoinRight(status, free, clock, separator, quiet);
+            if (titleKeep + 2 + rightLine.Width > available) {
+                rightLine = JoinRight(status, null, clock, separator, quiet);
             }
-            if (ShowClock) {
-                Gap();
-                right.Add(new TextSpan(NumberFormat.Clock(Clock ?? context.Elapsed), accent));
+            if (titleKeep + 2 + rightLine.Width > available) {
+                rightLine = JoinRight(status, null, null, separator, quiet);
             }
-            StyledLine rightLine = new StyledLine(right);
+            if (titleKeep + 2 + rightLine.Width > available && status != null) {
+                int room = available - titleKeep - 2;
+                rightLine = room >= 6 ? TextWrapper.Truncate(status, room, context.Ellipsis) : new StyledLine(new List<TextSpan>());
+            }
             int rightX = Math.Max(0, bar.Width - rightLine.Width - 1);
 
             List<TextSpan> left = new List<TextSpan>();
@@ -107,9 +114,23 @@ namespace ConsoleMonster.Widgets {
             }
             StyledLine leftLine = TextWrapper.Truncate(new StyledLine(left), Math.Max(0, (rightLine.Width > 0 ? rightX - 2 : bar.Width - 1) - 1), context.Ellipsis);
             bar.Write(1, 0, leftLine);
-            if (rightLine.Width > 0 && rightX > leftLine.Width + 2) {
+            if (rightLine.Width > 0 && rightX > leftLine.Width + 1) {
                 bar.Write(rightX, 0, rightLine);
             }
+        }
+
+        private static StyledLine JoinRight(StyledLine? status, StyledLine? free, StyledLine? clock, string separator, Style quiet) {
+            List<TextSpan> spans = new List<TextSpan>();
+            foreach (StyledLine? part in new[] { status, free, clock }) {
+                if (part == null) {
+                    continue;
+                }
+                if (spans.Count > 0) {
+                    spans.Add(new TextSpan(" " + separator + " ", quiet));
+                }
+                spans.AddRange(part);
+            }
+            return new StyledLine(spans);
         }
     }
 }

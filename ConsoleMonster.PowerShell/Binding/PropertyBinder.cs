@@ -30,6 +30,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             "Width",
             "Alignment",
             "Presenter",
+            "Identifier",
             "Highlight",
             "Unit",
             "Aggregate",
@@ -184,6 +185,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetInt(options, "MaxWidth", value => column.MaxWidth = value);
             SetInt(options, "Width", value => column.Width = value);
             SetBool(options, "Key", value => column.IsKey = value);
+            SetBool(options, "Identifier", value => column.Presenter = value ? CellPresenters.Identifier : column.Presenter);
             SetBool(options, "Flexible", value => column.Flexible = value);
             if (TryOption(options, "Presenter", out object? presenter))
                 column.Presenter = CellPresenters.FromName(

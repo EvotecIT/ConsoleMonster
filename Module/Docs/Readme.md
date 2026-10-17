@@ -25,6 +25,21 @@ Clears the console screen, safely.
 
 On an interactive console the screen and its scrollback are cleared and the cursor goes to the top left, like Clear-Host. It does nothing where clearing would only lose output: redirected output, CI logs, plain mode (CONSOLEMONSTER_MODE=plain), background and thread jobs, and while a live dashboard owns the console. In the ISE and other hosts with a screen buffer it clears that buffer the way Clear-Host does.
 
+### [Compare-ConsoleObject](Compare-ConsoleObject.md)
+Compares two sets of objects and shows what was added, removed and changed, property by property.
+
+Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.
+
+### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
+Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).
+
+Removes the session's Out-Default function when it is ConsoleMonster's, so PowerShell's own Out-Default is used again. Registrations stay for the next Enable-ConsoleFormatting.
+
+### [Enable-ConsoleFormatting](Enable-ConsoleFormatting.md)
+Shows the default output of common types through ConsoleMonster for this session (opt-in).
+
+Files and folders (Get-ChildItem), processes (Get-Process) and services (Get-Service), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.
+
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
 Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
 
@@ -220,6 +235,11 @@ Creates a console tree from nested hashtables.
 
 Each key becomes a node. A nested hashtable (or ordered dictionary) becomes child nodes; an array becomes leaf nodes; any other value is shown as a muted note after the key. Use [ordered] to keep order.
 
+### [Out-ConsoleDefault](Out-ConsoleDefault.md)
+Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.
+
+This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; files and folders, processes and services after Enable-ConsoleFormatting) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.
+
 ### [Read-ConsoleConfirm](Read-ConsoleConfirm.md)
 Asks a yes/no question and returns $true or $false.
 
@@ -260,6 +280,11 @@ Asks for a line of text.
 
 A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
+### [Register-ConsoleView](Register-ConsoleView.md)
+Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
+
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.
+
 ### [Send-ConsoleEvent](Send-ConsoleEvent.md)
 Sends a raw live event to any widget of a running dashboard.
 
@@ -280,6 +305,16 @@ Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar se
 
 Sends a "set" update to the named widget. For a key/value list the value is shown as text; for bar charts and stacked bars it must be numeric.
 
+### [Show-Console](Show-Console.md)
+Shows pipeline input in the view that fits it best.
+
+One object becomes an inspector; objects of one shape a table (cards when the window is narrow), using their DefaultDisplayPropertySet and presenters by type (bytes for Length and Size, dates, durations, Yes/No, status markers for enums such as Running/Stopped); hierarchical objects (a child collection of the same type, or -ChildProperty) a tree; a numeric series a bar chart; strings highlighted code when a language is detected, otherwise text. -View overrides the choice; Grid opens the interactive Show-ConsoleGrid and returns what you pick.
+
+### [Show-ConsoleChanges](Show-ConsoleChanges.md)
+Shows the changes an action would make and asks before making them: the what-if pattern.
+
+Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.
+
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
 
@@ -289,6 +324,11 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 Shows a menu until the user exits.
 
 Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.
+
+### [Show-ConsoleReplay](Show-ConsoleReplay.md)
+Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
+
+Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
 
 ### [Start-ConsoleDashboard](Start-ConsoleDashboard.md)
 Runs a console dashboard live while a script does the work.

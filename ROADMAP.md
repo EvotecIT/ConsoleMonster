@@ -23,7 +23,8 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Prompts, forms and wizards, menus and the app shell, a multi-line text area and an interactive grid.
 - Exceptions and PowerShell errors, a dependency-free highlighting engine (`CodeView`, `Format-ConsoleCode`,
   `Format-ConsoleJson`), and Pester runs with a live dashboard.
-- Export to HTML, SVG, text and asciicast; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
+- Export to HTML, SVG, text and asciicast, with the HTML recording player as one native script and a data format that
+  sites reuse; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
 - `Write-ConsoleText` with the Write-Color parameters, log formats and correct log-file encoding handling.
 - Targets (`ITerminalTarget`): console, recording, writer and null targets behind every write, live session, prompt
@@ -37,6 +38,18 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
   `Emoji` cell presenter.
 - `Use-ConsoleTarget` to send PowerShell output to a file, a writer, a target or a string.
+- The terminal's progress indicator (OSC 9;4, the Windows Terminal tab and taskbar) driven by progress bars, lanes,
+  dashboards, status lines, `Use-ConsoleProgress` and `Invoke-ConsolePester`, cleared on every exit path.
+- `Show-Console` (the best view for any data, `ConsoleView` in C#) and opt-in default formatting
+  (`Enable-ConsoleFormatting`, `Register-ConsoleView`) for files, processes, services and registered types.
+- Rewinding runs: `Show-ConsoleReplay` (`ReplayPlayer` in C#), an in-terminal player for recordings with play/pause,
+  speed, frame stepping, a timeline to scrub, jumps to markers, failures, warnings and log entries, and log search;
+  opt-in automatic recording of the last runs (`LiveSessionOptions.AutoRecord`, `Start-ConsoleDashboard -AutoRecord`);
+  region swaps recorded as pictures so they replay faithfully.
+- Object comparison and the what-if pattern: `Compare-ConsoleObject` (`ObjectDiff`, `ChangeView`) matches objects by
+  key and shows property-level changes with counts (summary, table, side by side, unified), and `Show-ConsoleChanges`
+  (`ChangePreview`) previews changes and asks before applying them, with a typed confirmation for removals and
+  `-WhatIf` support.
 
 ## Next
 
@@ -55,15 +68,21 @@ executables use a command-line parser today.
 
 ## Backlog
 
-- An object comparison view (`Compare-ConsoleObject`): side by side, unified diff, and property-level changes for
-  objects and collections, with filters.
 - Documentation viewers: rich rendering of help, Markdown and examples (`Show-Documentation`, `Get-Help` style).
 - One shared highlighting engine for tools that keep their own today (PSPublishModule could consume ConsoleMonster's).
-- Images through ChartForgeX.
+- Images and raster export through ChartForgeX, as one bridge in a separate package so the core stays dependency-free:
+  images in (pictures drawn into the cell grid) and rasters out (the cell grid of any widget, frame or recording
+  rasterized to PNG and the other raster formats ChartForgeX supports).
 - Mouse support.
 - Per-log highlighting in log regions (today highlighting applies per line through `Write-ConsoleLog -Highlight`).
 - Collapsing long JSON arrays.
 - Logging provider and adapter packages, when a consumer needs them.
+- QR codes and barcodes in the terminal through CodeGlyphX.
+- Watching a live run remotely: a local browser mirror built on the HTML exporter, and `Watch-ConsoleSession` to attach
+  from another terminal, including over SSH.
+- One definition, every output: the same view rendered to the terminal, an HtmlForgeX report, an HtmlForgeX.Email
+  message, and OfficeIMO Word and Excel documents.
+- Interactive terminal charts through ChartForgeX: zoom and pan, a crosshair, and charts linked to tables.
 
 ## Not planned
 

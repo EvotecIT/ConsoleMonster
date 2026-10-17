@@ -286,6 +286,39 @@ namespace ConsoleMonster.Localization {
         /// <summary>A frame that failed to render: <c>render error at {0}: {1}</c>.</summary>
         public string RenderError { get; set; } = "render error at {0}: {1}";
 
+        /// <summary>Added objects: <c>+{0} added</c>.</summary>
+        public string ChangesAdded { get; set; } = "+{0} added";
+
+        /// <summary>Removed objects: <c>-{0} removed</c>.</summary>
+        public string ChangesRemoved { get; set; } = "-{0} removed";
+
+        /// <summary>Changed objects: <c>~{0} changed</c>.</summary>
+        public string ChangesChanged { get; set; } = "~{0} changed";
+
+        /// <summary>Unchanged objects: <c>{0} unchanged</c>.</summary>
+        public string ChangesUnchanged { get; set; } = "{0} unchanged";
+
+        /// <summary>The item column of a change table.</summary>
+        public string ChangesItem { get; set; } = "Item";
+
+        /// <summary>The property column of a change table.</summary>
+        public string ChangesProperty { get; set; } = "Property";
+
+        /// <summary>The old value column.</summary>
+        public string ChangesBefore { get; set; } = "Before";
+
+        /// <summary>The new value column.</summary>
+        public string ChangesAfter { get; set; } = "After";
+
+        /// <summary>A long value shown as a line diff below the table.</summary>
+        public string ChangesSeeDiff { get; set; } = "(see diff)";
+
+        /// <summary>A comparison without changes.</summary>
+        public string ChangesNone { get; set; } = "No changes";
+
+        /// <summary>The question before applying changes.</summary>
+        public string ChangesConfirm { get; set; } = "Apply these changes?";
+
         /// <summary>The members of an inspected object: <c>{0} members</c>.</summary>
         public string Members { get; set; } = "{0} members";
 

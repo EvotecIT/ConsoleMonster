@@ -1,0 +1,9 @@
+Domain users
+
+- bob  Title: Admin; Enabled: True
+~ anna
+  - Title: Engineer
+  + Title: Lead engineer
+  - Address.City: Warsaw
+  + Address.City: Krakow
++ dora  Title: Analyst; Enabled: True

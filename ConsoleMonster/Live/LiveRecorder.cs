@@ -9,6 +9,13 @@ namespace ConsoleMonster.Live {
         private readonly TextWriter _writer;
         private readonly bool _leaveOpen;
         private bool _disposed;
+        private long _written;
+
+        /// <summary>The most characters written before further events are dropped (0: no limit). Used by automatic recording.</summary>
+        internal long Limit { get; set; }
+
+        /// <summary>Whether events were dropped because <see cref="Limit"/> was reached.</summary>
+        internal bool Truncated { get; private set; }
 
         /// <summary>Creates a recorder and writes its version header.</summary>
         /// <param name="writer">Destination.</param>
@@ -39,6 +46,13 @@ namespace ConsoleMonster.Live {
             if (liveEvent.IsMarkup) { json.Append("\"markup\":1,"); }
             json.Length--;
             json.Append('}');
+            if (Limit > 0) {
+                if (Truncated || _written + json.Length > Limit) {
+                    Truncated = true;
+                    return;
+                }
+                _written += json.Length + 2;
+            }
             _writer.WriteLine(json.ToString());
         }
 

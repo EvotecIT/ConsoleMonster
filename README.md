@@ -61,7 +61,8 @@ Where cmdlet output goes:
   (`Host.UI.Write` with console colours). The transcript receives the same lines as plain text.
 - In background jobs and remoting: `Write-Host`-style information records (tag `PSHOST`) with foreground and
   background colours. Windows PowerShell 5.1 shows them in colour after `Receive-Job`. PowerShell 7 keeps the colours
-  in the records but prints received job output without colour, as it does for `Write-Host -ForegroundColor` in a job.
+  in the records; whether it prints them depends on the PowerShell version and host, exactly as for
+  `Write-Host -ForegroundColor` in a job (PowerShell 7.6.6 in Windows Terminal printed them without colour when checked).
 - Redirected output, thread jobs and other hosts get one plain record per line. So files, transcripts and `6>&1` get
   whole lines of plain text.
 - Colours map to the 16 console colours by role: pass green, fail red, warn yellow, muted dark grey, accent cyan.
@@ -177,8 +178,11 @@ From PowerShell, `Format-ConsoleTable`, `Format-ConsoleList` and `Format-Console
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
-  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`, ...)
-  configures that column.
+  (`Priority`, `Key`, `Overflow`, `MaxLines`, `MinWidth`, `MaxWidth`, `Presenter`, `Aggregate`, `WarnAbove`,
+  `Identifier`, ...) configures that column.
+- Identifier columns (`Id`, `ProcessId`, `PID`, ports, `Index`, `Year`, handle and build numbers) show their digits
+  without thousands separators and are never totalled; `Identifier = $true` (or `Presenter = 'Identifier'`) does the
+  same for any other column.
 - Without `-Property`, an object's DefaultDisplayPropertySet is used.
 - `-GroupBy`, `-Total`, `-Top N`, `-Width` and `-Culture` work as their names say. `-PassThru` also writes the input
   objects to the pipeline.
@@ -567,6 +571,19 @@ Start-ConsoleDashboard $d {
 
 A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
 
+### Tab and taskbar progress
+
+In Windows Terminal (and ConEmu) the tab and the taskbar button show the progress of a live session: a percentage
+from progress bars and lanes, red once a lane, a test or the dashboard status fails, yellow for warnings, and
+indeterminate work for spinners and status lines. `Write-ConsoleStatus`, `Terminal.Status`, `Use-ConsoleProgress`
+and `Invoke-ConsolePester` drive it too. It is written with the `OSC 9;4` sequence, only to terminals known to show it,
+never in CI, redirected or plain output, and it is cleared when the run ends, on Ctrl+C and on process exit.
+
+- `CONSOLEMONSTER_TASKBAR=0`, `TaskbarProgress.Enabled = false` or `LiveSessionOptions.TaskbarProgress = false` turn it
+  off; `LiveSessionOptions.NotifyOnFinish` rings the terminal bell when a session ends.
+- Custom widgets take part by implementing `ITaskbarProgressSource`; `TaskbarProgress.Set(state, percent)` and
+  `TaskbarProgress.Clear()` drive it by hand.
+
 ## Pester test runs
 
 `Invoke-ConsolePester` runs Pester 5 or 6 with a live dashboard. It takes the parameters of `Invoke-Pester` (or a
@@ -651,6 +668,48 @@ Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Service
 by column and F4 reverses, Space and Ctrl+A mark rows, Enter shows a row with every column, F2 chooses columns, and
 Ctrl+Enter returns the original objects (`-OutputMode Multiple`, `Single` or `None`). Columns use the table's width
 negotiation, presenters and tone rules, and the screen has the same header bar, panel and footer as menus and forms.
+
+## Comparing objects and previewing changes
+
+```powershell
+Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName -Ignore 'Last*'
+if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') {
+    Set-GroupMembers $planned
+}
+```
+
+`Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Property` as the matching
+key) and shows what was added, removed and changed, property by property, with nested objects by path
+(`Address.City`): added in the pass tone, removed in the fail tone, changed in the warn tone, long and multi-line values
+as line diffs. `-View` picks `Summary`, `Table`, `SideBySide` or `Unified`; `-Ignore` takes names, paths and wildcards;
+`-PassThru` returns the changes as objects instead (`ConsoleMonster.Changes.ObjectChange`).
+
+`Show-ConsoleChanges` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
+`$false`. Changes that remove objects ask for the number of removals to be typed (or `-TypedConfirmation` text). It
+honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or `-Force` (no question). In C#:
+`ObjectDiff.Compare(before, after, options)`, `new ChangeView(changes)` and `ChangePreview.Confirm(changes)`.
+
+## Rewinding runs
+
+```powershell
+Start-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
+Show-ConsoleReplay $dashboard                                       # rewind the newest one
+Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
+Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'Wave 2'  # a marker to jump to, while recording
+```
+
+`Show-ConsoleReplay` (`ReplayPlayer.Play` in C#) plays a recording into the same dashboard and lets you move through
+it: space plays and pauses, left and right step frame by frame, `+` and `-` change the speed, PgUp and PgDn scrub,
+Home and End jump to the ends, `n`/`p` jump to markers, `f`/`F` to failures, `w`/`W` to warnings, `l`/`L` to log
+entries, and `/` searches the log text. The header shows the run name, position and speed, and the timeline shows the
+failures, warnings, markers and log entries along the run. It works full screen and inline, on Windows PowerShell 5.1
+and PowerShell 7, in Windows Terminal and conhost; without an interactive console it prints the markers as lines.
+
+Automatic recording is opt-in: `LiveSessionOptions.AutoRecord = 10` (or `-AutoRecord 10`) writes each run to
+`%LOCALAPPDATA%\ConsoleMonster\Recordings` and keeps the newest ten within `AutoRecordMaxBytes` (50 MB) together.
+Region swaps (`Set-ConsoleRegion`, `SlotHandle.Set`) carry widgets that a recording cannot hold, so the new content is
+recorded as a picture, together with later changes of the live widgets inside it, and replays as it looked.
+
 ## Export to HTML, SVG, text and asciicast
 
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
@@ -660,6 +719,7 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTab
 $dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -WindowChrome
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.svg      # animated, no script
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.html     # player with scrubbing
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.json     # data for the player script
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.cast     # asciicast v3
 ```
 
@@ -677,8 +737,27 @@ string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
 - **SVG**: box drawing, block and braille characters are drawn as shapes, so borders join and charts line up in any
   font. Every other glyph is centred in its cell and stays selectable. There are no external assets.
 - **Recordings** are played into the same dashboard definition at a fixed size and frame rate, and identical frames
-  are merged; `FramesPerSecond = 2` roughly halves the size of an animated SVG. The animated SVG uses CSS keyframes only. The HTML player has play/pause, speed and a scrubber; add
-  `#t=30000` to the address to open it at 30 seconds. Asciicast v3 files contain output events only.
+  are merged; `FramesPerSecond = 2` roughly halves the size of an animated SVG. The animated SVG uses CSS keyframes only.
+  Asciicast v3 files contain output events only.
+- **The HTML player** is one native script and stylesheet (`ConsoleExporter.PlayerScript`, `ConsoleExporter.PlayerStyles`)
+  with play/pause, speed and a scrubber; add `#t=30000` to a page's address to open it at 30 seconds. A frame change
+  rewrites only the rows that changed, playback wakes at the recording's frame rate at most, and the clock and position
+  bar move once a second. A player pauses while off-screen or while the tab is hidden, only one player on a page
+  autoplays, and none does when the reader prefers reduced motion. A site includes the script once and points any number
+  of players at their data instead of embedding whole pages:
+
+  ```html
+  <link rel="stylesheet" href="consolemonster-player.css">   <!-- ConsoleExporter.PlayerStyles -->
+  <script src="consolemonster-player.js" defer></script>     <!-- ConsoleExporter.PlayerScript -->
+  <div data-cm-recording="/casts/deploy.json" data-cm-autoplay></div>
+  <div data-cm-recording="#patch-run"></div>
+  <script type="application/json" id="patch-run">...Recording.ExportPlayerData output...</script>
+  ```
+
+  `Recording.ExportPlayerData` (or `Export-ConsoleRecording -Destination run.json`) writes the data:
+  `{"format":"consolemonster-player","version":1,"title","width","height","fps","duration","chrome","css","rows":[html],
+  "frames":[[startMs,[rowIndex,...]]]}`. `ConsoleMonsterPlayer.mount(element, data)` and `ConsoleMonsterPlayer.scan()`
+  mount players added later; `data-cm-start` opens one at a time in milliseconds.
 - **Links**: OSC 8 links become links for http, https, mailto and ftp only. `javascript:` and every other scheme
   render as plain text, all text is escaped, and nothing is fetched from the network.
 - **Fonts**: the font stack starts with Cascadia Mono, DejaVu Sans Mono and Menlo, which draw box drawing on the cell
@@ -777,6 +856,44 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
 inspector's item counts use invariant digits regardless, because they are compact status text rather than data.
+
+## Show-Console and default formatting
+
+`Show-Console` shows any pipeline input in the view that fits it, and `ConsoleView.Auto(data)` does the same in C#:
+
+| Data | View |
+|---|---|
+| One object | An inspector (record view with nested members). |
+| Objects of one shape | A table (cards when the window is narrow), from the DefaultDisplayPropertySet, with presenters by type: bytes for integer members named Length, Size or Memory, dates, durations, Yes/No, status markers for enums such as Running/Stopped. |
+| Objects with children of the same type, or `-ChildProperty` | A tree. |
+| A numeric series, or `-Chart` | A bar chart. |
+| Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |
+
+`-View Table|Cards|Tree|Inspector|Chart|Code|Text|Grid` overrides the choice; `Grid` opens `Show-ConsoleGrid` and
+returns what you pick.
+
+`Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),
+processes (`Get-Process`), services (`Get-Service`) and any type registered with `Register-ConsoleView` as ConsoleMonster
+tables. `Disable-ConsoleFormatting` turns it off.
+
+```powershell
+Enable-ConsoleFormatting
+Get-ChildItem; Get-Process | Select-Object -First 10
+Register-ConsoleView -TypeName 'Contoso.Server' -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime
+```
+
+How it works, and why: PowerShell's format files (`*.format.ps1xml`) format one object at a time, so they cannot lay out
+a table with widths measured across all rows. Instead, `Enable-ConsoleFormatting` defines an `Out-Default` function for
+the session, the command the host sends every interactive result to. It hands objects to `Out-ConsoleDefault`, which
+collects consecutive objects of registered types into one ConsoleMonster view and passes everything else (strings,
+errors, `Format-*` output, other types) to PowerShell's own `Out-Default` unchanged. As a result:
+
+- the objects are never changed, and pipelines into other commands, `Format-*` and `Out-String` behave exactly as before,
+  because they never reach `Out-Default`;
+- redirected output, background and thread jobs, remoting and other hosts keep PowerShell's output, because
+  `Out-ConsoleDefault` only takes over on a real local console (`-Force` renders anyway);
+- an `Out-Default` function you already have is kept unless you pass `-Force`, and if ConsoleMonster is removed the
+  function falls back to PowerShell's `Out-Default`.
 
 ## Emoji and symbols on every terminal
 

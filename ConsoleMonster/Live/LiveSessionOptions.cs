@@ -65,11 +65,58 @@ namespace ConsoleMonster.Live {
         /// </summary>
         public ITerminalTarget? Target { get; set; }
 
+        /// <summary>
+        /// Whether the session drives the terminal's progress indicator (the Windows Terminal tab and taskbar) from its
+        /// progress bars, lanes, spinners and status, and clears it at the end (default true; see <see cref="TaskbarProgress"/>).
+        /// </summary>
+        public bool TaskbarProgress { get; set; } = true;
+
+        /// <summary>Whether the session rings the terminal bell when it ends, to call attention to a finished run (default false).</summary>
+        public bool NotifyOnFinish { get; set; }
+
         /// <summary>UTF-8 recording destination, mutually exclusive with RecordWriter.</summary>
         public string? RecordPath { get; set; }
 
         /// <summary>Borrowed recording writer; flushed but left open at shutdown.</summary>
         public TextWriter? RecordWriter { get; set; }
+
+        private int _autoRecord;
+        private long _autoRecordMaxBytes = 50L * 1024 * 1024;
+
+        /// <summary>
+        /// Opt-in automatic recording: when above zero and neither <see cref="RecordPath"/> nor <see cref="RecordWriter"/> is
+        /// set, the session records itself to <see cref="AutoRecordFolder"/> and keeps only this many recordings with its
+        /// <see cref="RecordingName"/> (the newest ones; other files are never removed), so the last runs can be rewound with
+        /// <c>Show-ConsoleReplay</c>. Default 0 (off).
+        /// </summary>
+        public int AutoRecord {
+            get => _autoRecord;
+            set => _autoRecord = Math.Max(0, value);
+        }
+
+        /// <summary>
+        /// The most bytes the automatic recordings with one <see cref="RecordingName"/> may take together (default 50 MB): older
+        /// recordings are removed first, and a single recording stops growing at this size.
+        /// </summary>
+        public long AutoRecordMaxBytes {
+            get => _autoRecordMaxBytes;
+            set {
+                if (value < 1024) { throw new ArgumentOutOfRangeException(nameof(value), "AutoRecordMaxBytes must be at least 1024."); }
+                _autoRecordMaxBytes = value;
+            }
+        }
+
+        /// <summary>
+        /// Where automatic recordings go, or null for <c>%LOCALAPPDATA%\ConsoleMonster\Recordings</c> (on Linux and macOS
+        /// the local application data folder, usually <c>~/.local/share</c>).
+        /// </summary>
+        public string? AutoRecordFolder { get; set; }
+
+        /// <summary>The name automatic recordings start with (default <c>session</c>), followed by the start time.</summary>
+        public string? RecordingName { get; set; }
+
+        /// <summary>The default folder for automatic recordings.</summary>
+        public static string DefaultRecordingFolder => Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ConsoleMonster"), "Recordings");
 
         /// <summary>Widget appended to scrollback after live output ends.</summary>
         public IWidget? Summary { get; set; }

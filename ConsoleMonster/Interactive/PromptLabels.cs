@@ -386,6 +386,45 @@ namespace ConsoleMonster.Interactive {
         /// <summary>A menu item whose action is unavailable: {0}.</summary>
         public string Unavailable { get; set; } = "unavailable: {0}";
 
+        /// <summary>Replay player key hint: play or pause.</summary>
+        public string KeyPlay { get; set; } = "play/pause";
+
+        /// <summary>Replay player key hint: step one frame.</summary>
+        public string KeyFrame { get; set; } = "frame";
+
+        /// <summary>Replay player key hint: change the speed.</summary>
+        public string KeySpeed { get; set; } = "speed";
+
+        /// <summary>Replay player key hint: jump to the next or previous marker.</summary>
+        public string KeyMarker { get; set; } = "marker";
+
+        /// <summary>Replay player key hint: jump to the next or previous failure.</summary>
+        public string KeyFailure { get; set; } = "failure";
+
+        /// <summary>Replay player key hint: jump to the next or previous warning.</summary>
+        public string KeyWarning { get; set; } = "warning";
+
+        /// <summary>Replay player key hint: jump to the next or previous log entry.</summary>
+        public string KeyLogEntry { get; set; } = "log entry";
+
+        /// <summary>Replay player key hint: search the log.</summary>
+        public string KeySearch { get; set; } = "search";
+
+        /// <summary>Replay player state: playing.</summary>
+        public string ReplayPlaying { get; set; } = "playing";
+
+        /// <summary>Replay player state: paused.</summary>
+        public string ReplayPaused { get; set; } = "paused";
+
+        /// <summary>Replay player: nothing further in the requested direction.</summary>
+        public string ReplayNoMore { get; set; } = "Nothing more in that direction";
+
+        /// <summary>Replay player: no log entry contains the search text {0}.</summary>
+        public string ReplayNoMatch { get; set; } = "No log entry contains {0}";
+
+        /// <summary>Replay player: placeholder of the log search box.</summary>
+        public string ReplaySearch { get; set; } = "search the log";
+
         /// <summary>Formats a label with arguments using the invariant culture.</summary>
         /// <param name="format">The format string (one of this object's properties).</param>
         /// <param name="args">The arguments.</param>

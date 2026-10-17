@@ -36,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Start-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
                 return;
             }
-            if (!session.TryGetTarget(liveEvent.Target, out _) && Warned.GetOrCreateValue(session).TryAdd(liveEvent.Target, true)) {
+            if (liveEvent.Target != LiveSession.MarkerTarget && !session.TryGetTarget(liveEvent.Target, out _) && Warned.GetOrCreateValue(session).TryAdd(liveEvent.Target, true)) {
                 WriteWarning(UnknownTargetMessage(session, liveEvent.Target, null));
             }
             session.Post(liveEvent);

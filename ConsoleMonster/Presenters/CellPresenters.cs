@@ -15,6 +15,61 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Text with <c>:shortcode:</c> emoji, degraded per glyph tier (see <see cref="EmojiPresenter"/>).</summary>
         public static ICellPresenter Emoji { get; } = new EmojiPresenter();
 
+        /// <summary>Identifier numbers (ids, ports, indexes, years) without thousands separators (see <see cref="IdentifierPresenter"/>).</summary>
+        public static ICellPresenter Identifier { get; } = new IdentifierPresenter();
+
+        /// <summary>Enum or text values that read as a status, shown with a marker (see <see cref="StatusEnumPresenter"/>).</summary>
+        public static ICellPresenter StatusWord { get; } = new StatusEnumPresenter();
+
+        /// <summary>
+        /// The presenter a column gets from its member name and value type, or null for the default: plain digits for
+        /// integer identifiers (Id, PID, Port, Index, Year, names ending in Id or Port), byte counts for
+        /// integer members named Size, Length, Bytes, WorkingSet or Memory (and names ending in them), dates for
+        /// DateTime and DateTimeOffset, durations for TimeSpan, Yes/No for booleans, and status markers for enums whose
+        /// names read as a status (Running, Stopped, Failed...).
+        /// </summary>
+        /// <param name="name">The member or column name.</param>
+        /// <param name="type">The value type, or null when unknown.</param>
+        /// <returns>The presenter, or null.</returns>
+        public static ICellPresenter? ForMember(string? name, Type? type) {
+            if (type == null) {
+                return null;
+            }
+            Type actual = Nullable.GetUnderlyingType(type) ?? type;
+            if (actual == typeof(DateTime) || actual == typeof(DateTimeOffset)) {
+                return Date;
+            }
+            if (actual == typeof(TimeSpan)) {
+                return Duration;
+            }
+            if (actual == typeof(bool)) {
+                return Boolean;
+            }
+            if (actual.IsEnum) {
+                return StatusEnumPresenter.LooksLikeStatus(actual) ? StatusWord : null;
+            }
+            bool integer = actual == typeof(long) || actual == typeof(ulong) || actual == typeof(int) || actual == typeof(uint) || actual == typeof(short) || actual == typeof(ushort);
+            if (integer && IdentifierPresenter.LooksLikeIdentifier(name)) {
+                return Identifier;
+            }
+            if (integer && IsSizeName(name)) {
+                return Bytes;
+            }
+            return null;
+        }
+
+        private static bool IsSizeName(string? name) {
+            if (string.IsNullOrEmpty(name)) {
+                return false;
+            }
+            foreach (string word in new[] { "Size", "Length", "Bytes", "WorkingSet", "WorkingSet64", "Memory", "PagedMemorySize64", "VirtualMemorySize64", "PrivateMemorySize64" }) {
+                if (name!.EndsWith(word, StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>Chooses by value type.</summary>
         public static ICellPresenter Auto { get; } = new AutoPresenter();
 
@@ -65,6 +120,11 @@ namespace ConsoleMonster.Presenters {
                     return Text;
                 case "emoji":
                     return Emoji;
+                case "statusword":
+                    return StatusWord;
+                case "identifier":
+                case "id":
+                    return Identifier;
                 case "auto":
                 case "":
                     return Auto;
@@ -102,7 +162,7 @@ namespace ConsoleMonster.Presenters {
                 case "url":
                     return Link;
                 default:
-                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Emoji, Auto, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress or Link.", nameof(name));
+                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Emoji, Auto, Status, StatusWord, Identifier, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress or Link.", nameof(name));
             }
         }
 

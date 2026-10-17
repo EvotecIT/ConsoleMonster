@@ -59,7 +59,17 @@ namespace ConsoleMonster.Widgets {
         public override Size Measure(Constraints constraints, RenderContext context) => _child.Measure(constraints, context);
 
         /// <inheritdoc />
-        public override void Render(Region region, RenderContext context) => _child.Render(region, context);
+        public override void Render(Region region, RenderContext context) {
+            RenderedWidth = region.Width;
+            RenderedHeight = region.Height;
+            _child.Render(region, context);
+        }
+
+        /// <summary>The width of the last render (0 before the first), used to snapshot the content for recordings.</summary>
+        internal int RenderedWidth { get; private set; }
+
+        /// <summary>The height of the last render (0 before the first).</summary>
+        internal int RenderedHeight { get; private set; }
 
         private sealed class Empty : IWidget {
             internal static readonly Empty Instance = new Empty();

@@ -258,10 +258,33 @@ namespace ConsoleMonster.Tests.Export {
             string recording = "{\"consolemonster\":\"recording\",\"version\":1}\n{\"t\":10,\"target\":\"log\",\"op\":\"write\",\"text\":\"</script><script>alert(1)</script>\"}\n";
             string html = Recording.ExportHtml(root, new StringReader(recording), new RecordingExportOptions { Width = 50, Height = 4 });
             Assert.Single(Regex.Matches(html, "<script>"));
-            Assert.Single(Regex.Matches(html, "</script>"));
+            Assert.Single(Regex.Matches(html, "<script type=\"application/json\" id=\"cm-data\">"));
+            Assert.Equal(2, Regex.Matches(html, "</script>").Count);
             Assert.Contains("\\u0026lt;/script\\u0026gt;", html);
-            Assert.Contains("id=\"cm-seek\"", html);
-            Assert.Contains("location.hash", html);
+            Assert.Contains("data-cm-recording=\"#cm-data\" data-cm-autoplay", html);
+            Assert.Contains(ConsoleExporter.PlayerScript.Substring(0, 40), html);
+        }
+
+        [Fact]
+        public void Recording_PlayerData_IsTheDocumentedFormat() {
+            IWidget root = Build(out string recording);
+            string data = Recording.ExportPlayerData(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build" });
+            Assert.StartsWith("{\"format\":\"consolemonster-player\",\"version\":1,\"title\":\"Build\",\"width\":40,\"height\":6,\"fps\":5,", data);
+            Assert.Contains("\"css\":\".cm-export{", data);
+            Assert.Contains("\"rows\":[", data);
+            Assert.Contains("\"frames\":[[0,[", data);
+            Assert.DoesNotContain("<", data);
+        }
+
+        [Fact]
+        public void PlayerScript_IsANativeAssetThatOnlyWorksWhenNeeded() {
+            string script = ConsoleExporter.PlayerScript;
+            Assert.Contains("ConsoleMonsterPlayer", script);
+            Assert.Contains("IntersectionObserver", script);
+            Assert.Contains("visibilitychange", script);
+            Assert.Contains("prefers-reduced-motion", script);
+            Assert.DoesNotContain("requestAnimationFrame", script);
+            Assert.Contains(".cm-controls", ConsoleExporter.PlayerStyles);
         }
 
         [Fact]

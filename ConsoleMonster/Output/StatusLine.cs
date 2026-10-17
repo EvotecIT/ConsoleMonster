@@ -58,8 +58,10 @@ namespace ConsoleMonster.Output {
                 line.Render(final);
                 if (final) {
                     _current = null;
+                    TaskbarProgress.Clear();
                     return;
                 }
+                TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
                 _current = line;
                 if (spinner || clock || elapsed) {
                     line._timer = new Timer(_ => line.Tick(), null, 100, 100);

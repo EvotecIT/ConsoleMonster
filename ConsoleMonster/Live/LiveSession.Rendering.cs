@@ -33,6 +33,7 @@ namespace ConsoleMonster.Live {
                     // Apply everything queued, bounded by time rather than count: a flood must neither starve rendering
                     // nor cap throughput (a fixed per-tick count capped a 15 fps loop near 60k events/s).
                     Drain(int.MaxValue, Math.Max(20, period * 0.6));
+                    RecordSlotSnapshots(false);
                     if (_output!.SupportsLiveFrames) {
                         if (Volatile.Read(ref _paused) == 0) {
                             RenderFinal();
@@ -70,10 +71,16 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.Target == MarkerTarget) {
+                Interlocked.Increment(ref _eventsApplied);
+                Record(liveEvent);
+                return;
+            }
             if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
                 if (liveEvent.Target == "$log" && liveEvent.Text != null && _options.Mode == LiveMode.Inline) {
                     // An inline area without a log region prints log lines above itself.
                     _unroutedLines.Enqueue(liveEvent.IsMarkup ? MarkupLine + liveEvent.Text : liveEvent.Text);
+                    Record(liveEvent);
                     return;
                 }
                 Interlocked.Increment(ref _eventsDropped);
@@ -93,7 +100,7 @@ namespace ConsoleMonster.Live {
                 Interlocked.Exchange(ref _invalidate, 1);
             }
             if (_recorder != null) {
-                Attempt(() => _recorder.Write(liveEvent));
+                RecordApplied(target!, liveEvent);
             }
             if (_output != null && !_output.SupportsLiveFrames) {
                 Attempt(() => {
@@ -174,6 +181,32 @@ namespace ConsoleMonster.Live {
                 }
                 _output.RenderFrame(_frame);
                 Interlocked.Increment(ref _framesRendered);
+                UpdateTaskbar();
+            }
+        }
+
+        // The terminal's progress indicator follows the widgets that report progress (see ITaskbarProgressSource).
+        private void UpdateTaskbar() {
+            if (!_options.TaskbarProgress || !_onConsole || _context == null || !TaskbarProgress.IsSupported(_context.Profile)) {
+                return;
+            }
+            List<KeyValuePair<TaskbarState, double>> sources = new List<KeyValuePair<TaskbarState, double>>();
+            CollectTaskbar(_root, sources, 0);
+            TaskbarState state = TaskbarProgress.Combine(sources, out int percent);
+            if (state != TaskbarState.Clear || _taskbarUsed) {
+                _taskbarUsed = true;
+                Attempt(() => TaskbarProgress.Set(state, percent));
+            }
+        }
+
+        private static void CollectTaskbar(IWidget widget, List<KeyValuePair<TaskbarState, double>> sources, int depth) {
+            if (widget is ITaskbarProgressSource source && source.TryGetTaskbarProgress(out TaskbarState state, out double fraction)) {
+                sources.Add(new KeyValuePair<TaskbarState, double>(state, fraction));
+            }
+            if (widget is IContainer container && depth < 32) {
+                foreach (IWidget child in container.Children) {
+                    CollectTaskbar(child, sources, depth + 1);
+                }
             }
         }
 

@@ -61,6 +61,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? RecordPath { get; set; }
 
+        /// <summary><para type="description">Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordPath.</para></summary>
+        [Parameter]
+        [ValidateRange(0, 1000)]
+        public int AutoRecord { get; set; }
+
         /// <summary><para type="description">A widget printed to scrollback after the dashboard ends (default: the dashboard's final state).</para></summary>
         [Parameter]
         public IWidget? Summary { get; set; }
@@ -118,7 +123,9 @@ namespace ConsoleMonster.PowerShell {
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
                 PrintFinalState = !Transient.IsPresent,
                 Summary = Summary,
-                RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath)
+                RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath),
+                AutoRecord = AutoRecord,
+                RecordingName = "dashboard"
             };
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
             if (HostOutput.UseHost(this, profile)) {

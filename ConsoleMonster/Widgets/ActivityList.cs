@@ -17,7 +17,7 @@ namespace ConsoleMonster.Widgets {
     /// <para>Events: <c>update</c> with key <c>"id"</c> or <c>"id/parentId"</c>, text = activity, state = status, value =
     /// percent (negative for unknown) and total = seconds remaining (negative for unknown); <c>complete</c> with the key.</para>
     /// </summary>
-    public sealed class ActivityList : LiveWidget {
+    public sealed class ActivityList : LiveWidget, Output.ITaskbarProgressSource {
         /// <summary>The target name the PowerShell progress bridge posts to.</summary>
         public const string ProgressTarget = "$progress";
 
@@ -34,6 +34,26 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>The number of activities in progress.</summary>
         public int Count => _activities.Count;
+
+        /// <inheritdoc />
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            state = Output.TaskbarState.Clear;
+            fraction = double.NaN;
+            if (_activities.Count == 0) {
+                return false;
+            }
+            double sum = 0;
+            int counted = 0;
+            foreach (Activity activity in _activities) {
+                if (activity.Parent < 0 && activity.Percent >= 0) {
+                    sum += Math.Min(100, activity.Percent) / 100.0;
+                    counted++;
+                }
+            }
+            fraction = counted > 0 ? sum / counted : double.NaN;
+            state = counted > 0 ? Output.TaskbarState.Normal : Output.TaskbarState.Indeterminate;
+            return true;
+        }
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -53,7 +73,7 @@ namespace ConsoleMonster.Widgets {
             }
             Activity activity = index >= 0 ? _activities[index] : new Activity(id);
             activity.Parent = parent;
-            activity.Title = liveEvent.Text ?? activity.Title;
+            activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
             activity.Status = liveEvent.State;
             activity.Percent = liveEvent.Value;
             activity.SecondsLeft = liveEvent.Total;

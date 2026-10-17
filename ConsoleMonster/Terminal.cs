@@ -274,7 +274,17 @@ namespace ConsoleMonster {
         /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
         public static void WriteMarkup(string markup, bool newLine, TerminalProfile? profile = null, ITerminalWriter? writer = null) {
             TerminalProfile p = profile ?? GetCurrentProfile();
-            WriteLines(Markup.Parse(markup, Theme, p.ColorDepth).Lines, newLine, p, writer);
+            IReadOnlyList<StyledLine> lines = Markup.Parse(markup, Theme, p.ColorDepth).Lines;
+            if (!p.IsOutputRedirected && p.Mode == OutputMode.Interactive) {
+                // Long markup wraps at word boundaries with its styles, like a text block, instead of breaking mid-word
+                // at the window edge. Redirected, CI and plain output keep whole lines for logs.
+                List<StyledLine> wrapped = new List<StyledLine>(lines.Count);
+                foreach (StyledLine line in lines) {
+                    wrapped.AddRange(line.Width > p.Width ? TextWrapper.Wrap(line, Math.Max(1, p.Width)) : new[] { line });
+                }
+                lines = wrapped;
+            }
+            WriteLines(lines, newLine, p, writer);
         }
 
         /// <summary>

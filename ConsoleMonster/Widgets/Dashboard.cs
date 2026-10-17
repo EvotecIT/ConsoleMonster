@@ -13,7 +13,7 @@ namespace ConsoleMonster.Widgets {
     /// footer bar (hints such as "Ctrl+C to stop"). In print-once output it renders the same parts top to bottom.
     /// Live operations: <c>title</c> (Text), <c>subtitle</c> (Text), <c>status</c> (Text, State), <c>footer</c> (Text).
     /// </summary>
-    public sealed partial class Dashboard : LiveWidget, IContainer {
+    public sealed partial class Dashboard : LiveWidget, IContainer, Output.ITaskbarProgressSource {
         /// <summary>Creates a dashboard.</summary>
         /// <param name="title">The title (markup).</param>
         /// <param name="body">The body.</param>
@@ -51,6 +51,16 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new[] { Body };
+
+        /// <summary>The run state for the terminal's indicator: red after a failure status, yellow after a warning status.</summary>
+        /// <param name="state">The state.</param>
+        /// <param name="fraction">Always NaN (the body's widgets report the percentage).</param>
+        /// <returns>Whether the status is a failure or a warning.</returns>
+        public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
+            fraction = double.NaN;
+            state = StatusLevel == StatusKind.Fail ? Output.TaskbarState.Error : StatusLevel == StatusKind.Warn ? Output.TaskbarState.Paused : Output.TaskbarState.Clear;
+            return state != Output.TaskbarState.Clear;
+        }
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {

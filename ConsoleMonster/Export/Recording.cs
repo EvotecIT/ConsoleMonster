@@ -20,6 +20,36 @@ namespace ConsoleMonster.Export {
         /// <returns>The HTML.</returns>
         public static string ExportHtml(IWidget root, TextReader jsonLines, RecordingExportOptions? options = null) => Export(root, jsonLines, ExportFormat.Html, options);
 
+        /// <summary>
+        /// Exports a recording as player data (JSON) for the native player (<see cref="ConsoleExporter.PlayerScript"/>), so a
+        /// site includes the script once and points any number of players at their data instead of embedding whole pages.
+        /// The data holds the distinct rows as HTML, each frame as its start time and row numbers, and the screen CSS
+        /// (scoped to its player by the script). It is safe to embed in a <c>script type="application/json"</c> element.
+        /// </summary>
+        /// <param name="root">The widget tree the recording was made with.</param>
+        /// <param name="jsonLines">The recording.</param>
+        /// <param name="options">Size, frame rate, theme and window frame.</param>
+        /// <returns>The JSON.</returns>
+        public static string ExportPlayerData(IWidget root, TextReader jsonLines, RecordingExportOptions? options = null) {
+            if (jsonLines == null) {
+                throw new ArgumentNullException(nameof(jsonLines));
+            }
+            return ExportPlayerData(root, new List<LiveEvent>(LiveRecordingReader.Read(jsonLines)), options);
+        }
+
+        /// <summary>Exports recorded events as player data (JSON); see <see cref="ExportPlayerData(IWidget, TextReader, RecordingExportOptions)"/>.</summary>
+        /// <param name="root">The widget tree the events address.</param>
+        /// <param name="events">The events, in order, with their times.</param>
+        /// <param name="options">Size, frame rate, theme and window frame.</param>
+        /// <returns>The JSON.</returns>
+        public static string ExportPlayerData(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
+            if (events == null) {
+                throw new ArgumentNullException(nameof(events));
+            }
+            RecordingExportOptions o = options ?? new RecordingExportOptions();
+            return HtmlPlayerWriter.WriteData(RecordingFrames.Capture(root, new List<LiveEvent>(events), o), o);
+        }
+
         /// <summary>Exports a recording as an animated SVG.</summary>
         /// <param name="root">The widget tree the recording was made with.</param>
         /// <param name="jsonLines">The recording.</param>
@@ -75,15 +105,16 @@ namespace ConsoleMonster.Export {
         /// <param name="root">The widget tree the recording was made with.</param>
         /// <param name="recordingPath">The .jsonl recording.</param>
         /// <param name="outputPath">The output file.</param>
-        /// <param name="format">The format; null picks it from the output extension (.html, .svg, .cast).</param>
+        /// <param name="format">The format; null picks it from the output extension (.html, .svg, .cast; .json writes player data).</param>
         /// <param name="options">The options.</param>
         public static void Save(IWidget root, string recordingPath, string outputPath, ExportFormat? format = null, RecordingExportOptions? options = null) {
             if (outputPath == null) {
                 throw new ArgumentNullException(nameof(outputPath));
             }
+            bool data = format == null && string.Equals(Path.GetExtension(outputPath), ".json", StringComparison.OrdinalIgnoreCase);
             ExportFormat chosen = format ?? ConsoleExporter.FormatFor(outputPath);
             using (StreamReader reader = new StreamReader(recordingPath ?? throw new ArgumentNullException(nameof(recordingPath)), Encoding.UTF8)) {
-                File.WriteAllText(outputPath, Export(root, reader, chosen, options), new UTF8Encoding(false));
+                File.WriteAllText(outputPath, data ? ExportPlayerData(root, reader, options) : Export(root, reader, chosen, options), new UTF8Encoding(false));
             }
         }
     }
