@@ -36,6 +36,14 @@ namespace ConsoleMonster.Examples {
                 case "gallery":
                     Terminal.Write(WidgetGallery.Build());
                     return 0;
+                case "filmstrip":
+                    Capabilities.GlyphTier tier = args.Length > 2 ? (Capabilities.GlyphTier)Enum.Parse(typeof(Capabilities.GlyphTier), args[2], true) : Capabilities.GlyphTier.Full;
+                    int filmWidth = args.Length > 3 ? int.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture) : 120;
+                    int filmHeight = args.Length > 4 ? int.Parse(args[4], System.Globalization.CultureInfo.InvariantCulture) : 32;
+                    foreach (string page in Filmstrip.Run(args.Length > 1 ? args[1] : "filmstrip", tier, filmWidth, filmHeight)) {
+                        Console.WriteLine(page);
+                    }
+                    return 0;
                 case "large-table":
                     Console.WriteLine(LargeTable.Measure(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 50000));
                     return 0;

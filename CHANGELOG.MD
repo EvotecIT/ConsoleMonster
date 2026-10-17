@@ -36,6 +36,7 @@
 - Long tables print in blocks (`Terminal.StreamingRowThreshold`, `Terminal.RenderChunks`): 50,000 rows use about 76 MB instead of 510 MB.
 - SVG exports batch shapes into one path per colour; `ExportOptions.Elapsed` sets the clock of widget exports; `Format-ConsoleTable -AsWidget` keeps `-Culture` (`CultureScope`).
 - A Windows CI workflow runs xUnit (net472, net8.0) and Pester (5.1, 7).
+- Design system (`Docs/Design-System.md`): shared `HeaderBar`, `FooterBar`, `DialogChrome`, status symbols and spinner. Runs from menus and forms (`FormOptions.AfterSubmit`) stay in the same frame, and Write-Host colours are kept above inline areas and in log regions.
 - 60 cmdlets with a plain `Console` noun (`Write-ConsoleTable`, `Format-ConsoleTable`, `New-ConsoleDashboard`, `Start-ConsoleDashboard`, `Read-ConsoleSelection`, `Show-ConsoleMenu`, `Read-ConsoleForm`, ...).
 
 #### Breaking changes

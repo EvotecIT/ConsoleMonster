@@ -405,6 +405,8 @@ that Esc cancels. The review page shows every answer and the equivalent command 
 
 Every built-in word comes from `PromptLabels`, so the interactive layer can be translated.
 
+One design system covers every surface, described in [Docs/Design-System.md](Docs/Design-System.md): the header bar, the key-hint footer, dialogs, the focus row, the status vocabulary and the formatting rules. A run started from a menu, or from a form through `FormOptions.AfterSubmit`, draws inside the same frame as the menu or form. Its header, sidebar and footer stay in place; only the content changes, and the screen is never cleared between steps.
+
 ## Inline live area and Write-Progress
 
 A live session can draw inline instead of on the alternate screen: an area as tall as its content sits below the
