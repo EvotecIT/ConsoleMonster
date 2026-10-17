@@ -66,6 +66,9 @@ jobs:
             shell: powershell
           - name: 'PowerShell 7'
             shell: pwsh
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -79,14 +82,12 @@ jobs:
         run: dotnet build Sources/ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
       - name: Install Pester
-        shell: ${{ matrix.shell }}
         run: |
           Write-Host "PowerShell $($PSVersionTable.PSVersion)"
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
           Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
 
       - name: Run Pester
-        shell: ${{ matrix.shell }}
         run: |
           Import-Module Pester -MinimumVersion 5.5.0
           $configuration = New-PesterConfiguration
