@@ -17,7 +17,7 @@ namespace ConsoleMonster.Text {
     /// </summary>
     /// <remarks>
     /// Literal spans are safe for data: brackets and control characters are never interpreted. Build rich text with
-    /// <see cref="RichTextBuilder"/>, <see cref="FromMarkup"/>, <see cref="FromPieces"/> (Write-Color style parallel
+    /// <see cref="RichTextBuilder"/>, <see cref="FromMarkup"/>, <see cref="FromPieces(IReadOnlyList{string}, IReadOnlyList{RichColor}, IReadOnlyList{RichColor}, RichStyle)"/> (Write-Color style parallel
     /// arrays) or <see cref="Gradient"/>. <see cref="ToString"/> returns the plain text.
     /// </remarks>
     public sealed class RichText : IWidget {
@@ -97,6 +97,60 @@ namespace ConsoleMonster.Text {
             return new RichText(segments);
         }
 
+        /// <summary>
+        /// Rich text from pieces as Write-ConsoleText takes them: strings (literal) or rich text (whose own colours win over
+        /// the piece colours); piece i gets colour i and background i, and pieces beyond the colours get the first ones.
+        /// </summary>
+        /// <param name="pieces">The pieces: strings, rich text, or values shown with their invariant text.</param>
+        /// <param name="colors">Foreground colours, or null.</param>
+        /// <param name="backgrounds">Background colours, or null.</param>
+        /// <param name="style">Decorations, a link and the fallback colour applied to every piece.</param>
+        /// <returns>The rich text.</returns>
+        public static RichText FromPieces(IReadOnlyList<object?> pieces, IReadOnlyList<RichColor>? colors, IReadOnlyList<RichColor>? backgrounds, RichStyle style) {
+            if (pieces == null) {
+                throw new ArgumentNullException(nameof(pieces));
+            }
+            List<RichText> parts = new List<RichText>(pieces.Count);
+            for (int i = 0; i < pieces.Count; i++) {
+                RichStyle pieceStyle = new RichStyle(Pick(colors, i, style.Foreground), Pick(backgrounds, i, style.Background), style.Decoration, style.Link);
+                object? piece = pieces[i];
+                parts.Add(piece is RichText rich ? rich.WithBaseStyle(pieceStyle) : Plain(Convert.ToString(piece, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty, pieceStyle));
+            }
+            return Concat(parts.ToArray());
+        }
+
+        /// <summary>
+        /// Splits the text at a separator, keeping each piece's styles. Markup segments are split on their text only when
+        /// they contain no tags.
+        /// </summary>
+        /// <param name="separator">The separator.</param>
+        /// <returns>The parts (one when the separator does not occur).</returns>
+        public List<RichText> Split(string separator) {
+            if (string.IsNullOrEmpty(separator)) {
+                return new List<RichText> { this };
+            }
+            List<RichText> result = new List<RichText>();
+            List<RichSegment> current = new List<RichSegment>();
+            foreach (RichSegment segment in Segments) {
+                bool splittable = !segment.IsMarkup || segment.Text.IndexOf('[') < 0;
+                if (!splittable || segment.Text.IndexOf(separator, StringComparison.Ordinal) < 0) {
+                    current.Add(segment);
+                    continue;
+                }
+                string[] pieces = segment.Text.Split(new[] { separator }, StringSplitOptions.None);
+                for (int i = 0; i < pieces.Length; i++) {
+                    if (i > 0) {
+                        result.Add(new RichText(current));
+                        current = new List<RichSegment>();
+                    }
+                    if (pieces[i].Length > 0) {
+                        current.Add(new RichSegment(pieces[i], segment.Style, segment.IsMarkup));
+                    }
+                }
+            }
+            result.Add(new RichText(current));
+            return result;
+        }
         /// <summary>
         /// Literal text coloured as a gradient from one colour to another, per grapheme. Colours are 24-bit and are
         /// down-mapped per colour tier (on 16 colours the gradient becomes steps).

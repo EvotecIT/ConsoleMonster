@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell {
             HostRoute route = RouteFor(cmdlet, p);
             TerminalProfile host = HostProfile(cmdlet, p, explicitWidth, route);
             RenderContext context = Terminal.CreateContext(host);
-            HostColorMap colors = new HostColorMap(context, route != HostRoute.Plain);
+            ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
             foreach (CellBuffer block in Terminal.RenderChunks(widget, host.Width, context)) {
                 for (int y = 0; y < block.Height; y++) {
@@ -55,7 +55,7 @@ namespace ConsoleMonster.PowerShell {
 
         // Runs of cells whose colours map to the same console colours become one segment. Blank cells without a background
         // join the current run, so spacing never splits a colour; trailing blanks are dropped.
-        private static void CollectRow(CellBuffer block, int y, HostColorMap colors, List<Segment> segments) {
+        private static void CollectRow(CellBuffer block, int y, ConsoleColorMap colors, List<Segment> segments) {
             segments.Clear();
             int end = block.Width;
             while (end > 0) {
@@ -101,7 +101,7 @@ namespace ConsoleMonster.PowerShell {
             HostRoute route = RouteFor(cmdlet, p);
             TerminalProfile host = HostProfile(cmdlet, p, false, route);
             RenderContext context = Terminal.CreateContext(host);
-            HostColorMap colors = new HostColorMap(context, route != HostRoute.Plain);
+            ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
             foreach (StyledLine line in Markup.Parse(markup, context.Theme, host.ColorDepth).Lines) {
                 segments.Clear();
@@ -135,7 +135,7 @@ namespace ConsoleMonster.PowerShell {
             HostRoute route = RouteFor(cmdlet, p);
             TerminalProfile host = HostProfile(cmdlet, p, width > 0, route);
             RenderContext context = Terminal.CreateContext(host);
-            HostColorMap colors = new HostColorMap(context, route != HostRoute.Plain);
+            ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             IReadOnlyList<StyledLine> lines = build(context, host.Width);
             List<Segment> segments = new List<Segment>();
             for (int i = 0; i < lines.Count; i++) {
@@ -145,7 +145,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Spans whose colours map to the same console colours become one segment; spaces join the current run.
-        private static void CollectSpans(StyledLine line, HostColorMap colors, List<Segment> segments) {
+        private static void CollectSpans(StyledLine line, ConsoleColorMap colors, List<Segment> segments) {
             segments.Clear();
             System.Text.StringBuilder run = new System.Text.StringBuilder();
             ConsoleColor? foreground = null;
@@ -246,7 +246,7 @@ namespace ConsoleMonster.PowerShell {
         // transcripts, and dashboard runspaces log each record as a line, so coloured records are only used where the
         // receiving side joins them (Receive-Job, remoting clients).
         private static HostRoute RouteFor(PSCmdlet cmdlet, TerminalProfile profile) {
-            if (HostColorMap.ColorDisabled(profile)) {
+            if (ConsoleColorMap.ColorDisabled(profile)) {
                 return HostRoute.Plain;
             }
             string name = cmdlet.Host?.Name ?? string.Empty;

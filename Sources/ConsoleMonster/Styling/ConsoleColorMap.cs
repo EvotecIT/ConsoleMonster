@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
-using ConsoleMonster.Styling;
 
-namespace ConsoleMonster.PowerShell {
+namespace ConsoleMonster.Styling {
     /// <summary>
-    /// Maps rendered cell colours to the 16 <see cref="ConsoleColor"/> values a PowerShell host can show. Theme roles map by
+    /// Maps rendered cell colours to the 16 <see cref="ConsoleColor"/> values a console API or a PowerShell host can show (Console.ForegroundColor, Write-Host -ForegroundColor). Theme roles map by
     /// meaning (pass green, fail red, warn yellow, muted dark grey, accent cyan; darker variants on the light theme), plain
     /// text keeps the host's own colour, and anything else falls back to the nearest of the 16 colours.
     /// </summary>
-    internal sealed class HostColorMap {
+    public sealed class ConsoleColorMap {
         // ANSI order (black, red, green, yellow, blue, magenta, cyan, white, then the bright set) to ConsoleColor.
         private static readonly ConsoleColor[] AnsiToConsole = {
             ConsoleColor.Black, ConsoleColor.DarkRed, ConsoleColor.DarkGreen, ConsoleColor.DarkYellow,
@@ -24,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Creates a map for a render context.</summary>
         /// <param name="context">The context the cells were rendered with.</param>
         /// <param name="enabled">False when colour is off (NO_COLOR, CONSOLEMONSTER_COLOR=none, plain mode).</param>
-        public HostColorMap(RenderContext context, bool enabled) {
+        public ConsoleColorMap(RenderContext context, bool enabled = true) {
             Enabled = enabled;
             if (!enabled) {
                 return;

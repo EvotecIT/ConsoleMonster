@@ -70,16 +70,11 @@ namespace ConsoleMonster.PowerShell {
             TextDecoration decoration = Decorations(style);
             RichColor roleColor = role.HasValue ? RichColor.FromRole(role.Value) : RichColor.Default;
             List<RichText> parts = new List<RichText>();
-            object[] pieces = text ?? Array.Empty<object>();
-            for (int i = 0; i < pieces.Length; i++) {
-                RichStyle pieceStyle = new RichStyle(Pick(foregrounds, i, roleColor), Pick(backgrounds, i, RichColor.Default), decoration, link);
-                object? piece = PSText.Unwrap(pieces[i]);
-                if (piece is RichText rich) {
-                    parts.Add(rich.WithBaseStyle(pieceStyle));
-                } else {
-                    parts.Add(RichText.Plain(Convert.ToString(piece, CultureInfo.InvariantCulture) ?? string.Empty, pieceStyle));
-                }
+            List<object?> pieces = new List<object?>();
+            foreach (object? piece in text ?? Array.Empty<object>()) {
+                pieces.Add(PSText.Unwrap(piece));
             }
+            parts.Add(RichText.FromPieces(pieces, foregrounds, backgrounds, new RichStyle(roleColor, RichColor.Default, decoration, link)));
             if (!string.IsNullOrEmpty(markup)) {
                 try {
                     parts.Add(RichText.FromMarkup(markup, new RichStyle(roleColor, RichColor.Default, decoration, link)));
@@ -93,45 +88,11 @@ namespace ConsoleMonster.PowerShell {
                 if (stops.Length != 2) {
                     throw new PSArgumentException("-Gradient takes two colours: the first and the last.");
                 }
-                RichStyle gradientStyle = new RichStyle(RichColor.Default, Pick(backgrounds, 0, RichColor.Default), decoration, link);
+                RichStyle gradientStyle = new RichStyle(RichColor.Default, backgrounds.Length > 0 ? backgrounds[0] : RichColor.Default, decoration, link);
                 result = RichText.Gradient(result.PlainText, stops[0], stops[1], gradientStyle, Terminal.Theme);
             }
             return result;
         }
 
-        /// <summary>
-        /// Splits rich text at a separator, keeping each piece's styles (Write-ConsoleText -SplitLines). Markup spans are
-        /// split on their visible text only when they contain no tags.
-        /// </summary>
-        internal static List<RichText> Split(RichText text, string separator) {
-            List<RichText> result = new List<RichText>();
-            List<RichSegment> current = new List<RichSegment>();
-            foreach (RichSegment segment in text.Segments) {
-                bool splittable = !segment.IsMarkup || segment.Text.IndexOf('[') < 0;
-                if (!splittable || segment.Text.IndexOf(separator, StringComparison.Ordinal) < 0) {
-                    current.Add(segment);
-                    continue;
-                }
-                string[] pieces = segment.Text.Split(new[] { separator }, StringSplitOptions.None);
-                for (int i = 0; i < pieces.Length; i++) {
-                    if (i > 0) {
-                        result.Add(new RichText(current));
-                        current = new List<RichSegment>();
-                    }
-                    if (pieces[i].Length > 0) {
-                        current.Add(new RichSegment(pieces[i], segment.Style, segment.IsMarkup));
-                    }
-                }
-            }
-            result.Add(new RichText(current));
-            return result;
-        }
-
-        private static RichColor Pick(RichColor[] colors, int index, RichColor fallback) {
-            if (colors.Length == 0) {
-                return fallback;
-            }
-            return index < colors.Length ? colors[index] : colors[0];
-        }
     }
 }

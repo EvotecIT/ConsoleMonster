@@ -90,7 +90,7 @@ namespace ConsoleMonster.PowerShell.Pester {
         /// <param name="line">The line.</param>
         /// <param name="errorType">The exception type of an error that is not an assertion, or null.</param>
         public void TestFinished(string? container, string[]? blocks, string name, string? result, double milliseconds, string? message, string? file, int line, string? errorType) {
-            TestRecord record = new TestRecord(container ?? string.Empty, name ?? string.Empty, Status(result)) {
+            TestRecord record = new TestRecord(container ?? string.Empty, name ?? string.Empty, TestRecord.ParseStatus(result)) {
                 Blocks = blocks ?? new string[0],
                 Duration = TimeSpan.FromMilliseconds(Math.Max(0, milliseconds)),
                 Message = string.IsNullOrEmpty(message) ? null : message,
@@ -142,23 +142,5 @@ namespace ConsoleMonster.PowerShell.Pester {
         /// <param name="step">The step.</param>
         /// <param name="message">The message.</param>
         public void Fault(string step, string message) => Faults.Add(step + ": " + message);
-
-        /// <summary>Maps Pester's result words to statuses.</summary>
-        /// <param name="result">The result.</param>
-        /// <returns>The status.</returns>
-        internal static StatusKind Status(string? result) {
-            switch ((result ?? string.Empty).ToLowerInvariant()) {
-                case "passed":
-                    return StatusKind.Pass;
-                case "failed":
-                    return StatusKind.Fail;
-                case "skipped":
-                    return StatusKind.Skip;
-                case "inconclusive":
-                    return StatusKind.Warn;
-                default:
-                    return StatusKind.Pending;
-            }
-        }
     }
 }

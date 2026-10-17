@@ -46,6 +46,31 @@ namespace ConsoleMonster.TestRuns {
         /// <summary>The exception type of an error that is not an assertion (shown before the message), or null.</summary>
         public string? ErrorType { get; set; }
 
+        /// <summary>
+        /// The status for a test framework's result word: Passed, Failed, Skipped, Inconclusive or NotRun (Pester, xUnit,
+        /// NUnit and MSTest use these words); anything else is Pending.
+        /// </summary>
+        /// <param name="result">The result word.</param>
+        /// <returns>The status.</returns>
+        public static StatusKind ParseStatus(string? result) {
+            switch ((result ?? string.Empty).Trim().ToLowerInvariant()) {
+                case "passed":
+                case "pass":
+                    return StatusKind.Pass;
+                case "failed":
+                case "fail":
+                case "error":
+                    return StatusKind.Fail;
+                case "skipped":
+                case "skip":
+                case "ignored":
+                    return StatusKind.Skip;
+                case "inconclusive":
+                    return StatusKind.Warn;
+                default:
+                    return StatusKind.Pending;
+            }
+        }
         /// <summary>Whether the record stands for a block or container that failed outside a test (setup, teardown, discovery).</summary>
         public bool IsBlockFailure { get; set; }
     }

@@ -7,14 +7,14 @@ using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
-namespace ConsoleMonster.PowerShell {
+namespace ConsoleMonster.Output {
     /// <summary>
-    /// The single updating line behind Write-ConsoleStatus on a real VT console: redrawn in place (carriage return, the
+    /// A single updating status line on a real VT console (Write-ConsoleStatus in PowerShell): redrawn in place (carriage return, the
     /// line, clear to the end), with an optional spinner, clock and elapsed time refreshed about ten times a second. The
     /// refresh stops by itself as soon as anything else moves the cursor (other output, the prompt), so it never draws over
     /// later output; completing the status ends the line.
     /// </summary>
-    internal sealed class StatusLine {
+    public sealed class StatusLine {
         private static readonly object Gate = new object();
         private static StatusLine? _current;
 
@@ -37,7 +37,15 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Shows or updates the status line; with <paramref name="final"/> the line is completed.</summary>
-        internal static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, bool final) {
+        /// <param name="profile">The console profile.</param>
+        /// <param name="content">The text after the marker.</param>
+        /// <param name="status">A status marker instead of the spinner, or null.</param>
+        /// <param name="spinner">Whether a spinner turns until the line completes.</param>
+        /// <param name="clock">Whether the time of day leads the line.</param>
+        /// <param name="elapsed">Whether the elapsed time follows the content.</param>
+        /// <param name="clockFormat">The time format for the clock.</param>
+        /// <param name="final">Whether the line completes (the next output starts below it).</param>
+        public static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, bool final) {
             lock (Gate) {
                 StatusLine line = _current != null && _current.CursorUnchanged() ? _current : new StatusLine(profile);
                 _current?.StopTimer();
@@ -60,7 +68,18 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Builds the status line text for a context: spinner or status marker, clock, elapsed time, then the content.</summary>
-        internal static StyledLine Compose(RenderContext context, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, DateTime started, long frame, bool final) {
+        /// <param name="context">The render context.</param>
+        /// <param name="content">The text after the marker.</param>
+        /// <param name="status">A status marker instead of the spinner, or null.</param>
+        /// <param name="spinner">Whether to show the spinner.</param>
+        /// <param name="clock">Whether the time of day leads the line.</param>
+        /// <param name="elapsed">Whether the elapsed time follows the content.</param>
+        /// <param name="clockFormat">The time format for the clock.</param>
+        /// <param name="started">When the status started (for the elapsed time).</param>
+        /// <param name="frame">The animation frame (spinner position).</param>
+        /// <param name="final">Whether the line is complete (no spinner).</param>
+        /// <returns>The line.</returns>
+        public static StyledLine Compose(RenderContext context, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, DateTime started, long frame, bool final) {
             List<TextSpan> spans = new List<TextSpan>();
             Style muted = context.Style(ThemeToken.Muted);
             if (status.HasValue) {

@@ -27,18 +27,25 @@ namespace ConsoleMonster.Widgets {
             Highlighter = highlighter;
         }
 
-        /// <summary>Creates a view for a language name or file extension ("json", "ps1"; "auto" detects).</summary>
+        /// <summary>
+        /// Creates a view for a language name or file extension ("json", "ps1"): "auto" (or null) detects the language from
+        /// the path and the content, "text" or "plain" shows plain text.
+        /// </summary>
         /// <param name="text">The text.</param>
-        /// <param name="language">The language, "auto", or null for plain text.</param>
+        /// <param name="language">The language, "auto", "text", or null for auto.</param>
         /// <param name="path">The file it came from (for detection), or null.</param>
         /// <returns>The view.</returns>
+        /// <exception cref="ArgumentException">The language is not registered.</exception>
         public static CodeView For(string text, string? language, string? path = null) {
-            ITextHighlighter? highlighter = string.IsNullOrEmpty(language) || string.Equals(language, "auto", StringComparison.OrdinalIgnoreCase)
-                ? Highlighters.Detect(text, path)
-                : Highlighters.Get(language);
+            if (string.IsNullOrEmpty(language) || string.Equals(language, "auto", StringComparison.OrdinalIgnoreCase)) {
+                return new CodeView(text, Highlighters.Detect(text, path));
+            }
+            if (string.Equals(language, "text", StringComparison.OrdinalIgnoreCase) || string.Equals(language, "plain", StringComparison.OrdinalIgnoreCase)) {
+                return new CodeView(text, null);
+            }
+            ITextHighlighter highlighter = Highlighters.Get(language) ?? throw new ArgumentException("Unknown language '" + language + "'. Use Auto, Text, Smart or one of: " + string.Join(", ", Highlighters.Names) + ".", nameof(language));
             return new CodeView(text, highlighter);
         }
-
         /// <summary>The text.</summary>
         public string Text { get; }
 
@@ -69,6 +76,21 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Marks lines given as text: a number ("10") or a range ("10-14", "10..14").</summary>
+        /// <param name="range">The line or range.</param>
+        /// <returns>This view.</returns>
+        /// <exception cref="ArgumentException">The text is not a line number or a range.</exception>
+        public CodeView HighlightLines(string range) {
+            string[] parts = (range ?? string.Empty).Split(new[] { '-', '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0 || parts.Length > 2 || !int.TryParse(parts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int from)) {
+                throw new ArgumentException("'" + range + "' is not a line number or a range such as 10-14.", nameof(range));
+            }
+            int to = from;
+            if (parts.Length == 2 && !int.TryParse(parts[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out to)) {
+                throw new ArgumentException("'" + range + "' is not a line number or a range such as 10-14.", nameof(range));
+            }
+            return HighlightLines(from, to);
+        }
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             if (Title != null) {

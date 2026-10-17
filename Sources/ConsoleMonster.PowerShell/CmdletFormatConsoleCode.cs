@@ -104,38 +104,25 @@ namespace ConsoleMonster.PowerShell {
                 view.MaxLines = Math.Max(1, MaxLines);
                 view.Title = NoTitle.IsPresent ? null : Title ?? (path == null ? null : System.IO.Path.GetFileName(path));
                 foreach (string range in Highlight ?? new string[0]) {
-                    AddRange(view, range);
+                    view.HighlightLines(range);
                 }
             }, Width, AsWidget.IsPresent);
         }
 
         internal static void WriteView(PSCmdlet cmdlet, string text, string language, string? path, Action<CodeView> configure, int width, bool asWidget) {
             CodeView view;
-            if (string.Equals(language, "Text", StringComparison.OrdinalIgnoreCase) || string.Equals(language, "Plain", StringComparison.OrdinalIgnoreCase)) {
-                view = new CodeView(text, null);
-            } else if (string.Equals(language, "Auto", StringComparison.OrdinalIgnoreCase)) {
-                view = new CodeView(text, Highlighters.Detect(text, path));
-            } else {
-                ITextHighlighter highlighter = Highlighters.Get(language) ?? throw new PSArgumentException("Unknown language '" + language + "'. Use Auto, Text, Smart or one of: " + string.Join(", ", Highlighters.Names) + ".");
-                view = new CodeView(text, highlighter);
+            try {
+                view = CodeView.For(text, language, path);
+                configure(view);
+            } catch (ArgumentException ex) {
+                throw new PSArgumentException(ex.Message, ex);
             }
-            configure(view);
             if (asWidget) {
                 cmdlet.WriteObject(view);
             } else {
                 PSFormatting.Write(cmdlet, view, width, null);
             }
-        }
-
-        private static void AddRange(CodeView view, string range) {
-            string[] parts = range.Split(new[] { '-', '.' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 0 || !int.TryParse(parts[0].Trim(), out int from)) {
-                throw new PSArgumentException("Highlight '" + range + "' is not a line number or a range such as 10-14.");
-            }
-            int to = parts.Length > 1 && int.TryParse(parts[parts.Length - 1].Trim(), out int end) ? end : from;
-            view.HighlightLines(from, to);
-        }
-    }
+        }    }
 
     /// <summary>
     /// <para type="synopsis">Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.</para>

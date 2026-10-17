@@ -1,56 +1,110 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Management.Automation;
 using System.Text;
 using System.Threading;
 
-namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// The log file side of Write-ConsoleText: Text (<c>[time] [Level] [Category] message</c>, the Write-Color layout),
-    /// Csv (a header row, then Time, Level, Category, Message with a configurable separator) or JsonLines (one object per
-    /// line). Writes append under a file lock and are retried like Write-Color does, with a warning per failed attempt.
-    /// </summary>
-    internal static class ConsoleTextLog {
-        /// <summary>One log record.</summary>
-        internal sealed class Record {
-            public Record(DateTime time, string message, string? level, string? category) {
-                Time = time;
-                Message = message;
-                Level = level;
-                Category = category;
-            }
+namespace ConsoleMonster.Output {
+    /// <summary>The layout of a <see cref="ConsoleLogFile"/>.</summary>
+    public enum ConsoleLogFormat {
+        /// <summary><c>[time] [Level] [Category] message</c>, following lines indented under the first (the Write-Color layout).</summary>
+        Text,
 
-            public DateTime Time { get; }
+        /// <summary>A header row, then Time, Level, Category, Message with a configurable separator.</summary>
+        Csv,
 
-            public string Message { get; }
+        /// <summary>One JSON object per line (time, level, category, message).</summary>
+        JsonLines
+    }
 
-            public string? Level { get; }
-
-            public string? Category { get; }
+    /// <summary>One record of a <see cref="ConsoleLogFile"/>.</summary>
+    public sealed class ConsoleLogRecord {
+        /// <summary>Creates a record.</summary>
+        /// <param name="time">The time.</param>
+        /// <param name="message">The message (may contain line breaks).</param>
+        /// <param name="level">A level (Info, Warning, Error...), or null.</param>
+        /// <param name="category">A category, or null.</param>
+        public ConsoleLogRecord(DateTime time, string message, string? level = null, string? category = null) {
+            Time = time;
+            Message = message ?? string.Empty;
+            Level = level;
+            Category = category;
         }
 
+        /// <summary>The time.</summary>
+        public DateTime Time { get; }
+
+        /// <summary>The message.</summary>
+        public string Message { get; }
+
+        /// <summary>The level, or null.</summary>
+        public string? Level { get; }
+
+        /// <summary>The category, or null.</summary>
+        public string? Category { get; }
+    }
+
+    /// <summary>
+    /// Appends console text to a log file, as Write-Color's log option does: Text, Csv or JsonLines; appends under a file
+    /// lock and retries with a growing pause, reporting each failed attempt to a warning callback.
+    /// </summary>
+    public sealed class ConsoleLogFile {
+        /// <summary>Creates a log file writer.</summary>
+        /// <param name="path">The file path.</param>
+        public ConsoleLogFile(string path) {
+            Path = path ?? throw new ArgumentNullException(nameof(path));
+        }
+
+        /// <summary>The file path.</summary>
+        public string Path { get; }
+
+        /// <summary>The layout (default Text).</summary>
+        public ConsoleLogFormat Format { get; set; } = ConsoleLogFormat.Text;
+
+        /// <summary>The CSV separator (default a comma).</summary>
+        public string Separator { get; set; } = ",";
+
+        /// <summary>The encoding (default UTF-8 without a byte order mark); see <see cref="ResolveEncoding"/>.</summary>
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
+
+        /// <summary>Attempts before giving up (default 2).</summary>
+        public int Retries { get; set; } = 2;
+
+        /// <summary>Whether records start with the time (default true).</summary>
+        public bool IncludeTime { get; set; } = true;
+
+        /// <summary>The time format (default yyyy-MM-dd HH:mm:ss).</summary>
+        public string TimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
+
+        /// <summary>Receives a message for each failed attempt (for example a PowerShell warning), or null.</summary>
+        public Action<string>? Warning { get; set; }
+
         /// <summary>Appends a record; returns false (after warnings) when every attempt failed.</summary>
-        internal static bool Write(PSCmdlet cmdlet, string path, Record record, string format, string separator, string encodingName, int retries, bool logTime, string timeFormat) {
-            Encoding encoding = ResolveEncoding(encodingName);
-            int attempts = Math.Max(1, retries);
+        /// <param name="record">The record.</param>
+        /// <returns>Whether the record was written.</returns>
+        public bool Append(ConsoleLogRecord record) {
+            if (record == null) {
+                throw new ArgumentNullException(nameof(record));
+            }
+            int attempts = Math.Max(1, Retries);
             for (int attempt = 1; attempt <= attempts; attempt++) {
                 try {
-                    bool isNew = !File.Exists(path) || new FileInfo(path).Length == 0;
-                    string text = Format(record, format, separator, logTime, timeFormat, isNew);
-                    using (FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read)) {
-                        byte[] preamble = isNew ? encoding.GetPreamble() : Array.Empty<byte>();
-                        byte[] bytes = encoding.GetBytes(text);
+                    bool isNew = !File.Exists(Path) || new FileInfo(Path).Length == 0;
+                    string text = FormatRecord(record, isNew);
+                    using (FileStream stream = new FileStream(Path, FileMode.Append, FileAccess.Write, FileShare.Read)) {
+                        byte[] preamble = isNew ? Encoding.GetPreamble() : new byte[0];
+                        byte[] bytes = Encoding.GetBytes(text);
                         stream.Write(preamble, 0, preamble.Length);
                         stream.Write(bytes, 0, bytes.Length);
                     }
                     return true;
                 } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is NotSupportedException || ex is System.Security.SecurityException) {
+                    string tried = attempt.ToString(CultureInfo.InvariantCulture) + "/" + attempts.ToString(CultureInfo.InvariantCulture);
                     if (attempt == attempts) {
-                        cmdlet.WriteWarning("Write-ConsoleText - Couldn't write to log file " + ex.Message + ". Tried (" + attempt.ToString(CultureInfo.InvariantCulture) + "/" + attempts.ToString(CultureInfo.InvariantCulture) + ")");
+                        Warning?.Invoke("Couldn't write to log file " + ex.Message + ". Tried (" + tried + ")");
                         return false;
                     }
-                    cmdlet.WriteWarning("Write-ConsoleText - Couldn't write to log file " + ex.Message + ". Retrying... (" + attempt.ToString(CultureInfo.InvariantCulture) + "/" + attempts.ToString(CultureInfo.InvariantCulture) + ")");
+                    Warning?.Invoke("Couldn't write to log file " + ex.Message + ". Retrying... (" + tried + ")");
                     Thread.Sleep(100 * attempt);
                 }
             }
@@ -58,24 +112,26 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>The text appended for a record (including the CSV header for a new file).</summary>
-        internal static string Format(Record record, string format, string separator, bool logTime, string timeFormat, bool isNewFile) {
-            string time = record.Time.ToString(timeFormat, CultureInfo.InvariantCulture);
-            switch ((format ?? "Text").ToLowerInvariant()) {
-                case "csv":
-                    string sep = string.IsNullOrEmpty(separator) ? "," : separator;
+        /// <param name="record">The record.</param>
+        /// <param name="isNewFile">Whether the file is new or empty (CSV writes its header then).</param>
+        /// <returns>The text.</returns>
+        public string FormatRecord(ConsoleLogRecord record, bool isNewFile) {
+            string time = record.Time.ToString(TimeFormat, CultureInfo.InvariantCulture);
+            switch (Format) {
+                case ConsoleLogFormat.Csv:
+                    string sep = string.IsNullOrEmpty(Separator) ? "," : Separator;
                     StringBuilder csv = new StringBuilder();
                     if (isNewFile) {
                         csv.Append(string.Join(sep, new[] { "Time", "Level", "Category", "Message" })).Append(Environment.NewLine);
                     }
-                    csv.Append(Csv(logTime ? time : string.Empty, sep)).Append(sep)
+                    csv.Append(Csv(IncludeTime ? time : string.Empty, sep)).Append(sep)
                         .Append(Csv(record.Level ?? string.Empty, sep)).Append(sep)
                         .Append(Csv(record.Category ?? string.Empty, sep)).Append(sep)
                         .Append(Csv(record.Message, sep)).Append(Environment.NewLine);
                     return csv.ToString();
-                case "jsonlines":
-                case "json":
+                case ConsoleLogFormat.JsonLines:
                     StringBuilder json = new StringBuilder("{");
-                    if (logTime) {
+                    if (IncludeTime) {
                         json.Append("\"time\":").Append(Json(time)).Append(',');
                     }
                     if (record.Level != null) {
@@ -88,7 +144,7 @@ namespace ConsoleMonster.PowerShell {
                     return json.ToString();
                 default:
                     StringBuilder line = new StringBuilder();
-                    if (logTime) {
+                    if (IncludeTime) {
                         line.Append('[').Append(time).Append("] ");
                     }
                     if (record.Level != null) {
@@ -109,10 +165,12 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>
-        /// The log encoding. Write-Color's names are accepted; utf8 (the default) writes no byte order mark, utf8BOM does;
+        /// An encoding by name. Write-Color's names are accepted; utf8 (the default) writes no byte order mark, utf8BOM does;
         /// unicode, string and unknown are UTF-16 LE (Out-File's "Unicode"); utf7 (obsolete) writes UTF-8.
         /// </summary>
-        internal static Encoding ResolveEncoding(string? name) {
+        /// <param name="name">The name, or null for utf8.</param>
+        /// <returns>The encoding.</returns>
+        public static Encoding ResolveEncoding(string? name) {
             switch ((name ?? "utf8").ToLowerInvariant()) {
                 case "unicode":
                 case "string":
@@ -131,7 +189,7 @@ namespace ConsoleMonster.PowerShell {
                 case "oem":
                     try {
                         return Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
-                    } catch (Exception) {
+                    } catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
                         return new UTF8Encoding(false);
                     }
                 default:

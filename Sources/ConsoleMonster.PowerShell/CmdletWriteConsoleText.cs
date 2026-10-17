@@ -6,6 +6,8 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
+using ConsoleMonster.Output;
+
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.</para>
@@ -169,93 +171,40 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             RichText body = PSRichText.Build(Text, Color, BackGroundColor, Markup, Style, Link, Role, Gradient);
             DateTime now = DateTime.Now;
+            ConsoleTextLayout layout = new ConsoleTextLayout {
+                StartTab = StartTab,
+                StartSpaces = StartSpaces,
+                LinesBefore = LinesBefore,
+                LinesAfter = LinesAfter,
+                Time = ShowTime.IsPresent ? now : (DateTime?)null,
+                TimeFormat = DateTimeFormat,
+                SplitLines = SplitLines,
+                Wrap = Wrap.IsPresent,
+                HorizontalCenter = HorizontalCenter.IsPresent,
+                PadLeft = PadLeft,
+                PadRight = PadRight,
+                PadCenter = PadCenter,
+                PadCharacter = PadCharacter
+            };
             if (!NoConsoleOutput.IsPresent) {
-                HostOutput.WriteLines(this, (context, width) => BuildLines(context, width, body, now), !NoNewLine.IsPresent, Width);
+                HostOutput.WriteLines(this, (context, width) => layout.Lines(body, context, width), !NoNewLine.IsPresent, Width);
             }
             if (!string.IsNullOrEmpty(LogFile) && (Text != null || Markup != null)) {
-                string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(LogFile);
                 List<string> parts = new List<string>();
-                foreach (RichText part in Parts(body)) {
+                foreach (RichText part in layout.Parts(body)) {
                     parts.Add(part.PlainText);
                 }
-                ConsoleTextLog.Write(this, path, new ConsoleTextLog.Record(now, string.Join("\n", parts.ToArray()), Level, Category), LogFormat, LogSeparator, Encoding, LogRetry, LogTime, DateTimeFormat);
+                ConsoleLogFile log = new ConsoleLogFile(SessionState.Path.GetUnresolvedProviderPathFromPSPath(LogFile)) {
+                    Format = (ConsoleLogFormat)Enum.Parse(typeof(ConsoleLogFormat), LogFormat, true),
+                    Separator = LogSeparator,
+                    Encoding = ConsoleLogFile.ResolveEncoding(Encoding),
+                    Retries = LogRetry,
+                    IncludeTime = LogTime,
+                    TimeFormat = DateTimeFormat,
+                    Warning = message => WriteWarning("Write-ConsoleText - " + message)
+                };
+                log.Append(new ConsoleLogRecord(now, string.Join("\n", parts.ToArray()), Level, Category));
             }
-        }
-
-        private List<RichText> Parts(RichText body) {
-            return string.IsNullOrEmpty(SplitLines) ? new List<RichText> { body } : PSRichText.Split(body, SplitLines!);
-        }
-
-        // The console lines: empty lines before, the prefix (tabs, spaces, time) on the first line, split and wrapped lines
-        // aligned under the text, padding, centring, empty lines after.
-        private IReadOnlyList<StyledLine> BuildLines(RenderContext context, int width, RichText body, DateTime now) {
-            List<StyledLine> result = new List<StyledLine>();
-            for (int i = 0; i < LinesBefore; i++) {
-                result.Add(StyledLine.Empty);
-            }
-            string prefix = new string(' ', (Math.Max(0, StartTab) * 8) + Math.Max(0, StartSpaces));
-            if (ShowTime.IsPresent) {
-                prefix += "[" + now.ToString(DateTimeFormat, CultureInfo.CurrentCulture) + "] ";
-            }
-            int prefixWidth = DisplayWidth.Measure(prefix);
-            List<KeyValuePair<StyledLine, bool>> lines = new List<KeyValuePair<StyledLine, bool>>();
-            List<RichText> parts = Parts(body);
-            for (int p = 0; p < parts.Count; p++) {
-                IReadOnlyList<StyledLine> styled = parts[p].ToStyledText(context).Lines;
-                for (int l = 0; l < styled.Count; l++) {
-                    // Split parts continue under the text (hanging); line breaks inside a part start at the left, as Write-Host does.
-                    lines.Add(new KeyValuePair<StyledLine, bool>(Pad(styled[l]), p > 0 && l == 0));
-                }
-            }
-            bool first = true;
-            foreach (KeyValuePair<StyledLine, bool> entry in lines) {
-                IReadOnlyList<StyledLine> pieces = Wrap.IsPresent ? TextWrapper.Wrap(entry.Key, Math.Max(1, width - prefixWidth)) : new[] { entry.Key };
-                for (int w = 0; w < pieces.Count; w++) {
-                    List<TextSpan> spans = new List<TextSpan>();
-                    if (first) {
-                        spans.Add(new TextSpan(prefix, Styling.Style.Plain));
-                    } else if (entry.Value || w > 0) {
-                        spans.Add(new TextSpan(new string(' ', prefixWidth), Styling.Style.Plain));
-                    }
-                    spans.AddRange(pieces[w]);
-                    StyledLine line = new StyledLine(spans);
-                    if (HorizontalCenter.IsPresent && line.Width < width) {
-                        List<TextSpan> centred = new List<TextSpan> { new TextSpan(new string(' ', (width - line.Width) / 2), Styling.Style.Plain) };
-                        centred.AddRange(line);
-                        line = new StyledLine(centred);
-                    }
-                    result.Add(line);
-                    first = false;
-                }
-            }
-            if (lines.Count == 0) {
-                result.Add(StyledLine.From(prefix));
-            }
-            for (int i = 0; i < LinesAfter; i++) {
-                result.Add(StyledLine.Empty);
-            }
-            return result;
-        }
-
-        // -PadCenter, then -PadLeft, then -PadRight: the first one given applies; widths are terminal cells.
-        private StyledLine Pad(StyledLine line) {
-            int target = PadCenter > 0 ? PadCenter : PadLeft > 0 ? PadLeft : PadRight;
-            if (target <= line.Width) {
-                return line;
-            }
-            int missing = target - line.Width;
-            int before = PadCenter > 0 ? missing / 2 : PadLeft > 0 ? missing : 0;
-            int after = missing - before;
-            int fill = Math.Max(1, DisplayWidth.Measure(PadCharacter.ToString()));
-            List<TextSpan> spans = new List<TextSpan>();
-            if (before > 0) {
-                spans.Add(new TextSpan(new string(PadCharacter, before / fill) + new string(' ', before % fill), Styling.Style.Plain));
-            }
-            spans.AddRange(line);
-            if (after > 0) {
-                spans.Add(new TextSpan(new string(PadCharacter, after / fill) + new string(' ', after % fill), Styling.Style.Plain));
-            }
-            return new StyledLine(spans);
         }
     }
 }
