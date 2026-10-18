@@ -1,0 +1,175 @@
+/* Landing and product pages: the tier toolbar, the widget gallery, specimens, pairs of source and output, width
+   controls, players and the page-specific bands. */
+.cm-page { padding: 56px 0 0; }
+
+/* Tier ribbon on the gallery stage: one composition at four terminal profiles. */
+.cm-ribbon { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.cm-ribbon .cm-screen { --cm-max-font: 11.5px; }
+
+/* The sticky terminal-profile toolbar. */
+.cm-toolbar { position: sticky; top: 64px; z-index: 20; border-bottom: 1px solid var(--cm-line); background: color-mix(in srgb, var(--cm-page) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.cm-toolbar__inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 0; }
+.cm-toolbar__note { margin: 0 0 0 auto; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
+.cm-toolbar[aria-busy="true"] .cm-toolbar__note { opacity: .55; }
+
+/* Gallery. */
+.cm-gallery { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: 40px; padding-top: 48px; }
+.cm-gallery__index { grid-row: 1 / span 99; position: sticky; top: 140px; align-self: start; display: grid; gap: 2px; }
+.cm-gallery__index a { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 5px; color: var(--cm-ink-2); font: 500 14px/1.2 var(--cm-mono); text-decoration: none; }
+.cm-gallery__index a:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-gallery__intro { margin-bottom: 8px; }
+.cm-gallery__group { padding-top: 40px; scroll-margin-top: 140px; }
+.cm-gallery__heading { display: grid; gap: 8px; margin: 0 0 36px; padding-bottom: 18px; border-bottom: 2px solid var(--cm-ink); }
+.cm-gallery__heading h2 { font-size: 30px; font-weight: 800; }
+.cm-gallery__heading p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
+/* A specimen opens with a rule like ConsoleMonster's Rule widget: the title set into the line, the size on the right. */
+.cm-specimen { margin: 0 0 64px; scroll-margin-top: 150px; }
+.cm-specimen__head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.cm-specimen__head::before { content: ""; flex: none; width: 18px; height: 1px; background: var(--cm-line-strong); }
+.cm-specimen__head h3 { flex: none; font-size: 19px; font-weight: 700; }
+.cm-specimen__head::after { content: ""; flex: 1; height: 1px; background: var(--cm-line-strong); order: 2; }
+.cm-specimen__size { order: 3; flex: none; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
+.cm-specimen__summary { margin: 0 0 18px 30px; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-specimen__body { margin-left: 30px; }
+.cm-specimen__body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-specimen__output { display: grid; gap: 10px; min-width: 0; max-width: 520px; }
+.cm-specimen__code { display: grid; gap: 14px; min-width: 0; }
+.cm-specimen__code .cm-code pre { font-size: 12.5px; max-height: 380px; }
+
+.cm-parity { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0; color: var(--cm-muted); font: 500 12.5px/1.4 var(--cm-mono); }
+.cm-parity__host { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 4px; background: color-mix(in srgb, var(--cm-pass) 13%, transparent); color: var(--cm-ink); }
+.cm-parity__host > span { color: var(--cm-pass); font-weight: 800; }
+.cm-parity__host.is-different { background: color-mix(in srgb, var(--cm-fail) 13%, transparent); }
+.cm-parity__host.is-different > span { color: var(--cm-fail); }
+
+/* Source beside output, used on product pages: the output first, the source as wide as it needs. */
+.cm-pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-pair--stack { grid-template-columns: minmax(0, 1fr); }
+.cm-pair__code { display: grid; gap: 14px; min-width: 0; }
+
+/* Width controls on the tables page. */
+.cm-widths { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 22px; }
+.cm-toolbar .cm-widths { margin: 0; }
+@media (max-width: 560px) { .cm-widths .cm-seg__label { display: none; } .cm-widths .cm-seg button { padding: 0 9px 0 17px; } .cm-widths .cm-seg button::before { left: 6px; } }
+.cm-widths__note { margin: 0; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
+
+/* Replays: ConsoleMonster's own player (player.css) mounted on .cm-replay; the site gives its controls the site's look. */
+.cm-replay { --cm-chrome-fg: var(--cm-line-strong); display: grid; gap: 12px; min-width: 0; }
+.cm-export.cm-player-host.cm-replay { display: grid; max-width: none; }
+.cm-replay:focus-visible { box-shadow: none; outline: 2px solid var(--cm-accent); outline-offset: 6px; }
+.cm-replay > .cm-player { min-width: 0; }
+.cm-replay .cm-controls { display: flex; align-items: center; gap: 12px; padding: 0; background: none; color: var(--cm-muted); font: 500 12.5px/1 var(--cm-mono); }
+.cm-replay .cm-controls button { flex: none; min-width: 72px; height: 32px; padding: 0 14px; border: 1px solid var(--cm-line-strong); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 12.5px/1 var(--cm-mono); cursor: pointer; }
+.cm-replay .cm-controls button:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls input[type=range] { flex: 1; min-width: 0; height: 24px; accent-color: var(--cm-accent); }
+.cm-replay .cm-controls select { height: 28px; padding: 0 6px; border: 1px solid var(--cm-line-strong); border-radius: 6px; background: var(--cm-surface); color: var(--cm-ink); font: 500 12px/1 var(--cm-mono); }
+.cm-replay .cm-controls option { color: initial; }
+.cm-replay .cm-time { flex: none; min-width: 9ch; color: var(--cm-muted); text-align: right; font-variant-numeric: tabular-nums; }
+.cm-replay .cm-error { color: var(--cm-muted); }
+/* Player data from the engine's exporter carries its own CSS, scoped to the player. Its class names (.cm-window, .cm-screen)
+   are the site's too, so the site's window keeps its own frame, and the screen keeps the engine's font (its rows rely on it)
+   but takes the site's responsive cell size. */
+.cm-replay.cm-export[data-cm-player] figure.cm-window { display: block; overflow: visible; border-radius: 0; background: none; box-shadow: none; }
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)); }
+@supports (font-size: round(down, 13px, 1px)) {
+  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
+}
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark span { height: var(--cm-cell); }.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
+
+/* Showcase blocks on product pages. */
+.cm-showcase { display: grid; gap: 22px; margin: 0 0 72px; }
+.cm-showcase__head { display: grid; gap: 10px; max-width: 72ch; }
+.cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 800; }
+.cm-showcase__head p { margin: 0; color: var(--cm-ink-2); }
+.cm-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0; margin: 0; padding: 0; border-top: 1px solid var(--cm-line); }
+.cm-facts div { padding: 16px 18px 14px 0; border-bottom: 1px solid var(--cm-line); }
+.cm-facts dt { color: var(--cm-muted); font-size: 14px; }
+.cm-facts dd { margin: 4px 0 0; font: 800 26px/1.15 var(--cm-mono); color: var(--cm-ink); }
+.cm-facts dd small { font-size: 14px; font-weight: 500; color: var(--cm-muted); }
+
+/* Two frames compared, such as Format-Table beside Format-ConsoleTable. */
+.cm-compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-compare > * { min-width: 0; }
+.cm-compare h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+
+/* Notes and lists beside frames. */
+.cm-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.cm-points li { position: relative; padding-left: 22px; }
+.cm-points li::before { content: "›"; position: absolute; left: 4px; top: 0; color: var(--key, var(--cm-accent)); font: 800 16px/1.6 var(--cm-mono); }
+
+/* Not found. */
+.cm-notfound { padding: 64px 0; }
+.cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 48px; align-items: center; }
+.cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 800; }
+
+@media (max-width: 1180px) {
+  .cm-specimen__body, .cm-pair { grid-template-columns: minmax(0, 1fr); }
+  .cm-gallery { grid-template-columns: minmax(0, 1fr); }
+  .cm-gallery__index { position: static; grid-row: auto; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .cm-gallery__index a { gap: 8px; border: 1px solid var(--cm-line); }
+}
+
+@media (max-width: 860px) {
+  .cm-compare, .cm-notfound__inner { grid-template-columns: minmax(0, 1fr); }
+  .cm-toolbar { position: static; }
+  .cm-toolbar__note { margin-left: 0; flex-basis: 100%; }
+}
+
+@media (max-width: 1080px) {
+  .cm-ribbon { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .cm-ribbon { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Tables page. */
+.cm-stage__subhead { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #f8fafc; }
+.cm-stage__small { max-width: 52ch; margin: 0 0 14px; color: #c3cad6; font-size: 15px; }
+.cm-stage .cm-points li { color: #c3cad6; font-size: 15px; }
+.cm-page__intro { margin-bottom: 48px; }
+.cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 28px; align-items: start; }
+.cm-table-showcase__side { display: grid; gap: 18px; }
+.cm-source summary { cursor: pointer; font: 600 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
+.cm-source summary:hover { color: var(--cm-accent); }
+.cm-source[open] summary { margin-bottom: 12px; }
+.cm-source .cm-code pre { max-height: 420px; font-size: 12px; }
+.cm-source[open] { grid-column: 1 / -1; }
+@media (max-width: 1080px) { .cm-table-showcase__body { grid-template-columns: minmax(0, 1fr); } }
+
+/* Live page. */
+.cm-stage__note { max-width: 90ch; margin: 14px auto 0; color: var(--cm-stage-muted); font-size: 14px; text-align: center; }
+.cm-steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; margin-top: 8px; }
+.cm-steps > div { display: grid; gap: 12px; min-width: 0; }
+.cm-steps h3 { font-size: 17px; font-weight: 700; }
+.cm-steps p { margin: 0; color: var(--cm-ink-2); }
+.cm-steps .cm-code pre { max-height: 420px; font-size: 12.5px; }
+.cm-tabset { display: grid; gap: 14px; }
+.cm-tabset > .cm-seg { justify-self: start; }
+@media (max-width: 980px) { .cm-steps { grid-template-columns: minmax(0, 1fr); } }
+
+/* Interactive page. */
+.cm-story__body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.cm-story__screen { display: grid; gap: 10px; min-width: 0; }
+.cm-story__code { display: grid; gap: 14px; min-width: 0; }
+.cm-story__code .cm-code pre { font-size: 12.5px; max-height: 420px; }
+.cm-story__keys { margin: 0; color: var(--cm-muted); font-size: 13px; overflow-wrap: anywhere; }
+.cm-story__keys span { font-family: var(--cm-mono); font-weight: 600; color: var(--cm-ink-2); margin-right: 6px; }
+.cm-story__keys code { font-size: 12.5px; color: var(--cm-ink); }
+@media (max-width: 1080px) { .cm-story__body { grid-template-columns: minmax(0, 1fr); } }
+
+/* PowerShell page. */
+.cm-quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 20px; }
+.cm-quad h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+.cm-compare--tree { margin-top: 24px; }
+.cm-compare > div { display: grid; gap: 12px; align-content: start; }
+.cm-families { columns: 3 300px; column-gap: 32px; }
+.cm-family { break-inside: avoid; margin: 0 0 28px; }
+.cm-family h3 { margin: 0 0 10px; font-size: 16px; font-weight: 800; }
+.cm-family ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.cm-family a { font: 600 14px/1.3 var(--cm-mono); }
+.cm-family li span { display: block; color: var(--cm-muted); font-size: 13.5px; line-height: 1.45; }
+@media (max-width: 860px) { .cm-quad { grid-template-columns: minmax(0, 1fr); } }
+.cm-compare--stack { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 760px) { .cm-specimen__summary, .cm-specimen__body { margin-left: 0; } }

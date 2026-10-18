@@ -1,0 +1,486 @@
+{
+  "$schema": "https://raw.githubusercontent.com/EvotecIT/PSPublishModule/main/Schemas/powerforge.web.sitespec.schema.json",
+  "SchemaVersion": 1,
+  "Name": "ConsoleMonster",
+  "BaseUrl": "https://consolemonster.dev",
+  "DefaultTheme": "consolemonster",
+  "ThemeEngine": "scriban",
+  "Features": [
+    "docs",
+    "notFound"
+  ],
+  "TrailingSlash": "always",
+  "ContentRoot": "content",
+  "ThemesRoot": "themes",
+  "DataRoot": "data",
+  "StaticAssets": [
+    {
+      "Source": "static"
+    }
+  ],
+  "Collections": [
+    {
+      "Name": "pages",
+      "Input": "content/pages",
+      "Output": "/",
+      "DefaultLayout": "page",
+      "UseToc": false,
+      "Include": [
+        "*.md",
+        "**/*.md"
+      ],
+      "Seo": {
+        "Templates": {
+          "Title": "{title} | {site}"
+        }
+      }
+    },
+    {
+      "Name": "docs",
+      "Input": "content/docs",
+      "Output": "/docs",
+      "DefaultLayout": "docs",
+      "UseToc": false,
+      "Include": [
+        "*.md",
+        "**/*.md"
+      ],
+      "Seo": {
+        "Templates": {
+          "Title": "{title} | {site} documentation"
+        }
+      }
+    },
+    {
+      "Name": "guides",
+      "Input": "content/guides",
+      "Output": "/guides",
+      "DefaultLayout": "docs",
+      "UseToc": false,
+      "Include": [
+        "*.md",
+        "**/*.md"
+      ],
+      "Seo": {
+        "Templates": {
+          "Title": "{title} | {site} guides"
+        }
+      }
+    }
+  ],
+  "Head": {
+    "Links": [
+      {
+        "Rel": "icon",
+        "Href": "/favicon.svg",
+        "Type": "image/svg+xml"
+      },
+      {
+        "Rel": "apple-touch-icon",
+        "Href": "/apple-touch-icon.png"
+      },
+      {
+        "Rel": "preload",
+        "Href": "/fonts/jetbrains-mono-latin.woff2",
+        "As": "font",
+        "Type": "font/woff2",
+        "Crossorigin": "anonymous"
+      }
+    ],
+    "Meta": [
+      {
+        "Name": "robots",
+        "Content": "index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"
+      },
+      {
+        "Name": "theme-color",
+        "Content": "#eceff3"
+      }
+    ]
+  },
+  "StructuredData": {
+    "Enabled": true,
+    "Website": true,
+    "Organization": true,
+    "WebPage": true,
+    "Breadcrumbs": true,
+    "Article": false,
+    "SoftwareSourceCode": true,
+    "OrganizationName": "Evotec",
+    "OrganizationUrl": "https://evotec.xyz/",
+    "OrganizationLogo": "https://evotec.xyz/favicon.svg",
+    "OrganizationSameAs": ["https://github.com/EvotecIT"]
+  },
+  "Social": {
+    "Enabled": true,
+    "SiteName": "ConsoleMonster",
+    "Image": "/site/social-card.png",
+    "TwitterCard": "summary_large_image"
+  },
+  "AgentReadiness": {
+    "Enabled": true,
+    "HeadersPath": "_headers",
+    "LinkHeaders": true,
+    "Robots": true,
+    "SecurityHeaders": {
+      "Enabled": true,
+      "ContentSecurityPolicyValue": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+    },
+    "ContentSignals": {
+      "Enabled": true,
+      "Search": true,
+      "AiInput": true,
+      "AiTrain": false
+    },
+    "AgentSkills": {
+      "Enabled": true,
+      "Skills": [
+        {
+          "Name": "consolemonster-site-assistant",
+          "Type": "skill-md",
+          "Description": "Use the ConsoleMonster documentation, widget gallery, PowerShell command reference, sitemap and llms files.",
+          "Content": "---\nname: consolemonster-site-assistant\ndescription: Use ConsoleMonster documentation, gallery, references, sitemap and llms resources.\n---\n\n# ConsoleMonster Site Assistant\n\nUse this skill when answering questions about ConsoleMonster, the zero-dependency console rendering library for .NET and PowerShell.\n\n- Prefer canonical pages from https://consolemonster.dev.\n- Use `/widgets/` for every widget with its C# and PowerShell source, `/tables/` for table width negotiation and `/live/` for live dashboards.\n- Use `/powershell/commands/` for cmdlet syntax and `/api/` for the .NET API.\n- Use `/guides/` for migrations from Write-Color, Spectre.Console and Format-Table, and for host behaviour in CI, jobs and remoting.\n- Check `/llms.txt` when present for an agent-readable summary.\n- Respect `/robots.txt` and Content-Signal preferences.\n"
+        }
+      ]
+    },
+    "MarkdownNegotiation": true
+  },
+  "EditLinks": {
+    "Enabled": true,
+    "Template": "https://github.com/EvotecIT/ConsoleMonster/edit/master/Website/{path}"
+  },
+  "AssetRegistry": {
+    "CssStrategy": "blocking",
+    "Bundles": [
+      {
+        "Name": "global",
+        "Css": [
+          "/themes/consolemonster/assets/tokens.css",
+          "/themes/consolemonster/assets/base.css",
+          "/css/frames.css"
+        ],
+        "Js": [
+          "/themes/consolemonster/assets/site.js"
+        ]
+      },
+      {
+        "Name": "home",
+        "Css": [
+          "/themes/consolemonster/assets/home.css"
+        ]
+      },
+      {
+        "Name": "pages",
+        "Css": [
+          "/themes/consolemonster/assets/pages.css"
+        ],
+        "Js": [
+          "/themes/consolemonster/assets/frames.js"
+        ]
+      },
+      {
+        "Name": "docs",
+        "Css": [
+          "/themes/consolemonster/assets/docs.css"
+        ]
+      },
+      {
+        "Name": "replays",
+        "Css": [
+          "/assets/player/player.css"
+        ],
+        "Js": [
+          "/assets/player/player.js"
+        ]
+      }
+    ],
+    "RouteBundles": [
+      {
+        "Match": "/**",
+        "Bundles": [
+          "global"
+        ]
+      },
+      {
+        "Match": "/",
+        "Bundles": [
+          "replays",
+          "home",
+          "pages"
+        ]
+      },
+      {
+        "Match": "/widgets/**",
+        "Bundles": [
+          "pages"
+        ]
+      },
+      {
+        "Match": "/tables/**",
+        "Bundles": [
+          "pages"
+        ]
+      },
+      {
+        "Match": "/live/**",
+        "Bundles": [
+          "replays",
+          "pages"
+        ]
+      },
+      {
+        "Match": "/interactive/**",
+        "Bundles": [
+          "replays",
+          "pages"
+        ]
+      },
+      {
+        "Match": "/powershell/**",
+        "Bundles": [
+          "pages"
+        ]
+      },
+      {
+        "Match": "/benchmarks/**",
+        "Bundles": [
+          "pages"
+        ]
+      },
+      {
+        "Match": "/docs/**",
+        "Bundles": [
+          "docs",
+          "pages"
+        ]
+      },
+      {
+        "Match": "/guides/**",
+        "Bundles": [
+          "docs",
+          "pages"
+        ]
+      },
+      {
+        "Match": "/404/**",
+        "Bundles": [
+          "pages"
+        ]
+      }
+    ],
+    "CriticalCss": [
+      {
+        "Name": "consolemonster",
+        "Path": "themes/consolemonster/critical.css"
+      }
+    ]
+  },
+  "Prism": {
+    "Mode": "auto",
+    "Source": "local",
+    "DefaultLanguage": "csharp",
+    "Local": {
+      "ThemeLight": "/assets/prism/prism-cm.css",
+      "ThemeDark": "/assets/prism/prism-cm.css"
+    }
+  },
+  "A11y": {
+    "SkipLinkLabel": "Skip to content",
+    "ExternalLinkLabel": "Opens in a new tab",
+    "NavToggleLabel": "Toggle navigation",
+    "SearchLabel": "Search"
+  },
+  "LinkRules": {
+    "ExternalRel": "noopener",
+    "ExternalTarget": "_blank",
+    "AddExternalIcon": false
+  },
+  "Navigation": {
+    "HomeLinkInBrand": true,
+    "Auto": [
+      {
+        "Collection": "docs",
+        "Menu": "docs",
+        "MaxDepth": 2,
+        "IncludeIndex": true,
+        "IncludeDrafts": false
+      },
+      {
+        "Collection": "guides",
+        "Menu": "guides",
+        "MaxDepth": 2,
+        "IncludeIndex": true,
+        "IncludeDrafts": false
+      }
+    ],
+    "Surfaces": [
+      {
+        "Name": "main",
+        "Path": "/",
+        "PrimaryMenu": "main"
+      },
+      {
+        "Name": "docs",
+        "Path": "/docs/",
+        "Collection": "docs",
+        "Layout": "docs",
+        "PrimaryMenu": "main"
+      },
+      {
+        "Name": "apidocs",
+        "Path": "/api/",
+        "Layout": "apiDocs",
+        "PrimaryMenu": "main"
+      },
+      {
+        "Name": "notFound",
+        "Path": "/404/",
+        "PrimaryMenu": "main"
+      }
+    ],
+    "Menus": [
+      {
+        "Name": "main",
+        "Items": [
+          {
+            "Id": "product",
+            "Title": "Product",
+            "Description": "What ConsoleMonster draws, live and printed once.",
+            "Items": [
+              {
+                "Id": "widgets",
+                "Title": "Widgets",
+                "Url": "/widgets/",
+                "Meta": { "key": 1 },
+                "Description": "Every widget at every colour and glyph tier."
+              },
+              {
+                "Id": "tables",
+                "Title": "Tables",
+                "Url": "/tables/",
+                "Meta": { "key": 6 },
+                "Description": "Width negotiation, cards, presenters and totals."
+              },
+              {
+                "Id": "live",
+                "Title": "Live dashboards",
+                "Url": "/live/",
+                "Meta": { "key": 2 },
+                "Description": "Recorded runs, replayed frame by frame."
+              },
+              {
+                "Id": "interactive",
+                "Title": "Interactive",
+                "Url": "/interactive/",
+                "Meta": { "key": 5 },
+                "Description": "Prompts, menus, forms and the grid."
+              },
+              {
+                "Id": "powershell",
+                "Title": "PowerShell",
+                "Url": "/powershell/",
+                "Meta": { "key": 3 },
+                "Description": "Cmdlets on 5.1 and 7, with their real output."
+              }
+            ]
+          },
+          {
+            "Id": "developers",
+            "Title": "Developers",
+            "Description": "Install, configure and look things up.",
+            "Items": [
+              {
+                "Id": "docs",
+                "Title": "Docs",
+                "Url": "/docs/",
+                "Meta": { "key": 1 },
+                "Description": "Install, detection, themes, live sessions, recording."
+              },
+              {
+                "Id": "guides",
+                "Title": "Guides",
+                "Url": "/guides/",
+                "Meta": { "key": 4 },
+                "Description": "Coming from Write-Color, Spectre.Console or Format-Table."
+              },
+              {
+                "Id": "api",
+                "Title": ".NET API",
+                "Url": "/api/",
+                "Meta": { "key": 6 },
+                "Description": "Every public type and member."
+              },
+              {
+                "Id": "commands",
+                "Title": "Commands",
+                "Url": "/powershell/commands/",
+                "Meta": { "key": 3 },
+                "Description": "Every cmdlet with its parameters."
+              },
+              {
+                "Id": "benchmarks",
+                "Title": "Benchmarks",
+                "Url": "/benchmarks/",
+                "Meta": { "key": 2 },
+                "Description": "Frame cost, update rates and memory."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "footer-product",
+        "Items": [
+          { "Title": "Widgets", "Url": "/widgets/" },
+          { "Title": "Tables", "Url": "/tables/" },
+          { "Title": "Live dashboards", "Url": "/live/" },
+          { "Title": "Interactive", "Url": "/interactive/" },
+          { "Title": "PowerShell", "Url": "/powershell/" }
+        ]
+      },
+      {
+        "Name": "footer-developers",
+        "Items": [
+          { "Title": "Documentation", "Url": "/docs/" },
+          { "Title": "Guides", "Url": "/guides/" },
+          { "Title": ".NET API reference", "Url": "/api/" },
+          { "Title": "PowerShell commands", "Url": "/powershell/commands/" },
+          { "Title": "Benchmarks", "Url": "/benchmarks/" }
+        ]
+      },
+      {
+        "Name": "footer-resources",
+        "Items": [
+          { "Title": "Source on GitHub", "Url": "https://github.com/EvotecIT/ConsoleMonster", "External": true },
+          { "Title": "PowerShell Gallery", "Url": "https://www.powershellgallery.com/packages/ConsoleMonster", "External": true },
+          { "Title": "NuGet package", "Url": "https://www.nuget.org/packages/ConsoleMonster", "External": true },
+          { "Title": "Report an issue", "Url": "https://github.com/EvotecIT/ConsoleMonster/issues", "External": true },
+          { "Title": "Discord community", "Url": "https://evo.yt/discord", "External": true }
+        ]
+      }
+    ],
+    "Actions": [
+      {
+        "Title": "Evotec Discord",
+        "Url": "https://evo.yt/discord",
+        "External": true,
+        "CssClass": "cm-icon-link",
+        "AriaLabel": "Join the Evotec Discord",
+        "IconHtml": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.86-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.89 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01l.37.29a.08.08 0 0 1-.01.13c-.6.35-1.22.65-1.87.89a.08.08 0 0 0-.04.11c.36.7.77 1.36 1.22 1.99a.08.08 0 0 0 .09.03 19.8 19.8 0 0 0 6-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.98 0c-1.18 0-2.16-1.09-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z\"/></svg>"
+      },
+      {
+        "Title": "ConsoleMonster on GitHub",
+        "Url": "https://github.com/EvotecIT/ConsoleMonster",
+        "External": true,
+        "CssClass": "cm-icon-link",
+        "AriaLabel": "ConsoleMonster on GitHub",
+        "IconHtml": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z\"/></svg>"
+      },
+      {
+        "Title": "Install",
+        "Url": "/docs/install/",
+        "CssClass": "cm-btn cm-btn--small"
+      }
+    ]
+  }
+}

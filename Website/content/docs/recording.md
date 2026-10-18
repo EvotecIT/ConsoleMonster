@@ -1,0 +1,57 @@
+---
+title: Recording and replay
+description: Record a live session as JSON lines, replay it into the same dashboard, and export widgets, frames and recordings to HTML, SVG, text and asciicast.
+slug: recording
+order: 6
+---
+
+A live session can write every applied event to a JSON-lines file: `LiveSessionOptions.RecordPath` or `RecordWriter` in C#, `Start-ConsoleDashboard -RecordPath` in PowerShell. A recording holds updates, not pictures, so it is played back into the widget tree it was recorded with.
+
+```json
+{"consolemonster":"recording","version":1}
+{"t":1,"target":"dashboard","op":"status","text":"discovering forest","state":"running"}
+{"t":1,"target":"phases","op":"state","key":"Discover","state":"running"}
+```
+
+These are the first lines of the recording behind the [live dashboards page](/live/), which you can [download](/recordings/testimox-run.jsonl). `LiveRecorder` writes the format and `LiveRecordingReader` reads it, with no dependencies.
+
+## Replay
+
+```csharp
+using (StreamReader reader = File.OpenText("run.jsonl")) {
+    LiveSession.Replay(dashboard, reader, new LiveSessionOptions(), speed: 1.5);
+}
+```
+
+`Start-ConsoleReplay` does the same in PowerShell. The replayed clock follows the recorded timeline, so header clocks and spinners move as they did.
+
+## Export
+
+Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
+
+```csharp
+string html = ConsoleExporter.ToHtml(widget, new ExportOptions { Width = 120, Title = "Nightly run", WindowChrome = true });
+string svg = ConsoleExporter.ToSvg(session);
+string text = ConsoleExporter.ToText(frame);
+string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
+```
+
+```powershell
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.svg
+```
+
+- **HTML** pages carry a dark and a light rendering and show the one the viewer prefers. Glyphs a fallback font could draw at another width are boxed to their cell, and block elements and braille are painted as cell backgrounds.
+- **SVG** draws box drawing, block and braille characters as shapes; other glyphs stay selectable text.
+- **Recordings** export to an HTML player with scrubbing, an animated SVG using CSS keyframes only, or asciicast v3.
+- **Links** become links for http, https, mailto and ftp only, and nothing is fetched from the network.
+
+This site renders widgets through ConsoleMonster and uses its recording exporter and player for event replays. The site tool also converts captured VT streams and shares cell styles across the gallery. The [site tool's notes](https://github.com/EvotecIT/ConsoleMonster/blob/master/Website/AGENTS.md) describe how.
+
+## Targets
+
+Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a profile, a theme, a writer and an input source. `ConsoleTarget.Instance` is the process console; `TestTerminal.Target(...)` returns a `RecordingTarget` for tests, `WriterTarget` writes append-only lines to a `TextWriter`, and `NullTarget.Instance` discards output. `using (Terminal.Use(target)) { ... }` sends everything in the block to a target, and the scope flows with `async` calls. In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going to a file (`-Path`), a writer or a target, or returned as a string.
+
+## Testing output
+
+The helpers ConsoleMonster's own tests use are public: `TestTerminal.RenderText(widget, width: 80, glyphs: GlyphTier.Ascii)` renders at a fixed size, tier and culture, `GoldenFile.Match` compares with a golden file and shows the first differing line, and `ScreenCapture` with scripted keys captures prompts, menus and forms. In Pester, `Assert-ConsoleOutput -GoldenPath` does the same.

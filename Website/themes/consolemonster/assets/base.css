@@ -1,0 +1,338 @@
+/* Shared components: page frame, header, footer, buttons, mastheads, the stage band, panels, the selection control,
+   terminal windows, code blocks and prose. Page-specific layout lives in pages.css, home.css and docs.css. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 80px; }
+body {
+  margin: 0;
+  background: var(--cm-page);
+  color: var(--cm-ink);
+  font: 16px/1.6 var(--cm-font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img, svg { max-width: 100%; }
+a { color: var(--cm-link); text-underline-offset: .2em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--cm-accent); outline-offset: 2px; border-radius: 3px; }
+code, kbd, pre { font-family: var(--cm-mono); font-variant-ligatures: none; }
+h1, h2, h3, h4 { font-family: var(--cm-mono); line-height: 1.15; letter-spacing: -.015em; margin: 0; }
+p { margin: 0 0 1em; }
+[hidden] { display: none !important; }
+.cm-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cm-skip { position: absolute; left: 12px; top: -48px; z-index: 50; padding: 8px 12px; background: var(--cm-surface); color: var(--cm-ink); border-radius: 6px; }
+.cm-skip:focus { top: 12px; }
+.cm-wrap { width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; }
+:root[data-theme="dark"] .cm-only-light, :root:not([data-theme="dark"]) .cm-only-dark { display: none !important; }
+
+/* Header: brand, two navigation groups, the current page chip and the actions. Identical on every page. */
+.cm-header { position: sticky; top: 0; z-index: 30; height: 64px; background: color-mix(in srgb, var(--cm-page) 88%, transparent); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid var(--cm-line); }
+.cm-header__inner { display: flex; align-items: center; gap: 28px; height: 64px; width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; }
+.cm-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--cm-ink); text-decoration: none; font: 700 17px/1 var(--cm-mono); letter-spacing: -.02em; white-space: nowrap; }
+.cm-brand:hover { text-decoration: none; }
+.cm-logo { flex: none; display: block; }
+.cm-nav { display: flex; align-items: center; flex: 1; gap: 16px; min-width: 0; }
+.cm-nav__groups { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; flex: 1; min-width: 0; }
+.cm-navgroup { position: relative; }
+.cm-navgroup__trigger { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--cm-ink-2); font: 500 14px/1 var(--cm-mono); cursor: pointer; }
+.cm-navgroup__trigger:hover, .cm-navgroup__trigger[aria-expanded="true"] { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-navgroup__mark { width: 8px; height: 8px; border-radius: 2px; background: var(--key, transparent); box-shadow: inset 0 0 0 1px var(--cm-line-strong); }
+.cm-navgroup.is-current .cm-navgroup__mark { box-shadow: none; }
+.cm-navgroup__chevron { transition: transform .15s ease; }
+.cm-navgroup__trigger[aria-expanded="true"] .cm-navgroup__chevron { transform: rotate(180deg); }
+.cm-navpanel { position: absolute; top: calc(100% + 10px); left: -8px; width: 640px; padding: 18px; background: var(--cm-surface); border: 1px solid var(--cm-line); border-radius: 12px; box-shadow: var(--cm-shadow); display: none; }
+.cm-navgroup__trigger[aria-expanded="true"] + .cm-navpanel { display: block; }
+html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:focus-within .cm-navpanel { display: block; }
+.cm-navpanel__lede { margin: 0 0 12px; color: var(--cm-muted); font-size: 14px; }
+.cm-navpanel__items { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cm-navitem { position: relative; display: grid; grid-template-columns: 96px 1fr; grid-template-rows: auto auto; column-gap: 12px; padding: 8px; border-radius: 8px; }
+.cm-navitem:hover, .cm-navitem:focus-within, .cm-navitem.is-current { background: var(--cm-focus-bg); }
+.cm-navitem__thumb { grid-row: 1 / span 2; width: 96px; height: 60px; border-radius: 6px; overflow: hidden; background: var(--cm-term-bg); box-shadow: inset 0 0 0 1px var(--cm-term-edge); }
+.cm-navitem__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+.cm-navitem__link { align-self: end; display: inline-flex; align-items: center; gap: 8px; color: var(--cm-ink); font: 600 14px/1.3 var(--cm-mono); text-decoration: none; }
+.cm-navitem__link::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
+.cm-navitem__desc { color: var(--cm-muted); font-size: 13px; line-height: 1.4; }
+.cm-key { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--key, var(--cm-accent)); }
+.cm-nav__here { display: inline-flex; align-items: center; gap: 8px; height: 28px; margin-left: 6px; padding: 0 10px; border-radius: 4px; background: var(--cm-focus-bg); color: var(--cm-focus-fg); font: 600 13px/1 var(--cm-mono); white-space: nowrap; }
+.cm-nav__actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.cm-icon-link, .cm-theme-toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--cm-ink-2); cursor: pointer; }
+.cm-icon-link:hover, .cm-theme-toggle:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+:root[data-theme="dark"] .cm-theme-toggle__moon, :root:not([data-theme="dark"]) .cm-theme-toggle__sun { display: none; }
+.cm-nav-toggle { position: absolute; opacity: 0; pointer-events: none; }
+.cm-nav-toggle__label { display: none; }
+
+/* Buttons. */
+.cm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 15px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; cursor: pointer; }
+.cm-btn:hover { text-decoration: none; filter: brightness(1.06); }
+.cm-btn--ghost { background: transparent; color: var(--cm-ink); border-color: var(--cm-line-strong); }
+.cm-btn--ghost:hover { background: var(--cm-sunken); filter: none; }
+.cm-btn--small { height: 34px; padding: 0 14px; font-size: 13px; margin-left: 8px; }
+
+/* Footer. */
+.cm-footer { margin-top: 96px; border-top: 1px solid var(--cm-line); background: var(--cm-surface); }
+.cm-footer__inner { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; padding: 48px 0 32px; }
+.cm-footer__brand p { max-width: 38ch; margin-top: 14px; color: var(--cm-muted); font-size: 14px; }
+.cm-footer__col h2 { margin: 4px 0 12px; font: 600 13px/1 var(--cm-mono); color: var(--cm-ink); letter-spacing: 0; }
+.cm-footer__col ul { margin: 0; padding: 0; list-style: none; }
+.cm-footer__col li { margin: 0 0 8px; }
+.cm-footer__col a { display: block; width: fit-content; margin: 0 0 9px; color: var(--cm-muted); font-size: 14px; text-decoration: none; }
+.cm-footer__col a.is-active { color: var(--cm-ink); }
+.cm-footer__col a:hover { color: var(--cm-ink); text-decoration: underline; }
+.cm-footer__family { display: flex; flex-wrap: wrap; gap: 8px 20px; width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; padding: 18px 0 28px; border-top: 1px solid var(--cm-line); color: var(--cm-muted); font-size: 13px; }
+.cm-footer__family span { color: var(--cm-ink-2); font-family: var(--cm-mono); }
+.cm-footer__family a { color: var(--cm-muted); }
+
+/* Masthead of inner pages: title and lede over a faint cell grid. */
+.cm-masthead { position: relative; padding: 64px 0 40px; border-bottom: 1px solid var(--cm-line); background-image: radial-gradient(var(--cm-line) 1px, transparent 1.2px); background-size: 14px 24px; background-position: -1px -1px; }
+.cm-masthead::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--cm-page) 30%, color-mix(in srgb, var(--cm-page) 55%, transparent)); pointer-events: none; }
+.cm-masthead__inner { position: relative; z-index: 1; }
+.cm-masthead h1 { max-width: 24ch; font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; }
+.cm-lede { max-width: 66ch; margin: 18px 0 0; color: var(--cm-ink-2); font-size: clamp(17px, 1.6vw, 19px); line-height: 1.55; }
+.cm-masthead__extra { margin-top: 24px; }
+
+/* The stage: a band that stays dark, with the title beside or above real output. */
+.cm-stage { position: relative; padding: 72px 0 64px; background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; overflow: hidden; }
+.cm-stage__inner { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; }
+.cm-stage--wide .cm-stage__inner { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+.cm-stage h1 { max-width: 18ch; font-size: clamp(34px, 5vw, 60px); font-weight: 800; color: #f8fafc; }
+.cm-stage__lede { max-width: 60ch; margin: 20px 0 0; color: #c3cad6; font-size: clamp(17px, 1.6vw, 19px); }
+.cm-stage__side { margin-top: 28px; }
+
+/* Panels: ConsoleMonster's Panel widget in CSS, a rounded border with the title set into its top edge. */
+.cm-panel { position: relative; margin: 0; padding: 28px 22px 22px; border: 1px solid var(--cm-line-strong); border-radius: 12px; }
+.cm-panel__title, .cm-panel__caption { position: absolute; top: 0; transform: translateY(-50%); margin: 0; padding: 0 8px; background: var(--cm-page); font: 700 15px/1.2 var(--cm-mono); color: var(--cm-ink); letter-spacing: 0; }
+.cm-panel__title { left: 14px; }
+.cm-panel__caption { right: 14px; color: var(--cm-muted); font-weight: 500; font-size: 13px; }
+.cm-panel--surface { background: var(--cm-surface); }
+.cm-panel--surface .cm-panel__title, .cm-panel--surface .cm-panel__caption { background: linear-gradient(var(--cm-page) 50%, var(--cm-surface) 50%); }
+.cm-tone-dark .cm-panel__title, .cm-tone-dark .cm-panel__caption { background: var(--cm-stage); }
+
+/* The selection control for tabs, toggles and tiers: the chosen option is ConsoleMonster's focus row. */
+.cm-seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--cm-line); border-radius: 8px; background: var(--cm-surface); }
+.cm-seg__label { padding: 0 10px 0 8px; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
+.cm-seg button, .cm-seg a { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px 0 20px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-ink-2); font: 500 13px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; cursor: pointer; }
+.cm-seg button::before, .cm-seg a::before { content: ""; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 1px; background: var(--key, var(--cm-line-strong)); opacity: .55; }
+.cm-seg button:hover, .cm-seg a:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-seg [aria-selected="true"], .cm-seg [aria-checked="true"], .cm-seg [aria-pressed="true"], .cm-seg [aria-current="true"] { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 700; }
+.cm-seg [aria-selected="true"]::before, .cm-seg [aria-checked="true"]::before, .cm-seg [aria-pressed="true"]::before, .cm-seg [aria-current="true"]::before { content: "›"; width: auto; height: auto; margin-top: 0; background: none; opacity: 1; transform: translateY(-50%); color: var(--key, var(--cm-accent)); font-weight: 800; left: 7px; }
+.cm-seg__count { color: var(--cm-muted); font-weight: 400; }
+.cm-tone-dark .cm-seg { background: #121925; border-color: var(--cm-stage-line); }
+
+/* Terminal windows: a title bar with the real terminal profile, then the frame. */
+.cm-window { position: relative; display: block; min-width: 0; margin: 0; container-type: inline-size; }
+.cm-window__frame { display: flex; flex-direction: column; width: fit-content; max-width: 100%; min-width: min(100%, 280px); border-radius: 10px; overflow: hidden; background: var(--cm-term-bg); box-shadow: 0 0 0 1px var(--cm-term-edge), var(--cm-shadow); }
+.cm-window--center .cm-window__frame { margin-inline: auto; }
+.cm-window--fill .cm-window__frame { width: auto; }
+.cm-window__bar { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 10px 0 12px; background: var(--cm-term-bar); color: var(--cm-term-bar-ink); font: 500 12px/1 var(--cm-mono); border-bottom: 1px solid var(--cm-term-edge); }
+.cm-window__tab { display: inline-flex; align-items: center; gap: 8px; color: var(--cm-ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.cm-window__tab svg { flex: none; color: var(--cm-muted); }
+.cm-window__tab span { overflow: hidden; text-overflow: ellipsis; }
+.cm-window__meta { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.cm-chip { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 4px; background: color-mix(in srgb, var(--cm-term-bg) 55%, transparent); box-shadow: inset 0 0 0 1px var(--cm-term-edge); color: var(--cm-term-bar-ink); font: 500 11px/1 var(--cm-mono); white-space: nowrap; }
+.cm-window__body { position: relative; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }
+.cm-window__body:focus-visible { outline-offset: -3px; }
+
+.cm-screen {
+  --cm-cell: 1.2em;
+  --cm-light: max(1px, .075em);
+  --cm-heavy: calc(var(--cm-light) * 2.4);
+  --cm-gap: max(1.5px, .15em);
+  --cm-dot: .085em;
+  --cm-pad: 14px;
+  --cm-max-font: 13.5px;
+  --cm-min-font: 9px;
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 12px var(--cm-pad) 14px;
+  color: var(--cm-term-fg);
+  background: var(--cm-term-bg);
+  font-family: var(--cm-mono);
+  font-size: clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font));
+  line-height: var(--cm-cell);
+  white-space: pre;
+  tab-size: 1;
+  font-variant-ligatures: none;
+  font-kerning: none;
+  font-synthesis: none;
+  overflow: visible;
+}
+/* Snap the font size so a cell (0.6em by 1.2em in JetBrains Mono) is a whole number of layout units (1/64 px): cells
+   that are separate boxes then never drift against runs of text, and painted bars line up from row to row. */
+@supports (font-size: round(down, 13px, 1px)) {
+  .cm-screen { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
+}
+.cm-screen--dark { --cm-term-fg: #cccccc; --cm-term-bg: #0c0c0c; }
+.cm-screen--light { --cm-term-fg: #24292f; --cm-term-bg: #ffffff; }
+.cm-screen span, .cm-screen a { display: inline-block; vertical-align: top; height: var(--cm-cell); }
+/* A playing replay keeps one block per row, so a frame rewrites and lays out only the rows it changes. */
+.cm-screen .cm-row { display: block; height: var(--cm-cell); contain: layout style; }
+.cm-screen a { color: inherit; text-decoration: none; }
+.cm-screen a:hover { text-decoration: underline; }
+.cm-screen i { display: inline-block; vertical-align: top; width: .6em; height: var(--cm-cell); font-style: normal; -webkit-text-fill-color: transparent; background-repeat: no-repeat; }
+.cm-screen i.n, .cm-screen i.w { -webkit-text-fill-color: currentColor; text-align: center; overflow: visible; }
+.cm-screen i.w { width: 1.2em; }
+.cm-screen .B { font-weight: 700; }
+.cm-screen .I { font-style: italic; }
+.cm-screen .U { text-decoration: underline; text-underline-offset: .15em; }
+.cm-screen .S { text-decoration: line-through; }
+.cm-screen .US { text-decoration: underline line-through; }
+.cm-screen .rv { color: var(--cm-term-bg); background-color: var(--cm-term-fg); }
+.cm-screen ::selection { background: rgba(96, 165, 250, .45); }
+
+/* Code blocks: one component for every snippet. */
+.cm-code { position: relative; margin: 0; min-width: 0; border-radius: 10px; background: var(--cm-surface); box-shadow: inset 0 0 0 1px var(--cm-line); overflow: hidden; }
+.cm-code__bar { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--cm-line); color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); }
+.cm-code__lang { color: var(--cm-ink); font-weight: 600; }
+.cm-code__file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-code__copy { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); cursor: pointer; }
+.cm-code__copy:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-code pre { margin: 0; padding: 14px 16px 16px; overflow: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre; overflow-wrap: normal; word-break: normal; }
+.cm-code code { white-space: inherit; }
+.cm-code__full { border-top: 1px solid var(--cm-line); }
+.cm-code__full summary { display: flex; align-items: center; gap: 8px; padding: 9px 14px; color: var(--cm-ink-2); font: 600 12.5px/1.2 var(--cm-mono); cursor: pointer; list-style: none; }
+.cm-code__full summary::-webkit-details-marker { display: none; }
+.cm-code__full summary::before { content: "›"; color: var(--cm-accent); font-weight: 800; transition: transform .15s ease; }
+.cm-code__full[open] summary::before { transform: rotate(90deg); }
+.cm-code__full summary:hover { color: var(--cm-ink); background: var(--cm-sunken); }
+.cm-code--short:has(.cm-code__full[open]) > pre { display: none; }
+.cm-code__full[open] summary { border-bottom: 1px solid var(--cm-line); }
+
+/* Scrollbars inside code blocks and terminal windows follow the theme. */
+.cm-code pre, .cm-window__body, .cm-tablewrap { scrollbar-width: thin; scrollbar-color: var(--cm-line-strong) transparent; }
+.cm-window__body { scrollbar-color: #3a4558 transparent; }
+.cm-code pre::-webkit-scrollbar, .cm-window__body::-webkit-scrollbar, .cm-tablewrap::-webkit-scrollbar { height: 8px; width: 8px; }
+.cm-code pre::-webkit-scrollbar-thumb, .cm-tablewrap::-webkit-scrollbar-thumb { background: var(--cm-line-strong); border-radius: 4px; }
+.cm-window__body::-webkit-scrollbar-thumb { background: #3a4558; border-radius: 4px; }
+.cm-code pre::-webkit-scrollbar-track, .cm-window__body::-webkit-scrollbar-track, .cm-tablewrap::-webkit-scrollbar-track { background: transparent; }
+.cm-code code { font: inherit; background: none; padding: 0; }
+.cm-tone-dark .cm-code { background: #111824; }
+
+/* Code token colours, part of the shared code block on every page (Prism adds the .token spans). They follow
+   ConsoleMonster's own highlight roles (Highlighting/HighlightStyles.cs): keywords Series5, strings Series2, numbers
+   and literals Series3, types Series6, keys Series1, comments and punctuation Muted, variables Accent2. Light values
+   are the darker shades of the same hues so every role keeps at least 4.5:1 on the code surface. */
+:root {
+  --cm-tok-comment: #5b6474;
+  --cm-tok-keyword: #7c3aed;
+  --cm-tok-string: #15803d;
+  --cm-tok-number: #b45309;
+  --cm-tok-type: #0f766e;
+  --cm-tok-function: #1d4ed8;
+  --cm-tok-key: #2563eb;
+  --cm-tok-variable: #a21caf;
+  --cm-tok-operator: #3c4555;
+  --cm-tok-punct: #5b6474;
+}
+:root[data-theme="dark"], .cm-tone-dark {
+  --cm-tok-comment: #8b93a3;
+  --cm-tok-keyword: #c084fc;
+  --cm-tok-string: #4ade80;
+  --cm-tok-number: #fbbf24;
+  --cm-tok-type: #2dd4bf;
+  --cm-tok-function: #60a5fa;
+  --cm-tok-key: #93c5fd;
+  --cm-tok-variable: #f0abfc;
+  --cm-tok-operator: #c3cad6;
+  --cm-tok-punct: #8b93a3;
+}
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--cm-tok-comment); font-style: italic; }
+.token.keyword, .token.important, .token.atrule, .token.rule { color: var(--cm-tok-keyword); }
+.token.string, .token.char, .token.attr-value, .token.regex, .token.url { color: var(--cm-tok-string); }
+.token.interpolation-string > .token.string { color: var(--cm-tok-string); }
+.token.number, .token.constant, .token.symbol { color: var(--cm-tok-number); }
+.token.boolean { color: var(--cm-tok-number); font-weight: 600; }
+.token.class-name, .token.namespace, .token.type-expression, .token.return-type, .token.type-list, .token.builtin, .token.tag { color: var(--cm-tok-type); }
+.token.function, .token.method, .token.selector, .token.generic-method > .token.function { color: var(--cm-tok-function); }
+.token.property, .token.attr-name, .token.named-parameter, .token.key, .token.parameter { color: var(--cm-tok-key); }
+.token.variable, .token.interpolation > .token.punctuation { color: var(--cm-tok-variable); }
+.token.operator { color: var(--cm-tok-operator); }
+.token.punctuation { color: var(--cm-tok-punct); }
+.token.namespace > .token.punctuation { color: inherit; }
+
+/* Prose for docs, guides and Markdown sections. */
+.cm-prose { max-width: 74ch; }
+.cm-prose > * + * { margin-top: 0; }
+.cm-prose h2 { margin: 2.2em 0 .7em; font-size: 26px; font-weight: 800; }
+.cm-prose h3 { margin: 1.8em 0 .5em; font-size: 19px; font-weight: 700; }
+.cm-prose h2:first-child, .cm-prose h3:first-child { margin-top: 0; }
+.cm-prose p, .cm-prose ul, .cm-prose ol { margin: 0 0 1em; }
+.cm-prose li { margin: .3em 0; }
+.cm-prose li > ul { margin: .3em 0 0; }
+.cm-prose :not(pre) > code { padding: .1em .35em; border-radius: 4px; background: var(--cm-sunken); font-size: .88em; color: var(--cm-ink); overflow-wrap: anywhere; }
+.cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap { margin: 1.4em 0 1.6em; }
+.cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
+.cm-tablewrap { max-width: 100%; overflow-x: auto; }
+.cm-prose table, .cm-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.cm-prose th, .cm-prose td, .cm-table th, .cm-table td { padding: 9px 12px; border-bottom: 1px solid var(--cm-line); text-align: left; vertical-align: top; }
+.cm-prose th, .cm-table th { font: 600 13px/1.3 var(--cm-mono); color: var(--cm-ink); border-bottom-color: var(--cm-line-strong); }
+.cm-prose hr { border: 0; border-top: 1px solid var(--cm-line); margin: 2.4em 0; }
+
+/* Section headings outside prose. */
+.cm-section { padding: 88px 0 0; }
+.cm-section__head { display: grid; gap: 14px; margin-bottom: 36px; max-width: 72ch; }
+.cm-section__head h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 800; }
+.cm-section__head p { margin: 0; color: var(--cm-ink-2); font-size: 17px; }
+
+/* The frame figure used in docs and guides. */
+.cm-figure { margin: 1.6em 0; }
+.cm-figure figcaption { margin-top: 10px; color: var(--cm-muted); font-size: 14px; }
+
+@media (max-width: 1080px) {
+  .cm-stage__inner { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 960px) {
+  .cm-header__inner { gap: 12px; }
+  .cm-nav-toggle__label { display: inline-grid; place-items: center; width: 40px; height: 40px; margin-left: auto; border-radius: 6px; cursor: pointer; }
+  .cm-nav-toggle__label span { display: block; width: 18px; height: 2px; margin: 2px 0; background: var(--cm-ink); border-radius: 1px; }
+  .cm-nav-toggle:focus-visible + .cm-nav-toggle__label { outline: 2px solid var(--cm-accent); }
+  .cm-nav { position: fixed; inset: 64px 0 0; height: calc(100dvh - 64px); display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 12px var(--cm-gutter) 32px; overflow-y: auto; background: var(--cm-page); }
+  .cm-nav-toggle:checked ~ .cm-nav { display: flex; }
+  .cm-nav__groups { flex-direction: column; align-items: stretch; flex: none; }
+  .cm-navgroup__trigger { width: 100%; height: 44px; pointer-events: none; }
+  .cm-navgroup__chevron { display: none; }
+  .cm-navpanel { position: static; display: block; width: auto; padding: 0 0 12px; border: 0; box-shadow: none; background: transparent; }
+  .cm-navpanel__lede { display: none; }
+  .cm-navpanel__items { grid-template-columns: 1fr; }
+  .cm-navitem { grid-template-columns: 72px 1fr; }
+  .cm-navitem__thumb { width: 72px; height: 46px; }
+  .cm-nav__here { display: none; }
+  .cm-nav__actions { margin: 12px 0 0; padding-top: 16px; border-top: 1px solid var(--cm-line); }
+  .cm-footer__inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px 20px; }
+  .cm-footer__brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 560px) {
+  .cm-window__meta .cm-chip + .cm-chip + .cm-chip { display: none; }
+  .cm-panel { padding: 26px 14px 16px; }
+  .cm-section { padding-top: 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+.cm-figure__frames { display: grid; gap: 14px; }
+.cm-figure--strip .cm-figure__frames { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+.cm-screen--narrow { display: none; }
+@media (max-width: 700px) {
+  .cm-screen--wide { display: none; }
+  .cm-screen--narrow { display: block; }
+}
+
+/* Bands: full-width sections that change the ground under a section, so frame-heavy sections stand apart from prose. */
+.cm-band { margin-top: 96px; padding: 88px 0; }
+.cm-band + .cm-section { padding-top: 96px; }
+.cm-band--surface { background: var(--cm-surface); border-top: 1px solid var(--cm-line); border-bottom: 1px solid var(--cm-line); }
+.cm-band--surface .cm-panel__title, .cm-band--surface .cm-panel__caption { background: var(--cm-surface); }
+.cm-band--dark { background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; }
+.cm-band--dark h2, .cm-band--dark h3 { color: #f8fafc; }
+.cm-band--dark .cm-section__head p, .cm-band--dark .cm-section__source { color: #c3cad6; }
+.cm-band--dark a { color: #93c5fd; }
+.cm-band--dark .cm-facts { border-top-color: var(--cm-stage-line); }
+.cm-band--dark .cm-facts div { border-bottom-color: var(--cm-stage-line); }
+.cm-band--dark .cm-facts dd { color: #f8fafc; }
+@media (max-width: 560px) { .cm-band { margin-top: 64px; padding: 64px 0; } }
+
+/* On phones, frames keep a 10 px floor and scroll inside their window rather than shrinking further. */
+@media (max-width: 700px) { .cm-screen { --cm-min-font: 10px; } }

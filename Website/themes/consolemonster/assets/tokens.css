@@ -1,0 +1,126 @@
+/* ConsoleMonster site tokens: the only colour source for the site and the API reference. The values come from
+   ConsoleMonster's built-in Light and Dark themes (ConsoleMonster/Styling/Theme.BuiltIn.cs): status roles keep their
+   product meaning, and the six series colours are the category keys. */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url(/fonts/jetbrains-mono-latin.woff2) format("woff2");
+}
+
+:root {
+  color-scheme: light;
+  --cm-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --cm-mono: "JetBrains Mono", "Cascadia Mono", "Cascadia Code", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  --cm-max: 1240px;
+  --cm-gutter: clamp(16px, 4vw, 40px);
+
+  --cm-page: #eceff3;
+  --cm-surface: #ffffff;
+  --cm-sunken: #e2e6ec;
+  --cm-ink: #141a24;
+  --cm-ink-2: #3c4555;
+  --cm-muted: #5b6474;
+  --cm-line: #c3c9d3;
+  --cm-line-strong: #8a8a94;
+  --cm-accent: #2563eb;
+  --cm-accent-ink: #ffffff;
+  --cm-accent-2: #7c3aed;
+  --cm-pass: #15803d;
+  --cm-warn: #b45309;
+  --cm-fail: #b91c1c;
+  --cm-info: #0369a1;
+  --cm-focus-bg: #d6e4fa;
+  --cm-focus-fg: #0f172a;
+  --cm-link: #1d4ed8;
+  --cm-s1: #2563eb;
+  --cm-s2: #16a34a;
+  --cm-s3: #d97706;
+  --cm-s4: #dc2626;
+  --cm-s5: #7c3aed;
+  --cm-s6: #0d9488;
+  --cm-shadow: 0 1px 0 rgba(20, 26, 36, .04), 0 12px 32px -18px rgba(20, 26, 36, .28);
+
+  /* The stage band and replays stay dark in both themes. */
+  --cm-stage: #0d121b;
+  --cm-stage-ink: #e2e8f0;
+  --cm-stage-muted: #8b93a3;
+  --cm-stage-line: #273041;
+  --cm-stage-grid: rgba(148, 163, 184, .09);
+
+  /* Terminal screens: ConsoleMonster's exporter defaults. */
+  --cm-term-fg: #24292f;
+  --cm-term-bg: #ffffff;
+  --cm-term-bar: #e7eaef;
+  --cm-term-bar-ink: #5b6474;
+  --cm-term-edge: #c3c9d3;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --cm-page: #10151f;
+  --cm-surface: #161d2a;
+  --cm-sunken: #0c1119;
+  --cm-ink: #e2e8f0;
+  --cm-ink-2: #c3cad6;
+  --cm-muted: #8b93a3;
+  --cm-line: #2c3546;
+  --cm-line-strong: #4b5060;
+  --cm-accent: #60a5fa;
+  --cm-accent-ink: #0b1220;
+  --cm-accent-2: #c084fc;
+  --cm-pass: #4ade80;
+  --cm-warn: #fbbf24;
+  --cm-fail: #f87171;
+  --cm-info: #38bdf8;
+  --cm-focus-bg: #243b5e;
+  --cm-focus-fg: #f1f5f9;
+  --cm-link: #93c5fd;
+  --cm-s1: #60a5fa;
+  --cm-s2: #4ade80;
+  --cm-s3: #fbbf24;
+  --cm-s4: #f87171;
+  --cm-s5: #c084fc;
+  --cm-s6: #2dd4bf;
+  --cm-shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 18px 40px -22px rgba(0, 0, 0, .7);
+
+  --cm-term-fg: #cccccc;
+  --cm-term-bg: #0c0c0c;
+  --cm-term-bar: #1b2230;
+  --cm-term-bar-ink: #8b93a3;
+  --cm-term-edge: #2c3546;
+}
+
+/* Bands that stay dark take the dark values whatever the page theme. */
+.cm-tone-dark {
+  color-scheme: dark;
+  --cm-ink: #e2e8f0;
+  --cm-ink-2: #c3cad6;
+  --cm-muted: #8b93a3;
+  --cm-line: #273041;
+  --cm-line-strong: #4b5060;
+  --cm-surface: #141b27;
+  --cm-sunken: #0a0e15;
+  --cm-accent: #60a5fa;
+  --cm-accent-ink: #0b1220;
+  --cm-pass: #4ade80;
+  --cm-warn: #fbbf24;
+  --cm-fail: #f87171;
+  --cm-focus-bg: #243b5e;
+  --cm-focus-fg: #f1f5f9;
+  --cm-link: #93c5fd;
+  --cm-s1: #60a5fa;
+  --cm-s2: #4ade80;
+  --cm-s3: #fbbf24;
+  --cm-s4: #f87171;
+  --cm-s5: #c084fc;
+  --cm-s6: #2dd4bf;
+  --cm-term-fg: #cccccc;
+  --cm-term-bg: #0c0c0c;
+  --cm-term-bar: #171e2b;
+  --cm-term-bar-ink: #8b93a3;
+  --cm-term-edge: #273041;
+}
+
+:root { --cm-radius: 10px; --cm-t-h2: 26px; --cm-t-lede: 18px; --cm-t-micro: 12px; }

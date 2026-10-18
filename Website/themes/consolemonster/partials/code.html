@@ -1,0 +1,14 @@
+{{~ ## A code block. Set code_lang (csharp, powershell, json), code_label (shown in the bar), code_file (optional),
+     code_text and, when the text is a short form, code_full (the whole program, one click away). Code never wraps:
+     long lines scroll inside the block. ## ~}}
+<figure class="cm-code{{ if code_full }} cm-code--short{{ end }}" data-lang="{{ code_lang }}">
+  <figcaption class="cm-code__bar"><span class="cm-code__lang">{{ code_label }}</span>{{ if code_file }}<span class="cm-code__file">{{ code_file }}</span>{{ end }}<button type="button" class="cm-code__copy" data-cm-copy>Copy</button></figcaption>
+  <pre><code class="language-{{ code_lang }}">{{ code_text | html.escape }}</code></pre>
+  {{~ if code_full ~}}
+  <details class="cm-code__full">
+    <summary>Full program</summary>
+    <pre><code class="language-{{ code_lang }}">{{ code_full | html.escape }}</code></pre>
+  </details>
+  {{~ end ~}}
+</figure>
+{{~ code_file = null; code_full = null ~}}

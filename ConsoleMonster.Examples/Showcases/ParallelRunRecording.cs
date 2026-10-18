@@ -137,7 +137,9 @@ namespace ConsoleMonster.Examples.Showcases {
                 Add(events, t, "log", "write", text: target.Value + ": evaluating " + rules.Length.ToString(CultureInfo.InvariantCulture) + " rules", state: "info");
                 for (int r = 0; r < rules.Length; r++) {
                     SyntheticRule rule = rules[r];
-                    double seconds = Math.Exp(-0.9 + (0.75 * Gaussian(random))) * rule.Weight * (domain ? 1.6 : 1.0);
+                    // Native transcendental functions can differ by one ULP across operating systems. Keep the
+                    // synthetic recording stable at nanosecond precision, well below its millisecond timestamps.
+                    double seconds = Math.Round(Math.Exp(-0.9 + (0.75 * Gaussian(random))) * rule.Weight * (domain ? 1.6 : 1.0), 9);
                     t += seconds * 1000;
                     string result = PickResult(random, troubled && rule.Category == "Replication");
                     string? next = r + 1 < rules.Length ? rules[r + 1].Name : "finishing";

@@ -37,6 +37,34 @@
     assert(host.__cmPlayer===replacement && api.players.length===1 && !host.__cmLoading,'an obsolete pending fetch cannot replace a new player');
     replacement.destroy();
     assert(api.players.length===0 && host.querySelectorAll('.cm-controls').length===0,'teardown releases the registry and generated controls');
+    // Drive the real player with a deterministic browser clock: at 4x a sparse recording must show its middle frame
+    // at 650 ms and finish at 1950 ms, rather than skipping content behind the normal-speed timer floor.
+    const realTimeout=window.setTimeout, realClearTimeout=window.clearTimeout, realNow=performance.now;
+    let clock=0, timerId=0; const timers=new Map();
+    window.setTimeout=(callback,delay)=>{const id=++timerId;timers.set(id,{callback,due:clock+delay});return id;};
+    window.clearTimeout=id=>timers.delete(id);
+    performance.now=()=>clock;
+    function tick(until) {
+      for(let count=0;count<100;count++) {
+        const next=[...timers.entries()].sort((a,b)=>a[1].due-b[1].due)[0];
+        if(!next || next[1].due>until) break;
+        clock=next[1].due;timers.delete(next[0]);next[1].callback();
+      }
+      clock=until;
+    }
+    let fast;
+    try {
+      fast=api.mount(host,{...data,fps:0.385,duration:7800,rows:['first','middle','last'],frames:[[0,[0]],[2600,[1]],[7800,[2]]]});
+      fast.setVisible(true);
+      const rate=host.querySelector('.cm-speed');rate.value='4';rate.dispatchEvent(new Event('change'));fast.play();
+      tick(800);
+      assert(host.querySelector('.cm-screen').textContent==='middle','4x playback displays the intermediate sparse frame on time');
+      tick(2000);
+      assert(host.querySelector('.cm-screen').textContent==='last' && host.querySelector('.cm-play').textContent==='Play','4x playback reaches the final frame and stops at the scaled duration');
+    } finally {
+      if(fast) fast.destroy();
+      window.setTimeout=realTimeout;window.clearTimeout=realClearTimeout;performance.now=realNow;
+    }
     document.title='PASS: Player lifecycle regression checks';
   } catch(error) { document.title='FAIL: Player lifecycle regression checks'; console.error(error); }
 })();

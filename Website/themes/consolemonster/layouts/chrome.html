@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--chrome">
+{{~ ## The site header and footer rendered at a route the API docs steps own. build/Export-ApiChrome.ps1 lifts them out
+     after the site build, the API docs steps wrap their pages in them, then overwrite this page. One header and one
+     footer partial therefore serve every page, with the right section marked current. ## ~}}
+{{ include "site-header" }}
+<main id="main" class="cm-main"></main>
+{{ include "site-footer" }}
+</body>
+</html>

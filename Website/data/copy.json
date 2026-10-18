@@ -1,0 +1,309 @@
+{
+  "home": {
+    "title": "Every cell accounted for.",
+    "lede": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell. It has no package dependencies, runs on Windows PowerShell 5.1 and PowerShell 7, and turns into plain lines when the output is a log.",
+    "installPowerShell": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster",
+    "installDotnet": "dotnet add package ConsoleMonster",
+    "installNote": "The .NET package and PowerShell module use the same rendering engine. See the installation guide for supported targets and a first table.",
+    "facts": [
+      "No package dependencies",
+      "netstandard2.0, net472 and net8.0",
+      "Windows PowerShell 5.1 and PowerShell 7",
+      "MIT licence"
+    ],
+    "replayNote": "A TestimoX-style assessment from ConsoleMonster.Examples: {events} recorded events played back at twice their speed into the same dashboard definition; its clock shows the recorded time.",
+    "twins": {
+      "title": "One engine for C# and PowerShell",
+      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
+    },
+    "tiers": {
+      "title": "Readable on every console",
+      "body": "ConsoleMonster detects the colour depth and which glyphs the console font can draw, and every widget renders at each level. Status never depends on colour alone: without colour, the symbol and the word remain.",
+      "points": [
+        "24-bit, 256 and 16 colours, or none",
+        "Full, Basic and ASCII glyph sets; on conhost the font decides",
+        "NO_COLOR and the CONSOLEMONSTER_COLOR, _GLYPHS, _MODE and _THEME overrides"
+      ]
+    },
+    "fit": {
+      "title": "Tables that fit the window",
+      "body": "Tables negotiate their width instead of overflowing it. This is the table above at 44 columns: below 60 cells, when the columns no longer fit, each row becomes a card titled with its key.",
+      "points": [
+        "Columns hide by priority, and a footer names the hidden ones",
+        "Text wraps after separators, so paths and DNS names break where you would break them",
+        "A single record renders as a record view"
+      ]
+    },
+    "live": {
+      "title": "Live dashboards from many threads",
+      "body": "A live session takes updates from any thread through a lock-free queue and draws about 15 frames a second, writing only the cells that changed. Console output and PowerShell streams are captured into a log region instead of tearing the screen.",
+      "facts": [
+        {
+          "label": "Frames per second under load",
+          "value": "15"
+        },
+        {
+          "label": "Updates per second",
+          "value": "~80,000"
+        },
+        {
+          "label": "Render cost per frame",
+          "value": "~0.75 ms"
+        },
+        {
+          "label": "Updates dropped",
+          "value": "0"
+        }
+      ],
+      "source": "The stress test in ConsoleMonster.Examples: 32 workers, with stray Console.WriteLine calls. Figures from the ConsoleMonster 2.0 pull request.",
+      "richTitle": "On a console",
+      "streamTitle": "In CI and redirected output"
+    },
+    "start": {
+      "title": "Where to go next",
+      "body": "The gallery has {widgets} widget examples with their C# and PowerShell source, the module has {cmdlets} cmdlets with full help, and the .NET API is documented type by type.",
+      "links": [
+        {
+          "title": "Widgets",
+          "url": "/widgets/",
+          "key": 1,
+          "body": "Every widget at every colour and glyph tier."
+        },
+        {
+          "title": "Tables",
+          "url": "/tables/",
+          "key": 6,
+          "body": "Priority columns, cards, presenters and totals at six widths."
+        },
+        {
+          "title": "Live dashboards",
+          "url": "/live/",
+          "key": 2,
+          "body": "Recorded runs of the build pipeline and the stress test."
+        },
+        {
+          "title": "PowerShell",
+          "url": "/powershell/",
+          "key": 3,
+          "body": "Format-ConsoleTable beside Format-Table, on 5.1 and 7."
+        },
+        {
+          "title": "Guides",
+          "url": "/guides/",
+          "key": 4,
+          "body": "Coming from Write-Color, Spectre.Console or Format-Table."
+        },
+        {
+          "title": "Docs",
+          "url": "/docs/",
+          "key": 5,
+          "body": "Detection, themes, overrides, live sessions and recording."
+        }
+      ]
+    }
+  },
+  "live": {
+    "stressNote": "Recorded from a real run in a 120×40 pseudo console. The session drew 15 frames a second; this replay samples {fps} of them per second to keep the file small.",
+    "stress": {
+      "title": "The stress test",
+      "body": "32 workers post lane updates as fast as they can while four threads write to Console.Out and Console.Error at random. The workers never touch the console: the session coalesces everything into about 15 frames a second and captures the stray output into the log region.",
+      "source": "Measured by the stress test itself during the recording above (.NET 8, Release build). The ConsoleMonster 2.0 pull request reports the same picture: 15.0 fps sustained at about 80,000 updates/s, 0 dropped, about 0.75 ms per frame."
+    },
+    "testimox": {
+      "title": "Recorded once, replayed exactly",
+      "body": "The TestimoX-style showcase does not run any rules. It replays a JSON-lines event stream of {events} events into a dashboard definition that knows nothing about the recording: every update arrives as a LiveEvent addressed by name.",
+      "recordTitle": "The recording",
+      "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Start-ConsoleDashboard with -RecordPath.",
+      "layoutTitle": "The dashboard",
+      "layoutBody": "Phases, lanes for twelve targets, a stacked bar and a key/value list, a braille line chart, a histogram, a bar chart and a log region. Below 60×20 the dashboard shows one status line plus the phases and the lanes that fit."
+    },
+    "pipeline": {
+      "title": "A build pipeline, from C# and PowerShell",
+      "body": "A PSPublishModule-style build: phases, steps with timings, module facts, overall progress and the tool output. The C# showcase writes to Console.Out like a real tool, and the PowerShell script calls Write-Host and Write-Warning from the dashboard's runspace; both land in the log region. Each run was recorded in a 110×32 pseudo console.",
+      "scriptTitle": "The PowerShell script",
+      "afterTitle": "What stays in the scrollback",
+      "afterBody": "When the session ends the screen is restored and a summary is printed to the scrollback, so a live dashboard always leaves a record behind. This is the C# run's summary."
+    },
+    "stream": {
+      "title": "The same run in CI",
+      "body": "With CONSOLEMONSTER_MODE=stream, with redirected output or when a CI system is detected, a live dashboard narrates append-only lines instead of redrawing. This is the TestimoX replay at six times speed in stream mode."
+    },
+    "query": {
+      "title": "Printed once: query results",
+      "body": "Not every tool needs a live view. The DnsClientX and DomainDetective style showcase prints a summary, the records, a delegation tree, mail-security checks and resolver latency once, at the width of the console."
+    }
+  },
+  "powershell": {
+    "lede": "{cmdlets} cmdlets with a plain Console noun, in one binary module for Windows PowerShell 5.1 and PowerShell 7. Every frame on this page was captured from both hosts running the script beside it.",
+    "format": {
+      "title": "Format-ConsoleTable beside Format-Table",
+      "body": "The same four objects, formatted by the built-in cmdlet and by ConsoleMonster in a 100-column console. Format-ConsoleTable takes pipeline input and -Property as Format-Table does: names, wildcards and calculated properties, plus hashtables with column options.",
+      "points": [
+        "-GroupBy, -Total, -Top, -Width and -Culture",
+        "Presenters for bytes, durations, dates, booleans and status",
+        "Without -Property, an object's DefaultDisplayPropertySet is used",
+        "Redirected output is plain text; -PassThru also writes the input objects"
+      ]
+    },
+    "lists": {
+      "title": "Lists and trees",
+      "body": "Format-ConsoleList shows one object as a record view. Format-ConsoleTree -AsInspector walks nested objects and collections, with depth, item and node limits."
+    },
+    "consoles": {
+      "title": "The same command on other consoles",
+      "body": "Format-ConsoleTable from above, run again with the terminal profile overridden. The script does not change.",
+      "variants": [
+        {
+          "id": "16-ascii",
+          "host": "ps5",
+          "title": "16 colours and ASCII glyphs",
+          "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii"
+        },
+        {
+          "id": "nocolor",
+          "host": "ps7",
+          "title": "NO_COLOR",
+          "command": "NO_COLOR=1"
+        },
+        {
+          "id": "plain",
+          "host": "ps7",
+          "title": "Plain mode",
+          "command": "CONSOLEMONSTER_MODE=plain"
+        },
+        {
+          "id": "narrow",
+          "host": "ps7",
+          "title": "A 56-column console",
+          "command": "56 columns"
+        }
+      ]
+    },
+    "routes": {
+      "title": "Where the output goes",
+      "body": "Cmdlets draw directly only on a real local console. Everywhere else they write through the PowerShell host, line by line as Write-Host does, so jobs complete, transcripts record and 6>&1 captures the output.",
+      "rows": [
+        {
+          "where": "A real local interactive console",
+          "what": "Drawn directly, with colour and live dashboards."
+        },
+        {
+          "where": "A real console with Start-Transcript running, and the ISE",
+          "what": "Coloured text through the host UI. The transcript receives the same lines as plain text."
+        },
+        {
+          "where": "Background jobs and remoting",
+          "what": "Write-Host style information records (tag PSHOST) with foreground and background colours."
+        },
+        {
+          "where": "Redirected output, thread jobs and other hosts",
+          "what": "One plain record per line, so files, transcripts and 6>&1 get whole lines of plain text."
+        },
+        {
+          "where": "NO_COLOR, CONSOLEMONSTER_COLOR=none, plain mode",
+          "what": "Host output stays uncoloured."
+        }
+      ]
+    },
+    "cmdlets": {
+      "title": "{cmdlets} cmdlets",
+      "body": "Grouped by verb, with the synopsis from the module's help. Each links to its full reference with syntax, parameters and examples."
+    }
+  },
+  "benchmarks": {
+    "frame": {
+      "title": "The cost of a frame",
+      "body": "ConsoleMonster.Benchmarks builds a stress-sized dashboard (32 lanes, statistics, a sparkline and a log) at 140×45, applies 5,000 updates between frames and measures 600 frames: composing the frame, diffing it against the previous one and encoding VT, the characters written and the memory allocated. A live session does this work on one thread about 15 times a second."
+    },
+    "machine": "Measured for this site on {processor} ({threads} logical processors), {os}, {runtime}, on {date}. Results vary with the machine; rerun the program to measure yours.",
+    "stress": {
+      "title": "Under load: the stress test",
+      "body": "The stress showcase in ConsoleMonster.Examples measures a whole live session: 32 worker threads posting lane updates, four threads writing stray console output, and the session drawing frames. These are the figures it printed at the end of the run recorded for the live dashboards page."
+    },
+    "reported": {
+      "title": "Reported in the repository",
+      "body": "Figures stated in the ConsoleMonster 2.0 pull request and the README, measured by the maintainers on their machines.",
+      "rows": [
+        {
+          "measure": "Frame rate during the stress test",
+          "value": "15.0 fps sustained",
+          "source": "Pull request #11"
+        },
+        {
+          "measure": "Updates during the stress test",
+          "value": "about 80,000 per second, 0 dropped",
+          "source": "Pull request #11"
+        },
+        {
+          "measure": "Time per frame during the stress test",
+          "value": "about 0.75 ms",
+          "source": "Pull request #11"
+        },
+        {
+          "measure": "Printing 50,000 rows at 140 columns",
+          "value": "about 1.7 s",
+          "source": "README"
+        },
+        {
+          "measure": "Peak memory for those 50,000 rows",
+          "value": "about 76 MB above the starting point (510 MB before block printing)",
+          "source": "README"
+        }
+      ]
+    }
+  },
+  "docsIndex": [
+    {
+      "title": "Install",
+      "url": "/docs/install/",
+      "body": "The NuGet package, the PowerShell module and a first program in each."
+    },
+    {
+      "title": "Capability detection",
+      "url": "/docs/capabilities/",
+      "body": "What ConsoleMonster detects about the console, and the decisions it records."
+    },
+    {
+      "title": "Themes",
+      "url": "/docs/themes/",
+      "body": "Dark, light and high contrast, and how colours are reduced per tier."
+    },
+    {
+      "title": "Environment overrides",
+      "url": "/docs/environment/",
+      "body": "NO_COLOR and the CONSOLEMONSTER_* variables."
+    },
+    {
+      "title": "Live sessions",
+      "url": "/docs/live-sessions/",
+      "body": "Dashboards updated from any thread, inline areas and windows that are too small."
+    },
+    {
+      "title": "Recording and replay",
+      "url": "/docs/recording/",
+      "body": "JSON-lines recordings, replays, exports and test helpers."
+    }
+  ],
+  "guidesIndex": [
+    {
+      "title": "Coming from Write-Color",
+      "url": "/guides/write-color/",
+      "body": "Write-ConsoleText takes Write-Color's parameters and aliases: how they map and where the two differ."
+    },
+    {
+      "title": "Coming from Spectre.Console",
+      "url": "/guides/spectre-console/",
+      "body": "Spectre.Console concepts and their ConsoleMonster counterparts, and the markup dialect they share."
+    },
+    {
+      "title": "Coming from Format-Table",
+      "url": "/guides/format-table/",
+      "body": "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets."
+    },
+    {
+      "title": "Hosts, CI and transcripts",
+      "url": "/guides/hosts-and-ci/",
+      "body": "What ConsoleMonster writes in CI, jobs, remoting, the ISE, transcripts and with NO_COLOR."
+    }
+  ]
+}

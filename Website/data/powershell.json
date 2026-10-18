@@ -1,0 +1,763 @@
+{
+  "examples": {
+    "format-table": {
+      "script": ". .\\artifacts.ps1\n$artifacts | Format-Table -AutoSize",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 99,
+            "h": 6,
+            "dark": "<span class=\"f13a10e B\">Name                        Kind    Length Time             Signed Path</span>\n<span class=\"f13a10e B c27\">----                       </span><span class=c1> </span><span class=\"f13a10e B c6\">----  </span><span class=c1> </span><span class=\"f13a10e B c7\"> ------</span><span class=c1> </span><span class=\"f13a10e B c16\">----            </span><span class=c1> </span><span class=\"f13a10e B c6\">------</span><span class=c1> </span><span class=\"f13a10e B\">----</span>\nConsoleMonster.2.0.0.nupkg  NuGet  1482113 00:00:48.2000000   True C:\\Support\\GitHub\\ConsoleMonste<i class=n>…</i>\nConsoleMonster.2.0.0.snupkg NuGet   402331 00:00:03.1000000   True C:\\Support\\GitHub\\ConsoleMonste<i class=n>…</i>\nConsoleMonster-2.0.0.zip    Module 2904576 00:00:11.7000000   True C:\\Support\\GitHub\\ConsoleMonste<i class=n>…</i>\nDocs.zip                    Module   51302 00:00:01.2000000  False C:\\Support\\GitHub\\ConsoleMonste<i class=n>…</i>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 99,
+            "h": 6,
+            "dark": "Name                        Kind    Length Time             Signed Path\n----                        ----    ------ ----             ------ ----\nConsoleMonster.2.0.0.nupkg  NuGet  1482113 00:00:48.2000000   True C:\\Support\\GitHub\\ConsoleMons...\nConsoleMonster.2.0.0.snupkg NuGet   402331 00:00:03.1000000   True C:\\Support\\GitHub\\ConsoleMons...\nConsoleMonster-2.0.0.zip    Module 2904576 00:00:11.7000000   True C:\\Support\\GitHub\\ConsoleMons...\nDocs.zip                    Module   51302 00:00:01.2000000  False C:\\Support\\GitHub\\ConsoleMons..."
+          }
+        }
+      }
+    },
+    "format-consoletable": {
+      "script": ". .\\artifacts.ps1\n$artifacts | Format-ConsoleTable -Title '[bold]PSPublishModule[/] [muted]artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 100,
+            "h": 15,
+            "dark": "<span class=c1> </span><span class=\"B c16\">PSPublishModule </span><span class=\"f8b8f9a B\">artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c3\">  2</span><span class=c89>                                                                                         </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c3\">  2</span><span class=c88>                                                                                        </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>s\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 100,
+            "h": 15,
+            "dark": "<span class=c1> </span><span class=\"B c16\">PSPublishModule </span><span class=\"f8b8f9a B\">artifacts</span>\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">NuGet</span><span class=\"f8b8f9a c3\">  2</span><span class=c89>                                                                                         </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>1.41 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>48 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>nster.2.0.0.nupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=c4>393 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>3.1 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>ster.2.0.0.snupkg </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c3\"><i class=g2502>│</i>  </span><span class=\"f8b8f9a c7\">1.8 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">51 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c6\">Module</span><span class=\"f8b8f9a c3\">  2</span><span class=c88>                                                                                        </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>2.77 </span><span class=\"f8b8f9a c3\">MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=c5>12 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> yes  </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>Monster-2.0.0.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Docs.zip                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c5>50.1 </span><span class=\"f8b8f9a c3\">KB </span><span class=\"f4b5060 c5\"><i class=g2502>│</i>    </span><span class=c6>1.2 s </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c7\"><i class=n>–</i> no   </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c37>C:\\Support\\GitHub\\<i class=n>…</i>s\\Packed\\Docs.zip </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">Subtotal</span><span class=c20>                    </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"f8b8f9a c8\">2.82 MB </span><span class=\"f4b5060 c6\"><i class=g2502>│</i>     </span><span class=\"f8b8f9a c5\">13 s </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i></span>\n<span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=c28>Total                       </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c5\">4.62 </span><span class=\"f8b8f9a B c2\">MB</span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g2502>│</i> </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f4b5060><i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i></span>"
+          }
+        }
+      },
+      "plain": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 100,
+            "h": 15,
+            "dark": " PSPublishModule artifacts\n+-----------------------------+---------+----------+--------+--------------------------------------+\n| Name                        |    Size | Built in | Signed | Path                                 |\n+-----------------------------+---------+----------+--------+--------------------------------------+\n| NuGet  2                                                                                         |\n| ConsoleMonster.2.0.0.nupkg  | 1.41 MB |     48 s | yes    | C:\\Support\\GitHub...ster.2.0.0.nupkg |\n| ConsoleMonster.2.0.0.snupkg |  393 KB |    3.1 s | yes    | C:\\Support\\GitHub...ter.2.0.0.snupkg |\n| Subtotal                    |  1.8 MB |     51 s |        |                                      |\n| Module  2                                                                                        |\n| ConsoleMonster-2.0.0.zip    | 2.77 MB |     12 s | yes    | C:\\Support\\GitHub...onster-2.0.0.zip |\n| Docs.zip                    | 50.1 KB |    1.2 s | no     | C:\\Support\\GitHub...\\Packed\\Docs.zip |\n| Subtotal                    | 2.82 MB |     13 s |        |                                      |\n+-----------------------------+---------+----------+--------+--------------------------------------+\n| Total                       | 4.62 MB | 1 m 04 s |        |                                      |\n+-----------------------------+---------+----------+--------+--------------------------------------+"
+          }
+        }
+      },
+      "nocolor": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 100,
+            "h": 15,
+            "dark": " PSPublishModule artifacts\n<i class=g256d>╭</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256e>╮</i>\n<i class=g2502>│</i> Name                        <i class=g2502>│</i>    Size <i class=g2502>│</i> Built in <i class=g2502>│</i> Signed <i class=g2502>│</i> Path                                 <i class=g2502>│</i>\n<i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i>\n<i class=g2502>│</i> NuGet  2                                                                                         <i class=g2502>│</i>\n<i class=g2502>│</i> ConsoleMonster.2.0.0.nupkg  <i class=g2502>│</i> 1.41 MB <i class=g2502>│</i>     48 s <i class=g2502>│</i> <i class=n>✓</i> yes  <i class=g2502>│</i> C:\\Support\\GitHub\\<i class=n>…</i>nster.2.0.0.nupkg <i class=g2502>│</i>\n<i class=g2502>│</i> ConsoleMonster.2.0.0.snupkg <i class=g2502>│</i>  393 KB <i class=g2502>│</i>    3.1 s <i class=g2502>│</i> <i class=n>✓</i> yes  <i class=g2502>│</i> C:\\Support\\GitHub\\<i class=n>…</i>ster.2.0.0.snupkg <i class=g2502>│</i>\n<i class=g2502>│</i> Subtotal                    <i class=g2502>│</i>  1.8 MB <i class=g2502>│</i>     51 s <i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i>\n<i class=g2502>│</i> Module  2                                                                                        <i class=g2502>│</i>\n<i class=g2502>│</i> ConsoleMonster-2.0.0.zip    <i class=g2502>│</i> 2.77 MB <i class=g2502>│</i>     12 s <i class=g2502>│</i> <i class=n>✓</i> yes  <i class=g2502>│</i> C:\\Support\\GitHub\\<i class=n>…</i>Monster-2.0.0.zip <i class=g2502>│</i>\n<i class=g2502>│</i> Docs.zip                    <i class=g2502>│</i> 50.1 KB <i class=g2502>│</i>    1.2 s <i class=g2502>│</i> <i class=n>–</i> no   <i class=g2502>│</i> C:\\Support\\GitHub\\<i class=n>…</i>s\\Packed\\Docs.zip <i class=g2502>│</i>\n<i class=g2502>│</i> Subtotal                    <i class=g2502>│</i> 2.82 MB <i class=g2502>│</i>     13 s <i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i>\n<i class=g251c>├</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g2524>┤</i>\n<i class=g2502>│</i> Total                       <i class=g2502>│</i> 4.62 MB <i class=g2502>│</i> 1 m 04 s <i class=g2502>│</i>        <i class=g2502>│</i>                                      <i class=g2502>│</i>\n<i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c38\">──────────────────────────────────────</i><i class=g256f>╯</i>"
+          }
+        }
+      },
+      "16-ascii": {
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 100,
+            "h": 15,
+            "dark": "<span class=c1> </span><span class=\"B c16\">PSPublishModule </span><span class=\"f767676 B\">artifacts</span>\n<span class=f767676>+-----------------------------+---------+----------+--------+--------------------------------------+</span>\n<span class=\"f767676 c2\">| </span><span class=\"B c4\">Name</span><span class=c24>                        </span><span class=\"f767676 c5\">|    </span><span class=\"B c4\">Size</span><span class=c1> </span><span class=\"f767676 c2\">| </span><span class=\"B c8\">Built in</span><span class=c1> </span><span class=\"f767676 c2\">| </span><span class=\"B c6\">Signed</span><span class=c1> </span><span class=\"f767676 c2\">| </span><span class=\"B c4\">Path</span><span class=c33>                                 </span><span class=f767676>|</span>\n<span class=f767676>+-----------------------------+---------+----------+--------+--------------------------------------+</span>\n<span class=\"f767676 c2\">| </span><span class=\"B c5\">NuGet</span><span class=f767676>  2                                                                                         |</span>\n<span class=\"f767676 c2\">| </span><span class=c28>ConsoleMonster.2.0.0.nupkg  </span><span class=\"f767676 c2\">| </span><span class=c5>1.41 </span><span class=\"f767676 c9\">MB |     </span><span class=c5>48 s </span><span class=\"f767676 c2\">| </span><span class=\"f16c60c c7\">yes    </span><span class=\"f767676 c2\">| </span><span class=c37>C:\\Support\\GitHub...ster.2.0.0.nupkg </span><span class=f767676>|</span>\n<span class=\"f767676 c2\">| </span><span class=c28>ConsoleMonster.2.0.0.snupkg </span><span class=\"f767676 c3\">|  </span><span class=c4>393 </span><span class=\"f767676 c8\">KB |    </span><span class=c6>3.1 s </span><span class=\"f767676 c2\">| </span><span class=\"f16c60c c7\">yes    </span><span class=\"f767676 c2\">| </span><span class=c37>C:\\Support\\GitHub...ter.2.0.0.snupkg </span><span class=f767676>|</span>\n<span class=f767676>| Subtotal                    |  1.8 MB |     51 s |        |                                      |</span>\n<span class=\"f767676 c2\">| </span><span class=\"B c6\">Module</span><span class=f767676>  2                                                                                        |</span>\n<span class=\"f767676 c2\">| </span><span class=c28>ConsoleMonster-2.0.0.zip    </span><span class=\"f767676 c2\">| </span><span class=c5>2.77 </span><span class=\"f767676 c9\">MB |     </span><span class=c5>12 s </span><span class=\"f767676 c2\">| </span><span class=\"f16c60c c7\">yes    </span><span class=\"f767676 c2\">| </span><span class=c37>C:\\Support\\GitHub...onster-2.0.0.zip </span><span class=f767676>|</span>\n<span class=\"f767676 c2\">| </span><span class=c28>Docs.zip                    </span><span class=\"f767676 c2\">| </span><span class=c5>50.1 </span><span class=\"f767676 c8\">KB |    </span><span class=c6>1.2 s </span><span class=\"f767676 c11\">| no     | </span><span class=c37>C:\\Support\\GitHub...\\Packed\\Docs.zip </span><span class=f767676>|</span>\n<span class=f767676>| Subtotal                    | 2.82 MB |     13 s |        |                                      |</span>\n<span class=f767676>+-----------------------------+---------+----------+--------+--------------------------------------+</span>\n<span class=\"f767676 c2\">| </span><span class=c28>Total                       </span><span class=\"f767676 c2\">| </span><span class=\"B c5\">4.62 </span><span class=\"f767676 B c2\">MB</span><span class=c1> </span><span class=\"f767676 c2\">| </span><span class=\"B c8\">1 m 04 s</span><span class=c1> </span><span class=f767676>|        |                                      |</span>\n<span class=f767676>+-----------------------------+---------+----------+--------+--------------------------------------+</span>"
+          }
+        }
+      },
+      "narrow": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 55,
+            "h": 35,
+            "dark": "<span class=\"B c16\">PSPublishModule </span><span class=\"f8b8f9a B c9\">artifacts</span><span class=f8b8f9a>  <i class=n>·</i>  4 records</span>\n\n<span class=B>NuGet</span>\n<span class=c2>  </span><span class=B>ConsoleMonster.2.0.0.nupkg</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Size      </span><span class=c5>1.41 </span><span class=f8b8f9a>MB</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Built in  </span>48 s\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Signed    </span><span class=f4ade80><i class=n>✓</i> yes</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\\n              Artefacts\\Packed\\\n              ConsoleMonster.2.0.0.nupkg\n<span class=c2>  </span><span class=B>ConsoleMonster.2.0.0.snupkg</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Size      </span><span class=c4>393 </span><span class=f8b8f9a>KB</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Built in  </span>3.1 s\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Signed    </span><span class=f4ade80><i class=n>✓</i> yes</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\\n              Artefacts\\Packed\\\n              ConsoleMonster.2.0.0.snupkg\n\n<span class=B>Module</span>\n<span class=c2>  </span><span class=B>ConsoleMonster-2.0.0.zip</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Size      </span><span class=c5>2.77 </span><span class=f8b8f9a>MB</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Built in  </span>12 s\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Signed    </span><span class=f4ade80><i class=n>✓</i> yes</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\\n              Artefacts\\Packed\\ConsoleMonster-2.0.0.zip\n<span class=c2>  </span><span class=B>Docs.zip</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Size      </span><span class=c5>50.1 </span><span class=f8b8f9a>KB</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Built in  </span>1.2 s\n<span class=c4>    </span><span class=f8b8f9a>Signed    <i class=n>–</i> no</span>\n<span class=c4>    </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\\n              Artefacts\\Packed\\Docs.zip\n\n<span class=B>Total</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Size      </span>4.62 MB\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Built in  </span>1 m 04 s"
+          }
+        }
+      }
+    },
+    "format-list": {
+      "script": ". .\\artifacts.ps1\n$artifacts[0] | Format-List",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 85,
+            "h": 6,
+            "dark": "<span class=\"f13a10e B c9\">Name   : </span>ConsoleMonster.2.0.0.nupkg\n<span class=\"f13a10e B c9\">Kind   : </span>NuGet\n<span class=\"f13a10e B c9\">Length : </span>1482113\n<span class=\"f13a10e B c9\">Time   : </span>00:00:48.2000000\n<span class=\"f13a10e B c9\">Signed : </span>True\n<span class=\"f13a10e B c9\">Path   : </span>C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.nupkg"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 85,
+            "h": 6,
+            "dark": "Name   : ConsoleMonster.2.0.0.nupkg\nKind   : NuGet\nLength : 1482113\nTime   : 00:00:48.2000000\nSigned : True\nPath   : C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.nupkg"
+          }
+        }
+      }
+    },
+    "format-consolelist": {
+      "script": ". .\\artifacts.ps1\n$artifacts[0] | Format-ConsoleList -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 88,
+            "h": 6,
+            "dark": "<span class=B>ConsoleMonster.2.0.0.nupkg</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Kind      </span>NuGet\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Size      </span><span class=c5>1.41 </span><span class=f8b8f9a>MB</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Built in  </span>48 s\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Signed    </span><span class=f4ade80><i class=n>✓</i> yes</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.nupkg"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 88,
+            "h": 6,
+            "dark": "<span class=B>ConsoleMonster.2.0.0.nupkg</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Kind      </span>NuGet\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Size      </span><span class=c5>1.41 </span><span class=f8b8f9a>MB</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Built in  </span>48 s\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Signed    </span><span class=f4ade80><i class=n>✓</i> yes</span>\n<span class=c2>  </span><span class=\"f8b8f9a c10\">Path      </span>C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.nupkg"
+          }
+        }
+      }
+    },
+    "format-consoletree": {
+      "script": "$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'; Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Format-ConsoleTree -AsInspector -Title 'mail.evotec.xyz certificate'",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 47,
+            "h": 16,
+            "dark": "<span class=\"B c27\">mail.evotec.xyz certificate</span><span class=f8b8f9a>  <i class=n>·</i>  5 members</span>\n<span class=\"f8b8f9a c14\">Subject       </span>CN=mail.evotec.xyz\n<span class=\"f8b8f9a c14\">Issuer        </span>CN=R11, O=Let's Encrypt, C=US\n<span class=\"f8b8f9a c14\">KeyAlgorithm  </span>ECDSA P-256\n\n<span class=\"B c23\">SubjectAlternativeNames</span><span class=f8b8f9a>  3 items</span>\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[0]  </span>mail.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[1]  </span>autodiscover.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[2]  </span>mta-sts.evotec.xyz\n\n<span class=\"B c5\">Chain</span><span class=f8b8f9a>  3 items</span>\n<span class=c2>  </span><span class=\"B c7\">Subject</span><span class=c18>                  </span><span class=\"B c3\">Key</span><span class=c10>          </span><span class=B>Revoked</span>\n<span class=c2>  </span><span class=f4b5060><i class=\"g2500 c23\">───────────────────────</i>  <i class=\"g2500 c11\">───────────</i>  <i class=\"g2500 c7\">───────</i></span>\n<span class=c40>  CN=mail.evotec.xyz       ECDSA P-256  </span><span class=f8b8f9a><i class=n>–</i> no</span>\n<span class=c40>  CN=R11, O=Let's Encrypt  RSA 2048     </span><span class=f8b8f9a><i class=n>–</i> no</span>\n<span class=c40>  CN=ISRG Root X1          RSA 4096     </span><span class=f8b8f9a><i class=n>–</i> no</span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 47,
+            "h": 16,
+            "dark": "<span class=\"B c27\">mail.evotec.xyz certificate</span><span class=f8b8f9a>  <i class=n>·</i>  5 members</span>\n<span class=\"f8b8f9a c14\">Subject       </span>CN=mail.evotec.xyz\n<span class=\"f8b8f9a c14\">Issuer        </span>CN=R11, O=Let's Encrypt, C=US\n<span class=\"f8b8f9a c14\">KeyAlgorithm  </span>ECDSA P-256\n\n<span class=\"B c23\">SubjectAlternativeNames</span><span class=f8b8f9a>  3 items</span>\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[0]  </span>mail.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[1]  </span>autodiscover.evotec.xyz\n<span class=c2>  </span><span class=\"f8b8f9a c5\">[2]  </span>mta-sts.evotec.xyz\n\n<span class=\"B c5\">Chain</span><span class=f8b8f9a>  3 items</span>\n<span class=c2>  </span><span class=\"B c7\">Subject</span><span class=c18>                  </span><span class=\"B c3\">Key</span><span class=c10>          </span><span class=B>Revoked</span>\n<span class=c2>  </span><span class=f4b5060><i class=\"g2500 c23\">───────────────────────</i>  <i class=\"g2500 c11\">───────────</i>  <i class=\"g2500 c7\">───────</i></span>\n<span class=c40>  CN=mail.evotec.xyz       ECDSA P-256  </span><span class=f8b8f9a><i class=n>–</i> no</span>\n<span class=c40>  CN=R11, O=Let's Encrypt  RSA 2048     </span><span class=f8b8f9a><i class=n>–</i> no</span>\n<span class=c40>  CN=ISRG Root X1          RSA 4096     </span><span class=f8b8f9a><i class=n>–</i> no</span>"
+          }
+        }
+      }
+    },
+    "markup": {
+      "script": "Write-ConsoleMarkup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 73,
+            "h": 3,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 73,
+            "h": 3,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+          }
+        }
+      }
+    },
+    "write-consoletext": {
+      "script": "Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -StartTab 1\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -StartSpaces 8\nWrite-ConsoleText -Text 'Collecting inventory ' -Color Gray -PadRight 40 -PadCharacter '.' -NoNewLine\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -HorizontalCenter",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 61,
+            "h": 5,
+            "dark": "<span class=\"fcccccc c10\">Deploying </span><span class=\"f61d6d6 c5\">FS01 </span><span class=\"fcccccc c3\">to </span><span class=ff9f1a5>Production</span>\n<span class=c8>        </span><span class=\"f4ade80 c2\"><i class=n>√</i> </span>copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c8\">Status: </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c21\">Collecting inventory </span><span class=c20>................... </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c2\">e </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c2\">0 </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c2\">s </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 61,
+            "h": 5,
+            "dark": "<span class=\"fcccccc c10\">Deploying </span><span class=\"f61d6d6 c5\">FS01 </span><span class=\"fcccccc c3\">to </span><span class=ff9f1a5>Production</span>\n<span class=c8>        </span><span class=\"f4ade80 c2\"><i class=n>√</i> </span>copied 1,204 files\n<span class=c8>        </span><span class=\"f767676 c8\">Status: </span><span class=f16c60c>healthy</span>\n<span class=\"fcccccc c21\">Collecting inventory </span><span class=c20>................... </span><span class=f16c60c>done</span>\n<span class=c38>                                      </span><span class=\"f38bdf8 c1\">R</span><span class=\"f3fbaf8 c1\">e</span><span class=\"f46b7f8 c1\">l</span><span class=\"f4db4f9 c1\">e</span><span class=\"f55b1f9 c1\">a</span><span class=\"f5caef9 c1\">s</span><span class=\"f63abf9 c2\">e </span><span class=\"f6aa8f9 c1\">2</span><span class=\"f71a5fa c1\">0</span><span class=\"f78a2fa c1\">2</span><span class=\"f809ffa c1\">6</span><span class=\"f879cfa c1\">.</span><span class=\"f8e99fb c1\">1</span><span class=\"f9596fb c2\">0 </span><span class=\"f9c93fb c1\">i</span><span class=\"fa390fb c2\">s </span><span class=\"fab8dfb c1\">l</span><span class=\"fb28afc c1\">i</span><span class=\"fb987fc c1\">v</span><span class=fc084fc>e</span>"
+          }
+        }
+      }
+    },
+    "job": {
+      "script": "$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Write-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 22,
+            "h": 7,
+            "dark": " From a background job\n<span class=f767676><i class=g256d>╭</i><i class=\"g2500 c7\">───────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g256e>╮</i></span>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>Check </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c7>Status </span><i class=\"g2502 f767676\">│</i>\n<span class=f767676><i class=g251c>├</i><i class=\"g2500 c7\">───────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g2524>┤</i></span>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>SPF   </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=\"f16c60c c7\"><i class=n>✓</i> Pass </span><i class=\"g2502 f767676\">│</i>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>DMARC </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=\"fe74856 c7\"><i class=n>✗</i> Fail </span><i class=\"g2502 f767676\">│</i>\n<span class=f767676><i class=g2570>╰</i><i class=\"g2500 c7\">───────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g256f>╯</i></span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 22,
+            "h": 7,
+            "dark": " From a background job\n<span class=f767676><i class=g256d>╭</i><i class=\"g2500 c7\">───────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g256e>╮</i></span>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>Check </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c7>Status </span><i class=\"g2502 f767676\">│</i>\n<span class=f767676><i class=g251c>├</i><i class=\"g2500 c7\">───────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g2524>┤</i></span>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>SPF   </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=\"f16c60c c7\"><i class=n>✓</i> Pass </span><i class=\"g2502 f767676\">│</i>\n<span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=c6>DMARC </span><span class=\"f767676 c2\"><i class=g2502>│</i> </span><span class=\"fe74856 c7\"><i class=n>✗</i> Fail </span><i class=\"g2502 f767676\">│</i>\n<span class=f767676><i class=g2570>╰</i><i class=\"g2500 c7\">───────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g256f>╯</i></span>"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "script": "# Shared data for the PowerShell page: build artifacts as PSPublishModule reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\Packed\\Docs.zip' }\n)"
+    }
+  },
+  "families": [
+    {
+      "verb": "Write",
+      "count": 10,
+      "commands": [
+        {
+          "name": "Write-ConsoleException",
+          "synopsis": "Writes an error or exception readably (Format-ConsoleError without -AsWidget).",
+          "url": "/powershell/commands/write-consoleexception/"
+        },
+        {
+          "name": "Write-ConsoleKeyValue",
+          "synopsis": "Writes an aligned key/value list.",
+          "url": "/powershell/commands/write-consolekeyvalue/"
+        },
+        {
+          "name": "Write-ConsoleLog",
+          "synopsis": "Writes a line to the log region of a running dashboard.",
+          "url": "/powershell/commands/write-consolelog/"
+        },
+        {
+          "name": "Write-ConsoleMarkup",
+          "synopsis": "Writes Spectre-compatible markup as styled text.",
+          "url": "/powershell/commands/write-consolemarkup/"
+        },
+        {
+          "name": "Write-ConsoleRule",
+          "synopsis": "Writes a horizontal rule, optionally with a title.",
+          "url": "/powershell/commands/write-consolerule/"
+        },
+        {
+          "name": "Write-ConsoleStatus",
+          "synopsis": "Shows one status line that updates in place, with an optional spinner, clock and elapsed time.",
+          "url": "/powershell/commands/write-consolestatus/"
+        },
+        {
+          "name": "Write-ConsoleTable",
+          "synopsis": "Writes pipeline objects as a console table.",
+          "url": "/powershell/commands/write-consoletable/"
+        },
+        {
+          "name": "Write-ConsoleText",
+          "synopsis": "Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.",
+          "url": "/powershell/commands/write-consoletext/"
+        },
+        {
+          "name": "Write-ConsoleTree",
+          "synopsis": "Writes nested hashtables as a console tree.",
+          "url": "/powershell/commands/write-consoletree/"
+        },
+        {
+          "name": "Write-ConsoleWidget",
+          "synopsis": "Writes console widgets once (tables, trees, panels, charts, dashboards).",
+          "url": "/powershell/commands/write-consolewidget/"
+        }
+      ]
+    },
+    {
+      "verb": "Format",
+      "count": 6,
+      "commands": [
+        {
+          "name": "Format-ConsoleCode",
+          "synopsis": "Shows source text with syntax highlighting, line numbers and highlighted lines.",
+          "url": "/powershell/commands/format-consolecode/"
+        },
+        {
+          "name": "Format-ConsoleError",
+          "synopsis": "Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.",
+          "url": "/powershell/commands/format-consoleerror/"
+        },
+        {
+          "name": "Format-ConsoleJson",
+          "synopsis": "Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.",
+          "url": "/powershell/commands/format-consolejson/"
+        },
+        {
+          "name": "Format-ConsoleList",
+          "synopsis": "Formats pipeline objects as record views (labelled values) and writes them to the host.",
+          "url": "/powershell/commands/format-consolelist/"
+        },
+        {
+          "name": "Format-ConsoleTable",
+          "synopsis": "Formats pipeline objects as a width-aware table and writes it to the host.",
+          "url": "/powershell/commands/format-consoletable/"
+        },
+        {
+          "name": "Format-ConsoleTree",
+          "synopsis": "Shows the structure of pipeline objects as a tree (or an inspector view) and writes it to the host.",
+          "url": "/powershell/commands/format-consoletree/"
+        }
+      ]
+    },
+    {
+      "verb": "New",
+      "count": 29,
+      "commands": [
+        {
+          "name": "New-ConsoleAlign",
+          "synopsis": "Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.",
+          "url": "/powershell/commands/new-consolealign/"
+        },
+        {
+          "name": "New-ConsoleBarChart",
+          "synopsis": "Creates a horizontal bar chart, or a stacked bar with -Stacked.",
+          "url": "/powershell/commands/new-consolebarchart/"
+        },
+        {
+          "name": "New-ConsoleColumns",
+          "synopsis": "Places console widgets side by side.",
+          "url": "/powershell/commands/new-consolecolumns/"
+        },
+        {
+          "name": "New-ConsoleDashboard",
+          "synopsis": "Defines a live console dashboard: a header with title and clock, the body and a footer.",
+          "url": "/powershell/commands/new-consoledashboard/"
+        },
+        {
+          "name": "New-ConsoleField",
+          "synopsis": "Creates a form field for New-ConsoleForm.",
+          "url": "/powershell/commands/new-consolefield/"
+        },
+        {
+          "name": "New-ConsoleForm",
+          "synopsis": "Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.",
+          "url": "/powershell/commands/new-consoleform/"
+        },
+        {
+          "name": "New-ConsoleGrid",
+          "synopsis": "Lays console widgets out in an equal-width grid.",
+          "url": "/powershell/commands/new-consolegrid/"
+        },
+        {
+          "name": "New-ConsoleHistogram",
+          "synopsis": "Creates a histogram of values counted into buckets.",
+          "url": "/powershell/commands/new-consolehistogram/"
+        },
+        {
+          "name": "New-ConsoleKeyValue",
+          "synopsis": "Creates an aligned key/value list.",
+          "url": "/powershell/commands/new-consolekeyvalue/"
+        },
+        {
+          "name": "New-ConsoleLanes",
+          "synopsis": "Creates a lanes widget: one row per worker, server or item of a parallel workload.",
+          "url": "/powershell/commands/new-consolelanes/"
+        },
+        {
+          "name": "New-ConsoleLineChart",
+          "synopsis": "Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).",
+          "url": "/powershell/commands/new-consolelinechart/"
+        },
+        {
+          "name": "New-ConsoleLiveTable",
+          "synopsis": "Creates a table whose rows change while a dashboard runs.",
+          "url": "/powershell/commands/new-consolelivetable/"
+        },
+        {
+          "name": "New-ConsoleLog",
+          "synopsis": "Creates a log region: the newest lines of a log, bottom-aligned.",
+          "url": "/powershell/commands/new-consolelog/"
+        },
+        {
+          "name": "New-ConsoleLogo",
+          "synopsis": "Creates banner text drawn with a pixel font and a colour gradient.",
+          "url": "/powershell/commands/new-consolelogo/"
+        },
+        {
+          "name": "New-ConsoleMenu",
+          "synopsis": "Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.",
+          "url": "/powershell/commands/new-consolemenu/"
+        },
+        {
+          "name": "New-ConsoleMenuItem",
+          "synopsis": "Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.",
+          "url": "/powershell/commands/new-consolemenuitem/"
+        },
+        {
+          "name": "New-ConsolePanel",
+          "synopsis": "Creates a bordered panel with a title around other console widgets.",
+          "url": "/powershell/commands/new-consolepanel/"
+        },
+        {
+          "name": "New-ConsolePhases",
+          "synopsis": "Creates a phase strip for pipelines: Restore › Build › Test › Pack.",
+          "url": "/powershell/commands/new-consolephases/"
+        },
+        {
+          "name": "New-ConsoleProgress",
+          "synopsis": "Creates a labelled progress bar.",
+          "url": "/powershell/commands/new-consoleprogress/"
+        },
+        {
+          "name": "New-ConsoleRegion",
+          "synopsis": "Creates a named region whose content can be replaced while a dashboard runs.",
+          "url": "/powershell/commands/new-consoleregion/"
+        },
+        {
+          "name": "New-ConsoleRows",
+          "synopsis": "Stacks console widgets vertically.",
+          "url": "/powershell/commands/new-consolerows/"
+        },
+        {
+          "name": "New-ConsoleRule",
+          "synopsis": "Creates a horizontal rule, optionally with a title.",
+          "url": "/powershell/commands/new-consolerule/"
+        },
+        {
+          "name": "New-ConsoleSparkline",
+          "synopsis": "Creates a sparkline: a compact trend of recent values.",
+          "url": "/powershell/commands/new-consolesparkline/"
+        },
+        {
+          "name": "New-ConsoleSpinner",
+          "synopsis": "Creates a spinner: a one-line activity indicator for work without a known total.",
+          "url": "/powershell/commands/new-consolespinner/"
+        },
+        {
+          "name": "New-ConsoleStack",
+          "synopsis": "Layers console widgets on top of each other in the same space.",
+          "url": "/powershell/commands/new-consolestack/"
+        },
+        {
+          "name": "New-ConsoleStatusList",
+          "synopsis": "Creates a checklist of items with status markers.",
+          "url": "/powershell/commands/new-consolestatuslist/"
+        },
+        {
+          "name": "New-ConsoleTable",
+          "synopsis": "Creates a console table from pipeline objects.",
+          "url": "/powershell/commands/new-consoletable/"
+        },
+        {
+          "name": "New-ConsoleText",
+          "synopsis": "Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.",
+          "url": "/powershell/commands/new-consoletext/"
+        },
+        {
+          "name": "New-ConsoleTree",
+          "synopsis": "Creates a console tree from nested hashtables.",
+          "url": "/powershell/commands/new-consoletree/"
+        }
+      ]
+    },
+    {
+      "verb": "Start",
+      "count": 2,
+      "commands": [
+        {
+          "name": "Start-ConsoleDashboard",
+          "synopsis": "Runs a console dashboard live while a script does the work.",
+          "url": "/powershell/commands/start-consoledashboard/"
+        },
+        {
+          "name": "Start-ConsoleReplay",
+          "synopsis": "Replays a recorded dashboard session (JSON lines) into a dashboard.",
+          "url": "/powershell/commands/start-consolereplay/"
+        }
+      ]
+    },
+    {
+      "verb": "Update",
+      "count": 6,
+      "commands": [
+        {
+          "name": "Update-ConsoleLane",
+          "synopsis": "Updates a lane of a running dashboard: progress, step results, status and detail.",
+          "url": "/powershell/commands/update-consolelane/"
+        },
+        {
+          "name": "Update-ConsolePhase",
+          "synopsis": "Updates a phase of a running dashboard's phase strip.",
+          "url": "/powershell/commands/update-consolephase/"
+        },
+        {
+          "name": "Update-ConsoleProgress",
+          "synopsis": "Updates a progress bar in a running dashboard.",
+          "url": "/powershell/commands/update-consoleprogress/"
+        },
+        {
+          "name": "Update-ConsoleSpinner",
+          "synopsis": "Updates a spinner in a running dashboard.",
+          "url": "/powershell/commands/update-consolespinner/"
+        },
+        {
+          "name": "Update-ConsoleStatus",
+          "synopsis": "Updates an item of a status list in a running dashboard.",
+          "url": "/powershell/commands/update-consolestatus/"
+        },
+        {
+          "name": "Update-ConsoleTable",
+          "synopsis": "Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.",
+          "url": "/powershell/commands/update-consoletable/"
+        }
+      ]
+    },
+    {
+      "verb": "Read",
+      "count": 8,
+      "commands": [
+        {
+          "name": "Read-ConsoleConfirm",
+          "synopsis": "Asks a yes/no question and returns $true or $false.",
+          "url": "/powershell/commands/read-consoleconfirm/"
+        },
+        {
+          "name": "Read-ConsoleForm",
+          "synopsis": "Shows a form or wizard and returns the answers.",
+          "url": "/powershell/commands/read-consoleform/"
+        },
+        {
+          "name": "Read-ConsoleMultiSelection",
+          "synopsis": "Asks the user to pick any number of the choices and returns the chosen objects.",
+          "url": "/powershell/commands/read-consolemultiselection/"
+        },
+        {
+          "name": "Read-ConsoleNumber",
+          "synopsis": "Asks for a number.",
+          "url": "/powershell/commands/read-consolenumber/"
+        },
+        {
+          "name": "Read-ConsolePath",
+          "synopsis": "Asks for a file or folder path, with completion.",
+          "url": "/powershell/commands/read-consolepath/"
+        },
+        {
+          "name": "Read-ConsoleSecret",
+          "synopsis": "Asks for a secret and returns a SecureString (or a string with -AsPlainText).",
+          "url": "/powershell/commands/read-consolesecret/"
+        },
+        {
+          "name": "Read-ConsoleSelection",
+          "synopsis": "Asks the user to pick one of the choices and returns the chosen object.",
+          "url": "/powershell/commands/read-consoleselection/"
+        },
+        {
+          "name": "Read-ConsoleText",
+          "synopsis": "Asks for a line of text.",
+          "url": "/powershell/commands/read-consoletext/"
+        }
+      ]
+    },
+    {
+      "verb": "Show",
+      "count": 5,
+      "commands": [
+        {
+          "name": "Show-Console",
+          "synopsis": "Shows pipeline input in the view that fits it best.",
+          "url": "/powershell/commands/show-console/"
+        },
+        {
+          "name": "Show-ConsoleChanges",
+          "synopsis": "Shows the changes an action would make and asks before making them: the what-if pattern.",
+          "url": "/powershell/commands/show-consolechanges/"
+        },
+        {
+          "name": "Show-ConsoleGrid",
+          "synopsis": "Shows pipeline objects in an interactive grid and returns the rows you choose.",
+          "url": "/powershell/commands/show-consolegrid/"
+        },
+        {
+          "name": "Show-ConsoleMenu",
+          "synopsis": "Shows a menu until the user exits.",
+          "url": "/powershell/commands/show-consolemenu/"
+        },
+        {
+          "name": "Show-ConsoleReplay",
+          "synopsis": "Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.",
+          "url": "/powershell/commands/show-consolereplay/"
+        }
+      ]
+    },
+    {
+      "verb": "Export",
+      "count": 2,
+      "commands": [
+        {
+          "name": "Export-ConsoleFrame",
+          "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.",
+          "url": "/powershell/commands/export-consoleframe/"
+        },
+        {
+          "name": "Export-ConsoleRecording",
+          "synopsis": "Exports a dashboard recording to an HTML player, an animated SVG or asciicast.",
+          "url": "/powershell/commands/export-consolerecording/"
+        }
+      ]
+    },
+    {
+      "verb": "Invoke",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Invoke-ConsolePester",
+          "synopsis": "Runs Pester tests with a live ConsoleMonster dashboard and a summary table.",
+          "url": "/powershell/commands/invoke-consolepester/"
+        }
+      ]
+    },
+    {
+      "verb": "Add",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Add-ConsoleValue",
+          "synopsis": "Adds a value to a chart in a running dashboard.",
+          "url": "/powershell/commands/add-consolevalue/"
+        }
+      ]
+    },
+    {
+      "verb": "Assert",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Assert-ConsoleOutput",
+          "synopsis": "Compares console output with a golden file (for Pester and other tests).",
+          "url": "/powershell/commands/assert-consoleoutput/"
+        }
+      ]
+    },
+    {
+      "verb": "Clear",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Clear-ConsoleScreen",
+          "synopsis": "Clears the console screen, safely.",
+          "url": "/powershell/commands/clear-consolescreen/"
+        }
+      ]
+    },
+    {
+      "verb": "Compare",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Compare-ConsoleObject",
+          "synopsis": "Compares two sets of objects and shows what was added, removed and changed, property by property.",
+          "url": "/powershell/commands/compare-consoleobject/"
+        }
+      ]
+    },
+    {
+      "verb": "Disable",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Disable-ConsoleFormatting",
+          "synopsis": "Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).",
+          "url": "/powershell/commands/disable-consoleformatting/"
+        }
+      ]
+    },
+    {
+      "verb": "Enable",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Enable-ConsoleFormatting",
+          "synopsis": "Shows the default output of common types through ConsoleMonster for this session (opt-in).",
+          "url": "/powershell/commands/enable-consoleformatting/"
+        }
+      ]
+    },
+    {
+      "verb": "Get",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Get-ConsoleCapability",
+          "synopsis": "Shows what ConsoleMonster detected about the current terminal.",
+          "url": "/powershell/commands/get-consolecapability/"
+        }
+      ]
+    },
+    {
+      "verb": "Out",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Out-ConsoleDefault",
+          "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",
+          "url": "/powershell/commands/out-consoledefault/"
+        }
+      ]
+    },
+    {
+      "verb": "Register",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Register-ConsoleView",
+          "synopsis": "Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.",
+          "url": "/powershell/commands/register-consoleview/"
+        }
+      ]
+    },
+    {
+      "verb": "Send",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Send-ConsoleEvent",
+          "synopsis": "Sends a raw live event to any widget of a running dashboard.",
+          "url": "/powershell/commands/send-consoleevent/"
+        }
+      ]
+    },
+    {
+      "verb": "Set",
+      "count": 3,
+      "commands": [
+        {
+          "name": "Set-ConsoleRegion",
+          "synopsis": "Replaces the content of a region (New-ConsoleRegion) in the running dashboard.",
+          "url": "/powershell/commands/set-consoleregion/"
+        },
+        {
+          "name": "Set-ConsoleTheme",
+          "synopsis": "Selects the theme used by every ConsoleMonster widget.",
+          "url": "/powershell/commands/set-consoletheme/"
+        },
+        {
+          "name": "Set-ConsoleValue",
+          "synopsis": "Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.",
+          "url": "/powershell/commands/set-consolevalue/"
+        }
+      ]
+    },
+    {
+      "verb": "Use",
+      "count": 2,
+      "commands": [
+        {
+          "name": "Use-ConsoleProgress",
+          "synopsis": "Runs a script and shows its Write-Progress calls as an inline progress area.",
+          "url": "/powershell/commands/use-consoleprogress/"
+        },
+        {
+          "name": "Use-ConsoleTarget",
+          "synopsis": "Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.",
+          "url": "/powershell/commands/use-consoletarget/"
+        }
+      ]
+    }
+  ]
+}

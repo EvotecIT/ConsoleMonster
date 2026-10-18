@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "widgets": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/widgets-dark.svg",
+      "light": "/site/nav/widgets-light.svg"
+    },
+    "tables": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/tables-dark.svg",
+      "light": "/site/nav/tables-light.svg"
+    },
+    "live": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/live-dark.svg",
+      "light": "/site/nav/live-light.svg"
+    },
+    "interactive": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/interactive-dark.svg",
+      "light": "/site/nav/interactive-light.svg"
+    },
+    "powershell": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/powershell-dark.svg",
+      "light": "/site/nav/powershell-light.svg"
+    },
+    "docs": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/docs-dark.svg",
+      "light": "/site/nav/docs-light.svg"
+    },
+    "guides": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/guides-dark.svg",
+      "light": "/site/nav/guides-light.svg"
+    },
+    "api": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/api-dark.svg",
+      "light": "/site/nav/api-light.svg"
+    },
+    "commands": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/commands-dark.svg",
+      "light": "/site/nav/commands-light.svg"
+    },
+    "benchmarks": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/benchmarks-dark.svg",
+      "light": "/site/nav/benchmarks-light.svg"
+    }
+  }
+}

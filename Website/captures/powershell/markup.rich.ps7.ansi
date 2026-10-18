@@ -1,0 +1,4 @@
+[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[91m[1mMarkup[m in the [3mSpectre.Console[23m dialect: [38;5;72mcadetblue[m, [38;5;244mgrey50[m, [38;5;31mdeepskyblue3
+[m[38;2;255;136;0m#ff8800[m, [38;2;120;200;90mrgb(120,200,90)[m, [38;5;208mcolor(208) [mand [97m[48;2;248;113;113m theme roles [m
+[brackets] are literal, unknown tags keep their text, and links use OSC 8
+[?9001l[?1004l
