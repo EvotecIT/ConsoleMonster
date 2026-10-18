@@ -6,18 +6,22 @@ on:
       - "Website/**"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
+      - "ConsoleMonster.Generators/**"
       - "Module/en-US/**"
       - "Directory.Build.props"
       - ".github/workflows/website-ci.yml"
+      - ".github/workflows/website-deploy.yml"
   push:
     branches: [master]
     paths:
       - "Website/**"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
+      - "ConsoleMonster.Generators/**"
       - "Module/en-US/**"
       - "Directory.Build.props"
       - ".github/workflows/website-ci.yml"
+      - ".github/workflows/website-deploy.yml"
   workflow_dispatch:
 
 permissions:

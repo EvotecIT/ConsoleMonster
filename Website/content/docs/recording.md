@@ -46,7 +46,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\r
 - **Recordings** export to an HTML player with scrubbing, an animated SVG using CSS keyframes only, or asciicast v3.
 - **Links** become links for http, https, mailto and ftp only, and nothing is fetched from the network.
 
-This site does not use the exporters: its own site tool converts frames and VT streams with a small converter of its own, so the pages share one stylesheet and follow the site theme. The [site tool's notes](https://github.com/EvotecIT/ConsoleMonster/blob/master/Website/AGENTS.md) describe how.
+This site renders widgets through ConsoleMonster and uses its recording exporter and player for event replays. The site tool also converts captured VT streams and shares cell styles across the gallery. The [site tool's notes](https://github.com/EvotecIT/ConsoleMonster/blob/master/Website/AGENTS.md) describe how.
 
 ## Targets
 
