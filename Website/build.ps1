@@ -337,8 +337,11 @@ try {
             if ($Watch) {
                 Write-Host 'Watching for changes...' -ForegroundColor Cyan
                 & $PowerForge @PowerForgeArgs @pipelineArgs
+                $watchExitCode = $LASTEXITCODE
+                if ($watchExitCode -ne 0) { throw "Watch pipeline failed (exit code $watchExitCode)" }
             } else {
-                Wait-Process -Id $serveProcess.Id
+                $serveProcess.WaitForExit()
+                if ($serveProcess.ExitCode -ne 0) { throw "Dev server failed (exit code $($serveProcess.ExitCode))" }
             }
         } finally {
             if ($serveProcess -and -not $serveProcess.HasExited) {

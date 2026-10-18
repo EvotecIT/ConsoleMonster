@@ -12,7 +12,13 @@ try {
     )
     $changes = @(git status --porcelain --untracked-files=all -- $generated)
     if ($LASTEXITCODE -ne 0) { throw 'Could not inspect generated website output.' }
-    if ($changes.Count) { throw "Run SiteFrames render and commit the resulting output:`n$($changes -join "`n")" }
+    if ($changes.Count) {
+        $reportRoot = Join-Path $PSScriptRoot '../_reports'
+        New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
+        $changes | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $reportRoot 'site-frames-drift.json') -Encoding utf8
+        $changes | ForEach-Object { Write-Host $_ }
+        throw 'Generated website output differs. Run SiteFrames render and commit the resulting output.'
+    }
 } finally {
     Pop-Location
 }

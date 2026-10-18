@@ -9,7 +9,7 @@
     "fps": 5,
     "speed": 2,
     "start": 15400,
-    "bytes": 120401,
+    "bytes": 117990,
     "excerpt": "{\"consolemonster\":\"recording\",\"version\":1}\n{\"t\":1,\"target\":\"dashboard\",\"op\":\"status\",\"text\":\"discovering forest\",\"state\":\"running\"}\n{\"t\":1,\"target\":\"phases\",\"op\":\"state\",\"key\":\"Discover\",\"state\":\"running\"}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dom-ad\",\"text\":\"ad.evotec.xyz (domain)\",\"total\":16}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dom-eu\",\"text\":\"eu.ad.evotec.xyz (domain)\",\"total\":16}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc1\",\"text\":\"DC01.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc2\",\"text\":\"DC02.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc3\",\"text\":\"DC03.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc4\",\"text\":\"DC04.ad.evotec.xyz\",\"total\":30}",
     "poster": {
       "w": 120,
@@ -28,7 +28,7 @@
     "fps": 3,
     "speed": 2.5,
     "start": 12000,
-    "bytes": 120401,
+    "bytes": 117990,
     "excerpt": "{\"consolemonster\":\"recording\",\"version\":1}\n{\"t\":1,\"target\":\"dashboard\",\"op\":\"status\",\"text\":\"discovering forest\",\"state\":\"running\"}\n{\"t\":1,\"target\":\"phases\",\"op\":\"state\",\"key\":\"Discover\",\"state\":\"running\"}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dom-ad\",\"text\":\"ad.evotec.xyz (domain)\",\"total\":16}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dom-eu\",\"text\":\"eu.ad.evotec.xyz (domain)\",\"total\":16}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc1\",\"text\":\"DC01.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc2\",\"text\":\"DC02.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc3\",\"text\":\"DC03.ad.evotec.xyz\",\"total\":30}\n{\"t\":1,\"target\":\"lanes\",\"op\":\"add\",\"key\":\"dc4\",\"text\":\"DC04.ad.evotec.xyz\",\"total\":30}",
     "poster": {
       "w": 64,

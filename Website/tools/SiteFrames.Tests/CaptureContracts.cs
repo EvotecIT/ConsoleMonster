@@ -5,12 +5,43 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Styling;
 using SiteFrames;
 using SiteFrames.Capture;
+using SiteFrames.Frames;
+using SiteFrames.Pages;
 using SiteFrames.Replay;
 using SiteFrames.Vt;
 using Xunit;
 
 namespace SiteFrames.Tests {
     public sealed class CaptureContracts {
+        [Theory]
+        [InlineData('\u257D', 1, 2)]
+        [InlineData('\u257F', 2, 1)]
+        public void MixedWeightVerticalGlyphs_KeepTheirUnicodeDirection(char glyph, int expectedUp, int expectedDown) {
+            Assert.True(GlyphPaint.TrySegments(glyph, out int up, out int right, out int down, out int left));
+            Assert.Equal(expectedUp, up);
+            Assert.Equal(expectedDown, down);
+            Assert.Equal(0, right);
+            Assert.Equal(0, left);
+        }
+
+        [Fact]
+        public void Benchmarks_RejectUnparseableCapturedNumbers() {
+            string root = Path.Combine(Path.GetTempPath(), "siteframes-benchmarks-" + Guid.NewGuid().ToString("N"));
+            int before = Program.Failures;
+            try {
+                Directory.CreateDirectory(Path.Combine(root, "Website", "captures", "benchmarks"));
+                File.WriteAllText(Path.Combine(root, "ConsoleMonster.sln"), string.Empty);
+                File.WriteAllText(Path.Combine(root, "Website", "captures", "benchmarks", "benchmarks.cast"), "{\"width\":80,\"height\":5}\n[0,\"o\",\"Unrecognized benchmark output\"]\n");
+                Site site = new Site(Path.Combine(root, "Website"));
+                BenchmarksPage.Render(site, new System.Text.Json.Nodes.JsonObject());
+                Assert.True(Program.Failures > before);
+                Assert.False(File.Exists(site.Data("benchmarks")));
+            } finally {
+                Program.Failures = before;
+                if (Directory.Exists(root)) { Directory.Delete(root, true); }
+            }
+        }
+
         [Fact]
         public void Parity_RejectsDecoratedBlanksAndDifferentGeometry() {
             CellBuffer expected = new CellBuffer(4, 1);

@@ -60,9 +60,14 @@ namespace SiteFrames.Pages {
             }
             Replay.Replays.FromCast(File.ReadAllText(CastPath(site)), 4, false, out CellBuffer output, out int width, out _);
             string text = Parity.Describe(output);
+            List<string> problems = new List<string>();
             double Number(string pattern) {
                 Match m = Regex.Match(text, pattern);
-                return m.Success ? double.Parse(m.Groups[1].Value.Replace(",", string.Empty), CultureInfo.InvariantCulture) : double.NaN;
+                if (m.Success && double.TryParse(m.Groups[1].Value.Replace(",", string.Empty), NumberStyles.Float, CultureInfo.InvariantCulture, out double value)) {
+                    return value;
+                }
+                problems.Add("missing or invalid benchmark value: " + pattern);
+                return 0;
             }
             double apply = Number(@"event apply:\s+([\d,]+) events/s");
             double compose = Number(@"compose per frame:\s+([\d.]+) ms");
@@ -71,6 +76,11 @@ namespace SiteFrames.Pages {
             double alloc = Number(@"alloc per frame:\s+([\d,]+) bytes");
             double cpu = Number(@"render CPU at 15 fps:\s+([\d.]+)%");
             string runtime = Regex.Match(text, @"ConsoleMonster benchmark \(([^,]+),").Groups[1].Value;
+            if (runtime.Length == 0) { problems.Add("missing benchmark runtime"); }
+            if (problems.Count > 0) {
+                WidgetsPage.Report(problems, "benchmarks");
+                return;
+            }
 
             // The numbers as a ConsoleMonster table, so the page shows them the way a console would.
             Table table = new Table { Title = "[bold]ConsoleMonster.Benchmarks[/] [muted]140×45, 32 lanes, 5,000 updates between frames[/]" };

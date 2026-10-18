@@ -70,7 +70,7 @@ namespace SiteFrames.Pages {
                 "Show-ConsoleMenu $menu -Layout Shell", new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
             yield return new Story("wizard", "A form as a wizard", "Fields with pages become a wizard with a progress strip. Dependent fields reload their choices with a spinner, and the review page shows every answer and the equivalent command.",
                 "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape y", 110, 30, false, true, RunInstaller, nameof(RunInstaller),
-                "$answers = Read-ConsoleForm $form -AppName 'Agent setup'", new[] { "3 of 6 selected", "Loading…", "Equivalent command" });
+                "$answers = Read-ConsoleForm $form -AppName 'Agent setup'", new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false, BrowseServices, nameof(BrowseServices),
                 "Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf");

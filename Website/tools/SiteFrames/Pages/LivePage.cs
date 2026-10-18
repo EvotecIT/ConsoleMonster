@@ -47,7 +47,7 @@ namespace SiteFrames.Pages {
             }
         }
 
-        private static void Build(Site site) {
+        internal static void Build(Site site) {
             ProcessStartInfo info = new ProcessStartInfo("dotnet", "build \"" + Path.Combine(site.Repository, "ConsoleMonster.Examples", "ConsoleMonster.Examples.csproj") + "\" -c Release -f net8.0 -nologo -v q") { UseShellExecute = false };
             using (Process process = Process.Start(info)!) {
                 process.WaitForExit();

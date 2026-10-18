@@ -36,6 +36,7 @@ namespace SiteFrames.Pages {
         }
 
         public static void Capture(Site site) {
+            LivePage.Build(site);
             foreach ((string id, Dictionary<string, string?> environment) in Profiles()) {
                 List<OutputChunk> chunks = PseudoConsole.Run("\"" + Examples(site) + "\" profile", 100, 40, environment, site.Repository, TimeSpan.FromMinutes(1));
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);

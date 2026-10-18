@@ -36,14 +36,14 @@
 {"t":7360,"target":"lanes","op":"state","key":"dc1","text":"LDAP signing required","state":"running"}
 {"t":7360,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":7473,"target":"lanes","op":"advance","key":"dc1","text":"LDAP channel binding","state":"pass","value":1}
-{"t":7473,"target":"durations","op":"add","value":0.11340112387977078}
+{"t":7473,"target":"durations","op":"add","value":0.113401124}
 {"t":7473,"target":"results","op":"add","key":"Passed","value":1}
 {"t":7540,"target":"lanes","op":"state","key":"dc2","text":"LDAP signing required","state":"running"}
 {"t":7540,"target":"log","op":"write","text":"DC02.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":7720,"target":"lanes","op":"state","key":"dc3","text":"LDAP signing required","state":"running"}
 {"t":7720,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":7847,"target":"lanes","op":"advance","key":"dc2","text":"LDAP channel binding","state":"pass","value":1}
-{"t":7847,"target":"durations","op":"add","value":0.3067704521857189}
+{"t":7847,"target":"durations","op":"add","value":0.306770452}
 {"t":7847,"target":"results","op":"add","key":"Passed","value":1}
 {"t":7900,"target":"lanes","op":"state","key":"dc4","text":"LDAP signing required","state":"running"}
 {"t":7900,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: evaluating 30 rules","state":"info"}
@@ -55,31 +55,31 @@
 {"t":8000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":8000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":8189,"target":"lanes","op":"advance","key":"dc4","text":"LDAP channel binding","state":"pass","value":1}
-{"t":8189,"target":"durations","op":"add","value":0.28944717600587033}
+{"t":8189,"target":"durations","op":"add","value":0.289447176}
 {"t":8189,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8217,"target":"lanes","op":"advance","key":"dc2","text":"SMB signing enforced","state":"warn","value":1}
-{"t":8217,"target":"durations","op":"add","value":0.37058596577084735}
+{"t":8217,"target":"durations","op":"add","value":0.370585966}
 {"t":8217,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":8310,"target":"lanes","op":"advance","key":"dc1","text":"SMB signing enforced","state":"pass","value":1}
-{"t":8310,"target":"durations","op":"add","value":0.8369945061496854}
+{"t":8310,"target":"durations","op":"add","value":0.836994506}
 {"t":8310,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8315,"target":"lanes","op":"advance","key":"dc2","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":8315,"target":"durations","op":"add","value":0.09723469073043177}
+{"t":8315,"target":"durations","op":"add","value":0.097234691}
 {"t":8315,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8389,"target":"lanes","op":"advance","key":"dc4","text":"SMB signing enforced","state":"pass","value":1}
-{"t":8389,"target":"durations","op":"add","value":0.19966729896620158}
+{"t":8389,"target":"durations","op":"add","value":0.199667299}
 {"t":8389,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8423,"target":"lanes","op":"advance","key":"dom-ad","text":"Orphaned GPO folders","state":"pass","value":1}
-{"t":8423,"target":"durations","op":"add","value":1.423488577170662}
+{"t":8423,"target":"durations","op":"add","value":1.423488577}
 {"t":8423,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8537,"target":"lanes","op":"advance","key":"dc1","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":8537,"target":"durations","op":"add","value":0.22636572118590098}
+{"t":8537,"target":"durations","op":"add","value":0.226365721}
 {"t":8537,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8885,"target":"lanes","op":"advance","key":"dc1","text":"LSA protection enabled","state":"pass","value":1}
-{"t":8885,"target":"durations","op":"add","value":0.3483724294952281}
+{"t":8885,"target":"durations","op":"add","value":0.348372429}
 {"t":8885,"target":"results","op":"add","key":"Passed","value":1}
 {"t":8978,"target":"lanes","op":"advance","key":"dc2","text":"LSA protection enabled","state":"warn","value":1}
-{"t":8978,"target":"durations","op":"add","value":0.6639063461439993}
+{"t":8978,"target":"durations","op":"add","value":0.663906346}
 {"t":8978,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":9000,"target":"throughput","op":"add","key":"completed","value":9}
 {"t":9000,"target":"throughput","op":"add","key":"failed"}
@@ -89,22 +89,22 @@
 {"t":9000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":9000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":9151,"target":"lanes","op":"advance","key":"dc1","text":"Credential Guard posture","state":"pass","value":1}
-{"t":9151,"target":"durations","op":"add","value":0.2660524793370243}
+{"t":9151,"target":"durations","op":"add","value":0.266052479}
 {"t":9151,"target":"results","op":"add","key":"Passed","value":1}
 {"t":9196,"target":"lanes","op":"advance","key":"dc4","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":9196,"target":"durations","op":"add","value":0.8069068502802745}
+{"t":9196,"target":"durations","op":"add","value":0.80690685}
 {"t":9196,"target":"results","op":"add","key":"Passed","value":1}
 {"t":9289,"target":"lanes","op":"advance","key":"dc2","text":"Credential Guard posture","state":"warn","value":1}
-{"t":9289,"target":"durations","op":"add","value":0.31095102026210436}
+{"t":9289,"target":"durations","op":"add","value":0.31095102}
 {"t":9289,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":9404,"target":"lanes","op":"advance","key":"dom-eu","text":"Orphaned GPO folders","state":"pass","value":1}
-{"t":9404,"target":"durations","op":"add","value":2.2235546726444153}
+{"t":9404,"target":"durations","op":"add","value":2.223554673}
 {"t":9404,"target":"results","op":"add","key":"Passed","value":1}
 {"t":9605,"target":"lanes","op":"advance","key":"dc4","text":"LSA protection enabled","state":"pass","value":1}
-{"t":9605,"target":"durations","op":"add","value":0.40944817851053283}
+{"t":9605,"target":"durations","op":"add","value":0.409448179}
 {"t":9605,"target":"results","op":"add","key":"Passed","value":1}
 {"t":9989,"target":"lanes","op":"advance","key":"dc3","text":"LDAP channel binding","state":"pass","value":1}
-{"t":9989,"target":"durations","op":"add","value":2.269330690113345}
+{"t":9989,"target":"durations","op":"add","value":2.26933069}
 {"t":9989,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10000,"target":"throughput","op":"add","key":"completed","value":6}
 {"t":10000,"target":"throughput","op":"add","key":"failed"}
@@ -114,28 +114,28 @@
 {"t":10000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":10000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":10195,"target":"lanes","op":"advance","key":"dc4","text":"Credential Guard posture","state":"pass","value":1}
-{"t":10195,"target":"durations","op":"add","value":0.5894778159212488}
+{"t":10195,"target":"durations","op":"add","value":0.589477816}
 {"t":10195,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10232,"target":"lanes","op":"advance","key":"dc3","text":"SMB signing enforced","state":"pass","value":1}
-{"t":10232,"target":"durations","op":"add","value":0.24219582233007328}
+{"t":10232,"target":"durations","op":"add","value":0.242195822}
 {"t":10232,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10442,"target":"lanes","op":"advance","key":"dc2","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":10442,"target":"durations","op":"add","value":1.1524169545155123}
+{"t":10442,"target":"durations","op":"add","value":1.152416955}
 {"t":10442,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10490,"target":"lanes","op":"advance","key":"dc3","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":10490,"target":"durations","op":"add","value":0.258618627146195}
+{"t":10490,"target":"durations","op":"add","value":0.258618627}
 {"t":10490,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10506,"target":"lanes","op":"advance","key":"dc1","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":10506,"target":"durations","op":"add","value":1.3548440801537576}
+{"t":10506,"target":"durations","op":"add","value":1.35484408}
 {"t":10506,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10645,"target":"lanes","op":"advance","key":"dc1","text":"Windows Update compliance","state":"pass","value":1}
-{"t":10645,"target":"durations","op":"add","value":0.1390843780510913}
+{"t":10645,"target":"durations","op":"add","value":0.139084378}
 {"t":10645,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10885,"target":"lanes","op":"advance","key":"dc4","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":10885,"target":"durations","op":"add","value":0.6897498136898815}
+{"t":10885,"target":"durations","op":"add","value":0.689749814}
 {"t":10885,"target":"results","op":"add","key":"Passed","value":1}
 {"t":10991,"target":"lanes","op":"advance","key":"dc2","text":"Windows Update compliance","state":"pass","value":1}
-{"t":10991,"target":"durations","op":"add","value":0.5495692310490857}
+{"t":10991,"target":"durations","op":"add","value":0.549569231}
 {"t":10991,"target":"results","op":"add","key":"Passed","value":1}
 {"t":11000,"target":"throughput","op":"add","key":"completed","value":8}
 {"t":11000,"target":"throughput","op":"add","key":"failed"}
@@ -145,27 +145,27 @@
 {"t":11000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":11000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":11127,"target":"lanes","op":"advance","key":"dc3","text":"LSA protection enabled","state":"warn","value":1}
-{"t":11127,"target":"durations","op":"add","value":0.6367444149050633}
+{"t":11127,"target":"durations","op":"add","value":0.636744415}
 {"t":11127,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":11266,"target":"lanes","op":"advance","key":"dc3","text":"Credential Guard posture","state":"pass","value":1}
-{"t":11266,"target":"durations","op":"add","value":0.1391233495559915}
+{"t":11266,"target":"durations","op":"add","value":0.13912335}
 {"t":11266,"target":"results","op":"add","key":"Passed","value":1}
 {"t":11433,"target":"lanes","op":"advance","key":"dc4","text":"Windows Update compliance","state":"skip","value":1}
-{"t":11433,"target":"durations","op":"add","value":0.5487175294889702}
+{"t":11433,"target":"durations","op":"add","value":0.548717529}
 {"t":11433,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":11560,"target":"lanes","op":"advance","key":"dc2","text":"Operating system support","state":"pass","value":1}
-{"t":11560,"target":"durations","op":"add","value":0.5689289033673269}
+{"t":11560,"target":"durations","op":"add","value":0.568928903}
 {"t":11560,"target":"results","op":"add","key":"Passed","value":1}
 {"t":11576,"target":"lanes","op":"advance","key":"dom-eu","text":"Empty GPOs","state":"pass","value":1}
-{"t":11576,"target":"durations","op":"add","value":2.1722132368216984}
+{"t":11576,"target":"durations","op":"add","value":2.172213237}
 {"t":11576,"target":"results","op":"add","key":"Passed","value":1}
 {"t":11629,"target":"lanes","op":"advance","key":"dc3","text":"Secure Boot certificate rollout","state":"fail","value":1}
-{"t":11629,"target":"durations","op":"add","value":0.36282548530437564}
+{"t":11629,"target":"durations","op":"add","value":0.362825485}
 {"t":11629,"target":"results","op":"add","key":"Failed","value":1}
 {"t":11629,"target":"findings","op":"add","key":"Domain controllers","value":1}
 {"t":11629,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: Credential Guard posture failed - virtualization-based security is off","state":"err"}
 {"t":11984,"target":"lanes","op":"advance","key":"dc2","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":11984,"target":"durations","op":"add","value":0.4237957391633847}
+{"t":11984,"target":"durations","op":"add","value":0.423795739}
 {"t":11984,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12000,"target":"throughput","op":"add","key":"completed","value":7}
 {"t":12000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -175,22 +175,22 @@
 {"t":12000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":12000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":12016,"target":"lanes","op":"advance","key":"dc3","text":"Windows Update compliance","state":"pass","value":1}
-{"t":12016,"target":"durations","op":"add","value":0.38749458690037725}
+{"t":12016,"target":"durations","op":"add","value":0.387494587}
 {"t":12016,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12206,"target":"lanes","op":"advance","key":"dom-eu","text":"LAPS policy","state":"pass","value":1}
-{"t":12206,"target":"durations","op":"add","value":0.6300754946787317}
+{"t":12206,"target":"durations","op":"add","value":0.630075495}
 {"t":12206,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12278,"target":"lanes","op":"advance","key":"dc2","text":"Replication latency per partner","state":"pass","value":1}
-{"t":12278,"target":"durations","op":"add","value":0.2942028303565962}
+{"t":12278,"target":"durations","op":"add","value":0.29420283}
 {"t":12278,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12296,"target":"lanes","op":"advance","key":"dc3","text":"Operating system support","state":"pass","value":1}
-{"t":12296,"target":"durations","op":"add","value":0.2800713753206351}
+{"t":12296,"target":"durations","op":"add","value":0.280071375}
 {"t":12296,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12546,"target":"lanes","op":"advance","key":"dc1","text":"Operating system support","state":"pass","value":1}
-{"t":12546,"target":"durations","op":"add","value":1.9007326351469054}
+{"t":12546,"target":"durations","op":"add","value":1.900732635}
 {"t":12546,"target":"results","op":"add","key":"Passed","value":1}
 {"t":12993,"target":"lanes","op":"advance","key":"dc1","text":"NTLM audit configuration","state":"warn","value":1}
-{"t":12993,"target":"durations","op":"add","value":0.44730869298393006}
+{"t":12993,"target":"durations","op":"add","value":0.447308693}
 {"t":12993,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":13000,"target":"throughput","op":"add","key":"completed","value":6}
 {"t":13000,"target":"throughput","op":"add","key":"failed"}
@@ -200,37 +200,37 @@
 {"t":13000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":13000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":13025,"target":"lanes","op":"advance","key":"dc2","text":"USN rollback detection","state":"pass","value":1}
-{"t":13025,"target":"durations","op":"add","value":0.7466214652641182}
+{"t":13025,"target":"durations","op":"add","value":0.746621465}
 {"t":13025,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13102,"target":"lanes","op":"advance","key":"dc4","text":"Operating system support","state":"pass","value":1}
-{"t":13102,"target":"durations","op":"add","value":1.6687725930718178}
+{"t":13102,"target":"durations","op":"add","value":1.668772593}
 {"t":13102,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13501,"target":"lanes","op":"advance","key":"dc1","text":"Replication latency per partner","state":"pass","value":1}
-{"t":13501,"target":"durations","op":"add","value":0.507535990042921}
+{"t":13501,"target":"durations","op":"add","value":0.50753599}
 {"t":13501,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13520,"target":"lanes","op":"advance","key":"dom-ad","text":"Empty GPOs","state":"warn","value":1}
-{"t":13520,"target":"durations","op":"add","value":5.096808142107109}
+{"t":13520,"target":"durations","op":"add","value":5.096808142}
 {"t":13520,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":13542,"target":"lanes","op":"advance","key":"dc3","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":13542,"target":"durations","op":"add","value":1.2460114696699276}
+{"t":13542,"target":"durations","op":"add","value":1.24601147}
 {"t":13542,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13609,"target":"lanes","op":"advance","key":"dc2","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":13609,"target":"durations","op":"add","value":0.5844001031768845}
+{"t":13609,"target":"durations","op":"add","value":0.584400103}
 {"t":13609,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13716,"target":"lanes","op":"advance","key":"dc4","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":13716,"target":"durations","op":"add","value":0.6135950729527134}
+{"t":13716,"target":"durations","op":"add","value":0.613595073}
 {"t":13716,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13754,"target":"lanes","op":"advance","key":"dom-ad","text":"LAPS policy","state":"pass","value":1}
-{"t":13754,"target":"durations","op":"add","value":0.23346193544309057}
+{"t":13754,"target":"durations","op":"add","value":0.233461935}
 {"t":13754,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13786,"target":"lanes","op":"advance","key":"dom-eu","text":"Stale computer accounts","state":"pass","value":1}
-{"t":13786,"target":"durations","op":"add","value":1.580298560603904}
+{"t":13786,"target":"durations","op":"add","value":1.580298561}
 {"t":13786,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13964,"target":"lanes","op":"advance","key":"dc3","text":"Replication latency per partner","state":"pass","value":1}
-{"t":13964,"target":"durations","op":"add","value":0.42138712101559345}
+{"t":13964,"target":"durations","op":"add","value":0.421387121}
 {"t":13964,"target":"results","op":"add","key":"Passed","value":1}
 {"t":13982,"target":"lanes","op":"advance","key":"dc1","text":"USN rollback detection","state":"pass","value":1}
-{"t":13982,"target":"durations","op":"add","value":0.4809529550884799}
+{"t":13982,"target":"durations","op":"add","value":0.480952955}
 {"t":13982,"target":"results","op":"add","key":"Passed","value":1}
 {"t":14000,"target":"throughput","op":"add","key":"completed","value":11}
 {"t":14000,"target":"throughput","op":"add","key":"failed"}
@@ -240,22 +240,22 @@
 {"t":14000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":14000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":14135,"target":"lanes","op":"advance","key":"dc2","text":"Tombstone lifetime","state":"warn","value":1}
-{"t":14135,"target":"durations","op":"add","value":0.5260084067605537}
+{"t":14135,"target":"durations","op":"add","value":0.526008407}
 {"t":14135,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":14180,"target":"lanes","op":"advance","key":"dc1","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":14180,"target":"durations","op":"add","value":0.1983033133145188}
+{"t":14180,"target":"durations","op":"add","value":0.198303313}
 {"t":14180,"target":"results","op":"add","key":"Passed","value":1}
 {"t":14640,"target":"lanes","op":"advance","key":"dc2","text":"Lingering objects","state":"skip","value":1}
-{"t":14640,"target":"durations","op":"add","value":0.5047977807263123}
+{"t":14640,"target":"durations","op":"add","value":0.504797781}
 {"t":14640,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":14688,"target":"lanes","op":"advance","key":"dc1","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":14688,"target":"durations","op":"add","value":0.5076730378055698}
+{"t":14688,"target":"durations","op":"add","value":0.507673038}
 {"t":14688,"target":"results","op":"add","key":"Passed","value":1}
 {"t":14866,"target":"lanes","op":"advance","key":"dc1","text":"Lingering objects","state":"skip","value":1}
-{"t":14866,"target":"durations","op":"add","value":0.17788615033569943}
+{"t":14866,"target":"durations","op":"add","value":0.17788615}
 {"t":14866,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":14889,"target":"lanes","op":"advance","key":"dom-ad","text":"Stale computer accounts","state":"pass","value":1}
-{"t":14889,"target":"durations","op":"add","value":1.1354684995883344}
+{"t":14889,"target":"durations","op":"add","value":1.1354685}
 {"t":14889,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15000,"target":"throughput","op":"add","key":"completed","value":6}
 {"t":15000,"target":"throughput","op":"add","key":"failed"}
@@ -265,36 +265,36 @@
 {"t":15000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":15000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":15037,"target":"lanes","op":"advance","key":"dc2","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":15037,"target":"durations","op":"add","value":0.3972248067532771}
+{"t":15037,"target":"durations","op":"add","value":0.397224807}
 {"t":15037,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15138,"target":"lanes","op":"advance","key":"dc4","text":"Replication latency per partner","state":"pass","value":1}
-{"t":15138,"target":"durations","op":"add","value":1.4225034451586676}
+{"t":15138,"target":"durations","op":"add","value":1.422503445}
 {"t":15138,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15193,"target":"lanes","op":"advance","key":"dc2","text":"DNS scavenging","state":"pass","value":1}
-{"t":15193,"target":"durations","op":"add","value":0.1554382252037225}
+{"t":15193,"target":"durations","op":"add","value":0.155438225}
 {"t":15193,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15631,"target":"lanes","op":"advance","key":"dom-eu","text":"Password never expires","state":"pass","value":1}
-{"t":15631,"target":"durations","op":"add","value":1.845196693455093}
+{"t":15631,"target":"durations","op":"add","value":1.845196693}
 {"t":15631,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15712,"target":"lanes","op":"advance","key":"dc2","text":"Root hints reachable","state":"warn","value":1}
-{"t":15712,"target":"durations","op":"add","value":0.5191101182404504}
+{"t":15712,"target":"durations","op":"add","value":0.519110118}
 {"t":15712,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":15769,"target":"lanes","op":"advance","key":"dc1","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":15769,"target":"durations","op":"add","value":0.9038048933985973}
+{"t":15769,"target":"durations","op":"add","value":0.903804893}
 {"t":15769,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15801,"target":"lanes","op":"advance","key":"dc4","text":"USN rollback detection","state":"pass","value":1}
-{"t":15801,"target":"durations","op":"add","value":0.6627993324164732}
+{"t":15801,"target":"durations","op":"add","value":0.662799332}
 {"t":15801,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15913,"target":"lanes","op":"advance","key":"dc1","text":"DNS scavenging","state":"pass","value":1}
-{"t":15913,"target":"durations","op":"add","value":0.14368363348333915}
+{"t":15913,"target":"durations","op":"add","value":0.143683633}
 {"t":15913,"target":"results","op":"add","key":"Passed","value":1}
 {"t":15942,"target":"lanes","op":"advance","key":"dom-eu","text":"Privileged group membership","state":"fail","value":1}
-{"t":15942,"target":"durations","op":"add","value":0.3108819839027497}
+{"t":15942,"target":"durations","op":"add","value":0.310881984}
 {"t":15942,"target":"results","op":"add","key":"Failed","value":1}
 {"t":15942,"target":"findings","op":"add","key":"Accounts","value":1}
 {"t":15942,"target":"log","op":"write","text":"eu.ad.evotec.xyz (domain): Password never expires failed - 18 user accounts never expire their password","state":"err"}
 {"t":15991,"target":"lanes","op":"advance","key":"dc2","text":"DC locator SRV records","state":"pass","value":1}
-{"t":15991,"target":"durations","op":"add","value":0.27889122129302835}
+{"t":15991,"target":"durations","op":"add","value":0.278891221}
 {"t":15991,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16000,"target":"throughput","op":"add","key":"completed","value":10}
 {"t":16000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -304,26 +304,26 @@
 {"t":16000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":16000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":16079,"target":"lanes","op":"advance","key":"dc3","text":"USN rollback detection","state":"pass","value":1}
-{"t":16079,"target":"durations","op":"add","value":2.1150521949743375}
+{"t":16079,"target":"durations","op":"add","value":2.115052195}
 {"t":16079,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16121,"target":"lanes","op":"advance","key":"dc1","text":"Root hints reachable","state":"pass","value":1}
-{"t":16121,"target":"durations","op":"add","value":0.20810389810232854}
+{"t":16121,"target":"durations","op":"add","value":0.208103898}
 {"t":16121,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16405,"target":"lanes","op":"advance","key":"dc2","text":"Time source hierarchy","state":"pass","value":1}
-{"t":16405,"target":"durations","op":"add","value":0.41450016894058955}
+{"t":16405,"target":"durations","op":"add","value":0.414500169}
 {"t":16405,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16494,"target":"lanes","op":"advance","key":"dc1","text":"DC locator SRV records","state":"pass","value":1}
-{"t":16494,"target":"durations","op":"add","value":0.37316665452071235}
+{"t":16494,"target":"durations","op":"add","value":0.373166655}
 {"t":16494,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16738,"target":"lanes","op":"advance","key":"dc3","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":16738,"target":"durations","op":"add","value":0.659407471550079}
+{"t":16738,"target":"durations","op":"add","value":0.659407472}
 {"t":16738,"target":"results","op":"add","key":"Passed","value":1}
 {"t":16797,"target":"lanes","op":"advance","key":"dc1","text":"Time source hierarchy","state":"warn","value":1}
-{"t":16797,"target":"durations","op":"add","value":0.3029906355544871}
+{"t":16797,"target":"durations","op":"add","value":0.302990636}
 {"t":16797,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":16797,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: DC locator SRV records - stale SRV record for a retired DC","state":"warn"}
 {"t":16802,"target":"lanes","op":"advance","key":"dc2","text":"Clock skew","state":"pass","value":1}
-{"t":16802,"target":"durations","op":"add","value":0.3969286497846157}
+{"t":16802,"target":"durations","op":"add","value":0.39692865}
 {"t":16802,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17000,"target":"throughput","op":"add","key":"completed","value":7}
 {"t":17000,"target":"throughput","op":"add","key":"failed"}
@@ -333,28 +333,28 @@
 {"t":17000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":17000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":17087,"target":"lanes","op":"advance","key":"dom-ad","text":"Password never expires","state":"pass","value":1}
-{"t":17087,"target":"durations","op":"add","value":2.198208615087015}
+{"t":17087,"target":"durations","op":"add","value":2.198208615}
 {"t":17087,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17154,"target":"lanes","op":"advance","key":"dc1","text":"Clock skew","state":"pass","value":1}
-{"t":17154,"target":"durations","op":"add","value":0.3563476342909735}
+{"t":17154,"target":"durations","op":"add","value":0.356347634}
 {"t":17154,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17247,"target":"lanes","op":"advance","key":"dc1","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":17247,"target":"durations","op":"add","value":0.09374355226099487}
+{"t":17247,"target":"durations","op":"add","value":0.093743552}
 {"t":17247,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17266,"target":"lanes","op":"advance","key":"dom-eu","text":"AdminSDHolder protected objects","state":"pass","value":1}
-{"t":17266,"target":"durations","op":"add","value":1.3233989608328398}
+{"t":17266,"target":"durations","op":"add","value":1.323398961}
 {"t":17266,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17402,"target":"lanes","op":"advance","key":"dom-eu","text":"Service account SPN hygiene","state":"pass","value":1}
-{"t":17402,"target":"durations","op":"add","value":0.13624541509457708}
+{"t":17402,"target":"durations","op":"add","value":0.136245415}
 {"t":17402,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17419,"target":"lanes","op":"advance","key":"dc2","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":17419,"target":"durations","op":"add","value":0.6168585260305341}
+{"t":17419,"target":"durations","op":"add","value":0.616858526}
 {"t":17419,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17872,"target":"lanes","op":"advance","key":"dc4","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":17872,"target":"durations","op":"add","value":2.07109356234266}
+{"t":17872,"target":"durations","op":"add","value":2.071093562}
 {"t":17872,"target":"results","op":"add","key":"Passed","value":1}
 {"t":17875,"target":"lanes","op":"advance","key":"dc2","text":"krbtgt password age","state":"pass","value":1}
-{"t":17875,"target":"durations","op":"add","value":0.45599911946526633}
+{"t":17875,"target":"durations","op":"add","value":0.455999119}
 {"t":17875,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18000,"target":"throughput","op":"add","key":"completed","value":8}
 {"t":18000,"target":"throughput","op":"add","key":"failed"}
@@ -364,25 +364,25 @@
 {"t":18000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":18000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":18095,"target":"lanes","op":"advance","key":"dom-eu","text":"CA weak key size","state":"pass","value":1}
-{"t":18095,"target":"durations","op":"add","value":0.6930189018812496}
+{"t":18095,"target":"durations","op":"add","value":0.693018902}
 {"t":18095,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18222,"target":"lanes","op":"advance","key":"dom-eu","text":"Certificate template exposure","state":"pass","value":1}
-{"t":18222,"target":"durations","op":"add","value":0.1267984137039356}
+{"t":18222,"target":"durations","op":"add","value":0.126798414}
 {"t":18222,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18366,"target":"lanes","op":"advance","key":"dom-ad","text":"Privileged group membership","state":"pass","value":1}
-{"t":18366,"target":"durations","op":"add","value":1.2783872904762155}
+{"t":18366,"target":"durations","op":"add","value":1.27838729}
 {"t":18366,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18541,"target":"lanes","op":"advance","key":"dc3","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":18541,"target":"durations","op":"add","value":1.8027732886003416}
+{"t":18541,"target":"durations","op":"add","value":1.802773289}
 {"t":18541,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18643,"target":"lanes","op":"advance","key":"dc4","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":18643,"target":"durations","op":"add","value":0.7706752242899452}
+{"t":18643,"target":"durations","op":"add","value":0.770675224}
 {"t":18643,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18790,"target":"lanes","op":"advance","key":"dc2","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":18790,"target":"durations","op":"add","value":0.9147569353150388}
+{"t":18790,"target":"durations","op":"add","value":0.914756935}
 {"t":18790,"target":"results","op":"add","key":"Passed","value":1}
 {"t":18909,"target":"lanes","op":"advance","key":"dc4","text":"Lingering objects","state":"pass","value":1}
-{"t":18909,"target":"durations","op":"add","value":0.266308756278968}
+{"t":18909,"target":"durations","op":"add","value":0.266308756}
 {"t":18909,"target":"results","op":"add","key":"Passed","value":1}
 {"t":19000,"target":"throughput","op":"add","key":"completed","value":7}
 {"t":19000,"target":"throughput","op":"add","key":"failed"}
@@ -392,19 +392,19 @@
 {"t":19000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":19000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":19651,"target":"lanes","op":"advance","key":"dc1","text":"krbtgt password age","state":"pass","value":1}
-{"t":19651,"target":"durations","op":"add","value":2.4038750547909653}
+{"t":19651,"target":"durations","op":"add","value":2.403875055}
 {"t":19651,"target":"results","op":"add","key":"Passed","value":1}
 {"t":19851,"target":"lanes","op":"advance","key":"dc4","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":19851,"target":"durations","op":"add","value":0.9420957499543895}
+{"t":19851,"target":"durations","op":"add","value":0.94209575}
 {"t":19851,"target":"results","op":"add","key":"Passed","value":1}
 {"t":19888,"target":"lanes","op":"advance","key":"dc2","text":"Audit policy baseline","state":"pass","value":1}
-{"t":19888,"target":"durations","op":"add","value":1.0981589302177408}
+{"t":19888,"target":"durations","op":"add","value":1.09815893}
 {"t":19888,"target":"results","op":"add","key":"Passed","value":1}
 {"t":19902,"target":"lanes","op":"advance","key":"dom-eu","text":"Constrained delegation overview","state":"pass","value":1}
-{"t":19902,"target":"durations","op":"add","value":1.680241571436315}
+{"t":19902,"target":"durations","op":"add","value":1.680241571}
 {"t":19902,"target":"results","op":"add","key":"Passed","value":1}
 {"t":19939,"target":"lanes","op":"advance","key":"dc1","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":19939,"target":"durations","op":"add","value":0.2880297976556491}
+{"t":19939,"target":"durations","op":"add","value":0.288029798}
 {"t":19939,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20000,"target":"throughput","op":"add","key":"completed","value":5}
 {"t":20000,"target":"throughput","op":"add","key":"failed"}
@@ -414,34 +414,34 @@
 {"t":20000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":20000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":20006,"target":"lanes","op":"advance","key":"dc3","text":"Lingering objects","state":"pass","value":1}
-{"t":20006,"target":"durations","op":"add","value":1.4645198887048694}
+{"t":20006,"target":"durations","op":"add","value":1.464519889}
 {"t":20006,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20196,"target":"lanes","op":"advance","key":"dc1","text":"Audit policy baseline","state":"pass","value":1}
-{"t":20196,"target":"durations","op":"add","value":0.2567647115728405}
+{"t":20196,"target":"durations","op":"add","value":0.256764712}
 {"t":20196,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20311,"target":"lanes","op":"advance","key":"dc2","text":"Event log sizes","state":"pass","value":1}
-{"t":20311,"target":"durations","op":"add","value":0.42325170996081324}
+{"t":20311,"target":"durations","op":"add","value":0.42325171}
 {"t":20311,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20311,"target":"lanes","op":"advance","key":"dc4","text":"DNS scavenging","state":"pass","value":1}
-{"t":20311,"target":"durations","op":"add","value":0.4595643162804379}
+{"t":20311,"target":"durations","op":"add","value":0.459564316}
 {"t":20311,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20440,"target":"lanes","op":"advance","key":"dc4","text":"Root hints reachable","state":"pass","value":1}
-{"t":20440,"target":"durations","op":"add","value":0.12920692710427292}
+{"t":20440,"target":"durations","op":"add","value":0.129206927}
 {"t":20440,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20568,"target":"lanes","op":"advance","key":"dom-eu","text":"Recycle Bin enabled","state":"pass","value":1}
-{"t":20568,"target":"durations","op":"add","value":0.6657044985972657}
+{"t":20568,"target":"durations","op":"add","value":0.665704499}
 {"t":20568,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20807,"target":"lanes","op":"advance","key":"dc2","text":"Local administrators","state":"pass","value":1}
-{"t":20807,"target":"durations","op":"add","value":0.49611222405354183}
+{"t":20807,"target":"durations","op":"add","value":0.496112224}
 {"t":20807,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20857,"target":"lanes","op":"advance","key":"dc4","text":"DC locator SRV records","state":"pass","value":1}
-{"t":20857,"target":"durations","op":"add","value":0.4170037037632959}
+{"t":20857,"target":"durations","op":"add","value":0.417003704}
 {"t":20857,"target":"results","op":"add","key":"Passed","value":1}
 {"t":20924,"target":"lanes","op":"advance","key":"dom-eu","text":"Site link costs","state":"skip","value":1}
-{"t":20924,"target":"durations","op":"add","value":0.35596709769538915}
+{"t":20924,"target":"durations","op":"add","value":0.355967098}
 {"t":20924,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":20983,"target":"lanes","op":"advance","key":"dc1","text":"Event log sizes","state":"pass","value":1}
-{"t":20983,"target":"durations","op":"add","value":0.787431579095947}
+{"t":20983,"target":"durations","op":"add","value":0.787431579}
 {"t":20983,"target":"results","op":"add","key":"Passed","value":1}
 {"t":21000,"target":"throughput","op":"add","key":"completed","value":10}
 {"t":21000,"target":"throughput","op":"add","key":"failed"}
@@ -451,17 +451,17 @@
 {"t":21000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":21000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":21115,"target":"lanes","op":"advance","key":"dc4","text":"Time source hierarchy","state":"pass","value":1}
-{"t":21115,"target":"durations","op":"add","value":0.25815489466754177}
+{"t":21115,"target":"durations","op":"add","value":0.258154895}
 {"t":21115,"target":"results","op":"add","key":"Passed","value":1}
 {"t":21278,"target":"lanes","op":"advance","key":"dc4","text":"Clock skew","state":"pass","value":1}
-{"t":21278,"target":"durations","op":"add","value":0.16233132031722025}
+{"t":21278,"target":"durations","op":"add","value":0.16233132}
 {"t":21278,"target":"results","op":"add","key":"Passed","value":1}
 {"t":21588,"target":"lanes","op":"advance","key":"dc1","text":"Local administrators","state":"warn","value":1}
-{"t":21588,"target":"durations","op":"add","value":0.605014784923146}
+{"t":21588,"target":"durations","op":"add","value":0.605014785}
 {"t":21588,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":21588,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: Event log sizes - Directory Service log under 64 MB","state":"warn"}
 {"t":21725,"target":"lanes","op":"advance","key":"dc3","text":"DNS forwarders consistency","state":"fail","value":1}
-{"t":21725,"target":"durations","op":"add","value":1.719455609676925}
+{"t":21725,"target":"durations","op":"add","value":1.71945561}
 {"t":21725,"target":"results","op":"add","key":"Failed","value":1}
 {"t":21725,"target":"findings","op":"add","key":"Replication","value":1}
 {"t":21725,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: Lingering objects failed - 3 lingering objects in the configuration partition","state":"err"}
@@ -473,29 +473,29 @@
 {"t":22000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":22000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":22001,"target":"lanes","op":"advance","key":"dc1","text":"Firewall profile","state":"pass","value":1}
-{"t":22001,"target":"durations","op":"add","value":0.41275193735630505}
+{"t":22001,"target":"durations","op":"add","value":0.412751937}
 {"t":22001,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22034,"target":"lanes","op":"advance","key":"dom-ad","text":"AdminSDHolder protected objects","state":"pass","value":1}
-{"t":22034,"target":"durations","op":"add","value":3.6683700647971764}
+{"t":22034,"target":"durations","op":"add","value":3.668370065}
 {"t":22034,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22219,"target":"lanes","op":"advance","key":"dc4","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":22219,"target":"durations","op":"add","value":0.9413684570981135}
+{"t":22219,"target":"durations","op":"add","value":0.941368457}
 {"t":22219,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22251,"target":"lanes","op":"advance","key":"dom-eu","text":"Subnets without sites","state":"warn","value":1}
-{"t":22251,"target":"durations","op":"add","value":1.3270917492924221}
+{"t":22251,"target":"durations","op":"add","value":1.327091749}
 {"t":22251,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":22251,"target":"log","op":"write","text":"eu.ad.evotec.xyz (domain): Site link costs - 2 site links use default cost 100","state":"warn"}
 {"t":22434,"target":"lanes","op":"advance","key":"dom-eu","text":"Functional level","state":"pass","value":1}
-{"t":22434,"target":"durations","op":"add","value":0.18315491827859964}
+{"t":22434,"target":"durations","op":"add","value":0.183154918}
 {"t":22434,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22541,"target":"lanes","op":"advance","key":"dc3","text":"DNS scavenging","state":"pass","value":1}
-{"t":22541,"target":"durations","op":"add","value":0.8159212870493916}
+{"t":22541,"target":"durations","op":"add","value":0.815921287}
 {"t":22541,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22883,"target":"lanes","op":"advance","key":"dom-ad","text":"Service account SPN hygiene","state":"pass","value":1}
-{"t":22883,"target":"durations","op":"add","value":0.8484817143242358}
+{"t":22883,"target":"durations","op":"add","value":0.848481714}
 {"t":22883,"target":"results","op":"add","key":"Passed","value":1}
 {"t":22967,"target":"lanes","op":"advance","key":"dc1","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":22967,"target":"durations","op":"add","value":0.9653999174016372}
+{"t":22967,"target":"durations","op":"add","value":0.965399917}
 {"t":22967,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23000,"target":"throughput","op":"add","key":"completed","value":8}
 {"t":23000,"target":"throughput","op":"add","key":"failed"}
@@ -505,37 +505,37 @@
 {"t":23000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":23000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":23024,"target":"lanes","op":"advance","key":"dc3","text":"Root hints reachable","state":"pass","value":1}
-{"t":23024,"target":"durations","op":"add","value":0.4828295847279121}
+{"t":23024,"target":"durations","op":"add","value":0.482829585}
 {"t":23024,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23144,"target":"lanes","op":"advance","key":"dc4","text":"krbtgt password age","state":"warn","value":1}
-{"t":23144,"target":"durations","op":"add","value":0.9253725933451409}
+{"t":23144,"target":"durations","op":"add","value":0.925372593}
 {"t":23144,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":23156,"target":"lanes","op":"advance","key":"dom-eu","text":"finishing","state":"pass","value":1}
-{"t":23156,"target":"durations","op":"add","value":0.7226338146858738}
+{"t":23156,"target":"durations","op":"add","value":0.722633815}
 {"t":23156,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23282,"target":"lanes","op":"advance","key":"dc3","text":"DC locator SRV records","state":"pass","value":1}
-{"t":23282,"target":"durations","op":"add","value":0.25800571781727916}
+{"t":23282,"target":"durations","op":"add","value":0.258005718}
 {"t":23282,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23306,"target":"lanes","op":"complete","key":"dom-eu"}
 {"t":23318,"target":"lanes","op":"advance","key":"dc1","text":"PowerShell logging","state":"pass","value":1}
-{"t":23318,"target":"durations","op":"add","value":0.35099458440912534}
+{"t":23318,"target":"durations","op":"add","value":0.350994584}
 {"t":23318,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23426,"target":"lanes","op":"state","key":"dc5","text":"LDAP signing required","state":"running"}
 {"t":23426,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":23615,"target":"lanes","op":"advance","key":"dc3","text":"Time source hierarchy","state":"fail","value":1}
-{"t":23615,"target":"durations","op":"add","value":0.33299890556075107}
+{"t":23615,"target":"durations","op":"add","value":0.332998906}
 {"t":23615,"target":"results","op":"add","key":"Failed","value":1}
 {"t":23615,"target":"findings","op":"add","key":"DNS","value":1}
 {"t":23615,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
 {"t":23723,"target":"lanes","op":"advance","key":"dc2","text":"Firewall profile","state":"warn","value":1}
-{"t":23723,"target":"durations","op":"add","value":2.915387925286659}
+{"t":23723,"target":"durations","op":"add","value":2.915387925}
 {"t":23723,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":23723,"target":"log","op":"write","text":"DC02.ad.evotec.xyz: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
 {"t":23739,"target":"lanes","op":"advance","key":"dc3","text":"Clock skew","state":"pass","value":1}
-{"t":23739,"target":"durations","op":"add","value":0.12447745331755748}
+{"t":23739,"target":"durations","op":"add","value":0.124477453}
 {"t":23739,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23968,"target":"lanes","op":"advance","key":"dc4","text":"Unconstrained delegation","state":"warn","value":1}
-{"t":23968,"target":"durations","op":"add","value":0.823932298279127}
+{"t":23968,"target":"durations","op":"add","value":0.823932298}
 {"t":23968,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":24000,"target":"throughput","op":"add","key":"completed","value":9}
 {"t":24000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -545,54 +545,54 @@
 {"t":24000,"target":"summary","op":"set","key":"Targets done","text":"1 / 12"}
 {"t":24000,"target":"summary","op":"set","key":"Targets failing","text":"1"}
 {"t":24001,"target":"lanes","op":"advance","key":"dc3","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":24001,"target":"durations","op":"add","value":0.2612639949989983}
+{"t":24001,"target":"durations","op":"add","value":0.261263995}
 {"t":24001,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24136,"target":"lanes","op":"advance","key":"dc2","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":24136,"target":"durations","op":"add","value":0.41279414787448243}
+{"t":24136,"target":"durations","op":"add","value":0.412794148}
 {"t":24136,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24201,"target":"lanes","op":"advance","key":"dc3","text":"krbtgt password age","state":"warn","value":1}
-{"t":24201,"target":"durations","op":"add","value":0.20058168932256215}
+{"t":24201,"target":"durations","op":"add","value":0.200581689}
 {"t":24201,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":24211,"target":"lanes","op":"advance","key":"dc5","text":"LDAP channel binding","state":"pass","value":1}
-{"t":24211,"target":"durations","op":"add","value":0.7848763213375456}
+{"t":24211,"target":"durations","op":"add","value":0.784876321}
 {"t":24211,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24264,"target":"lanes","op":"advance","key":"dc1","text":"finishing","state":"pass","value":1}
-{"t":24264,"target":"durations","op":"add","value":0.9461759559345584}
+{"t":24264,"target":"durations","op":"add","value":0.946175956}
 {"t":24264,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24281,"target":"lanes","op":"advance","key":"dom-ad","text":"CA weak key size","state":"fail","value":1}
-{"t":24281,"target":"durations","op":"add","value":1.3978504174998925}
+{"t":24281,"target":"durations","op":"add","value":1.397850417}
 {"t":24281,"target":"results","op":"add","key":"Failed","value":1}
 {"t":24281,"target":"findings","op":"add","key":"Accounts","value":1}
 {"t":24281,"target":"log","op":"write","text":"ad.evotec.xyz (domain): Service account SPN hygiene failed - duplicate SPN HTTP/intranet registered twice","state":"err"}
 {"t":24329,"target":"lanes","op":"advance","key":"dc3","text":"Unconstrained delegation","state":"warn","value":1}
-{"t":24329,"target":"durations","op":"add","value":0.12837271941566408}
+{"t":24329,"target":"durations","op":"add","value":0.128372719}
 {"t":24329,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":24329,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: krbtgt password age - krbtgt password is 190 days old","state":"warn"}
 {"t":24331,"target":"lanes","op":"advance","key":"dc2","text":"PowerShell logging","state":"pass","value":1}
-{"t":24331,"target":"durations","op":"add","value":0.19497702761584895}
+{"t":24331,"target":"durations","op":"add","value":0.194977028}
 {"t":24331,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24414,"target":"lanes","op":"complete","key":"dc1"}
 {"t":24534,"target":"lanes","op":"state","key":"dc6","text":"LDAP signing required","state":"running"}
 {"t":24534,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":24563,"target":"lanes","op":"advance","key":"dc2","text":"finishing","state":"pass","value":1}
-{"t":24563,"target":"durations","op":"add","value":0.23234790248851697}
+{"t":24563,"target":"durations","op":"add","value":0.232347902}
 {"t":24563,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24568,"target":"lanes","op":"advance","key":"dc4","text":"Audit policy baseline","state":"fail","value":1}
-{"t":24568,"target":"durations","op":"add","value":0.5998347591833062}
+{"t":24568,"target":"durations","op":"add","value":0.599834759}
 {"t":24568,"target":"results","op":"add","key":"Failed","value":1}
 {"t":24568,"target":"findings","op":"add","key":"Kerberos","value":1}
 {"t":24568,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: Unconstrained delegation failed - 2 servers trusted for unconstrained delegation","state":"err"}
 {"t":24625,"target":"lanes","op":"advance","key":"dc3","text":"Audit policy baseline","state":"pass","value":1}
-{"t":24625,"target":"durations","op":"add","value":0.2955666273559938}
+{"t":24625,"target":"durations","op":"add","value":0.295566627}
 {"t":24625,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24713,"target":"lanes","op":"complete","key":"dc2"}
 {"t":24833,"target":"lanes","op":"state","key":"dc7","text":"LDAP signing required","state":"running"}
 {"t":24833,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":24846,"target":"lanes","op":"advance","key":"dc4","text":"Event log sizes","state":"pass","value":1}
-{"t":24846,"target":"durations","op":"add","value":0.2783552938588514}
+{"t":24846,"target":"durations","op":"add","value":0.278355294}
 {"t":24846,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24913,"target":"lanes","op":"advance","key":"dom-ad","text":"Certificate template exposure","state":"warn","value":1}
-{"t":24913,"target":"durations","op":"add","value":0.6323935203561435}
+{"t":24913,"target":"durations","op":"add","value":0.63239352}
 {"t":24913,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":24913,"target":"log","op":"write","text":"ad.evotec.xyz (domain): CA weak key size - issuing CA certificate expires in 9 months","state":"warn"}
 {"t":25000,"target":"throughput","op":"add","key":"completed","value":13}
@@ -603,44 +603,44 @@
 {"t":25000,"target":"summary","op":"set","key":"Targets done","text":"3 / 12"}
 {"t":25000,"target":"summary","op":"set","key":"Targets failing","text":"1"}
 {"t":25011,"target":"lanes","op":"advance","key":"dc4","text":"Local administrators","state":"pass","value":1}
-{"t":25011,"target":"durations","op":"add","value":0.16510598747582825}
+{"t":25011,"target":"durations","op":"add","value":0.165105987}
 {"t":25011,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25126,"target":"lanes","op":"advance","key":"dc6","text":"LDAP channel binding","state":"pass","value":1}
-{"t":25126,"target":"durations","op":"add","value":0.5923740137845984}
+{"t":25126,"target":"durations","op":"add","value":0.592374014}
 {"t":25126,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25140,"target":"lanes","op":"advance","key":"dc5","text":"SMB signing enforced","state":"warn","value":1}
-{"t":25140,"target":"durations","op":"add","value":0.9281678025512506}
+{"t":25140,"target":"durations","op":"add","value":0.928167803}
 {"t":25140,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":25140,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: LDAP channel binding - channel binding set to 'when supported'","state":"warn"}
 {"t":25273,"target":"lanes","op":"advance","key":"dc3","text":"Event log sizes","state":"pass","value":1}
-{"t":25273,"target":"durations","op":"add","value":0.6483955963079275}
+{"t":25273,"target":"durations","op":"add","value":0.648395596}
 {"t":25273,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25306,"target":"lanes","op":"advance","key":"dc6","text":"SMB signing enforced","state":"pass","value":1}
-{"t":25306,"target":"durations","op":"add","value":0.17968157219312578}
+{"t":25306,"target":"durations","op":"add","value":0.179681572}
 {"t":25306,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25417,"target":"lanes","op":"advance","key":"dc7","text":"LDAP channel binding","state":"pass","value":1}
-{"t":25417,"target":"durations","op":"add","value":0.5839570525723784}
+{"t":25417,"target":"durations","op":"add","value":0.583957053}
 {"t":25417,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25507,"target":"lanes","op":"advance","key":"dc3","text":"Local administrators","state":"pass","value":1}
-{"t":25507,"target":"durations","op":"add","value":0.2334475215270498}
+{"t":25507,"target":"durations","op":"add","value":0.233447522}
 {"t":25507,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25593,"target":"lanes","op":"advance","key":"dc5","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":25593,"target":"durations","op":"add","value":0.45346262050085784}
+{"t":25593,"target":"durations","op":"add","value":0.453462621}
 {"t":25593,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25631,"target":"lanes","op":"advance","key":"dc7","text":"SMB signing enforced","state":"pass","value":1}
-{"t":25631,"target":"durations","op":"add","value":0.21389132296009347}
+{"t":25631,"target":"durations","op":"add","value":0.213891323}
 {"t":25631,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25744,"target":"lanes","op":"advance","key":"dc5","text":"LSA protection enabled","state":"pass","value":1}
-{"t":25744,"target":"durations","op":"add","value":0.15099278073838504}
+{"t":25744,"target":"durations","op":"add","value":0.150992781}
 {"t":25744,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25861,"target":"lanes","op":"advance","key":"dc3","text":"Firewall profile","state":"pass","value":1}
-{"t":25861,"target":"durations","op":"add","value":0.35411202756025706}
+{"t":25861,"target":"durations","op":"add","value":0.354112028}
 {"t":25861,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25905,"target":"lanes","op":"advance","key":"dc5","text":"Credential Guard posture","state":"pass","value":1}
-{"t":25905,"target":"durations","op":"add","value":0.161087241367938}
+{"t":25905,"target":"durations","op":"add","value":0.161087241}
 {"t":25905,"target":"results","op":"add","key":"Passed","value":1}
 {"t":25975,"target":"lanes","op":"advance","key":"dc7","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":25975,"target":"durations","op":"add","value":0.34384676043503376}
+{"t":25975,"target":"durations","op":"add","value":0.34384676}
 {"t":25975,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26000,"target":"throughput","op":"add","key":"completed","value":13}
 {"t":26000,"target":"throughput","op":"add","key":"failed"}
@@ -650,56 +650,56 @@
 {"t":26000,"target":"summary","op":"set","key":"Targets done","text":"3 / 12"}
 {"t":26000,"target":"summary","op":"set","key":"Targets failing","text":"1"}
 {"t":26023,"target":"lanes","op":"advance","key":"dom-ad","text":"Constrained delegation overview","state":"warn","value":1}
-{"t":26023,"target":"durations","op":"add","value":1.110070644086642}
+{"t":26023,"target":"durations","op":"add","value":1.110070644}
 {"t":26023,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":26057,"target":"lanes","op":"advance","key":"dc7","text":"LSA protection enabled","state":"pass","value":1}
-{"t":26057,"target":"durations","op":"add","value":0.08266937733394462}
+{"t":26057,"target":"durations","op":"add","value":0.082669377}
 {"t":26057,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26100,"target":"lanes","op":"advance","key":"dc3","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":26100,"target":"durations","op":"add","value":0.2386940935776318}
+{"t":26100,"target":"durations","op":"add","value":0.238694094}
 {"t":26100,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26121,"target":"lanes","op":"advance","key":"dc7","text":"Credential Guard posture","state":"pass","value":1}
-{"t":26121,"target":"durations","op":"add","value":0.06418024399978615}
+{"t":26121,"target":"durations","op":"add","value":0.064180244}
 {"t":26121,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26195,"target":"lanes","op":"advance","key":"dc4","text":"Firewall profile","state":"warn","value":1}
-{"t":26195,"target":"durations","op":"add","value":1.1837899639881417}
+{"t":26195,"target":"durations","op":"add","value":1.183789964}
 {"t":26195,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":26195,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
 {"t":26228,"target":"lanes","op":"advance","key":"dc6","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":26228,"target":"durations","op":"add","value":0.9216767877428786}
+{"t":26228,"target":"durations","op":"add","value":0.921676788}
 {"t":26228,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26234,"target":"lanes","op":"advance","key":"dc5","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":26234,"target":"durations","op":"add","value":0.32888872928889545}
+{"t":26234,"target":"durations","op":"add","value":0.328888729}
 {"t":26234,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26316,"target":"lanes","op":"advance","key":"dc3","text":"PowerShell logging","state":"pass","value":1}
-{"t":26316,"target":"durations","op":"add","value":0.2161251528611524}
+{"t":26316,"target":"durations","op":"add","value":0.216125153}
 {"t":26316,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26326,"target":"lanes","op":"advance","key":"dc7","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":26326,"target":"durations","op":"add","value":0.2049650164969937}
+{"t":26326,"target":"durations","op":"add","value":0.204965016}
 {"t":26326,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26477,"target":"lanes","op":"advance","key":"dc4","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":26477,"target":"durations","op":"add","value":0.28210140909655945}
+{"t":26477,"target":"durations","op":"add","value":0.282101409}
 {"t":26477,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26533,"target":"lanes","op":"advance","key":"dc6","text":"LSA protection enabled","state":"pass","value":1}
-{"t":26533,"target":"durations","op":"add","value":0.3059363609497527}
+{"t":26533,"target":"durations","op":"add","value":0.305936361}
 {"t":26533,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26674,"target":"lanes","op":"advance","key":"dc3","text":"finishing","state":"warn","value":1}
-{"t":26674,"target":"durations","op":"add","value":0.35823353510051725}
+{"t":26674,"target":"durations","op":"add","value":0.358233535}
 {"t":26674,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":26789,"target":"lanes","op":"advance","key":"dc5","text":"Windows Update compliance","state":"pass","value":1}
-{"t":26789,"target":"durations","op":"add","value":0.5555057100002248}
+{"t":26789,"target":"durations","op":"add","value":0.55550571}
 {"t":26789,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26799,"target":"lanes","op":"advance","key":"dc4","text":"PowerShell logging","state":"pass","value":1}
-{"t":26799,"target":"durations","op":"add","value":0.32166975335698583}
+{"t":26799,"target":"durations","op":"add","value":0.321669753}
 {"t":26799,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26824,"target":"lanes","op":"complete","key":"dc3"}
 {"t":26944,"target":"lanes","op":"state","key":"dc8","text":"LDAP signing required","state":"running"}
 {"t":26944,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":26959,"target":"lanes","op":"advance","key":"dc7","text":"Windows Update compliance","state":"skip","value":1}
-{"t":26959,"target":"durations","op":"add","value":0.6327922820404371}
+{"t":26959,"target":"durations","op":"add","value":0.632792282}
 {"t":26959,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":26987,"target":"lanes","op":"advance","key":"dc6","text":"Credential Guard posture","state":"pass","value":1}
-{"t":26987,"target":"durations","op":"add","value":0.4532653021841183}
+{"t":26987,"target":"durations","op":"add","value":0.453265302}
 {"t":26987,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27000,"target":"throughput","op":"add","key":"completed","value":16}
 {"t":27000,"target":"throughput","op":"add","key":"failed"}
@@ -709,35 +709,35 @@
 {"t":27000,"target":"summary","op":"set","key":"Targets done","text":"4 / 12"}
 {"t":27000,"target":"summary","op":"set","key":"Targets failing","text":"2"}
 {"t":27077,"target":"lanes","op":"advance","key":"dom-ad","text":"Recycle Bin enabled","state":"pass","value":1}
-{"t":27077,"target":"durations","op":"add","value":1.053834030097388}
+{"t":27077,"target":"durations","op":"add","value":1.05383403}
 {"t":27077,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27087,"target":"lanes","op":"advance","key":"dc4","text":"finishing","state":"pass","value":1}
-{"t":27087,"target":"durations","op":"add","value":0.28763022397766763}
+{"t":27087,"target":"durations","op":"add","value":0.287630224}
 {"t":27087,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27237,"target":"lanes","op":"complete","key":"dc4"}
 {"t":27336,"target":"lanes","op":"advance","key":"dc6","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":27336,"target":"durations","op":"add","value":0.3491204046531081}
+{"t":27336,"target":"durations","op":"add","value":0.349120405}
 {"t":27336,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27341,"target":"lanes","op":"advance","key":"dc8","text":"LDAP channel binding","state":"pass","value":1}
-{"t":27341,"target":"durations","op":"add","value":0.3972089283940901}
+{"t":27341,"target":"durations","op":"add","value":0.397208928}
 {"t":27341,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27357,"target":"lanes","op":"state","key":"dc9","text":"LDAP signing required","state":"running"}
 {"t":27357,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":27538,"target":"lanes","op":"advance","key":"dc9","text":"LDAP channel binding","state":"warn","value":1}
-{"t":27538,"target":"durations","op":"add","value":0.18166909412827204}
+{"t":27538,"target":"durations","op":"add","value":0.181669094}
 {"t":27538,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":27783,"target":"lanes","op":"advance","key":"dc8","text":"SMB signing enforced","state":"warn","value":1}
-{"t":27783,"target":"durations","op":"add","value":0.4419401105520207}
+{"t":27783,"target":"durations","op":"add","value":0.441940111}
 {"t":27783,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":27837,"target":"lanes","op":"advance","key":"dc9","text":"SMB signing enforced","state":"pass","value":1}
-{"t":27837,"target":"durations","op":"add","value":0.29863646875445987}
+{"t":27837,"target":"durations","op":"add","value":0.298636469}
 {"t":27837,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27909,"target":"lanes","op":"advance","key":"dc6","text":"Windows Update compliance","state":"warn","value":1}
-{"t":27909,"target":"durations","op":"add","value":0.5731459553313132}
+{"t":27909,"target":"durations","op":"add","value":0.573145955}
 {"t":27909,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":27909,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: Secure Boot certificate rollout - update staged, reboot pending","state":"warn"}
 {"t":27967,"target":"lanes","op":"advance","key":"dc8","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":27967,"target":"durations","op":"add","value":0.18358288208954435}
+{"t":27967,"target":"durations","op":"add","value":0.183582882}
 {"t":27967,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28000,"target":"throughput","op":"add","key":"completed","value":9}
 {"t":28000,"target":"throughput","op":"add","key":"failed"}
@@ -747,30 +747,30 @@
 {"t":28000,"target":"summary","op":"set","key":"Targets done","text":"5 / 12"}
 {"t":28000,"target":"summary","op":"set","key":"Targets failing","text":"3"}
 {"t":28063,"target":"lanes","op":"advance","key":"dom-ad","text":"Site link costs","state":"pass","value":1}
-{"t":28063,"target":"durations","op":"add","value":0.9857764082677882}
+{"t":28063,"target":"durations","op":"add","value":0.985776408}
 {"t":28063,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28294,"target":"lanes","op":"advance","key":"dc7","text":"Operating system support","state":"pass","value":1}
-{"t":28294,"target":"durations","op":"add","value":1.3350168079063278}
+{"t":28294,"target":"durations","op":"add","value":1.335016808}
 {"t":28294,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28421,"target":"lanes","op":"advance","key":"dom-ad","text":"Subnets without sites","state":"warn","value":1}
-{"t":28421,"target":"durations","op":"add","value":0.35872383056678725}
+{"t":28421,"target":"durations","op":"add","value":0.358723831}
 {"t":28421,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":28439,"target":"lanes","op":"advance","key":"dc7","text":"NTLM audit configuration","state":"fail","value":1}
-{"t":28439,"target":"durations","op":"add","value":0.14436847317777543}
+{"t":28439,"target":"durations","op":"add","value":0.144368473}
 {"t":28439,"target":"results","op":"add","key":"Failed","value":1}
 {"t":28439,"target":"findings","op":"add","key":"Domain controllers","value":1}
 {"t":28439,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
 {"t":28742,"target":"lanes","op":"advance","key":"dc8","text":"LSA protection enabled","state":"pass","value":1}
-{"t":28742,"target":"durations","op":"add","value":0.7747601055679177}
+{"t":28742,"target":"durations","op":"add","value":0.774760106}
 {"t":28742,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28749,"target":"lanes","op":"advance","key":"dc9","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":28749,"target":"durations","op":"add","value":0.9123748641172558}
+{"t":28749,"target":"durations","op":"add","value":0.912374864}
 {"t":28749,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28954,"target":"lanes","op":"advance","key":"dc7","text":"Replication latency per partner","state":"pass","value":1}
-{"t":28954,"target":"durations","op":"add","value":0.5150041848777048}
+{"t":28954,"target":"durations","op":"add","value":0.515004185}
 {"t":28954,"target":"results","op":"add","key":"Passed","value":1}
 {"t":28982,"target":"lanes","op":"advance","key":"dc5","text":"Operating system support","state":"pass","value":1}
-{"t":28982,"target":"durations","op":"add","value":2.1921228514906166}
+{"t":28982,"target":"durations","op":"add","value":2.192122851}
 {"t":28982,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29000,"target":"throughput","op":"add","key":"completed","value":8}
 {"t":29000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -780,44 +780,44 @@
 {"t":29000,"target":"summary","op":"set","key":"Targets done","text":"5 / 12"}
 {"t":29000,"target":"summary","op":"set","key":"Targets failing","text":"3"}
 {"t":29046,"target":"lanes","op":"advance","key":"dc6","text":"Operating system support","state":"pass","value":1}
-{"t":29046,"target":"durations","op":"add","value":1.1369579142319644}
+{"t":29046,"target":"durations","op":"add","value":1.136957914}
 {"t":29046,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29086,"target":"lanes","op":"advance","key":"dc5","text":"NTLM audit configuration","state":"skip","value":1}
-{"t":29086,"target":"durations","op":"add","value":0.10425466743140208}
+{"t":29086,"target":"durations","op":"add","value":0.104254667}
 {"t":29086,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":29343,"target":"lanes","op":"advance","key":"dom-ad","text":"Functional level","state":"warn","value":1}
-{"t":29343,"target":"durations","op":"add","value":0.921223193522224}
+{"t":29343,"target":"durations","op":"add","value":0.921223194}
 {"t":29343,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":29424,"target":"lanes","op":"advance","key":"dc9","text":"LSA protection enabled","state":"pass","value":1}
-{"t":29424,"target":"durations","op":"add","value":0.6741536886446113}
+{"t":29424,"target":"durations","op":"add","value":0.674153689}
 {"t":29424,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29475,"target":"lanes","op":"advance","key":"dc8","text":"Credential Guard posture","state":"pass","value":1}
-{"t":29475,"target":"durations","op":"add","value":0.7339330974534454}
+{"t":29475,"target":"durations","op":"add","value":0.733933097}
 {"t":29475,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29571,"target":"lanes","op":"advance","key":"dc8","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":29571,"target":"durations","op":"add","value":0.095773237031419}
+{"t":29571,"target":"durations","op":"add","value":0.095773237}
 {"t":29571,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29581,"target":"lanes","op":"advance","key":"dc6","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":29581,"target":"durations","op":"add","value":0.5345641146217421}
+{"t":29581,"target":"durations","op":"add","value":0.534564115}
 {"t":29581,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29657,"target":"lanes","op":"advance","key":"dc9","text":"Credential Guard posture","state":"pass","value":1}
-{"t":29657,"target":"durations","op":"add","value":0.23325894560122507}
+{"t":29657,"target":"durations","op":"add","value":0.233258946}
 {"t":29657,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29660,"target":"lanes","op":"advance","key":"dc5","text":"Replication latency per partner","state":"pass","value":1}
-{"t":29660,"target":"durations","op":"add","value":0.5745277370129334}
+{"t":29660,"target":"durations","op":"add","value":0.574527737}
 {"t":29660,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29663,"target":"lanes","op":"advance","key":"dc8","text":"Windows Update compliance","state":"pass","value":1}
-{"t":29663,"target":"durations","op":"add","value":0.0913742043851335}
+{"t":29663,"target":"durations","op":"add","value":0.091374204}
 {"t":29663,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29669,"target":"lanes","op":"advance","key":"dc6","text":"Replication latency per partner","state":"pass","value":1}
-{"t":29669,"target":"durations","op":"add","value":0.08896264184743916}
+{"t":29669,"target":"durations","op":"add","value":0.088962642}
 {"t":29669,"target":"results","op":"add","key":"Passed","value":1}
 {"t":29801,"target":"lanes","op":"advance","key":"dc5","text":"USN rollback detection","state":"warn","value":1}
-{"t":29801,"target":"durations","op":"add","value":0.14076150577347887}
+{"t":29801,"target":"durations","op":"add","value":0.140761506}
 {"t":29801,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":29801,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
 {"t":29959,"target":"lanes","op":"advance","key":"dc7","text":"USN rollback detection","state":"fail","value":1}
-{"t":29959,"target":"durations","op":"add","value":1.004914564849713}
+{"t":29959,"target":"durations","op":"add","value":1.004914565}
 {"t":29959,"target":"results","op":"add","key":"Failed","value":1}
 {"t":29959,"target":"findings","op":"add","key":"Replication","value":1}
 {"t":29959,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Replication latency per partner failed - no successful inbound replication from DC02 for 4h","state":"err"}
@@ -829,48 +829,48 @@
 {"t":30000,"target":"summary","op":"set","key":"Targets done","text":"5 / 12"}
 {"t":30000,"target":"summary","op":"set","key":"Targets failing","text":"3"}
 {"t":30092,"target":"lanes","op":"advance","key":"dc9","text":"Secure Boot certificate rollout","state":"warn","value":1}
-{"t":30092,"target":"durations","op":"add","value":0.43537396145768936}
+{"t":30092,"target":"durations","op":"add","value":0.435373961}
 {"t":30092,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":30092,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: Credential Guard posture - Credential Guard configured but not running","state":"warn"}
 {"t":30167,"target":"lanes","op":"advance","key":"dc8","text":"Operating system support","state":"pass","value":1}
-{"t":30167,"target":"durations","op":"add","value":0.5040400513977705}
+{"t":30167,"target":"durations","op":"add","value":0.504040051}
 {"t":30167,"target":"results","op":"add","key":"Passed","value":1}
 {"t":30537,"target":"lanes","op":"advance","key":"dc9","text":"Windows Update compliance","state":"pass","value":1}
-{"t":30537,"target":"durations","op":"add","value":0.44449688902859436}
+{"t":30537,"target":"durations","op":"add","value":0.444496889}
 {"t":30537,"target":"results","op":"add","key":"Passed","value":1}
 {"t":30645,"target":"lanes","op":"advance","key":"dom-ad","text":"finishing","state":"fail","value":1}
-{"t":30645,"target":"durations","op":"add","value":1.3024339140989682}
+{"t":30645,"target":"durations","op":"add","value":1.302433914}
 {"t":30645,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30645,"target":"findings","op":"add","key":"Forest","value":1}
 {"t":30645,"target":"log","op":"write","text":"ad.evotec.xyz (domain): Functional level failed - domain functional level is Windows Server 2008 R2","state":"err"}
 {"t":30665,"target":"lanes","op":"advance","key":"dc5","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":30665,"target":"durations","op":"add","value":0.8636037267160175}
+{"t":30665,"target":"durations","op":"add","value":0.863603727}
 {"t":30665,"target":"results","op":"add","key":"Passed","value":1}
 {"t":30674,"target":"lanes","op":"advance","key":"dc7","text":"SYSVOL DFSR state","state":"fail","value":1}
-{"t":30674,"target":"durations","op":"add","value":0.7152770713485718}
+{"t":30674,"target":"durations","op":"add","value":0.715277071}
 {"t":30674,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30674,"target":"findings","op":"add","key":"Replication","value":1}
 {"t":30674,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
 {"t":30795,"target":"lanes","op":"complete","key":"dom-ad"}
 {"t":30811,"target":"lanes","op":"advance","key":"dc7","text":"Tombstone lifetime","state":"warn","value":1}
-{"t":30811,"target":"durations","op":"add","value":0.13751460513568928}
+{"t":30811,"target":"durations","op":"add","value":0.137514605}
 {"t":30811,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":30811,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: SYSVOL DFSR state - DFSR backlog of 37 files","state":"warn"}
 {"t":30915,"target":"lanes","op":"state","key":"dc10","text":"LDAP signing required","state":"running"}
 {"t":30915,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
 {"t":30919,"target":"lanes","op":"advance","key":"dc7","text":"Lingering objects","state":"fail","value":1}
-{"t":30919,"target":"durations","op":"add","value":0.10812405938657531}
+{"t":30919,"target":"durations","op":"add","value":0.108124059}
 {"t":30919,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30919,"target":"findings","op":"add","key":"Replication","value":1}
 {"t":30919,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Tombstone lifetime failed - tombstone lifetime is 60 days","state":"err"}
 {"t":30932,"target":"lanes","op":"advance","key":"dc5","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":30932,"target":"durations","op":"add","value":0.26682591570854086}
+{"t":30932,"target":"durations","op":"add","value":0.266825916}
 {"t":30932,"target":"results","op":"add","key":"Passed","value":1}
 {"t":30950,"target":"lanes","op":"advance","key":"dc6","text":"USN rollback detection","state":"pass","value":1}
-{"t":30950,"target":"durations","op":"add","value":1.2804395011510978}
+{"t":30950,"target":"durations","op":"add","value":1.280439501}
 {"t":30950,"target":"results","op":"add","key":"Passed","value":1}
 {"t":30973,"target":"lanes","op":"advance","key":"dc8","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":30973,"target":"durations","op":"add","value":0.806294317566679}
+{"t":30973,"target":"durations","op":"add","value":0.806294318}
 {"t":30973,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31000,"target":"throughput","op":"add","key":"completed","value":11}
 {"t":31000,"target":"throughput","op":"add","key":"failed","value":3}
@@ -880,28 +880,28 @@
 {"t":31000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":31000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":31237,"target":"lanes","op":"advance","key":"dc9","text":"Operating system support","state":"pass","value":1}
-{"t":31237,"target":"durations","op":"add","value":0.700812440393683}
+{"t":31237,"target":"durations","op":"add","value":0.70081244}
 {"t":31237,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31253,"target":"lanes","op":"advance","key":"dc10","text":"LDAP channel binding","state":"pass","value":1}
-{"t":31253,"target":"durations","op":"add","value":0.3381104048811002}
+{"t":31253,"target":"durations","op":"add","value":0.338110405}
 {"t":31253,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31357,"target":"lanes","op":"advance","key":"dc6","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":31357,"target":"durations","op":"add","value":0.40696474051348513}
+{"t":31357,"target":"durations","op":"add","value":0.406964741}
 {"t":31357,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31572,"target":"lanes","op":"advance","key":"dc10","text":"SMB signing enforced","state":"pass","value":1}
-{"t":31572,"target":"durations","op":"add","value":0.31886850646162307}
+{"t":31572,"target":"durations","op":"add","value":0.318868506}
 {"t":31572,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31656,"target":"lanes","op":"advance","key":"dc8","text":"Replication latency per partner","state":"pass","value":1}
-{"t":31656,"target":"durations","op":"add","value":0.6832711674294266}
+{"t":31656,"target":"durations","op":"add","value":0.683271167}
 {"t":31656,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31741,"target":"lanes","op":"advance","key":"dc5","text":"Lingering objects","state":"pass","value":1}
-{"t":31741,"target":"durations","op":"add","value":0.8097380941448392}
+{"t":31741,"target":"durations","op":"add","value":0.809738094}
 {"t":31741,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31760,"target":"lanes","op":"advance","key":"dc10","text":"Print Spooler disabled","state":"pass","value":1}
-{"t":31760,"target":"durations","op":"add","value":0.1882483463056402}
+{"t":31760,"target":"durations","op":"add","value":0.188248346}
 {"t":31760,"target":"results","op":"add","key":"Passed","value":1}
 {"t":31894,"target":"lanes","op":"advance","key":"dc10","text":"LSA protection enabled","state":"fail","value":1}
-{"t":31894,"target":"durations","op":"add","value":0.1333180461975299}
+{"t":31894,"target":"durations","op":"add","value":0.133318046}
 {"t":31894,"target":"results","op":"add","key":"Failed","value":1}
 {"t":31894,"target":"findings","op":"add","key":"Domain controllers","value":1}
 {"t":31894,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Print Spooler disabled failed - Spooler service is running","state":"err"}
@@ -913,14 +913,14 @@
 {"t":32000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":32000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":32308,"target":"lanes","op":"advance","key":"dc10","text":"Credential Guard posture","state":"warn","value":1}
-{"t":32308,"target":"durations","op":"add","value":0.4142445914861515}
+{"t":32308,"target":"durations","op":"add","value":0.414244591}
 {"t":32308,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":32308,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: LSA protection enabled - RunAsPPL set without UEFI lock","state":"warn"}
 {"t":32738,"target":"lanes","op":"advance","key":"dc9","text":"NTLM audit configuration","state":"pass","value":1}
-{"t":32738,"target":"durations","op":"add","value":1.500076174496623}
+{"t":32738,"target":"durations","op":"add","value":1.500076174}
 {"t":32738,"target":"results","op":"add","key":"Passed","value":1}
 {"t":32903,"target":"lanes","op":"advance","key":"dc6","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":32903,"target":"durations","op":"add","value":1.5458990085660094}
+{"t":32903,"target":"durations","op":"add","value":1.545899009}
 {"t":32903,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33000,"target":"throughput","op":"add","key":"completed","value":3}
 {"t":33000,"target":"throughput","op":"add","key":"failed"}
@@ -930,34 +930,34 @@
 {"t":33000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":33000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":33002,"target":"lanes","op":"advance","key":"dc6","text":"Lingering objects","state":"pass","value":1}
-{"t":33002,"target":"durations","op":"add","value":0.09890479461862559}
+{"t":33002,"target":"durations","op":"add","value":0.098904795}
 {"t":33002,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33074,"target":"lanes","op":"advance","key":"dc10","text":"Secure Boot certificate rollout","state":"pass","value":1}
-{"t":33074,"target":"durations","op":"add","value":0.7662519430767937}
+{"t":33074,"target":"durations","op":"add","value":0.766251943}
 {"t":33074,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33281,"target":"lanes","op":"advance","key":"dc9","text":"Replication latency per partner","state":"pass","value":1}
-{"t":33281,"target":"durations","op":"add","value":0.5438286054747344}
+{"t":33281,"target":"durations","op":"add","value":0.543828605}
 {"t":33281,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33368,"target":"lanes","op":"advance","key":"dc8","text":"USN rollback detection","state":"pass","value":1}
-{"t":33368,"target":"durations","op":"add","value":1.7117555645878264}
+{"t":33368,"target":"durations","op":"add","value":1.711755565}
 {"t":33368,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33452,"target":"lanes","op":"advance","key":"dc7","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":33452,"target":"durations","op":"add","value":2.5329770205680626}
+{"t":33452,"target":"durations","op":"add","value":2.532977021}
 {"t":33452,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33457,"target":"lanes","op":"advance","key":"dc5","text":"DNS forwarders consistency","state":"warn","value":1}
-{"t":33457,"target":"durations","op":"add","value":1.7159507871486095}
+{"t":33457,"target":"durations","op":"add","value":1.715950787}
 {"t":33457,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":33675,"target":"lanes","op":"advance","key":"dc8","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":33675,"target":"durations","op":"add","value":0.30705033382925984}
+{"t":33675,"target":"durations","op":"add","value":0.307050334}
 {"t":33675,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33793,"target":"lanes","op":"advance","key":"dc10","text":"Windows Update compliance","state":"pass","value":1}
-{"t":33793,"target":"durations","op":"add","value":0.7190658984295998}
+{"t":33793,"target":"durations","op":"add","value":0.719065898}
 {"t":33793,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33943,"target":"lanes","op":"advance","key":"dc7","text":"DNS scavenging","state":"pass","value":1}
-{"t":33943,"target":"durations","op":"add","value":0.4906185799711618}
+{"t":33943,"target":"durations","op":"add","value":0.49061858}
 {"t":33943,"target":"results","op":"add","key":"Passed","value":1}
 {"t":33989,"target":"lanes","op":"advance","key":"dc6","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":33989,"target":"durations","op":"add","value":0.9869131700906335}
+{"t":33989,"target":"durations","op":"add","value":0.98691317}
 {"t":33989,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34000,"target":"throughput","op":"add","key":"completed","value":10}
 {"t":34000,"target":"throughput","op":"add","key":"failed"}
@@ -967,26 +967,26 @@
 {"t":34000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":34000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":34226,"target":"lanes","op":"advance","key":"dc5","text":"DNS scavenging","state":"pass","value":1}
-{"t":34226,"target":"durations","op":"add","value":0.7690058461653874}
+{"t":34226,"target":"durations","op":"add","value":0.769005846}
 {"t":34226,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34380,"target":"lanes","op":"advance","key":"dc7","text":"Root hints reachable","state":"warn","value":1}
-{"t":34380,"target":"durations","op":"add","value":0.4366387872061191}
+{"t":34380,"target":"durations","op":"add","value":0.436638787}
 {"t":34380,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":34380,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: DNS scavenging - no-refresh interval longer than 7 days","state":"warn"}
 {"t":34482,"target":"lanes","op":"advance","key":"dc10","text":"Operating system support","state":"pass","value":1}
-{"t":34482,"target":"durations","op":"add","value":0.6889751357952244}
+{"t":34482,"target":"durations","op":"add","value":0.688975136}
 {"t":34482,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34578,"target":"lanes","op":"advance","key":"dc8","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":34578,"target":"durations","op":"add","value":0.9025942568689858}
+{"t":34578,"target":"durations","op":"add","value":0.902594257}
 {"t":34578,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34697,"target":"lanes","op":"advance","key":"dc5","text":"Root hints reachable","state":"pass","value":1}
-{"t":34697,"target":"durations","op":"add","value":0.47028489095184905}
+{"t":34697,"target":"durations","op":"add","value":0.470284891}
 {"t":34697,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34888,"target":"lanes","op":"advance","key":"dc7","text":"DC locator SRV records","state":"pass","value":1}
-{"t":34888,"target":"durations","op":"add","value":0.5088007978317303}
+{"t":34888,"target":"durations","op":"add","value":0.508800798}
 {"t":34888,"target":"results","op":"add","key":"Passed","value":1}
 {"t":34925,"target":"lanes","op":"advance","key":"dc6","text":"DNS scavenging","state":"warn","value":1}
-{"t":34925,"target":"durations","op":"add","value":0.9363178950561339}
+{"t":34925,"target":"durations","op":"add","value":0.936317895}
 {"t":34925,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":35000,"target":"throughput","op":"add","key":"completed","value":7}
 {"t":35000,"target":"throughput","op":"add","key":"failed"}
@@ -996,39 +996,39 @@
 {"t":35000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":35000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":35167,"target":"lanes","op":"advance","key":"dc8","text":"Lingering objects","state":"pass","value":1}
-{"t":35167,"target":"durations","op":"add","value":0.588934961172279}
+{"t":35167,"target":"durations","op":"add","value":0.588934961}
 {"t":35167,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35269,"target":"lanes","op":"advance","key":"dc10","text":"NTLM audit configuration","state":"fail","value":1}
-{"t":35269,"target":"durations","op":"add","value":0.78698823888954}
+{"t":35269,"target":"durations","op":"add","value":0.786988239}
 {"t":35269,"target":"results","op":"add","key":"Failed","value":1}
 {"t":35269,"target":"findings","op":"add","key":"Domain controllers","value":1}
 {"t":35269,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
 {"t":35436,"target":"lanes","op":"advance","key":"dc8","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":35436,"target":"durations","op":"add","value":0.2693067010036929}
+{"t":35436,"target":"durations","op":"add","value":0.269306701}
 {"t":35436,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35492,"target":"lanes","op":"advance","key":"dc7","text":"Time source hierarchy","state":"pass","value":1}
-{"t":35492,"target":"durations","op":"add","value":0.6030542745446409}
+{"t":35492,"target":"durations","op":"add","value":0.603054275}
 {"t":35492,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35523,"target":"lanes","op":"advance","key":"dc9","text":"USN rollback detection","state":"pass","value":1}
-{"t":35523,"target":"durations","op":"add","value":2.242078969633114}
+{"t":35523,"target":"durations","op":"add","value":2.24207897}
 {"t":35523,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35564,"target":"lanes","op":"advance","key":"dc7","text":"Clock skew","state":"warn","value":1}
-{"t":35564,"target":"durations","op":"add","value":0.0721487680173308}
+{"t":35564,"target":"durations","op":"add","value":0.072148768}
 {"t":35564,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":35717,"target":"lanes","op":"advance","key":"dc8","text":"DNS scavenging","state":"skip","value":1}
-{"t":35717,"target":"durations","op":"add","value":0.2811033685936593}
+{"t":35717,"target":"durations","op":"add","value":0.281103369}
 {"t":35717,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":35778,"target":"lanes","op":"advance","key":"dc7","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":35778,"target":"durations","op":"add","value":0.21465288433231602}
+{"t":35778,"target":"durations","op":"add","value":0.214652884}
 {"t":35778,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35791,"target":"lanes","op":"advance","key":"dc6","text":"Root hints reachable","state":"pass","value":1}
-{"t":35791,"target":"durations","op":"add","value":0.8665684147462835}
+{"t":35791,"target":"durations","op":"add","value":0.866568415}
 {"t":35791,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35902,"target":"lanes","op":"advance","key":"dc9","text":"SYSVOL DFSR state","state":"pass","value":1}
-{"t":35902,"target":"durations","op":"add","value":0.37897559587693574}
+{"t":35902,"target":"durations","op":"add","value":0.378975596}
 {"t":35902,"target":"results","op":"add","key":"Passed","value":1}
 {"t":35927,"target":"lanes","op":"advance","key":"dc10","text":"Replication latency per partner","state":"warn","value":1}
-{"t":35927,"target":"durations","op":"add","value":0.6584109707601016}
+{"t":35927,"target":"durations","op":"add","value":0.658410971}
 {"t":35927,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":35927,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: NTLM audit configuration - audit enabled for incoming traffic only","state":"warn"}
 {"t":36000,"target":"throughput","op":"add","key":"completed","value":11}
@@ -1039,22 +1039,22 @@
 {"t":36000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":36000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":36061,"target":"lanes","op":"advance","key":"dc7","text":"krbtgt password age","state":"pass","value":1}
-{"t":36061,"target":"durations","op":"add","value":0.2823679975984979}
+{"t":36061,"target":"durations","op":"add","value":0.282367998}
 {"t":36061,"target":"results","op":"add","key":"Passed","value":1}
 {"t":36133,"target":"lanes","op":"advance","key":"dc6","text":"DC locator SRV records","state":"pass","value":1}
-{"t":36133,"target":"durations","op":"add","value":0.3412478979844945}
+{"t":36133,"target":"durations","op":"add","value":0.341247898}
 {"t":36133,"target":"results","op":"add","key":"Passed","value":1}
 {"t":36494,"target":"lanes","op":"advance","key":"dc8","text":"Root hints reachable","state":"pass","value":1}
-{"t":36494,"target":"durations","op":"add","value":0.7768836932023773}
+{"t":36494,"target":"durations","op":"add","value":0.776883693}
 {"t":36494,"target":"results","op":"add","key":"Passed","value":1}
 {"t":36503,"target":"lanes","op":"advance","key":"dc9","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":36503,"target":"durations","op":"add","value":0.6001891859554379}
+{"t":36503,"target":"durations","op":"add","value":0.600189186}
 {"t":36503,"target":"results","op":"add","key":"Passed","value":1}
 {"t":36678,"target":"lanes","op":"advance","key":"dc6","text":"Time source hierarchy","state":"pass","value":1}
-{"t":36678,"target":"durations","op":"add","value":0.5454709319282329}
+{"t":36678,"target":"durations","op":"add","value":0.545470932}
 {"t":36678,"target":"results","op":"add","key":"Passed","value":1}
 {"t":36836,"target":"lanes","op":"advance","key":"dc7","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":36836,"target":"durations","op":"add","value":0.7752628260064268}
+{"t":36836,"target":"durations","op":"add","value":0.775262826}
 {"t":36836,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37000,"target":"throughput","op":"add","key":"completed","value":6}
 {"t":37000,"target":"throughput","op":"add","key":"failed"}
@@ -1064,32 +1064,32 @@
 {"t":37000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":37000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":37050,"target":"lanes","op":"advance","key":"dc5","text":"DC locator SRV records","state":"pass","value":1}
-{"t":37050,"target":"durations","op":"add","value":2.3539606033499614}
+{"t":37050,"target":"durations","op":"add","value":2.353960603}
 {"t":37050,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37228,"target":"lanes","op":"advance","key":"dc5","text":"Time source hierarchy","state":"pass","value":1}
-{"t":37228,"target":"durations","op":"add","value":0.17781911209050932}
+{"t":37228,"target":"durations","op":"add","value":0.177819112}
 {"t":37228,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37254,"target":"lanes","op":"advance","key":"dc7","text":"Audit policy baseline","state":"warn","value":1}
-{"t":37254,"target":"durations","op":"add","value":0.4179760269182226}
+{"t":37254,"target":"durations","op":"add","value":0.417976027}
 {"t":37254,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":37279,"target":"lanes","op":"advance","key":"dc9","text":"Lingering objects","state":"pass","value":1}
-{"t":37279,"target":"durations","op":"add","value":0.776734847236624}
+{"t":37279,"target":"durations","op":"add","value":0.776734847}
 {"t":37279,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37358,"target":"lanes","op":"advance","key":"dc8","text":"DC locator SRV records","state":"warn","value":1}
-{"t":37358,"target":"durations","op":"add","value":0.8637112240602897}
+{"t":37358,"target":"durations","op":"add","value":0.863711224}
 {"t":37358,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":37358,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: Root hints reachable - root hints file older than 2 years","state":"warn"}
 {"t":37415,"target":"lanes","op":"advance","key":"dc6","text":"Clock skew","state":"pass","value":1}
-{"t":37415,"target":"durations","op":"add","value":0.7369980022550611}
+{"t":37415,"target":"durations","op":"add","value":0.736998002}
 {"t":37415,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37734,"target":"lanes","op":"advance","key":"dc7","text":"Event log sizes","state":"pass","value":1}
-{"t":37734,"target":"durations","op":"add","value":0.4803101103490429}
+{"t":37734,"target":"durations","op":"add","value":0.48031011}
 {"t":37734,"target":"results","op":"add","key":"Passed","value":1}
 {"t":37803,"target":"lanes","op":"advance","key":"dc8","text":"Time source hierarchy","state":"warn","value":1}
-{"t":37803,"target":"durations","op":"add","value":0.44498921930827645}
+{"t":37803,"target":"durations","op":"add","value":0.444989219}
 {"t":37803,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":37849,"target":"lanes","op":"advance","key":"dc7","text":"Local administrators","state":"pass","value":1}
-{"t":37849,"target":"durations","op":"add","value":0.11517708907948983}
+{"t":37849,"target":"durations","op":"add","value":0.115177089}
 {"t":37849,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38000,"target":"throughput","op":"add","key":"completed","value":9}
 {"t":38000,"target":"throughput","op":"add","key":"failed"}
@@ -1099,48 +1099,48 @@
 {"t":38000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":38000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":38057,"target":"lanes","op":"advance","key":"dc9","text":"DNS forwarders consistency","state":"pass","value":1}
-{"t":38057,"target":"durations","op":"add","value":0.7772581892642572}
+{"t":38057,"target":"durations","op":"add","value":0.777258189}
 {"t":38057,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38063,"target":"lanes","op":"advance","key":"dc8","text":"Clock skew","state":"pass","value":1}
-{"t":38063,"target":"durations","op":"add","value":0.2605037165336959}
+{"t":38063,"target":"durations","op":"add","value":0.260503717}
 {"t":38063,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38174,"target":"lanes","op":"advance","key":"dc10","text":"USN rollback detection","state":"warn","value":1}
-{"t":38174,"target":"durations","op":"add","value":2.2469662801523005}
+{"t":38174,"target":"durations","op":"add","value":2.24696628}
 {"t":38174,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":38174,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
 {"t":38225,"target":"lanes","op":"advance","key":"dc8","text":"Kerberos AES-only encryption","state":"warn","value":1}
-{"t":38225,"target":"durations","op":"add","value":0.16208985769453776}
+{"t":38225,"target":"durations","op":"add","value":0.162089858}
 {"t":38225,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":38225,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: Clock skew - clock skew of 48 seconds","state":"warn"}
 {"t":38320,"target":"lanes","op":"advance","key":"dc9","text":"DNS scavenging","state":"warn","value":1}
-{"t":38320,"target":"durations","op":"add","value":0.26387888125196}
+{"t":38320,"target":"durations","op":"add","value":0.263878881}
 {"t":38320,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":38320,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: DNS forwarders consistency - one forwarder does not answer","state":"warn"}
 {"t":38424,"target":"lanes","op":"advance","key":"dc7","text":"Firewall profile","state":"pass","value":1}
-{"t":38424,"target":"durations","op":"add","value":0.5740832881542903}
+{"t":38424,"target":"durations","op":"add","value":0.574083288}
 {"t":38424,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38434,"target":"lanes","op":"advance","key":"dc9","text":"Root hints reachable","state":"pass","value":1}
-{"t":38434,"target":"durations","op":"add","value":0.1138710430669798}
+{"t":38434,"target":"durations","op":"add","value":0.113871043}
 {"t":38434,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38437,"target":"lanes","op":"advance","key":"dc5","text":"Clock skew","state":"pass","value":1}
-{"t":38437,"target":"durations","op":"add","value":1.208553585885196}
+{"t":38437,"target":"durations","op":"add","value":1.208553586}
 {"t":38437,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38457,"target":"lanes","op":"advance","key":"dc8","text":"krbtgt password age","state":"pass","value":1}
-{"t":38457,"target":"durations","op":"add","value":0.2314026215949664}
+{"t":38457,"target":"durations","op":"add","value":0.231402622}
 {"t":38457,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38616,"target":"lanes","op":"advance","key":"dc10","text":"SYSVOL DFSR state","state":"fail","value":1}
-{"t":38616,"target":"durations","op":"add","value":0.44133178674702617}
+{"t":38616,"target":"durations","op":"add","value":0.441331787}
 {"t":38616,"target":"results","op":"add","key":"Failed","value":1}
 {"t":38616,"target":"findings","op":"add","key":"Replication","value":1}
 {"t":38616,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
 {"t":38696,"target":"lanes","op":"advance","key":"dc5","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":38696,"target":"durations","op":"add","value":0.2591434464157311}
+{"t":38696,"target":"durations","op":"add","value":0.259143446}
 {"t":38696,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38739,"target":"lanes","op":"advance","key":"dc9","text":"DC locator SRV records","state":"pass","value":1}
-{"t":38739,"target":"durations","op":"add","value":0.3044839939512716}
+{"t":38739,"target":"durations","op":"add","value":0.304483994}
 {"t":38739,"target":"results","op":"add","key":"Passed","value":1}
 {"t":38775,"target":"lanes","op":"advance","key":"dc7","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":38775,"target":"durations","op":"add","value":0.3515858212530618}
+{"t":38775,"target":"durations","op":"add","value":0.351585821}
 {"t":38775,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39000,"target":"throughput","op":"add","key":"completed","value":13}
 {"t":39000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -1150,37 +1150,37 @@
 {"t":39000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":39000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":39055,"target":"lanes","op":"advance","key":"dc5","text":"krbtgt password age","state":"pass","value":1}
-{"t":39055,"target":"durations","op":"add","value":0.35918208620507797}
+{"t":39055,"target":"durations","op":"add","value":0.359182086}
 {"t":39055,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39155,"target":"lanes","op":"advance","key":"dc6","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":39155,"target":"durations","op":"add","value":1.739770136318505}
+{"t":39155,"target":"durations","op":"add","value":1.739770136}
 {"t":39155,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39200,"target":"lanes","op":"advance","key":"dc7","text":"PowerShell logging","state":"pass","value":1}
-{"t":39200,"target":"durations","op":"add","value":0.4250014484140134}
+{"t":39200,"target":"durations","op":"add","value":0.425001448}
 {"t":39200,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39210,"target":"lanes","op":"advance","key":"dc5","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":39210,"target":"durations","op":"add","value":0.1548464179726005}
+{"t":39210,"target":"durations","op":"add","value":0.154846418}
 {"t":39210,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39233,"target":"lanes","op":"advance","key":"dc8","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":39233,"target":"durations","op":"add","value":0.7763820977920374}
+{"t":39233,"target":"durations","op":"add","value":0.776382098}
 {"t":39233,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39293,"target":"lanes","op":"advance","key":"dc6","text":"krbtgt password age","state":"pass","value":1}
-{"t":39293,"target":"durations","op":"add","value":0.13792691604232474}
+{"t":39293,"target":"durations","op":"add","value":0.137926916}
 {"t":39293,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39314,"target":"lanes","op":"advance","key":"dc5","text":"Audit policy baseline","state":"pass","value":1}
-{"t":39314,"target":"durations","op":"add","value":0.10351641408544074}
+{"t":39314,"target":"durations","op":"add","value":0.103516414}
 {"t":39314,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39440,"target":"lanes","op":"advance","key":"dc9","text":"Time source hierarchy","state":"pass","value":1}
-{"t":39440,"target":"durations","op":"add","value":0.7011364692471642}
+{"t":39440,"target":"durations","op":"add","value":0.701136469}
 {"t":39440,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39625,"target":"lanes","op":"advance","key":"dc8","text":"Audit policy baseline","state":"pass","value":1}
-{"t":39625,"target":"durations","op":"add","value":0.39214078970857863}
+{"t":39625,"target":"durations","op":"add","value":0.39214079}
 {"t":39625,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39798,"target":"lanes","op":"advance","key":"dc5","text":"Event log sizes","state":"pass","value":1}
-{"t":39798,"target":"durations","op":"add","value":0.4846778230505527}
+{"t":39798,"target":"durations","op":"add","value":0.484677823}
 {"t":39798,"target":"results","op":"add","key":"Passed","value":1}
 {"t":39991,"target":"lanes","op":"advance","key":"dc5","text":"Local administrators","state":"pass","value":1}
-{"t":39991,"target":"durations","op":"add","value":0.19284535661043786}
+{"t":39991,"target":"durations","op":"add","value":0.192845357}
 {"t":39991,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40000,"target":"throughput","op":"add","key":"completed","value":11}
 {"t":40000,"target":"throughput","op":"add","key":"failed"}
@@ -1190,45 +1190,45 @@
 {"t":40000,"target":"summary","op":"set","key":"Targets done","text":"6 / 12"}
 {"t":40000,"target":"summary","op":"set","key":"Targets failing","text":"4"}
 {"t":40025,"target":"lanes","op":"advance","key":"dc9","text":"Clock skew","state":"pass","value":1}
-{"t":40025,"target":"durations","op":"add","value":0.585298414962691}
+{"t":40025,"target":"durations","op":"add","value":0.585298415}
 {"t":40025,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40210,"target":"lanes","op":"advance","key":"dc10","text":"Tombstone lifetime","state":"pass","value":1}
-{"t":40210,"target":"durations","op":"add","value":1.593862556521869}
+{"t":40210,"target":"durations","op":"add","value":1.593862557}
 {"t":40210,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40226,"target":"lanes","op":"advance","key":"dc7","text":"finishing","state":"pass","value":1}
-{"t":40226,"target":"durations","op":"add","value":1.0259912553359438}
+{"t":40226,"target":"durations","op":"add","value":1.025991255}
 {"t":40226,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40247,"target":"lanes","op":"advance","key":"dc8","text":"Event log sizes","state":"skip","value":1}
-{"t":40247,"target":"durations","op":"add","value":0.6224292521981176}
+{"t":40247,"target":"durations","op":"add","value":0.622429252}
 {"t":40247,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":40293,"target":"lanes","op":"advance","key":"dc9","text":"Kerberos AES-only encryption","state":"fail","value":1}
-{"t":40293,"target":"durations","op":"add","value":0.2679798704293717}
+{"t":40293,"target":"durations","op":"add","value":0.26797987}
 {"t":40293,"target":"results","op":"add","key":"Failed","value":1}
 {"t":40293,"target":"findings","op":"add","key":"Time","value":1}
 {"t":40293,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: Clock skew failed - clock skew of 7 minutes against the PDC emulator","state":"err"}
 {"t":40306,"target":"lanes","op":"advance","key":"dc6","text":"Unconstrained delegation","state":"fail","value":1}
-{"t":40306,"target":"durations","op":"add","value":1.0133557384058711}
+{"t":40306,"target":"durations","op":"add","value":1.013355738}
 {"t":40306,"target":"results","op":"add","key":"Failed","value":1}
 {"t":40306,"target":"findings","op":"add","key":"Kerberos","value":1}
 {"t":40306,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: krbtgt password age failed - krbtgt password not changed for 812 days","state":"err"}
 {"t":40376,"target":"lanes","op":"complete","key":"dc7"}
 {"t":40434,"target":"lanes","op":"advance","key":"dc8","text":"Local administrators","state":"pass","value":1}
-{"t":40434,"target":"durations","op":"add","value":0.1863579591858386}
+{"t":40434,"target":"durations","op":"add","value":0.186357959}
 {"t":40434,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40582,"target":"lanes","op":"advance","key":"dc9","text":"krbtgt password age","state":"pass","value":1}
-{"t":40582,"target":"durations","op":"add","value":0.28908962552207934}
+{"t":40582,"target":"durations","op":"add","value":0.289089626}
 {"t":40582,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40704,"target":"lanes","op":"advance","key":"dc5","text":"Firewall profile","state":"pass","value":1}
-{"t":40704,"target":"durations","op":"add","value":0.7131398716290184}
+{"t":40704,"target":"durations","op":"add","value":0.713139872}
 {"t":40704,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40781,"target":"lanes","op":"advance","key":"dc8","text":"Firewall profile","state":"pass","value":1}
-{"t":40781,"target":"durations","op":"add","value":0.347244964217949}
+{"t":40781,"target":"durations","op":"add","value":0.347244964}
 {"t":40781,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40887,"target":"lanes","op":"advance","key":"dc5","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":40887,"target":"durations","op":"add","value":0.18280943979879635}
+{"t":40887,"target":"durations","op":"add","value":0.18280944}
 {"t":40887,"target":"results","op":"add","key":"Passed","value":1}
 {"t":40966,"target":"lanes","op":"advance","key":"dc6","text":"Audit policy baseline","state":"pass","value":1}
-{"t":40966,"target":"durations","op":"add","value":0.6601374167893624}
+{"t":40966,"target":"durations","op":"add","value":0.660137417}
 {"t":40966,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41000,"target":"throughput","op":"add","key":"completed","value":12}
 {"t":41000,"target":"throughput","op":"add","key":"failed","value":2}
@@ -1238,22 +1238,22 @@
 {"t":41000,"target":"summary","op":"set","key":"Targets done","text":"7 / 12"}
 {"t":41000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":41233,"target":"lanes","op":"advance","key":"dc8","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":41233,"target":"durations","op":"add","value":0.4521709351626319}
+{"t":41233,"target":"durations","op":"add","value":0.452170935}
 {"t":41233,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41243,"target":"lanes","op":"advance","key":"dc5","text":"PowerShell logging","state":"pass","value":1}
-{"t":41243,"target":"durations","op":"add","value":0.35607507341858835}
+{"t":41243,"target":"durations","op":"add","value":0.356075073}
 {"t":41243,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41283,"target":"lanes","op":"advance","key":"dc10","text":"Lingering objects","state":"pass","value":1}
-{"t":41283,"target":"durations","op":"add","value":1.0733278291258266}
+{"t":41283,"target":"durations","op":"add","value":1.073327829}
 {"t":41283,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41395,"target":"lanes","op":"advance","key":"dc6","text":"Event log sizes","state":"pass","value":1}
-{"t":41395,"target":"durations","op":"add","value":0.428474287119231}
+{"t":41395,"target":"durations","op":"add","value":0.428474287}
 {"t":41395,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41403,"target":"lanes","op":"advance","key":"dc5","text":"finishing","state":"pass","value":1}
-{"t":41403,"target":"durations","op":"add","value":0.15993989894695848}
+{"t":41403,"target":"durations","op":"add","value":0.159939899}
 {"t":41403,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41535,"target":"lanes","op":"advance","key":"dc8","text":"PowerShell logging","state":"pass","value":1}
-{"t":41535,"target":"durations","op":"add","value":0.3018125323446079}
+{"t":41535,"target":"durations","op":"add","value":0.301812532}
 {"t":41535,"target":"results","op":"add","key":"Passed","value":1}
 {"t":41553,"target":"lanes","op":"complete","key":"dc5"}
 {"t":42000,"target":"throughput","op":"add","key":"completed","value":6}
@@ -1264,10 +1264,10 @@
 {"t":42000,"target":"summary","op":"set","key":"Targets done","text":"8 / 12"}
 {"t":42000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":42262,"target":"lanes","op":"advance","key":"dc10","text":"DNS forwarders consistency","state":"warn","value":1}
-{"t":42262,"target":"durations","op":"add","value":0.9793731788329857}
+{"t":42262,"target":"durations","op":"add","value":0.979373179}
 {"t":42262,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":42429,"target":"lanes","op":"advance","key":"dc8","text":"finishing","state":"pass","value":1}
-{"t":42429,"target":"durations","op":"add","value":0.8934618155131824}
+{"t":42429,"target":"durations","op":"add","value":0.893461816}
 {"t":42429,"target":"results","op":"add","key":"Passed","value":1}
 {"t":42579,"target":"lanes","op":"complete","key":"dc8"}
 {"t":43000,"target":"throughput","op":"add","key":"completed","value":2}
@@ -1278,21 +1278,21 @@
 {"t":43000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":43000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":43255,"target":"lanes","op":"advance","key":"dc10","text":"DNS scavenging","state":"pass","value":1}
-{"t":43255,"target":"durations","op":"add","value":0.9929041642361588}
+{"t":43255,"target":"durations","op":"add","value":0.992904164}
 {"t":43255,"target":"results","op":"add","key":"Passed","value":1}
 {"t":43363,"target":"lanes","op":"advance","key":"dc10","text":"Root hints reachable","state":"fail","value":1}
-{"t":43363,"target":"durations","op":"add","value":0.10770179018698302}
+{"t":43363,"target":"durations","op":"add","value":0.10770179}
 {"t":43363,"target":"results","op":"add","key":"Failed","value":1}
 {"t":43363,"target":"findings","op":"add","key":"DNS","value":1}
 {"t":43363,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: DNS scavenging failed - scavenging disabled on all zones","state":"err"}
 {"t":43510,"target":"lanes","op":"advance","key":"dc10","text":"DC locator SRV records","state":"pass","value":1}
-{"t":43510,"target":"durations","op":"add","value":0.14689393821611169}
+{"t":43510,"target":"durations","op":"add","value":0.146893938}
 {"t":43510,"target":"results","op":"add","key":"Passed","value":1}
 {"t":43745,"target":"lanes","op":"advance","key":"dc9","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":43745,"target":"durations","op":"add","value":3.163156484326749}
+{"t":43745,"target":"durations","op":"add","value":3.163156484}
 {"t":43745,"target":"results","op":"add","key":"Passed","value":1}
 {"t":43981,"target":"lanes","op":"advance","key":"dc9","text":"Audit policy baseline","state":"pass","value":1}
-{"t":43981,"target":"durations","op":"add","value":0.23543242241277054}
+{"t":43981,"target":"durations","op":"add","value":0.235432422}
 {"t":43981,"target":"results","op":"add","key":"Passed","value":1}
 {"t":44000,"target":"throughput","op":"add","key":"completed","value":5}
 {"t":44000,"target":"throughput","op":"add","key":"failed","value":1}
@@ -1302,10 +1302,10 @@
 {"t":44000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":44000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":44216,"target":"lanes","op":"advance","key":"dc9","text":"Event log sizes","state":"pass","value":1}
-{"t":44216,"target":"durations","op":"add","value":0.23516608199202674}
+{"t":44216,"target":"durations","op":"add","value":0.235166082}
 {"t":44216,"target":"results","op":"add","key":"Passed","value":1}
 {"t":44745,"target":"lanes","op":"advance","key":"dc10","text":"Time source hierarchy","state":"fail","value":1}
-{"t":44745,"target":"durations","op":"add","value":1.2353247028366128}
+{"t":44745,"target":"durations","op":"add","value":1.235324703}
 {"t":44745,"target":"results","op":"add","key":"Failed","value":1}
 {"t":44745,"target":"findings","op":"add","key":"DNS","value":1}
 {"t":44745,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
@@ -1317,13 +1317,13 @@
 {"t":45000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":45000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":45656,"target":"lanes","op":"advance","key":"dc9","text":"Local administrators","state":"pass","value":1}
-{"t":45656,"target":"durations","op":"add","value":1.4395435119784497}
+{"t":45656,"target":"durations","op":"add","value":1.439543512}
 {"t":45656,"target":"results","op":"add","key":"Passed","value":1}
 {"t":45777,"target":"lanes","op":"advance","key":"dc9","text":"Firewall profile","state":"pass","value":1}
-{"t":45777,"target":"durations","op":"add","value":0.12107842926027163}
+{"t":45777,"target":"durations","op":"add","value":0.121078429}
 {"t":45777,"target":"results","op":"add","key":"Passed","value":1}
 {"t":45855,"target":"lanes","op":"advance","key":"dc10","text":"Clock skew","state":"warn","value":1}
-{"t":45855,"target":"durations","op":"add","value":1.110139996095993}
+{"t":45855,"target":"durations","op":"add","value":1.110139996}
 {"t":45855,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":46000,"target":"throughput","op":"add","key":"completed","value":3}
 {"t":46000,"target":"throughput","op":"add","key":"failed"}
@@ -1333,10 +1333,10 @@
 {"t":46000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":46000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":46081,"target":"lanes","op":"advance","key":"dc9","text":"Remote Desktop exposure","state":"pass","value":1}
-{"t":46081,"target":"durations","op":"add","value":0.3045035607213543}
+{"t":46081,"target":"durations","op":"add","value":0.304503561}
 {"t":46081,"target":"results","op":"add","key":"Passed","value":1}
 {"t":46740,"target":"lanes","op":"advance","key":"dc10","text":"Kerberos AES-only encryption","state":"pass","value":1}
-{"t":46740,"target":"durations","op":"add","value":0.8846733407055792}
+{"t":46740,"target":"durations","op":"add","value":0.884673341}
 {"t":46740,"target":"results","op":"add","key":"Passed","value":1}
 {"t":47000,"target":"throughput","op":"add","key":"completed","value":2}
 {"t":47000,"target":"throughput","op":"add","key":"failed"}
@@ -1346,10 +1346,10 @@
 {"t":47000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":47000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":47034,"target":"lanes","op":"advance","key":"dc9","text":"PowerShell logging","state":"pass","value":1}
-{"t":47034,"target":"durations","op":"add","value":0.9523717876823823}
+{"t":47034,"target":"durations","op":"add","value":0.952371788}
 {"t":47034,"target":"results","op":"add","key":"Passed","value":1}
 {"t":47354,"target":"lanes","op":"advance","key":"dc10","text":"krbtgt password age","state":"pass","value":1}
-{"t":47354,"target":"durations","op":"add","value":0.6139101164540016}
+{"t":47354,"target":"durations","op":"add","value":0.613910116}
 {"t":47354,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48000,"target":"throughput","op":"add","key":"completed","value":2}
 {"t":48000,"target":"throughput","op":"add","key":"failed"}
@@ -1359,26 +1359,26 @@
 {"t":48000,"target":"summary","op":"set","key":"Targets done","text":"9 / 12"}
 {"t":48000,"target":"summary","op":"set","key":"Targets failing","text":"5"}
 {"t":48230,"target":"lanes","op":"advance","key":"dc10","text":"Unconstrained delegation","state":"pass","value":1}
-{"t":48230,"target":"durations","op":"add","value":0.8757591095940622}
+{"t":48230,"target":"durations","op":"add","value":0.87575911}
 {"t":48230,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48233,"target":"lanes","op":"advance","key":"dc6","text":"Local administrators","state":"pass","value":1}
-{"t":48233,"target":"durations","op":"add","value":6.838579099201992}
+{"t":48233,"target":"durations","op":"add","value":6.838579099}
 {"t":48233,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48355,"target":"lanes","op":"advance","key":"dc10","text":"Audit policy baseline","state":"pass","value":1}
-{"t":48355,"target":"durations","op":"add","value":0.12576044555172988}
+{"t":48355,"target":"durations","op":"add","value":0.125760446}
 {"t":48355,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48543,"target":"lanes","op":"advance","key":"dc9","text":"finishing","state":"skip","value":1}
-{"t":48543,"target":"durations","op":"add","value":1.5094831339185}
+{"t":48543,"target":"durations","op":"add","value":1.509483134}
 {"t":48543,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":48574,"target":"lanes","op":"advance","key":"dc10","text":"Event log sizes","state":"pass","value":1}
-{"t":48574,"target":"durations","op":"add","value":0.2185738592133293}
+{"t":48574,"target":"durations","op":"add","value":0.218573859}
 {"t":48574,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48641,"target":"lanes","op":"advance","key":"dc6","text":"Firewall profile","state":"pass","value":1}
-{"t":48641,"target":"durations","op":"add","value":0.40794587040614033}
+{"t":48641,"target":"durations","op":"add","value":0.40794587}
 {"t":48641,"target":"results","op":"add","key":"Passed","value":1}
 {"t":48693,"target":"lanes","op":"complete","key":"dc9"}
 {"t":48859,"target":"lanes","op":"advance","key":"dc6","text":"Remote Desktop exposure","state":"warn","value":1}
-{"t":48859,"target":"durations","op":"add","value":0.21760978260108516}
+{"t":48859,"target":"durations","op":"add","value":0.217609783}
 {"t":48859,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":49000,"target":"throughput","op":"add","key":"completed","value":7}
 {"t":49000,"target":"throughput","op":"add","key":"failed"}
@@ -1388,16 +1388,16 @@
 {"t":49000,"target":"summary","op":"set","key":"Targets done","text":"10 / 12"}
 {"t":49000,"target":"summary","op":"set","key":"Targets failing","text":"6"}
 {"t":49101,"target":"lanes","op":"advance","key":"dc10","text":"Local administrators","state":"warn","value":1}
-{"t":49101,"target":"durations","op":"add","value":0.527141955110042}
+{"t":49101,"target":"durations","op":"add","value":0.527141955}
 {"t":49101,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":49533,"target":"lanes","op":"advance","key":"dc10","text":"Firewall profile","state":"pass","value":1}
-{"t":49533,"target":"durations","op":"add","value":0.43146561832013414}
+{"t":49533,"target":"durations","op":"add","value":0.431465618}
 {"t":49533,"target":"results","op":"add","key":"Passed","value":1}
 {"t":49663,"target":"lanes","op":"advance","key":"dc6","text":"PowerShell logging","state":"skip","value":1}
-{"t":49663,"target":"durations","op":"add","value":0.8043681158187052}
+{"t":49663,"target":"durations","op":"add","value":0.804368116}
 {"t":49663,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":49935,"target":"lanes","op":"advance","key":"dc6","text":"finishing","state":"warn","value":1}
-{"t":49935,"target":"durations","op":"add","value":0.2718759199911158}
+{"t":49935,"target":"durations","op":"add","value":0.27187592}
 {"t":49935,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":50000,"target":"throughput","op":"add","key":"completed","value":4}
 {"t":50000,"target":"throughput","op":"add","key":"failed"}
@@ -1408,13 +1408,13 @@
 {"t":50000,"target":"summary","op":"set","key":"Targets failing","text":"6"}
 {"t":50085,"target":"lanes","op":"complete","key":"dc6"}
 {"t":50088,"target":"lanes","op":"advance","key":"dc10","text":"Remote Desktop exposure","state":"skip","value":1}
-{"t":50088,"target":"durations","op":"add","value":0.5555253883020241}
+{"t":50088,"target":"durations","op":"add","value":0.555525388}
 {"t":50088,"target":"results","op":"add","key":"Skipped","value":1}
 {"t":50623,"target":"lanes","op":"advance","key":"dc10","text":"PowerShell logging","state":"pass","value":1}
-{"t":50623,"target":"durations","op":"add","value":0.5351880405656896}
+{"t":50623,"target":"durations","op":"add","value":0.535188041}
 {"t":50623,"target":"results","op":"add","key":"Passed","value":1}
 {"t":50991,"target":"lanes","op":"advance","key":"dc10","text":"finishing","state":"warn","value":1}
-{"t":50991,"target":"durations","op":"add","value":0.3678365196741186}
+{"t":50991,"target":"durations","op":"add","value":0.36783652}
 {"t":50991,"target":"results","op":"add","key":"Warnings","value":1}
 {"t":51000,"target":"throughput","op":"add","key":"completed","value":3}
 {"t":51000,"target":"throughput","op":"add","key":"failed"}
