@@ -39,6 +39,34 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public void SuspendCapture_WritesOnThatThreadGoToTheOriginalStreamNotTheLog() {
+            TextWriter originalOut = Console.Out;
+            StringWriter real = new StringWriter();
+            Console.SetOut(real);
+            try {
+                FakeLogTarget log = new FakeLogTarget();
+                LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
+                options.CaptureConsole = true;
+                using (LiveSession session = new LiveSession(log, options)) {
+                    session.Run(s => {
+                        Console.WriteLine("captured");
+                        using (LiveSession.SuspendCapture()) {
+                            // What a host hands on (the session's own lines) must not come back into the log.
+                            Console.WriteLine("handed on");
+                            Console.Error.Write(string.Empty);
+                        }
+                        Console.WriteLine("captured again");
+                    });
+                    Assert.Equal(new[] { "captured", "captured again" }, log.Events.Where(e => e.State == "out").Select(e => e.Text));
+                }
+                Assert.Contains("handed on", real.ToString());
+                Assert.DoesNotContain("captured", real.ToString());
+            } finally {
+                Console.SetOut(originalOut);
+            }
+        }
+
+        [Fact]
         public void CaptureWithoutLogTargetRetainsOutputForScrollback() {
             FakeOutput output = new FakeOutput(false);
             LiveSessionOptions options = LiveSessionTests.Options(output);

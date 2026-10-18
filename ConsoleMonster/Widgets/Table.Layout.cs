@@ -8,12 +8,13 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
-    public sealed partial class Table {
+    public partial class Table {
         private const int WordCap = 16;
 
         // With deferFit the body rows are not fitted to their column widths yet: a streaming render fits each block just before
         // drawing it and lets it go afterwards.
         private TableLayout ComputeLayout(int maxWidth, RenderContext context, bool deferFit = false) {
+            Prepare();
             PresenterContext presenter = Presentation.CreateContext(context);
             if (RecordViewRows > 0 && _rows.Count > 0 && _rows.Count <= RecordViewRows && _columns.Count > 2) {
                 return new TableLayout(TableMode.Record) { Record = BuildRecordView(presenter) };

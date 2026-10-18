@@ -1,0 +1,16 @@
++---+------+-------------+-------------------------------+-------------------------------+
+|   | Item | Property    | Before                        | After                         |
++---+------+-------------+-------------------------------+-------------------------------+
+| - | bob  | DisplayName | bob Miller                    |                               |
+|   |      | Title       | Admin                         |                               |
+|   |      | Office      | Berlin                        |                               |
+|   |      | Enabled     | True                          |                               |
+|   |      | Department  | IT                            |                               |
+|   |      | +3 more     | -PassThru or -View SideBySide |                               |
+| + | dora | DisplayName |                               | dora Miller                   |
+|   |      | Title       |                               | Analyst                       |
+|   |      | Office      |                               | Berlin                        |
+|   |      | Enabled     |                               | True                          |
+|   |      | Department  |                               | IT                            |
+|   |      | +3 more     |                               | -PassThru or -View SideBySide |
++---+------+-------------+-------------------------------+-------------------------------+

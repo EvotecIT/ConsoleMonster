@@ -12,13 +12,19 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
+using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Replay {
     /// <summary>Options for <see cref="ReplayPlayer.Play(IWidget, TextReader, ReplayOptions, CancellationToken)"/>.</summary>
     public sealed class ReplayOptions {
         private double _speed = 1;
 
-        /// <summary>The run name shown in the header (default "Replay"; <c>Show-ConsoleReplay</c> uses the file name).</summary>
+        /// <summary>
+        /// The run name shown in the header (default the recorded dashboard title, or "Replay"). A recorded
+        /// <see cref="Widgets.Dashboard"/>'s own header and footer are not replayed: its title (when it adds to this name),
+        /// subtitle and status show in the player's header.
+        /// </summary>
         public string? Title { get; set; }
 
         /// <summary>The starting speed (0.25 to 16, default 1).</summary>
@@ -84,7 +90,10 @@ namespace ConsoleMonster.Replay {
             options ??= new ReplayOptions();
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             IReadOnlyList<ReplayMarker> markers = ReplayMarker.From(events);
-            string title = string.IsNullOrEmpty(options.Title) ? "Replay" : options.Title!;
+            // A recorded dashboard's own header and footer are not replayed: the player is the one frame, and its header
+            // carries the recorded title, subtitle and status (the recorded clock is the position).
+            Dashboard? dashboard = root as Dashboard;
+            string title = !string.IsNullOrEmpty(options.Title) ? options.Title! : dashboard != null && !string.IsNullOrEmpty(dashboard.Title) ? Markup.Strip(dashboard.Title) : "Replay";
             InteractionMode mode = interactive.ResolveMode();
             if (mode != InteractionMode.Rich) {
                 WriteMarkers(title, events, markers, interactive);
@@ -96,8 +105,9 @@ namespace ConsoleMonster.Replay {
                 ITheme theme = interactive.ResolveTheme();
                 RenderContext context = Terminal.CreateContext(profile, theme);
                 int width = Math.Max(20, profile.Width);
-                int height = ScreenHeight(root, options, profile, context, width);
-                ReplayFrames frames = ReplayFrames.Capture(root, events, options, profile.WithSize(width, height), theme);
+                IWidget screen = dashboard != null ? new DashboardBody(dashboard) : root;
+                int height = ScreenHeight(screen, options, profile, context, width);
+                ReplayFrames frames = ReplayFrames.Capture(screen, events, options, profile.WithSize(width, height), theme);
                 IPromptSurface? surface = interactive.Surface;
                 bool owns = false;
                 if (surface == null) {
@@ -105,7 +115,7 @@ namespace ConsoleMonster.Replay {
                     owns = true;
                 }
                 try {
-                    ReplayView view = new ReplayView(title, frames, markers, options, labels);
+                    ReplayView view = new ReplayView(title, !string.IsNullOrEmpty(options.Title), frames, markers, options, labels);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     surface.Complete(view.Summary(context));
                 } finally {
@@ -170,6 +180,9 @@ namespace ConsoleMonster.Replay {
 
         public List<Cell[][]> Rows { get; } = new List<Cell[][]>();
 
+        /// <summary>The recorded dashboard header at each frame, or null entries when the root is not a dashboard.</summary>
+        public List<ReplayChrome?> Chrome { get; } = new List<ReplayChrome?>();
+
         public long End { get; private set; }
 
         public int Count => Times.Count;
@@ -202,7 +215,10 @@ namespace ConsoleMonster.Replay {
                 Context = Terminal.CreateContext(profile, theme)
             };
             Cell[][]? previous = null;
+            ReplayChrome? previousChrome = null;
+            Dashboard? dashboard = (root as DashboardBody)?.Dashboard;
             RecordingFrames.Sample(root, events, export, (buffer, time) => {
+                ReplayChrome? chrome = dashboard == null ? null : new ReplayChrome(dashboard.Title, dashboard.Subtitle, dashboard.Status, dashboard.StatusLevel);
                 Cell[][] rows = new Cell[buffer.Height][];
                 bool same = previous != null;
                 for (int y = 0; y < buffer.Height; y++) {
@@ -218,12 +234,14 @@ namespace ConsoleMonster.Replay {
                     rows[y] = row;
                 }
                 frames.End = Math.Max(frames.End, time);
-                if (same) {
+                if (same && Equals(chrome, previousChrome)) {
                     return;
                 }
                 frames.Times.Add(time);
                 frames.Rows.Add(rows);
+                frames.Chrome.Add(chrome);
                 previous = rows;
+                previousChrome = chrome;
             });
             return frames;
         }
@@ -238,6 +256,56 @@ namespace ConsoleMonster.Replay {
                 }
             }
             return true;
+        }
+    }
+
+    /// <summary>A recorded dashboard's header state at one frame.</summary>
+    internal sealed class ReplayChrome : IEquatable<ReplayChrome> {
+        public ReplayChrome(string title, string? subtitle, string? status, StatusKind? statusLevel) {
+            Title = title ?? string.Empty;
+            Subtitle = subtitle;
+            Status = status;
+            StatusLevel = statusLevel;
+        }
+
+        public string Title { get; }
+
+        public string? Subtitle { get; }
+
+        public string? Status { get; }
+
+        public StatusKind? StatusLevel { get; }
+
+        public bool Equals(ReplayChrome? other) => other != null && Title == other.Title && Subtitle == other.Subtitle && Status == other.Status && StatusLevel == other.StatusLevel;
+
+        public override bool Equals(object? obj) => Equals(obj as ReplayChrome);
+
+        public override int GetHashCode() => Title.GetHashCode() ^ (Status?.GetHashCode() ?? 0);
+    }
+
+    /// <summary>
+    /// A recorded dashboard without its header and footer: the body under the same one-row gap, while live events still
+    /// reach the dashboard itself (title, status) through <see cref="Children"/>.
+    /// </summary>
+    internal sealed class DashboardBody : IWidget, IContainer {
+        public DashboardBody(Dashboard dashboard) {
+            Dashboard = dashboard;
+        }
+
+        public Dashboard Dashboard { get; }
+
+        public IReadOnlyList<IWidget> Children => new IWidget[] { Dashboard };
+
+        public Size Measure(Constraints constraints, RenderContext context) {
+            Size body = Dashboard.Body.Measure(constraints.Shrink(0, 1), context);
+            int height = body.Height + 1;
+            return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
+        }
+
+        public void Render(Region region, RenderContext context) {
+            if (region.Height > 1) {
+                Dashboard.Body.Render(region.Sub(0, 1, region.Width, region.Height - 1), context);
+            }
         }
     }
 }

@@ -106,6 +106,118 @@ using (LiveSession session = new LiveSession(dashboard)) {
 }
 ```
 
+`DashboardBuilder` is the one builder: it hands live widgets back through `out` parameters for typed handles.
+
+### Three ways to write it
+
+Every widget can be written in three equivalent styles. They build the same objects and render the same output (a
+golden test checks it), so use whichever reads best for the case, and mix them freely.
+
+1. Object initializers are the canonical model, and the clearest when you set many options at once or fill rows in a loop:
+
+```csharp
+Table table = new Table { ShowTotals = true, AutoTotals = true };
+table.AddColumn(new TableColumn("Name") { IsKey = true });
+table.AddColumn(new TableColumn("Role"));
+table.AddColumn(new TableColumn("Ram") { Presenter = CellPresenters.Bytes });
+table.AddColumn(new TableColumn("Status"));
+foreach (Server server in servers) {
+    table.AddValues(server.Name, server.Role, server.Ram, server.Status);
+}
+KeyValueList summary = new KeyValueList();
+summary.AddValue("Servers", 3);
+summary.AddValue("Failed", 1);
+Sparkline cpu = new Sparkline { Label = "CPU" };
+cpu.AddRange(load);
+Terminal.Write(new Rows(
+    new Columns(
+        new Panel(table, "Servers"),
+        new Panel(new Rows(summary, cpu), "Summary")) { Gap = 1 },
+    new TextBlock("[muted]Updated 10:02[/]")) { Gap = 1 });
+```
+
+2. The fluent style uses a `With...` method for every settable property and `Add...` methods for every collection,
+   plus typed tables. It's the clearest for a widget configured in one expression:
+
+```csharp
+Terminal.Write(new Rows()
+    .WithGap(1)
+    .Add(new Columns()
+        .WithGap(1)
+        .Add(new Panel(Table.For(servers)
+            .Column(s => s.Name, c => c.WithIsKey())
+            .Column(s => s.Role)
+            .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+            .Column(s => s.Status)
+            .WithTotals(), "Servers"))
+        .Add(new Panel(new Rows()
+            .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
+            .Add(new Sparkline().WithLabel("CPU").AddRange(load)), "Summary")))
+    .Add(new TextBlock("[muted]Updated 10:02[/]")));
+```
+
+3. Nested composition uses `using static ConsoleMonster.Ui;` factories, so the code has the shape of the screen.
+   It's the clearest for layouts:
+
+```csharp
+using static ConsoleMonster.Ui;
+
+Terminal.Write(Rows(
+    Columns(
+        Panel("Servers", Table(servers)
+            .Column(s => s.Name, c => c.WithIsKey())
+            .Column(s => s.Role)
+            .Column(s => s.Ram, c => c.WithPresenter(CellPresenters.Bytes))
+            .Column(s => s.Status)
+            .WithTotals()),
+        Panel("Summary", Rows(
+            KeyValue(("Servers", 3), ("Failed", 1)),
+            Sparkline(load).WithLabel("CPU")))
+    ).WithGap(1),
+    Text("[muted]Updated 10:02[/]")
+).WithGap(1));
+```
+
+All three print:
+
+```text
+╭─ Servers ─────────────────────────────╮ ╭─ Summary ──────────────────────────────╮
+│ ╭───────┬──────┬───────┬────────╮     │ │ Servers  3                             │
+│ │ Name  │ Role │   Ram │ Status │     │ │ Failed   1                             │
+│ ├───────┼──────┼───────┼────────┤     │ │ CPU                      ▁▂▄▇▅▄▆██▅ 41 │
+│ │ web01 │ IIS  │  8 GB │ ✓ PASS │     │ │                                        │
+│ │ app01 │ App  │ 16 GB │ ▴ WARN │     │ │                                        │
+│ │ db01  │ SQL  │ 64 GB │ ✗ FAIL │     │ │                                        │
+│ ├───────┼──────┼───────┼────────┤     │ │                                        │
+│ │ Total │      │ 88 GB │        │     │ │                                        │
+│ ╰───────┴──────┴───────┴────────╯     │ │                                        │
+╰───────────────────────────────────────╯ ╰────────────────────────────────────────╯
+
+Updated 10:02
+```
+
+How the styles fit together:
+
+- **Generated methods.** `WithX(value)` sets property `X` and returns the same instance; for a bool, `WithX()` means
+  `true`. `WithX(o => ...)` configures an option object in place, for example `table.WithPresentation(p => p.Culture = culture)`.
+  For a collection `Xs`, you get `AddX(item)`, `AddXs(params items)` and `AddXs(IEnumerable)`.
+- **Typed tables.** `Table.For(items)` (or `Table(items)` from `Ui`) makes a `Table<T>`. Each `.Column(s => s.Name, c => ...)`
+  reads its header from the expression, here "Name". Without columns, every public property is a column. The rows are
+  read when the table is laid out; after the collection changes, call `Refresh()`. `WithTotals()` adds a totals row
+  that sums the numeric columns, but not the key column or identifier columns.
+- **Ui factories.** The factories are `Rows`, `Columns`, `Grid`, `Panel(title, content)`, `Fill` and `Fixed` (sizing
+  inside rows and columns), `Table`, `KeyValue`, `Text`, `Rule`, `Sparkline`, `Lanes`, `Progress`, `Status`, `Tree`
+  with `Node`, and `Dashboard`. Each one only creates the widget it names.
+- **Naming clash.** With `using static ConsoleMonster.Ui;`, write `Table(items)`, not `Table.For(items)`, because the
+  factory takes the name `Table`.
+- **How the methods are made.** A Roslyn source generator in the repository (`ConsoleMonster.Generators`) writes the
+  `With...` and `Add...` methods from each widget's public properties at build time. The generated code is compiled into
+  `ConsoleMonster.dll` itself: the generator doesn't ship as an analyzer, and nothing in it runs or reflects at run
+  time. So it works the same for net472, netstandard2.0 and net8.0 consumers on any C# version, and stays AOT and trim
+  safe.
+- **Coverage.** A coverage test fails when a public widget property has no fluent counterpart. The PowerShell cmdlets
+  map to the same object model and are unchanged.
+
 ## Tables and complex data
 
 Tables negotiate their width instead of overflowing it:
@@ -681,8 +793,10 @@ if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountNam
 `Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Property` as the matching
 key) and shows what was added, removed and changed, property by property, with nested objects by path
 (`Address.City`): added in the pass tone, removed in the fail tone, changed in the warn tone, long and multi-line values
-as line diffs. `-View` picks `Summary`, `Table`, `SideBySide` or `Unified`; `-Ignore` takes names, paths and wildcards;
-`-PassThru` returns the changes as objects instead (`ConsoleMonster.Changes.ObjectChange`).
+as line diffs. An added or removed object lists its compared properties one per line, up to six lines, then "+N more"
+(`-View SideBySide` or `-PassThru` shows them all). `-View` picks `Summary`, `Table`, `SideBySide` or `Unified`;
+`-Ignore` takes names, paths and wildcards; `-PassThru` returns the changes as objects instead
+(`ConsoleMonster.Changes.ObjectChange`, with `Values` for added and removed objects).
 
 `Show-ConsoleChanges` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
 `$false`. Changes that remove objects ask for the number of removals to be typed (or `-TypedConfirmation` text). It
@@ -701,8 +815,10 @@ Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'Wave 2'  # a marker t
 `Show-ConsoleReplay` (`ReplayPlayer.Play` in C#) plays a recording into the same dashboard and lets you move through
 it: space plays and pauses, left and right step frame by frame, `+` and `-` change the speed, PgUp and PgDn scrub,
 Home and End jump to the ends, `n`/`p` jump to markers, `f`/`F` to failures, `w`/`W` to warnings, `l`/`L` to log
-entries, and `/` searches the log text. The header shows the run name, position and speed, and the timeline shows the
-failures, warnings, markers and log entries along the run. It works full screen and inline, on Windows PowerShell 5.1
+entries, and `/` searches the log text. The player is one frame: the recorded dashboard's own header and footer are
+not replayed. Its title (the run name unless `-Title` is given), subtitle and status show in the player's header, next
+to the play state, the position and the speed. The timeline shows the failures, warnings, markers and log entries
+along the run. It works full screen and inline, on Windows PowerShell 5.1
 and PowerShell 7, in Windows Terminal and conhost; without an interactive console it prints the markers as lines.
 
 Automatic recording is opt-in: `LiveSessionOptions.AutoRecord = 10` (or `-AutoRecord 10`) writes each run to

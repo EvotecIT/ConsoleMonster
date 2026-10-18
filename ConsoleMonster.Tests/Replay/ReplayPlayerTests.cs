@@ -113,6 +113,39 @@ namespace ConsoleMonster.Tests.Replay {
         }
 
         [Fact]
+        public void Player_RecordedDashboard_ShowsOneHeaderWithItsTitleAndStatusAndNoRecordedFooter() {
+            Dashboard dashboard = new Dashboard("Nightly patch run", Dashboard());
+            List<LiveEvent> events = Events();
+            events.Add(new LiveEvent("dashboard", "status", text: "2 failed", state: "fail", time: 1700));
+            ScreenCapture capture = new ScreenCapture(100, 14);
+            InteractiveOptions interactive = new InteractiveOptions { Mode = InteractionMode.Rich, Input = new ScriptedInput("End q") { Paced = true }, Capture = capture, Theme = Theme.Dark, Profile = TerminalProfile.Fixed(100, 14, ColorDepth.None, GlyphTier.Full) };
+            ReplayPlayer.Play(dashboard, events, new ReplayOptions { Title = "Nightly patch run - 17 Oct", AutoPlay = false, Interactive = interactive });
+            string[] lines = ConsoleExporter.ToText(capture.LastFrame!).Split('\n');
+
+            Assert.Contains("Nightly patch run - 17 Oct", lines[0]);
+            Assert.Contains("2 failed", lines[0]);
+            Assert.Contains("paused", lines[0]);
+            Assert.Single(lines, l => l.Contains("Nightly patch run"));
+            Assert.DoesNotContain(lines, l => l.Contains("ctrl+c"));
+            Assert.Contains(lines, l => l.Contains("Compile"));
+            Assert.Contains("0:01.8 / 0:01.8", lines[0]);
+        }
+
+        [Fact]
+        public void Player_RecordedDashboardWithoutTitleOption_UsesTheRecordedTitle() {
+            Dashboard dashboard = new Dashboard("Nightly patch run", Dashboard()) { Subtitle = "ring 1" };
+            ScreenCapture capture = new ScreenCapture(70, 14);
+            InteractiveOptions interactive = new InteractiveOptions { Mode = InteractionMode.Rich, Input = new ScriptedInput("q") { Paced = true }, Capture = capture, Theme = Theme.Dark, Profile = TerminalProfile.Fixed(70, 14, ColorDepth.None, GlyphTier.Full) };
+            ReplayPlayer.Play(dashboard, Events(), new ReplayOptions { AutoPlay = false, Interactive = interactive });
+            string[] lines = ConsoleExporter.ToText(capture.LastFrame!).Split('\n');
+
+            Assert.Contains("Nightly patch run", lines[0]);
+            Assert.Contains("ring 1", lines[0]);
+            Assert.DoesNotContain("Replay", lines[0]);
+            Assert.Single(lines, l => l.Contains("Nightly patch run"));
+        }
+
+        [Fact]
         public void Player_WithoutInteractiveConsole_PrintsTheMarkers() {
             LineCapture lines = new LineCapture();
             ReplayPlayer.Play(Dashboard(), Events(), new ReplayOptions { Title = "nightly", Interactive = new InteractiveOptions { Mode = InteractionMode.None, LineConsole = lines } });

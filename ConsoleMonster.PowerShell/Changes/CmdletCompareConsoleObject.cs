@@ -78,7 +78,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 return;
             }
-            PSFormatting.Write(this, new ChangeView(changes, View) { Title = PSText.Markup(Title) }, 0);
+            PSFormatting.Write(this, new ChangeView(changes, View) { Title = PSText.Markup(Title), MoreHint = "-PassThru or -View SideBySide" }, 0);
         }
     }
 
@@ -137,7 +137,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             ChangeSet changes = PSChanges.Compare(Before, After, Property, null, Ignore, 3, false);
             ChangePreviewOptions options = new ChangePreviewOptions { Title = PSText.Markup(Title), Mode = View, Question = Question, TypedConfirmation = TypedConfirmation };
-            PSFormatting.Write(this, new ChangeView(changes, View) { Title = options.Title }, 0);
+            PSFormatting.Write(this, new ChangeView(changes, View) { Title = options.Title, MoreHint = "-View SideBySide" }, 0);
             if (!changes.HasChanges) {
                 HostOutput.WriteMarkup(this, "[muted]" + Text.Markup.Escape(Localization.WidgetLabels.Current.ChangesNone) + "[/]");
                 WriteObject(false);

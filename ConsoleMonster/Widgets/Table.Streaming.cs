@@ -4,7 +4,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 
 namespace ConsoleMonster.Widgets {
-    public sealed partial class Table {
+    public partial class Table {
         /// <summary>
         /// What a streaming layout learns from each row while it is measured: the column widths it wants and needs, the key
         /// column's widths (for the comfortable key width) and how many values align right (automatic alignment).

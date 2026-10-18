@@ -1,6 +1,12 @@
 Domain users
 
-- bob  Title: Admin; Enabled: True
+ - bob
+╭──────────┬────────┬───────╮
+│ Property │ Before │ After │
+├──────────┼────────┼───────┤
+│ Title    │ Admin  │       │
+│ Enabled  │ True   │       │
+╰──────────┴────────┴───────╯
 
  ~ anna
 ╭──────────────┬──────────┬───────────────╮
@@ -10,4 +16,10 @@ Domain users
 │ Address.City │ Warsaw   │ Krakow        │
 ╰──────────────┴──────────┴───────────────╯
 
-+ dora  Title: Analyst; Enabled: True
+ + dora
+╭──────────┬────────┬─────────╮
+│ Property │ Before │ After   │
+├──────────┼────────┼─────────┤
+│ Title    │        │ Analyst │
+│ Enabled  │        │ True    │
+╰──────────┴────────┴─────────╯

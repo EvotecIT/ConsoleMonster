@@ -50,8 +50,13 @@ namespace ConsoleMonster.PowerShell {
                     }
                 }
             }
-            while (_lines.TryDequeue(out string? line)) {
-                HostOutput.WriteHostLine(cmdlet, line);
+            // The console host writes information records through Console.Out when output is redirected; the session
+            // captures Console.Out into its log, so without the suspension every drained line would come back as a log
+            // line, be drawn and drained again on every poll.
+            using (Live.LiveSession.SuspendCapture()) {
+                while (_lines.TryDequeue(out string? line)) {
+                    HostOutput.WriteHostLine(cmdlet, line);
+                }
             }
         }
 

@@ -34,7 +34,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 1)]
         public string? Path { get; set; }
 
-        /// <summary><para type="description">The run name in the header (default the file name).</para></summary>
+        /// <summary><para type="description">The run name in the header (default the recorded dashboard title, or the file name for other widget trees). A recorded dashboard's own header and footer are not replayed: its title, subtitle and status show in the player's header.</para></summary>
         [Parameter]
         public string? Title { get; set; }
 
@@ -64,7 +64,8 @@ namespace ConsoleMonster.PowerShell {
                 interactive.LineConsole = new HostLineConsole(Host.UI);
             }
             ReplayOptions options = new ReplayOptions {
-                Title = Title ?? System.IO.Path.GetFileNameWithoutExtension(path),
+                // A dashboard's own (recorded) title names the run; other widget trees use the file name.
+                Title = Title ?? (Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path)),
                 Speed = Speed,
                 Inline = Inline.IsPresent,
                 AutoPlay = !Paused.IsPresent,

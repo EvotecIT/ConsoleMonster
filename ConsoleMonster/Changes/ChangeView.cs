@@ -69,6 +69,15 @@ namespace ConsoleMonster.Changes {
         /// <summary>Values longer than this many cells (or with line breaks) show as a line diff instead of in the table (default 60).</summary>
         public int LongValue { get; set; } = 60;
 
+        /// <summary>
+        /// The most lines an added or removed object takes in the table, one per compared property (default 6, 0 for no
+        /// limit); beyond it the last line says "+N more" with <see cref="MoreHint"/>. The side-by-side view lists all.
+        /// </summary>
+        public int MaxProperties { get; set; } = 6;
+
+        /// <summary>Plain text after "+N more" saying where to see every value (Show-ConsoleChanges: "-PassThru or -View SideBySide"), or null.</summary>
+        public string? MoreHint { get; set; }
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) => Build(context).Measure(constraints, context);
 
@@ -164,10 +173,8 @@ namespace ConsoleMonster.Changes {
                 string key = Markup.Escape(change.Key);
                 switch (change.Kind) {
                     case ChangeKind.Added:
-                        table.AddRow(marker, Tone(change.Kind, key), "", "", "[pass]" + Markup.Escape(Clip(Describe(change))) + "[/]");
-                        break;
                     case ChangeKind.Removed:
-                        table.AddRow(marker, Tone(change.Kind, key), "", "[fail]" + Markup.Escape(Clip(Describe(change))) + "[/]", "");
+                        AddObjectRows(table, change, marker, key);
                         break;
                     case ChangeKind.Unchanged:
                         table.AddRow(marker, "[muted]" + key + "[/]", "", "", "");
@@ -187,6 +194,34 @@ namespace ConsoleMonster.Changes {
             return table;
         }
 
+        // An added or removed object: one line per compared property (the value on its side, the other side empty), at most
+        // MaxProperties lines, then "+N more" and the hint. A simple value keeps one line.
+        private void AddObjectRows(Table table, ObjectChange change, string marker, string key) {
+            bool added = change.Kind == ChangeKind.Added;
+            string tone = added ? "pass" : "fail";
+            if (change.Values.Count == 0) {
+                string value = "[" + tone + "]" + Markup.Escape(Clip(Describe(change))) + "[/]";
+                table.AddRow(marker, Tone(change.Kind, key), "", added ? "" : value, added ? value : "");
+                return;
+            }
+            int shown = change.Values.Count;
+            if (MaxProperties > 0 && shown > MaxProperties) {
+                // The "+N more" line takes the place of the last property, so the object never grows past MaxProperties lines.
+                shown = MaxProperties - 1;
+            }
+            for (int i = 0; i < shown; i++) {
+                PropertyChange property = change.Values[i];
+                string value = "[" + tone + "]" + Markup.Escape(Clip(ObjectDiff.Text(added ? property.After : property.Before))) + "[/]";
+                table.AddRow(i == 0 ? marker : "", i == 0 ? Tone(change.Kind, key) : "", Markup.Escape(property.Path), added ? "" : value, added ? value : "");
+            }
+            int more = change.Values.Count - shown;
+            if (more > 0) {
+                string count = "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.MoreCount, more.ToString(CultureInfo.InvariantCulture))) + "[/]";
+                string hint = string.IsNullOrEmpty(MoreHint) ? "" : "[muted]" + Markup.Escape(MoreHint) + "[/]";
+                table.AddRow(shown == 0 ? marker : "", shown == 0 ? Tone(change.Kind, key) : "", count, added ? "" : hint, added ? hint : "");
+            }
+        }
+
         private IEnumerable<IWidget> LongDiffs() {
             foreach (ObjectChange change in Changes.Changes.Where(c => c.Kind == ChangeKind.Changed)) {
                 foreach (PropertyChange property in change.Properties.Where(p => IsLong(p.Before) || IsLong(p.After))) {
@@ -202,15 +237,18 @@ namespace ConsoleMonster.Changes {
                 if (change.Kind == ChangeKind.Unchanged) {
                     continue;
                 }
-                if (change.Kind != ChangeKind.Changed) {
-                    // Added and removed objects have one side only: their key and a short description.
+                if (change.Kind != ChangeKind.Changed && change.Values.Count == 0) {
+                    // A simple added or removed value: its key and the value.
                     yield return new TextBlock(Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)) + "  [muted]" + Markup.Escape(Clip(Describe(change))) + "[/]");
                     continue;
                 }
                 Table table = new Table { Title = Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)), Border = TableBorder.Rounded };
                 table.AddColumn(Markup.Escape(_labels.ChangesProperty)).AddColumn(Markup.Escape(_labels.ChangesBefore)).AddColumn(Markup.Escape(_labels.ChangesAfter));
-                foreach (PropertyChange property in change.Properties) {
-                    table.AddRow(Markup.Escape(property.Path), "[fail]" + Markup.Escape(ObjectDiff.Text(property.Before)) + "[/]", "[pass]" + Markup.Escape(ObjectDiff.Text(property.After)) + "[/]");
+                // Every property: changed ones with both sides, an added or removed object's with its one side.
+                foreach (PropertyChange property in change.Kind == ChangeKind.Changed ? change.Properties : change.Values) {
+                    string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(ObjectDiff.Text(property.Before)) + "[/]";
+                    string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(ObjectDiff.Text(property.After)) + "[/]";
+                    table.AddRow(Markup.Escape(property.Path), before, after);
                 }
                 yield return table;
             }

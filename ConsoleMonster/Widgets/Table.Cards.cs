@@ -5,7 +5,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
-    public sealed partial class Table {
+    public partial class Table {
         // A single row reads better as a sheet of labelled values than as a one-line table.
         private RecordView BuildRecordView(PresenterContext presenter) {
             PresenterContext[] contexts = ColumnContexts(presenter);
