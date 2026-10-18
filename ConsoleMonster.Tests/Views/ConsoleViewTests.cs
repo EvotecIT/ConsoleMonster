@@ -14,6 +14,23 @@ using Xunit;
 namespace ConsoleMonster.Tests.Views {
     /// <summary>The automatic view choice and the presenters picked by member name and type.</summary>
     public sealed class ConsoleViewTests {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(3)]
+        public void Tree_HonorsRequestedDepth(int depth) {
+            Folder root = new Folder { Name = "level1" };
+            Folder current = root;
+            for (int i = 2; i <= 12; i++) {
+                Folder child = new Folder { Name = "level" + i };
+                current.Children.Add(child);
+                current = child;
+            }
+            Tree tree = ConsoleView.BuildTree(new object?[] { root }, new ConsoleViewOptions { Depth = depth });
+            string text = TestTerminal.RenderText(tree, 80, glyphs: GlyphTier.Ascii);
+            Assert.Contains("level" + depth, text);
+            Assert.DoesNotContain("level" + (depth + 1), text);
+        }
+
         public enum ServiceState { Stopped, StartPending, Running }
 
         public enum Colour { Red, Green }

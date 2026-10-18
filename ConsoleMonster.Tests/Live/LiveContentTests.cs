@@ -13,6 +13,51 @@ using Xunit;
 namespace ConsoleMonster.Tests.Live {
     /// <summary>Replaceable regions (Slot) and keyed live tables.</summary>
     public sealed class LiveContentTests {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Region_ReplacementAndClearReconcileLogRouting(bool explicitTarget) {
+            LogRegion original = new LogRegion("log");
+            LogRegion replacement = new LogRegion("log");
+            Slot slot = new Slot("main", original);
+            RecordingTarget output = TestTerminal.Target(60);
+            using (LiveSession session = new LiveSession(slot, new LiveSessionOptions {
+                Target = output, CaptureConsole = false, HandleCancelKey = false,
+                LogTarget = explicitTarget ? "log" : null
+            })) {
+                session.Region("main").Set(replacement);
+                session.Write("replacement message");
+                session.Start();
+                session.Stop();
+                Assert.True(session.TryGetTarget("$log", out ILiveTarget? selected));
+                Assert.Same(replacement, selected);
+                Assert.Contains("replacement message", TestTerminal.RenderText(replacement, 60));
+                Assert.DoesNotContain("replacement message", TestTerminal.RenderText(original, 60));
+            }
+            using (LiveSession session = Session(output, slot)) {
+                session.Region("main").Clear();
+                session.Start();
+                session.Stop();
+                Assert.False(session.TryGetTarget("$log", out _));
+                Assert.False(session.TryGetTarget("log", out _));
+            }
+        }
+
+        [Fact]
+        public void Region_CanIntroduceTheFirstLogTarget() {
+            LogRegion log = new LogRegion("log");
+            Slot slot = new Slot("main", new TextBlock("waiting"));
+            using (LiveSession session = Session(TestTerminal.Target(60), slot)) {
+                session.Region("main").Set(log);
+                session.Write("first log message");
+                session.Start();
+                session.Stop();
+                Assert.True(session.TryGetTarget("$log", out ILiveTarget? selected));
+                Assert.Same(log, selected);
+                Assert.Contains("first log message", TestTerminal.RenderText(log, 60));
+            }
+        }
+
         private static LiveSession Session(RecordingTarget target, IWidget root) {
             return new LiveSession(root, new LiveSessionOptions { Target = target, CaptureConsole = false, HandleCancelKey = false, StreamTimestamps = false });
         }

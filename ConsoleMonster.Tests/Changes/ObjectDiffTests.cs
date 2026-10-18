@@ -11,6 +11,23 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Changes {
     public sealed class ObjectDiffTests {
+        [Fact]
+        public void CompareObjects_PreservesNumericPrecision() {
+            Assert.Single(ObjectDiff.CompareObjects(9007199254740992L, 9007199254740993L));
+            Assert.Single(ObjectDiff.CompareObjects(1.0000000000000000000000000000m, 1.0000000000000000000000000001m));
+            Assert.Empty(ObjectDiff.CompareObjects(42, 42L));
+            Assert.Empty(ObjectDiff.CompareObjects(42m, 42UL));
+            Assert.Single(ObjectDiff.CompareObjects(9007199254740993L, 9007199254740992d));
+        }
+
+        [Fact]
+        public void CompareObjects_CollectionIdentityIncludesBoundariesAndObjectValues() {
+            Assert.Single(ObjectDiff.CompareObjects(new { Values = new[] { "a, b" } }, new { Values = new[] { "a", "b" } }));
+            Assert.Single(ObjectDiff.CompareObjects(new { Values = new[] { new Address { City = "Warsaw" } } }, new { Values = new[] { new Address { City = "Berlin" } } }));
+            Assert.Empty(ObjectDiff.CompareObjects(new { Values = new[] { new Address { City = "Warsaw" } } }, new { Values = new[] { new Address { City = "Warsaw" } } }, new DiffOptions { Depth = 4 }));
+            Assert.Single(ObjectDiff.CompareObjects(new[] { "a, b" }, new[] { "a", "b" }, new DiffOptions { Depth = 0 }));
+        }
+
         private sealed class Address {
             public string City { get; set; } = string.Empty;
             public string Street { get; set; } = string.Empty;

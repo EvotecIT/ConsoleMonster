@@ -295,7 +295,7 @@ namespace ConsoleMonster.Changes {
                 return;
             }
             if (IsCollection(before) || IsCollection(after)) {
-                if (!string.Equals(Text(before), Text(after), StringComparison.Ordinal)) {
+                if (!CollectionsEqual(before, after, options, depth)) {
                     changes.Add(new PropertyChange(path.Length == 0 ? "(value)" : path, before, after));
                 }
                 return;
@@ -417,9 +417,31 @@ namespace ConsoleMonster.Changes {
                 return true;
             }
             if (IsNumber(a) && IsNumber(b)) {
-                return Convert.ToDouble(a, CultureInfo.InvariantCulture).Equals(Convert.ToDouble(b, CultureInfo.InvariantCulture));
+                // Integral and decimal values share an exact decimal representation. Floating-point values only
+                // compare across float/double; mixing them with fixed precision must not hide a rounded value.
+                bool floatingA = a is double || a is float;
+                bool floatingB = b is double || b is float;
+                if (floatingA != floatingB) { return false; }
+                if (floatingA) {
+                    return Convert.ToDouble(a, CultureInfo.InvariantCulture).Equals(Convert.ToDouble(b, CultureInfo.InvariantCulture));
+                }
+                return Convert.ToDecimal(a, CultureInfo.InvariantCulture) == Convert.ToDecimal(b, CultureInfo.InvariantCulture);
             }
-            return string.Equals(Text(a), Text(b), StringComparison.Ordinal) && a.GetType() == b.GetType();
+            return false;
+        }
+
+        private static bool CollectionsEqual(object? before, object? after, DiffOptions options, int depth) {
+            if (!IsCollection(before) || !IsCollection(after)) { return false; }
+            using (IEnumerator<object?> left = Items(before).GetEnumerator())
+            using (IEnumerator<object?> right = Items(after).GetEnumerator()) {
+                while (left.MoveNext()) {
+                    if (!right.MoveNext()) { return false; }
+                    List<PropertyChange> itemChanges = new List<PropertyChange>();
+                    CompareInto(itemChanges, string.Empty, left.Current, right.Current, options, depth + 1);
+                    if (itemChanges.Count > 0) { return false; }
+                }
+                return !right.MoveNext();
+            }
         }
 
         private static bool IsLeaf(object? value) => value == null || ObjectInspector.IsScalarValue(value);

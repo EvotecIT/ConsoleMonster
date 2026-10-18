@@ -181,7 +181,7 @@ namespace ConsoleMonster.Live {
                 if (string.IsNullOrEmpty(target.Name) || target.Name == "$log" || !_targets.TryAdd(target.Name, target)) {
                     throw new ArgumentException("Target names must be unique, nonempty, and must not be '$log'.", nameof(target));
                 }
-                if (target is ILogTarget) { _logTargets.Add(target); }
+                if (target is ILogTarget) { lock (_logTargets) { _logTargets.Add(target); } }
                 if (_logTarget == null && target is ILogTarget && (_options.LogTarget == null || _options.LogTarget == target.Name)) {
                     Volatile.Write(ref _logTarget, target);
                 }
@@ -206,10 +206,25 @@ namespace ConsoleMonster.Live {
         // Live widgets inside newly shown content join the session, replacing older widgets with the same names.
         private void Adopt(IWidget widget) {
             if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name) && target.Name != "$log") {
+                lock (_logTargets) {
+                    if (_targets.TryGetValue(target.Name, out ILiveTarget? previous)) { _logTargets.Remove(previous); }
+                    if (target is ILogTarget) { _logTargets.Add(target); }
+                }
                 _targets[target.Name] = target;
             }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) { Adopt(child); }
+            }
+        }
+
+        // Removed content must stop receiving both named updates and the reserved log alias.
+        private void Detach(IWidget widget) {
+            if (widget is ILiveTarget target) {
+                ((ICollection<KeyValuePair<string, ILiveTarget>>)_targets).Remove(new KeyValuePair<string, ILiveTarget>(target.Name, target));
+                lock (_logTargets) { _logTargets.Remove(target); }
+            }
+            if (widget is IContainer container) {
+                foreach (IWidget child in container.Children) { Detach(child); }
             }
         }
 
@@ -306,10 +321,12 @@ namespace ConsoleMonster.Live {
 
         private void ResolveLogTarget() {
             ILiveTarget? selected = null;
-            foreach (ILiveTarget candidate in _logTargets) {
-                if (_options.LogTarget == null || candidate.Name == _options.LogTarget) { selected = candidate; break; }
+            lock (_logTargets) {
+                foreach (ILiveTarget candidate in _logTargets) {
+                    if (_options.LogTarget == null || candidate.Name == _options.LogTarget) { selected = candidate; break; }
+                }
+                Volatile.Write(ref _logTarget, selected);
             }
-            Volatile.Write(ref _logTarget, selected);
         }
     }
 }

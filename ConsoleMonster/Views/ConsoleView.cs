@@ -268,7 +268,7 @@ namespace ConsoleMonster.Views {
             List<InspectMember> members = Members(item, options).ToList();
             string label = Label(item, members, child);
             TreeNode node = parent.Add(Markup.Escape(label));
-            if (child == null || depth + 1 >= options.Depth + 8) {
+            if (child == null || depth + 1 >= options.Depth) {
                 return;
             }
             InspectMember? children = members.FirstOrDefault(member => string.Equals(member.Name, child, StringComparison.OrdinalIgnoreCase));
