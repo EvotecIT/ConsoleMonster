@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Player lifecycle regression checks</title>
+<style>body{font:16px system-ui;max-width:900px;margin:32px auto}li{padding:6px}.pass{color:green}.fail{color:#b00}</style>
+<h1>Player lifecycle regression checks</h1><ul id="results"></ul><div id="fixture"></div>
+<script src="../../ConsoleMonster/Export/Assets/player.js"></script>
+<script>
+(async function () {
+  const api = window.ConsoleMonsterPlayer;
+  const fixture = document.getElementById('fixture');
+  const results = document.getElementById('results');
+  const data = {format:'consolemonster-player',version:1,width:8,height:1,fps:10,duration:1000,chrome:false,rows:['first','second'],frames:[[0,[0]],[500,[1]]]};
+  function assert(ok, name) {
+    const result=document.createElement('li'); result.className=ok?'pass':'fail'; result.textContent=(ok?'PASS: ':'FAIL: ')+name; results.appendChild(result);
+    if (!ok) throw new Error(name);
+  }
+  try {
+    const host=document.createElement('div'); fixture.appendChild(host);
+    const old=api.mount(host,data); old.setVisible(true); old.destroy();
+    const current=api.mount(host,data); current.setVisible(true);
+    host.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true}));
+    assert(api.players.length===1 && host.querySelectorAll('.cm-controls').length===1 && host.querySelector('.cm-play').textContent==='Pause','destroy/remount keeps one player and one keyboard handler');
+    current.pause(); old.play();
+    assert(host.querySelector('.cm-play').textContent==='Play','a destroyed instance cannot restart');
+    current.destroy();
+    const source=document.createElement('script'); source.type='application/json'; source.id='recording'; source.textContent=JSON.stringify(data); fixture.appendChild(source);
+    host.setAttribute('data-cm-recording','#recording');
+    api.scan(fixture); const scanned=host.__cmPlayer; scanned.destroy(); api.scan(fixture);
+    assert(host.__cmPlayer && host.__cmPlayer!==scanned && !host.__cmLoading && api.players.length===1,'scan/destroy/scan remounts successfully');
+    host.__cmPlayer.destroy();
+    const originalFetch=window.fetch; let release;
+    window.fetch=()=>new Promise(resolve=>{release=resolve;});
+    host.setAttribute('data-cm-recording','pending.json'); api.scan(fixture);
+    const manual=api.mount(host,data); manual.destroy();
+    host.setAttribute('data-cm-recording','#recording'); api.scan(fixture); const replacement=host.__cmPlayer;
+    release({ok:true,json:()=>Promise.resolve(data)});
+    await new Promise(resolve=>setTimeout(resolve,30)); window.fetch=originalFetch;
+    assert(host.__cmPlayer===replacement && api.players.length===1 && !host.__cmLoading,'an obsolete pending fetch cannot replace a new player');
+    replacement.destroy();
+    assert(api.players.length===0 && host.querySelectorAll('.cm-controls').length===0,'teardown releases the registry and generated controls');
+    document.title='PASS: Player lifecycle regression checks';
+  } catch(error) { document.title='FAIL: Player lifecycle regression checks'; console.error(error); }
+})();
+</script></html>
