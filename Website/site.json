@@ -143,7 +143,28 @@
         }
       ]
     },
-    "MarkdownNegotiation": true
+    "ApiCatalog": {
+      "Enabled": true,
+      "Entries": [
+        {
+          "Anchor": "/api/",
+          "ServiceDesc": "/api/index.json",
+          "ServiceDoc": "/api/",
+          "Title": "ConsoleMonster .NET API"
+        },
+        {
+          "Anchor": "/powershell/commands/",
+          "ServiceDesc": "/powershell/commands/index.json",
+          "ServiceDoc": "/powershell/commands/",
+          "Title": "ConsoleMonster PowerShell commands"
+        }
+      ]
+    },
+    "MarkdownArtifacts": {
+      "Enabled": true,
+      "MaxPages": 0
+    },
+    "MarkdownNegotiation": false
   },
   "EditLinks": {
     "Enabled": true,
