@@ -126,6 +126,7 @@
     },
     {
       "task": "sitemap",
+      "includeTextFiles": false,
       "id": "sitemap",
       "dependsOn": ["build-site", "build-apidocs", "build-powershell-commands"],
       "config": "./site.json",
