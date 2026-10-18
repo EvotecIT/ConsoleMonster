@@ -129,6 +129,14 @@
       "excludePatterns": ["frames/**", "replays/**", "recordings/**", "site/**"]
     },
     {
+      "task": "agent-ready",
+      "id": "prepare-site-discovery",
+      "operation": "prepare",
+      "dependsOn": ["sitemap", "build-llms"],
+      "config": "./site.json",
+      "siteRoot": "./_site"
+    },
+    {
       "task": "verify",
       "id": "verify-dev",
       "dependsOn": ["build-site", "build-apidocs", "build-powershell-commands"],
@@ -194,7 +202,7 @@
     {
       "task": "optimize",
       "id": "optimize-site",
-      "dependsOn": ["build-site", "build-llms", "build-apidocs", "build-powershell-commands", "sitemap", "seo-doctor-ci", "verify-ci", "audit-ci"],
+      "dependsOn": ["build-site", "build-llms", "build-apidocs", "build-powershell-commands", "sitemap", "prepare-site-discovery", "seo-doctor-ci", "verify-ci", "audit-ci"],
       "modes": ["ci"],
       "siteRoot": "./_site",
       "config": "./site.json",
@@ -238,6 +246,16 @@
       "checkAgentContentSecurity": false,
       "rendered": false,
       "exclude": "frames/**,replays/**,recordings/**,site/**"
+    },
+    {
+      "task": "agent-ready",
+      "id": "verify-site-discovery-ci",
+      "operation": "verify",
+      "dependsOn": "optimize-site",
+      "modes": ["ci"],
+      "config": "./site.json",
+      "siteRoot": "./_site",
+      "failOnFailures": true
     }
   ]
 }
