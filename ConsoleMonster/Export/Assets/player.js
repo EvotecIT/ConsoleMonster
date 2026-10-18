@@ -65,6 +65,8 @@
         var want = false, playing = false, visible = !observer, autoplayed = false;
         var current = [];
         var lines = [];
+        var destroyed = false;
+        var originalChildren = Array.prototype.slice.call(host.childNodes);
 
         host.__cmPlayer = self;
         host.setAttribute('data-cm-player', String(id));
@@ -221,6 +223,7 @@
         }
 
         self.play = function () {
+            if (destroyed) { return; }
             if (t >= total) {
                 t = 0;
                 draw();
@@ -237,6 +240,7 @@
         };
 
         self.seek = function (ms) {
+            if (destroyed) { return; }
             var now = performance.now();
             advance(now);
             t = Math.max(0, Math.min(total, ms));
@@ -250,6 +254,7 @@
         };
 
         self.setVisible = function (value) {
+            if (destroyed) { return; }
             visible = value;
             if (!visible) {
                 suspend();
@@ -272,6 +277,8 @@
         };
 
         self.destroy = function () {
+            if (destroyed) { return; }
+            destroyed = true;
             want = false;
             suspend();
             if (observer) {
@@ -283,6 +290,14 @@
             }
             if (autoplayOwner === self) { autoplayOwner = null; }
             if (host.__cmPlayer === self) { delete host.__cmPlayer; }
+            delete host.__cmLoading;
+            host.removeEventListener('keydown', onKeyDown);
+            screen.remove();
+            Array.prototype.slice.call(host.childNodes).forEach(function (child) {
+                if (originalChildren.indexOf(child) < 0) { child.remove(); }
+            });
+            host.classList.remove('cm-export', 'cm-player-host');
+            host.removeAttribute('data-cm-player');
         };
 
         self.element = host;
@@ -307,7 +322,7 @@
                 schedule(now);
             }
         });
-        host.addEventListener('keydown', function (e) {
+        function onKeyDown(e) {
             if (e.target === seek || e.target === rate || e.target === play) {
                 return;
             }
@@ -321,7 +336,8 @@
                 e.preventDefault();
                 self.seek(e.key === 'Home' ? 0 : total);
             }
-        });
+        }
+        host.addEventListener('keydown', onKeyDown);
 
         var start = parseFloat(host.getAttribute('data-cm-start') || '');
         if (!isNaN(start)) {
@@ -359,7 +375,8 @@
         if (host.__cmPlayer || host.__cmLoading) {
             return;
         }
-        host.__cmLoading = true;
+        var loading = {};
+        host.__cmLoading = loading;
         var hash = /[#&]t=(\d+)/.exec(location.hash);
         if (hash && !host.hasAttribute('data-cm-start') && document.querySelectorAll('[data-cm-recording]').length === 1) {
             host.setAttribute('data-cm-start', hash[1]);
@@ -372,6 +389,7 @@
             } catch (e) {
                 fail(host, e.message);
             }
+            delete host.__cmLoading;
             return;
         }
         fetch(source).then(function (response) {
@@ -380,8 +398,12 @@
             }
             return response.json();
         }).then(function (data) {
+            if (host.__cmLoading !== loading) { return; }
+            delete host.__cmLoading;
             mount(host, data);
         }, function (e) {
+            if (host.__cmLoading !== loading) { return; }
+            delete host.__cmLoading;
             fail(host, e.message);
         });
     }
