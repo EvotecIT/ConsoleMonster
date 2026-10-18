@@ -170,6 +170,15 @@
         "Css": [
           "/themes/consolemonster/assets/docs.css"
         ]
+      },
+      {
+        "Name": "replays",
+        "Css": [
+          "/assets/player/player.css"
+        ],
+        "Js": [
+          "/assets/player/player.js"
+        ]
       }
     ],
     "RouteBundles": [
@@ -182,6 +191,7 @@
       {
         "Match": "/",
         "Bundles": [
+          "replays",
           "home",
           "pages"
         ]
@@ -201,12 +211,14 @@
       {
         "Match": "/live/**",
         "Bundles": [
+          "replays",
           "pages"
         ]
       },
       {
         "Match": "/interactive/**",
         "Bundles": [
+          "replays",
           "pages"
         ]
       },

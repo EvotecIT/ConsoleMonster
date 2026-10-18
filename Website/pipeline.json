@@ -6,6 +6,25 @@
   "profilePath": "./_reports/pipeline-profile.json",
   "steps": [
     {
+      "task": "exec",
+      "id": "test-site-frames",
+      "modes": ["ci"],
+      "command": "dotnet",
+      "argsList": ["test", "tools/SiteFrames.Tests/SiteFrames.Tests.csproj", "-c", "Release", "--nologo"],
+      "workingDirectory": ".",
+      "timeoutSeconds": 180
+    },
+    {
+      "task": "exec",
+      "id": "verify-site-frames",
+      "modes": ["ci"],
+      "dependsOn": "test-site-frames",
+      "command": "pwsh",
+      "argsList": ["-NoProfile", "-File", "./build/Test-SiteFrames.ps1"],
+      "workingDirectory": ".",
+      "timeoutSeconds": 240
+    },
+    {
       "task": "engine-lock",
       "id": "engine-lock-ci",
       "modes": ["ci"],
@@ -19,6 +38,7 @@
     {
       "task": "build",
       "id": "build-site",
+      "dependsOn": "verify-site-frames",
       "config": "./site.json",
       "out": "./_site",
       "clean": true

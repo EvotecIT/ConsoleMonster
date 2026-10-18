@@ -26,6 +26,7 @@
       var trigger = triggerOf(group);
       var links = Array.prototype.slice.call(group.querySelectorAll('.cm-navitem__link'));
       trigger.addEventListener('click', function () {
+        if (compact.matches) return;
         var open = trigger.getAttribute('aria-expanded') !== 'true';
         if (!compact.matches) closeAll(group);
         setOpen(group, open);
@@ -55,7 +56,10 @@
     document.addEventListener('click', function (event) {
       if (!compact.matches && !header.contains(event.target)) closeAll(null);
     });
-    var reset = function () { groups.forEach(function (group) { setOpen(group, compact.matches); }); };
+    var reset = function () { groups.forEach(function (group) {
+      setOpen(group, compact.matches);
+      triggerOf(group).disabled = compact.matches;
+    }); };
     if (compact.addEventListener) compact.addEventListener('change', reset);
     reset();
     var toggle = document.getElementById('cm-nav-toggle');

@@ -22,7 +22,7 @@ foreach ($t in $targets) {
     $deadline = (Get-Date).AddSeconds(60)
     while ((Get-Date) -lt $deadline -and -not ((Test-Path -LiteralPath $t.Out) -and (Get-Item -LiteralPath $t.Out).Length -gt 0)) { Start-Sleep -Milliseconds 300 }
     Start-Sleep -Milliseconds 800
-    if (-not (Test-Path -LiteralPath $t.Out)) { throw "No screenshot for $($t.Page)." }
+    if (-not ((Test-Path -LiteralPath $t.Out) -and (Get-Item -LiteralPath $t.Out).Length -gt 0)) { throw "No non-empty screenshot for $($t.Page)." }
     Write-Output $t.Out
 }
 # Close only the headless instances that used this script's profile.

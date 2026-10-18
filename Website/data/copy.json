@@ -4,7 +4,7 @@
     "lede": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell. It has no package dependencies, runs on Windows PowerShell 5.1 and PowerShell 7, and turns into plain lines when the output is a log.",
     "installPowerShell": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster",
     "installDotnet": "dotnet add package ConsoleMonster",
-    "installNote": "These commands install 2.0 once it is published. It is not on the PowerShell Gallery or NuGet yet; the Gallery's current ConsoleMonster is the 0.0.x module it replaces.",
+    "installNote": "The .NET package and PowerShell module use the same rendering engine. See the installation guide for supported targets and a first table.",
     "facts": [
       "No package dependencies",
       "netstandard2.0, net472 and net8.0",
@@ -288,17 +288,17 @@
     {
       "title": "Coming from Write-Color",
       "url": "/guides/write-color/",
-      "body": "Write-ConsoleText takes Write-Color's parameters and aliases; most scripts migrate with a rename."
+      "body": "Write-ConsoleText takes Write-Color's parameters and aliases: how they map and where the two differ."
     },
     {
       "title": "Coming from Spectre.Console",
       "url": "/guides/spectre-console/",
-      "body": "The markup dialect, the colour names and the calls that map one to one."
+      "body": "Spectre.Console concepts and their ConsoleMonster counterparts, and the markup dialect they share."
     },
     {
       "title": "Coming from Format-Table",
       "url": "/guides/format-table/",
-      "body": "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree with -Property."
+      "body": "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets."
     },
     {
       "title": "Hosts, CI and transcripts",

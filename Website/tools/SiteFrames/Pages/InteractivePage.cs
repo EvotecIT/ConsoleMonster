@@ -151,13 +151,13 @@ namespace SiteFrames.Pages {
             // </example>
         }
 
-        private static ScreenCapture Capture(Story story) {
+        private static ScreenCapture Capture(Story story, ITheme? theme = null) {
             ScreenCapture capture = new ScreenCapture(story.Width, story.Height, story.Inline);
             InteractiveOptions options = new InteractiveOptions {
                 Mode = InteractionMode.Rich,
                 Input = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime },
                 Capture = capture,
-                Theme = Theme.Dark,
+                Theme = theme ?? Theme.Dark,
                 Labels = new PromptLabels(),
                 Profile = TerminalProfile.Fixed(story.Width, story.Height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture)
             };
@@ -183,11 +183,11 @@ namespace SiteFrames.Pages {
                 for (int i = 0; i < screens.Count; i++) {
                     frames.Add(new TimedFrame(i * step, screens[i]));
                 }
-                JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 2400, out string poster);
-                site.WriteJson(site.Static("replays/interactive-" + story.Id + ".json"), timeline);
+                string data = PlayerData.Write(site, frames, story.Title, 1000.0 / step, 2400, out long duration, out int count);
+                site.Write(site.Static("replays/interactive-" + story.Id + ".json"), data);
                 // Before it plays, a storyboard shows its fullest screen (a prompt ends by collapsing to a one-line answer).
                 int fullest = Fullest(screens);
-                poster = FrameHtml.Body(FrameHtml.Rows(screens[fullest], ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
+                string poster = FrameHtml.Body(FrameHtml.Rows(screens[fullest], ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
                 list.Add(new JsonObject {
                     ["id"] = story.Id,
                     ["title"] = story.Title,
@@ -200,10 +200,10 @@ namespace SiteFrames.Pages {
                         ["url"] = "/replays/interactive-" + story.Id + ".json",
                         ["w"] = story.Width,
                         ["h"] = story.Height,
-                        ["duration"] = timeline["duration"]!.GetValue<long>(),
-                        ["frames"] = timeline["count"]!.GetValue<int>(),
+                        ["duration"] = duration,
+                        ["frames"] = count,
                         ["start"] = frames[fullest].Time,
-                        ["poster"] = new JsonObject { ["w"] = story.Width, ["h"] = timeline["h"]!.GetValue<int>(), ["dark"] = poster }
+                        ["poster"] = new JsonObject { ["w"] = story.Width, ["h"] = Height(screens), ["dark"] = poster }
                     }
                 });
             }
@@ -238,6 +238,14 @@ namespace SiteFrames.Pages {
                 }
             }
             return screens;
+        }
+
+        private static int Height(List<CellBuffer> screens) {
+            int height = 0;
+            foreach (CellBuffer screen in screens) {
+                height = Math.Max(height, screen.Height);
+            }
+            return height;
         }
 
         private static int Fullest(List<CellBuffer> screens) {
@@ -276,19 +284,15 @@ namespace SiteFrames.Pages {
             return true;
         }
 
-        private static CellBuffer? _thumbnail;
-
         /// <summary>The menu shell's task screen, for the navigation thumbnail.</summary>
         public static CellBuffer? Thumbnail(Site site, ITheme theme) {
-            if (_thumbnail == null) {
-                foreach (Story story in Stories()) {
-                    if (story.Id == "shell") {
-                        List<CellBuffer> screens = Screens(story, Capture(story));
-                        _thumbnail = screens.Count > 1 ? screens[1] : screens.Count > 0 ? screens[0] : null;
-                    }
+            foreach (Story story in Stories()) {
+                if (story.Id == "shell") {
+                    List<CellBuffer> screens = Screens(story, Capture(story, theme));
+                    return screens.Count > 1 ? screens[1] : screens.Count > 0 ? screens[0] : null;
                 }
             }
-            return _thumbnail;
+            return null;
         }
     }
 }

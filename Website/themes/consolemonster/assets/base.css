@@ -332,7 +332,6 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-band--dark .cm-facts { border-top-color: var(--cm-stage-line); }
 .cm-band--dark .cm-facts div { border-bottom-color: var(--cm-stage-line); }
 .cm-band--dark .cm-facts dd { color: #f8fafc; }
-.cm-band--dark .cm-player__play { background: #141c29; border-color: #3a4558; color: #e2e8f0; }
 @media (max-width: 560px) { .cm-band { margin-top: 64px; padding: 64px 0; } }
 
 /* On phones, frames keep a 10 px floor and scroll inside their window rather than shrinking further. */

@@ -13,6 +13,7 @@
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
+        <InternalsVisibleTo Include="SiteFrames.Tests" />
         <ProjectReference Include="..\..\..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\..\..\ConsoleMonster.Examples\ConsoleMonster.Examples.csproj" />
     </ItemGroup>

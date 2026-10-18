@@ -133,7 +133,7 @@ namespace SiteFrames.Replay {
                 while (index < events.Count && events[index].Time <= until) {
                     screen.Feed(events[index++].Text);
                 }
-                if (!alternateOnly || screen.OnAlternate) {
+                if (!screen.SynchronizedOutput && (!alternateOnly || screen.OnAlternate)) {
                     CellBuffer snapshot = screen.Snapshot();
                     if (first < 0 && !Empty(snapshot)) {
                         first = until;

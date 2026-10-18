@@ -53,17 +53,28 @@
 @media (max-width: 560px) { .cm-widths .cm-seg__label { display: none; } .cm-widths .cm-seg button { padding: 0 9px 0 17px; } .cm-widths .cm-seg button::before { left: 6px; } }
 .cm-widths__note { margin: 0; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
 
-/* Players. */
-.cm-player { display: grid; gap: 12px; min-width: 0; }
-.cm-player:focus-visible { outline-offset: 6px; }
-.cm-player__controls { display: flex; align-items: center; gap: 12px; }
-.cm-player__play { flex: none; display: inline-grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--cm-line-strong); border-radius: 50%; background: var(--cm-surface); color: var(--cm-ink); cursor: pointer; }
-.cm-player__play:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
-.cm-player__play .cm-i-pause, .cm-player.is-playing .cm-player__play .cm-i-play { display: none; }
-.cm-player.is-playing .cm-player__play .cm-i-pause { display: block; }
-.cm-player__scrub { flex: 1; min-width: 0; accent-color: var(--cm-accent); height: 24px; }
-.cm-player__clock { flex: none; min-width: 9ch; color: var(--cm-muted); font: 500 12.5px/1 var(--cm-mono); text-align: right; font-variant-numeric: tabular-nums; }
-.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
+/* Replays: ConsoleMonster's own player (player.css) mounted on .cm-replay; the site gives its controls the site's look. */
+.cm-replay { --cm-chrome-fg: var(--cm-line-strong); display: grid; gap: 12px; min-width: 0; }
+.cm-export.cm-player-host.cm-replay { display: grid; max-width: none; }
+.cm-replay:focus-visible { box-shadow: none; outline: 2px solid var(--cm-accent); outline-offset: 6px; }
+.cm-replay > .cm-player { min-width: 0; }
+.cm-replay .cm-controls { display: flex; align-items: center; gap: 12px; padding: 0; background: none; color: var(--cm-muted); font: 500 12.5px/1 var(--cm-mono); }
+.cm-replay .cm-controls button { flex: none; min-width: 72px; height: 32px; padding: 0 14px; border: 1px solid var(--cm-line-strong); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 12.5px/1 var(--cm-mono); cursor: pointer; }
+.cm-replay .cm-controls button:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls input[type=range] { flex: 1; min-width: 0; height: 24px; accent-color: var(--cm-accent); }
+.cm-replay .cm-controls select { height: 28px; padding: 0 6px; border: 1px solid var(--cm-line-strong); border-radius: 6px; background: var(--cm-surface); color: var(--cm-ink); font: 500 12px/1 var(--cm-mono); }
+.cm-replay .cm-controls option { color: initial; }
+.cm-replay .cm-time { flex: none; min-width: 9ch; color: var(--cm-muted); text-align: right; font-variant-numeric: tabular-nums; }
+.cm-replay .cm-error { color: var(--cm-muted); }
+/* Player data from the engine's exporter carries its own CSS, scoped to the player. Its class names (.cm-window, .cm-screen)
+   are the site's too, so the site's window keeps its own frame, and the screen keeps the engine's font (its rows rely on it)
+   but takes the site's responsive cell size. */
+.cm-replay.cm-export[data-cm-player] figure.cm-window { display: block; overflow: visible; border-radius: 0; background: none; box-shadow: none; }
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { width: max-content; min-width: 100%; padding: 12px var(--cm-pad) 14px; overflow: visible; line-height: var(--cm-cell); color: var(--cm-term-fg); background: var(--cm-term-bg); font-size: clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)); }
+@supports (font-size: round(down, 13px, 1px)) {
+  .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
+}
+.cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark span { height: var(--cm-cell); }.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
 
 /* Showcase blocks on product pages. */
 .cm-showcase { display: grid; gap: 22px; margin: 0 0 72px; }

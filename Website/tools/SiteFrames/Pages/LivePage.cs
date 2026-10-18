@@ -77,7 +77,7 @@ namespace SiteFrames.Pages {
                 ["ps7"] = FromCast(site, "pipeline-ps7", "PowerShell 7", "Example-BuildPipeline.ps1"),
                 ["ps5"] = FromCast(site, "pipeline-ps5", "Windows PowerShell 5.1", "Example-BuildPipeline.ps1")
             };
-            JsonObject stress = FromCast(site, "stress", "C#", "ConsoleMonster.Examples stress 12", 3, 0.85);
+            JsonObject stress = FromCast(site, "stress", "C#", "ConsoleMonster.Examples stress 12", 3, 0.45);
             stress["result"] = StressResult(site);
             live["stress"] = stress;
             live["stream"] = Stream(site);
@@ -89,11 +89,25 @@ namespace SiteFrames.Pages {
         }
 
         private static JsonObject Assessment(Site site, List<LiveEvent> events, string jsonLines, int width, int height, string id, double fps, double speed) {
+            // The replay is the engine's own player data (Recording.ExportPlayerData), played by the engine's player.
+            string data = ConsoleMonster.Export.Recording.ExportPlayerData(ParallelRun.Build(out _), events, new ConsoleMonster.Export.RecordingExportOptions {
+                Width = width,
+                Height = height,
+                // FramesPerSecond counts recorded time; the site shows fps frames per second of the sped-up replay.
+                FramesPerSecond = fps / speed,
+                Speed = speed,
+                Theme = ConsoleMonster.Export.ExportTheme.Dark,
+                Glyphs = GlyphTier.Full,
+                Culture = Site.Culture,
+                HoldLastFrame = TimeSpan.FromSeconds(4),
+                Title = "ConsoleMonster.Examples testimox"
+            });
+            site.Write(site.Static("replays/" + id + ".json"), data);
+            (long duration, int count) = Summary(data);
+            // The poster (and where the replay starts) is the run in full swing, not its empty first second or its end. The
+            // site samples the same events at the same rate to pick that moment and draw it for readers without JavaScript.
             List<TimedFrame> frames = Replays.FromEvents(ParallelRun.Build(out _), events, width, height, fps, Theme.Dark, speed);
-            JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 4000, out string poster);
-            site.WriteJson(site.Static("replays/" + id + ".json"), timeline);
-            // The poster (and where the replay starts) is the run in full swing, not its empty first second or its end.
-            long posterTime = Poster(site, frames, 0.55, out poster);
+            long posterTime = Poster(site, frames, 0.55, out string poster);
             string[] lines = jsonLines.Split('\n');
             JsonArray excerpt = new JsonArray();
             for (int i = 0; i < Math.Min(9, lines.Length); i++) {
@@ -103,28 +117,25 @@ namespace SiteFrames.Pages {
                 ["url"] = "/replays/" + id + ".json",
                 ["w"] = width,
                 ["h"] = height,
-                ["frames"] = timeline["count"]!.GetValue<int>(),
-                ["duration"] = timeline["duration"]!.GetValue<long>(),
+                ["frames"] = count,
+                ["duration"] = duration,
                 ["events"] = events.Count,
                 ["fps"] = fps,
                 ["speed"] = speed,
                 ["start"] = posterTime,
-                ["loopStart"] = StartOf(events, speed),
                 ["bytes"] = jsonLines.Length,
                 ["excerpt"] = string.Join("\n", ToStrings(excerpt)),
-                ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster, ["start"] = posterTime, ["loopStart"] = StartOf(events, speed) }
+                ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster, ["start"] = posterTime }
             };
         }
 
-        // Where an autoplaying replay begins: the moment the run starts evaluating rules, after discovery.
-        private static long StartOf(List<LiveEvent> events, double speed) {
-            foreach (LiveEvent e in events) {
-                if (e.Target == "dashboard" && e.Operation == "status" && e.Text != null && e.Text.StartsWith("evaluating", StringComparison.Ordinal)) {
-                    return (long)Math.Round(e.Time / speed);
-                }
+        // The length and frame count of player data, for the page's labels.
+        private static (long Duration, int Count) Summary(string data) {
+            using (System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(data)) {
+                return (doc.RootElement.GetProperty("duration").GetInt64(), doc.RootElement.GetProperty("frames").GetArrayLength());
             }
-            return 0;
         }
+
 
         private static IEnumerable<string> ToStrings(JsonArray array) {
             foreach (JsonNode? node in array) {
@@ -147,9 +158,8 @@ namespace SiteFrames.Pages {
                 return new JsonObject();
             }
             List<TimedFrame> frames = Replays.FromCast(File.ReadAllText(path), fps, true, out CellBuffer scrollback, out int width, out int height);
-            JsonObject timeline = Timeline.Encode(site, frames, ColorDepth.TrueColor, Screen.Dark, 3000, out string poster);
-            site.WriteJson(site.Static("replays/" + id + ".json"), timeline);
-            long posterTime = Poster(site, frames, share, out poster);
+            site.Write(site.Static("replays/" + id + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
+            long posterTime = Poster(site, frames, share, out string poster);
             return new JsonObject {
                 ["start"] = posterTime,
                 ["id"] = id,
@@ -158,8 +168,8 @@ namespace SiteFrames.Pages {
                 ["url"] = "/replays/" + id + ".json",
                 ["w"] = width,
                 ["h"] = height,
-                ["frames"] = timeline["count"]!.GetValue<int>(),
-                ["duration"] = timeline["duration"]!.GetValue<long>(),
+                ["frames"] = count,
+                ["duration"] = duration,
                 ["fps"] = fps,
                 ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster },
                 ["scrollback"] = site.Frame(Site.Crop(scrollback), null)

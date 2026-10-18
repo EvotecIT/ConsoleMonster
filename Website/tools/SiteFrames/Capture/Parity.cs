@@ -43,6 +43,9 @@ namespace SiteFrames.Capture {
         public static ParityResult Compare(CellBuffer expected, CellBuffer actual) {
             CellBuffer a = Trim(expected);
             CellBuffer b = Trim(actual);
+            if (a.Width != b.Width || a.Height != b.Height) {
+                return new ParityResult(false, "frame dimensions differ");
+            }
             int rows = Math.Max(a.Height, b.Height);
             for (int y = 0; y < rows; y++) {
                 string left = y < a.Height ? a.GetRowText(y).TrimEnd() : string.Empty;
@@ -54,7 +57,10 @@ namespace SiteFrames.Capture {
                 for (int x = 0; x < width && y < a.Height && y < b.Height; x++) {
                     Cell ca = a[x, y];
                     Cell cb = b[x, y];
-                    if (ca.IsContinuation || cb.IsContinuation || (ca.Glyph == " " && cb.Glyph == " " && ca.Style.Background.IsDefault && cb.Style.Background.IsDefault)) {
+                    if (ca.Width != cb.Width || !string.Equals(ca.Glyph, cb.Glyph, StringComparison.Ordinal)) {
+                        return new ParityResult(false, "row " + (y + 1) + ", column " + (x + 1) + " cell geometry differs");
+                    }
+                    if (ca.IsContinuation || (ca.Glyph == " " && cb.Glyph == " " && ca.Style.Background.IsDefault && cb.Style.Background.IsDefault && ca.Style.Decoration == cb.Style.Decoration)) {
                         continue;
                     }
                     Style sa = Normal(ca.Style);
@@ -70,7 +76,7 @@ namespace SiteFrames.Capture {
         // The terminal receives RGB for theme colours; compare by value whatever the colour kind.
         private static Style Normal(Style style) {
             Style s = FrameHtml.Reduce(style, ColorDepth.TrueColor);
-            return new Style(Rgb(s.Foreground), Rgb(s.Background), s.Decoration);
+            return new Style(Rgb(s.Foreground), Rgb(s.Background), s.Decoration, s.Link);
         }
 
         private static Color Rgb(Color color) {

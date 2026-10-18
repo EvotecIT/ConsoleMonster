@@ -18,8 +18,6 @@
 .cm-hero__stage .cm-window__frame { box-shadow: 0 0 0 1px #273041, 0 30px 80px -30px rgba(0, 0, 0, .9), 0 0 120px -40px rgba(96, 165, 250, .25); }
 .cm-hero__note { max-width: 90ch; margin: 14px 0 0; color: var(--cm-stage-muted); font-size: 14px; }
 .cm-hero__note a { color: #93c5fd; }
-.cm-hero .cm-player__play { background: #141c29; border-color: #3a4558; color: #e2e8f0; }
-.cm-hero .cm-player__play:hover { background: #243b5e; }
 
 .cm-twins { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 40px; align-items: start; }
 .cm-twins__output { display: grid; gap: 14px; min-width: 0; }

@@ -96,6 +96,12 @@ namespace SiteFrames.Vt {
                     TerminateProcess(info.hProcess, 1);
                     throw new TimeoutException("Capture timed out: " + commandLine);
                 }
+                if (!GetExitCodeProcess(info.hProcess, out uint exitCode)) {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+                if (exitCode != 0) {
+                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine);
+                }
                 // Give ConPTY a moment to paint the last frame before the console closes.
                 Thread.Sleep(400);
             } finally {
@@ -120,6 +126,9 @@ namespace SiteFrames.Vt {
                 return new List<OutputChunk>(chunks);
             }
         }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetExitCodeProcess(IntPtr process, out uint exitCode);
 
         private static IntPtr EnvironmentBlock(IDictionary<string, string?> overrides) {
             SortedDictionary<string, string> env = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);

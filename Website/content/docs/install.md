@@ -5,7 +5,7 @@ slug: install
 order: 1
 ---
 
-These commands install ConsoleMonster 2.0, the version this site documents, once it is published. 2.0 is not on NuGet or the PowerShell Gallery yet; until it is, build it from the [repository](https://github.com/EvotecIT/ConsoleMonster): `ConsoleMonster.sln` for the package and `Module/Build/Build-Module.ps1` for the module.
+Install the .NET package for C# applications or the PowerShell module for scripts. Both use the same rendering engine.
 
 ## .NET
 

@@ -55,6 +55,9 @@ namespace SiteFrames.Vt {
         /// <summary>Whether the program is drawing on the alternate screen (a live dashboard).</summary>
         public bool OnAlternate => _onAlternate;
 
+        /// <summary>Whether a synchronized update is still being painted.</summary>
+        public bool SynchronizedOutput { get; private set; }
+
         private CellBuffer Current => _onAlternate ? _alternate : _main;
 
         public void Feed(byte[] data, int count) {
@@ -566,6 +569,9 @@ namespace SiteFrames.Vt {
         private void Mode(int[] p, bool set) {
             foreach (int mode in p) {
                 switch (mode) {
+                    case 2026:
+                        SynchronizedOutput = set;
+                        break;
                     case 7:
                         _autowrap = set;
                         break;

@@ -1,11 +1,11 @@
 ---
 title: Coming from Format-Table
-description: Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree take pipeline input and -Property like the built-in Format cmdlets, and do more.
+description: Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: pipeline input, -Property and their column options.
 slug: format-table
 order: 3
 ---
 
-The three Format cmdlets take pipeline input like `Format-Table`, `Format-List` and `Format-Custom`. They write to the console like `Write-Host`, so `$x = ... | Format-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Write-ConsoleWidget` or `Export-ConsoleFrame`.
+The three Format cmdlets take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Format-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Write-ConsoleWidget` or `Export-ConsoleFrame`.
 
 {{< cm-frame ids="format-table,format-consoletable" caption="The same four objects in PowerShell 7, 100 columns wide: Format-Table -AutoSize, then Format-ConsoleTable with -GroupBy, -Total and column options." >}}
 

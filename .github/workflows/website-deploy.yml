@@ -1,0 +1,39 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Website/**'
+      - 'ConsoleMonster/**'
+      - 'ConsoleMonster.Examples/**'
+      - 'Module/en-US/**'
+      - 'Directory.Build.props'
+      - '.github/workflows/website-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+  deployments: read
+  packages: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: website-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@77a10b3d2b8cf3608d5b08747f273ae38e055479
+    with:
+      website_root: Website
+      dotnet_version: |
+        8.0.x
+        10.0.x
+      pipeline_config: Website/pipeline.json
+      site_output_path: Website/_site
+      powerforge_lock_path: ./Website/.powerforge/engine-lock.json
+      powerforge_repository_override: ${{ vars.POWERFORGE_REPOSITORY }}
+      powerforge_ref_override: ${{ vars.POWERFORGE_REF }}

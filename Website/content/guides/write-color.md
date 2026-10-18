@@ -1,11 +1,11 @@
 ---
 title: Coming from Write-Color
-description: Write-ConsoleText takes the parameters and aliases of Write-Color, so most scripts move over with a rename. What maps, what is new, what differs.
+description: Write-ConsoleText takes the parameters and aliases of Write-Color from PSWriteColor. How they map, what it adds and where the two behave differently.
 slug: write-color
 order: 1
 ---
 
-`Write-ConsoleText` accepts the parameters and aliases of `Write-Color` from [PSWriteColor](https://github.com/EvotecIT/PSWriteColor). There is deliberately no `Write-Color` or `wc` alias.
+`Write-ConsoleText` accepts the parameters and aliases of `Write-Color` from [PSWriteColor](https://github.com/EvotecIT/PSWriteColor). ConsoleMonster does not define a `Write-Color` or `wc` alias, so the two modules can be loaded in the same session.
 
 {{< cm-frame id="write-consoletext" script="true" caption="Write-ConsoleText on Windows PowerShell 5.1: pieces with colours, markup, tabs, spaces, padding with a character and a gradient." >}}
 
@@ -25,7 +25,7 @@ order: 1
 | `-Encoding` | same | A new log defaults to UTF-8 without a byte order mark; Write-Color defaults to UTF-16. Appending to an existing log keeps its encoding, so last month's Write-Color log stays UTF-16, and a contradicting `-Encoding` warns. |
 | `-NoConsoleOutput` (`-HideConsole`) | same | |
 
-## New in Write-ConsoleText
+## Parameters that Write-ConsoleText adds
 
 | Parameter | What it does |
 |---|---|
@@ -35,7 +35,7 @@ order: 1
 | `-SplitLines` | Splits at a separator and aligns the following lines under the first. |
 | `-LogFormat Text`, `Csv` or `JsonLines`, `-LogSeparator`, `-Level`, `-Category` | Structured logs. |
 
-## What behaves differently
+## Where the two behave differently
 
 - In transcripts, each call is one line.
 - In jobs and remoting, the colours travel with the output as information records.

@@ -5,6 +5,7 @@ on:
     paths:
       - "Website/**"
       - "ConsoleMonster/**"
+      - "ConsoleMonster.Examples/**"
       - "Module/en-US/**"
       - "Directory.Build.props"
       - ".github/workflows/website-ci.yml"
@@ -13,6 +14,7 @@ on:
     paths:
       - "Website/**"
       - "ConsoleMonster/**"
+      - "ConsoleMonster.Examples/**"
       - "Module/en-US/**"
       - "Directory.Build.props"
       - ".github/workflows/website-ci.yml"
@@ -32,6 +34,9 @@ jobs:
     uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@77a10b3d2b8cf3608d5b08747f273ae38e055479
     with:
       website_root: Website
+      dotnet_version: |
+        8.0.x
+        10.0.x
       pipeline_config: Website/pipeline.json
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository_override: ${{ vars.POWERFORGE_REPOSITORY }}

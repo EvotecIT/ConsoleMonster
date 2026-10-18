@@ -4,8 +4,10 @@
 
 This folder builds **consolemonster.dev**, a PowerForge.Web site (`site.json`, `pipeline.json`, `themes/consolemonster`).
 It is the home of ConsoleMonster 2.0: the widget gallery, tables, live dashboards, interactive screens, the PowerShell
-module, guides, docs, benchmarks and the .NET and PowerShell references. Hosting (GitHub Pages) is set up by the owner;
-this folder only builds and validates the site, and `.github/workflows/website-ci.yml` runs the CI-mode pipeline.
+module, guides, docs, benchmarks and the .NET and PowerShell references. GitHub Pages serves the site at consolemonster.dev,
+with DNS managed in Cloudflare. `.github/workflows/website-ci.yml` validates PRs and `website-deploy.yml` publishes master
+through PowerForge's shared deployment workflow. The CI pipeline runs the renderer tests, regenerates terminal assets,
+and rejects output that differs from the committed files before building and auditing the site.
 
 ## Build
 
@@ -51,7 +53,7 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   and are shown verbatim.
 - Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`,
   `figures.json`, `home.json`, `benchmarks.json`, `visuals.json`; `static/frames/**`, `static/replays/**`,
-  `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/apple-touch-icon.png`, and
+  `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/assets/player/**`, `static/apple-touch-icon.png`, and
   `tools/SiteFrames/glyphs.txt` (every glyph the frames use).
 
 ## Design system
@@ -70,8 +72,13 @@ The site is set in the medium it documents: a terminal cell grid.
   frame. Static frames have a dark and a light rendering and follow the site theme; replays, stage art and captured
   PowerShell output stay dark. A frame scales to fit its column down to 9 px and then scrolls inside its window, so the
   page never scrolls sideways.
-- **Players.** `partials/player.html` shows the last frame without JavaScript; `assets/frames.js` loads the timeline when
-  asked or when an autoplaying player scrolls into view, and nothing plays by itself with reduced motion.
+- **Players.** Replays play in ConsoleMonster's own player: `render` copies `ConsoleExporter.PlayerScript` and
+  `PlayerStyles` to `static/assets/player/` (generated, never edit them) and writes `static/replays/*.json` in the engine's
+  player-data format (`Recording.ExportPlayerData` for live-event recordings; `Replay/PlayerData.cs` writes the same
+  format for pseudo-console runs and storyboards, which are not event recordings). `partials/player.html` shows a mid-run
+  poster without JavaScript; `assets/frames.js` only mounts the engine player near the viewport, picks the phone
+  rendering, seeks to the poster's moment and moves the player's screen into the site window. Engine gaps go in the PR's
+  engine notes, not into a fork of the player.
 - **Selection.** Tabs, tier switches and width controls use `.cm-seg`; the chosen option is drawn as ConsoleMonster's
   focus row. Tabs follow the ARIA tab pattern, switches the radio group pattern (arrow keys move and select).
 - **Panels.** `.cm-panel` is ConsoleMonster's `Panel` widget in CSS (the title set into the top border); the gallery uses

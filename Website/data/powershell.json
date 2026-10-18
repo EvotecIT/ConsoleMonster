@@ -146,14 +146,14 @@
       }
     },
     "markup": {
-      "script": "Write-ConsoleMarkup '[bold red]Spectre markup[/] moves over [italic]unchanged[/]: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'",
+      "script": "Write-ConsoleMarkup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'",
       "rich": {
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
             "w": 73,
             "h": 3,
-            "dark": "<span class=\"fe74856 B c14\">Spectre markup</span><span class=c12> moves over </span><span class=\"I c9\">unchanged</span><span class=c2>: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
           }
         },
         "ps5": {
@@ -161,7 +161,7 @@
           "frame": {
             "w": 73,
             "h": 3,
-            "dark": "<span class=\"fe74856 B c14\">Spectre markup</span><span class=c12> moves over </span><span class=\"I c9\">unchanged</span><span class=c2>: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c11\">color(208) </span><span class=c4>and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, unknown tags keep their text, and links use OSC 8"
           }
         }
       }
@@ -556,8 +556,18 @@
     },
     {
       "verb": "Show",
-      "count": 2,
+      "count": 5,
       "commands": [
+        {
+          "name": "Show-Console",
+          "synopsis": "Shows pipeline input in the view that fits it best.",
+          "url": "/powershell/commands/show-console/"
+        },
+        {
+          "name": "Show-ConsoleChanges",
+          "synopsis": "Shows the changes an action would make and asks before making them: the what-if pattern.",
+          "url": "/powershell/commands/show-consolechanges/"
+        },
         {
           "name": "Show-ConsoleGrid",
           "synopsis": "Shows pipeline objects in an interactive grid and returns the rows you choose.",
@@ -567,6 +577,11 @@
           "name": "Show-ConsoleMenu",
           "synopsis": "Shows a menu until the user exits.",
           "url": "/powershell/commands/show-consolemenu/"
+        },
+        {
+          "name": "Show-ConsoleReplay",
+          "synopsis": "Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.",
+          "url": "/powershell/commands/show-consolereplay/"
         }
       ]
     },
@@ -631,6 +646,39 @@
       ]
     },
     {
+      "verb": "Compare",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Compare-ConsoleObject",
+          "synopsis": "Compares two sets of objects and shows what was added, removed and changed, property by property.",
+          "url": "/powershell/commands/compare-consoleobject/"
+        }
+      ]
+    },
+    {
+      "verb": "Disable",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Disable-ConsoleFormatting",
+          "synopsis": "Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).",
+          "url": "/powershell/commands/disable-consoleformatting/"
+        }
+      ]
+    },
+    {
+      "verb": "Enable",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Enable-ConsoleFormatting",
+          "synopsis": "Shows the default output of common types through ConsoleMonster for this session (opt-in).",
+          "url": "/powershell/commands/enable-consoleformatting/"
+        }
+      ]
+    },
+    {
       "verb": "Get",
       "count": 1,
       "commands": [
@@ -638,6 +686,28 @@
           "name": "Get-ConsoleCapability",
           "synopsis": "Shows what ConsoleMonster detected about the current terminal.",
           "url": "/powershell/commands/get-consolecapability/"
+        }
+      ]
+    },
+    {
+      "verb": "Out",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Out-ConsoleDefault",
+          "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",
+          "url": "/powershell/commands/out-consoledefault/"
+        }
+      ]
+    },
+    {
+      "verb": "Register",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Register-ConsoleView",
+          "synopsis": "Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.",
+          "url": "/powershell/commands/register-consoleview/"
         }
       ]
     },
