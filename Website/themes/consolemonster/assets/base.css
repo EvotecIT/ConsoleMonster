@@ -287,7 +287,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
   .cm-nav-toggle__label { display: inline-grid; place-items: center; width: 40px; height: 40px; margin-left: auto; border-radius: 6px; cursor: pointer; }
   .cm-nav-toggle__label span { display: block; width: 18px; height: 2px; margin: 2px 0; background: var(--cm-ink); border-radius: 1px; }
   .cm-nav-toggle:focus-visible + .cm-nav-toggle__label { outline: 2px solid var(--cm-accent); }
-  .cm-nav { position: fixed; inset: 64px 0 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 12px var(--cm-gutter) 32px; overflow-y: auto; background: var(--cm-page); }
+  .cm-nav { position: fixed; inset: 64px 0 0; height: calc(100dvh - 64px); display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 12px var(--cm-gutter) 32px; overflow-y: auto; background: var(--cm-page); }
   .cm-nav-toggle:checked ~ .cm-nav { display: flex; }
   .cm-nav__groups { flex-direction: column; align-items: stretch; flex: none; }
   .cm-navgroup__trigger { width: 100%; height: 44px; pointer-events: none; }
