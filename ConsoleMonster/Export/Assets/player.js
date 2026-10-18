@@ -24,7 +24,7 @@
     var players = [];
     var counter = 0;
     var autoplayOwner = null;
-    var reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
     var observer = typeof IntersectionObserver === 'function' ? new IntersectionObserver(function (entries) {
         for (var i = 0; i < entries.length; i++) {
             var player = entries[i].target.__cmPlayer;
@@ -255,7 +255,7 @@
                 suspend();
                 return;
             }
-            if (!autoplayed && self.autoplay && (autoplayOwner === null || autoplayOwner === self)) {
+            if (!autoplayed && self.autoplay && !(motion && motion.matches) && (autoplayOwner === null || autoplayOwner === self)) {
                 autoplayOwner = self;
                 autoplayed = true;
                 want = true;
@@ -272,6 +272,7 @@
         };
 
         self.destroy = function () {
+            want = false;
             suspend();
             if (observer) {
                 observer.unobserve(host);
@@ -280,10 +281,12 @@
             if (index >= 0) {
                 players.splice(index, 1);
             }
+            if (autoplayOwner === self) { autoplayOwner = null; }
+            if (host.__cmPlayer === self) { delete host.__cmPlayer; }
         };
 
         self.element = host;
-        self.autoplay = host.hasAttribute('data-cm-autoplay') && host.getAttribute('data-cm-autoplay') !== 'false' && !reducedMotion;
+        self.autoplay = host.hasAttribute('data-cm-autoplay') && host.getAttribute('data-cm-autoplay') !== 'false';
 
         play.addEventListener('click', function () {
             if (want) {
@@ -395,6 +398,14 @@
             players[i].visibility();
         }
     });
+
+    if (motion && motion.addEventListener) {
+        motion.addEventListener('change', function () {
+            if (motion.matches) {
+                for (var i = 0; i < players.length; i++) { players[i].pause(); }
+            }
+        });
+    }
 
     window.ConsoleMonsterPlayer = { mount: mount, scan: scan, players: players, version: 1 };
     if (document.readyState === 'loading') {

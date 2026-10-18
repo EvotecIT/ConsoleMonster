@@ -87,6 +87,7 @@ namespace ConsoleMonster.Live {
                 _unknownTargets.AddOrUpdate(liveEvent.Target ?? string.Empty, 1, (name, count) => count + 1);
                 return;
             }
+            IWidget? previousContent = target is Widgets.Slot previousSlot ? previousSlot.Content : null;
             try {
                 target!.Apply(liveEvent);
             } catch (Exception ex) {
@@ -95,8 +96,10 @@ namespace ConsoleMonster.Live {
                 return;
             }
             Interlocked.Increment(ref _eventsApplied);
-            if (target is Widgets.Slot slot && liveEvent.Operation == "set") {
+            if (target is Widgets.Slot slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
+                if (previousContent != null) { Detach(previousContent); }
                 foreach (IWidget child in slot.Children) { Adopt(child); }
+                ResolveLogTarget();
                 Interlocked.Exchange(ref _invalidate, 1);
             }
             if (_recorder != null) {
