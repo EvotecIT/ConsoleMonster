@@ -98,6 +98,19 @@
       }
     ]
   },
+  "StructuredData": {
+    "Enabled": true,
+    "Website": true,
+    "Organization": true,
+    "WebPage": true,
+    "Breadcrumbs": true,
+    "Article": false,
+    "SoftwareSourceCode": true,
+    "OrganizationName": "Evotec",
+    "OrganizationUrl": "https://evotec.xyz/",
+    "OrganizationLogo": "https://evotec.xyz/favicon.svg",
+    "OrganizationSameAs": ["https://github.com/EvotecIT"]
+  },
   "Social": {
     "Enabled": true,
     "SiteName": "ConsoleMonster",

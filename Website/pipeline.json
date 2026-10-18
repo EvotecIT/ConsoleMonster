@@ -83,6 +83,7 @@
       "templateDocsIndex": "./themes/consolemonster/apidocs/docs-index.html",
       "templateDocsType": "./themes/consolemonster/apidocs/docs-type.html",
       "headerHtml": "./_temp/chrome/api-header.html",
+      "headHtml": "./_temp/chrome/api-head.html",
       "footerHtml": "./_temp/chrome/api-footer.html"
     },
     {
@@ -103,6 +104,7 @@
       "templateDocsIndex": "./themes/consolemonster/apidocs/docs-index.html",
       "templateDocsType": "./themes/consolemonster/apidocs/docs-type.html",
       "headerHtml": "./_temp/chrome/powershell-commands-header.html",
+      "headHtml": "./_temp/chrome/powershell-commands-head.html",
       "footerHtml": "./_temp/chrome/powershell-commands-footer.html"
     },
     {
@@ -160,11 +162,12 @@
       "failOnNewIssues": true,
       "checkContentLeaks": true,
       "requireCanonical": true,
+      "requireStructuredData": true,
       "requireHreflang": false,
       "requireHreflangXDefault": false,
       "reportPath": "./_reports/seo-doctor.json",
       "summaryPath": "./_reports/seo-doctor.md",
-      "exclude": "frames/**,replays/**,recordings/**,site/**"
+      "exclude": "frames/**,replays/**,recordings/**,site/**,404.html,404/**"
     },
     {
       "task": "audit",

@@ -13,7 +13,7 @@
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data) and ConsoleMonsterPlayer.scan(root) mount others.
  *
  * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
- * frame rate at most, and the clock, the position bar and its accessible text change at most once a second (and on
+ * frame rate at most, scaled by playback speed, and the clock, the position bar and its accessible text change at most once a second (and on
  * seeking). A player pauses while off-screen or while the tab is hidden and resumes on return. Only one player per page
  * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion.
  */
@@ -168,11 +168,12 @@
             }
         }
 
-        // Wakes at the next frame change (never more often than the recording's frame rate) or when the clock must move.
+        // Wakes at the next frame change (scaled by playback speed) or when the clock must move.
         function schedule(now) {
             var next = shown + 1 < frames.length ? frames[shown + 1][0] : total;
-            var delay = Math.max(minDelay, (next - t) / speed);
-            delay = Math.min(delay, Math.max(minDelay, 1000 - (now - lastLabel)));
+            var frameDelay = minDelay / speed;
+            var delay = Math.max(frameDelay, (next - t) / speed);
+            delay = Math.min(delay, Math.max(frameDelay, 1000 - (now - lastLabel)));
             timer = window.setTimeout(step, delay);
         }
 
