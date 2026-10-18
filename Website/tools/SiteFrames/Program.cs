@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
 using SiteFrames.Capture;
@@ -91,7 +92,8 @@ namespace SiteFrames {
             site.Write(site.Static("assets/player/player.js"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerScript", "player.js") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerScript);
             site.Write(site.Static("assets/player/player.css"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerStyles", "player.css") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerStyles);
             SiteImages.Render(site);
-            site.Write(Path.Combine(site.Tool, "glyphs.txt"), string.Join("\n", site.Styles.Glyphs) + "\n");
+            string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
+            site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");
             if (Failures > 0) {
                 Console.Error.WriteLine(Failures + " problem(s); see above.");

@@ -173,4 +173,3 @@
 .cm-compare--stack { grid-template-columns: minmax(0, 1fr); }
 
 @media (max-width: 760px) { .cm-specimen__summary, .cm-specimen__body { margin-left: 0; } }
-
