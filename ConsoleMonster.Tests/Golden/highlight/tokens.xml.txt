@@ -1,0 +1,8 @@
+«Keyword:<?xml version="1.0"?>»
+«Comment:<!-- settings -->»
+«Punctuation:<»«Type:Project» «Key:Sdk»«Punctuation:=»«String:"Microsoft.NET.Sdk"»«Punctuation:>»
+  «Punctuation:<»«Type:PropertyGroup»«Punctuation:>»
+    «Punctuation:<»«Type:TargetFramework»«Punctuation:>»net8.0«Punctuation:</»«Type:TargetFramework»«Punctuation:>»
+    «Punctuation:<»«Type:Note»«Punctuation:>»«String:<![CDATA[a < b]]>» «Literal:&amp;» more«Punctuation:</»«Type:Note»«Punctuation:>»
+  «Punctuation:</»«Type:PropertyGroup»«Punctuation:>»
+«Punctuation:</»«Type:Project»«Punctuation:>»

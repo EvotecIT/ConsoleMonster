@@ -1,0 +1,260 @@
+evotec.xyz · DNS records via Cloudflare DoH  - ...
+
+evotec.xyz
+  Type        A
+  TTL         5 m 00 s
+  Data        104.21.48.12
+  Latency     12 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\A.json
+
+evotec.xyz
+  Type        AAAA
+  TTL         5 m 00 s
+  Data        2606:4700:3036::6815:300c
+  Latency     14 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\AAAA.json
+
+evotec.xyz
+  Type        MX
+  TTL         1 h 00 m
+  Data        10
+              evotec-xyz.mail.protection.outlook.
+              com
+  Latency     18 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\MX.json
+
+evotec.xyz
+  Type        TXT
+  TTL         1 h 00 m
+  Data        v=spf1
+              include:spf.protection.outlook.com
+              include:_spf.google.com
+              include:sendgrid.net
+              include:mailgun.org ip4:51.38.120.9
+              ip4:51.38.120.10 -all
+  Latency     21 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\TXT.json
+
+_dmarc.evotec.xyz
+  Type        TXT
+  TTL         1 h 00 m
+  Data        v=DMARC1; p=reject;
+              rua=mailto:dmarc@evotec.xyz;
+              ruf=mailto:forensic@evotec.xyz; fo=1
+  Latency     [WARN] 133 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\_dmarc.TXT.json
+
+selector1._domainkey.evotec.xyz
+  Type        CNAME
+  TTL         1 h 00 m
+  Data        selector1-evotec-xyz._domainkey.
+              evotecpl.onmicrosoft.com
+  Latency     16 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\
+              selector1._domainkey.CNAME.json
+
+evotec.xyz
+  Type        CAA
+  TTL         1 h 00 m
+  Data        0 issue "letsencrypt.org"
+  Latency     15 ms
+  Cache file  C:\ProgramData\DnsClientX\cache\
+              evotec.xyz\CAA.json
+
+evotec.xyz · DomainDetective checks  -  7 records
+
+SPF
+  Status  [PASS]
+  Detail  9 DNS lookups (limit 10); ends with -all
+  Took    84 ms
+  RFC     7208
+
+DMARC
+  Status  [PASS]
+  Detail  p=reject, aggregate and forensic reports
+          configured
+  Took    41 ms
+  RFC     7489
+
+DKIM
+  Status  [WARN]
+  Detail  selector2 key is 1024-bit; selector1 is
+          2048-bit. Rotate selector2 to a 2048-bit
+          key
+  Took    212 ms
+  RFC     6376
+
+MTA-STS
+  Status  [FAIL]
+  Detail  policy file returns 404 at
+          https://mta-sts.evotec.xyz/.well-known/
+          mta-sts.txt
+  Took    1.4 s
+  RFC     8461
+
+TLS-RPT
+  Status  [SKIP]
+  Detail  not published
+  Took    22 ms
+  RFC     8460
+
+DNSSEC
+  Status  [WARN]
+  Detail  zone is not signed
+  Took    95 ms
+  RFC     4033
+
+BIMI
+  Status  [INFO]
+  Detail  no record; optional
+  Took    19 ms
+
+mail.evotec.xyz  -  TLS certificate · ECDSA P-2...
+
+Certificate
+  Subject           CN=mail.evotec.xyz
+  Issuer            CN=R11, O=Let's Encrypt, C=US
+  Serial            04:A1:7F:3C:9E:22:51:0B:6D:8E:
+                    F0:13:44:2A:BC:91
+  Valid from (UTC)  2026-08-09 12:00 (2 mo ago)
+  Valid to (UTC)    [WARN] 2026-11-08 12:00 (in 22
+                    d)
+  Key               ECDSA P-256
+  OCSP stapling     yes
+  Revoked           no
+  Subject alternative names  3
+    mail.evotec.xyz
+    autodiscover.evotec.xyz
+    mta-sts.evotec.xyz
+  Chain  3 certificates
+    Subject                  Expires   Key
+    -----------------------  --------  -----------
+    CN=mail.evotec.xyz       [WARN]    ECDSA P-256
+                             in 22 d
+    CN=R11, O=Let's Encrypt  in 4 mo   RSA 2048
+    CN=ISRG Root X1          in 8 y    RSA 4096
+
+TestimoX · ad.evotec.xyz run summary  -  7 records
+
+Domains
+  ad.evotec.xyz
+    Result    [FAIL]
+    Passed    9
+    Failed    [FAIL] 2
+    Warnings  [WARN] 5
+    Duration  24 s
+    Score     #####      56 %
+  eu.ad.evotec.xyz
+    Result    [FAIL]
+    Passed    13
+    Failed    [FAIL] 1
+    Warnings  [WARN] 1
+    Duration  16 s
+    Score     ########   87 %
+
+Domain controllers
+  DC01.ad.evotec.xyz
+    Result    [WARN]
+    Passed    26
+    Failed    0
+    Warnings  [WARN] 3
+    Duration  17 s
+    Score     #########  90 %
+  DC02.ad.evotec.xyz
+    Result    [WARN]
+    Passed    23
+    Failed    0
+    Warnings  [WARN] 6
+    Duration  17 s
+    Score     #######    79 %
+  DC03.ad.evotec.xyz
+    Result    [FAIL]
+    Passed    23
+    Failed    [FAIL] 3
+    Warnings  [WARN] 4
+    Duration  19 s
+    Score     #######    77 %
+  DC07.eu.ad.evotec.xyz
+    Result    [FAIL]
+    Passed    21
+    Failed    [FAIL] 4
+    Warnings  [WARN] 4
+    Duration  16 s
+    Score     #######    72 %
+  DC09.eu.ad.evotec.xyz
+    Result    [PASS]
+    Passed    30
+    Failed    0
+    Warnings  0
+    Duration  15 s
+    Score     ########## 100 %
+
+Total
+  Passed    145
+  Failed    [FAIL] 10
+  Warnings  [WARN] 23
+  Duration  2 m 04 s
+  Score     80.14 %
+
+PSPublishModule · ConsoleMonster 2.0.0 artifact...
+
+ConsoleMonster.2.0.0.nupkg
+  Kind      NuGet
+  Size      1.41 MB
+  Built in  48 s
+  Created   12 m ago
+  Path      C:\Support\GitHub\ConsoleMonster\
+            Artefacts\Packed\
+            ConsoleMonster.2.0.0.nupkg
+  SHA256    9f2c4e81a7d03b6e
+
+ConsoleMonster.2.0.0.snupkg
+  Kind      Symbols
+  Size      393 KB
+  Built in  3.1 s
+  Created   12 m ago
+  Path      C:\Support\GitHub\ConsoleMonster\
+            Artefacts\Packed\
+            ConsoleMonster.2.0.0.snupkg
+  SHA256    41ab09cd77e2f310
+
+ConsoleMonster-2.0.0.zip
+  Kind      Module
+  Size      2.77 MB
+  Built in  12 s
+  Created   11 m ago
+  Path      C:\Support\GitHub\ConsoleMonster\
+            Artefacts\Packed\
+            ConsoleMonster-2.0.0.zip
+  SHA256    c0ffee4251de9a07
+
+ConsoleMonster.PowerShell.dll
+  Kind      Binary
+  Size      184 KB
+  Built in  23 s
+  Created   3 h ago
+  Path      C:\Support\GitHub\ConsoleMonster\
+            Sources\ConsoleMonster.PowerShell\bin\
+            Release\net8.0\
+            ConsoleMonster.PowerShell.dll
+  SHA256    77aa13f9b2c46e5d
+
+en-US\ConsoleMonster-help.xml
+  Kind      Help
+  Size      94 KB
+  Built in  6.4 s
+  Created   2 d ago
+  Path      C:\Support\GitHub\ConsoleMonster\
+            Artefacts\Packed\en-US\
+            ConsoleMonster-help.xml
+  SHA256    0be4d29c6a1f8873
+
+Total
+  Size      4.89 MB
+  Built in  1 m 33 s

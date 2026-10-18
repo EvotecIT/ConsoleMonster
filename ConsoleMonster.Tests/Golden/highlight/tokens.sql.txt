@@ -1,0 +1,5 @@
+«Comment:-- active users»
+«Keyword:SELECT» u«Punctuation:.»«Type:[Name]»«Punctuation:,» COUNT«Punctuation:(»«Operator:*»«Punctuation:)» «Keyword:AS» Logins
+«Keyword:FROM» dbo«Punctuation:.»Users u
+«Keyword:WHERE» u«Punctuation:.»Active «Operator:=» «Number:1» «Keyword:AND» u«Punctuation:.»Created «Operator:>» «String:'2026-01-01'» «Keyword:AND» «Variable:@Region» «Keyword:IS» «Keyword:NOT» «Literal:NULL»
+«Keyword:GROUP» «Keyword:BY» u«Punctuation:.»«Type:[Name]»«Punctuation:;»

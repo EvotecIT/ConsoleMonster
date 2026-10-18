@@ -1,0 +1,6 @@
+«Comment:// entry point»
+«Keyword:public» «Keyword:static» «Type:int» Main«Punctuation:(»«Type:string»«Punctuation:[»«Punctuation:]» args«Punctuation:)» «Punctuation:{»
+    «Keyword:var» count «Operator:=» args«Punctuation:.»Length «Operator:*» «Number:2»«Punctuation:;» «Comment:/* twice */»
+    «Type:string» name «Operator:=» «String:$"run {count}"»«Punctuation:;»
+    «Keyword:return» count «Operator:>» «Number:0» «Operator:?» «Number:0» : «Number:1»«Punctuation:;»
+«Punctuation:}»

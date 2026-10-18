@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+        Build-time only: a Roslyn source generator that writes the fluent With/Add methods of every ConsoleMonster widget
+        into the ConsoleMonster assembly itself. It is referenced as an analyzer by ConsoleMonster.csproj and is never
+        packed or shipped; consumers get the generated methods as ordinary compiled code.
+    -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsPackable>false</IsPackable>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,32 @@
+ TestimoX · ad.evotec.xyz run summary
+╭───────────────────────┬────────┬────────┬────────┬──────────┬──────────┬──────────────────╮
+│ Target                │ Result │ Passed │ Failed │ Warnings │ Duration │            Score │
+├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┼──────────────────┤
+│ Domains  2                                                                                │
+│ ad.evotec.xyz         │ ✗ FAIL │      9 │    ✗ 2 │      ▴ 5 │     24 s │ ▆▆▆▆▆▆      56 % │
+│ eu.ad.evotec.xyz      │ ✗ FAIL │     13 │    ✗ 1 │      ▴ 1 │     16 s │ ▆▆▆▆▆▆▆▆▆   87 % │
+│ Subtotal              │        │     22 │    ✗ 3 │      ▴ 6 │     40 s │           71,5 % │
+│ Domain controllers  5                                                                     │
+│ DC01.ad.evotec.xyz    │ ▴ WARN │     26 │      0 │      ▴ 3 │     17 s │ ▆▆▆▆▆▆▆▆▆   90 % │
+│ DC02.ad.evotec.xyz    │ ▴ WARN │     23 │      0 │      ▴ 6 │     17 s │ ▆▆▆▆▆▆▆▆    79 % │
+│ DC03.ad.evotec.xyz    │ ✗ FAIL │     23 │    ✗ 3 │      ▴ 4 │     19 s │ ▆▆▆▆▆▆▆▆    77 % │
+│ DC07.eu.ad.evotec.xyz │ ✗ FAIL │     21 │    ✗ 4 │      ▴ 4 │     16 s │ ▆▆▆▆▆▆▆     72 % │
+│ DC09.eu.ad.evotec.xyz │ ✓ PASS │     30 │      0 │        0 │     15 s │ ▆▆▆▆▆▆▆▆▆▆ 100 % │
+│ Subtotal              │        │    123 │    ✗ 7 │     ▴ 17 │ 1 m 24 s │           83,6 % │
+├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┼──────────────────┤
+│ Total                 │        │    145 │   ✗ 10 │     ▴ 23 │ 2 m 04 s │          80,14 % │
+╰───────────────────────┴────────┴────────┴────────┴──────────┴──────────┴──────────────────╯
+
+ PSPublishModule · ConsoleMonster 2.0.0 artifacts
+╭───────────────────────────────┬─────────┬─────────┬──────────┬──────────┬─────────────────────────────┬──────────────╮
+│ Artifact                      │ Kind    │    Size │ Built in │ Created  │ Path                        │ SHA256       │
+├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┼─────────────────────────────┼──────────────┤
+│ ConsoleMonster.2.0.0.nupkg    │ NuGet   │ 1,41 MB │     48 s │ 12 m ago │ C:\Support\Gi…r.2.0.0.nupkg │ 9f2c4e81a7d… │
+│ ConsoleMonster.2.0.0.snupkg   │ Symbols │  393 KB │    3,1 s │ 12 m ago │ C:\Support\Gi….2.0.0.snupkg │ 41ab09cd77e… │
+│ ConsoleMonster-2.0.0.zip      │ Module  │ 2,77 MB │     12 s │ 11 m ago │ C:\Support\Gi…ter-2.0.0.zip │ c0ffee4251d… │
+│ ConsoleMonster.PowerShell.dll │ Binary  │  184 KB │     23 s │ 3 h ago  │ C:\Support\Gi…owerShell.dll │ 77aa13f9b2c… │
+│ en-US\ConsoleMonster-help.xml │ Help    │   94 KB │    6,4 s │ 2 d ago  │ C:\Support\Gi…ster-help.xml │ 0be4d29c6a1… │
+├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┼─────────────────────────────┼──────────────┤
+│ Total                         │         │ 4,89 MB │ 1 m 33 s │          │                             │              │
+╰───────────────────────────────┴─────────┴─────────┴──────────┴──────────┴─────────────────────────────┴──────────────╯
+ Showing 5 of 1 234

@@ -1,0 +1,16 @@
+
+
+
+                   ╭─ Toolbox ────────────────────────────────────────╮
+                   │                                                  │
+                   │  ▌ t  [Targets]                   0/3  ›         │
+                   │    m  Mode                             ›         │
+                   │    o  Options                          ›         │
+                   │    p  Presets                          ›         │
+                   │    Run                                           │
+                   │    r  Review                           ›         │
+                   │    c  Clean                                      │
+                   │       Quit                                       │
+                   │    Where tasks run.                              │
+                   ╰──────────────────────────────────────────────────╯
+                    ↑↓ move  enter open  / filter  esc quit  ? keys

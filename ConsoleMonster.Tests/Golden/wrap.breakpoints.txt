@@ -1,0 +1,70 @@
+ Table cell (Data is 33 cells)
+╭───┬───────────────────────────────────╮
+│ # │ Data                              │
+├───┼───────────────────────────────────┤
+│ 1 │ evotec-xyz.mail.protection.       │
+│   │ outlook.com                       │
+│ 2 │ include:spf.protection.outlook.   │
+│   │ com include:_spf.google.com       │
+│ 3 │ selector1-evotec-xyz._domainkey.  │
+│   │ evotecpl.onmicrosoft.com          │
+│ 4 │ C:\Support\GitHub\ConsoleMonster\ │
+│   │ Artefacts\Packed\                 │
+│   │ ConsoleMonster.2.0.0.nupkg        │
+│ 5 │ https://mta-sts.evotec.xyz/.      │
+│   │ well-known/mta-sts.txt            │
+╰───┴───────────────────────────────────╯
+Record cards (44 cells)  ·  5 records
+
+record 1
+  Type  TXT
+  Data  evotec-xyz.mail.protection.outlook.
+        com
+
+record 2
+  Type  TXT
+  Data  include:spf.protection.outlook.com
+        include:_spf.google.com
+
+record 3
+  Type  TXT
+  Data  selector1-evotec-xyz._domainkey.
+        evotecpl.onmicrosoft.com
+
+record 4
+  Type  TXT
+  Data  C:\Support\GitHub\ConsoleMonster\
+        Artefacts\Packed\
+        ConsoleMonster.2.0.0.nupkg
+
+record 5
+  Type  TXT
+  Data  https://mta-sts.evotec.xyz/.
+        well-known/mta-sts.txt
+Key/value list (44 cells)
+Value 1  evotec-xyz.mail.protection.outlook.
+         com
+Value 2  include:spf.protection.outlook.com
+         include:_spf.google.com
+Value 3  selector1-evotec-xyz._domainkey.
+         evotecpl.onmicrosoft.com
+Value 4  C:\Support\GitHub\ConsoleMonster\
+         Artefacts\Packed\
+         ConsoleMonster.2.0.0.nupkg
+Value 5  https://mta-sts.evotec.xyz/.
+         well-known/mta-sts.txt
+Log region with Wrap (44 cells)
+WARN resolved
+     evotec-xyz.mail.protection.outlook.com
+WARN resolved
+     include:spf.protection.outlook.com
+     include:_spf.google.com
+WARN resolved
+     selector1-evotec-xyz._domainkey.
+     evotecpl.onmicrosoft.com
+WARN resolved
+     C:\Support\GitHub\ConsoleMonster\
+     Artefacts\Packed\…
+WARN resolved
+     https://mta-sts.evotec.xyz/.well-known/
+     mta-sts.txt

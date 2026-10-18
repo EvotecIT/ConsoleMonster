@@ -1,0 +1,24 @@
+ Install agent › Service › Sites
+╭─ Service ────────────────────────────────────────────────────────────── 2/3 ─╮
+│                                                                              │
+│  ● Location ── ● Service ── ○ Review                                         │
+│                                                                              │
+│  Sites                                                                       │
+│                                                                              │
+│  › type to filter        0 of 2 selected                                     │
+│  ▌ [ ] [Warsaw]                                                              │
+│    [ ] Berlin                                                                │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  f1 keys

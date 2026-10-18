@@ -1,0 +1,25 @@
+Domain users
+
+ - bob
+╭──────────┬────────┬───────╮
+│ Property │ Before │ After │
+├──────────┼────────┼───────┤
+│ Title    │ Admin  │       │
+│ Enabled  │ True   │       │
+╰──────────┴────────┴───────╯
+
+ ~ anna
+╭──────────────┬──────────┬───────────────╮
+│ Property     │ Before   │ After         │
+├──────────────┼──────────┼───────────────┤
+│ Title        │ Engineer │ Lead engineer │
+│ Address.City │ Warsaw   │ Krakow        │
+╰──────────────┴──────────┴───────────────╯
+
+ + dora
+╭──────────┬────────┬─────────╮
+│ Property │ Before │ After   │
+├──────────┼────────┼─────────┤
+│ Title    │        │ Analyst │
+│ Enabled  │        │ True    │
+╰──────────┴────────┴─────────╯

@@ -1,0 +1,93 @@
+ evotec.xyz · DNS records via Cloudflare DoH
+┌───────────────────────┬───────┬───────────────────────────────────┬──────────┐
+│ Name                  │ Type  │ Data                              │  Latency │
+├───────────────────────┼───────┼───────────────────────────────────┼──────────┤
+│ evotec.xyz            │ A     │ 104.21.48.12                      │    12 ms │
+│ evotec.xyz            │ AAAA  │ 2606:4700:3036::6815:300c         │    14 ms │
+│ evotec.xyz            │ MX    │ 10                                │    18 ms │
+│                       │       │ evotec-xyz.mail.protection.       │          │
+│                       │       │ outlook.com                       │          │
+│ evotec.xyz            │ TXT   │ v=spf1                            │    21 ms │
+│                       │       │ include:spf.protection.outlook.   │          │
+│                       │       │ com include:_spf.google.com…      │          │
+│ _dmarc.evotec.xyz     │ TXT   │ v=DMARC1; p=reject;               │ ! 133 ms │
+│                       │       │ rua=mailto:dmarc@evotec.xyz;      │          │
+│                       │       │ ruf=mailto:forensic@evotec.xyz;…  │          │
+│ selector1.…evotec.xyz │ CNAME │ selector1-evotec-xyz._domainkey.  │    16 ms │
+│                       │       │ evotecpl.onmicrosoft.com          │          │
+│ evotec.xyz            │ CAA   │ 0 issue "letsencrypt.org"         │    15 ms │
+└───────────────────────┴───────┴───────────────────────────────────┴──────────┘
+ +2 columns (TTL, Cache file)
+
+ evotec.xyz · DomainDetective checks
+┌─────────┬────────┬───────────────────────────────────────────┬────────┬──────┐
+│ Check   │ Status │ Detail                                    │   Took │ RFC  │
+├─────────┼────────┼───────────────────────────────────────────┼────────┼──────┤
+│ SPF     │ √ PASS │ 9 DNS lookups (limit 10); ends with -all  │  84 ms │ 7208 │
+│ DMARC   │ √ PASS │ p=reject, aggregate and forensic reports  │  41 ms │ 7489 │
+│         │        │ configured                                │        │      │
+│ DKIM    │ ! WARN │ selector2 key is 1024-bit; selector1 is   │ 212 ms │ 6376 │
+│         │        │ 2048-bit. Rotate selector2 to a 2048-bit… │        │      │
+│ MTA-STS │ × FAIL │ policy file returns 404 at                │  1.4 s │ 8461 │
+│         │        │ https://mta-sts.evotec.xyz/.well-known/…  │        │      │
+│ TLS-RPT │ – SKIP │ not published                             │  22 ms │ 8460 │
+│ DNSSEC  │ ! WARN │ zone is not signed                        │  95 ms │ 4033 │
+│ BIMI    │ ♦ INFO │ no record; optional                       │  19 ms │      │
+└─────────┴────────┴───────────────────────────────────────────┴────────┴──────┘
+
+mail.evotec.xyz  ·  TLS certificate · ECDSA P-256 · Let's Encrypt
+
+Certificate
+  Subject           CN=mail.evotec.xyz
+  Issuer            CN=R11, O=Let's Encrypt, C=US
+  Serial            04:A1:7F:3C:9E:22:51:0B:6D:8E:F0:13:44:2A:BC:91
+  Valid from (UTC)  2026-08-09 12:00 (2 mo ago)
+  Valid to (UTC)    ! 2026-11-08 12:00 (in 22 d)
+  Key               ECDSA P-256
+  OCSP stapling     √ yes
+  Revoked           – no
+  Subject alternative names  3
+    mail.evotec.xyz
+    autodiscover.evotec.xyz
+    mta-sts.evotec.xyz
+  Chain  3 certificates
+    Subject                  Expires    Key
+    ───────────────────────  ─────────  ───────────
+    CN=mail.evotec.xyz       ! in 22 d  ECDSA P-256
+    CN=R11, O=Let's Encrypt  in 4 mo    RSA 2048
+    CN=ISRG Root X1          in 8 y     RSA 4096
+
+ TestimoX · ad.evotec.xyz run summary
+┌───────────────────────┬────────┬────────┬────────┬──────────┬──────────┐
+│ Target                │ Result │ Passed │ Failed │ Warnings │ Duration │
+├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┤
+│ Domains  2                                                             │
+│ ad.evotec.xyz         │ × FAIL │      9 │    × 2 │      ! 5 │     24 s │
+│ eu.ad.evotec.xyz      │ × FAIL │     13 │    × 1 │      ! 1 │     16 s │
+│ Subtotal              │        │     22 │    × 3 │      ! 6 │     40 s │
+│ Domain controllers  5                                                  │
+│ DC01.ad.evotec.xyz    │ ! WARN │     26 │      0 │      ! 3 │     17 s │
+│ DC02.ad.evotec.xyz    │ ! WARN │     23 │      0 │      ! 6 │     17 s │
+│ DC03.ad.evotec.xyz    │ × FAIL │     23 │    × 3 │      ! 4 │     19 s │
+│ DC07.eu.ad.evotec.xyz │ × FAIL │     21 │    × 4 │      ! 4 │     16 s │
+│ DC09.eu.ad.evotec.xyz │ √ PASS │     30 │      0 │        0 │     15 s │
+│ Subtotal              │        │    123 │    × 7 │     ! 17 │ 1 m 24 s │
+├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┤
+│ Total                 │        │    145 │   × 10 │     ! 23 │ 2 m 04 s │
+└───────────────────────┴────────┴────────┴────────┴──────────┴──────────┘
+ +1 column (Score)
+
+ PSPublishModule · ConsoleMonster 2.0.0 artifacts
+┌───────────────────────────────┬─────────┬─────────┬──────────┬──────────┐
+│ Artifact                      │ Kind    │    Size │ Built in │ Created  │
+├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┤
+│ ConsoleMonster.2.0.0.nupkg    │ NuGet   │ 1.41 MB │     48 s │ 12 m ago │
+│ ConsoleMonster.2.0.0.snupkg   │ Symbols │  393 KB │    3.1 s │ 12 m ago │
+│ ConsoleMonster-2.0.0.zip      │ Module  │ 2.77 MB │     12 s │ 11 m ago │
+│ ConsoleMonster.PowerShell.dll │ Binary  │  184 KB │     23 s │ 3 h ago  │
+│ en-US\ConsoleMonster-help.xml │ Help    │   94 KB │    6.4 s │ 2 d ago  │
+├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┤
+│ Total                         │         │ 4.89 MB │ 1 m 33 s │          │
+└───────────────────────────────┴─────────┴─────────┴──────────┴──────────┘
+ +2 columns (Path, SHA256)
+ Showing 5 of 1,234

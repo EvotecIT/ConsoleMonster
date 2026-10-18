@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <!-- Fail builds on any compiler warning to keep the codebase clean (mirrors DnsClientX). -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Company>Evotec</Company>
+    <Authors>Przemyslaw Klys</Authors>
+    <Copyright>(c) 2011 - 2026 Przemyslaw Klys @ Evotec. All rights reserved.</Copyright>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>

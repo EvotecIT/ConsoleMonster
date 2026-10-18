@@ -1,0 +1,108 @@
+# Tests on every push and pull request: xUnit on .NET Framework 4.7.2 and .NET 8, and Pester on Windows PowerShell 5.1 and
+# PowerShell 7 against the development binaries, all on Windows. No secrets, no publishing.
+name: Test
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - 'Docs/**'
+      - '.gitignore'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: |
+    8.x
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  TEST_VERBOSITY: minimal
+
+jobs:
+  dotnet-windows:
+    name: 'xUnit (Windows, ${{ matrix.framework }})'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [net472, net8.0]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ConsoleMonster.sln
+
+      - name: Build (warnings as errors)
+        run: dotnet build ConsoleMonster.sln --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 15
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-windows-${{ matrix.framework }}
+          path: '**/*.trx'
+
+  pester:
+    name: 'Pester (${{ matrix.name }})'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: 'Windows PowerShell 5.1'
+            shell: powershell
+          - name: 'PowerShell 7'
+            shell: pwsh
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
+        run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
+
+      - name: Install Pester
+        run: |
+          Write-Host "PowerShell $($PSVersionTable.PSVersion)"
+          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+          Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Run Pester
+        run: |
+          Import-Module Pester -MinimumVersion 5.5.0
+          Write-Host "Pester $((Get-Module Pester).Version)"
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = 'Module/Tests'
+          $configuration.Run.Exit = $true
+          $configuration.Output.Verbosity = 'Detailed'
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputPath = 'pester-results.xml'
+          Invoke-Pester -Configuration $configuration
+        timeout-minutes: 20
+
+      - name: Upload Pester results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pester-results-${{ matrix.shell }}
+          path: pester-results.xml

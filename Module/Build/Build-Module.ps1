@@ -1,0 +1,146 @@
+param(
+    [Alias('ConfigurationGateMode')]
+    [ValidateSet('Manifest', 'Documentation', 'Build', 'Publish')]
+    [string] $RunMode = 'Build',
+
+    [bool] $SignModule = $true,
+
+    [string] $ProjectBuildConfigPath = '..\Build\project.build.json',
+
+    [string] $PowerShellGalleryApiKeyPath = 'C:\Support\Important\PowerShellGalleryAPI.txt',
+
+    [string] $GitHubApiKeyPath = 'C:\Support\Important\GitHubAPI.txt'
+)
+
+Import-Module PSPublishModule -Force -ErrorAction Stop
+
+Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
+    # Usual defaults as per standard module
+    $Manifest = [ordered] @{
+        # Minimum version of the Windows PowerShell engine required by this module
+        PowerShellVersion    = '5.1'
+        # Supported PSEditions
+        CompatiblePSEditions = @('Desktop', 'Core')
+        # ID used to uniquely identify this module
+        GUID                 = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
+        # Version number of this module.
+        ModuleVersion        = '2.0.X'
+        # Author of this module
+        Author               = 'Przemyslaw Klys'
+        # Company or vendor of this module
+        CompanyName          = 'Evotec'
+        # Copyright statement for this module
+        Copyright            = "(c) 2011 - $((Get-Date).Year) Przemyslaw Klys @ Evotec. All rights reserved."
+        # Description of the functionality provided by this module
+        Description          = 'Rich console output for PowerShell 5.1 and 7: tables, trees, panels, charts and live dashboards with thread-safe updates, captured script output and graceful fallback to plain text.'
+        # Tags applied to this module. These help with module discovery in online galleries.
+        Tags                 = @('Windows', 'MacOS', 'Linux', 'Console', 'Terminal', 'Dashboard', 'Table', 'Progress', 'TUI')
+        # A URL to the main website for this project.
+        ProjectUri           = 'https://github.com/EvotecIT/ConsoleMonster'
+        # A URL to an icon representing this module.
+        IconUri              = 'https://evotec.xyz/wp-content/uploads/2022/08/ConsoleMonster-1.png'
+    }
+    New-ConfigurationManifest @Manifest
+
+    $ConfigurationFormat = [ordered] @{
+        RemoveComments                              = $false
+
+        PlaceOpenBraceEnable                        = $true
+        PlaceOpenBraceOnSameLine                    = $true
+        PlaceOpenBraceNewLineAfter                  = $true
+        PlaceOpenBraceIgnoreOneLineBlock            = $true
+
+        PlaceCloseBraceEnable                       = $true
+        PlaceCloseBraceNewLineAfter                 = $false
+        PlaceCloseBraceIgnoreOneLineBlock           = $false
+        PlaceCloseBraceNoEmptyLineBefore            = $true
+
+        UseConsistentIndentationEnable              = $true
+        UseConsistentIndentationKind                = 'space'
+        UseConsistentIndentationPipelineIndentation = 'IncreaseIndentationAfterEveryPipeline'
+        UseConsistentIndentationIndentationSize     = 4
+
+        UseConsistentWhitespaceEnable               = $true
+        UseConsistentWhitespaceCheckInnerBrace      = $true
+        UseConsistentWhitespaceCheckOpenBrace       = $true
+        UseConsistentWhitespaceCheckOpenParen       = $true
+        UseConsistentWhitespaceCheckOperator        = $true
+        UseConsistentWhitespaceCheckPipe            = $true
+        UseConsistentWhitespaceCheckSeparator       = $true
+
+        AlignAssignmentStatementEnable              = $true
+        AlignAssignmentStatementCheckHashtable      = $true
+
+        UseCorrectCasingEnable                      = $true
+    }
+    # format PSD1 and PSM1 files when merging into a single file
+    # enable formatting is not required as Configuration is provided
+    New-ConfigurationFormat -ApplyTo 'OnMergePSM1', 'OnMergePSD1' -Sort None @ConfigurationFormat
+    # format PSD1 and PSM1 files within the module
+    # enable formatting is required to make sure that formatting is applied (with default settings)
+    New-ConfigurationFormat -ApplyTo 'DefaultPSD1', 'DefaultPSM1' -Sort None @ConfigurationFormat
+    # when creating PSD1 use special style without comments and with only required parameters
+    New-ConfigurationFormat -ApplyTo 'DefaultPSD1', 'OnMergePSD1' -PSD1Style 'Minimal'
+
+    # configuration for documentation, at the same time it enables documentation processing
+    New-ConfigurationDocumentation -Enable -PathReadme 'Docs\Readme.md' -Path 'Docs' -SyncExternalHelpToProjectRoot
+
+    New-ConfigurationImportModule -ImportSelf
+
+    $newConfigurationBuildSplat = @{
+        Enable                               = $true
+        SignModule                           = $SignModule
+        MergeModuleOnBuild                   = $true
+        MergeFunctionsFromApprovedModules    = $true
+        CertificateThumbprint                = '92E95FB58EFFA6A4A75E77A33CDD6BFE6DD30F1A'
+        ResolveBinaryConflicts               = $true
+        ResolveBinaryConflictsName           = 'ConsoleMonster.PowerShell'
+        NETProjectName                       = 'ConsoleMonster.PowerShell'
+        NETProjectPath                       = '..\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj'
+        NETConfiguration                     = 'Release'
+        NETFramework                         = 'net8.0', 'net472'
+        NETHandleAssemblyWithSameName        = $true
+        NETAssemblyLoadContext               = $true
+        NETAssemblyTypeAcceleratorMode       = 'Assembly'
+        NETAssemblyTypeAcceleratorAssemblies = @(
+            'ConsoleMonster'
+        )
+        DotSourceLibraries                   = $true
+        DotSourceClasses                     = $true
+        DeleteTargetModuleBeforeBuild        = $true
+        NETBinaryModuleDocumentation         = $true
+        NETDevelopmentBinaries               = $true
+        NETDevelopmentBinariesMode           = 'Auto'
+        NETDevelopmentBinariesPath           = '..\ConsoleMonster.PowerShell\bin'
+        NETDevelopmentSourceBootstrapperMode = 'ReplaceSingleFile'
+    }
+
+    New-ConfigurationBuild @newConfigurationBuildSplat
+
+    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled:$false -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget
+    New-ConfigurationRelease -StageRoot '..\Artefacts\UploadReady' -VersionSource ProjectBuild -PrimaryProject 'ConsoleMonster' -SynchronizeModuleVersion -BuildOrder 'Packages', 'Module' -PublishOrder 'NuGet', 'PowerShellGallery', 'GitHub'
+
+    $newConfigurationArtefactSplat = @{
+        Type                = 'Unpacked'
+        Enable              = $true
+        Path                = '..\Artefacts\Unpacked'
+        ModulesPath         = 'Modules'
+        RequiredModulesPath = 'Modules'
+        AddRequiredModules  = $true
+    }
+    New-ConfigurationArtefact @newConfigurationArtefactSplat -CopyFilesRelative
+    $newConfigurationArtefactSplat = @{
+        Type                = 'Packed'
+        Enable              = $true
+        Path                = '..\Artefacts\Packed'
+        ModulesPath         = 'Modules'
+        RequiredModulesPath = 'Modules'
+        AddRequiredModules  = $true
+        ArtefactName        = 'ConsoleMonster-PowerShellModule.<TagModuleVersionWithPreRelease>.zip'
+        IncludeTagName      = $true
+    }
+    New-ConfigurationArtefact @newConfigurationArtefactSplat
+
+    New-ConfigurationPublish -Type PowerShellGallery -FilePath $PowerShellGalleryApiKeyPath -Enabled:$false -UseAsDependencyVersionSource
+    New-ConfigurationPublish -Type GitHub -FilePath $GitHubApiKeyPath -UserName 'EvotecIT' -Enabled:$false -RepositoryName 'ConsoleMonster' -GenerateReleaseNotes -OverwriteTagName 'ConsoleMonster-PowerShellModule.<TagModuleVersionWithPreRelease>'
+} -ExitCode

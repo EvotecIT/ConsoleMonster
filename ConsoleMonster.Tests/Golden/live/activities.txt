@@ -1,0 +1,3 @@
+⠙ Backup         ━━━━━────────────  30% File 3 of 10 · ~42s left
+  ⠹ Compressing  ━━━━━━━━╾────────  50% chunk 1
+○ Waiting

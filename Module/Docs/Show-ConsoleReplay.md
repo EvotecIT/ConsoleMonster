@@ -1,0 +1,159 @@
+---
+external help file: ConsoleMonster-help.xml
+Module Name: ConsoleMonster
+online version: https://github.com/EvotecIT/ConsoleMonster
+schema: 2.0.0
+---
+# Show-ConsoleReplay
+## SYNOPSIS
+Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
+
+Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
+
+## SYNTAX
+### __AllParameterSets
+```powershell
+Show-ConsoleReplay [-Dashboard] <IWidget> [[-Path] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
+
+Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). Markers are added while recording with Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'label'. Without -Path the newest automatic recording is played. Without an interactive console the markers are printed as lines.
+
+## EXAMPLES
+
+### EXAMPLE 1
+```powershell
+Show-ConsoleReplay -Dashboard 'Value'
+```
+
+
+## PARAMETERS
+
+### -Dashboard
+The dashboard (or any widget tree) whose widget names match the recording.
+
+```yaml
+Type: IWidget
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Height
+The height of the recorded screen in rows (default the window, or the dashboard's own height inline).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Inline
+Plays below the cursor instead of on the whole window.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+The recording file; default the newest file in the automatic recording folder.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Paused
+Opens paused at the start.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Speed
+The starting speed, 0.25 to 16 (default 1).
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+The run name in the header (default the file name).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+- `None`
+
+## OUTPUTS
+
+- `None`
+
+## RELATED LINKS
+
+- None

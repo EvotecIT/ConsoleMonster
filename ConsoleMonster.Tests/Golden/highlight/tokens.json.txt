@@ -1,0 +1,8 @@
+«Punctuation:{»
+  «Key:"name"»«Punctuation::» «String:"ConsoleMonster"»«Punctuation:,»
+  «Key:"version"»«Punctuation::» «Number:2.0»«Punctuation:,»
+  «Key:"tags"»«Punctuation::» «Punctuation:[»«String:"console"»«Punctuation:,» «String:"tui"»«Punctuation:]»«Punctuation:,»
+  «Key:"stable"»«Punctuation::» «Literal:false»«Punctuation:,»
+  «Key:"license"»«Punctuation::» «Literal:null»«Punctuation:,»
+  «Error:oops»
+«Punctuation:}»

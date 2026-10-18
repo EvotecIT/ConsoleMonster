@@ -1,0 +1,24 @@
+ Install agent › Service
+╭─ Service ────────────────────────────────────────────────────────────── 2/3 ─╮
+│                                                                              │
+│  ● Location ── ● Service ── ○ Review                                         │
+│                                                                              │
+│  Service                                                                     │
+│                                                                              │
+│  ▌ Custom account   [✓] Yes                                                  │
+│    User name*       —                                                        │
+│    Password*        —                                                        │
+│    Sites            none ▾                                                   │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                             Back   Review    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space toggle  pgdn next  esc back  f1 keys

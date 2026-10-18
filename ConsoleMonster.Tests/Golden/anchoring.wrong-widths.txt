@@ -1,0 +1,16 @@
+== unanchored (rows drift)
+╭───────────┬───────────┬────────┬───────╮
+│ Owner     │ Site      │ Status │ Count │
+├───────────┼───────────┼────────┼───────┤
+│ E~~~~~ family │ E Warsaw │ E~ warn │    42 │
+│ E~E~      │ Tokyo     │ ok     │     7 │
+│ Ada       │ London    │ ok     │  1234 │
+╰───────────┴───────────┴────────┴───────╯
+== anchored (columns hold)
+╭───────────┬───────────┬────────┬───────╮
+│ Owner     │ Site      │ Status │ Count │
+├───────────┼───────────┼────────┼───────┤
+│    family │ E  Warsaw │   warn │    42 │
+│ E~E~      │ Tokyo     │ ok     │     7 │
+│ Ada       │ London    │ ok     │  1234 │
+╰───────────┴───────────┴────────┴───────╯

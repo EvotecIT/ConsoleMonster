@@ -1,0 +1,5 @@
+«Comment:; settings»
+«Header:[server]»
+«Key:host» «Punctuation:=» «String:"example.local"»
+«Key:port» «Punctuation:=» «Number:8080»
+«Key:secure» «Punctuation:=» «Literal:true»
