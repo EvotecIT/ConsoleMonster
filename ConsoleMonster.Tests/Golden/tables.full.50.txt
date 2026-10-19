@@ -132,12 +132,12 @@ Certificate
     autodiscover.evotec.xyz
     mta-sts.evotec.xyz
   Chain  3 certificates
-    Subject                  Expires   Key
-    ───────────────────────  ────────  ───────────
-    CN=mail.evotec.xyz       ▴ in 22   ECDSA P-256
-                             d
-    CN=R11, O=Let's Encrypt  in 4 mo   RSA 2048
-    CN=ISRG Root X1          in 8 y    RSA 4096
+    Subject                  Expires    Key
+    ───────────────────────  ─────────  ──────────
+    CN=mail.evotec.xyz       ▴ in 22 d  ECDSA
+                                        P-256
+    CN=R11, O=Let's Encrypt  in 4 mo    RSA 2048
+    CN=ISRG Root X1          in 8 y     RSA 4096
 
 TestimoX · ad.evotec.xyz run summary  ·  7 records
 

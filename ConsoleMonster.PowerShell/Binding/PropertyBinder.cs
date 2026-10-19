@@ -278,7 +278,8 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetEnum<ColumnOverflow>(options, "Overflow", value => column.Overflow = value);
             SetEnum<HorizontalAlignment>(options, "Alignment", value => column.Alignment = value);
             SetEnum<ColumnAggregate>(options, "Aggregate", value => column.Aggregate = value);
-            SetInt(options, "MaxLines", value => column.MaxLines = value);
+            // MaxLines = 0 in a column hashtable keeps its meaning of "no limit"; leaving it out follows the table (3 lines, or every line with -Wrap).
+            SetInt(options, "MaxLines", value => column.MaxLines = value <= 0 ? TableColumn.Unlimited : value);
             SetInt(options, "Priority", value => column.Priority = value);
             SetInt(options, "MinWidth", value => column.MinWidth = value);
             SetInt(options, "MaxWidth", value => column.MaxWidth = value);

@@ -105,6 +105,17 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Shows only the first N rows (0 = all) followed by <c>Showing N of M</c>; totals still cover every row.</summary>
         public int MaxRows { get; set; }
 
+        private int _wrapLines = 3;
+
+        /// <summary>
+        /// The most lines a wrapped value uses when its column sets no <see cref="TableColumn.MaxLines"/> (default 3; 0 =
+        /// no limit): a long description stays a few lines with an ellipsis instead of taking the screen.
+        /// </summary>
+        public int WrapLines {
+            get => _wrapLines;
+            set => _wrapLines = value < 0 ? 0 : value;
+        }
+
         /// <summary>
         /// The total number of records when the caller added only some of them (for example the first 50 of 1,234), so the
         /// footer can say <c>Showing 50 of 1,234</c>; null when every record was added.

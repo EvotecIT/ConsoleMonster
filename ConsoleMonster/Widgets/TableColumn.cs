@@ -48,7 +48,10 @@ namespace ConsoleMonster.Widgets {
             set => _overflow = value;
         }
 
-        /// <summary>The most lines a wrapped value may use (0 = unlimited); the last line ends with an ellipsis when cut.</summary>
+        /// <summary>A <see cref="MaxLines"/> value that shows every line of the column's values, whatever the table's <see cref="Table.WrapLines"/>.</summary>
+        public const int Unlimited = int.MaxValue;
+
+        /// <summary>The most lines a wrapped value may use: 0 (the default) follows the table's <see cref="Table.WrapLines"/> (3 unless changed), <see cref="Unlimited"/> shows every line. The last line ends with an ellipsis when cut.</summary>
         public int MaxLines {
             get => _maxLines;
             set => _maxLines = value < 0 ? 0 : value;

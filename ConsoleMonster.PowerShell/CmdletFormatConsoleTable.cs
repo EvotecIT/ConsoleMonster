@@ -88,6 +88,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoSort { get; set; }
 
+        /// <summary><para type="description">Shows every line of long values. Without it a value wraps onto at most three lines and the last ends with an ellipsis (a column's MaxLines option still applies). Short values (numbers, sizes, booleans, dates, enums, statuses) never wrap either way.</para></summary>
+        [Parameter]
+        public SwitchParameter Wrap { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -112,6 +116,9 @@ namespace ConsoleMonster.PowerShell {
                 table.CardsBelow = CardsBelow;
                 table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
                 table.MaxRows = Top > 0 ? Top : 0;
+                if (Wrap.IsPresent) {
+                    table.WrapLines = 0;
+                }
                 first = false;
             });
             Layout.IWidget output = PSFormatting.Combine(tables);

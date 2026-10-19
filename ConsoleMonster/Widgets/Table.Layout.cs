@@ -126,9 +126,10 @@ namespace ConsoleMonster.Widgets {
             int want = content.HasVisual ? text + 1 + content.Presented!.VisualWidth : text;
             desired = Math.Max(desired, want);
             int least;
-            if (content.Presented != null && content.Alignment == HorizontalAlignment.Right) {
-                // Numbers, sizes and durations never wrap or truncate: a cut number is a wrong number. A data bar
-                // next to the number takes only the space left over.
+            if (content.Atomic || (content.Presented != null && content.Alignment == HorizontalAlignment.Right)) {
+                // Short values never wrap or truncate: numbers, sizes and durations (a cut number is a wrong number),
+                // booleans, dates, enums and status words. Free text gives way first. A data bar next to a number takes
+                // only the space left over.
                 minimum = Math.Max(minimum, text);
                 return;
             }
@@ -315,7 +316,7 @@ namespace ConsoleMonster.Widgets {
                 int visual = CellRendering.VisualCells(content, width, content.TextWidth);
                 int textWidth = Math.Max(1, width - visual - (visual > 0 ? 1 : 0));
                 TableColumn column = _columns[c];
-                row.Lines[v] = Fit(content.Lines, textWidth, column.Overflow, column.MaxLines, context);
+                row.Lines[v] = Fit(content.Lines, textWidth, column.Overflow, column.MaxLines > 0 ? column.MaxLines : WrapLines, context);
                 row.VisualCells[v] = visual;
                 height = Math.Max(height, row.Lines[v].Count);
             }

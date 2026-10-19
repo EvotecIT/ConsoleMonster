@@ -13,9 +13,7 @@
 \e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m protection.outlook.com \e[0;90m│\e[0m
 \e[0;90m│\e[0m evotec.xyz        \e[0;90m│\e[0m TXT  \e[0;90m│\e[0m 3600 \e[0;90m│\e[0m v=spf1                 \e[0;90m│\e[0m
 \e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m include:spf.           \e[0;90m│\e[0m
-\e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m protection.outlook.com \e[0;90m│\e[0m
-\e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m include:_spf.google.   \e[0;90m│\e[0m
-\e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m com -all               \e[0;90m│\e[0m
+\e[0;90m│\e[0m                   \e[0;90m│\e[0m      \e[0;90m│\e[0m      \e[0;90m│\e[0m protection.outlook.co\e[0;90m…\e[0m\e[59G \e[0;90m│\e[0m
 \e[0;90m│\e[0m _dmarc.evotec.xyz \e[0;90m│\e[0m TXT  \e[0;90m│\e[0m 3600 \e[0;90m│\e[0m \e[0;92m✓\e[38G p=reject\e[0m             \e[0;90m│\e[0m
 \e[0;90m╰───────────────────┴──────┴──────┴────────────────────────╯\e[0m
 

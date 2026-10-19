@@ -106,6 +106,16 @@ $p = Get-Process -Id $PID
         $text | Should -Match '\|\s+3\.00 \|'
     }
 
+    It 'wraps long text onto three lines unless -Wrap is given, and keeps short values whole' {
+        $script = "`$rows = @([pscustomobject] @{ Name = 'a'; Enabled = `$true; Notes = ('word ' * 60) }, [pscustomobject] @{ Name = 'b'; Enabled = `$false; Notes = 'short' })"
+        $default = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50"
+        $all = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50 -Wrap"
+        @($default -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -Be 5
+        $default | Should -Match '\.\.\. \|'
+        @($all -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -BeGreaterThan 5
+        $default | Should -Match '\| yes\s+\|'
+    }
+
     It 'passes objects through with -PassThru' {
         $text = Invoke-FormatChild -Script "`$out = `$artifacts | Format-ConsoleTable -Width 80 -PassThru; 'COUNT=' + @(`$out).Count"
         $text | Should -Match 'COUNT=3'

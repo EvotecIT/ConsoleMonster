@@ -13,10 +13,14 @@ namespace ConsoleMonster.Widgets {
     /// a data bar, sparkline or progress graphic). Shared by tables, record cards and record views.
     /// </summary>
     internal sealed class CellContent {
-        internal CellContent(List<StyledLine> lines, PresentedValue? presented) {
+        internal CellContent(List<StyledLine> lines, PresentedValue? presented, bool atomic = false) {
             Lines = lines;
             Presented = presented;
+            Atomic = atomic;
         }
+
+        /// <summary>A short value that never breaks (a boolean, date, enum, duration, version or status word).</summary>
+        internal bool Atomic { get; }
 
         internal List<StyledLine> Lines { get; }
 
@@ -57,7 +61,9 @@ namespace ConsoleMonster.Widgets {
         internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
             if (cell.HasValue && !(cell.Value is RichText)) {
                 PresentedValue presented = CellPresenters.Present(cell.Value, presenter, rules, context);
-                return new CellContent(new List<StyledLine> { presented.Line }, presented);
+                // A status word held as text ("Warning" in a State column) is as short as a status enum.
+                bool status = presented.Tone.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
+                return new CellContent(new List<StyledLine> { presented.Line }, presented, (IsShortValue(cell.Value) || status) && presented.Line.Width <= ShortValueWidth);
             }
             RenderContext render = context.Render;
             // Rich text values keep their own colours and line breaks, like markup cells.
@@ -74,8 +80,17 @@ namespace ConsoleMonster.Widgets {
                 }
                 lines[0] = new StyledLine(spans);
             }
-            return new CellContent(lines, null);
+            // A status cell's word ("✓ Passed") is a short value too.
+            return new CellContent(lines, null, cell.Status.HasValue && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
         }
+
+        // The widest a short value may be and still never break (a date with time and zone is about 25 cells).
+        private const int ShortValueWidth = 32;
+
+        /// <summary>Values that read as one token and never break: booleans, dates, durations, enums, statuses, versions, GUIDs and addresses.</summary>
+        internal static bool IsShortValue(object? value) =>
+            value is bool || value is DateTime || value is DateTimeOffset || value is TimeSpan || value is Enum || value is StatusKind
+            || value is Version || value is Guid || value is System.Net.IPAddress;
 
         /// <summary>Cells a visual takes inside a cell of <paramref name="width"/> that also shows <paramref name="textWidth"/> cells of text.</summary>
         internal static int VisualCells(CellContent content, int width, int textWidth) {
