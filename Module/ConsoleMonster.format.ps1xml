@@ -41,6 +41,7 @@
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Rule</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Slot</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
         <TypeName>ConsoleMonster.Widgets.Spinner</TypeName>
