@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.PowerShell.Binding;
@@ -7,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Formats pipeline objects as a width-aware table and writes it to the host.</para>
-    /// <para type="description">Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards; a single object becomes a record view. Redirected output is plain text without escape codes.</para>
+    /// <para type="description">Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.</para>
     /// <example>
     ///   <para>Largest files, sizes as bytes, paths shortened in the middle</para>
     ///   <code>Get-ChildItem -File | Sort-Object Length -Descending | Format-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }</code>
@@ -88,6 +89,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoSort { get; set; }
 
+        /// <summary><para type="description">How the rows are laid out: Table (default; one object stays a one-row table, as with Format-Table), or Record (Cards is the same) for each object as labelled fields, as a single object used to be shown and as narrow windows show rows; -Top, the "Showing" line and -Total still apply.</para></summary>
+        [Parameter]
+        [ValidateSet("Table", "Record", "Cards", IgnoreCase = true)]
+        public string View { get; set; } = "Table";
+
         /// <summary><para type="description">Shows every line of long values. Without it a value wraps onto at most three lines and the last ends with an ellipsis (a column's MaxLines option still applies). Short values (numbers, sizes, booleans, dates, enums, statuses) never wrap either way.</para></summary>
         [Parameter]
         public SwitchParameter Wrap { get; set; }
@@ -119,6 +125,10 @@ namespace ConsoleMonster.PowerShell {
                 if (Wrap.IsPresent) {
                     table.WrapLines = 0;
                 }
+                // One object stays a table unless asked; Record (or Cards) shows every row as labelled fields, with -Top,
+                // the "Showing" line and the totals still applied.
+                table.RecordViewRows = 0;
+                table.AlwaysCards = !string.Equals(View, "Table", StringComparison.OrdinalIgnoreCase);
                 first = false;
             });
             Layout.IWidget output = PSFormatting.Combine(tables);
