@@ -19,6 +19,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The new status.</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind? Status { get; set; }
 
         /// <summary><para type="description">A detail such as a percentage or duration.</para></summary>

@@ -1,4 +1,4 @@
-Describe 'Show-Console, default formatting and the taskbar indicator' {
+﻿Describe 'Show-Console, default formatting and the taskbar indicator' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'

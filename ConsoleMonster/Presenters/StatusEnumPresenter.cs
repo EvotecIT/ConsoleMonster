@@ -23,7 +23,11 @@ namespace ConsoleMonster.Presenters {
             ["false"] = StatusKind.Fail,
             ["warning"] = StatusKind.Warn, ["degraded"] = StatusKind.Warn, ["paused"] = StatusKind.Warn, ["pending"] = StatusKind.Warn,
             ["startpending"] = StatusKind.Warn, ["stoppending"] = StatusKind.Warn, ["continuepending"] = StatusKind.Warn,
-            ["pausepending"] = StatusKind.Warn, ["suspended"] = StatusKind.Warn, ["unknown"] = StatusKind.Warn
+            ["pausepending"] = StatusKind.Warn, ["suspended"] = StatusKind.Warn, ["unknown"] = StatusKind.Warn,
+            // PowerShell's own words (streams, event levels, test results).
+            ["warn"] = StatusKind.Warn, ["failure"] = StatusKind.Fail, ["skip"] = StatusKind.Skip,
+            ["info"] = StatusKind.Info, ["information"] = StatusKind.Info, ["informational"] = StatusKind.Info,
+            ["verbose"] = StatusKind.Info, ["debug"] = StatusKind.Info
         };
 
         /// <summary>Whether a word reads as a status.</summary>

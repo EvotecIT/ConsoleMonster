@@ -35,6 +35,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A final status (Pass, Fail, Warn).</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind? Status { get; set; }
 
         /// <inheritdoc />

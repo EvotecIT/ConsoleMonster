@@ -58,6 +58,41 @@ namespace ConsoleMonster.Presenters {
             return null;
         }
 
+        /// <summary>
+        /// The status presenter for a column whose values read as statuses, whatever presenters are otherwise chosen: an enum
+        /// with status names (ServiceControllerStatus), or text in a column named like a status (Status, State, Result,
+        /// Outcome, Health, Level, Severity) whose value is a status word (Success, Warning, Error, Running...). The value's
+        /// own word is kept, with a marker and tone: <c>✓ Success</c>, <c>▴ Warning</c>.
+        /// </summary>
+        /// <param name="name">The column or member name.</param>
+        /// <param name="sample">A sample value.</param>
+        /// <returns>The status presenter, or null.</returns>
+        public static ICellPresenter? ForStatus(string? name, object? sample) {
+            if (sample == null) {
+                return null;
+            }
+            Type type = Nullable.GetUnderlyingType(sample.GetType()) ?? sample.GetType();
+            if (type.IsEnum) {
+                return StatusEnumPresenter.LooksLikeStatus(type) ? StatusWord : null;
+            }
+            if (sample is string text && IsStatusName(name) && StatusEnumPresenter.TryRead(text, out _)) {
+                return StatusWord;
+            }
+            return null;
+        }
+
+        private static bool IsStatusName(string? name) {
+            if (string.IsNullOrEmpty(name)) {
+                return false;
+            }
+            foreach (string word in new[] { "Status", "State", "Result", "Outcome", "Health", "Level", "Severity", "LevelDisplayName" }) {
+                if (name!.EndsWith(word, StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static bool IsSizeName(string? name) {
             if (string.IsNullOrEmpty(name)) {
                 return false;

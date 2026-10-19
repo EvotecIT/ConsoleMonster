@@ -24,8 +24,9 @@ namespace ConsoleMonster.Styling {
         }
 
         /// <summary>
-        /// Parses a status word leniently: pass/passed/ok/success/done/completed, fail/failed/error, warn/warning,
-        /// skip/skipped/na, run/running/active/busy, pending/queued/waiting, info.
+        /// Parses a status word leniently, including PowerShell's own words: pass/passed/ok/success/done/completed,
+        /// fail/failed/failure/error, warn/warning, skip/skipped/na, run/running/active/busy, pending/queued/waiting,
+        /// info/information/verbose/debug.
         /// </summary>
         /// <param name="text">The word.</param>
         /// <param name="status">The status.</param>
@@ -77,6 +78,9 @@ namespace ConsoleMonster.Styling {
                     return true;
                 case "info":
                 case "information":
+                case "informational":
+                case "verbose":
+                case "debug":
                     status = StatusKind.Info;
                     return true;
                 default:
@@ -84,6 +88,12 @@ namespace ConsoleMonster.Styling {
                     return false;
             }
         }
+
+        /// <summary>The words <see cref="TryParse"/> accepts, for argument completion: the canonical names first, then PowerShell's words.</summary>
+        public static System.Collections.Generic.IReadOnlyList<string> Words { get; } = new[] {
+            "Pass", "Fail", "Warn", "Skip", "Info", "Running", "Pending",
+            "Success", "Ok", "Passed", "Error", "Failed", "Failure", "Warning", "Skipped", "Information", "Verbose", "Debug"
+        };
 
         /// <summary>A short upper-case word for a status (PASS, FAIL, WARN, SKIP, RUN, WAIT, INFO in English), in the language of <see cref="Localization.WidgetLabels.Current"/>.</summary>
         /// <param name="status">The status.</param>

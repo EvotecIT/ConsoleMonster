@@ -39,8 +39,8 @@ ad.evotec.xyz
 
 | SRV01  ▄▄▄▄▄▄▄▄▄─────────  50%  √0 ×0 !0  copying Weekly.xlsx
 
-ERR DC03 replication failed - no inbound replication for 4h from
-    DC02
+× ERR DC03 replication failed - no inbound replication for 4h
+      from DC02
 
 SRV01 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ 12
 SRV02 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄                         7

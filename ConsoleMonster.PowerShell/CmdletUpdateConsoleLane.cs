@@ -27,6 +27,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Result of completed steps.</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind? Result { get; set; }
 
         /// <summary><para type="description">Steps completed with this result (default 1).</para></summary>
@@ -35,6 +37,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Set the lane status.</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind? Status { get; set; }
 
         /// <summary><para type="description">What the lane is doing now.</para></summary>

@@ -55,6 +55,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A status marker before the text (Pass, Fail, Warn, Info, Running...).</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind? Status { get; set; }
 
         /// <summary><para type="description">Shows a spinner while the status is open.</para></summary>

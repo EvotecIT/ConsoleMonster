@@ -116,6 +116,13 @@ $p = Get-Process -Id $PID
         $default | Should -Match '\| yes\s+\|'
     }
 
+    It 'marks status columns with PowerShell''s own words in Format-ConsoleTable' {
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Format-ConsoleTable -Width 60"
+        $text | Should -Match '\[PASS\] Success'
+        $text | Should -Match '\[WARN\] Warning'
+        $text | Should -Match '\[FAIL\] Error'
+    }
+
     It 'passes objects through with -PassThru' {
         $text = Invoke-FormatChild -Script "`$out = `$artifacts | Format-ConsoleTable -Width 80 -PassThru; 'COUNT=' + @(`$out).Count"
         $text | Should -Match 'COUNT=3'

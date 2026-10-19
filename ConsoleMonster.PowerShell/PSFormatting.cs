@@ -248,6 +248,9 @@ namespace ConsoleMonster.PowerShell {
                 }
                 if (IdentifierPresenter.LooksLikeIdentifier(columns[c].Name) && CellPresenters.ForMember(columns[c].Name, sample.GetType()) == CellPresenters.Identifier) {
                     column.Presenter = CellPresenters.Identifier;
+                } else if (CellPresenters.ForStatus(columns[c].Name, sample) is ICellPresenter status) {
+                    // Status columns get markers in every command, not only in Out-ConsoleDefault's views.
+                    column.Presenter = status;
                 } else if (autoPresenters) {
                     column.Presenter = CellPresenters.ForMember(columns[c].Name, sample.GetType());
                 }
