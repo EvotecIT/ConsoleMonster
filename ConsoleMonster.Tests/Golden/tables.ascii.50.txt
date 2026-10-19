@@ -142,7 +142,7 @@ Certificate
 
 TestimoX · ad.evotec.xyz run summary  -  7 records
 
-Domains
+Domains  2
   ad.evotec.xyz
     Result    [FAIL]
     Passed    9
@@ -158,7 +158,7 @@ Domains
     Duration  16 s
     Score     ########   87 %
 
-Domain controllers
+Domain controllers  5
   DC01.ad.evotec.xyz
     Result    [WARN]
     Passed    26

@@ -23,8 +23,8 @@ namespace ConsoleMonster.Widgets {
         }
 
         private void Draw(Region region, TableLayout layout, RenderContext context) {
-            int y = DrawHead(region, 0, layout, context);
-            y = DrawRows(region, y, layout, 0, layout.Rows.Count, context);
+            int y = DrawHead(region, 0, layout, context, layout.MergeFirstGroup);
+            y = DrawRows(region, y, layout, 0, layout.Rows.Count, context, layout.MergeFirstGroup && !ShowHeader);
             DrawTail(region, y, layout, context);
         }
 
@@ -42,10 +42,10 @@ namespace ConsoleMonster.Widgets {
                 yield return record;
                 yield break;
             }
-            int head = HeadHeight(layout);
+            int head = HeadHeight(layout, layout.MergeFirstGroup);
             if (head > 0) {
                 CellBuffer buffer = new CellBuffer(width, head);
-                DrawHead(new Region(buffer), 0, layout, context);
+                DrawHead(new Region(buffer), 0, layout, context, layout.MergeFirstGroup);
                 yield return buffer;
             }
             PresenterContext[] contexts = ColumnContexts(Presentation.CreateContext(context));
@@ -63,7 +63,7 @@ namespace ConsoleMonster.Widgets {
                     end++;
                 }
                 CellBuffer buffer = new CellBuffer(width, lines);
-                DrawRows(new Region(buffer), 0, layout, index, end, context);
+                DrawRows(new Region(buffer), 0, layout, index, end, context, index == 0 && layout.MergeFirstGroup && !ShowHeader);
                 for (int i = index; i < end; i++) {
                     // Drawn: release the row's text so memory stays at one block.
                     layout.Rows[i].Lines = null;
@@ -101,9 +101,13 @@ namespace ConsoleMonster.Widgets {
             }
             TableLayout layout = _window;
             hiddenNote = layout.HiddenMarker?.PlainText;
-            headHeight = HeadHeight(layout);
-            rowLines = new List<int>();
             int first = Math.Max(0, Math.Min(start, layout.Rows.Count));
+            // A page that starts on a group heading draws it in place of the header separator (or of the top rule without
+            // a header), as the whole table does for its first group, so two rules never stack.
+            bool merge = count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
+                && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
+            headHeight = HeadHeight(layout, merge);
+            rowLines = new List<int>();
             int end = Math.Min(layout.Rows.Count, first + Math.Max(0, count));
             PresenterContext[] contexts = ColumnContexts(Presentation.CreateContext(context));
             int lines = 0;
@@ -118,19 +122,21 @@ namespace ConsoleMonster.Widgets {
             }
             CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
             Region region = new Region(buffer);
-            DrawHead(region, 0, layout, context);
-            DrawRows(region, headHeight, layout, first, end, context);
+            DrawHead(region, 0, layout, context, merge);
+            DrawRows(region, headHeight, layout, first, end, context, merge && !ShowHeader);
             for (int i = first; i < end; i++) {
                 layout.Rows[i].Lines = null;
                 layout.Rows[i].Cells = null;
             }
             return buffer;
         }
-        private int HeadHeight(TableLayout layout) {
+        private int HeadHeight(TableLayout layout, bool mergeFirstGroup) {
             bool boxed = IsBoxed;
-            int height = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (boxed ? 1 : 0);
+            // Without a header, the first group heading is drawn as the top rule.
+            int height = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (boxed && !(mergeFirstGroup && !ShowHeader) ? 1 : 0);
             if (ShowHeader) {
-                height += layout.HeaderHeight + (HeaderSeparator && (boxed || Border == TableBorder.Minimal) ? 1 : 0);
+                // When the first group heading takes the separator's place, the separator line is not part of the head.
+                height += layout.HeaderHeight + (HeaderSeparator && (boxed || Border == TableBorder.Minimal) && !mergeFirstGroup ? 1 : 0);
             }
             return height;
         }
@@ -144,7 +150,7 @@ namespace ConsoleMonster.Widgets {
             return height;
         }
 
-        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context) {
+        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup) {
             Style border = context.Style(ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
@@ -152,13 +158,13 @@ namespace ConsoleMonster.Widgets {
                 StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
                 region.Write(boxed ? 1 : 0, y++, title);
             }
-            if (boxed) {
+            if (boxed && !(mergeFirstGroup && !ShowHeader)) {
                 DrawRule(region, y++, layout, box.TopLeft, box.TopJoint, box.TopRight, box.Horizontal, border);
             }
             if (ShowHeader) {
                 y = DrawCells(region, y, layout, layout.HeaderLines, null, null, layout.HeaderHeight, box, border, context);
-                if (!HeaderSeparator) {
-                    // The underlined header carries the separation.
+                if (!HeaderSeparator || mergeFirstGroup) {
+                    // The underlined header carries the separation, or the first group heading is drawn as the separator.
                 } else if (boxed) {
                     DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if (Border == TableBorder.Minimal) {
@@ -168,13 +174,14 @@ namespace ConsoleMonster.Widgets {
             return y;
         }
 
-        private int DrawRows(Region region, int y, TableLayout layout, int start, int end, RenderContext context) {
+        // mergeTop: the first row is a group heading drawn as the table's top rule (a boxed table without a header).
+        private int DrawRows(Region region, int y, TableLayout layout, int start, int end, RenderContext context, bool mergeTop) {
             Style border = context.Style(ThemeToken.Border);
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             for (int i = start; i < end; i++) {
                 TableLayoutRow row = layout.Rows[i];
                 if (row.Kind == TableRowKind.Group) {
-                    y = DrawSpanning(region, y, layout, row.Spanning!, box, border, context);
+                    y = DrawGroupRule(region, y, layout, row.Spanning!, box, border, context, mergeTop && i == start);
                 } else {
                     y = DrawCells(region, y, layout, row.Lines!, row.Cells, row.VisualCells, row.Height, box, border, context);
                 }
@@ -234,16 +241,40 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private int DrawSpanning(Region region, int y, TableLayout layout, StyledLine text, BoxGlyphs box, Style border, RenderContext context) {
+        // A group heading as a labelled rule: "├─ 1Password · 5 ──┼────┼───┤". The rule closes the columns of the group
+        // above and opens them below on one line; the layout widens the first column to hold the label when the window
+        // allows, so the column lines stay joined. Without a border the heading is the label alone. At the top of a boxed
+        // table without a header the heading is the top rule ("╭─ 1Password · 5 ──┬────╮").
+        private int DrawGroupRule(Region region, int y, TableLayout layout, StyledLine text, BoxGlyphs box, Style border, RenderContext context, bool top = false) {
             if (y >= region.Height) {
                 return y;
             }
-            int inner = layout.TotalWidth - (IsBoxed ? 4 : 0);
+            int start;
+            int room;
             if (IsBoxed) {
-                region.Put(0, y, box.Vertical, border);
-                region.Put(layout.TotalWidth - 1, y, box.Vertical, border);
+                if (top) {
+                    DrawRule(region, y, layout, box.TopLeft, box.TopJoint, box.TopRight, box.Horizontal, border);
+                } else {
+                    DrawRule(region, y, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
+                }
+                start = 2;
+                room = layout.TotalWidth - 6;
+            } else if (Border == TableBorder.Minimal) {
+                DrawRule(region, y, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
+                start = 1;
+                room = layout.TotalWidth - 3;
+            } else {
+                region.Write(0, y, TextWrapper.Truncate(text, Math.Max(1, layout.TotalWidth), context.Ellipsis));
+                return y + 1;
             }
-            region.Write(IsBoxed ? 2 : 0, y, TextWrapper.Truncate(text, Math.Max(1, inner), context.Ellipsis));
+            if (room < 1) {
+                // Too narrow for a label: the rule alone.
+                return y + 1;
+            }
+            StyledLine label = TextWrapper.Truncate(text, room, context.Ellipsis);
+            region.Put(start, y, " ", Style.Plain);
+            int end = region.Write(start + 1, y, label);
+            region.Put(end, y, " ", Style.Plain);
             return y + 1;
         }
 

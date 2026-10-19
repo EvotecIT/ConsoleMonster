@@ -47,13 +47,14 @@ namespace ConsoleMonster.Widgets {
             int shown = DisplayedRowCount;
             int group = int.MinValue;
             List<int> groupRows = new List<int>();
+            Dictionary<int, int> visible = VisibleGroupRows(shown);
             for (int r = 0; r < shown; r++) {
                 if (_rowGroups[r] != group) {
                     AddSubtotal(rows, groupRows, contexts);
                     group = _rowGroups[r];
                     groupRows.Clear();
                     if (group >= 0) {
-                        rows.Add(GroupRow(group, presenter));
+                        rows.Add(GroupRow(group, presenter, visible.TryGetValue(group, out int count) ? count : 0));
                     }
                 }
                 groupRows.Add(r);
@@ -69,20 +70,53 @@ namespace ConsoleMonster.Widgets {
             return rows;
         }
 
-        private TableLayoutRow GroupRow(int group, PresenterContext presenter) {
+        // How many groups have at least one of the first rowCount rows.
+        private int GroupsWithRows(int rowCount) {
+            HashSet<int> groups = new HashSet<int>();
+            for (int r = 0; r < rowCount && r < _rowGroups.Count; r++) {
+                if (_rowGroups[r] >= 0) {
+                    groups.Add(_rowGroups[r]);
+                }
+            }
+            return groups.Count;
+        }
+
+        // Rows shown per group (the first DisplayedRowCount rows, after -Top).
+        private Dictionary<int, int> VisibleGroupRows(int shown) {
+            Dictionary<int, int> visible = new Dictionary<int, int>();
+            for (int r = 0; r < shown && r < _rowGroups.Count; r++) {
+                visible[_rowGroups[r]] = visible.TryGetValue(_rowGroups[r], out int count) ? count + 1 : 1;
+            }
+            return visible;
+        }
+
+        private int GroupRowCount(int group) {
             int count = 0;
             for (int r = 0; r < _rowGroups.Count; r++) {
                 if (_rowGroups[r] == group) {
                     count++;
                 }
             }
+            return count;
+        }
+
+        // A group heading: the key in bold and its row count, "1Password · 5", or "1Password · 2 of 3" when -Top cut it.
+        internal StyledLine GroupLabel(int group, PresenterContext presenter, int shown) {
+            int total = GroupRowCount(group);
             List<TextSpan> spans = new List<TextSpan>();
             foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(ThemeToken.Header).With(TextDecoration.Bold))) {
                 spans.Add(span);
             }
-            spans.Add(new TextSpan("  " + count.ToString("N0", presenter.Culture), presenter.Render.Style(ThemeToken.Muted)));
-            return new TableLayoutRow(TableRowKind.Group) { Spanning = new StyledLine(spans) };
+            string separator = presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
+            string count = shown < total
+                ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, shown.ToString("N0", presenter.Culture), total.ToString("N0", presenter.Culture))
+                : total.ToString("N0", presenter.Culture);
+            spans.Add(new TextSpan(separator + count, presenter.Render.Style(ThemeToken.Muted)));
+            return new StyledLine(spans);
         }
+
+        private TableLayoutRow GroupRow(int group, PresenterContext presenter, int shown) =>
+            new TableLayoutRow(TableRowKind.Group) { Spanning = GroupLabel(group, presenter, shown) };
 
         private void AddSubtotal(List<TableLayoutRow> rows, List<int> groupRows, PresenterContext[] contexts) {
             if (!ShowSubtotals || groupRows.Count == 0 || _groups.Count == 0 || !HasAggregates) {

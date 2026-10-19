@@ -115,6 +115,18 @@ namespace ConsoleMonster.Localization {
         /// <summary>A table cut short: <c>Showing {0} of {1}</c>.</summary>
         public string Showing { get; set; } = "Showing {0} of {1}";
 
+        /// <summary>A group heading whose rows are cut short: <c>{0} of {1}</c> (rows shown of the group's rows).</summary>
+        public string GroupOf { get; set; } = "{0} of {1}";
+
+        /// <summary>The groups of a table cut short, after "Showing": <c>{0} of {1} groups</c>.</summary>
+        public string GroupsShowing { get; set; } = "{0} of {1} groups";
+
+        /// <summary>One group, after "Showing": <c>{0} group</c>.</summary>
+        public string OneGroup { get; set; } = "{0} group";
+
+        /// <summary>Several groups, after "Showing": <c>{0} groups</c>.</summary>
+        public string ManyGroups { get; set; } = "{0} groups";
+
         /// <summary>One record (cards).</summary>
         public string OneRecord { get; set; } = "{0} record";
 

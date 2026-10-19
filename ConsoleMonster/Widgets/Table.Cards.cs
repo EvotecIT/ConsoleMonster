@@ -12,9 +12,10 @@ namespace ConsoleMonster.Widgets {
             RecordView view = new RecordView(Title) { Presentation = Presentation };
             int key = KeyColumn;
             bool sections = _rows.Count > 1 || string.IsNullOrEmpty(Title);
-            foreach (TableCell[] row in _rows) {
+            for (int index = 0; index < _rows.Count; index++) {
+                TableCell[] row = _rows[index];
                 if (sections) {
-                    view.AddSection(Markup.Escape(KeyText(row, key, contexts)), RowTone(row, contexts));
+                    view.AddSection(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
                 }
                 AddFields(view, row, key, contexts);
             }
@@ -38,15 +39,22 @@ namespace ConsoleMonster.Widgets {
                 : Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture));
             int group = int.MinValue;
             int level = 0;
+            Dictionary<int, int> visible = VisibleGroupRows(shown);
             for (int r = 0; r < shown; r++) {
                 if (_rowGroups[r] != group) {
                     group = _rowGroups[r];
                     if (group >= 0) {
-                        view.AddSection(_groups[group]);
+                        // The same count as the table's group headings: "5", or "2 of 3" when -Top cut the group.
+                        int count = GroupRowCount(group);
+                        int seen = visible.TryGetValue(group, out int v) ? v : 0;
+                        string note = seen < count
+                            ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, seen.ToString("N0", culture), count.ToString("N0", culture))
+                            : count.ToString("N0", culture);
+                        view.AddSection(_groups[group], null, note);
                         level = 1;
                     }
                 }
-                view.AddHeading(Markup.Escape(KeyText(_rows[r], key, contexts)), level, RowTone(_rows[r], contexts));
+                view.AddHeading(Markup.Escape(RowTitle(r, key, contexts)), level, RowTone(_rows[r], contexts));
                 AddFields(view, _rows[r], key, contexts);
             }
             TableLayoutRow? total = BuildTotalRow(presenter);
@@ -71,6 +79,9 @@ namespace ConsoleMonster.Widgets {
                 view.AddField(Markup.Strip(column.Header), row[c], column.Presenter, (IReadOnlyList<ToneRule>)column.ToneRules);
             }
         }
+
+        private string RowTitle(int index, int key, PresenterContext[] contexts) =>
+            RowTitles != null && index < RowTitles.Count && !string.IsNullOrEmpty(RowTitles[index]) ? RowTitles[index]! : KeyText(_rows[index], key, contexts);
 
         private string KeyText(TableCell[] row, int key, PresenterContext[] contexts) {
             CellContent content = CellRendering.Content(row[key], _columns[key].Presenter, null, contexts[key]);

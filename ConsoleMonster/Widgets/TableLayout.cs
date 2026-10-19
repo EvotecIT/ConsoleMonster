@@ -52,6 +52,12 @@ namespace ConsoleMonster.Widgets {
 
         internal int Gap { get; set; }
 
+        /// <summary>
+        /// Whether the first body row is a group heading drawn in place of the header separator (a labelled rule closes the
+        /// header and opens the first group on one line).
+        /// </summary>
+        internal bool MergeFirstGroup { get; set; }
+
         internal int[] Visible { get; set; } = new int[0];
 
         internal int[] Widths { get; set; } = new int[0];
