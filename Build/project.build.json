@@ -41,7 +41,7 @@
   "PublishNuget": false,
   "PublishGitHub": false,
   "CreateReleaseZip": true,
-  "CertificateThumbprint": null,
+  "CertificateThumbprint": "92E95FB58EFFA6A4A75E77A33CDD6BFE6DD30F1A",
   "CertificateStore": "CurrentUser",
   "TimeStampServer": "http://timestamp.digicert.com",
   "PublishSource": "https://api.nuget.org/v3/index.json",

@@ -176,14 +176,14 @@ Run these commands from the repository root with PowerShell 7 and PSPublishModul
 # Build only the C# package.
 ./Build/Build-Project.ps1 -ConfigurationGateMode Build
 
-# Sign the module and publish the coordinated release.
+# Sign the assemblies, NuGet package and module, then publish the coordinated release.
 ./Module/Build/Build-Module.ps1 -RunMode Publish
 ```
 
 The coordinated command builds packages before the module, uses the C# package as the shared version source, and
 publishes in this order: **NuGet, PowerShell Gallery, GitHub**. Both publishers use the `ConsoleMonster-v{version}`
 release identity. GitHub receives the C# release archive and the PowerShell module ZIP, with generated release notes.
-The C# package is unsigned; the module's publishing configuration enables signing.
+The release signs the C# assemblies, NuGet package and PowerShell module with the configured certificate.
 
 Publishing needs the configured signing certificate and destination credentials. Credential file paths can be
 configured in `Build/project.build.json`; the module script also accepts `PowerShellGalleryApiKeyPath` and

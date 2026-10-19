@@ -120,7 +120,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     New-ConfigurationBuild @newConfigurationBuildSplat
 
     $GitHubTokenPath = [IO.Path]::Combine($PWD.ProviderPath, $GitHubApiKeyPath)
-    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget -PublishGitHub -Options @{ GitHubAccessTokenFilePath = $GitHubTokenPath }
+    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget -PublishGitHub -SignAssemblies:$SignModule -SignDependencyAssemblies:$SignModule -SignPackages:$SignModule -Options @{ GitHubAccessTokenFilePath = $GitHubTokenPath }
     New-ConfigurationRelease -StageRoot '..\Artefacts\UploadReady' -VersionSource ProjectBuild -PrimaryProject 'ConsoleMonster' -SynchronizeModuleVersion -BuildOrder 'Packages', 'Module' -PublishOrder 'NuGet', 'PowerShellGallery', 'GitHub'
 
     $newConfigurationArtefactSplat = @{
