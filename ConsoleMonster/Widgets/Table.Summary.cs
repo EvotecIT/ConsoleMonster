@@ -11,12 +11,19 @@ namespace ConsoleMonster.Widgets {
 
         private int DisplayedRowCount => MaxRows > 0 ? Math.Min(MaxRows, _rows.Count) : _rows.Count;
 
-        private double?[] ColumnMaxima() {
+        // Per column: the largest number (data bars scale to it) and the decimals its numbers share (the most any value
+        // needs, at most two), so a column of 7 / 11.7 / 344.4 reads 7,0 / 11,7 / 344,4 with the separators in line.
+        private double?[] ColumnMaxima(out int?[] decimals) {
             double?[] maxima = new double?[_columns.Count];
+            decimals = new int?[_columns.Count];
             foreach (TableCell[] row in _rows) {
                 for (int c = 0; c < _columns.Count && c < row.Length; c++) {
                     if (row[c].HasValue && PresenterValues.TryGetNumber(row[c].Value, out double number)) {
                         maxima[c] = maxima[c].HasValue ? Math.Max(maxima[c]!.Value, number) : number;
+                        if (!(row[c].Value is TimeSpan)) {
+                            int needed = PresenterContext.DecimalsNeeded(row[c].Value);
+                            decimals[c] = decimals[c].HasValue ? Math.Max(decimals[c]!.Value, needed) : needed;
+                        }
                     }
                 }
             }
@@ -24,10 +31,10 @@ namespace ConsoleMonster.Widgets {
         }
 
         private PresenterContext[] ColumnContexts(PresenterContext presenter) {
-            double?[] maxima = ColumnMaxima();
+            double?[] maxima = ColumnMaxima(out int?[] decimals);
             PresenterContext[] contexts = new PresenterContext[_columns.Count];
             for (int c = 0; c < _columns.Count; c++) {
-                contexts[c] = presenter.WithColumnMaximum(maxima[c]);
+                contexts[c] = presenter.WithColumn(maxima[c], decimals[c]);
             }
             return contexts;
         }
@@ -164,7 +171,11 @@ namespace ConsoleMonster.Widgets {
                 } else {
                     object? value = AggregateOf(column, c, rows);
                     ICellPresenter? presenter = EffectiveAggregate(column) == ColumnAggregate.Count ? CountPresenter : column.Presenter;
-                    PresentedValue presented = CellPresenters.Present(value, presenter, (IReadOnlyList<ToneRule>)column.ToneRules, contexts[c]);
+                    // An average of whole numbers keeps its own decimals (71.5 %), never fewer than the column's.
+                    PresenterContext context = contexts[c].ColumnDecimals.HasValue
+                        ? contexts[c].WithColumn(contexts[c].ColumnMaximum, Math.Max(contexts[c].ColumnDecimals!.Value, PresenterContext.DecimalsNeeded(value)))
+                        : contexts[c];
+                    PresentedValue presented = CellPresenters.Present(value, presenter, (IReadOnlyList<ToneRule>)column.ToneRules, context);
                     // Totals show the number only; a data bar of a sum would not share the rows' scale.
                     PresentedValue plain = new PresentedValue(presented.Line, presented.Alignment) { Number = presented.Number, Tone = presented.Tone };
                     content = new CellContent(new List<StyledLine> { Restyle(plain.Line, tone, bold) }, plain);

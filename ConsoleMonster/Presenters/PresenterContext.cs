@@ -33,6 +33,12 @@ namespace ConsoleMonster.Presenters {
         /// <summary>The largest numeric value in the column (data bars scale to it), or null.</summary>
         public double? ColumnMaximum { get; set; }
 
+        /// <summary>
+        /// The decimals every number in the column is shown with (the most any of its values needs, at most two), so the
+        /// decimal separators line up; null outside a column, where each number shows up to two decimals of its own.
+        /// </summary>
+        public int? ColumnDecimals { get; set; }
+
         /// <summary>Whether the output can carry colour; without it, tones are expressed with symbols and words.</summary>
         public bool HasColor => Render.HasColor;
 
@@ -47,7 +53,35 @@ namespace ConsoleMonster.Presenters {
         /// <param name="maximum">The maximum.</param>
         /// <returns>The copy.</returns>
         public PresenterContext WithColumnMaximum(double? maximum) {
-            return new PresenterContext(Render, Culture, Now, TimeZone) { ColumnMaximum = maximum };
+            return new PresenterContext(Render, Culture, Now, TimeZone) { ColumnMaximum = maximum, ColumnDecimals = ColumnDecimals };
+        }
+
+        /// <summary>Returns a copy with column statistics: the largest value and the decimals the column's numbers share.</summary>
+        /// <param name="maximum">The maximum, or null.</param>
+        /// <param name="decimals">The shared decimals, or null.</param>
+        /// <returns>The copy.</returns>
+        public PresenterContext WithColumn(double? maximum, int? decimals) {
+            return new PresenterContext(Render, Culture, Now, TimeZone) { ColumnMaximum = maximum, ColumnDecimals = decimals };
+        }
+
+        /// <summary>
+        /// The decimals a number needs once rounded to two: 0 for whole numbers, 1 for 11.7, 2 for 3.14159 (numeric text
+        /// such as "1.5" counts by its digits). Integer types, and numbers too large to carry fractions, need none.
+        /// </summary>
+        /// <param name="value">The raw value.</param>
+        /// <returns>0, 1 or 2; 0 for non-numbers.</returns>
+        public static int DecimalsNeeded(object? value) {
+            if (value is string || value is double || value is float || value is decimal) {
+                if (!PresenterValues.TryGetNumber(value, out double number) || Math.Abs(number) >= 1e15) {
+                    return 0;
+                }
+                double hundredths = Math.Round(Math.Abs(number) * 100, MidpointRounding.AwayFromZero);
+                if (hundredths % 100 == 0) {
+                    return 0;
+                }
+                return hundredths % 10 == 0 ? 1 : 2;
+            }
+            return 0;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ConsoleMonster.Presenters {
     public sealed class NumberPresenter : ICellPresenter {
         /// <summary>Creates a number presenter.</summary>
         /// <param name="unit">A unit appended after a space (muted), or null.</param>
-        /// <param name="decimals">Fixed decimals, or null for up to two (none for whole numbers).</param>
+        /// <param name="decimals">Fixed decimals, or null for automatic: in a table column the most decimals any of its numbers needs (at most two), elsewhere up to two (none for whole numbers).</param>
         public NumberPresenter(string? unit = null, int? decimals = null) {
             Unit = unit;
             Decimals = decimals;
@@ -29,12 +29,20 @@ namespace ConsoleMonster.Presenters {
             if (!PresenterValues.TryGetNumber(value, out double number) || value is TimeSpan) {
                 return new TextPresenter().Present(value, context);
             }
-            string format = Decimals.HasValue ? "N" + Math.Max(0, Decimals.Value).ToString(CultureInfo.InvariantCulture) : "#,0.##";
+            // In a column every number shares the decimals the column needs, so the separators line up: 7,0 / 11,7 / 344,4.
+            string format = Decimals.HasValue
+                ? "N" + Math.Max(0, Decimals.Value).ToString(CultureInfo.InvariantCulture)
+                : context.ColumnDecimals.HasValue
+                    ? ColumnFormat(Math.Max(context.ColumnDecimals.Value, PresenterContext.DecimalsNeeded(value)))
+                    : "#,0.##";
             string text = number.ToString(format, context.Culture);
             StyledLine line = Unit == null
                 ? StyledLine.From(text, context.Render.Style(ThemeToken.Text))
                 : new StyledLine(new[] { new TextSpan(text, context.Render.Style(ThemeToken.Text)), new TextSpan(" " + Unit, context.Render.Style(ThemeToken.Muted)) });
             return new PresentedValue(line, HorizontalAlignment.Right) { Number = number };
         }
+
+        // Fixed decimals for a column (never fewer than the value itself needs, so a value is never rounded away).
+        private static string ColumnFormat(int decimals) => decimals > 0 ? "#,0." + new string('0', Math.Min(2, decimals)) : "#,0";
     }
 }

@@ -1,4 +1,4 @@
-Describe 'Format-Console cmdlets' {
+﻿Describe 'Format-Console cmdlets' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -97,6 +97,13 @@ $p = Get-Process -Id $PID
         $parts[4] | Should -Match '(pwsh|powershell)\s+1\s*\n'
         $parts[5] | Should -Not -Match 'Label'
         $parts[5] | Should -Match 'Module\D{1,4}2'
+    }
+
+    It 'shows the numbers of a column with the decimals the column needs' {
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Cpu = 7.0 }, [pscustomobject] @{ Name = 'b'; Cpu = 11.75 }, [pscustomobject] @{ Name = 'c'; Cpu = 3 }) | Format-ConsoleTable -Width 60"
+        $text | Should -Match '\|\s+7\.00 \|'
+        $text | Should -Match '\|\s+11\.75 \|'
+        $text | Should -Match '\|\s+3\.00 \|'
     }
 
     It 'passes objects through with -PassThru' {
