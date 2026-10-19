@@ -123,8 +123,12 @@ namespace ConsoleMonster.PowerShell {
             info.ScriptFrames.AddRange(ExceptionInfo.ParseScriptStackTrace(record.ScriptStackTrace));
             info.PositionMessage = record.InvocationInfo?.PositionMessage is string position && position.Length > 0 ? position : null;
             ErrorCategoryInfo category = record.CategoryInfo;
-            if (category != null && category.Category != ErrorCategory.NotSpecified) {
-                info.Category = category.Category + (string.IsNullOrEmpty(category.TargetName) ? string.Empty : " (" + category.TargetName + (string.IsNullOrEmpty(category.TargetType) ? string.Empty : ":" + category.TargetType) + ")");
+            // The category only when it adds something: not "NotSpecified", not "OperationStopped" for a plain throw, and
+            // without a target the message already names (the missing path).
+            if (category != null && category.Category != ErrorCategory.NotSpecified
+                && !(category.Category == ErrorCategory.OperationStopped && (string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0))) {
+                bool targetKnown = string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0;
+                info.Category = category.Category + (targetKnown ? string.Empty : " (" + category.TargetName + ")");
             }
             info.ErrorId = string.IsNullOrEmpty(record.FullyQualifiedErrorId) ? null : record.FullyQualifiedErrorId;
             return info;

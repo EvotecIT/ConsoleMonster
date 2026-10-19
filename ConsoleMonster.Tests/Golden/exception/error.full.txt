@@ -1,7 +1,6 @@
 ✗ ItemNotFoundException
   Cannot find path 'C:\missing' because it does not exist.
-  ObjectNotFound (C:\missing:String) ·
-  PathNotFound,Microsoft.PowerShell.Commands.GetItemCommand
+  ObjectNotFound (C:\missing:String) · PathNotFound
   At C:\repo\deploy.ps1:12 char:5
   +     Get-Item C:\missing -ErrorAction Stop
   +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -23,8 +23,10 @@
         $text = Invoke-ErrorChild ("try { Get-Item '" + $missing + "' -ErrorAction Stop } catch { `$_ | Format-ConsoleError -Width 200 }")
         $text | Should -Match 'ItemNotFoundException'
         $text | Should -Match ("Cannot find path '" + [regex]::Escape($missing) + "'")
-        $text | Should -Match 'ObjectNotFound'
-        $text | Should -Match 'PathNotFound,Microsoft\.PowerShell\.Commands\.GetItemCommand'
+        # The facts line only adds what the message does not say: the category and the short error id, no target path.
+        $text | Should -Match 'ObjectNotFound \S PathNotFound'
+        $text | Should -Not -Match 'GetItemCommand'
+        $text | Should -Not -Match 'ObjectNotFound \('
         $text | Should -Match 'char:\d+'
     }
 

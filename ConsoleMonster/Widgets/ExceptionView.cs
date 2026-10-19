@@ -68,14 +68,16 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> lines = new List<StyledLine>();
             ExceptionInfo? info = _info;
             int indent = 0;
+            string? outer = null;
             for (int level = 0; info != null && level <= MaxInner; level++, info = info.Inner) {
-                AddError(lines, info, indent, level > 0, width, context);
+                AddError(lines, info, indent, level > 0, width, context, outer);
+                outer = info.Message;
                 indent += 2;
             }
             return lines;
         }
 
-        private void AddError(List<StyledLine> lines, ExceptionInfo info, int indent, bool inner, int width, RenderContext context) {
+        private void AddError(List<StyledLine> lines, ExceptionInfo info, int indent, bool inner, int width, RenderContext context, string? outerMessage = null) {
             string pad = new string(' ', indent);
             Style fail = context.Style(StatusKind.Fail);
             Style muted = context.Style(ThemeToken.Muted);
@@ -89,26 +91,34 @@ namespace ConsoleMonster.Widgets {
             head.Add(new TextSpan(info.Type, fail.With(TextDecoration.Bold)));
             lines.Add(new StyledLine(head));
             string body = pad + "  ";
-            foreach (string paragraph in info.Message.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
+            // A cause with the same message as the error it caused ("Attempted to divide by zero." twice) shows its type only.
+            string message = inner && string.Equals(info.Message.Trim(), (outerMessage ?? string.Empty).Trim(), StringComparison.Ordinal) ? string.Empty : info.Message;
+            foreach (string paragraph in message.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
+                if (message.Length == 0) {
+                    break;
+                }
                 foreach (StyledLine wrapped in TextWrapper.Wrap(StyledLine.From(paragraph.TrimEnd(), text), Math.Max(10, width - body.Length))) {
                     lines.Add(Prefixed(body, wrapped));
                 }
             }
-            string facts = Join(info.Category, info.ErrorId, context);
+            string facts = Join(info.Category, UsefulErrorId(info), context);
             if (facts.Length > 0) {
                 foreach (StyledLine wrapped in TextWrapper.Wrap(StyledLine.From(facts, muted), Math.Max(10, width - body.Length))) {
                     lines.Add(Prefixed(body, wrapped));
                 }
             }
-            if (!string.IsNullOrEmpty(info.PositionMessage)) {
+            // The location once: the source lines around the failing line when the file can be read (the stack names the
+            // file), otherwise PowerShell's position message with the failing code underlined.
+            int before = lines.Count;
+            if (ShowSource && !inner) {
+                AddSource(lines, info, body, width, context);
+            }
+            if (lines.Count == before && !string.IsNullOrEmpty(info.PositionMessage)) {
                 foreach (string raw in info.PositionMessage!.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
                     string line = raw.TrimEnd();
                     bool marker = line.TrimStart('+', ' ').Length > 0 && line.TrimStart('+', ' ').Trim('~').Length == 0;
                     lines.Add(StyledLine.From(body + line, marker ? fail : muted));
                 }
-            }
-            if (ShowSource && !inner) {
-                AddSource(lines, info, body, width, context);
             }
             if (!ShowStack) {
                 return;
@@ -202,6 +212,35 @@ namespace ConsoleMonster.Widgets {
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(prefix) };
             spans.AddRange(line);
             return new StyledLine(spans);
+        }
+
+        // The error id only when it adds something: its first part ("PathNotFound" of "PathNotFound,Microsoft...GetItemCommand"),
+        // and not when it only repeats the message, the type or the category ("custom failure", "RuntimeException").
+        private static string? UsefulErrorId(ExceptionInfo info) {
+            if (string.IsNullOrEmpty(info.ErrorId)) {
+                return null;
+            }
+            string id = info.ErrorId!.Trim();
+            // A thrown string's id is the message itself, commas and all.
+            if (string.Equals(id, info.Message.Trim(), StringComparison.OrdinalIgnoreCase)) {
+                return null;
+            }
+            int comma = id.IndexOf(',');
+            if (comma > 0) {
+                id = id.Substring(0, comma);
+            }
+            id = id.Trim();
+            string shortType = info.Type.Substring(info.Type.LastIndexOf('.') + 1);
+            string type = shortType.EndsWith("Exception", StringComparison.Ordinal) ? shortType.Substring(0, shortType.Length - "Exception".Length) : shortType;
+            string category = info.Category ?? string.Empty;
+            if (id.Length == 0
+                || string.Equals(id, info.Message.Trim(), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(id, shortType, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(id, type, StringComparison.OrdinalIgnoreCase)
+                || category.StartsWith(id, StringComparison.OrdinalIgnoreCase)) {
+                return null;
+            }
+            return id;
         }
 
         private static string Join(string? category, string? errorId, RenderContext context) {
