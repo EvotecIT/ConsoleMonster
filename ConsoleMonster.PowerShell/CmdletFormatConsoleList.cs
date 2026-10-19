@@ -12,6 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleList")]
+    [Alias("fcl")]
     public sealed class CmdletFormatConsoleList : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
 
