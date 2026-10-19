@@ -124,7 +124,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            Array.Sort(properties, (a, b) => a.MetadataToken.CompareTo(b.MetadataToken));
+            Data.PropertyOrder.Sort(properties);
             foreach (PropertyInfo property in properties) {
                 if (!property.CanRead || property.GetIndexParameters().Length > 0) {
                     continue;

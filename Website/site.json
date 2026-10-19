@@ -106,6 +106,7 @@
     "Breadcrumbs": true,
     "Article": false,
     "SoftwareSourceCode": true,
+    "SoftwareApplication": true,
     "OrganizationName": "Evotec",
     "OrganizationUrl": "https://evotec.xyz/",
     "OrganizationLogo": "https://evotec.xyz/favicon.svg",

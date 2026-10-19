@@ -374,6 +374,10 @@ namespace ConsoleMonster.Data {
 
 #if NET8_0_OR_GREATER
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(
+            "Trimming", "IL2065",
+            Justification = "The optional reflected count is reached through RequiresUnreferencedCode inspection entry points; missing metadata falls back to an unknown count."
+        )]
+        [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(
             "Trimming",
             "IL2075",
             Justification = "The Count property is read from an implemented IReadOnlyCollection<T> interface, whose contract includes the property."

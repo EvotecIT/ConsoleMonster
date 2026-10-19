@@ -33,24 +33,7 @@ namespace ConsoleMonster.Data {
                 );
         }
 
-        private static bool IsStringObjectPairs(object value) {
-            if (!(value is IEnumerable) || value is string)
-                return false;
-            Type? pair = null;
-            foreach (Type candidate in value.GetType().GetInterfaces()) {
-                if (
-                    candidate.IsGenericType
-                    && candidate.GetGenericTypeDefinition() == typeof(IEnumerable<>)
-                ) {
-                    pair = candidate.GetGenericArguments()[0];
-                    break;
-                }
-            }
-            return pair != null
-                && pair.IsGenericType
-                && pair.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
-                && pair.GetGenericArguments()[0] == typeof(string)
-                && pair.GetGenericArguments()[1] == typeof(object);
-        }
+        private static bool IsStringObjectPairs(object value) =>
+            value is IEnumerable<KeyValuePair<string, object>>;
     }
 }

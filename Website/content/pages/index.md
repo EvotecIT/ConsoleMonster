@@ -8,6 +8,14 @@ meta.source_code.name: ConsoleMonster
 meta.source_code.description: Console rendering library for .NET and PowerShell, with tables, trees, panels, charts and live dashboards.
 meta.source_code.code_repository: https://github.com/EvotecIT/ConsoleMonster
 meta.source_code.programming_language: C# and PowerShell
-meta.source_code.runtime_platform: .NET Standard 2.0, .NET Framework 4.7.2, .NET 8, Windows PowerShell 5.1 and PowerShell 7
+meta.source_code.runtime_platform: .NET Standard 2.0, .NET Framework 4.7.2, .NET 8 and .NET 10, Windows PowerShell 5.1 and PowerShell 7
 meta.source_code.license: https://github.com/EvotecIT/ConsoleMonster/blob/master/LICENSE
+meta.software.name: ConsoleMonster
+meta.software.description: Console rendering library and PowerShell module for tables, trees, panels, charts and live dashboards, with no runtime package dependencies. MIT licensed.
+meta.software.category: DeveloperApplication
+meta.software.operating_system: Windows, Linux, macOS
+meta.software.version: 2.0.0
+meta.software.download_url: https://api.nuget.org/v3-flatcontainer/consolemonster/2.0.0/consolemonster.2.0.0.nupkg
+meta.software.website_url: [https://www.nuget.org/packages/ConsoleMonster/2.0.0, https://www.powershellgallery.com/packages/ConsoleMonster/2.0.0, https://github.com/EvotecIT/ConsoleMonster, https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.0]
+meta.software.image: /site/social-card.png
 ---

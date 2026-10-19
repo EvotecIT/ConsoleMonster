@@ -21,7 +21,7 @@ the C# library.
 | Replace existing PowerShell formatting | [PowerShell guide](https://consolemonster.dev/powershell/) |
 | Save output or play a run again | [Recording and export](https://consolemonster.dev/docs/recording/) |
 
-The .NET package has no runtime package dependencies. It targets **.NET Standard 2.0, .NET Framework 4.7.2 and .NET 8**.
+The .NET package has no runtime package dependencies. It targets **.NET Standard 2.0, .NET Framework 4.7.2, .NET 8 and .NET 10**.
 The module supports **Windows PowerShell 5.1 and PowerShell 7**. Both are MIT licensed.
 
 ## Start with PowerShell
@@ -158,8 +158,16 @@ Windows PowerShell 5.1 loads one version of an assembly per session. Modules tha
 the same library version; restart the session after an upgrade. PowerShell 7 loads the module's binaries in their own
 assembly load context.
 
-The .NET 8 target is marked AOT compatible. When trimming, disable the object inspector's reflection member source
+The .NET 8 and .NET 10 targets are marked AOT compatible. When trimming, disable the object inspector's reflection member source
 with `InspectorOptions.UseReflection = false`, or explicitly preserve the members your application inspects.
+The general-purpose inspection API still emits a trimming warning because its options are chosen at runtime.
+Suppress that call-site warning only when you have verified your inputs use dictionary, JSON or custom member sources
+with reflection disabled. Typed tables preserve their public properties; inferred columns use declaration order on
+managed runtimes and stable alphabetical order when Native AOT does not expose metadata tokens.
+
+CI publishes and runs a native executable on .NET 8 and .NET 10, checking typed and inferred tables, reflection-free
+dictionary and JSON inspection, and text, HTML and SVG exports. This applies to the .NET library; the PowerShell
+module runs inside its PowerShell host and is not a standalone Native AOT application.
 
 ## Build and release
 
@@ -199,7 +207,7 @@ Invoke-Pester -Path ./Module/Tests
 ```
 
 Run Pester 5 in both Windows PowerShell 5.1 and PowerShell 7 after building the module binaries. CI exercises both
-PowerShell hosts and the .NET Framework 4.7.2 / .NET 8 test targets. The source module can load development binaries
+PowerShell hosts and the .NET Framework 4.7.2 / .NET 8 / .NET 10 test targets. The source module can load development binaries
 from `ConsoleMonster.PowerShell/bin`.
 
 ## Explore the project

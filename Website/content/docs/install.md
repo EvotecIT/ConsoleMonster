@@ -13,7 +13,15 @@ Install the .NET package for C# applications or the PowerShell module for script
 dotnet add package ConsoleMonster
 ```
 
-The package targets netstandard2.0, net472 and net8.0 and has no package dependencies. On net8.0 it is marked AOT-compatible; the object inspector's reflection member source is marked `RequiresUnreferencedCode`, and `InspectorOptions.UseReflection = false` keeps trimmed builds safe.
+The package targets netstandard2.0, net472, net8.0 and net10.0 and has no package dependencies. The net8.0 and net10.0 targets are marked AOT-compatible; the object inspector's reflection member source is marked `RequiresUnreferencedCode`, and `InspectorOptions.UseReflection = false` keeps trimmed builds safe.
+
+Native AOT applications can use typed tables and the rendering and export APIs. For inspection, use dictionary,
+JSON or custom member sources with reflection disabled, or explicitly preserve the properties you inspect. The
+general inspection API still reports a trimming warning at the call site; suppress it only after checking those
+conditions. Inferred property columns use alphabetical order when native metadata tokens are unavailable.
+
+This AOT support applies to applications consuming the .NET library. The PowerShell module runs inside Windows
+PowerShell or PowerShell 7 and is not itself a standalone native executable.
 
 ```csharp
 using ConsoleMonster;

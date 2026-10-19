@@ -11,13 +11,18 @@ namespace ConsoleMonster.Data {
         public string GetTypeName(object value) =>
             ObjectInspector.FriendlyTypeName(value.GetType());
 
+#if NET8_0_OR_GREATER
+        [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(
+            "Trimming", "IL2075",
+            Justification = "This internal fallback is selected only when UseReflection is true. Public inspection and column inference entry points carry RequiresUnreferencedCode."
+        )]
+#endif
         public IEnumerable<InspectMember> GetMembers(object value) {
-            PropertyInfo[] properties = value
+            PropertyInfo[] properties = PropertyOrder.Sort(value
                 .GetType()
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.GetIndexParameters().Length == 0 && p.GetGetMethod(false) != null)
-                .OrderBy(p => p.MetadataToken)
-                .ToArray();
+                .ToArray());
             foreach (PropertyInfo property in properties) {
                 yield return new InspectMember(
                     property.Name,

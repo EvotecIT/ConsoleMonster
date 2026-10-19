@@ -1,4 +1,4 @@
-# Tests on every push and pull request: xUnit on .NET Framework 4.7.2 and .NET 8, and Pester on Windows PowerShell 5.1 and
+# Tests on every push and pull request: xUnit on .NET Framework 4.7.2, .NET 8 and .NET 10, and Pester on Windows PowerShell 5.1 and
 # PowerShell 7 against the development binaries, all on Windows. No secrets, no publishing.
 name: Test
 
@@ -17,6 +17,7 @@ permissions:
 env:
   DOTNET_VERSION: |
     8.x
+    10.x
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TEST_VERBOSITY: minimal
@@ -28,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        framework: [net472, net8.0]
+        framework: [net472, net8.0, net10.0]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -54,6 +55,23 @@ jobs:
         with:
           name: test-results-windows-${{ matrix.framework }}
           path: '**/*.trx'
+
+  native-aot:
+    name: 'Native AOT (Windows, ${{ matrix.framework }})'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [net8.0, net10.0]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Publish native executable (trim and AOT warnings are errors)
+        run: dotnet publish Tests/AotSmoke/AotSmoke.csproj -c Release -f ${{ matrix.framework }} -r win-x64 -o Artefacts/AotSmoke
+      - name: Run native executable
+        run: ./Artefacts/AotSmoke/AotSmoke.exe
 
   pester:
     name: 'Pester (${{ matrix.name }})'
