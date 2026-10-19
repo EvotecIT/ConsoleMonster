@@ -17,7 +17,11 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">Replaces an existing Out-Default function that is not ConsoleMonster's.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        [Parameter]
+        public ConsoleFormattingFeature[]? Feature { get; set; }
+
+        /// <summary><para type="description">Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's (Disable-ConsoleFormatting puts it back).</para></summary>
         [Parameter]
         public SwitchParameter Force { get; set; }
 
@@ -31,38 +35,103 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            ConsoleFormattingFeature wanted = ConsoleFormattingFeature.None;
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.Output }) {
+                wanted |= feature;
+            }
             if (ProfileSnippet.IsPresent) {
-                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), NoBuiltIn.IsPresent, Force.IsPresent)) {
+                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), NoBuiltIn.IsPresent, Force.IsPresent, wanted)) {
                     WriteObject(line);
                 }
                 return;
             }
-            FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
-            if (existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) < 0 && !Force.IsPresent) {
-                WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");
+            if (wanted == ConsoleFormattingFeature.None) {
                 return;
             }
-            ConsoleFormatting.TakeOverBuiltIns = !NoBuiltIn.IsPresent;
-            SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
+            FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
+            bool ours = existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
+            if (existing != null && !ours) {
+                if (!Force.IsPresent) {
+                    WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");
+                    return;
+                }
+                ConsoleFormatting.SavedOutDefault = existing.ScriptBlock;
+            }
+            if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !InstallProgressAlias()) {
+                wanted &= ~ConsoleFormattingFeature.Progress;
+            }
+            if ((wanted & ConsoleFormattingFeature.Output) != 0) {
+                ConsoleFormatting.TakeOverBuiltIns = !NoBuiltIn.IsPresent;
+            }
+            ConsoleFormatting.Features |= wanted;
+            if (!ours) {
+                SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
+            }
+        }
+
+        // Write-Progress as a global alias of Write-ConsoleProgress: an alias wins over the cmdlet everywhere, also inside
+        // modules, and the cmdlet reads $ProgressPreference in its caller's scope as Write-Progress does.
+        private bool InstallProgressAlias() {
+            if (InvokeCommand.GetCommand("Write-Progress", CommandTypes.Function) != null && !Force.IsPresent) {
+                // The alias would win over the user's own Write-Progress function everywhere.
+                WriteWarning("A Write-Progress function exists in this session; the Progress feature would hide it and was not turned on. Use -Force to turn it on anyway.");
+                return false;
+            }
+            AliasInfo? alias = InvokeCommand.GetCommand("Write-Progress", CommandTypes.Alias) as AliasInfo;
+            if (alias != null && !string.Equals(alias.Definition, ConsoleFormatting.ProgressCommand, StringComparison.OrdinalIgnoreCase)) {
+                if (!Force.IsPresent) {
+                    WriteWarning("A Write-Progress alias already exists in this session; it was kept and the Progress feature was not turned on. Use -Force to replace it.");
+                    return false;
+                }
+                ConsoleFormatting.SavedWriteProgressAlias = alias.Definition;
+            }
+            InvokeCommand.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value " + ConsoleFormatting.ProgressCommand + " -Scope Global -Force");
+            SessionProgress.Enabled = true;
+            ConsoleFormatting.RemoveAliasWithModule(MyInvocation.MyCommand.Module);
+            return true;
         }
     }
 
     /// <summary>
-    /// <para type="synopsis">Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).</para>
-    /// <para type="description">Removes the session's Out-Default function when it is ConsoleMonster's, so PowerShell's own Out-Default is used again. Registrations stay for the next Enable-ConsoleFormatting.</para>
+    /// <para type="synopsis">Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</para>
+    /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off; the Out-Default function stays while any feature is on. Registrations stay for the next Enable-ConsoleFormatting.</para>
     /// <example>
     ///   <para>Back to PowerShell's formatting</para>
     ///   <code>Disable-ConsoleFormatting</code>
     /// </example>
+    /// <example>
+    ///   <para>Keep the views, go back to PowerShell's progress</para>
+    ///   <code>Disable-ConsoleFormatting -Feature Progress</code>
+    /// </example>
     /// </summary>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
+        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress or All (the default).</para></summary>
+        [Parameter]
+        public ConsoleFormattingFeature[]? Feature { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
+            ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All }) {
+                off |= feature;
+            }
+            if ((off & ConsoleFormattingFeature.Progress) != 0) {
+                ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
+            }
+            ConsoleFormatting.Features &= ~off;
+            if ((ConsoleFormatting.Features & ConsoleFormattingFeature.All) != 0) {
+                return;
+            }
             FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
             if (existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
-                InvokeCommand.InvokeScript("Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force");
+                if (ConsoleFormatting.SavedOutDefault != null) {
+                    SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ConsoleFormatting.SavedOutDefault);
+                } else {
+                    InvokeCommand.InvokeScript("Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force");
+                }
             }
+            ConsoleFormatting.SavedOutDefault = null;
         }
     }
 

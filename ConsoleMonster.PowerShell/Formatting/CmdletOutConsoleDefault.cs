@@ -33,9 +33,31 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
+        /// <summary><para type="description">Set by the Out-Default function of Enable-ConsoleFormatting: only the enabled features apply (registered types, the error view, the progress area).</para></summary>
+        [Parameter(DontShow = true)]
+        public SwitchParameter Shim { get; set; }
+
+        /// <summary><para type="description">Set by the Out-Default function when PowerShell added it to a command typed at the prompt (not an explicit Out-Default in a script): the progress area ends with that command.</para></summary>
+        [Parameter(DontShow = true)]
+        public SwitchParameter TopLevel { get; set; }
+
+        private bool _types = true;
+        private bool _errors;
+        private bool _progress;
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
-            _active = Force.IsPresent || Displayed();
+            _active = Force.IsPresent || ConsoleFormatting.Displayed(this);
+            if (Shim.IsPresent) {
+                ConsoleFormattingFeature features = ConsoleFormatting.Features;
+                _types = (features & ConsoleFormattingFeature.Output) != 0;
+                _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (Force.IsPresent || !ErrorRedirected());
+                _progress = (features & ConsoleFormattingFeature.Progress) != 0;
+                if (_progress && TopLevel.IsPresent) {
+                    // A new pipeline: an area left by an interrupted one (Ctrl+C) goes.
+                    SessionProgress.EndPipeline();
+                }
+            }
             ScriptBlock inner = ScriptBlock.Create(Transcript.IsPresent ? "Microsoft.PowerShell.Core\\Out-Default -Transcript" : "Microsoft.PowerShell.Core\\Out-Default");
             _inner = inner.GetSteppablePipeline(CommandOrigin.Internal);
             _inner.Begin(this);
@@ -50,12 +72,20 @@ namespace ConsoleMonster.PowerShell {
         // unrolled, as PowerShell's Out-Default shows it, using PowerShell's own rule for what is enumerable (not strings,
         // dictionaries or XML nodes).
         private void Handle(PSObject? item, bool unroll) {
+            if (_progress) {
+                // Output goes where the progress area was; the next Write-Progress draws it again below.
+                SessionProgress.Suspend();
+            }
             if (item == null) {
                 Flush();
                 _inner!.Process(item);
                 return;
             }
-            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
+            // Get-Error's detailed records (PSExtendedError) keep PowerShell's view.
+            if (_errors && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
+                return;
+            }
+            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
                     Flush();
@@ -77,8 +107,44 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (_progress && TopLevel.IsPresent) {
+                SessionProgress.EndPipeline();
+            }
             Flush();
             _inner?.End();
+        }
+
+        // The error view of Enable-ConsoleFormatting -Feature ErrorView: the type, the message, the category and id, the
+        // position in the script (and the stack with $ErrorView = 'DetailedView'). CategoryView keeps PowerShell's view.
+        private bool WriteErrorView(ErrorRecord record) {
+            string view = Convert.ToString(GetVariableValue("ErrorView"), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+            if (string.Equals(view, "CategoryView", StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+            Flush();
+            ExceptionView widget = new ExceptionView(PSErrors.Describe(record)) { ShowStack = string.Equals(view, "DetailedView", StringComparison.OrdinalIgnoreCase) };
+            // Through PowerShell's Out-Default as a rendering (drawn by ConsoleMonster's out-of-band view), so it stays in
+            // order with the table rows PowerShell may still be holding.
+            _inner!.Process(PSObject.AsPSObject(new ConsoleRendering(widget, 0, null) { DisplayOnly = true }));
+            return true;
+        }
+
+        private static bool IsExtended(PSObject item) {
+            foreach (string name in item.TypeNames) {
+                if (name.EndsWith("#PSExtendedError", StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Errors written to a redirected stderr (2> file) keep PowerShell's route, so they land in the file.
+        private static bool ErrorRedirected() {
+            try {
+                return Console.IsErrorRedirected;
+            } catch (System.IO.IOException) {
+                return true;
+            }
         }
 
         /// <inheritdoc />
@@ -122,19 +188,6 @@ namespace ConsoleMonster.PowerShell {
             _batch.Clear();
             _batchView = null;
         }
-        // Only output displayed on a real local console: not redirected, not a job, remoting or another host.
-        private bool Displayed() {
-            if (!string.Equals(Host?.Name, "ConsoleHost", StringComparison.Ordinal)) {
-                return false;
-            }
-            try {
-                if (Console.IsOutputRedirected) {
-                    return false;
-                }
-            } catch (System.IO.IOException) {
-                return false;
-            }
-            return Terminal.IsConsole(Terminal.Target);
-        }
+
     }
 }

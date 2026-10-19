@@ -89,8 +89,17 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                         ["Write-Progress"] = ScriptBlock.Create(ProgressProxy),
                         ["Write-Host"] = ScriptBlock.Create(HostProxy)
                     };
-                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", new ProgressBridge(session)) };
-                    output = ScriptBlock.InvokeWithContext(functions, variables);
+                    ProgressBridge bridge = new ProgressBridge(session);
+                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", bridge) };
+                    // With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias, which wins over the
+                    // function above: Write-ConsoleProgress hands its calls to this area while the script runs.
+                    ProgressBridge? previous = SessionProgress.Override;
+                    SessionProgress.Override = bridge;
+                    try {
+                        output = ScriptBlock.InvokeWithContext(functions, variables);
+                    } finally {
+                        SessionProgress.Override = previous;
+                    }
                 } finally {
                     session.Stop();
                 }

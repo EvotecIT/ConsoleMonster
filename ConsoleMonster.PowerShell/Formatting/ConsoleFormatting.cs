@@ -41,6 +41,25 @@ namespace ConsoleMonster.PowerShell {
         public string Group { get; }
     }
 
+    /// <summary>What Enable-ConsoleFormatting turns on; Disable-ConsoleFormatting turns the same parts off.</summary>
+    [Flags]
+    public enum ConsoleFormattingFeature {
+        /// <summary>Nothing.</summary>
+        None = 0,
+
+        /// <summary>Registered and built-in types (files, processes, services, dictionaries) shown as ConsoleMonster views (the default).</summary>
+        Output = 1,
+
+        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Format-ConsoleError), following $ErrorView.</summary>
+        ErrorView = 2,
+
+        /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress becomes an alias of Write-ConsoleProgress).</summary>
+        Progress = 4,
+
+        /// <summary>Every feature.</summary>
+        All = Output | ErrorView | Progress
+    }
+
     /// <summary>
     /// The opt-in default formatting: an Out-Default function (defined by Enable-ConsoleFormatting) hands the objects that
     /// reach the host to Out-ConsoleDefault, which shows registered types through ConsoleMonster and passes everything else
@@ -58,16 +77,100 @@ namespace ConsoleMonster.PowerShell {
         /// </summary>
         internal static bool TakeOverBuiltIns { get; set; } = true;
 
+        /// <summary>The features turned on in this session.</summary>
+        internal static ConsoleFormattingFeature Features { get; set; }
+
+        /// <summary>The user's own Out-Default function replaced with -Force, restored by Disable-ConsoleFormatting.</summary>
+        internal static ScriptBlock? SavedOutDefault { get; set; }
+
+        /// <summary>The user's own Write-Progress alias replaced with -Force (its definition), restored by Disable-ConsoleFormatting.</summary>
+        internal static string? SavedWriteProgressAlias { get; set; }
+
+        /// <summary>The command the Write-Progress alias points to while the Progress feature is on.</summary>
+        internal const string ProgressCommand = "Write-ConsoleProgress";
+
         internal const string Marker = "ConsoleMonster\\Out-ConsoleDefault";
 
+        /// <summary>Whether a command's output is displayed on a real local console: not redirected, not a job, remoting or another host.</summary>
+        internal static bool Displayed(PSCmdlet cmdlet) {
+            if (!string.Equals(cmdlet.Host?.Name, "ConsoleHost", StringComparison.Ordinal)) {
+                return false;
+            }
+            try {
+                if (Console.IsOutputRedirected) {
+                    return false;
+                }
+            } catch (System.IO.IOException) {
+                return false;
+            }
+            return Terminal.IsConsole(Terminal.Target);
+        }
+
         /// <summary>The profile lines that turn the formatting on in every session, with the given options (printed, never written).</summary>
-        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force) {
-            string options = (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
+        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force, ConsoleFormattingFeature features = ConsoleFormattingFeature.Output) {
+            string options = (features == ConsoleFormattingFeature.Output ? string.Empty : " -Feature " + FeatureList(features))
+                + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
             return new[] {
                 "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),
                 "Import-Module ConsoleMonster",
                 "Enable-ConsoleFormatting" + options
             };
+        }
+
+        /// <summary>Removes the Write-Progress alias when it is still ConsoleMonster's and puts back the user's own; ends the progress area.</summary>
+        internal static void RemoveProgressAlias(CommandInvocationIntrinsics invoke) {
+            SessionProgress.EndPipeline();
+            SessionProgress.Enabled = false;
+            Features &= ~ConsoleFormattingFeature.Progress;
+            AliasInfo? alias = invoke.GetCommand("Write-Progress", CommandTypes.Alias) as AliasInfo;
+            if (alias != null && string.Equals(alias.Definition, ProgressCommand, StringComparison.OrdinalIgnoreCase)) {
+                invoke.InvokeScript("Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force");
+                if (SavedWriteProgressAlias != null) {
+                    invoke.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value '" + SavedWriteProgressAlias.Replace("'", "''") + "' -Scope Global -Force");
+                }
+            }
+            SavedWriteProgressAlias = null;
+        }
+
+        /// <summary>
+        /// Makes removing the module also remove the Write-Progress alias (which points to one of its commands) and put back
+        /// a user alias it replaced, on Windows PowerShell 5.1 and PowerShell 7, through the module's OnRemove.
+        /// </summary>
+        internal static void RemoveAliasWithModule(PSModuleInfo? module) {
+            if (module == null) {
+                return;
+            }
+            string restore = SavedWriteProgressAlias == null
+                ? string.Empty
+                : "; Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value '" + SavedWriteProgressAlias.Replace("'", "''") + "' -Scope Global -Force";
+            ScriptBlock? previous = module.OnRemove;
+            if (previous != null && previous.ToString().IndexOf("__cmProgressCleanup", StringComparison.Ordinal) >= 0) {
+                // Installed by an earlier Enable, with the module's own OnRemove chained already.
+                return;
+            }
+            // A closure keeps the module's earlier OnRemove (for example type accelerator cleanup) running after ours.
+            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious) { $__cmProgressCleanup = $true; "
+                + "if ((Microsoft.PowerShell.Utility\\Get-Alias -Name Write-Progress -Scope Global -ErrorAction Ignore).Definition -eq '" + ProgressCommand + "') { "
+                + "Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force" + restore + " }; "
+                + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous);
+            if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
+                module.OnRemove = cleanup;
+            }
+        }
+
+        /// <summary>The features as a -Feature argument: "All" or a comma-separated list.</summary>
+        internal static string FeatureList(ConsoleFormattingFeature features) {
+            if (features == ConsoleFormattingFeature.All) {
+                return "All";
+            }
+            List<string> names = new List<string>();
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress }) {
+                if ((features & feature) != 0) {
+                    names.Add(feature.ToString());
+                }
+            }
+            return string.Join(", ", names.ToArray());
         }
 
         // The Out-Default shim: everything goes through Out-ConsoleDefault while ConsoleMonster is loaded, and straight to
@@ -76,7 +179,7 @@ namespace ConsoleMonster.PowerShell {
     [CmdletBinding()]
     param([switch] $Transcript, [Parameter(ValueFromPipeline = $true)] [psobject] $InputObject)
     begin {
-        $cmTarget = if (Get-Command -Name 'ConsoleMonster\Out-ConsoleDefault' -CommandType Cmdlet -ErrorAction Ignore) { { ConsoleMonster\Out-ConsoleDefault -Transcript:$Transcript } } else { { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript } }
+        $cmTarget = if (Get-Command -Name 'ConsoleMonster\Out-ConsoleDefault' -CommandType Cmdlet -ErrorAction Ignore) { { ConsoleMonster\Out-ConsoleDefault -Transcript:$Transcript -Shim -TopLevel:($MyInvocation.CommandOrigin -eq 'Runspace') } } else { { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript } }
         $cmPipeline = $cmTarget.GetSteppablePipeline($MyInvocation.CommandOrigin)
         $cmPipeline.Begin($PSCmdlet)
     }

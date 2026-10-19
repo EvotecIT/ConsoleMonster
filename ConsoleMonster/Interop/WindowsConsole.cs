@@ -85,6 +85,32 @@ namespace ConsoleMonster.Interop {
 
         internal static uint FileType(IntPtr handle) => IsWindows ? GetFileType(handle) : 0;
 
+        // The cursor position, the buffer width and the window's first row, in buffer coordinates.
+        internal static bool TryGetCursor(IntPtr handle, out int x, out int y, out int bufferWidth, out int windowTop) {
+            x = 0;
+            y = 0;
+            bufferWidth = 0;
+            windowTop = 0;
+            if (!IsWindows || !GetConsoleScreenBufferInfo(handle, out ConsoleBufferInfo info)) {
+                return false;
+            }
+            x = info.CursorPosition.X;
+            y = info.CursorPosition.Y;
+            bufferWidth = info.Size.X;
+            windowTop = info.Window.Top;
+            return bufferWidth > 0;
+        }
+
+        // The characters of one buffer row (one per cell), or null when the row cannot be read.
+        internal static string? TryReadRow(IntPtr handle, int y, int width) {
+            if (!IsWindows || width <= 0 || y < 0 || y > short.MaxValue) {
+                return null;
+            }
+            char[] cells = new char[width];
+            ConsoleCoordinate origin = new ConsoleCoordinate { X = 0, Y = (short)y };
+            return ReadConsoleOutputCharacterW(handle, cells, (uint)width, origin, out uint read) ? new string(cells, 0, (int)Math.Min(read, (uint)width)) : null;
+        }
+
         internal static int BuildNumber() {
             if (!IsWindows) {
                 return 0;
@@ -116,6 +142,9 @@ namespace ConsoleMonster.Interop {
         private static extern bool GetConsoleScreenBufferInfoEx(IntPtr handle, ref ConsoleScreenBufferInfoEx info);
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern uint GetFileType(IntPtr handle);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ReadConsoleOutputCharacterW(IntPtr handle, [Out] char[] buffer, uint length, ConsoleCoordinate readCoordinate, out uint read);
         [DllImport("ntdll.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
         private static extern int RtlGetVersion(ref WindowsVersionInfo info);
     }

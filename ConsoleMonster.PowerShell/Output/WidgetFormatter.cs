@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
             object? raw = value is PSObject wrapped ? wrapped.BaseObject : value;
             switch (raw) {
                 case ConsoleRendering rendering:
-                    return Render(rendering.Widget, host, outputRendering, rendering.Width, rendering.Culture);
+                    return Render(rendering.Widget, host, rendering.DisplayOnly && string.IsNullOrEmpty(outputRendering) ? "Host" : outputRendering, rendering.Width, rendering.Culture);
                 case IWidget widget:
                     return Render(widget, host, outputRendering, 0, null);
                 default:

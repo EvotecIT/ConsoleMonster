@@ -30,6 +30,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>The culture it was asked for (-Culture), or null for the current one.</summary>
         public CultureInfo? Culture { get; }
 
+        /// <summary>
+        /// Drawn in the console's colours also without $PSStyle (Windows PowerShell 5.1): set for renderings that only go to
+        /// the display (the error view of Enable-ConsoleFormatting), never for command output that may be captured.
+        /// </summary>
+        internal bool DisplayOnly { get; set; }
+
         /// <summary>The view as plain text (no colour), as wide as asked for or the console.</summary>
         /// <param name="host">The host whose width to use when no width was asked for, or null.</param>
         /// <returns>The text.</returns>
