@@ -14,8 +14,8 @@ meta.software.name: ConsoleMonster
 meta.software.description: Console rendering library and PowerShell module for tables, trees, panels, charts and live dashboards, with no runtime package dependencies. MIT licensed.
 meta.software.category: DeveloperApplication
 meta.software.operating_system: Windows, Linux, macOS
-meta.software.version: 2.0.0
-meta.software.download_url: https://api.nuget.org/v3-flatcontainer/consolemonster/2.0.0/consolemonster.2.0.0.nupkg
-meta.software.website_url: [https://www.nuget.org/packages/ConsoleMonster/2.0.0, https://www.powershellgallery.com/packages/ConsoleMonster/2.0.0, https://github.com/EvotecIT/ConsoleMonster, https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.0]
+meta.software.version: 2.0.1
+meta.software.download_url: https://api.nuget.org/v3-flatcontainer/consolemonster/2.0.1/consolemonster.2.0.1.nupkg
+meta.software.website_url: [https://www.nuget.org/packages/ConsoleMonster/2.0.1, https://www.powershellgallery.com/packages/ConsoleMonster/2.0.1, https://github.com/EvotecIT/ConsoleMonster, https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.1]
 meta.software.image: /site/social-card.png
 ---
