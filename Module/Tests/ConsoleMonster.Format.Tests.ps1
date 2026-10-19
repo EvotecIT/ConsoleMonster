@@ -93,8 +93,9 @@ $p = Get-Process -Id $PID
         $parts[1] | Should -Match '(pwsh|powershell)\D{1,4}2'
         $parts[2] | Should -Not -Match 'ProcessName'
         $parts[3] | Should -Match 'ProcessName'
-        # A single row is a record: the group heading stays above it.
-        $parts[4] | Should -Match '(pwsh|powershell)\s+1\s*\n'
+        # A single row stays a table, under its group heading.
+        $parts[4] | Should -Match '(pwsh|powershell)\D{1,4}1'
+        $parts[4] | Should -Not -Match 'ProcessName'
         $parts[5] | Should -Not -Match 'Label'
         $parts[5] | Should -Match 'Module\D{1,4}2'
     }
@@ -121,6 +122,32 @@ $p = Get-Process -Id $PID
         $text | Should -Match '\[PASS\] Success'
         $text | Should -Match '\[WARN\] Warning'
         $text | Should -Match '\[FAIL\] Error'
+    }
+
+    It 'keeps one object a table unless -View Record, and puts object content in a panel' {
+        $text = Invoke-FormatChild -Script @'
+'== one'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -Width 60
+'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -View Record -Width 60
+'== panel'; New-ConsolePanel -Title 'Server' -Content ([pscustomobject] @{ Name = 'alpha'; Port = 8080 }) | Write-ConsoleWidget -Width 60
+'@
+        $parts = $text -split '== \w+'
+        $parts[1] | Should -Match '\| Name\s+\| Port \| Size \|'
+        $parts[1] | Should -Match '\| alpha \|\s+8080 \|'
+        $parts[2] | Should -Match '(?m)^alpha\s*$'
+        $parts[2] | Should -Match 'Port\s+8080'
+        $parts[3] | Should -Match 'Server'
+        $parts[3] | Should -Match 'Port\s+8080'
+    }
+
+    It 'opens one level of a wide object in Format-ConsoleTree unless -Depth is given' {
+        $text = Invoke-FormatChild -Script @'
+"DEFAULT=$((Get-Process -Id $PID | Format-ConsoleTree -AsString).Split("`n").Count)"
+"DEEP=$((Get-Process -Id $PID | Format-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
+"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Format-ConsoleTree -AsString).Split("`n").Count)"
+'@
+        [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
+        [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
+        [int] ($text -replace '(?s).*SMALL=(\d+).*', '$1') | Should -Be 5
     }
 
     It 'passes objects through with -PassThru' {

@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">How deep nested objects are followed (default 3).</para></summary>
+        /// <summary><para type="description">How deep nested objects are followed. Without it, .NET objects with more than 12 members (a process, a file, a service) open one level, and smaller objects, dictionaries and parsed JSON three, so a tree stays a readable size.</para></summary>
         [Parameter]
         public int Depth { get; set; } = 3;
 
@@ -83,7 +83,8 @@ namespace ConsoleMonster.PowerShell {
             List<IWidget> widgets = new List<IWidget>();
             foreach (PSObject item in _items) {
                 // The root object shows all its properties; nested objects with a default display set show that set.
-                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, item);
+                int depth = MyInvocation.BoundParameters.ContainsKey(nameof(Depth)) ? Depth : InspectorOptions.DefaultDepthFor(PSFormatting.FieldCount(item), Depth);
+                InspectorOptions options = PSFormatting.InspectorOptions(depth, MaxItems, Include, Exclude, MaxNodes, item);
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
 #pragma warning restore IL2026

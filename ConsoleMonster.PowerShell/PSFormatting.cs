@@ -412,6 +412,22 @@ namespace ConsoleMonster.PowerShell {
             return string.Equals(host, "ConsoleHost", StringComparison.Ordinal) || host.IndexOf("Visual Studio Code", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        /// <summary>
+        /// The number of members a .NET object shows through the shared value rules, for the default tree depth: values,
+        /// dictionaries and PSCustomObjects (parsed JSON, configuration) count as 0, so data keeps its full default depth.
+        /// </summary>
+        internal static int FieldCount(PSObject item) {
+            ShapeOptions shape = Binding.PSShaping.Options();
+            if (Binding.PSShaping.IsValueLike(item, shape) || item.BaseObject is PSCustomObject) {
+                return 0;
+            }
+            object? prepared = ValueShaper.Prepare(item, shape);
+            if (prepared is System.Collections.IDictionary) {
+                return 0;
+            }
+            return prepared == null ? 0 : ValueShaper.Fields(prepared, shape).Count;
+        }
+
         /// <summary>Several widgets as one: a single one as it is, more with a blank line between them.</summary>
         internal static IWidget Combine(IReadOnlyList<IWidget> widgets) =>
             widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };

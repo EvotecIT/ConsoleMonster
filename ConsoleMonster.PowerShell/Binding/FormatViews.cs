@@ -9,11 +9,16 @@ namespace ConsoleMonster.PowerShell.Binding {
     /// <summary>
     /// PowerShell's own table views (format.ps1xml, read through Get-FormatData) as column definitions: the columns people
     /// know from Format-Table (ifIndex, IPAddress, PrefixLength for Get-NetIPAddress; DriveLetter, Size for Get-Volume;
-    /// CommandType, Name, Version, Source for Get-Command). Definitions are cached per type name for the session.
+    /// CommandType, Name, Version, Source for Get-Command). Definitions are cached per type name for the session; a type
+    /// without a view is looked up again after a minute, in case a module adds one later.
     /// </summary>
     internal static class FormatViews {
         private static readonly object Gate = new object();
-        private static readonly Dictionary<string, ColumnSpec[]?> Cache = new Dictionary<string, ColumnSpec[]?>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, KeyValuePair<ColumnSpec[]?, DateTime>> Cache = new Dictionary<string, KeyValuePair<ColumnSpec[]?, DateTime>>(StringComparer.OrdinalIgnoreCase);
+
+        // A type without a table view is asked again after this long: a module imported later (or Update-FormatData) may
+        // add one. Found views stay for the session.
+        private static readonly TimeSpan MissingViewLifetime = TimeSpan.FromMinutes(1);
         private static readonly Regex Escapes = new Regex("\u001b\\[[0-9;?]*[ -/]*[@-~]|\u001b\\][^\u0007\u001b]*(\u0007|\u001b\\\\)", RegexOptions.Compiled);
 
         private const string Script = "param($TypeName) $parameters = @{ TypeName = $TypeName; ErrorAction = 'Ignore' }; if ((Get-Command -Name Get-FormatData).Parameters.ContainsKey('PowerShellVersion')) { $parameters.PowerShellVersion = $PSVersionTable.PSVersion }; Get-FormatData @parameters";
@@ -27,15 +32,19 @@ namespace ConsoleMonster.PowerShell.Binding {
                 return null;
             }
             foreach (string typeName in item.TypeNames) {
-                ColumnSpec[]? specs;
+                ColumnSpec[]? specs = null;
                 bool cached;
                 lock (Gate) {
-                    cached = Cache.TryGetValue(typeName, out specs);
+                    cached = Cache.TryGetValue(typeName, out KeyValuePair<ColumnSpec[]?, DateTime> entry)
+                        && (entry.Key != null || DateTime.UtcNow - entry.Value < MissingViewLifetime);
+                    if (cached) {
+                        specs = entry.Key;
+                    }
                 }
                 if (!cached) {
                     specs = Load(typeName, cmdlet);
                     lock (Gate) {
-                        Cache[typeName] = specs;
+                        Cache[typeName] = new KeyValuePair<ColumnSpec[]?, DateTime>(specs, DateTime.UtcNow);
                     }
                 }
                 if (specs != null) {
