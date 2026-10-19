@@ -166,6 +166,42 @@ namespace ConsoleMonster.PowerShell.Binding {
             return Unwrap(property.Value);
         }
 
+        private static readonly System.Text.RegularExpressions.Regex SinglePropertyScript =
+            new System.Text.RegularExpressions.Regex(@"^\s*\$(?:_|PSItem)\.(?<name>[\p{L}\p{N}_]+)\s*$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// The property a column expression reads, past alias properties of <paramref name="sample"/> (ProcessName on a
+        /// process is an alias of Name): a property name, or a script block that only reads one property. Null for other
+        /// expressions. Lets a group key and a column be compared by where their values come from, not by their names.
+        /// </summary>
+        /// <param name="expression">A property name, a script block, or another expression.</param>
+        /// <param name="sample">An item to resolve aliases on, or null.</param>
+        /// <returns>The source property name, or null.</returns>
+        internal static string? SourceProperty(object? expression, PSObject? sample) {
+            expression = expression is PSObject wrapped ? wrapped.BaseObject : expression;
+            string? name = expression switch {
+                string text => text,
+                ScriptBlock script => SinglePropertyScript.Match(script.ToString()) is System.Text.RegularExpressions.Match match && match.Success ? match.Groups["name"].Value : null,
+                _ => null
+            };
+            if (string.IsNullOrEmpty(name) || sample == null) {
+                return name;
+            }
+            for (int hop = 0; hop < 8; hop++) {
+                PSAliasProperty? alias;
+                try {
+                    alias = sample.Properties[name!] as PSAliasProperty;
+                } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                    break;
+                }
+                if (alias == null || string.IsNullOrEmpty(alias.ReferencedMemberName)) {
+                    break;
+                }
+                name = alias.ReferencedMemberName;
+            }
+            return name;
+        }
+
         // A PowerShell object around a scalar, collection or data value reads as that value; PSCustomObjects and other
         // objects stay PowerShell objects so their PowerShell properties keep working.
         internal static object? Unwrap(object? value) =>

@@ -322,6 +322,20 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Fact]
+        public void Table_SingleGroupedRow_RecordViewKeepsTheGroupHeading() {
+            Table grouped = new Table { Border = TableBorder.Rounded };
+            grouped.AddColumn(new TableColumn("Id"));
+            grouped.AddColumn(new TableColumn("Cpu"));
+            grouped.AddColumn(new TableColumn("Handles"));
+            grouped.AddGroup("pwsh");
+            grouped.AddValues(4242, 1.5, 300);
+            string[] lines = Render(grouped, 60).Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
+            Assert.Contains(lines, line => line.Trim().StartsWith("pwsh", StringComparison.Ordinal) && line.Contains("1"));
+            Assert.Contains(lines, line => line.Contains("Handles"));
+            Assert.DoesNotContain(lines, line => line.Contains("record"));
+        }
+
+        [Fact]
         public void Table_MinimalAndNoneBorders_ShowGroupHeadings() {
             foreach (TableBorder border in new[] { TableBorder.Minimal, TableBorder.None }) {
                 Table grouped = new Table { Border = border, RecordViewRows = 0 };

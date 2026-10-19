@@ -8,6 +8,14 @@ namespace ConsoleMonster.Widgets {
     public partial class Table {
         // A single row reads better as a sheet of labelled values than as a one-line table.
         private RecordView BuildRecordView(PresenterContext presenter) {
+            if (_groups.Count > 0) {
+                // A grouped row keeps its group heading (the key column may be hidden because the heading names it).
+                RecordView grouped = BuildCards(presenter, false);
+                if (!string.IsNullOrEmpty(Caption)) {
+                    grouped.Summary = Markup.Strip(Caption!);
+                }
+                return grouped;
+            }
             PresenterContext[] contexts = ColumnContexts(presenter);
             RecordView view = new RecordView(Title) { Presentation = Presentation };
             int key = KeyColumn;
@@ -26,17 +34,20 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Narrow widths: every row becomes a card titled by the key column, with all other columns as labelled fields,
-        // so nothing is hidden; groups become sections and totals a final card.
-        private RecordView BuildCards(PresenterContext presenter) {
+        // so nothing is hidden; groups become sections and totals a final card. Without a summary it is the record view of
+        // a grouped table's few rows.
+        private RecordView BuildCards(PresenterContext presenter, bool summary = true) {
             PresenterContext[] contexts = ColumnContexts(presenter);
             RecordView view = new RecordView(Title) { Presentation = Presentation };
             int key = KeyColumn;
             int shown = DisplayedRowCount;
             int all = TotalRowCount ?? _rows.Count;
             CultureInfo culture = presenter.Culture;
-            view.Summary = shown < all
-                ? Localization.WidgetLabels.Format(presenter.Render.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture))
-                : Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture));
+            if (summary) {
+                view.Summary = shown < all
+                    ? Localization.WidgetLabels.Format(presenter.Render.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture))
+                    : Localization.WidgetLabels.Format(all == 1 ? presenter.Render.Labels.OneRecord : presenter.Render.Labels.ManyRecords, all.ToString("N0", culture));
+            }
             int group = int.MinValue;
             int level = 0;
             Dictionary<int, int> visible = VisibleGroupRows(shown);

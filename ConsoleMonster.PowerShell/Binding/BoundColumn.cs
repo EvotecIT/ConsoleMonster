@@ -31,6 +31,15 @@ namespace ConsoleMonster.PowerShell.Binding {
         internal ShapeOptions? Options { get; set; }
 
         /// <summary>
+        /// The property the column's values come from on <paramref name="sample"/>, past alias properties: a property name,
+        /// or a script block that only reads one property (<c>{ $_.Name }</c>, as format views often define columns).
+        /// Null for any other calculated column.
+        /// </summary>
+        /// <param name="sample">An item to resolve alias properties on, or null.</param>
+        /// <returns>The source property name, or null.</returns>
+        public string? SourceProperty(PSObject? sample) => PropertyBinder.SourceProperty(_expression, sample);
+
+        /// <summary>
         /// Evaluates the column against one item. A getter or script block that throws gives a <see cref="FieldError"/>,
         /// shown as a warning marker in the cell, instead of an empty cell or a lost record; Ctrl+C still stops the command.
         /// </summary>

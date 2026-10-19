@@ -1,4 +1,4 @@
-﻿Describe 'Format-Console cmdlets' {
+Describe 'Format-Console cmdlets' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -76,6 +76,27 @@
         $text | Should -Match 'NuGet\D{1,8}1'
         $text | Should -Match 'Subtotal\s+\|\s+1,447'
         $text | Should -Match 'Showing 2 of 3'
+    }
+
+    It 'hides the column that repeats the group key, compared by where its values come from' {
+        # The process view's ProcessName column is an alias of Name; a calculated { $_.Kind } column reads Kind.
+        $text = Invoke-FormatChild -Script @'
+$p = Get-Process -Id $PID
+'== byname'; @($p, $p) | Format-ConsoleTable -GroupBy Name -Width 100
+'== byalias'; @($p, $p) | Format-ConsoleTable -GroupBy ProcessName -Width 100
+'== shown'; @($p, $p) | Format-ConsoleTable -GroupBy Name -ShowGroupColumn -Width 100
+'== single'; $p | Format-ConsoleTable -GroupBy Name -Width 100
+'== calculated'; $artifacts | Format-ConsoleTable -GroupBy Kind -Width 100 -Property @{ Name = 'Label'; Expression = { $_.Kind } }, Name
+'@
+        $parts = $text -split '== \w+'
+        $parts[1] | Should -Not -Match 'ProcessName'
+        $parts[1] | Should -Match '(pwsh|powershell)\D{1,4}2'
+        $parts[2] | Should -Not -Match 'ProcessName'
+        $parts[3] | Should -Match 'ProcessName'
+        # A single row is a record: the group heading stays above it.
+        $parts[4] | Should -Match '(pwsh|powershell)\s+1\s*\n'
+        $parts[5] | Should -Not -Match 'Label'
+        $parts[5] | Should -Match 'Module\D{1,4}2'
     }
 
     It 'passes objects through with -PassThru' {

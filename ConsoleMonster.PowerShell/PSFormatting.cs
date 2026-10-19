@@ -114,9 +114,18 @@ namespace ConsoleMonster.PowerShell {
                 resolved = ColumnResolver.Resolve(items, options.Cmdlet, shape, out view);
             }
             List<BoundColumn> columns = PropertyBinder.Bind(items, resolved, shape, options.Cmdlet).ToList();
-            if (groupBy is string groupName && !options.ShowGroupColumn && columns.Count > 1) {
-                // The group heading names the key; a column repeating it on every row adds nothing.
-                columns.RemoveAll(column => string.Equals(column.Name, groupName, StringComparison.OrdinalIgnoreCase));
+            string? groupSource = options.ShowGroupColumn || columns.Count <= 1 ? null : PropertyBinder.SourceProperty(groupBy, items.Count > 0 ? items[0] : null);
+            if (groupSource != null) {
+                // The group heading names the key; a column repeating it on every row adds nothing. Columns are compared by
+                // where their values come from, so the process view's ProcessName (an alias of Name) goes with -GroupBy Name.
+                // Aliases are resolved on the first item: a grouped table normally holds one type.
+                PSObject? sample = items.Count > 0 ? items[0] : null;
+                string? typed = groupBy as string;
+                Predicate<BoundColumn> repeatsKey = column => (typed != null && string.Equals(column.Name, typed, StringComparison.OrdinalIgnoreCase))
+                    || string.Equals(column.SourceProperty(sample), groupSource, StringComparison.OrdinalIgnoreCase);
+                if (columns.Exists(column => !repeatsKey(column))) {
+                    columns.RemoveAll(repeatsKey);
+                }
                 if (!columns.Any(column => column.Column.IsKey) && columns.Count > 0) {
                     int key = ValueShaper.TitleIndex(columns.Select(column => column.Name).ToList());
                     columns[key >= 0 ? key : 0].Column.IsKey = true;
