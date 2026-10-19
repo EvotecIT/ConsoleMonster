@@ -57,6 +57,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Depth { get; set; } = 3;
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, Show-Console behaves like the Format-Console commands: PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File), piped into another command the view goes on as plain lines, and inside scripts and functions or on Windows PowerShell 5.1 it is drawn on the screen.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -110,7 +114,7 @@ namespace ConsoleMonster.PowerShell {
                     widget = ConsoleView.Auto(values, options);
                     break;
             }
-            PSFormatting.Write(this, widget, Width);
+            PSFormatting.Emit(this, widget, Width, null, AsString.IsPresent);
         }
 
         private IWidget Tables(IReadOnlyList<PSObject> items, bool cards, string? title) {

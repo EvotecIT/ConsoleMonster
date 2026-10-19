@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows pipeline objects in an interactive grid and returns the rows you choose.</para>
-    /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list; without an interactive user the cmdlet fails with a clear error.</para>
+    /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI) the rows are printed as a table with a warning and nothing is returned; -Mode None fails with an error instead.</para>
     /// <example>
     ///   <para>Pick services to restart</para>
     ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf</code>
@@ -115,6 +115,16 @@ namespace ConsoleMonster.PowerShell {
             GridResult result;
             try {
                 result = grid.Show(options, (_stop ??= new CancellationTokenSource()).Token);
+            } catch (PromptUnavailableException) when (Mode != InteractionMode.None) {
+                // No one to pick rows: print them as Format-ConsoleTable would, through the host (nothing goes down the
+                // pipeline, so a command after the grid gets no rows it was not given), and say so.
+                WriteWarning("Show-ConsoleGrid needs an interactive console; showing the rows as a table instead. Nothing is returned.");
+                List<PSObject> rows = new List<PSObject>(items);
+                Layout.IWidget table = PSFormatting.Combine(PSFormatting.BuildTables(rows, Property, null, new TableBuildOptions { Cmdlet = this, Culture = Culture }, built => {
+                    built.Title = Markup.Escape(Title);
+                }));
+                PSFormatting.Write(this, table, 0, Culture);
+                return;
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCancelledException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Title);
                 throw;

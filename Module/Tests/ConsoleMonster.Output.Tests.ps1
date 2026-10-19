@@ -95,6 +95,20 @@ $svc | Format-ConsoleTable *> (Join-Path $folder 'all.txt')
         }
     }
 
+    It 'gives Show-Console the same output model: -AsString, plain lines when piped, the rendering at the prompt on 7.2+' {
+        $out = Invoke-OutputChild @'
+$text = $svc | Show-Console -AsString
+"TYPE=$($text.GetType().Name) $($text -match 'alpha')"
+$piped = $svc | Show-Console | Out-String
+"PIPED=$($piped -match 'beta' -and -not $piped.Contains([char] 27))"
+$x = $svc | Show-Console
+"ASSIGNED=$("$x" -match 'alpha')"
+'@
+        Get-Result $out 'TYPE' | Should -Be 'String True'
+        Get-Result $out 'PIPED' | Should -Be 'True'
+        Get-Result $out 'ASSIGNED' | Should -Be ($script:IsCore).ToString()
+    }
+
     It 'records the table in a transcript' {
         $out = Invoke-OutputChild @'
 Start-Transcript -Path (Join-Path $folder 'transcript.txt') | Out-Null
