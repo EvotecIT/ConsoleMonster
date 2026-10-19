@@ -72,7 +72,8 @@ namespace ConsoleMonster.Tests.Data {
         }
 
         [Fact]
-        public void Inspect_DepthLimit_ReplacesDeepNodeWithSummary() {
+        public void Inspect_DepthLimit_KeepsScalarsAndSummarisesDeeperObjects() {
+            // Scalars cost nothing to show, so a value past the depth limit is still its value, never "(depth limit)".
             InspectNode result = ObjectInspector.Inspect(
                 new Sample { Child = new Child { Label = "deep" } },
                 new InspectorOptions { MaxDepth = 1 }
@@ -80,9 +81,14 @@ namespace ConsoleMonster.Tests.Data {
             InspectObject child = Assert.IsType<InspectObject>(
                 Assert.IsType<InspectObject>(result).Members[1]
             );
-            InspectLimit limit = Assert.IsType<InspectLimit>(child.Members[0]);
-            Assert.Equal("String", limit.TypeName);
-            Assert.Equal("String", limit.Summary);
+            InspectScalar label = Assert.IsType<InspectScalar>(child.Members[0]);
+            Assert.Equal("deep", label.Value);
+            InspectNode deeper = ObjectInspector.Inspect(
+                new Sample { Child = new Child { Label = "deep" } },
+                new InspectorOptions { MaxDepth = 0 }
+            );
+            InspectLimit limit = Assert.IsType<InspectLimit>(Assert.IsType<InspectObject>(deeper).Members[1]);
+            Assert.Equal("Child", limit.TypeName);
         }
 
         [Fact]

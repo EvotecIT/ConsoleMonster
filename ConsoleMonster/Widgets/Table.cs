@@ -78,6 +78,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;
 
+        /// <summary>
+        /// Titles for the rows in record and card views, by data row index (a null or empty entry uses the key column), so a
+        /// caller can title a record "pwsh (90836)" while the key column stays the name. Null for none.
+        /// </summary>
+        public IList<string?>? RowTitles { get; set; }
+
         /// <summary>Whether a footer names the columns hidden for lack of width (default true).</summary>
         public bool ShowHiddenColumns { get; set; } = true;
 

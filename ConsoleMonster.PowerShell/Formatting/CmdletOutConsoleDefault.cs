@@ -48,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
                 _inner!.Process(InputObject);
                 return;
             }
-            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(InputObject) : null;
+            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(InputObject, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(InputObject) : null;
             if (view != null) {
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
                     Flush();
@@ -72,6 +72,13 @@ namespace ConsoleMonster.PowerShell {
             _inner?.Dispose();
         }
 
+        // Dictionaries (@{ }, [ordered]) are shown as ConsoleMonster records (one) or tables of their keys (several), like
+        // every other taken-over type, instead of PowerShell's Name/Value table.
+        private static readonly ConsoleViewRegistration Dictionaries = new ConsoleViewRegistration("System.Collections.IDictionary", ConsoleViewKind.Table, null, null, "Dictionary", null, true);
+
+        private static ConsoleViewRegistration? DictionaryView(PSObject item) =>
+            ConsoleFormatting.TakeOverBuiltIns && item.BaseObject is System.Collections.IDictionary ? Dictionaries : null;
+
         private void Flush() {
             if (_batch.Count == 0 || _batchView == null) {
                 return;
@@ -80,23 +87,19 @@ namespace ConsoleMonster.PowerShell {
             switch (_batchView.View) {
                 case ConsoleViewKind.Table:
                 case ConsoleViewKind.Cards:
-                    object? groupBy = _batchView.GroupBy;
-                    string? title = null;
-                    if (_batchView.Title != null) {
-                        title = SharedTitle(_batchView.Title);
-                        if (title == null) {
-                            groupBy ??= _batchView.Title;
+                    bool cards = _batchView.View == ConsoleViewKind.Cards;
+                    // The same columns, titles and cell values as Format-ConsoleTable: the registered view is found again
+                    // by the column resolver, so its columns, its title ("Directory: ...") and its grouping apply.
+                    List<IWidget> tables = PSFormatting.BuildTables(_batch, null, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = this }, table => {
+                        if (cards) {
+                            table.AlwaysCards = true;
                         }
-                    }
-                    Table table = PSFormatting.BuildTable(_batch, _batchView.Property, groupBy, false, true);
-                    table.Title = title == null ? null : Text.Markup.Escape(title);
-                    if (_batchView.View == ConsoleViewKind.Cards) {
-                        table.AlwaysCards = true;
-                    }
-                    widget = table;
+                    });
+                    widget = PSFormatting.Combine(tables);
                     break;
                 default:
                     ConsoleViewOptions options = new ConsoleViewOptions { View = _batchView.View };
+                    options.Sources.Add(new Binding.DirectoryEntryMemberSource());
                     options.Sources.Add(new Binding.PSObjectMemberSource());
                     widget = ConsoleView.Auto(new List<object?>(_batch), options);
                     break;
@@ -105,21 +108,6 @@ namespace ConsoleMonster.PowerShell {
             _batch.Clear();
             _batchView = null;
         }
-
-        // The title every object in the batch shares, or null when they differ.
-        private string? SharedTitle(ScriptBlock title) {
-            string? shared = null;
-            foreach (PSObject item in _batch) {
-                string text = string.Join(" ", title.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", item) }));
-                if (shared == null) {
-                    shared = text;
-                } else if (!string.Equals(shared, text, StringComparison.Ordinal)) {
-                    return null;
-                }
-            }
-            return shared;
-        }
-
         // Only output displayed on a real local console: not redirected, not a job, remoting or another host.
         private bool Displayed() {
             if (!string.Equals(Host?.Name, "ConsoleHost", StringComparison.Ordinal)) {

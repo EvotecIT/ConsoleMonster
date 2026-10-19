@@ -125,8 +125,8 @@ namespace ConsoleMonster.PowerShell {
         }    }
 
     /// <summary>
-    /// <para type="synopsis">Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.</para>
-    /// <para type="description">A thin convenience over Format-ConsoleCode -Language Json. Strings are taken as JSON text (pipeline strings are joined, so Get-Content works); other objects are collected and converted with ConvertTo-Json -Depth (default 4) first.</para>
+    /// <para type="synopsis">Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.</para>
+    /// <para type="description">A thin convenience over Format-ConsoleCode -Language Json. Pipeline strings are joined (so Get-Content works); when they are JSON they are re-indented, otherwise they are shown as a JSON string. Other objects are collected and written with ConsoleMonster's shared value rules to -Depth levels (default 4): dictionaries with any key type, cycles as "(cycle)", values past the depth as "…", secure strings masked and byte arrays as their size.</para>
     /// <example>
     ///   <para>An object as highlighted JSON</para>
     ///   <code>Get-Process -Id $PID | Select-Object Name, Id, StartTime | Format-ConsoleJson</code>
@@ -147,7 +147,7 @@ namespace ConsoleMonster.PowerShell {
         [AllowEmptyString]
         public object? InputObject { get; set; }
 
-        /// <summary><para type="description">The depth for ConvertTo-Json (default 4).</para></summary>
+        /// <summary><para type="description">How many levels of objects and lists are written (default 4); deeper values are shown as one line of text.</para></summary>
         [Parameter]
         public int Depth { get; set; } = 4;
 
@@ -177,32 +177,35 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             object value = InputObject is PSObject ps && !(ps.BaseObject is PSCustomObject) ? ps.BaseObject : InputObject;
+            _objects.Add(InputObject);
             if (value is string text) {
                 if (_text.Length > 0) {
                     _text.Append('\n');
                 }
                 _text.Append(text);
             } else {
-                _objects.Add(InputObject);
+                _allText = false;
             }
         }
 
+        private bool _allText = true;
+
         /// <inheritdoc />
         protected override void EndProcessing() {
-            string json = _text.ToString();
-            if (_objects.Count > 0) {
-                object input = _objects.Count == 1 ? _objects[0] : _objects.ToArray();
-                ScriptBlock convert = ScriptBlock.Create("param($InputValue, $Depth) ConvertTo-Json -InputObject $InputValue -Depth $Depth");
-                StringBuilder sb = new StringBuilder(json);
-                foreach (PSObject line in convert.Invoke(input, Depth)) {
-                    if (sb.Length > 0) {
-                        sb.Append('\n');
-                    }
-                    sb.Append(line?.ToString());
-                }
-                json = sb.ToString();
+            if (_objects.Count == 0) {
+                return;
             }
-            CmdletFormatConsoleCode.WriteView(this, json, "json", null, view => {
+            string json;
+            string text = _text.ToString();
+            if (_allText && Values.ValueJson.TryReindent(text, out string indented)) {
+                // JSON text (Get-Content settings.json, a REST response): re-indented and highlighted.
+                json = indented;
+            } else {
+                // Objects, or text that is not JSON (a JSON string value then), written with the shared value rules:
+                // dictionaries with any keys, cycles marked, secrets masked, the pipeline order kept.
+                object input = _objects.Count == 1 ? _objects[0] : _objects;
+                json = Values.ValueJson.Serialize(input, Math.Max(0, Depth), Binding.PSShaping.Options());
+            }            CmdletFormatConsoleCode.WriteView(this, json, "json", null, view => {
                 view.LineNumbers = LineNumbers.IsPresent;
                 view.MaxLines = Math.Max(1, MaxLines);
                 view.Title = Title;

@@ -1,9 +1,11 @@
 using System;
+using System.Globalization;
 using System.Management.Automation;
+using ConsoleMonster.Values;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell.Binding {
-    /// <summary>A configured table column bound to a PowerShell property or expression.</summary>
+    /// <summary>A table column bound to a property name or calculated property expression.</summary>
     public sealed class BoundColumn {
         private readonly object _expression;
 
@@ -14,25 +16,49 @@ namespace ConsoleMonster.PowerShell.Binding {
             _expression = expression;
         }
 
-        /// <summary>Logical property name used to bind this column.</summary>
+        /// <summary>The source property name or calculated property label.</summary>
         public string Name { get; }
 
-        /// <summary>Configured rendering column.</summary>
+        /// <summary>The rendering column configuration.</summary>
         public TableColumn Column { get; }
 
-        /// <summary>First evaluation error encountered, or null.</summary>
+        /// <summary>The first expression error, if one occurred while reading values.</summary>
         public string? LastError { get; private set; }
 
-        /// <summary>Evaluates this column for an item, returning null for a missing property or failed expression.</summary>
+        /// <summary>A .NET format string for the values (FormatString in a calculated property, as Format-Table takes), or null.</summary>
+        public string? FormatString { get; internal set; }
+
+        internal ShapeOptions? Options { get; set; }
+
+        /// <summary>
+        /// Evaluates the column against one item. A getter or script block that throws gives a <see cref="FieldError"/>,
+        /// shown as a warning marker in the cell, instead of an empty cell or a lost record; Ctrl+C still stops the command.
+        /// </summary>
         public object? GetValue(PSObject item) {
+            object? value;
             try {
-                return PropertyBinder.Evaluate(item, _expression);
+                value = PropertyBinder.Evaluate(item, _expression, Options);
             }
             catch (Exception ex) when (!(ex is System.Management.Automation.PipelineStoppedException) && !(ex is OperationCanceledException)) {
-                // Ctrl+C (PipelineStoppedException) must stop the cmdlet, not blank the column.
+                // Ctrl+C (PipelineStoppedException) must stop the cmdlet, not mark the cell.
                 LastError ??= ex.Message;
-                return null;
+                return FieldError.From(ex);
             }
+            if (value is FieldError error) {
+                LastError ??= error.Message;
+                return value;
+            }
+            if (!string.IsNullOrEmpty(FormatString) && value is IFormattable formattable) {
+                CultureInfo culture = Options?.ResolvedCulture ?? CultureInfo.CurrentCulture;
+                try {
+                    return FormatString!.IndexOf("{0", StringComparison.Ordinal) >= 0
+                        ? string.Format(culture, FormatString!, value)
+                        : formattable.ToString(FormatString, culture);
+                } catch (FormatException) {
+                    return value;
+                }
+            }
+            return value;
         }
     }
 }

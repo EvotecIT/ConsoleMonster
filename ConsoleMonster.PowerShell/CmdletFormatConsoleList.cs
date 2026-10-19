@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            RecordView view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture);
+            Layout.IWidget view = PSFormatting.BuildList(_items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
             PSFormatting.Write(this, view, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {

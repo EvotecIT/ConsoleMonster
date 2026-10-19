@@ -63,8 +63,21 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Builds the table from the collected input.</summary>
         /// <returns>The table.</returns>
         protected Table BuildTable() {
-            Table table = PSTableMapper.Build(_items, Property, StatusProperty);
-            table.Title = PSText.Markup(Title);
+            // The same columns and cell values as Format-ConsoleTable (registered views, PowerShell's table views, data keys,
+            // shared value rules); -StatusProperty shows that column as status markers.
+            object[]? property = Property != null && Property.Length > 0 ? Property : null;
+            Values.ShapeOptions shape = Binding.PSShaping.Options();
+            Table table = PSFormatting.BuildTable(PSFormatting.Expand(_items, shape), property, null, new TableBuildOptions { Cmdlet = this }, shape);
+            if (StatusProperty != null) {
+                foreach (TableColumn column in table.Columns) {
+                    if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase) || string.Equals(Text.Markup.Strip(column.Header), StatusProperty, System.StringComparison.OrdinalIgnoreCase)) {
+                        column.Presenter = Presenters.CellPresenters.FromName("StatusWord", null);
+                    }
+                }
+            }
+            if (Title != null) {
+                table.Title = PSText.Markup(Title);
+            }
             table.Caption = PSText.Markup(Caption);
             table.Border = Border;
             table.Expand = Expand.IsPresent;

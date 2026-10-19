@@ -6,7 +6,12 @@ namespace ConsoleMonster.Presenters {
     public sealed class TextPresenter : ICellPresenter {
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
-            string text = PresenterValues.ToText(value, context.Culture).Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
+            // Collections, dictionaries, data rows, XML and JSON values and secure strings are written by the shared value
+            // rules (joined items, Key=Value pairs, titles, masked secrets) instead of their .NET type name.
+            string raw = value != null && !(value is string) && (value is System.Collections.IEnumerable || value is System.Security.SecureString || Values.ValueShaper.IsStructural(value))
+                ? Values.ValueShaper.Text(value, new Values.ShapeOptions { UseReflection = false, Culture = context.Culture })
+                : PresenterValues.ToText(value, context.Culture);
+            string text = raw.Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
             text = Glyphs.SymbolFallback.Apply(text, context.Render.Glyphs.Tier);
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text))) { IsEmpty = text.Length == 0 };
         }

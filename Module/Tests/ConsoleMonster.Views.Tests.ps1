@@ -35,7 +35,8 @@ Describe 'Show-Console, default formatting and the taskbar indicator' {
 '== cards'
 1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -View Cards -Width 60
 '@
-        $text | Should -Match 'PSCustomObject\s+.\s+2 members'
+        # One object is a record: its title (Name) and its other fields.
+        $text | Should -Match 'srv01\s*\n\s+Up\s+.\s+yes'
         $text | Should -Match 'Name\s+.\s+Count'
         $text | Should -Match 'root\s*\n\s+.+leaf'
         $text | Should -Match '9'
@@ -45,6 +46,9 @@ Describe 'Show-Console, default formatting and the taskbar indicator' {
     It 'leaves redirected output, pipelines and Out-String unchanged and Disable removes the Out-Default function' {
         $text = Invoke-ViewChild -Script @'
 $before = Get-Item $PSHOME | Out-String
+# The header line of PowerShell's own view on this platform (Windows: Mode LastWriteTime Length Name; Unix: UnixMode User ...).
+$beforeLines = @($before -split "`r?`n")
+for ($i = 1; $i -lt $beforeLines.Count; $i++) { if ($beforeLines[$i] -match '^\s*-{2,}') { "HEADER=$($beforeLines[$i - 1].Trim())"; break } }
 $pipeBefore = @(Get-ChildItem $PSHOME -File | Select-Object -First 3 | ForEach-Object Name) -join ','
 Enable-ConsoleFormatting
 "ENABLED=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
@@ -60,8 +64,10 @@ Disable-ConsoleFormatting
         $text | Should -Match 'SAMESTRING=True'
         $text | Should -Match 'SAMEPIPE=True'
         $text | Should -Match 'DISABLED=True'
-        # Redirected: Get-Item still prints PowerShell's own view, not a ConsoleMonster table.
-        $text | Should -Match 'LastWriteTime\s+Length\s+Name|Mode\s+LastWriteTime'
+        # Redirected: Get-Item still prints PowerShell's own view (its own header on this platform), not a ConsoleMonster table.
+        $header = (($text -split "`n") | Where-Object { $_ -like 'HEADER=*' } | Select-Object -First 1).Substring(7)
+        $header | Should -Not -BeNullOrEmpty
+        @($text -split "`n" | Where-Object { $_ -notlike 'HEADER=*' -and $_.Trim() -eq $header }).Count | Should -BeGreaterThan 0
         $text | Should -Not -Match '[┌╭]'
     }
 

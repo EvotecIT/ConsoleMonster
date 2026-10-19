@@ -64,8 +64,16 @@
 
     It 'evaluates calculated properties, groups with subtotals and limits to the top rows' {
         $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
-        $text | Should -Match 'NuGet  1'
-        $text | Should -Match 'Module  2'
+        # Groups are sorted by key: the two Module rows come first and -Top 2 shows only them.
+        $text | Should -Match 'Module\D{1,8}2'
+        $text | Should -Not -Match 'nupkg'
+        $text | Should -Match 'Subtotal\s+\|\s+2,886'
+        $text | Should -Match 'Showing 2 of 3'
+    }
+
+    It 'keeps the input order of groups with -NoSort' {
+        $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -NoSort -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text | Should -Match 'NuGet\D{1,8}1'
         $text | Should -Match 'Subtotal\s+\|\s+1,447'
         $text | Should -Match 'Showing 2 of 3'
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace ConsoleMonster.Data {
     internal sealed class DictionaryMemberSource : IMemberSource {
@@ -14,7 +15,18 @@ namespace ConsoleMonster.Data {
 
         public IEnumerable<InspectMember> GetMembers(object value) {
             if (value is IDictionary dictionary) {
-                foreach (DictionaryEntry entry in dictionary) {
+                // A Hashtable has no order of its own (PowerShell's @{ }): its keys are shown sorted so the output is
+                // stable. Ordered and sorted dictionaries, and every other dictionary, keep their own order.
+                // IDictionary.GetEnumerator gives DictionaryEntry for every dictionary; IEnumerable (and Cast) would give
+                // KeyValuePair for generic ones.
+                List<DictionaryEntry> all = new List<DictionaryEntry>();
+                IDictionaryEnumerator enumerator = dictionary.GetEnumerator();
+                while (enumerator.MoveNext())
+                    all.Add(enumerator.Entry);
+                IEnumerable<DictionaryEntry> entries = all;
+                if (dictionary.GetType() == typeof(Hashtable))
+                    entries = entries.OrderBy(entry => Convert.ToString(entry.Key, CultureInfo.InvariantCulture) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+                foreach (DictionaryEntry entry in entries.ToList()) {
                     object? memberValue = entry.Value;
                     yield return new InspectMember(
                         Convert.ToString(entry.Key, CultureInfo.InvariantCulture) ?? string.Empty,

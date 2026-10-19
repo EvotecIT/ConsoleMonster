@@ -77,6 +77,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
 
+        /// <summary><para type="description">Keeps the -GroupBy column in the rows (by default the group heading names the key and the column is left out).</para></summary>
+        [Parameter]
+        public SwitchParameter ShowGroupColumn { get; set; }
+
+        /// <summary><para type="description">Keeps the groups of -GroupBy in the order their keys first appear (by default they are sorted by key).</para></summary>
+        [Parameter]
+        public SwitchParameter NoSort { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -89,18 +97,26 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            Table table = PSFormatting.BuildTable(_items, Property, GroupBy, Total.IsPresent);
-            table.Title = PSText.Markup(Title);
-            table.Caption = PSText.Markup(Caption);
-            table.Border = Border;
-            table.CardsBelow = CardsBelow;
-            table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
-            table.MaxRows = Top > 0 ? Top : 0;
+            bool first = true;
+            TableBuildOptions options = new TableBuildOptions { Total = Total.IsPresent, Cmdlet = this, Culture = Culture, ShowGroupColumn = ShowGroupColumn.IsPresent, NoSort = NoSort.IsPresent };
+            // Objects of different kinds get one table each (as Format-Table switches format); the title heads the first.
+            System.Collections.Generic.List<Layout.IWidget> tables = PSFormatting.BuildTables(_items, Property, GroupBy, options, table => {
+                if (Title != null) {
+                    table.Title = first ? PSText.Markup(Title) : null;
+                }
+                table.Caption = PSText.Markup(Caption);
+                table.Border = Border;
+                table.CardsBelow = CardsBelow;
+                table.HeaderSeparator = !NoHeaderSeparator.IsPresent;
+                table.MaxRows = Top > 0 ? Top : 0;
+                first = false;
+            });
+            Layout.IWidget output = PSFormatting.Combine(tables);
             if (AsWidget.IsPresent) {
-                WriteObject(Culture != null ? (object)new Layout.CultureScope(table, Culture) : table);
+                WriteObject(Culture != null ? (object)new Layout.CultureScope(output, Culture) : output);
                 return;
             }
-            PSFormatting.Write(this, table, Width, Culture);
+            PSFormatting.Write(this, output, Width, Culture);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

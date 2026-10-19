@@ -79,7 +79,11 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(_items, Property);
+            // The same columns and cell values as Format-ConsoleTable (shared value rules); a collection passed as one object is its items.
+            Values.ShapeOptions shape = PSShaping.Options(Culture);
+            Values.ShapeBudget budget = Values.ShapeBudget.For(shape);
+            IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, shape);
+            IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, Property, shape, this);
             Grid grid = new Grid(Title) { Selection = OutputMode };
             if (Culture != null) {
                 grid.Presentation = new PresentationOptions { Culture = Culture };
@@ -87,10 +91,14 @@ namespace ConsoleMonster.PowerShell {
             foreach (BoundColumn column in columns) {
                 grid.AddColumn(column.Column);
             }
-            foreach (PSObject item in _items) {
+            foreach (PSObject item in items) {
                 object?[] values = new object?[columns.Count];
                 for (int c = 0; c < columns.Count; c++) {
-                    values[c] = PropertyBinder.Unwrap(columns[c].GetValue(item));
+                    object? value = PSFormatting.Read(columns[c], item, budget);
+                    object? prepared = value is Values.FieldError || value is Values.BudgetExceeded ? value : Values.ValueShaper.Prepare(value, shape);
+                    object? cell = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, Values.ShapeBudget.For(shape));
+                    // The grid sorts and filters cell values: marked cells (empty collections, failed getters) become their text.
+                    values[c] = cell is ConsoleMonster.Widgets.TableCell marked ? Markup.Strip(marked.Markup) : cell;
                 }
                 grid.AddRow(item, values);
             }

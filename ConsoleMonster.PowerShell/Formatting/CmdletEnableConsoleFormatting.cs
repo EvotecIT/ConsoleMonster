@@ -5,7 +5,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
-    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process) and services (Get-Service), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
+    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
     /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
-        /// <summary><para type="description">Only uses the types registered with Register-ConsoleView, not the built-in ones (files, processes, services).</para></summary>
+        /// <summary><para type="description">Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Format-ConsoleTable and the other commands.</para></summary>
         [Parameter]
         public SwitchParameter NoBuiltIn { get; set; }
 
@@ -28,9 +28,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");
                 return;
             }
-            if (!NoBuiltIn.IsPresent) {
-                ConsoleFormatting.RegisterBuiltIns();
-            }
+            ConsoleFormatting.TakeOverBuiltIns = !NoBuiltIn.IsPresent;
             SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
         }
     }
@@ -88,16 +86,32 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Register")]
         public string? Group { get; set; }
 
+        /// <summary><para type="description">
+        /// A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
+        /// ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+        /// Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+        /// names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.
+        /// </para></summary>
+        [Parameter(ParameterSetName = "Register")]
+        public ScriptBlock? Shaper { get; set; }
+
         /// <summary><para type="description">Removes the registrations instead.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Remove")]
         public SwitchParameter Remove { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null;
             foreach (string type in TypeName) {
                 if (Remove.IsPresent) {
                     ConsoleFormatting.Unregister(type);
-                } else {
+                    Values.ValueShaper.Unregister(type);
+                    continue;
+                }
+                if (Shaper != null) {
+                    Binding.PSShaping.RegisterShaper(type, Shaper);
+                }
+                if (Shaper == null || viewGiven) {
                     ConsoleFormatting.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title));
                 }
             }

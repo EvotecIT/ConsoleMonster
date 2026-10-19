@@ -77,9 +77,10 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes);
             List<IWidget> widgets = new List<IWidget>();
             foreach (PSObject item in _items) {
+                // The root object shows all its properties; nested objects with a default display set show that set.
+                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, item);
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
 #pragma warning restore IL2026

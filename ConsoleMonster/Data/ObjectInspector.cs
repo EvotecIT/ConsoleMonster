@@ -39,16 +39,22 @@ namespace ConsoleMonster.Data {
             string? name = null
         ) {
             InspectorOptions actual = options ?? new InspectorOptions();
-            Walk walk = new Walk(Math.Max(1, actual.MaxNodes));
+            Walk walk = new Walk(Math.Max(1, actual.MaxNodes), actual);
             return Build(value, name, "$", 0, actual, walk);
         }
 
         internal static IMemberSource? FindSource(object value, InspectorOptions options) {
+            // The same adapter order as every other view (Values.ValueShaper): registered adapters, the data adapters
+            // (dictionaries, data rows, XML, JSON, files and folders), the caller's sources, then reflection.
+            IMemberSource? registered = Values.ValueShaper.RegisteredAdapter(value);
+            if (registered != null)
+                return registered;
+            IMemberSource? structural = Values.ValueShaper.FindStructuralAdapter(value);
+            if (structural != null)
+                return structural;
             foreach (IMemberSource source in options.Sources)
                 if (source.CanRead(value))
                     return source;
-            if (value is IDictionary || IsPairDictionary(value))
-                return Dictionaries;
 #if NET8_0_OR_GREATER
             if (value is JsonElement)
                 return JsonMemberSource.Instance;
@@ -83,6 +89,7 @@ namespace ConsoleMonster.Data {
                 || value is IPAddress
                 || value is byte[]
                 || value is DBNull
+                || value is System.Security.SecureString
                 || value is Text.RichText;
         }
 
@@ -154,15 +161,20 @@ namespace ConsoleMonster.Data {
             Walk walk
         ) {
             try {
-                value = UnwrapValue(value, options);
+                value = Values.ValueShaper.Prepare(UnwrapValue(value, options), walk.Shape);
             }
             catch (Exception ex) when (!IsCancellation(ex)) {
                 return new InspectError(name, "Error", path, ex.Message);
             }
-            if (walk.Remaining <= 0) {
-                return NodeLimit(name, path, options);
+            if (walk.Remaining <= 0 || walk.OutOfTime) {
+                return NodeLimit(name, path, options, walk);
             }
             walk.Remaining--;
+            // Scalars cost nothing to show: they are values at any depth, never "(depth limit)".
+            if (value == null)
+                return new InspectScalar(name, "null", path, null);
+            if (IsScalarValue(value))
+                return new InspectScalar(name, FriendlyTypeName(value.GetType()), path, value);
             if (depth > Math.Max(0, options.MaxDepth)) {
                 string limitedType =
                     value == null
@@ -175,13 +187,9 @@ namespace ConsoleMonster.Data {
                     name,
                     limitedType,
                     path,
-                    value == null ? "null" : Summary(value)
+                    value != null && TryGetEnumerable(value, out _) ? Summary(value) : limitedType
                 );
             }
-            if (value == null)
-                return new InspectScalar(name, "null", path, null);
-            if (IsScalarValue(value))
-                return new InspectScalar(name, FriendlyTypeName(value.GetType()), path, value);
 #if NET8_0_OR_GREATER
             if (value is JsonElement element) {
                 if (
@@ -210,13 +218,14 @@ namespace ConsoleMonster.Data {
             if (TryDescribePending(current, out string? pending))
                 // An incomplete Task/ValueTask or an uncreated Lazy<T>: reading Result or Value would block or force it.
                 return new InspectScalar(name, typeName, path, pending);
+            object identity = options.Identity?.Invoke(current) ?? current;
             if (
-                !current.GetType().IsValueType && walk.Ancestors.TryGetValue(current, out string? target)
+                !identity.GetType().IsValueType && walk.Ancestors.TryGetValue(identity, out string? target)
             )
                 return new InspectCycle(name, typeName, path, target);
-            bool track = !current.GetType().IsValueType;
+            bool track = !identity.GetType().IsValueType;
             if (track)
-                walk.Ancestors[current] = path;
+                walk.Ancestors[identity] = path;
             try {
                 if (TryGetEnumerable(current, out IEnumerable? enumerable))
                     return BuildCollection(
@@ -232,14 +241,24 @@ namespace ConsoleMonster.Data {
                 IMemberSource? source = FindSource(current, options);
                 if (source == null)
                     return new InspectScalar(name, typeName, path, current);
+                // Dictionary keys, data columns and XML or JSON fields are data; on objects, plumbing members (provider
+                // paths, CIM metadata, collection synchronisation, DOM links) are left out.
+                bool data = Values.ValueShaper.FindStructuralAdapter(current) != null;
                 List<InspectNode> members = new List<InspectNode>();
-                foreach (InspectMember member in source.GetMembers(current)) {
-                    if (!MemberIncluded(member.Name, options))
+                IEnumerable<InspectMember> listed;
+                try {
+                    listed = source.GetMembers(current).ToList();
+                }
+                catch (Exception ex) when (!IsCancellation(ex)) {
+                    return new InspectError(name, typeName, path, ex.Message);
+                }
+                foreach (InspectMember member in listed) {
+                    if (!MemberIncluded(member.Name, options) || (!data && Values.ValueShaper.IsPlumbing(member.Name)))
                         continue;
                     string childPath = MemberPath(path, member.Name);
-                    if (walk.Remaining <= 0) {
-                        // Out of nodes: one marker instead of reading (and listing) every remaining member.
-                        members.Add(NodeLimit(member.Name, childPath, options));
+                    if (walk.Remaining <= 0 || walk.OutOfTime) {
+                        // Out of nodes or time: one marker instead of reading (and listing) every remaining member.
+                        members.Add(NodeLimit(member.Name, childPath, options, walk));
                         break;
                     }
                     try {
@@ -364,12 +383,11 @@ namespace ConsoleMonster.Data {
                 return true;
             }
 #endif
-            if (value is IDictionary || IsPairDictionary(value) || value is string) {
+            if (value is IDictionary || IsPairDictionary(value) || value is string || Values.ValueShaper.FindStructuralAdapter(value) != null) {
                 enumerable = null;
                 return false;
             }
-            enumerable = value as IEnumerable;
-            return enumerable != null;
+            return Values.ValueShaper.TryGetItems(value, out enumerable);
         }
 
 #if NET8_0_OR_GREATER
@@ -407,12 +425,14 @@ namespace ConsoleMonster.Data {
 
         private static bool IsPairDictionary(object value) => Dictionaries.CanRead(value);
 
-        private static InspectLimit NodeLimit(string? name, string path, InspectorOptions options) =>
+        private static InspectLimit NodeLimit(string? name, string path, InspectorOptions options, Walk walk) =>
             new InspectLimit(
                 name,
                 "Limit",
                 path,
-                "node limit reached (MaxNodes = " + options.MaxNodes.ToString(CultureInfo.InvariantCulture) + ")"
+                walk.Remaining > 0 && walk.OutOfTime
+                    ? "time budget reached (" + options.TimeBudget.TotalSeconds.ToString("0.#", CultureInfo.InvariantCulture) + " s)"
+                    : "node limit reached (MaxNodes = " + options.MaxNodes.ToString(CultureInfo.InvariantCulture) + ")"
             );
 
         // Cancellation (Ctrl+C in PowerShell surfaces as PipelineStoppedException) must stop the walk, not become a node.
@@ -462,9 +482,19 @@ namespace ConsoleMonster.Data {
         }
 
         private sealed class Walk {
-            public Walk(int maxNodes) {
+            private readonly System.Diagnostics.Stopwatch _clock = System.Diagnostics.Stopwatch.StartNew();
+            private readonly TimeSpan _budget;
+
+            public Walk(int maxNodes, InspectorOptions options) {
                 Remaining = maxNodes;
+                _budget = options.TimeBudget;
+                Shape = new Values.ShapeOptions { UseReflection = options.UseReflection };
             }
+
+            // Registered shapers and XML/JSON normalisation run on each value, as in every other view.
+            public Values.ShapeOptions Shape { get; }
+
+            public bool OutOfTime => _budget > TimeSpan.Zero && _clock.Elapsed > _budget;
 
             public Dictionary<object, string> Ancestors { get; } = new Dictionary<object, string>(ReferenceComparer.Instance);
 

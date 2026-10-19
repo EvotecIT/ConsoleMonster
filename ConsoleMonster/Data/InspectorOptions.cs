@@ -42,5 +42,14 @@ namespace ConsoleMonster.Data {
         /// Use this to strip host wrapper objects while preserving the wrapped value's identity for cycle detection.
         /// </summary>
         public Func<object, object>? Unwrap { get; set; }
+
+        /// <summary>
+        /// Optional host callback that gives the identity of a value for cycle detection (for example the object a host
+        /// wrapper wraps, since a new wrapper can be created for every read), or null to use the value itself.
+        /// </summary>
+        public Func<object, object>? Identity { get; set; }
+
+        /// <summary>How long one inspection may spend reading values (default 2 seconds; zero or less for no limit).</summary>
+        public TimeSpan TimeBudget { get; set; } = TimeSpan.FromSeconds(2);
     }
 }

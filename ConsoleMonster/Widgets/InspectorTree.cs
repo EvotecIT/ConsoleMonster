@@ -17,6 +17,11 @@ namespace ConsoleMonster.Widgets {
             if (root == null) {
                 throw new ArgumentNullException(nameof(root));
             }
+            if (root is InspectScalar scalar) {
+                // A single value: its type and the value itself, not just the type name.
+                string text = Values.ValueShaper.ScalarText(scalar.Value);
+                return new Tree("[bold]" + Markup.Escape(title ?? root.TypeName) + "[/]" + (text.Length > 0 ? "  " + Markup.Escape(text) : string.Empty)) { ShowRoot = true };
+            }
             Tree tree = new Tree("[bold]" + Markup.Escape(title ?? root.TypeName) + "[/]") { ShowRoot = true };
             Fill(tree.Root, root);
             return tree;
@@ -55,13 +60,13 @@ namespace ConsoleMonster.Widgets {
                     Fill(parent.Add(label, null, Localization.WidgetLabels.Format(count == 1 ? Localization.WidgetLabels.Current.OneItem : Localization.WidgetLabels.Current.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture))), collection);
                     break;
                 case InspectScalar scalar:
-                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] bytes ? bytes.Length + " bytes" : scalar.Value) });
+                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value) });
                     break;
                 case InspectCycle cycle:
                     parent.Add(label, null, "(cycle: " + cycle.TargetPath + ")");
                     break;
                 case InspectLimit limit:
-                    parent.Add(label, null, limit.Summary + " (depth limit)");
+                    parent.Add(label, null, limit.TypeName == "Limit" ? limit.Summary : limit.Summary + " (depth limit)");
                     break;
                 case InspectError error:
                     parent.Add(label, Styling.StatusKind.Warn, "error: " + error.Message);
