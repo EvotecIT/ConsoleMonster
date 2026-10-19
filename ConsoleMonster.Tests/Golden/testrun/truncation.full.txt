@@ -1,10 +1,12 @@
- Pester · 1 failed · 1 passed · 2 tests                            ● running  ·  00:00:00
+ Pester                                                            ● running  ·  00:00:00
 
+ 2  · ✗ 1 failed  ✓ 1 passed  – 0 skipped
 ╭─ Files ────────────────────────────────────────────────────────────────── 0 of 1 done ─╮
 │                                                                                        │
 │ ⠋ Sample.Tests.ps1  ━━━━━━━━━━━━━━╾───────  66%  ✓1 ✗1 –0  applies StartTab, StartSpa… │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
- ⠋ Rich text cmdlets › Write-ConsoleText with Write-Color parameters › applies StartTab,…
+ ✓ ✗ ●
+ ⠙ Rich text cmdlets › Write-ConsoleText with Write-Color parameters › applies StartTab…
 ╭─ Failures ──────────────────────────────────── 1 ─╮ ╭─ Slowest ────────────────────────╮
 │                                                   │ │                                  │
 │ ✗ Interactive cmdlets › Without a user (redirect… │ │   2.7s  writes the pieces on on… │
@@ -16,8 +18,6 @@
 │                                                   │ ╭─ Durations ──────────────────────╮
 │                                                   │ │                                  │
 │                                                   │ │ 1│███                      ████  │
-│                                                   │ │  │███                      ████  │
-│                                                   │ │  │███                      ████  │
 │                                                   │ │  │███                      ████  │
 │                                                   │ │  │███                      ████  │
 │                                                   │ │  │███                      ████  │

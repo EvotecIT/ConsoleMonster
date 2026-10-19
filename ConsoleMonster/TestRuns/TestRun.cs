@@ -17,6 +17,8 @@ namespace ConsoleMonster.TestRuns {
         private readonly List<TestRecord> _failures = new List<TestRecord>();
         private readonly List<TestRecord> _slowest = new List<TestRecord>();
         private readonly List<double> _durations = new List<double>();
+        private readonly List<StatusKind> _outcomes = new List<StatusKind>();
+        private TimeSpan? _currentStarted;
         private int? _total;
         private int _passed;
         private int _failed;
@@ -93,6 +95,7 @@ namespace ConsoleMonster.TestRuns {
                 _currentContainer = container;
                 _currentBlocks = blocks ?? new string[0];
                 _currentName = name;
+                _currentStarted = _clock();
             }
         }
 
@@ -145,6 +148,7 @@ namespace ConsoleMonster.TestRuns {
                 if (string.Equals(container.Current, record.Name, StringComparison.Ordinal)) {
                     container.Current = null;
                 }
+                _outcomes.Add(record.Status == StatusKind.Pass || record.Status == StatusKind.Fail || record.Status == StatusKind.Warn || record.Status == StatusKind.Skip ? record.Status : StatusKind.Skip);
             }
         }
 
@@ -185,7 +189,8 @@ namespace ConsoleMonster.TestRuns {
                 }
                 List<TestRecord> slowest = new List<TestRecord>(_slowest);
                 return new TestRunSnapshot(_total, _passed, _failed, _skipped, _inconclusive, _notRun, containers, new List<TestRecord>(_failures), slowest,
-                    new List<double>(_durations), _currentName, _currentBlocks, _currentContainer, _finished ?? _clock(), _finished.HasValue);
+                    new List<double>(_durations), _currentName, _currentBlocks, _currentContainer, _finished ?? _clock(), _finished.HasValue,
+                    new List<StatusKind>(_outcomes), _currentName != null ? _currentStarted : null);
             }
         }
 

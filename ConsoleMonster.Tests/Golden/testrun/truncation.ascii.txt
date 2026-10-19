@@ -1,10 +1,12 @@
- Pester | 1 failed | 1 passed | 2 tests                       [BUSY] running  |  00:00:00
+ Pester                                                       [BUSY] running  |  00:00:00
 
+ 2  | x 1 failed  + 1 passed  - 0 skipped
 +- Files ------------------------------------------------------------------ 0 of 1 done -+
 |                                                                                        |
 | | Sample.Tests.ps1  ##############--------  66%  P1 F1 S0  applies StartTab, StartS... |
 +----------------------------------------------------------------------------------------+
- | Rich text cmdlets > Write-ConsoleText with Write-Color parameters > applies StartTa...
+ + x *
+ / Rich text cmdlets › Write-ConsoleText with Write-Color parameters › applies StartT...
 +- Failures ------------------------------------ 1 -+ +- Slowest ------------------------+
 |                                                   | |                                  |
 | x Interactive cmdlets > Without a user (redire... | |   2.7s  writes the pieces on ... |
@@ -16,8 +18,6 @@
 |                                                   | +- Durations ----------------------+
 |                                                   | |                                  |
 |                                                   | | 1|###                      ####  |
-|                                                   | |  |###                      ####  |
-|                                                   | |  |###                      ####  |
 |                                                   | |  |###                      ####  |
 |                                                   | |  |###                      ####  |
 |                                                   | |  |###                      ####  |
