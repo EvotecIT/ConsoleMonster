@@ -310,6 +310,15 @@ namespace ConsoleMonster.Localization {
         /// <summary>Unchanged objects: <c>{0} unchanged</c>.</summary>
         public string ChangesUnchanged { get; set; } = "{0} unchanged";
 
+        /// <summary>Items before a window: <c>+{0} earlier</c>.</summary>
+        public string EarlierCount { get; set; } = "+{0} earlier";
+
+        /// <summary>Items with a warning: <c>{0} warnings</c>.</summary>
+        public string WarningCount { get; set; } = "{0} warnings";
+
+        /// <summary>The heading of a watched command: <c>Every {0}:</c> with the interval.</summary>
+        public string WatchEvery { get; set; } = "Every {0}:";
+
         /// <summary>Properties left out of a comparison because reading them stalled: <c>{0} not compared</c>.</summary>
         public string ChangesNotCompared { get; set; } = "{0} not compared";
 

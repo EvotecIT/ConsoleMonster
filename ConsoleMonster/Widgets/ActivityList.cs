@@ -23,6 +23,7 @@ namespace ConsoleMonster.Widgets {
 
         private readonly List<Activity> _activities = new List<Activity>();
         private int _titleWidth = 6;
+        private int _idWidth;
 
         /// <summary>Creates an activity list.</summary>
         /// <param name="name">The target name (default <see cref="ProgressTarget"/>).</param>
@@ -34,6 +35,12 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>The number of activities in progress.</summary>
         public int Count => _activities.Count;
+
+        /// <summary>Whether each row ends with the time since the activity started, right-aligned (default true).</summary>
+        public bool ShowElapsed { get; set; } = true;
+
+        /// <summary>Whether each row starts with the activity's id (<c>#3</c>), for parallel work (default false).</summary>
+        public bool ShowIds { get; set; }
 
         /// <inheritdoc />
         public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
@@ -71,7 +78,8 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation != "update") {
                 return;
             }
-            Activity activity = index >= 0 ? _activities[index] : new Activity(id);
+            // An event without a time stamp (no session) leaves the start unknown, so no elapsed time is shown.
+            Activity activity = index >= 0 ? _activities[index] : new Activity(id) { Started = liveEvent.Time > 0 ? TimeSpan.FromMilliseconds(liveEvent.Time) : (TimeSpan?)null };
             activity.Parent = parent;
             activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
             activity.Status = liveEvent.State;
@@ -108,7 +116,9 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             _titleWidth = 6;
+            _idWidth = 0;
             foreach (KeyValuePair<Activity, int> pair in ordered) {
+                _idWidth = Math.Max(_idWidth, pair.Key.Id.ToString(CultureInfo.InvariantCulture).Length + 2);
                 _titleWidth = Math.Max(_titleWidth, DisplayWidth.Measure(pair.Key.Title) + (pair.Value * 2) + 1);
             }
             int y = 0;
@@ -129,12 +139,38 @@ namespace ConsoleMonster.Widgets {
             }
             // An activity at 100 % that was never marked complete is done: a check mark, not a spinner.
             bool done = activity.Percent >= 100;
-            string glyph = done ? context.Glyphs.StatusSymbol(StatusKind.Pass) : activity.Percent >= 0 ? context.Spinner(activity.Id) : context.Glyphs.StatusSymbol(StatusKind.Pending);
+            // Work in progress spins, with or without a percentage.
+            string glyph = done ? context.Glyphs.StatusSymbol(StatusKind.Pass) : context.Spinner(activity.Id);
             region.Write(indent, y, glyph, context.Style(done ? ThemeToken.Pass : ThemeToken.Running));
+            // The elapsed time sits at the right edge (when the activity's start is known); the rest of the row is laid out before it.
+            string elapsed = ShowElapsed && activity.Started.HasValue && context.Elapsed > activity.Started.Value ? NumberFormat.Duration(context.Elapsed - activity.Started.Value) : string.Empty;
+            int elapsedWidth = elapsed.Length > 0 ? DisplayWidth.Measure(elapsed) + 1 : 0;
+            if (elapsed.Length > 0 && region.Width - elapsedWidth > indent + 8) {
+                region.Write(region.Width - elapsedWidth + 1, y, elapsed, context.Style(ThemeToken.Muted));
+                region = region.Sub(0, 0, region.Width - elapsedWidth, region.Height);
+                width = region.Width - indent;
+            }
+            int titleX = indent + 2;
+            if (ShowIds) {
+                // Ids share one width (the widest), so titles and bars stay in line between #9 and #10.
+                string idText = ("#" + activity.Id.ToString(CultureInfo.InvariantCulture)).PadRight(_idWidth - 1) + " ";
+                region.Write(titleX, y, idText, context.Style(ThemeToken.Muted));
+                titleX += _idWidth;
+            }
+            string tail = activity.Status ?? string.Empty;
+            if (activity.SecondsLeft >= 0) {
+                string left = "~" + Localization.WidgetLabels.Format(context.Labels.TimeLeft, NumberFormat.Remaining(TimeSpan.FromSeconds(activity.SecondsLeft)));
+                tail = tail.Length == 0 ? left : tail + " " + Interactive.InteractiveGlyphs.For(context).Separator + " " + left;
+            }
             // The title column ends at the same place for every depth, so bars line up under each other.
-            int titleWidth = Math.Max(4, Math.Max(6, Math.Min(Math.Min(32, region.Width / 3), _titleWidth)) - indent);
-            region.Write(indent + 2, y, TextWrapper.Truncate(activity.Title, titleWidth, context.Ellipsis), context.Style(depth == 0 ? ThemeToken.Highlight : ThemeToken.Text));
-            int x = indent + 2 + titleWidth + 1;
+            int titleWidth = Math.Max(4, Math.Max(6, Math.Min(Math.Min(32, region.Width / 3), _titleWidth)) - indent - (ShowIds ? _idWidth : 0));
+            if (activity.Percent < 0) {
+                // Without a percentage there is no bar: the title takes the width the status leaves.
+                int tailWidth = tail.Length > 0 ? DisplayWidth.Measure(tail) + 1 : 0;
+                titleWidth = Math.Max(titleWidth, Math.Min(DisplayWidth.Measure(activity.Title), region.Width - titleX - 1 - tailWidth));
+            }
+            region.Write(titleX, y, TextWrapper.Truncate(activity.Title, titleWidth, context.Ellipsis), context.Style(depth == 0 ? ThemeToken.Highlight : ThemeToken.Text));
+            int x = titleX + titleWidth + 1;
             int barWidth = Math.Max(0, Math.Min(30, (width - titleWidth - 3) / 3));
             if (activity.Percent >= 0 && barWidth >= 4) {
                 BarDrawer.Draw(region, x, y, barWidth, Math.Min(1, activity.Percent / 100.0), context.Style(ThemeToken.Running), context, true, BarShape.Line);
@@ -143,25 +179,11 @@ namespace ConsoleMonster.Widgets {
                 region.Write(x, y, percent.PadLeft(4), context.Style(ThemeToken.Text));
                 x += 5;
             }
-            string tail = activity.Status ?? string.Empty;
-            if (activity.SecondsLeft >= 0) {
-                string left = "~" + Localization.WidgetLabels.Format(context.Labels.TimeLeft, Durations(TimeSpan.FromSeconds(activity.SecondsLeft), context.Culture));
-                tail = tail.Length == 0 ? left : tail + " " + Interactive.InteractiveGlyphs.For(context).Separator + " " + left;
-            }
             if (tail.Length > 0 && x < region.Width - 1) {
                 region.Write(x, y, TextWrapper.Truncate(tail, region.Width - x, context.Ellipsis), context.Style(ThemeToken.Muted));
             }
         }
 
-        private static string Durations(TimeSpan span, CultureInfo culture) {
-            if (span.TotalHours >= 1) {
-                return ((int)span.TotalHours).ToString(culture) + "h " + span.Minutes.ToString(culture) + "m";
-            }
-            if (span.TotalMinutes >= 1) {
-                return ((int)span.TotalMinutes).ToString(culture) + "m " + span.Seconds.ToString(culture) + "s";
-            }
-            return ((int)span.TotalSeconds).ToString(culture) + "s";
-        }
 
         private void Order(int parent, int depth, List<KeyValuePair<Activity, int>> ordered, HashSet<int> seen) {
             foreach (Activity a in _activities) {
@@ -208,6 +230,8 @@ namespace ConsoleMonster.Widgets {
             public double Percent { get; set; } = -1;
 
             public double SecondsLeft { get; set; } = -1;
+
+            public TimeSpan? Started { get; set; }
         }
     }
 }

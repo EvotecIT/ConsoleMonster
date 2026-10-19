@@ -22,6 +22,7 @@
         <TypeName>ConsoleMonster.Text.RichText</TypeName>
         <TypeName>ConsoleMonster.Widgets.ActivityList</TypeName>
         <TypeName>ConsoleMonster.Widgets.BarChart</TypeName>
+        <TypeName>ConsoleMonster.Widgets.CellMap</TypeName>
         <TypeName>ConsoleMonster.Widgets.CodeView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
@@ -44,6 +45,7 @@
         <TypeName>ConsoleMonster.Widgets.Spinner</TypeName>
         <TypeName>ConsoleMonster.Widgets.StackedBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.StatusList</TypeName>
+        <TypeName>ConsoleMonster.Widgets.SummaryBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.Table</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>

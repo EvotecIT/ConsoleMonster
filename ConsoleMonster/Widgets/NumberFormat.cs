@@ -80,6 +80,14 @@ namespace ConsoleMonster.Widgets {
             return ((int)duration.TotalHours).ToString(CultureInfo.InvariantCulture) + "h " + duration.Minutes.ToString("00", CultureInfo.InvariantCulture) + "m";
         }
 
+        /// <summary>A time left, rounded up: <c>12s</c> under a minute, otherwise as <see cref="Duration"/> (<c>3m 05s</c>).</summary>
+        /// <param name="remaining">The time left.</param>
+        /// <returns>The text.</returns>
+        public static string Remaining(TimeSpan remaining) {
+            double seconds = Math.Max(0, Math.Ceiling(remaining.TotalSeconds));
+            return seconds < 60 ? seconds.ToString("0", CultureInfo.InvariantCulture) + "s" : Duration(TimeSpan.FromSeconds(seconds));
+        }
+
         /// <summary>Formats a clock: 00:01:23 (or 01:23 under an hour when <paramref name="shortForm"/> is true).</summary>
         /// <param name="elapsed">The elapsed time.</param>
         /// <param name="shortForm">Whether to drop the hours when zero.</param>
