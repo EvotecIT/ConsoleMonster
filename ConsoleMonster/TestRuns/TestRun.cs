@@ -192,7 +192,7 @@ namespace ConsoleMonster.TestRuns {
         private TestContainerState Container(string key, string? name) {
             string k = key ?? string.Empty;
             if (!_byKey.TryGetValue(k, out TestContainerState? container)) {
-                container = new TestContainerState(k, name ?? System.IO.Path.GetFileName(k)) { Order = _containers.Count };
+                container = new TestContainerState(k, name ?? Text.DisplayPath.FileName(k)) { Order = _containers.Count };
                 _byKey[k] = container;
                 _containers.Add(container);
             } else if (name != null) {

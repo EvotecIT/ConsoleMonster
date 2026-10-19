@@ -232,6 +232,11 @@ namespace ConsoleMonster.Widgets {
         /// <returns>The short path.</returns>
         public string ShortPath(string path) {
             string basePath = BasePath ?? Environment.CurrentDirectory;
+            if (Text.DisplayPath.IsForeign(path)) {
+                // A path from another system (a Windows trace shown on Unix, or the reverse): shortened as text, since the
+                // host's path APIs would misread it.
+                return Text.DisplayPath.Short(path, Text.DisplayPath.IsForeign(basePath) ? basePath : null);
+            }
             try {
                 string full = Path.GetFullPath(path);
                 string root = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
@@ -246,6 +251,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static string? Link(string path) {
+            if (Text.DisplayPath.IsForeign(path)) {
+                return null;
+            }
             try {
                 return Path.IsPathRooted(path) ? new Uri(Path.GetFullPath(path)).AbsoluteUri : null;
             } catch (Exception ex) when (ex is ArgumentException || ex is UriFormatException || ex is NotSupportedException || ex is PathTooLongException) {

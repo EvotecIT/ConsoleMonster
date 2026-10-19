@@ -114,6 +114,12 @@ namespace ConsoleMonster.Output {
                     StopTimer();
                     return;
                 }
+                if (IsUntracked) {
+                    // No timed redraws where the cursor cannot be read without a terminal query (Unix): the spinner and
+                    // clock move on each update instead of drawing over output nothing could detect.
+                    StopTimer();
+                    return;
+                }
                 if (!CursorUnchanged()) {
                     // Something else wrote (output, the prompt): stop instead of drawing over it.
                     StopTimer();
@@ -146,25 +152,33 @@ namespace ConsoleMonster.Output {
             }
         }
 
+        // Untracked: the cursor cannot be read without a terminal query (Unix), so nothing tells whether other output moved it.
+        private const int Untracked = -2;
+
         private void RememberCursor() {
-            try {
-                _cursorLeft = Console.CursorLeft;
-                _cursorTop = Console.CursorTop;
-            } catch (Exception) {
+            if (!Output.ConsoleCursor.CanQuery) {
+                _cursorLeft = Untracked;
+                _cursorTop = Untracked;
+                return;
+            }
+            if (!Output.ConsoleCursor.TryGetPosition(out _cursorLeft, out _cursorTop)) {
                 _cursorLeft = -1;
                 _cursorTop = -1;
             }
         }
 
+        private bool IsUntracked => _cursorLeft == Untracked;
+
         private bool CursorUnchanged() {
+            if (_cursorLeft == Untracked) {
+                // Unix: the line is still the current status (updates reuse it, so -Elapsed counts from the start); only the
+                // timed redraws stop (Tick), since other output cannot be seen.
+                return true;
+            }
             if (_cursorLeft < 0) {
                 return true;
             }
-            try {
-                return Console.CursorLeft == _cursorLeft && Console.CursorTop == _cursorTop;
-            } catch (Exception) {
-                return true;
-            }
+            return !Output.ConsoleCursor.TryGetPosition(out int left, out int top) || (left == _cursorLeft && top == _cursorTop);
         }
 
         private void StopTimer() {

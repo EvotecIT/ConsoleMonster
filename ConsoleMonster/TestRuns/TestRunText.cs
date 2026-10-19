@@ -39,7 +39,8 @@ namespace ConsoleMonster.TestRuns {
             if (string.IsNullOrEmpty(record.File)) {
                 return null;
             }
-            string name = System.IO.Path.GetFileName(record.File);
+            // Recorded runs may come from another system: the file name is taken from the text of the path.
+            string name = Text.DisplayPath.FileName(record.File);
             return record.Line > 0 ? name + ":" + record.Line.ToString(CultureInfo.InvariantCulture) : name;
         }
 
@@ -47,7 +48,8 @@ namespace ConsoleMonster.TestRuns {
         /// <param name="record">The record.</param>
         /// <returns>The URI.</returns>
         public static string? Link(TestRecord record) {
-            if (string.IsNullOrEmpty(record.File)) {
+            if (string.IsNullOrEmpty(record.File) || Text.DisplayPath.IsForeign(record.File)) {
+                // No link to a path from another system: the host could not open it.
                 return null;
             }
             try {
