@@ -128,7 +128,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The run name in the header (default the file name).
+The run name in the header (default the recorded dashboard title, or the file name for other widget trees). A recorded dashboard's own header and footer are not replayed: its title, subtitle and status show in the player's header.
 
 ```yaml
 Type: String
