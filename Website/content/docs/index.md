@@ -6,7 +6,7 @@ order: 0
 layout: docsindex
 ---
 
-ConsoleMonster is a .NET library (netstandard2.0, net472 and net8.0) with no package dependencies, and a PowerShell module of thin cmdlets over it for Windows PowerShell 5.1 and PowerShell 7. Each layer can be used without the ones above it:
+ConsoleMonster is a .NET library (netstandard2.0, net472, net8.0 and net10.0) with no package dependencies, and a PowerShell module of thin cmdlets over it for Windows PowerShell 5.1 and PowerShell 7. Each layer can be used without the ones above it:
 
 | Layer | What it does |
 |---|---|

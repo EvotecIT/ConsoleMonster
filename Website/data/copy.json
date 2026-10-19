@@ -7,7 +7,7 @@
     "installNote": "The .NET package and PowerShell module use the same rendering engine. See the installation guide for supported targets and a first table.",
     "facts": [
       "No package dependencies",
-      "netstandard2.0, net472 and net8.0",
+      "netstandard2.0, net472, net8.0 and net10.0",
       "Windows PowerShell 5.1 and PowerShell 7",
       "MIT licence"
     ],
