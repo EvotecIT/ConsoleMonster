@@ -25,6 +25,7 @@
   "ExcludeProjects": [
     "ConsoleMonster.Benchmarks",
     "ConsoleMonster.Examples",
+    "ConsoleMonster.Generators",
     "ConsoleMonster.PowerShell",
     "ConsoleMonster.Tests"
   ],

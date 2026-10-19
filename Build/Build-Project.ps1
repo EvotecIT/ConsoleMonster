@@ -2,7 +2,7 @@ param(
     [ValidateSet('Manifest', 'Build', 'Publish')]
     [string] $ConfigurationGateMode = 'Build',
 
-    [string] $ConfigPath = 'Build\project.build.json',
+    [string] $ConfigPath = "$PSScriptRoot/project.build.json",
 
     [Nullable[bool]] $UpdateVersions,
 
@@ -22,7 +22,7 @@ Import-Module PSPublishModule -Force -ErrorAction Stop
 $invokeParams = @{
     ConfigPath     = $ConfigPath
     UpdateVersions = @{
-        Manifest = $false
+        Manifest = $true
         Build    = $true
         Publish  = $true
     }[$ConfigurationGateMode]
@@ -41,6 +41,7 @@ $invokeParams = @{
         Build    = $false
         Publish  = $true
     }[$ConfigurationGateMode]
+    Plan           = $ConfigurationGateMode -eq 'Manifest'
 }
 
 if ($null -ne $UpdateVersions) { $invokeParams.UpdateVersions = $UpdateVersions }
@@ -50,4 +51,4 @@ if ($null -ne $PublishGitHub) { $invokeParams.PublishGitHub = $PublishGitHub }
 if ($null -ne $Plan) { $invokeParams.Plan = $Plan }
 if ($PlanPath) { $invokeParams.PlanPath = $PlanPath }
 
-Invoke-ProjectBuild @invokeParams
+Invoke-ProjectBuild @invokeParams -ExitCode

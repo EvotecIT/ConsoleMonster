@@ -5,6 +5,8 @@ param(
 
     [bool] $SignModule = $true,
 
+    [bool] $SkipInstall = $false,
+
     [string] $ProjectBuildConfigPath = '..\Build\project.build.json',
 
     [string] $PowerShellGalleryApiKeyPath = 'C:\Support\Important\PowerShellGalleryAPI.txt',
@@ -117,7 +119,8 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
 
     New-ConfigurationBuild @newConfigurationBuildSplat
 
-    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled:$false -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget
+    $GitHubTokenPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($GitHubApiKeyPath)
+    New-ConfigurationProjectBuild -Name 'ConsoleMonster' -ConfigPath $ProjectBuildConfigPath -Enabled -BuildBeforeModule -UseAsReleaseVersionSource -ProvideLocalNuGetFeed -PublishNuget -PublishGitHub -Options @{ GitHubAccessTokenFilePath = $GitHubTokenPath }
     New-ConfigurationRelease -StageRoot '..\Artefacts\UploadReady' -VersionSource ProjectBuild -PrimaryProject 'ConsoleMonster' -SynchronizeModuleVersion -BuildOrder 'Packages', 'Module' -PublishOrder 'NuGet', 'PowerShellGallery', 'GitHub'
 
     $newConfigurationArtefactSplat = @{
@@ -138,9 +141,10 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         AddRequiredModules  = $true
         ArtefactName        = 'ConsoleMonster-PowerShellModule.<TagModuleVersionWithPreRelease>.zip'
         IncludeTagName      = $true
+        ID                  = 'ToGitHub'
     }
     New-ConfigurationArtefact @newConfigurationArtefactSplat
 
-    New-ConfigurationPublish -Type PowerShellGallery -FilePath $PowerShellGalleryApiKeyPath -Enabled:$false -UseAsDependencyVersionSource
-    New-ConfigurationPublish -Type GitHub -FilePath $GitHubApiKeyPath -UserName 'EvotecIT' -Enabled:$false -RepositoryName 'ConsoleMonster' -GenerateReleaseNotes -OverwriteTagName 'ConsoleMonster-PowerShellModule.<TagModuleVersionWithPreRelease>'
-} -ExitCode
+    New-ConfigurationPublish -Type PowerShellGallery -FilePath $PowerShellGalleryApiKeyPath -Enabled:$false
+    New-ConfigurationPublish -Type GitHub -FilePath $GitHubTokenPath -UserName 'EvotecIT' -Enabled:$false -RepositoryName 'ConsoleMonster' -ID 'ToGitHub' -GenerateReleaseNotes -OverwriteTagName 'ConsoleMonster-v{ModuleVersionWithPreRelease}'
+} -SkipInstall:$SkipInstall -ExitCode
