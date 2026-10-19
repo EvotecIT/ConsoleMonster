@@ -477,7 +477,8 @@ namespace ConsoleMonster.PowerShell {
                     continue;
                 }
                 object? cell = column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, column, shape, record);
-                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter);
+                // Status fields get their marker in records too, as status columns do in tables.
+                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared));
             }
             if (shown == 0) {
                 view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
