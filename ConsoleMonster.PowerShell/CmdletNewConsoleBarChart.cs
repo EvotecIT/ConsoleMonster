@@ -11,6 +11,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>New-ConsoleBarChart -Unit ' ms' -Data ([ordered] @{ Cloudflare = 12; Google = 18; Quad9 = 24 }) | Write-ConsoleWidget</code>
     /// </example>
     /// <example>
+    ///   <para>Disk use with thresholds: 80 % and more is a warning, 90 % and more critical</para>
+    ///   <code>New-ConsoleBarChart -Unit '%' -Warning 80 -Critical 90 -Data ([ordered] @{ 'C:' = 93; 'D:' = 34; 'E:' = 81 }) | Write-ConsoleWidget</code>
+    /// </example>
+    /// <example>
     ///   <para>Results split</para>
     ///   <code>New-ConsoleBarChart -Stacked -Data ([ordered] @{ Passed = 412; Warnings = 51; Failed = 23 }) | Write-ConsoleWidget</code>
     /// </example>
@@ -38,6 +42,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Block;
 
+        /// <summary><para type="description">The value from which a bar turns to the warning colour (with -Critical below it, lower values are worse, as for free space).</para></summary>
+        [Parameter]
+        public double? Warning { get; set; }
+
+        /// <summary><para type="description">The value from which a bar turns to the fail colour.</para></summary>
+        [Parameter]
+        public double? Critical { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Stacked.IsPresent) {
@@ -50,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteObject(stacked);
                 return;
             }
-            BarChart chart = new BarChart(Name ?? "bars") { Unit = Unit, Shape = Shape };
+            BarChart chart = new BarChart(Name ?? "bars") { Unit = Unit, Shape = Shape, Warning = Warning, Critical = Critical };
             if (Data != null) {
                 foreach (DictionaryEntry entry in Data) {
                     chart.Add(PSWidgets.ToText(entry.Key), LanguagePrimitives.ConvertTo<double>(entry.Value));
