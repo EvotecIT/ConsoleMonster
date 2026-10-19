@@ -69,6 +69,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoHeaderSeparator { get; set; }
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Also writes the input objects to the pipeline.</para></summary>
         [Parameter]
         public SwitchParameter PassThru { get; set; }
@@ -116,7 +119,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteObject(Culture != null ? (object)new Layout.CultureScope(output, Culture) : output);
                 return;
             }
-            PSFormatting.Write(this, output, Width, Culture);
+            PSFormatting.Emit(this, output, Width, Culture, AsString.IsPresent, PassThru.IsPresent);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

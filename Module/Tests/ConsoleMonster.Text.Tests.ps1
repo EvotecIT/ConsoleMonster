@@ -270,7 +270,8 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
 
         It 'keeps the cell colours on the coloured host route' {
             $records = Invoke-TextJob -ScriptBlock {
-                [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
+                # The table is the last command of its own pipeline, so it is drawn through the job's host (piped on, it would be text).
+                & { [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
             }
             ($records -join "`n") | Should -Match 'PASS\|Green'
         }

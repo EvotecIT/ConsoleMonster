@@ -67,6 +67,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoTitle { get; set; }
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Lays the output out for this width instead of the terminal's.</para></summary>
         [Parameter]
         public int Width { get; set; }
@@ -106,10 +109,10 @@ namespace ConsoleMonster.PowerShell {
                 foreach (string range in Highlight ?? new string[0]) {
                     view.HighlightLines(range);
                 }
-            }, Width, AsWidget.IsPresent);
+            }, Width, AsWidget.IsPresent, AsString.IsPresent);
         }
 
-        internal static void WriteView(PSCmdlet cmdlet, string text, string language, string? path, Action<CodeView> configure, int width, bool asWidget) {
+        internal static void WriteView(PSCmdlet cmdlet, string text, string language, string? path, Action<CodeView> configure, int width, bool asWidget, bool asString = false) {
             CodeView view;
             try {
                 view = CodeView.For(text, language, path);
@@ -120,7 +123,7 @@ namespace ConsoleMonster.PowerShell {
             if (asWidget) {
                 cmdlet.WriteObject(view);
             } else {
-                PSFormatting.Write(cmdlet, view, width, null);
+                PSFormatting.Emit(cmdlet, view, width, null, asString);
             }
         }    }
 
@@ -163,6 +166,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Title { get; set; }
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Lays the output out for this width instead of the terminal's.</para></summary>
         [Parameter]
         public int Width { get; set; }
@@ -209,7 +215,7 @@ namespace ConsoleMonster.PowerShell {
                 view.LineNumbers = LineNumbers.IsPresent;
                 view.MaxLines = Math.Max(1, MaxLines);
                 view.Title = Title;
-            }, Width, AsWidget.IsPresent);
+            }, Width, AsWidget.IsPresent, AsString.IsPresent);
         }
     }
 }

@@ -327,6 +327,79 @@ namespace ConsoleMonster.PowerShell {
             HostOutput.Write(cmdlet, new Rows(widget, new TextBlock(string.Empty)), profile, width > 0);
         }
 
+        /// <summary>
+        /// The output of a Format-Console* command, so every PowerShell consumer gets it:
+        /// <list type="bullet">
+        /// <item>-AsString: one string of plain text (colour only with $PSStyle.OutputRendering Ansi);</item>
+        /// <item>followed by another command (| Out-String, | Out-File, | Set-Content, | more): the rendered lines as strings;</item>
+        /// <item>PowerShell 7.2+ on a local console, typed at the prompt (or run by -Command) and last in its pipeline: a
+        /// <see cref="ConsoleRendering"/> object that ConsoleMonster's format view draws in colour, while $x = ..., &gt; file,
+        /// -OutVariable, *&gt; and Out-String get plain text through $PSStyle.OutputRendering;</item>
+        /// <item>otherwise (inside a script or function, Windows PowerShell 5.1, jobs, remoting, other hosts,
+        /// Use-ConsoleTarget): drawn through the host as before, so a function's output never gains a table object; use
+        /// -AsString to capture there.</item>
+        /// </list>
+        /// With -PassThru the view is drawn through the host and the input objects are written instead; -AsString and
+        /// -PassThru together are refused, as one stream would mix text and objects.
+        /// </summary>
+        internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false) {
+            if (asString && passThru) {
+                cmdlet.ThrowTerminatingError(new ErrorRecord(
+                    new ArgumentException("-AsString and -PassThru cannot be used together: -AsString writes the view as text, -PassThru writes the input objects."),
+                    "AsStringWithPassThru", ErrorCategory.InvalidArgument, null));
+            }
+            if (asString) {
+                cmdlet.WriteObject(CaptureText(cmdlet, widget, width, culture));
+                return;
+            }
+            if (!passThru && cmdlet.MyInvocation.PipelinePosition < cmdlet.MyInvocation.PipelineLength) {
+                foreach (string line in CaptureText(cmdlet, widget, width, culture).Split('\n')) {
+                    cmdlet.WriteObject(line);
+                }
+                return;
+            }
+            // PowerShell's formatter wraps format-view output at the host's width: an explicit -Width wider than the host
+            // keeps the host route, so the requested layout is not broken up.
+            int hostWidth = WidgetFormatter.HostWidth(cmdlet.Host);
+            bool fits = width <= 0 || hostWidth <= 0 || width <= hostWidth;
+            if (!passThru && fits && EmitsRendering(cmdlet)) {
+                // A blank line after the block, as Format-Table and the host route print.
+                cmdlet.WriteObject(new ConsoleRendering(new Rows(widget, new TextBlock(string.Empty)), width, culture));
+                return;
+            }
+            Write(cmdlet, widget, width, culture);
+        }
+
+        // Text for a capturing consumer: plain unless $PSStyle.OutputRendering is Ansi.
+        private static string CaptureText(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture) =>
+            WidgetFormatter.Render(widget, cmdlet.Host, string.Equals(OutputRendering(cmdlet), "Ansi", StringComparison.OrdinalIgnoreCase) ? "Ansi" : "PlainText", width, culture);
+
+        // $PSStyle.OutputRendering as text (PowerShell 7.2+), or null without $PSStyle (Windows PowerShell 5.1, 7.0, 7.1).
+        private static string? OutputRendering(PSCmdlet cmdlet) {
+            try {
+                object? style = cmdlet.SessionState.PSVariable.GetValue("PSStyle");
+                return style == null ? null : Convert.ToString(PSObject.AsPSObject(style).Properties["OutputRendering"]?.Value, CultureInfo.InvariantCulture);
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                return null;
+            }
+        }
+
+        // PowerShell 7.2+ ($PSStyle strips colour for captured output) on a local interactive host, output not sent
+        // elsewhere by Use-ConsoleTarget. Jobs and remoting keep the host route (an object would be serialized there).
+        // Only a command typed at the prompt (CommandOrigin Runspace) writes the object: inside a script, function or
+        // script block the output belongs to the caller ($x = Get-Report, $null = Show-Report, if (Show-Report)), so the
+        // view is drawn on the screen as before.
+        private static bool EmitsRendering(PSCmdlet cmdlet) {
+            if (cmdlet.MyInvocation.CommandOrigin != CommandOrigin.Runspace) {
+                return false;
+            }
+            if (OutputRendering(cmdlet) == null || !Terminal.IsConsole(Terminal.Target)) {
+                return false;
+            }
+            string host = cmdlet.Host?.Name ?? string.Empty;
+            return string.Equals(host, "ConsoleHost", StringComparison.Ordinal) || host.IndexOf("Visual Studio Code", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         /// <summary>Several widgets as one: a single one as it is, more with a blank line between them.</summary>
         internal static IWidget Combine(IReadOnlyList<IWidget> widgets) =>
             widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
