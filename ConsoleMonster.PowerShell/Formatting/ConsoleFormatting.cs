@@ -60,6 +60,16 @@ namespace ConsoleMonster.PowerShell {
 
         internal const string Marker = "ConsoleMonster\\Out-ConsoleDefault";
 
+        /// <summary>The profile lines that turn the formatting on in every session, with the given options (printed, never written).</summary>
+        internal static IReadOnlyList<string> ProfileSnippet(string? profilePath, bool noBuiltIn, bool force) {
+            string options = (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
+            return new[] {
+                "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),
+                "Import-Module ConsoleMonster",
+                "Enable-ConsoleFormatting" + options
+            };
+        }
+
         // The Out-Default shim: everything goes through Out-ConsoleDefault while ConsoleMonster is loaded, and straight to
         // PowerShell's Out-Default if the module was removed.
         internal const string ShimScript = @"
@@ -122,6 +132,40 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
+            // Get-Command: every kind of command in one table.
+            object[] commands = { Hashtable("CommandType", ScriptBlock.Create("[string] $_.CommandType"), null), Hashtable("Name", ScriptBlock.Create("if ($_.CommandType -eq 'Alias') { $_.DisplayName } else { $_.Name }"), null), Hashtable("Version", ScriptBlock.Create("if ($_.Version -and $_.Version -ne [version] '0.0') { [string] $_.Version }"), null), "Source" };
+            foreach (string type in new[] { "System.Management.Automation.CmdletInfo", "System.Management.Automation.FunctionInfo", "System.Management.Automation.FilterInfo", "System.Management.Automation.AliasInfo", "System.Management.Automation.ApplicationInfo", "System.Management.Automation.ExternalScriptInfo", "System.Management.Automation.ConfigurationInfo" }) {
+                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, commands, null, "Command", null, true));
+            }
+            // Get-Module: the version and how many commands each module exports.
+            AddBuiltIn(new ConsoleViewRegistration("System.Management.Automation.PSModuleInfo", ConsoleViewKind.Table, new object[] {
+                Hashtable("ModuleType", ScriptBlock.Create("[string] $_.ModuleType"), null),
+                Hashtable("Version", ScriptBlock.Create("[string] $_.Version"), null),
+                "Name",
+                Hashtable("Commands", ScriptBlock.Create("$_.ExportedCommands.Count"), null)
+            }, null, "Module", null, true));
+            // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
+            AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
+                Hashtable("TimeCreated", ScriptBlock.Create("$_.TimeCreated"), "Date"),
+                Hashtable("Id", ScriptBlock.Create("$_.Id"), "Identifier"),
+                Hashtable("Level", ScriptBlock.Create("[string] $_.LevelDisplayName"), "StatusWord"),
+                "ProviderName",
+                Hashtable("Message", ScriptBlock.Create("if ($_.Message) { ($_.Message -split '\r?\n')[0] }"), null)
+            }, null, "EventLogRecord", null, true));
+            // Get-NetIPAddress and Get-Volume (CIM objects).
+            object[] addresses = { "InterfaceAlias", Hashtable("ifIndex", ScriptBlock.Create("$_.ifIndex"), "Identifier"), "IPAddress", "PrefixLength", Hashtable("AddressFamily", ScriptBlock.Create("[string] $_.AddressFamily"), null), Hashtable("AddressState", ScriptBlock.Create("[string] $_.AddressState"), null) };
+            foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetIPAddress", "Microsoft.Management.Infrastructure.CimInstance#MSFT_NetIPAddress" }) {
+                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, addresses, null, "NetIPAddress", null, true));
+            }
+            object[] volumes = {
+                "DriveLetter", "FriendlyName", "FileSystemType",
+                Hashtable("Health", ScriptBlock.Create("[string] $_.HealthStatus"), "StatusWord"),
+                Hashtable("Free", ScriptBlock.Create("$_.SizeRemaining"), "Bytes"),
+                Hashtable("Size", ScriptBlock.Create("$_.Size"), "Bytes")
+            };
+            foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume", "Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume" }) {
+                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
+            }
             // Ready only once every built-in is in: a concurrent lookup never sees half of them.
             lock (Gate) {
                 _builtInsReady = true;

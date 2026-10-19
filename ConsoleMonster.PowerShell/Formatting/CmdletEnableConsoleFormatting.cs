@@ -10,6 +10,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
     /// </example>
+    /// <example>
+    ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
+    ///   <code>Enable-ConsoleFormatting -ProfileSnippet</code>
+    /// </example>
     /// </summary>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
@@ -21,8 +25,18 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoBuiltIn { get; set; }
 
+        /// <summary><para type="description">Prints the lines to add to your PowerShell profile so every session starts with ConsoleMonster's formatting, with the options you passed, and changes nothing: the profile is never edited and formatting is not enabled. Pipe them to Add-Content $PROFILE yourself if you want them.</para></summary>
+        [Parameter]
+        public SwitchParameter ProfileSnippet { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (ProfileSnippet.IsPresent) {
+                foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), NoBuiltIn.IsPresent, Force.IsPresent)) {
+                    WriteObject(line);
+                }
+                return;
+            }
             FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
             if (existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) < 0 && !Force.IsPresent) {
                 WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");

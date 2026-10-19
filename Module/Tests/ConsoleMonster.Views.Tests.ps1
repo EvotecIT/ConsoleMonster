@@ -96,6 +96,41 @@ $servers | Out-ConsoleDefault -Force
         $text | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }
 
+    It 'exports the fct and fcl aliases and prints a profile snippet without changing anything' {
+        $text = Invoke-ViewChild -Script @'
+"FCT=$((Get-Alias fct).Definition) FCL=$((Get-Alias fcl).Definition)"
+$snippet = @(Enable-ConsoleFormatting -ProfileSnippet -NoBuiltIn)
+"LINES=$($snippet.Count)"
+$snippet
+"SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
+'@
+        $text | Should -Match 'FCT=Format-ConsoleTable FCL=Format-ConsoleList'
+        $text | Should -Match 'LINES=3'
+        $text | Should -Match '(?m)^Import-Module ConsoleMonster$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -NoBuiltIn$'
+        $text | Should -Match 'SHIM=False'
+    }
+
+    It 'shows commands and modules with the built-in views' {
+        $text = Invoke-ViewChild -Script @'
+Get-Command Get-Item, Get-ChildItem, gci | Format-ConsoleTable -Width 120
+Get-Module ConsoleMonster | Format-ConsoleTable -Width 120
+'@
+        $text | Should -Match 'CommandType\s+\S\s+Name\s+\S\s+Version\s+\S\s+Source'
+        $text | Should -Match 'Cmdlet\s+\S\s+Get-Item\s'
+        $text | Should -Match 'Alias\s+\S\s+gci -> Get-ChildItem'
+        $text | Should -Match 'ModuleType\s+\S\s+Version\s+\S\s+Name\s+\S\s+Commands'
+    }
+
+    It 'shows events, addresses and volumes with the built-in views on Windows' -Skip:(-not ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop')) {
+        $text = Invoke-ViewChild -Script @'
+Get-WinEvent -LogName System -MaxEvents 2 -ErrorAction Ignore | Format-ConsoleTable -Width 140
+Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First 1 | Format-ConsoleTable -Width 140
+'@
+        $text | Should -Match 'TimeCreated\s+\S\s+Id\s+\S\s+Level\s+\S\s+ProviderName\s+\S\s+Message'
+        $text | Should -Match 'DriveLetter\s+\S.*Health\s+\S\s+Free\s+\S\s+Size'
+    }
+
     It 'unrolls a collection that arrives as one object, as Out-Default does' {
         $text = Invoke-ViewChild -Script @'
 @(@(1, 2), @(3, 4)) | Out-ConsoleDefault -Force
