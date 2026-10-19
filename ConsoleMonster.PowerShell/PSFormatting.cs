@@ -428,6 +428,48 @@ namespace ConsoleMonster.PowerShell {
             return prepared == null ? 0 : ValueShaper.Fields(prepared, shape).Count;
         }
 
+        /// <summary>
+        /// The view of a script's output, shaped as the Format-Console commands shape it: widgets as they are, text as lines,
+        /// objects as tables (one object stays a one-row table, so a watched view keeps its shape), one dictionary as a
+        /// record; an empty output is an empty line.
+        /// </summary>
+        internal static IWidget ViewOf(IReadOnlyList<PSObject> output, PSCmdlet cmdlet) {
+            List<IWidget> parts = new List<IWidget>();
+            List<PSObject> objects = new List<PSObject>();
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            void Flush() {
+                if (text.Length > 0) {
+                    parts.Add(new TextBlock(Text.Markup.Escape(text.ToString().TrimEnd('\n'))));
+                    text.Clear();
+                }
+                if (objects.Count > 0) {
+                    parts.AddRange(BuildTables(objects.ToArray(), null, null, new TableBuildOptions { Cmdlet = cmdlet }, table => table.RecordViewRows = 0));
+                    objects.Clear();
+                }
+            }
+            foreach (PSObject item in output) {
+                if (item == null) {
+                    continue;
+                }
+                if (item.BaseObject is IWidget widget) {
+                    Flush();
+                    parts.Add(widget);
+                } else if (item.BaseObject is string line) {
+                    if (objects.Count > 0) {
+                        Flush();
+                    }
+                    text.Append(line).Append('\n');
+                } else {
+                    if (text.Length > 0) {
+                        Flush();
+                    }
+                    objects.Add(item);
+                }
+            }
+            Flush();
+            return parts.Count == 0 ? new TextBlock(string.Empty) : Combine(parts);
+        }
+
         /// <summary>Several widgets as one: a single one as it is, more with a blank line between them.</summary>
         internal static IWidget Combine(IReadOnlyList<IWidget> widgets) =>
             widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };

@@ -16,6 +16,7 @@
         <TypeName>ConsoleMonster.Layout.Rows</TypeName>
         <TypeName>ConsoleMonster.Layout.Sized</TypeName>
         <TypeName>ConsoleMonster.Layout.Stack</TypeName>
+        <TypeName>ConsoleMonster.Live.WatchFrame</TypeName>
         <TypeName>ConsoleMonster.PowerShell.ConsoleRendering</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunSummary</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunView</TypeName>
@@ -49,6 +50,7 @@
         <TypeName>ConsoleMonster.Widgets.Table</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
+        <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>
         <TypeName>Deserialized.ConsoleMonster.PowerShell.ConsoleRendering</TypeName>
       </ViewSelectedBy>
       <CustomControl>

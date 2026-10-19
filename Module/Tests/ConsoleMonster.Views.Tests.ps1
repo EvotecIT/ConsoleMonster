@@ -131,6 +131,30 @@ Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First
         $text | Should -Match 'DriveLetter\s+\S.*Health\s+\S\s+Free\s+\S\s+Size'
     }
 
+    It 'Watch-Console prints every run without a console, and a failed run does not stop it' {
+        $text = Invoke-ViewChild -Script @'
+$script:n = 0
+Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' }; [pscustomobject] @{ Run = $script:n } } -Count 3 -Interval 0.1 -Title 'demo'
+'END'
+'@
+        $text | Should -Match 'demo\s+#1'
+        $text | Should -Match 'demo\s+#3'
+        $text | Should -Match 'second run failed'
+        $text | Should -Match 'END'
+    }
+
+    It 'Watch-Console piped into another command prints into the pipeline and collects the other streams' {
+        $text = Invoke-ViewChild -Script @'
+$text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-Error 'broken'; 42 } -Count 2 -Interval 0.1 -Title 'demo' | Out-String
+"RUNS=$(([regex]::Matches($text, 'demo\s+#\d')).Count)"
+"ERRORS=$($text -match '1 error')"
+"NOTES=$($text -match 'host text' -and $text -match 'careful' -and $text -match 'broken')"
+'@
+        $text | Should -Match 'RUNS=2'
+        $text | Should -Match 'ERRORS=True'
+        $text | Should -Match 'NOTES=True'
+    }
+
     It 'unrolls a collection that arrives as one object, as Out-Default does' {
         $text = Invoke-ViewChild -Script @'
 @(@(1, 2), @(3, 4)) | Out-ConsoleDefault -Force
