@@ -310,6 +310,9 @@ namespace ConsoleMonster.Localization {
         /// <summary>Unchanged objects: <c>{0} unchanged</c>.</summary>
         public string ChangesUnchanged { get; set; } = "{0} unchanged";
 
+        /// <summary>Properties left out of a comparison because reading them stalled: <c>{0} not compared</c>.</summary>
+        public string ChangesNotCompared { get; set; } = "{0} not compared";
+
         /// <summary>The item column of a change table.</summary>
         public string ChangesItem { get; set; } = "Item";
 

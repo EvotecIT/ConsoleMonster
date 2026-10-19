@@ -148,6 +148,9 @@ namespace ConsoleMonster.Changes {
 
         /// <summary>Whether the change removes objects: the case for a typed confirmation.</summary>
         public bool IsDestructive => Removed > 0;
+
+        /// <summary>The member paths that were not compared because reading them stalled (neither changed nor the same).</summary>
+        public IReadOnlyList<string> NotCompared { get; internal set; } = new string[0];
     }
 
     /// <summary>Options for <see cref="ObjectDiff"/>.</summary>
@@ -181,6 +184,9 @@ namespace ConsoleMonster.Changes {
 
         internal Values.ShapeOptions? Shape { get; set; }
 
+        // Member paths skipped in the current comparison because reading them stalled.
+        internal List<string> NotCompared { get; } = new List<string>();
+
         /// <summary>Member sources tried before reflection (PowerShell objects, dictionaries, JSON).</summary>
         public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();
     }
@@ -208,6 +214,16 @@ namespace ConsoleMonster.Changes {
             // Each comparison has its own stall guard and field cache (options may be reused).
             options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
             options.Shape = null;
+            options.NotCompared.Clear();
+            return WithNotCompared(CompareOne(before, after, options), options);
+        }
+
+        private static ChangeSet WithNotCompared(ChangeSet set, DiffOptions options) {
+            set.NotCompared = options.NotCompared.ToArray();
+            return set;
+        }
+
+        private static ChangeSet CompareOne(object? before, object? after, DiffOptions options) {
             if (before == null && after == null) {
                 return new ChangeSet(new ObjectChange[0]);
             }
@@ -233,6 +249,11 @@ namespace ConsoleMonster.Changes {
             // Each comparison has its own stall guard and field cache (options may be reused).
             options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
             options.Shape = null;
+            options.NotCompared.Clear();
+            return WithNotCompared(CompareMany(before, after, options), options);
+        }
+
+        private static ChangeSet CompareMany(IEnumerable<object?> before, IEnumerable<object?> after, DiffOptions options) {
             List<object> oldItems = (before ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
             List<object> newItems = (after ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
             Dictionary<string, Queue<object>> oldByKey = new Dictionary<string, Queue<object>>(StringComparer.Ordinal);
@@ -351,6 +372,11 @@ namespace ConsoleMonster.Changes {
         private static void CompareInto(List<PropertyChange> changes, string path, object? before, object? after, DiffOptions options, int depth) {
             if (before is Values.BudgetExceeded || after is Values.BudgetExceeded) {
                 // A member that stopped being read (its getter kept stalling) is not compared: neither changed nor the same.
+                // The change set lists it, so the view can say so.
+                string skipped = path.Length == 0 ? "(value)" : path;
+                if (!options.NotCompared.Contains(skipped)) {
+                    options.NotCompared.Add(skipped);
+                }
                 return;
             }
             if (IsLeaf(before) && IsLeaf(after) || depth >= options.Depth) {

@@ -223,6 +223,7 @@ Widget.ChangesAdded = +{0} añadidos
 Widget.ChangesRemoved = -{0} eliminados
 Widget.ChangesChanged = ~{0} cambiados
 Widget.ChangesUnchanged = {0} sin cambios
+Widget.ChangesNotCompared = {0} sin comparar
 Widget.ChangesItem = Elemento
 Widget.ChangesProperty = Propiedad
 Widget.ChangesBefore = Antes

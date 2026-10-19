@@ -162,6 +162,11 @@ namespace ConsoleMonster.Changes {
                 "[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesChanged, Changes.Changed.ToString(CultureInfo.InvariantCulture))) + "[/]",
                 "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesUnchanged, Changes.Unchanged.ToString(CultureInfo.InvariantCulture))) + "[/]"
             };
+            if (Changes.NotCompared.Count > 0) {
+                // Members whose getters stalled were skipped, not judged equal: say so, with their names when few.
+                string names = Changes.NotCompared.Count <= 3 ? " (" + string.Join(", ", Changes.NotCompared) + ")" : string.Empty;
+                parts.Add("[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesNotCompared, Changes.NotCompared.Count.ToString(CultureInfo.InvariantCulture)) + names) + "[/]");
+            }
             return string.Join("  ", parts);
         }
 
