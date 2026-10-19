@@ -43,22 +43,36 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (InputObject == null) {
+            Handle(InputObject, true);
+        }
+
+        // A collection that arrives as one object (Write-Output -NoEnumerate, an array of arrays) is shown one level
+        // unrolled, as PowerShell's Out-Default shows it, using PowerShell's own rule for what is enumerable (not strings,
+        // dictionaries or XML nodes).
+        private void Handle(PSObject? item, bool unroll) {
+            if (item == null) {
                 Flush();
-                _inner!.Process(InputObject);
+                _inner!.Process(item);
                 return;
             }
-            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(InputObject, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(InputObject) : null;
+            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
                     Flush();
                 }
                 _batchView ??= view;
-                _batch.Add(InputObject);
+                _batch.Add(item);
+                return;
+            }
+            System.Collections.IEnumerable? elements = unroll ? LanguagePrimitives.GetEnumerable(item.BaseObject) : null;
+            if (elements != null) {
+                foreach (object? element in elements) {
+                    Handle(element == null ? null : PSObject.AsPSObject(element), false);
+                }
                 return;
             }
             Flush();
-            _inner!.Process(InputObject);
+            _inner!.Process(item);
         }
 
         /// <inheritdoc />

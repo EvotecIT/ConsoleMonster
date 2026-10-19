@@ -96,6 +96,15 @@ $servers | Out-ConsoleDefault -Force
         $text | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }
 
+    It 'unrolls a collection that arrives as one object, as Out-Default does' {
+        $text = Invoke-ViewChild -Script @'
+@(@(1, 2), @(3, 4)) | Out-ConsoleDefault -Force
+Write-Output -NoEnumerate @(5, 6) | Out-ConsoleDefault -Force
+'@
+        $text | Should -Match '1\s*\n2\s*\n3\s*\n4\s*\n5\s*\n6'
+        $text | Should -Not -Match 'SyncRoot'
+    }
+
     It 'never writes the taskbar sequence in redirected output, even in Windows Terminal' {
         $text = Invoke-ViewChild -Environment @{ WT_SESSION = 'test' } -Script @'
 Write-ConsoleStatus 'working' -Spinner
