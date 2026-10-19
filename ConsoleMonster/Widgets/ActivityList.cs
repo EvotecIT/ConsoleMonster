@@ -127,8 +127,10 @@ namespace ConsoleMonster.Widgets {
             if (width < 8) {
                 return;
             }
-            string glyph = activity.Percent >= 0 ? context.Spinner(activity.Id) : context.Glyphs.StatusSymbol(StatusKind.Pending);
-            region.Write(indent, y, glyph, context.Style(ThemeToken.Running));
+            // An activity at 100 % that was never marked complete is done: a check mark, not a spinner.
+            bool done = activity.Percent >= 100;
+            string glyph = done ? context.Glyphs.StatusSymbol(StatusKind.Pass) : activity.Percent >= 0 ? context.Spinner(activity.Id) : context.Glyphs.StatusSymbol(StatusKind.Pending);
+            region.Write(indent, y, glyph, context.Style(done ? ThemeToken.Pass : ThemeToken.Running));
             // The title column ends at the same place for every depth, so bars line up under each other.
             int titleWidth = Math.Max(4, Math.Max(6, Math.Min(Math.Min(32, region.Width / 3), _titleWidth)) - indent);
             region.Write(indent + 2, y, TextWrapper.Truncate(activity.Title, titleWidth, context.Ellipsis), context.Style(depth == 0 ? ThemeToken.Highlight : ThemeToken.Text));

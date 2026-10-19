@@ -260,12 +260,14 @@ namespace ConsoleMonster.Widgets {
             Style muted = context.Style(ThemeToken.Muted);
             string marker;
             Style markerStyle;
-            if (lane.Status == StatusKind.Running) {
+            // A running lane whose work is all done reads as passed: a check mark, not a spinner.
+            StatusKind shown = lane.Status == StatusKind.Running && lane.Total > 0 && lane.Done >= lane.Total ? StatusKind.Pass : lane.Status;
+            if (shown == StatusKind.Running) {
                 marker = context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : lane.Order);
                 markerStyle = context.Style(ThemeToken.Running);
             } else {
-                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(lane.Status) : glyphs.StatusMarker(lane.Status);
-                markerStyle = context.Style(lane.Status);
+                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(shown) : glyphs.StatusMarker(shown);
+                markerStyle = context.Style(shown);
             }
             region.Write(0, y, marker, markerStyle);
             Style labelStyle = lane.Status == StatusKind.Pending ? muted : context.Style(ThemeToken.Text);
