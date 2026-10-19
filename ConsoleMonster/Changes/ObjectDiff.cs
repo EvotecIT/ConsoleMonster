@@ -42,8 +42,14 @@ namespace ConsoleMonster.Changes {
         /// <summary>The new value.</summary>
         public object? After { get; }
 
+        /// <summary>The old value as display text; dates that differ only below a minute show their seconds.</summary>
+        public string BeforeText => ObjectDiff.PairText(Before, After);
+
+        /// <summary>The new value as display text; dates that differ only below a minute show their seconds.</summary>
+        public string AfterText => ObjectDiff.PairText(After, Before);
+
         /// <inheritdoc />
-        public override string ToString() => Path + ": " + ObjectDiff.Text(Before) + " -> " + ObjectDiff.Text(After);
+        public override string ToString() => Path + ": " + BeforeText + " -> " + AfterText;
     }
 
     /// <summary>One object of a comparison: added, removed, changed (with its property changes) or unchanged.</summary>
@@ -319,7 +325,27 @@ namespace ConsoleMonster.Changes {
                 // A nested record past the comparison depth: its title (pwsh (90836)), not its .NET type name.
                 return Values.ValueShaper.Title(value);
             }
-            return Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+            // Dates read as they do in tables and records (yyyy-MM-dd HH:mm, local time).
+            return Presenters.DatePresenter.Text(value) ?? Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// A value as display text next to the value it is compared with: when two different dates would read the same (they
+        /// differ below a minute), the seconds are shown, so a change never looks like no change.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="other">The value on the other side.</param>
+        /// <returns>The text.</returns>
+        public static string PairText(object? value, object? other) {
+            string text = Text(value);
+            if ((value is DateTime || value is DateTimeOffset) && (other is DateTime || other is DateTimeOffset) && !Equals(value, other) && Text(other) == text) {
+                string precise = Presenters.DatePresenter.Text(value, null, true) ?? text;
+                if (precise == Presenters.DatePresenter.Text(other, null, true)) {
+                    precise = Presenters.DatePresenter.ExactText(value) ?? precise;
+                }
+                return precise;
+            }
+            return text;
         }
 
         private static void CompareInto(List<PropertyChange> changes, string path, object? before, object? after, DiffOptions options, int depth) {

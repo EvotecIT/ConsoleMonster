@@ -19,7 +19,10 @@ namespace ConsoleMonster.Widgets {
             }
             if (root is InspectScalar scalar) {
                 // A single value: its type and the value itself, not just the type name.
-                string text = Values.ValueShaper.ScalarText(scalar.Value);
+                // Inspecting a date with an offset keeps the offset (often the reason to look); elsewhere dates read in local time.
+                string text = scalar.Value is DateTimeOffset offset
+                    ? offset.ToString("yyyy-MM-dd HH:mm:ss zzz", System.Globalization.CultureInfo.InvariantCulture)
+                    : Values.ValueShaper.ScalarText(scalar.Value);
                 return new Tree("[bold]" + Markup.Escape(title ?? root.TypeName) + "[/]" + (text.Length > 0 ? "  " + Markup.Escape(text) : string.Empty)) { ShowRoot = true };
             }
             Tree tree = new Tree("[bold]" + Markup.Escape(title ?? root.TypeName) + "[/]") { ShowRoot = true };

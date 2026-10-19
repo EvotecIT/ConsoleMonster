@@ -780,7 +780,7 @@ namespace ConsoleMonster.Values {
             }
         }
 
-        /// <summary>A scalar as text: secure strings masked, byte arrays as their size, dates as <c>yyyy-MM-dd HH:mm</c>, numbers and the rest in the culture.</summary>
+        /// <summary>A scalar as text: secure strings masked, byte arrays as their size, dates as <c>yyyy-MM-dd HH:mm</c> in local time (as tables show them), numbers and the rest in the culture.</summary>
         /// <param name="value">The scalar.</param>
         /// <param name="options">Options, or null.</param>
         /// <returns>The text.</returns>
@@ -798,10 +798,10 @@ namespace ConsoleMonster.Values {
                     return text;
                 case bool flag:
                     return flag ? "yes" : "no";
-                case DateTime date:
-                    return date == DateTime.MinValue ? "never" : date.ToString(date.TimeOfDay == TimeSpan.Zero ? "yyyy-MM-dd" : "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                case DateTimeOffset offset:
-                    return offset.ToString("yyyy-MM-dd HH:mm zzz", CultureInfo.InvariantCulture);
+                case DateTime _:
+                case DateTimeOffset _:
+                    // The same text as the date presenter in tables and records.
+                    return DatePresenter.Text(value) ?? string.Empty;
                 case ConsoleMonster.Text.RichText rich:
                     return ConsoleMonster.Text.Markup.Strip(rich.ToMarkup());
             }
