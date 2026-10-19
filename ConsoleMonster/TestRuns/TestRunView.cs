@@ -159,7 +159,8 @@ namespace ConsoleMonster.TestRuns {
         // Done of total, the share, the time left and the counts, zeros dimmed.
         // The header keeps the title, status and clock; this line carries the counts, failures first.
         private static IWidget Summary(TestRunSnapshot snapshot, RenderContext context) {
-            SummaryBar bar = new SummaryBar("summary") { Elapsed = snapshot.Elapsed };
+            // The header shows the clock, so the summary line does not repeat the duration; the count is of tests.
+            SummaryBar bar = new SummaryBar("summary") { Elapsed = snapshot.Elapsed, ShowDuration = false, DoneLabel = context.Labels.TestsDoneCount };
             bar.SetProgress(snapshot.Done, snapshot.Total ?? 0);
             Localization.WidgetLabels labels = context.Labels;
             bar.SetCounter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);

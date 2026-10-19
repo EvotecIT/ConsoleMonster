@@ -80,6 +80,12 @@ namespace ConsoleMonster.PowerShell {
                 merged = Merged.Invoke(ScriptBlock);
             } catch (Exception ex) when (Stopping || ex is PipelineStoppedException || ex.InnerException is PipelineStoppedException) {
                 throw new OperationCanceledException("The watch was stopped.", ex);
+            } catch (RuntimeException ex) {
+                // A failed run shows PowerShell's error (the command's own error, its position in the script block), not
+                // the exception that carried it out of the script block.
+                object failed = (object?)ex.ErrorRecord ?? ex;
+                ErrorRecord? record = ex.ErrorRecord;
+                return new WatchFrame(new ExceptionView(PSErrors.Describe(failed)) { ShowStack = false }, (record?.Exception ?? ex).GetType().Name);
             }
             if (Stopping) {
                 throw new OperationCanceledException("The watch was stopped.");
@@ -90,6 +96,10 @@ namespace ConsoleMonster.PowerShell {
             foreach (PSObject item in merged) {
                 switch (item?.BaseObject) {
                     case null:
+                        break;
+                    case ErrorRecord native when PSStreams.IsNativeErrorLine(native):
+                        // A native tool's stderr line is host text, not an error of the run.
+                        notes.Add(Text.Markup.Escape(native.ToString()));
                         break;
                     case ErrorRecord error:
                         errors++;

@@ -173,7 +173,7 @@ namespace ConsoleMonster.Live {
             if (snapshot.Skipped > 0) {
                 parts.Add(Localization.WidgetLabels.Format(labels.SkippedCount, snapshot.Skipped.ToString(CultureInfo.InvariantCulture)));
             }
-            Print(Localization.WidgetLabels.Format(labels.ManyItems, snapshot.Total.ToString(CultureInfo.InvariantCulture)) + ": " + string.Join(", ", parts.ToArray()) + " (" + NumberFormat.Duration(snapshot.Elapsed) + ")");
+            Print(Localization.WidgetLabels.Format(snapshot.Total == 1 ? labels.OneItem : labels.ManyItems, snapshot.Total.ToString(CultureInfo.InvariantCulture)) + ": " + string.Join(", ", parts.ToArray()) + " (" + NumberFormat.Duration(snapshot.Elapsed) + ")");
         }
 
         /// <inheritdoc />

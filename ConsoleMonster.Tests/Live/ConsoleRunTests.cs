@@ -102,6 +102,40 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public void RunView_Finished_ShowsTheDurationAndUpToTenFailures() {
+            RunTracker tracker = new RunTracker(6, () => TimeSpan.FromSeconds(12));
+            for (int i = 0; i < 6; i++) {
+                tracker.Finished(i, StatusKind.Fail, "item" + i, "broken");
+            }
+            tracker.Complete();
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(80, 30, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            RunView view = new RunView(tracker);
+            Size size = view.Measure(new Constraints(80, 30), context);
+            CellBuffer buffer = new CellBuffer(80, size.Height);
+            view.Render(new Region(buffer), context);
+            string text = buffer.ToPlainText();
+            Assert.Contains("in 12s", text);
+            Assert.Contains("item5: broken", text);
+            Assert.DoesNotContain("more", text);
+        }
+
+        [Fact]
+        public void SummaryBar_Finished_ShowsTheDurationOnlyWhenEveryCounterFits() {
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 5, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            SummaryBar bar = new SummaryBar { Elapsed = TimeSpan.FromSeconds(12) };
+            bar.SetProgress(3, 3);
+            bar.SetCounter("{0} failed", 1, StatusKind.Fail);
+            bar.SetCounter("{0} passed", 1, StatusKind.Pass);
+            bar.SetCounter("{0} skipped", 1, StatusKind.Skip);
+            Assert.Contains("in 12s", bar.Line(120, context).PlainText);
+            string narrow = bar.Line(36, context).PlainText;
+            Assert.DoesNotContain("skipped", narrow);
+            Assert.DoesNotContain("in 12s", narrow);
+            bar.ShowDuration = false;
+            Assert.DoesNotContain("in 12s", bar.Line(120, context).PlainText);
+        }
+
+        [Fact]
         public void Tracker_Complete_CountsItemsNeverStartedAsSkipped() {
             RunTracker tracker = new RunTracker(3);
             tracker.Finished(0, StatusKind.Pass, "a");

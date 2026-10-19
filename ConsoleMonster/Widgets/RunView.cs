@@ -26,11 +26,17 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A title above the summary line (markup), or null.</summary>
         public string? Title { get; set; }
 
-        /// <summary>The most running items listed (default 3); more are counted.</summary>
-        public int MaxRunning { get; set; } = 3;
+        /// <summary>The most running items listed (default 8); more are counted.</summary>
+        public int MaxRunning { get; set; } = 8;
 
-        /// <summary>The most failures listed (default 3); more are counted.</summary>
+        /// <summary>The most failures listed while the run goes on (default 3); more are counted.</summary>
         public int MaxFailures { get; set; } = 3;
+
+        /// <summary>The most failures listed once the run has finished (default 10, never fewer than <see cref="MaxFailures"/>): the final frame stays in the scrollback.</summary>
+        public int MaxFailuresWhenDone { get; set; } = 10;
+
+        /// <summary>The widest the running items' list gets (default 72), so their times stay next to their names on wide terminals.</summary>
+        public int MaxListWidth { get; set; } = 72;
 
         /// <summary>The most rows of item cells (default 4).</summary>
         public int MaxCellRows { get; set; } = 4;
@@ -82,27 +88,30 @@ namespace ConsoleMonster.Widgets {
                 foreach (RunActivity running in snapshot.Running) {
                     activities.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: (running.Index + 1).ToString(CultureInfo.InvariantCulture), text: running.Label, value: -1, total: -1, time: Math.Max(1, (long)running.Started.TotalMilliseconds)));
                 }
-                rows.Add(new Clocked(activities, snapshot.Elapsed));
+                rows.Add(new Clocked(activities, snapshot.Elapsed, MaxListWidth));
             }
             if (snapshot.Failures.Count > 0) {
-                rows.Add(new FailureLines(snapshot.Failures, MaxFailures));
+                rows.Add(new FailureLines(snapshot.Failures, snapshot.IsFinished ? Math.Max(MaxFailures, MaxFailuresWhenDone) : MaxFailures));
             }
             return new Rows(rows.ToArray());
         }
 
-        // Draws a widget with the run's clock, so elapsed times follow the run.
+        // Draws a widget with the run's clock, so elapsed times follow the run, at most maxWidth columns wide.
         private sealed class Clocked : IWidget {
             private readonly IWidget _inner;
             private readonly TimeSpan _elapsed;
+            private readonly int _maxWidth;
 
-            public Clocked(IWidget inner, TimeSpan elapsed) {
+            public Clocked(IWidget inner, TimeSpan elapsed, int maxWidth) {
                 _inner = inner;
                 _elapsed = elapsed;
+                _maxWidth = maxWidth > 0 ? maxWidth : int.MaxValue;
             }
 
             public Size Measure(Constraints constraints, RenderContext context) => _inner.Measure(constraints, context.WithClock(context.Tick, _elapsed));
 
-            public void Render(Region region, RenderContext context) => _inner.Render(region, context.WithClock(context.Tick, _elapsed));
+            public void Render(Region region, RenderContext context) =>
+                _inner.Render(region.Sub(0, 0, Math.Min(region.Width, _maxWidth), region.Height), context.WithClock(context.Tick, _elapsed));
         }
 
         // "✗ item: message" per failure, then "+N more".
@@ -134,7 +143,7 @@ namespace ConsoleMonster.Widgets {
                     region.Write(0, y, TextWrapper.Truncate(line, region.Width, context.Ellipsis));
                 }
                 if (_failures.Count > _limit && y < region.Height) {
-                    region.Write(2, y, Localization.WidgetLabels.Format(context.Labels.MoreCount, (_failures.Count - _limit).ToString("N0", context.Culture)), muted);
+                    region.Write(0, y, Localization.WidgetLabels.Format(context.Labels.MoreCount, (_failures.Count - _limit).ToString("N0", context.Culture)), muted);
                 }
             }
         }

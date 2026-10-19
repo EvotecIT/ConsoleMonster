@@ -1,6 +1,6 @@
  Pester                                                            ● running  ·  00:00:00
 
- 2  · ✗ 1 failed  ✓ 1 passed  – 0 skipped
+ 2 tests  · ✗ 1 failed  ✓ 1 passed  – 0 skipped
 ╭─ Files ────────────────────────────────────────────────────────────────── 0 of 1 done ─╮
 │                                                                                        │
 │ ⠋ Sample.Tests.ps1  ━━━━━━━━━━━━━━╾───────  66%  ✓1 ✗1 –0  applies StartTab, StartSpa… │

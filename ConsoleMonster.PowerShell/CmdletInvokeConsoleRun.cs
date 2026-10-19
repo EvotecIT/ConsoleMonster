@@ -170,11 +170,14 @@ namespace ConsoleMonster.PowerShell {
         private const string SequentialScript = "param($__cmBody, $__cmItem, $__cmQuiet)\n"
             + "$__cmProgress = Get-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore\n"
             + "$__cmProgressValue = if ($__cmProgress) { $__cmProgress.Value } else { $null }\n"
-            + "if ($__cmQuiet) { $ProgressPreference = 'SilentlyContinue' }\n"
-            + "try { , $__cmItem | ForEach-Object -Process $__cmBody *>&1 }\n"
+            + "$__cmGlobalProgress = $global:ProgressPreference\n"
+            // Script-module functions (Compress-Archive, Install-Module) read the global value, not the caller's scope.
+            + "if ($__cmQuiet) { $ProgressPreference = 'SilentlyContinue'; $global:ProgressPreference = 'SilentlyContinue' }\n"
+            // The dot-sourced block makes the redirection reach native programs inside the body (their stderr lines).
+            + "try { . { , $__cmItem | ForEach-Object -Process $__cmBody } *>&1 }\n"
             + "finally {\n"
-            + "    if ($__cmQuiet) { if ($__cmProgress) { $ProgressPreference = $__cmProgressValue } else { Remove-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore } }\n"
-            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmProgress, __cmProgressValue -Scope 0 -ErrorAction Ignore\n"
+            + "    if ($__cmQuiet) { $global:ProgressPreference = $__cmGlobalProgress; if ($__cmProgress) { $ProgressPreference = $__cmProgressValue } else { Remove-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore } }\n"
+            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmProgress, __cmProgressValue, __cmGlobalProgress -Scope 0 -ErrorAction Ignore\n"
             + "}";
 
         // Up to ThrottleLimit items at a time in a runspace pool; completions come back to the pipeline thread.
@@ -268,7 +271,7 @@ namespace ConsoleMonster.PowerShell {
             return "param($__cmItem, $__cmUsing)\n"
                 + (quiet ? "$ProgressPreference = 'SilentlyContinue'\n" : string.Empty)
                 + "foreach ($__cmPair in $__cmUsing.GetEnumerator()) { Set-Variable -Name $__cmPair.Key -Value $__cmPair.Value }\n"
-                + ", $__cmItem | ForEach-Object -Process " + block + " *>&1";
+                + ". { , $__cmItem | ForEach-Object -Process " + block + " } *>&1";
         }
 
         // Sorts an item's merged streams: output to the writer, errors as error records (they fail the item), the rest re-emitted.
@@ -278,6 +281,12 @@ namespace ConsoleMonster.PowerShell {
             foreach (PSObject item in merged) {
                 switch (item?.BaseObject) {
                     case null:
+                        break;
+                    case ErrorRecord native when PSStreams.IsNativeErrorLine(native):
+                        // A native tool's stderr line (git, robocopy, curl write progress there): shown as host text,
+                        // as PowerShell shows it without redirection; it does not fail the item.
+                        string line = native.ToString();
+                        emits.Add(() => HostOutput.WriteHostLine(this, line));
                         break;
                     case ErrorRecord error:
                         message ??= error.ToString();

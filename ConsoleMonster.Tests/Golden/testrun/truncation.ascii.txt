@@ -1,6 +1,6 @@
  Pester                                                       [BUSY] running  |  00:00:00
 
- 2  | x 1 failed  + 1 passed  - 0 skipped
+ 2 tests  | x 1 failed  + 1 passed  - 0 skipped
 +- Files ------------------------------------------------------------------ 0 of 1 done -+
 |                                                                                        |
 | | Sample.Tests.ps1  ##############--------  66%  P1 F1 S0  applies StartTab, StartS... |

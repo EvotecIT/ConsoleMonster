@@ -143,6 +143,14 @@ Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' };
         $text | Should -Match 'END'
     }
 
+    It 'Watch-Console shows the command''s own error for a stopped run, not the exception that carried it' {
+        $text = Invoke-ViewChild -Script @'
+Watch-Console { Get-Item 'C:\nope\missing.txt' -ErrorAction Stop } -Count 1 -Title 'demo'
+'@
+        $text | Should -Match 'ItemNotFoundException'
+        $text | Should -Not -Match 'ActionPreferenceStopException'
+    }
+
     It 'Watch-Console piped into another command prints into the pipeline and collects the other streams' {
         $text = Invoke-ViewChild -Script @'
 $text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-Error 'broken'; 42 } -Count 2 -Interval 0.1 -Title 'demo' | Out-String

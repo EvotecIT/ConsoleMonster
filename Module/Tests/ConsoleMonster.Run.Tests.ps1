@@ -76,6 +76,18 @@ try { 1, 2 | ForEach-ConsoleItem -Parallel { $using:items['a'] } } catch { "REJE
         $text | Should -Not -Match '2 items: 0 passed'
     }
 
+    It 'shows a native program''s stderr lines as text without failing the item, in both modes' {
+        $text = Invoke-RunChild @'
+$exe = [System.Diagnostics.Process]::GetCurrentProcess().Path
+$out = 1 | ForEach-ConsoleItem { & $exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e1 -ErrorAction SilentlyContinue
+$par = 1 | ForEach-ConsoleItem -Parallel { & $using:exe -NoProfile -NonInteractive -Command "[Console]::Error.WriteLine('progress note'); 'native out'" } -ErrorVariable e2 -ErrorAction SilentlyContinue
+"OUT=$out PAR=$par ERRORS=$($e1.Count + $e2.Count)"
+'@
+        $text | Should -Match 'OUT=native out PAR=native out ERRORS=0'
+        $text | Should -Match '1 item: 1 passed, 0 failed'
+        $text | Should -Match 'progress note'
+    }
+
     It 'stops an item past -TimeoutSeconds and counts it as failed' {
         $text = Invoke-RunChild @'
 $out = 1..2 | ForEach-ConsoleItem -Parallel -TimeoutSeconds 1 { if ($_ -eq 2) { Start-Sleep -Seconds 30 }; $_ } -ErrorVariable failures -ErrorAction SilentlyContinue

@@ -38,6 +38,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The elapsed time to estimate from, or null (default) for the time since the first progress.</summary>
         public TimeSpan? Elapsed { get; set; }
 
+        /// <summary>Whether a finished run shows how long it took ("in 12s") after the counters (default true; needs <see cref="Elapsed"/>).</summary>
+        public bool ShowDuration { get; set; } = true;
+
+        /// <summary>The label for the count done while the total is unknown, with <c>{0}</c> for the count, or null (default) for "{0} done".</summary>
+        public string? DoneLabel { get; set; }
+
         /// <summary>Sets the progress.</summary>
         /// <param name="done">Items done.</param>
         /// <param name="total">Items in total (0 = unknown).</param>
@@ -141,18 +147,21 @@ namespace ConsoleMonster.Widgets {
                     used += DisplayWidth.Measure(eta);
                 }
             } else if (Done > 0) {
-                string counts = Done.ToString("N0", context.Culture);
+                // The total is not known yet: "9 done".
+                string counts = Localization.WidgetLabels.Format(DoneLabel ?? context.Labels.DoneCount, Done.ToString("N0", context.Culture));
                 spans.Add(new TextSpan(counts, text));
                 used += DisplayWidth.Measure(counts);
             }
             string separator = " " + Interactive.InteractiveGlyphs.For(context).Separator + " ";
             bool first = true;
+            bool allShown = true;
             foreach (Counter counter in _counters) {
                 string symbol = counter.Status.HasValue ? context.Glyphs.StatusSymbol(counter.Status.Value) + " " : string.Empty;
                 string count = counter.Count.ToString("N0", context.Culture);
                 string body = symbol + (counter.Label.IndexOf("{0}", StringComparison.Ordinal) >= 0 ? Localization.WidgetLabels.Format(counter.Label, count) : count + " " + counter.Label);
                 string lead = spans.Count == 0 ? string.Empty : first ? "  " + separator.TrimStart() : "  ";
                 if (used + DisplayWidth.Measure(lead) + DisplayWidth.Measure(body) > width) {
+                    allShown = false;
                     break;
                 }
                 // Zero counts stay in place, dimmed, so the line keeps its shape as counts appear.
@@ -163,6 +172,13 @@ namespace ConsoleMonster.Widgets {
                 spans.Add(new TextSpan(body, style));
                 used += DisplayWidth.Measure(lead) + DisplayWidth.Measure(body);
                 first = false;
+            }
+            if (ShowDuration && allShown && Total > 0 && Done >= Total && Elapsed.HasValue && Elapsed.Value > TimeSpan.Zero) {
+                // Finished: how long the run took, after the counters when they all fit and it fits too.
+                string took = "  " + separator.Trim() + " " + Localization.WidgetLabels.Format(context.Labels.TookDuration, NumberFormat.Duration(Elapsed.Value));
+                if (used + DisplayWidth.Measure(took) <= width) {
+                    spans.Add(new TextSpan(took, muted));
+                }
             }
             return TextWrapper.Truncate(new StyledLine(spans), width, context.Ellipsis);
         }
