@@ -88,7 +88,7 @@ namespace ConsoleMonster.Widgets {
             _items.Add(new RecordItem(RecordItemKind.Field, _level + 1) {
                 Text = label ?? string.Empty,
                 Cell = cell ?? TableCell.FromValue(null),
-                Presenter = presenter,
+                Presenter = presenter ?? CellPresenters.ForLabel(label, cell?.Value),
                 Rules = rules
             });
             return this;
@@ -109,7 +109,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null.</param>
         /// <returns>This instance.</returns>
         public RecordView AddFieldAt(int level, string label, TableCell cell, ICellPresenter? presenter = null) {
-            _items.Add(new RecordItem(RecordItemKind.Field, Math.Max(0, level)) { Text = label ?? string.Empty, Cell = cell, Presenter = presenter });
+            _items.Add(new RecordItem(RecordItemKind.Field, Math.Max(0, level)) { Text = label ?? string.Empty, Cell = cell, Presenter = presenter ?? CellPresenters.ForLabel(label, cell?.Value) });
             return this;
         }
 

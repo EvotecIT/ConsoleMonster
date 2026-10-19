@@ -63,7 +63,7 @@ namespace ConsoleMonster.Widgets {
                     Fill(parent.Add(label, null, Localization.WidgetLabels.Format(count == 1 ? Localization.WidgetLabels.Current.OneItem : Localization.WidgetLabels.Current.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture))), collection);
                     break;
                 case InspectScalar scalar:
-                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value) });
+                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value), Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value) });
                     break;
                 case InspectCycle cycle:
                     parent.Add(label, null, "(cycle: " + cycle.TargetPath + ")");

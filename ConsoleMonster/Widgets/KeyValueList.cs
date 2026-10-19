@@ -31,9 +31,10 @@ namespace ConsoleMonster.Widgets {
         public double MaxKeyFraction { get; set; } = 0.4;
 
         /// <summary>
-        /// Layout of the leading number of each value (<c>234 / 332</c>, <c>8.4 rules/s</c>, <c>~12s</c>): values that start with
-        /// a number share a number column, right-aligned by default, so the numbers line up under each other. Set the
-        /// alignment to <see cref="HorizontalAlignment.Left"/> to print values as written.
+        /// Layout of the leading number of each value (<c>234 / 332</c>, <c>8.4 rules/s</c>, <c>~12s</c>): when every value
+        /// starts with a number, the numbers share a column, right-aligned by default, so they line up under each other. A
+        /// list that mixes in text (a host name, an OS) keeps every value left-aligned as written, so "3 days" under a name
+        /// is not pushed right. Set the alignment to <see cref="HorizontalAlignment.Left"/> to always print values as written.
         /// </summary>
         public ColumnFormat NumberColumn {
             get => _numberColumn.Format;
@@ -71,7 +72,7 @@ namespace ConsoleMonster.Widgets {
             Add(key, string.Empty);
             KeyValueItem item = _items[_index[key]];
             item.Cell = TableCell.FromValue(value);
-            item.Presenter = presenter;
+            item.Presenter = presenter ?? Presenters.CellPresenters.ForLabel(key, value);
             item.Rules = rules;
             return this;
         }
@@ -156,7 +157,16 @@ namespace ConsoleMonster.Widgets {
             }
             int widest = 0;
             foreach (KeyValueItem item in _items) {
-                widest = Math.Max(widest, DisplayWidth.Measure(LeadingNumber(TextOf(item, context))));
+                string text = TextOf(item, context);
+                if (text.Trim().Length == 0) {
+                    continue;
+                }
+                string number = LeadingNumber(text);
+                // A numeric column: every value starts with a number ("234 / 332", "8.4 rules/s", "~12s").
+                if (number.Length == 0) {
+                    return 0;
+                }
+                widest = Math.Max(widest, DisplayWidth.Measure(number));
             }
             return widest == 0 ? 0 : _numberColumn.Resolve(widest);
         }
