@@ -100,10 +100,11 @@ namespace ConsoleMonster.Tests.Interactive {
             targets.Crumbs.Add("Targets");
             SameRow(Bar(targets, tier), shell.FindFrame("Targets")!, 0, "shell");
 
-            CellBuffer running = shell.Frames.First(f => f.GetRowText(0).Contains("Run") && f.GetRowText(Height - 1).Contains("ctrl+c"));
+            // The run is named by its dashboard's title in the breadcrumb.
+            CellBuffer running = shell.Frames.First(f => f.GetRowText(0).Contains("Patching") && f.GetRowText(Height - 1).Contains("ctrl+c"));
             HeaderBar run = new HeaderBar("Toolbox") { Right = "lab" };
             run.Crumbs.Add("Patch");
-            run.Crumbs.Add("Run");
+            run.Crumbs.Add("Patching");
             SameRow(Bar(run, tier), running, 0, "run");
             FooterLook(running, Height - 1, tier, "run");
 
