@@ -16238,8 +16238,8 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
         <dev:code>New-ConsoleTree 'Domain controllers' {&#xD;
-    New-ConsoleTreeNode 'ad.evotec.xyz' { 'DC01', 'DC02' }&#xD;
-    New-ConsoleTreeNode 'eu.ad.evotec.xyz' -Status Warn -Detail 'one offline' { 'DC07' }&#xD;
+    New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }&#xD;
+    New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }&#xD;
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Leaves from a list of names</maml:para>
@@ -28100,7 +28100,7 @@ Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Co
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.evotec.xyz' = @('DC01', 'DC02'); 'eu.ad.evotec.xyz' = @('DC07') })</dev:code>
+        <dev:code>Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.adatum.com' = @('DC01', 'DC02'); 'eu.ad.adatum.com' = @('DC07') })</dev:code>
         <dev:remarks>
           <maml:para>Write a small hierarchy</maml:para>
         </dev:remarks>

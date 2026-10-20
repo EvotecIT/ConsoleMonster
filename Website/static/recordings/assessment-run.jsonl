@@ -1,21 +1,21 @@
 {"consolemonster":"recording","version":1}
 {"t":1,"target":"dashboard","op":"status","text":"discovering forest","state":"running"}
 {"t":1,"target":"phases","op":"state","key":"Discover","state":"running"}
-{"t":1,"target":"lanes","op":"add","key":"dom-ad","text":"ad.evotec.xyz (domain)","total":16}
-{"t":1,"target":"lanes","op":"add","key":"dom-eu","text":"eu.ad.evotec.xyz (domain)","total":16}
-{"t":1,"target":"lanes","op":"add","key":"dc1","text":"DC01.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc2","text":"DC02.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc3","text":"DC03.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc4","text":"DC04.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc5","text":"DC05.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc6","text":"DC06.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc7","text":"DC07.eu.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc8","text":"DC08.eu.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc9","text":"DC09.eu.ad.evotec.xyz","total":30}
-{"t":1,"target":"lanes","op":"add","key":"dc10","text":"DC10.eu.ad.evotec.xyz","total":30}
-{"t":400,"target":"log","op":"write","text":"Connecting to ad.evotec.xyz via LDAP (DC01.ad.evotec.xyz)","state":"info"}
-{"t":1300,"target":"log","op":"write","text":"Forest ad.evotec.xyz: 2 domains, 10 domain controllers, 4 sites","state":"info"}
-{"t":2100,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz responded slowly (812 ms LDAP bind)","state":"warn"}
+{"t":1,"target":"lanes","op":"add","key":"dom-ad","text":"ad.adatum.com (domain)","total":16}
+{"t":1,"target":"lanes","op":"add","key":"dom-eu","text":"eu.ad.adatum.com (domain)","total":16}
+{"t":1,"target":"lanes","op":"add","key":"dc1","text":"DC01.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc2","text":"DC02.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc3","text":"DC03.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc4","text":"DC04.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc5","text":"DC05.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc6","text":"DC06.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc7","text":"DC07.eu.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc8","text":"DC08.eu.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc9","text":"DC09.eu.ad.adatum.com","total":30}
+{"t":1,"target":"lanes","op":"add","key":"dc10","text":"DC10.eu.ad.adatum.com","total":30}
+{"t":400,"target":"log","op":"write","text":"Connecting to ad.adatum.com via LDAP (DC01.ad.adatum.com)","state":"info"}
+{"t":1300,"target":"log","op":"write","text":"Forest ad.adatum.com: 2 domains, 10 domain controllers, 4 sites","state":"info"}
+{"t":2100,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com responded slowly (812 ms LDAP bind)","state":"warn"}
 {"t":2800,"target":"phases","op":"state","key":"Discover","state":"pass"}
 {"t":2800,"target":"phases","op":"state","key":"Collect","state":"running"}
 {"t":2800,"target":"dashboard","op":"status","text":"collecting rule inputs","state":"running"}
@@ -25,28 +25,28 @@
 {"t":6800,"target":"phases","op":"state","key":"Evaluate","state":"running"}
 {"t":6800,"target":"dashboard","op":"status","text":"evaluating 332 rules on 6 workers","state":"running"}
 {"t":7000,"target":"lanes","op":"state","key":"dom-ad","text":"GPO permissions baseline","state":"running"}
-{"t":7000,"target":"log","op":"write","text":"ad.evotec.xyz (domain): evaluating 16 rules","state":"info"}
+{"t":7000,"target":"log","op":"write","text":"ad.adatum.com (domain): evaluating 16 rules","state":"info"}
 {"t":7000,"target":"summary","op":"set","key":"Evaluated","text":"0 / 332"}
 {"t":7000,"target":"summary","op":"set","key":"Average rate","text":"0.0 rules/s"}
 {"t":7000,"target":"summary","op":"set","key":"Remaining","text":"~0s"}
 {"t":7000,"target":"summary","op":"set","key":"Targets done","text":"0 / 12"}
 {"t":7000,"target":"summary","op":"set","key":"Targets failing","text":"0"}
 {"t":7180,"target":"lanes","op":"state","key":"dom-eu","text":"GPO permissions baseline","state":"running"}
-{"t":7180,"target":"log","op":"write","text":"eu.ad.evotec.xyz (domain): evaluating 16 rules","state":"info"}
+{"t":7180,"target":"log","op":"write","text":"eu.ad.adatum.com (domain): evaluating 16 rules","state":"info"}
 {"t":7360,"target":"lanes","op":"state","key":"dc1","text":"LDAP signing required","state":"running"}
-{"t":7360,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":7360,"target":"log","op":"write","text":"DC01.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":7473,"target":"lanes","op":"advance","key":"dc1","text":"LDAP channel binding","state":"pass","value":1}
 {"t":7473,"target":"durations","op":"add","value":0.113401124}
 {"t":7473,"target":"results","op":"add","key":"Passed","value":1}
 {"t":7540,"target":"lanes","op":"state","key":"dc2","text":"LDAP signing required","state":"running"}
-{"t":7540,"target":"log","op":"write","text":"DC02.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":7540,"target":"log","op":"write","text":"DC02.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":7720,"target":"lanes","op":"state","key":"dc3","text":"LDAP signing required","state":"running"}
-{"t":7720,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":7720,"target":"log","op":"write","text":"DC03.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":7847,"target":"lanes","op":"advance","key":"dc2","text":"LDAP channel binding","state":"pass","value":1}
 {"t":7847,"target":"durations","op":"add","value":0.306770452}
 {"t":7847,"target":"results","op":"add","key":"Passed","value":1}
 {"t":7900,"target":"lanes","op":"state","key":"dc4","text":"LDAP signing required","state":"running"}
-{"t":7900,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":7900,"target":"log","op":"write","text":"DC04.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":8000,"target":"throughput","op":"add","key":"completed","value":2}
 {"t":8000,"target":"throughput","op":"add","key":"failed"}
 {"t":8000,"target":"summary","op":"set","key":"Evaluated","text":"2 / 332"}
@@ -163,7 +163,7 @@
 {"t":11629,"target":"durations","op":"add","value":0.362825485}
 {"t":11629,"target":"results","op":"add","key":"Failed","value":1}
 {"t":11629,"target":"findings","op":"add","key":"Domain controllers","value":1}
-{"t":11629,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: Credential Guard posture failed - virtualization-based security is off","state":"err"}
+{"t":11629,"target":"log","op":"write","text":"DC03.ad.adatum.com: Credential Guard posture failed - virtualization-based security is off","state":"err"}
 {"t":11984,"target":"lanes","op":"advance","key":"dc2","text":"NTLM audit configuration","state":"pass","value":1}
 {"t":11984,"target":"durations","op":"add","value":0.423795739}
 {"t":11984,"target":"results","op":"add","key":"Passed","value":1}
@@ -292,7 +292,7 @@
 {"t":15942,"target":"durations","op":"add","value":0.310881984}
 {"t":15942,"target":"results","op":"add","key":"Failed","value":1}
 {"t":15942,"target":"findings","op":"add","key":"Accounts","value":1}
-{"t":15942,"target":"log","op":"write","text":"eu.ad.evotec.xyz (domain): Password never expires failed - 18 user accounts never expire their password","state":"err"}
+{"t":15942,"target":"log","op":"write","text":"eu.ad.adatum.com (domain): Password never expires failed - 18 user accounts never expire their password","state":"err"}
 {"t":15991,"target":"lanes","op":"advance","key":"dc2","text":"DC locator SRV records","state":"pass","value":1}
 {"t":15991,"target":"durations","op":"add","value":0.278891221}
 {"t":15991,"target":"results","op":"add","key":"Passed","value":1}
@@ -321,7 +321,7 @@
 {"t":16797,"target":"lanes","op":"advance","key":"dc1","text":"Time source hierarchy","state":"warn","value":1}
 {"t":16797,"target":"durations","op":"add","value":0.302990636}
 {"t":16797,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":16797,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: DC locator SRV records - stale SRV record for a retired DC","state":"warn"}
+{"t":16797,"target":"log","op":"write","text":"DC01.ad.adatum.com: DC locator SRV records - stale SRV record for a retired DC","state":"warn"}
 {"t":16802,"target":"lanes","op":"advance","key":"dc2","text":"Clock skew","state":"pass","value":1}
 {"t":16802,"target":"durations","op":"add","value":0.39692865}
 {"t":16802,"target":"results","op":"add","key":"Passed","value":1}
@@ -459,12 +459,12 @@
 {"t":21588,"target":"lanes","op":"advance","key":"dc1","text":"Local administrators","state":"warn","value":1}
 {"t":21588,"target":"durations","op":"add","value":0.605014785}
 {"t":21588,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":21588,"target":"log","op":"write","text":"DC01.ad.evotec.xyz: Event log sizes - Directory Service log under 64 MB","state":"warn"}
+{"t":21588,"target":"log","op":"write","text":"DC01.ad.adatum.com: Event log sizes - Directory Service log under 64 MB","state":"warn"}
 {"t":21725,"target":"lanes","op":"advance","key":"dc3","text":"DNS forwarders consistency","state":"fail","value":1}
 {"t":21725,"target":"durations","op":"add","value":1.71945561}
 {"t":21725,"target":"results","op":"add","key":"Failed","value":1}
 {"t":21725,"target":"findings","op":"add","key":"Replication","value":1}
-{"t":21725,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: Lingering objects failed - 3 lingering objects in the configuration partition","state":"err"}
+{"t":21725,"target":"log","op":"write","text":"DC03.ad.adatum.com: Lingering objects failed - 3 lingering objects in the configuration partition","state":"err"}
 {"t":22000,"target":"throughput","op":"add","key":"completed","value":4}
 {"t":22000,"target":"throughput","op":"add","key":"failed","value":1}
 {"t":22000,"target":"summary","op":"set","key":"Evaluated","text":"106 / 332"}
@@ -484,7 +484,7 @@
 {"t":22251,"target":"lanes","op":"advance","key":"dom-eu","text":"Subnets without sites","state":"warn","value":1}
 {"t":22251,"target":"durations","op":"add","value":1.327091749}
 {"t":22251,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":22251,"target":"log","op":"write","text":"eu.ad.evotec.xyz (domain): Site link costs - 2 site links use default cost 100","state":"warn"}
+{"t":22251,"target":"log","op":"write","text":"eu.ad.adatum.com (domain): Site link costs - 2 site links use default cost 100","state":"warn"}
 {"t":22434,"target":"lanes","op":"advance","key":"dom-eu","text":"Functional level","state":"pass","value":1}
 {"t":22434,"target":"durations","op":"add","value":0.183154918}
 {"t":22434,"target":"results","op":"add","key":"Passed","value":1}
@@ -521,16 +521,16 @@
 {"t":23318,"target":"durations","op":"add","value":0.350994584}
 {"t":23318,"target":"results","op":"add","key":"Passed","value":1}
 {"t":23426,"target":"lanes","op":"state","key":"dc5","text":"LDAP signing required","state":"running"}
-{"t":23426,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":23426,"target":"log","op":"write","text":"DC05.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":23615,"target":"lanes","op":"advance","key":"dc3","text":"Time source hierarchy","state":"fail","value":1}
 {"t":23615,"target":"durations","op":"add","value":0.332998906}
 {"t":23615,"target":"results","op":"add","key":"Failed","value":1}
 {"t":23615,"target":"findings","op":"add","key":"DNS","value":1}
-{"t":23615,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
+{"t":23615,"target":"log","op":"write","text":"DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
 {"t":23723,"target":"lanes","op":"advance","key":"dc2","text":"Firewall profile","state":"warn","value":1}
 {"t":23723,"target":"durations","op":"add","value":2.915387925}
 {"t":23723,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":23723,"target":"log","op":"write","text":"DC02.ad.evotec.xyz: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
+{"t":23723,"target":"log","op":"write","text":"DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
 {"t":23739,"target":"lanes","op":"advance","key":"dc3","text":"Clock skew","state":"pass","value":1}
 {"t":23739,"target":"durations","op":"add","value":0.124477453}
 {"t":23739,"target":"results","op":"add","key":"Passed","value":1}
@@ -563,17 +563,17 @@
 {"t":24281,"target":"durations","op":"add","value":1.397850417}
 {"t":24281,"target":"results","op":"add","key":"Failed","value":1}
 {"t":24281,"target":"findings","op":"add","key":"Accounts","value":1}
-{"t":24281,"target":"log","op":"write","text":"ad.evotec.xyz (domain): Service account SPN hygiene failed - duplicate SPN HTTP/intranet registered twice","state":"err"}
+{"t":24281,"target":"log","op":"write","text":"ad.adatum.com (domain): Service account SPN hygiene failed - duplicate SPN HTTP/intranet registered twice","state":"err"}
 {"t":24329,"target":"lanes","op":"advance","key":"dc3","text":"Unconstrained delegation","state":"warn","value":1}
 {"t":24329,"target":"durations","op":"add","value":0.128372719}
 {"t":24329,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":24329,"target":"log","op":"write","text":"DC03.ad.evotec.xyz: krbtgt password age - krbtgt password is 190 days old","state":"warn"}
+{"t":24329,"target":"log","op":"write","text":"DC03.ad.adatum.com: krbtgt password age - krbtgt password is 190 days old","state":"warn"}
 {"t":24331,"target":"lanes","op":"advance","key":"dc2","text":"PowerShell logging","state":"pass","value":1}
 {"t":24331,"target":"durations","op":"add","value":0.194977028}
 {"t":24331,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24414,"target":"lanes","op":"complete","key":"dc1"}
 {"t":24534,"target":"lanes","op":"state","key":"dc6","text":"LDAP signing required","state":"running"}
-{"t":24534,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":24534,"target":"log","op":"write","text":"DC06.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":24563,"target":"lanes","op":"advance","key":"dc2","text":"finishing","state":"pass","value":1}
 {"t":24563,"target":"durations","op":"add","value":0.232347902}
 {"t":24563,"target":"results","op":"add","key":"Passed","value":1}
@@ -581,20 +581,20 @@
 {"t":24568,"target":"durations","op":"add","value":0.599834759}
 {"t":24568,"target":"results","op":"add","key":"Failed","value":1}
 {"t":24568,"target":"findings","op":"add","key":"Kerberos","value":1}
-{"t":24568,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: Unconstrained delegation failed - 2 servers trusted for unconstrained delegation","state":"err"}
+{"t":24568,"target":"log","op":"write","text":"DC04.ad.adatum.com: Unconstrained delegation failed - 2 servers trusted for unconstrained delegation","state":"err"}
 {"t":24625,"target":"lanes","op":"advance","key":"dc3","text":"Audit policy baseline","state":"pass","value":1}
 {"t":24625,"target":"durations","op":"add","value":0.295566627}
 {"t":24625,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24713,"target":"lanes","op":"complete","key":"dc2"}
 {"t":24833,"target":"lanes","op":"state","key":"dc7","text":"LDAP signing required","state":"running"}
-{"t":24833,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":24833,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":24846,"target":"lanes","op":"advance","key":"dc4","text":"Event log sizes","state":"pass","value":1}
 {"t":24846,"target":"durations","op":"add","value":0.278355294}
 {"t":24846,"target":"results","op":"add","key":"Passed","value":1}
 {"t":24913,"target":"lanes","op":"advance","key":"dom-ad","text":"Certificate template exposure","state":"warn","value":1}
 {"t":24913,"target":"durations","op":"add","value":0.63239352}
 {"t":24913,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":24913,"target":"log","op":"write","text":"ad.evotec.xyz (domain): CA weak key size - issuing CA certificate expires in 9 months","state":"warn"}
+{"t":24913,"target":"log","op":"write","text":"ad.adatum.com (domain): CA weak key size - issuing CA certificate expires in 9 months","state":"warn"}
 {"t":25000,"target":"throughput","op":"add","key":"completed","value":13}
 {"t":25000,"target":"throughput","op":"add","key":"failed","value":2}
 {"t":25000,"target":"summary","op":"set","key":"Evaluated","text":"136 / 332"}
@@ -611,7 +611,7 @@
 {"t":25140,"target":"lanes","op":"advance","key":"dc5","text":"SMB signing enforced","state":"warn","value":1}
 {"t":25140,"target":"durations","op":"add","value":0.928167803}
 {"t":25140,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":25140,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: LDAP channel binding - channel binding set to 'when supported'","state":"warn"}
+{"t":25140,"target":"log","op":"write","text":"DC05.ad.adatum.com: LDAP channel binding - channel binding set to 'when supported'","state":"warn"}
 {"t":25273,"target":"lanes","op":"advance","key":"dc3","text":"Event log sizes","state":"pass","value":1}
 {"t":25273,"target":"durations","op":"add","value":0.648395596}
 {"t":25273,"target":"results","op":"add","key":"Passed","value":1}
@@ -664,7 +664,7 @@
 {"t":26195,"target":"lanes","op":"advance","key":"dc4","text":"Firewall profile","state":"warn","value":1}
 {"t":26195,"target":"durations","op":"add","value":1.183789964}
 {"t":26195,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":26195,"target":"log","op":"write","text":"DC04.ad.evotec.xyz: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
+{"t":26195,"target":"log","op":"write","text":"DC04.ad.adatum.com: Local administrators - nested group in BUILTIN\\Administrators","state":"warn"}
 {"t":26228,"target":"lanes","op":"advance","key":"dc6","text":"Print Spooler disabled","state":"pass","value":1}
 {"t":26228,"target":"durations","op":"add","value":0.921676788}
 {"t":26228,"target":"results","op":"add","key":"Passed","value":1}
@@ -694,7 +694,7 @@
 {"t":26799,"target":"results","op":"add","key":"Passed","value":1}
 {"t":26824,"target":"lanes","op":"complete","key":"dc3"}
 {"t":26944,"target":"lanes","op":"state","key":"dc8","text":"LDAP signing required","state":"running"}
-{"t":26944,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":26944,"target":"log","op":"write","text":"DC08.eu.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":26959,"target":"lanes","op":"advance","key":"dc7","text":"Windows Update compliance","state":"skip","value":1}
 {"t":26959,"target":"durations","op":"add","value":0.632792282}
 {"t":26959,"target":"results","op":"add","key":"Skipped","value":1}
@@ -722,7 +722,7 @@
 {"t":27341,"target":"durations","op":"add","value":0.397208928}
 {"t":27341,"target":"results","op":"add","key":"Passed","value":1}
 {"t":27357,"target":"lanes","op":"state","key":"dc9","text":"LDAP signing required","state":"running"}
-{"t":27357,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":27357,"target":"log","op":"write","text":"DC09.eu.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":27538,"target":"lanes","op":"advance","key":"dc9","text":"LDAP channel binding","state":"warn","value":1}
 {"t":27538,"target":"durations","op":"add","value":0.181669094}
 {"t":27538,"target":"results","op":"add","key":"Warnings","value":1}
@@ -735,7 +735,7 @@
 {"t":27909,"target":"lanes","op":"advance","key":"dc6","text":"Windows Update compliance","state":"warn","value":1}
 {"t":27909,"target":"durations","op":"add","value":0.573145955}
 {"t":27909,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":27909,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: Secure Boot certificate rollout - update staged, reboot pending","state":"warn"}
+{"t":27909,"target":"log","op":"write","text":"DC06.ad.adatum.com: Secure Boot certificate rollout - update staged, reboot pending","state":"warn"}
 {"t":27967,"target":"lanes","op":"advance","key":"dc8","text":"Print Spooler disabled","state":"pass","value":1}
 {"t":27967,"target":"durations","op":"add","value":0.183582882}
 {"t":27967,"target":"results","op":"add","key":"Passed","value":1}
@@ -759,7 +759,7 @@
 {"t":28439,"target":"durations","op":"add","value":0.144368473}
 {"t":28439,"target":"results","op":"add","key":"Failed","value":1}
 {"t":28439,"target":"findings","op":"add","key":"Domain controllers","value":1}
-{"t":28439,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
+{"t":28439,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
 {"t":28742,"target":"lanes","op":"advance","key":"dc8","text":"LSA protection enabled","state":"pass","value":1}
 {"t":28742,"target":"durations","op":"add","value":0.774760106}
 {"t":28742,"target":"results","op":"add","key":"Passed","value":1}
@@ -815,12 +815,12 @@
 {"t":29801,"target":"lanes","op":"advance","key":"dc5","text":"USN rollback detection","state":"warn","value":1}
 {"t":29801,"target":"durations","op":"add","value":0.140761506}
 {"t":29801,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":29801,"target":"log","op":"write","text":"DC05.ad.evotec.xyz: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
+{"t":29801,"target":"log","op":"write","text":"DC05.ad.adatum.com: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
 {"t":29959,"target":"lanes","op":"advance","key":"dc7","text":"USN rollback detection","state":"fail","value":1}
 {"t":29959,"target":"durations","op":"add","value":1.004914565}
 {"t":29959,"target":"results","op":"add","key":"Failed","value":1}
 {"t":29959,"target":"findings","op":"add","key":"Replication","value":1}
-{"t":29959,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Replication latency per partner failed - no successful inbound replication from DC02 for 4h","state":"err"}
+{"t":29959,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: Replication latency per partner failed - no successful inbound replication from DC02 for 4h","state":"err"}
 {"t":30000,"target":"throughput","op":"add","key":"completed","value":13}
 {"t":30000,"target":"throughput","op":"add","key":"failed","value":1}
 {"t":30000,"target":"summary","op":"set","key":"Evaluated","text":"195 / 332"}
@@ -831,7 +831,7 @@
 {"t":30092,"target":"lanes","op":"advance","key":"dc9","text":"Secure Boot certificate rollout","state":"warn","value":1}
 {"t":30092,"target":"durations","op":"add","value":0.435373961}
 {"t":30092,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":30092,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: Credential Guard posture - Credential Guard configured but not running","state":"warn"}
+{"t":30092,"target":"log","op":"write","text":"DC09.eu.ad.adatum.com: Credential Guard posture - Credential Guard configured but not running","state":"warn"}
 {"t":30167,"target":"lanes","op":"advance","key":"dc8","text":"Operating system support","state":"pass","value":1}
 {"t":30167,"target":"durations","op":"add","value":0.504040051}
 {"t":30167,"target":"results","op":"add","key":"Passed","value":1}
@@ -842,7 +842,7 @@
 {"t":30645,"target":"durations","op":"add","value":1.302433914}
 {"t":30645,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30645,"target":"findings","op":"add","key":"Forest","value":1}
-{"t":30645,"target":"log","op":"write","text":"ad.evotec.xyz (domain): Functional level failed - domain functional level is Windows Server 2008 R2","state":"err"}
+{"t":30645,"target":"log","op":"write","text":"ad.adatum.com (domain): Functional level failed - domain functional level is Windows Server 2008 R2","state":"err"}
 {"t":30665,"target":"lanes","op":"advance","key":"dc5","text":"SYSVOL DFSR state","state":"pass","value":1}
 {"t":30665,"target":"durations","op":"add","value":0.863603727}
 {"t":30665,"target":"results","op":"add","key":"Passed","value":1}
@@ -850,19 +850,19 @@
 {"t":30674,"target":"durations","op":"add","value":0.715277071}
 {"t":30674,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30674,"target":"findings","op":"add","key":"Replication","value":1}
-{"t":30674,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
+{"t":30674,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
 {"t":30795,"target":"lanes","op":"complete","key":"dom-ad"}
 {"t":30811,"target":"lanes","op":"advance","key":"dc7","text":"Tombstone lifetime","state":"warn","value":1}
 {"t":30811,"target":"durations","op":"add","value":0.137514605}
 {"t":30811,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":30811,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: SYSVOL DFSR state - DFSR backlog of 37 files","state":"warn"}
+{"t":30811,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: SYSVOL DFSR state - DFSR backlog of 37 files","state":"warn"}
 {"t":30915,"target":"lanes","op":"state","key":"dc10","text":"LDAP signing required","state":"running"}
-{"t":30915,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: evaluating 30 rules","state":"info"}
+{"t":30915,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: evaluating 30 rules","state":"info"}
 {"t":30919,"target":"lanes","op":"advance","key":"dc7","text":"Lingering objects","state":"fail","value":1}
 {"t":30919,"target":"durations","op":"add","value":0.108124059}
 {"t":30919,"target":"results","op":"add","key":"Failed","value":1}
 {"t":30919,"target":"findings","op":"add","key":"Replication","value":1}
-{"t":30919,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: Tombstone lifetime failed - tombstone lifetime is 60 days","state":"err"}
+{"t":30919,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: Tombstone lifetime failed - tombstone lifetime is 60 days","state":"err"}
 {"t":30932,"target":"lanes","op":"advance","key":"dc5","text":"Tombstone lifetime","state":"pass","value":1}
 {"t":30932,"target":"durations","op":"add","value":0.266825916}
 {"t":30932,"target":"results","op":"add","key":"Passed","value":1}
@@ -904,7 +904,7 @@
 {"t":31894,"target":"durations","op":"add","value":0.133318046}
 {"t":31894,"target":"results","op":"add","key":"Failed","value":1}
 {"t":31894,"target":"findings","op":"add","key":"Domain controllers","value":1}
-{"t":31894,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Print Spooler disabled failed - Spooler service is running","state":"err"}
+{"t":31894,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: Print Spooler disabled failed - Spooler service is running","state":"err"}
 {"t":32000,"target":"throughput","op":"add","key":"completed","value":8}
 {"t":32000,"target":"throughput","op":"add","key":"failed","value":1}
 {"t":32000,"target":"summary","op":"set","key":"Evaluated","text":"214 / 332"}
@@ -915,7 +915,7 @@
 {"t":32308,"target":"lanes","op":"advance","key":"dc10","text":"Credential Guard posture","state":"warn","value":1}
 {"t":32308,"target":"durations","op":"add","value":0.414244591}
 {"t":32308,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":32308,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: LSA protection enabled - RunAsPPL set without UEFI lock","state":"warn"}
+{"t":32308,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: LSA protection enabled - RunAsPPL set without UEFI lock","state":"warn"}
 {"t":32738,"target":"lanes","op":"advance","key":"dc9","text":"NTLM audit configuration","state":"pass","value":1}
 {"t":32738,"target":"durations","op":"add","value":1.500076174}
 {"t":32738,"target":"results","op":"add","key":"Passed","value":1}
@@ -972,7 +972,7 @@
 {"t":34380,"target":"lanes","op":"advance","key":"dc7","text":"Root hints reachable","state":"warn","value":1}
 {"t":34380,"target":"durations","op":"add","value":0.436638787}
 {"t":34380,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":34380,"target":"log","op":"write","text":"DC07.eu.ad.evotec.xyz: DNS scavenging - no-refresh interval longer than 7 days","state":"warn"}
+{"t":34380,"target":"log","op":"write","text":"DC07.eu.ad.adatum.com: DNS scavenging - no-refresh interval longer than 7 days","state":"warn"}
 {"t":34482,"target":"lanes","op":"advance","key":"dc10","text":"Operating system support","state":"pass","value":1}
 {"t":34482,"target":"durations","op":"add","value":0.688975136}
 {"t":34482,"target":"results","op":"add","key":"Passed","value":1}
@@ -1002,7 +1002,7 @@
 {"t":35269,"target":"durations","op":"add","value":0.786988239}
 {"t":35269,"target":"results","op":"add","key":"Failed","value":1}
 {"t":35269,"target":"findings","op":"add","key":"Domain controllers","value":1}
-{"t":35269,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
+{"t":35269,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: Operating system support failed - Windows Server 2012 R2 is out of support","state":"err"}
 {"t":35436,"target":"lanes","op":"advance","key":"dc8","text":"DNS forwarders consistency","state":"pass","value":1}
 {"t":35436,"target":"durations","op":"add","value":0.269306701}
 {"t":35436,"target":"results","op":"add","key":"Passed","value":1}
@@ -1030,7 +1030,7 @@
 {"t":35927,"target":"lanes","op":"advance","key":"dc10","text":"Replication latency per partner","state":"warn","value":1}
 {"t":35927,"target":"durations","op":"add","value":0.658410971}
 {"t":35927,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":35927,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: NTLM audit configuration - audit enabled for incoming traffic only","state":"warn"}
+{"t":35927,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: NTLM audit configuration - audit enabled for incoming traffic only","state":"warn"}
 {"t":36000,"target":"throughput","op":"add","key":"completed","value":11}
 {"t":36000,"target":"throughput","op":"add","key":"failed","value":1}
 {"t":36000,"target":"summary","op":"set","key":"Evaluated","text":"245 / 332"}
@@ -1078,7 +1078,7 @@
 {"t":37358,"target":"lanes","op":"advance","key":"dc8","text":"DC locator SRV records","state":"warn","value":1}
 {"t":37358,"target":"durations","op":"add","value":0.863711224}
 {"t":37358,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":37358,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: Root hints reachable - root hints file older than 2 years","state":"warn"}
+{"t":37358,"target":"log","op":"write","text":"DC08.eu.ad.adatum.com: Root hints reachable - root hints file older than 2 years","state":"warn"}
 {"t":37415,"target":"lanes","op":"advance","key":"dc6","text":"Clock skew","state":"pass","value":1}
 {"t":37415,"target":"durations","op":"add","value":0.736998002}
 {"t":37415,"target":"results","op":"add","key":"Passed","value":1}
@@ -1107,15 +1107,15 @@
 {"t":38174,"target":"lanes","op":"advance","key":"dc10","text":"USN rollback detection","state":"warn","value":1}
 {"t":38174,"target":"durations","op":"add","value":2.24696628}
 {"t":38174,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":38174,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
+{"t":38174,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: Replication latency per partner - latency to DC05 is 42 minutes","state":"warn"}
 {"t":38225,"target":"lanes","op":"advance","key":"dc8","text":"Kerberos AES-only encryption","state":"warn","value":1}
 {"t":38225,"target":"durations","op":"add","value":0.162089858}
 {"t":38225,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":38225,"target":"log","op":"write","text":"DC08.eu.ad.evotec.xyz: Clock skew - clock skew of 48 seconds","state":"warn"}
+{"t":38225,"target":"log","op":"write","text":"DC08.eu.ad.adatum.com: Clock skew - clock skew of 48 seconds","state":"warn"}
 {"t":38320,"target":"lanes","op":"advance","key":"dc9","text":"DNS scavenging","state":"warn","value":1}
 {"t":38320,"target":"durations","op":"add","value":0.263878881}
 {"t":38320,"target":"results","op":"add","key":"Warnings","value":1}
-{"t":38320,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: DNS forwarders consistency - one forwarder does not answer","state":"warn"}
+{"t":38320,"target":"log","op":"write","text":"DC09.eu.ad.adatum.com: DNS forwarders consistency - one forwarder does not answer","state":"warn"}
 {"t":38424,"target":"lanes","op":"advance","key":"dc7","text":"Firewall profile","state":"pass","value":1}
 {"t":38424,"target":"durations","op":"add","value":0.574083288}
 {"t":38424,"target":"results","op":"add","key":"Passed","value":1}
@@ -1132,7 +1132,7 @@
 {"t":38616,"target":"durations","op":"add","value":0.441331787}
 {"t":38616,"target":"results","op":"add","key":"Failed","value":1}
 {"t":38616,"target":"findings","op":"add","key":"Replication","value":1}
-{"t":38616,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
+{"t":38616,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: USN rollback detection failed - event 2095 logged (USN rollback suspected)","state":"err"}
 {"t":38696,"target":"lanes","op":"advance","key":"dc5","text":"Kerberos AES-only encryption","state":"pass","value":1}
 {"t":38696,"target":"durations","op":"add","value":0.259143446}
 {"t":38696,"target":"results","op":"add","key":"Passed","value":1}
@@ -1205,12 +1205,12 @@
 {"t":40293,"target":"durations","op":"add","value":0.26797987}
 {"t":40293,"target":"results","op":"add","key":"Failed","value":1}
 {"t":40293,"target":"findings","op":"add","key":"Time","value":1}
-{"t":40293,"target":"log","op":"write","text":"DC09.eu.ad.evotec.xyz: Clock skew failed - clock skew of 7 minutes against the PDC emulator","state":"err"}
+{"t":40293,"target":"log","op":"write","text":"DC09.eu.ad.adatum.com: Clock skew failed - clock skew of 7 minutes against the PDC emulator","state":"err"}
 {"t":40306,"target":"lanes","op":"advance","key":"dc6","text":"Unconstrained delegation","state":"fail","value":1}
 {"t":40306,"target":"durations","op":"add","value":1.013355738}
 {"t":40306,"target":"results","op":"add","key":"Failed","value":1}
 {"t":40306,"target":"findings","op":"add","key":"Kerberos","value":1}
-{"t":40306,"target":"log","op":"write","text":"DC06.ad.evotec.xyz: krbtgt password age failed - krbtgt password not changed for 812 days","state":"err"}
+{"t":40306,"target":"log","op":"write","text":"DC06.ad.adatum.com: krbtgt password age failed - krbtgt password not changed for 812 days","state":"err"}
 {"t":40376,"target":"lanes","op":"complete","key":"dc7"}
 {"t":40434,"target":"lanes","op":"advance","key":"dc8","text":"Local administrators","state":"pass","value":1}
 {"t":40434,"target":"durations","op":"add","value":0.186357959}
@@ -1284,7 +1284,7 @@
 {"t":43363,"target":"durations","op":"add","value":0.10770179}
 {"t":43363,"target":"results","op":"add","key":"Failed","value":1}
 {"t":43363,"target":"findings","op":"add","key":"DNS","value":1}
-{"t":43363,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: DNS scavenging failed - scavenging disabled on all zones","state":"err"}
+{"t":43363,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: DNS scavenging failed - scavenging disabled on all zones","state":"err"}
 {"t":43510,"target":"lanes","op":"advance","key":"dc10","text":"DC locator SRV records","state":"pass","value":1}
 {"t":43510,"target":"durations","op":"add","value":0.146893938}
 {"t":43510,"target":"results","op":"add","key":"Passed","value":1}
@@ -1308,7 +1308,7 @@
 {"t":44745,"target":"durations","op":"add","value":1.235324703}
 {"t":44745,"target":"results","op":"add","key":"Failed","value":1}
 {"t":44745,"target":"findings","op":"add","key":"DNS","value":1}
-{"t":44745,"target":"log","op":"write","text":"DC10.eu.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
+{"t":44745,"target":"log","op":"write","text":"DC10.eu.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing","state":"err"}
 {"t":45000,"target":"throughput","op":"add","key":"completed","value":2}
 {"t":45000,"target":"throughput","op":"add","key":"failed","value":1}
 {"t":45000,"target":"summary","op":"set","key":"Evaluated","text":"311 / 332"}
@@ -1434,7 +1434,7 @@
 {"t":52000,"target":"summary","op":"set","key":"Remaining","text":"-"}
 {"t":52000,"target":"summary","op":"set","key":"Targets done","text":"12 / 12"}
 {"t":52000,"target":"summary","op":"set","key":"Targets failing","text":"8"}
-{"t":52161,"target":"log","op":"write","text":"Report written to Reports\\Assessment-ad.evotec.xyz.html (4.2 MB)","state":"pass"}
+{"t":52161,"target":"log","op":"write","text":"Report written to Reports\\Assessment-ad.adatum.com.html (4.2 MB)","state":"pass"}
 {"t":53061,"target":"phases","op":"state","key":"Report","state":"pass"}
 {"t":53061,"target":"dashboard","op":"status","text":"332 rules · 256 passed · 18 failed · 47 warnings · 11 skipped","state":"warn"}
 {"t":55761,"target":"log","op":"write","text":"Done.","state":"info"}

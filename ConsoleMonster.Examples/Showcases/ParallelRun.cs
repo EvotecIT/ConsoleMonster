@@ -88,7 +88,7 @@ namespace ConsoleMonster.Examples.Showcases {
             }
             Lanes targets = new Lanes { MaxLabelWidth = 28 };
             Dashboard dashboard = new DashboardBuilder("[bold]Nightly checks[/]")
-                .Subtitle("ad.evotec.xyz forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
+                .Subtitle("ad.adatum.com forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
                 .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
                 .Columns(c => c
                     .Panel("Targets", new Prioritized(targets, 8, 4, 40), 2.3, ParallelRunRecording.Workers + " workers")

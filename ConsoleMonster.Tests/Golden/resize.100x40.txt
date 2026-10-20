@@ -1,20 +1,20 @@
- Nightly checks · ad.evotec.xyz forest assessmen…  ● evaluating 332 rules on 6 workers  ·  00:00:24
+ Nightly checks · ad.adatum.com forest assessmen…  ● evaluating 332 rules on 6 workers  ·  00:00:24
 
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
 
 ╭─ Targets ───────────────────────────────────────────── 6 workers ─╮ ╭─ Results ──────────────────╮
-│ ⠸ ad.evotec.xyz (domai…  ━━━━━━━━━━━───────────  50%  ✓ 7 ✗ 0 ▴ 1 │ │ █████████████████████▓▓▓▒░ │
-│ ✗ eu.ad.evotec.xyz (do…  ━━━━━━━━━━━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1 │ │ █ Passed   101  82%        │
-│ ⠴ DC01.ad.evotec.xyz     ━━━━━━━━━━━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3 │ │ ▓ Warnings  14  11%        │
-│ ⠦ DC02.ad.evotec.xyz     ━━━━━━━━━━━━━━━━━━━━──  90%  ✓20 ✗ 0 ▴ 6 │ │ ▒ Failed     4   3%        │
-│ ⠧ DC03.ad.evotec.xyz     ━━━━━━━━━━━━━━╾───────  66%  ✓16 ✗ 3 ▴ 1 │ │ ░ Skipped    4   3%        │
-│ ⠇ DC04.ad.evotec.xyz     ━━━━━━━━━━━━━━━━━─────  76%  ✓20 ✗ 0 ▴ 2 │ │ ────────────────────────── │
-│ ⠏ DC05.ad.evotec.xyz     ──────────────────────   0%  ✓ 0 ✗ 0 ▴ 0 │ │ Evaluated    123 / 332     │
-│ ○ DC06.ad.evotec.xyz     ──────────────────────                   │ │ Average r…   7.2 rules/s   │
-│ ○ DC07.eu.ad.evotec.xyz  ──────────────────────                   │ │ Remaining   ~29s           │
-│ ○ DC08.eu.ad.evotec.xyz  ──────────────────────                   │ │ Targets d…     1 / 12      │
-│ ○ DC09.eu.ad.evotec.xyz  ──────────────────────                   │ │ Targets f…     1           │
-│ ○ DC10.eu.ad.evotec.xyz  ──────────────────────                   │ │                            │
+│ ⠸ ad.adatum.com (domai…  ━━━━━━━━━━━───────────  50%  ✓ 7 ✗ 0 ▴ 1 │ │ █████████████████████▓▓▓▒░ │
+│ ✗ eu.ad.adatum.com (do…  ━━━━━━━━━━━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1 │ │ █ Passed   101  82%        │
+│ ⠴ DC01.ad.adatum.com     ━━━━━━━━━━━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3 │ │ ▓ Warnings  14  11%        │
+│ ⠦ DC02.ad.adatum.com     ━━━━━━━━━━━━━━━━━━━━──  90%  ✓20 ✗ 0 ▴ 6 │ │ ▒ Failed     4   3%        │
+│ ⠧ DC03.ad.adatum.com     ━━━━━━━━━━━━━━╾───────  66%  ✓16 ✗ 3 ▴ 1 │ │ ░ Skipped    4   3%        │
+│ ⠇ DC04.ad.adatum.com     ━━━━━━━━━━━━━━━━━─────  76%  ✓20 ✗ 0 ▴ 2 │ │ ────────────────────────── │
+│ ⠏ DC05.ad.adatum.com     ──────────────────────   0%  ✓ 0 ✗ 0 ▴ 0 │ │ Evaluated    123 / 332     │
+│ ○ DC06.ad.adatum.com     ──────────────────────                   │ │ Average r…   7.2 rules/s   │
+│ ○ DC07.eu.ad.adatum.com  ──────────────────────                   │ │ Remaining   ~29s           │
+│ ○ DC08.eu.ad.adatum.com  ──────────────────────                   │ │ Targets d…     1 / 12      │
+│ ○ DC09.eu.ad.adatum.com  ──────────────────────                   │ │ Targets f…     1           │
+│ ○ DC10.eu.ad.adatum.com  ──────────────────────                   │ │                            │
 ╰───────────────────────────────────────────────────────────────────╯ ╰────────────────────────────╯
 ╭─ Throughput ─────────── rules/s ─╮ ╭─ Rule duration ────────────╮ ╭─ Failures by category ───────╮
 │ 11│          ⡜⡄  ⣄        ⡄      │ │ 39│   ███ ▄▄▄              │ │ Domain c… ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆ 1 │
@@ -27,14 +27,14 @@
 │    █ completed   █ failed        │ │    0s     0.5s    2s    8s │ │ PKI                        0 │
 ╰──────────────────────────────────╯ ╰────────────────────────────╯ ╰──────────────────────────────╯
 ╭─ Log ────────────────────────────────────────────────────────────────────────────────────────────╮
-│ 00:11 ✗ ERR  DC03.ad.evotec.xyz: Credential Guard posture failed - virtualization-based securit… │
-│ 00:15 ✗ ERR  eu.ad.evotec.xyz (domain): Password never expires failed - 18 user accounts never … │
-│ 00:16 ▴ WARN DC01.ad.evotec.xyz: DC locator SRV records - stale SRV record for a retired DC      │
-│ 00:21 ▴ WARN DC01.ad.evotec.xyz: Event log sizes - Directory Service log under 64 MB             │
-│ 00:21 ✗ ERR  DC03.ad.evotec.xyz: Lingering objects failed - 3 lingering objects in the configur… │
-│ 00:22 ▴ WARN eu.ad.evotec.xyz (domain): Site link costs - 2 site links use default cost 100      │
-│ 00:23        DC05.ad.evotec.xyz: evaluating 30 rules                                             │
-│ 00:23 ✗ ERR  DC03.ad.evotec.xyz: DC locator SRV records failed - _ldap._tcp.dc._msdcs record mi… │
-│ 00:23 ▴ WARN DC02.ad.evotec.xyz: Local administrators - nested group in BUILTIN\Administrators   │
+│ 00:11 ✗ ERR  DC03.ad.adatum.com: Credential Guard posture failed - virtualization-based securit… │
+│ 00:15 ✗ ERR  eu.ad.adatum.com (domain): Password never expires failed - 18 user accounts never … │
+│ 00:16 ▴ WARN DC01.ad.adatum.com: DC locator SRV records - stale SRV record for a retired DC      │
+│ 00:21 ▴ WARN DC01.ad.adatum.com: Event log sizes - Directory Service log under 64 MB             │
+│ 00:21 ✗ ERR  DC03.ad.adatum.com: Lingering objects failed - 3 lingering objects in the configur… │
+│ 00:22 ▴ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use default cost 100      │
+│ 00:23        DC05.ad.adatum.com: evaluating 30 rules                                             │
+│ 00:23 ✗ ERR  DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record mi… │
+│ 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\Administrators   │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
  Ctrl+C stop

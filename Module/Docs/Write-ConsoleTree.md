@@ -35,7 +35,7 @@ Same parameters as New-ConsoleTree (nodes in a script block, hierarchical object
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.evotec.xyz' = @('DC01', 'DC02'); 'eu.ad.evotec.xyz' = @('DC07') })
+Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.adatum.com' = @('DC01', 'DC02'); 'eu.ad.adatum.com' = @('DC07') })
 ```
 
 Write a small hierarchy

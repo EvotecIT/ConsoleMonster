@@ -144,14 +144,14 @@ Certificate
 Nightly checks · run summary  -  7 records
 
 Domains  2
-  ad.evotec.xyz
+  ad.adatum.com
     Result    [FAIL]
     Passed    9
     Failed    [FAIL] 2
     Warnings  [WARN] 5
     Duration  24 s
     Score     #####      56 %
-  eu.ad.evotec.xyz
+  eu.ad.adatum.com
     Result    [FAIL]
     Passed    13
     Failed    [FAIL] 1
@@ -160,35 +160,35 @@ Domains  2
     Score     ########   87 %
 
 Domain controllers  5
-  DC01.ad.evotec.xyz
+  DC01.ad.adatum.com
     Result    [WARN]
     Passed    26
     Failed    0
     Warnings  [WARN] 3
     Duration  17 s
     Score     #########  90 %
-  DC02.ad.evotec.xyz
+  DC02.ad.adatum.com
     Result    [WARN]
     Passed    23
     Failed    0
     Warnings  [WARN] 6
     Duration  17 s
     Score     #######    79 %
-  DC03.ad.evotec.xyz
+  DC03.ad.adatum.com
     Result    [FAIL]
     Passed    23
     Failed    [FAIL] 3
     Warnings  [WARN] 4
     Duration  19 s
     Score     #######    77 %
-  DC07.eu.ad.evotec.xyz
+  DC07.eu.ad.adatum.com
     Result    [FAIL]
     Passed    21
     Failed    [FAIL] 4
     Warnings  [WARN] 4
     Duration  16 s
     Score     #######    72 %
-  DC09.eu.ad.evotec.xyz
+  DC09.eu.ad.adatum.com
     Result    [PASS]
     Passed    30
     Failed    0

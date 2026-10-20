@@ -58,7 +58,7 @@ namespace SiteFrames.Catalog {
             // <example>
             TextBlock body = new TextBlock("Four controllers answered. [warn]DC02[/] lags by 42 minutes.");
             Panel panel = new Panel(body, "[bold]Forest[/]") {
-                Caption = "ad.evotec.xyz",
+                Caption = "ad.adatum.com",
                 Footer = "[muted]checked 14:30[/]"
             };
             Terminal.Write(panel);

@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Write a small hierarchy</para>
-    ///   <code>Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.evotec.xyz' = @('DC01', 'DC02'); 'eu.ad.evotec.xyz' = @('DC07') })</code>
+    ///   <code>Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.adatum.com' = @('DC01', 'DC02'); 'eu.ad.adatum.com' = @('DC07') })</code>
     /// </example>
     /// <example>
     ///   <para>Nodes with a status and a detail</para>

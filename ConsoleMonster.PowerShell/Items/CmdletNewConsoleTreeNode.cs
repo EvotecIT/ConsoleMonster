@@ -21,8 +21,8 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Leaves from a list of names</para>
     ///   <code>
     /// New-ConsoleTree 'Domain controllers' {
-    ///     New-ConsoleTreeNode 'ad.evotec.xyz' { 'DC01', 'DC02' }
-    ///     New-ConsoleTreeNode 'eu.ad.evotec.xyz' -Status Warn -Detail 'one offline' { 'DC07' }
+    ///     New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }
+    ///     New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }
     /// } | Write-ConsoleWidget</code>
     /// </example>
     /// <example>

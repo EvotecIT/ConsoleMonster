@@ -105,14 +105,14 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Duration") { Priority = 4, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
             table.AddColumn(new TableColumn("Score") { Priority = 2, Presenter = new DataBarPresenter(100, new NumberPresenter("%")), Aggregate = ColumnAggregate.Average });
             table.AddGroup("Domains");
-            table.AddValues("ad.evotec.xyz", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
-            table.AddValues("eu.ad.evotec.xyz", StatusKind.Fail, 13, 1, 1, TimeSpan.FromSeconds(16), 87);
+            table.AddValues("ad.adatum.com", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
+            table.AddValues("eu.ad.adatum.com", StatusKind.Fail, 13, 1, 1, TimeSpan.FromSeconds(16), 87);
             table.AddGroup("Domain controllers");
-            table.AddValues("DC01.ad.evotec.xyz", StatusKind.Warn, 26, 0, 3, TimeSpan.FromSeconds(17), 90);
-            table.AddValues("DC02.ad.evotec.xyz", StatusKind.Warn, 23, 0, 6, TimeSpan.FromSeconds(17), 79);
-            table.AddValues("DC03.ad.evotec.xyz", StatusKind.Fail, 23, 3, 4, TimeSpan.FromSeconds(19), 77);
-            table.AddValues("DC07.eu.ad.evotec.xyz", StatusKind.Fail, 21, 4, 4, TimeSpan.FromSeconds(16), 72);
-            table.AddValues("DC09.eu.ad.evotec.xyz", StatusKind.Pass, 30, 0, 0, TimeSpan.FromSeconds(15), 100);
+            table.AddValues("DC01.ad.adatum.com", StatusKind.Warn, 26, 0, 3, TimeSpan.FromSeconds(17), 90);
+            table.AddValues("DC02.ad.adatum.com", StatusKind.Warn, 23, 0, 6, TimeSpan.FromSeconds(17), 79);
+            table.AddValues("DC03.ad.adatum.com", StatusKind.Fail, 23, 3, 4, TimeSpan.FromSeconds(19), 77);
+            table.AddValues("DC07.eu.ad.adatum.com", StatusKind.Fail, 21, 4, 4, TimeSpan.FromSeconds(16), 72);
+            table.AddValues("DC09.eu.ad.adatum.com", StatusKind.Pass, 30, 0, 0, TimeSpan.FromSeconds(15), 100);
             return table;
         }
 

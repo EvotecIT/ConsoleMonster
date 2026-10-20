@@ -42,9 +42,9 @@ namespace ConsoleMonster.Tests.Rendering {
         public static IWidget Live() {
             Lanes lanes = new Lanes();
             LanesHandle h = lanes.Handle(new ImmediateDispatcher(lanes));
-            h.Add("a", "DC01.ad.evotec.xyz", 10);
-            h.Add("b", "DC02.ad.evotec.xyz", 10);
-            h.Add("c", "DC03.ad.evotec.xyz", 10);
+            h.Add("a", "DC01.ad.adatum.com", 10);
+            h.Add("b", "DC02.ad.adatum.com", 10);
+            h.Add("c", "DC03.ad.adatum.com", 10);
             for (int i = 0; i < 10; i++) {
                 h.Advance("a", i == 3 ? StatusKind.Warn : StatusKind.Pass, "LDAP signing");
             }
