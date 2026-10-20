@@ -27,7 +27,7 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 101
+        $commands.Count | Should -Be 109
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'
         $commands.Name | Should -Contain 'Add-ConsoleItem'
         $commands.Name | Should -Contain 'Invoke-ConsolePester'

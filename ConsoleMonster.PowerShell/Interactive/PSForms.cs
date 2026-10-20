@@ -94,6 +94,69 @@ namespace ConsoleMonster.PowerShell {
             return review;
         }
 
+        /// <summary>
+        /// Field values from a hashtable, as a form, a preset or Form.Apply takes them: names (ignoring case) to plain values,
+        /// collections as lists. Values of a choice field of <paramref name="form"/> that name one of its choices (the
+        /// object, its title or its value's text) become that choice's value.
+        /// </summary>
+        public static Dictionary<string, object?> ToFieldValues(IDictionary? values, Form? form) {
+            Dictionary<string, object?> result = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+            if (values == null) {
+                return result;
+            }
+            foreach (DictionaryEntry entry in values) {
+                string name = PSInteractive.Text(entry.Key);
+                if (name.Length == 0) {
+                    continue;
+                }
+                result[name] = FieldValue(entry.Value, form?.Find(name) as ChoiceField);
+            }
+            return result;
+        }
+
+        /// <summary>Maps the values of a built-in preset collected before its form existed onto the form's choices (see <see cref="ToFieldValues"/>).</summary>
+        public static void MatchChoices(IDictionary<string, object?> values, Form form) {
+            foreach (string name in new List<string>(values.Keys)) {
+                if (form.Find(name) is ChoiceField field) {
+                    values[name] = FieldValue(values[name], field);
+                }
+            }
+        }
+
+        private static object? FieldValue(object? value, ChoiceField? field) {
+            object? raw = PSText.Unwrap(value);
+            if (raw is IEnumerable list && !(raw is string) && !(raw is IDictionary)) {
+                List<object?> items = new List<object?>();
+                foreach (object? item in list) {
+                    items.Add(ChoiceValue(item, field));
+                }
+                return items;
+            }
+            return ChoiceValue(value, field);
+        }
+
+        private static object? ChoiceValue(object? value, ChoiceField? field) {
+            if (field != null) {
+                Choice? match = PSInteractive.Find(field.Choices, value);
+                if (match != null) {
+                    return match.Value;
+                }
+            }
+            return PSText.Unwrap(value);
+        }
+
+        /// <summary>Preview content from anything a cmdlet takes for one: a scriptblock (run now), widgets, text (markup) or objects (as a list); null for nothing.</summary>
+        public static Layout.IWidget? Content(object? content, PSCmdlet cmdlet) {
+            if (content == null) {
+                return null;
+            }
+            List<Layout.IWidget> widgets = PSWidgets.CollectAny(content, cmdlet);
+            if (widgets.Count == 0) {
+                return null;
+            }
+            return widgets.Count == 1 ? widgets[0] : new Layout.Rows(widgets.ToArray()) { Gap = 1 };
+        }
+
         private static object? Get(IDictionary map, string key) {
             foreach (DictionaryEntry entry in map) {
                 if (string.Equals(PSInteractive.Text(entry.Key), key, StringComparison.OrdinalIgnoreCase)) {

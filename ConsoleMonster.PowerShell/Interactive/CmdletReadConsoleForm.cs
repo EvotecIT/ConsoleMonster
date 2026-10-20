@@ -40,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Inline { get; set; }
 
-        /// <summary><para type="description">A saved preset to apply first.</para></summary>
+        /// <summary><para type="description">A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.</para></summary>
         [Parameter]
         public string? Preset { get; set; }
 

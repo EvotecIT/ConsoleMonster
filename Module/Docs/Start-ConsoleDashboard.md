@@ -13,7 +13,7 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportModule <string[]>] [-RecordPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-FramesPerSecond <int>] [<CommonParameters>]
+Start-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportModule <string[]>] [-RecordPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -60,6 +60,22 @@ Records the run automatically to the local ConsoleMonster\Recordings folder and 
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Clock
+A run clock (New-ConsoleClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.
+
+```yaml
+Type: SimulatedClock
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

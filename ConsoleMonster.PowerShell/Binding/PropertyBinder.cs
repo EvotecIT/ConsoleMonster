@@ -229,6 +229,15 @@ namespace ConsoleMonster.PowerShell.Binding {
             return bound;
         }
 
+        /// <summary>
+        /// A table column from a column hashtable (Name or Label for the header, and the column options of Format-ConsoleTable:
+        /// Alignment, Width, MinWidth, MaxWidth, Flexible, Overflow, Presenter, Markup, tone rules...), for tables whose rows
+        /// come later, such as live tables.
+        /// </summary>
+        /// <param name="spec">The hashtable.</param>
+        /// <returns>The column.</returns>
+        internal static TableColumn ColumnFrom(IDictionary spec) => CreateCalculated(spec).Column;
+
         private static BoundColumn CreateCalculated(IDictionary source) {
             Dictionary<string, object?> options = new Dictionary<string, object?>(
                 StringComparer.OrdinalIgnoreCase

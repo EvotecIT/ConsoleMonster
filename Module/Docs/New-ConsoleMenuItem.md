@@ -360,7 +360,7 @@ Accept wildcard characters: False
 ```
 
 ### -Presets
-Makes the item list the menu's saved presets (Enter applies one, Delete removes it).
+Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).
 
 ```yaml
 Type: SwitchParameter

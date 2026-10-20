@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Management.Automation;
 using ConsoleMonster.Interactive;
@@ -6,7 +7,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates the result a menu run returns: a title, a status, a summary, figures and next actions.</para>
-    /// <para type="description">Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -Status takes the shared status vocabulary (default Pass).</para>
+    /// <para type="description">Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.</para>
     /// </summary>
     /// <example>
     ///   <para>A backup run that reports what it did</para>
@@ -21,6 +22,10 @@ namespace ConsoleMonster.PowerShell {
     ///         }
     ///     })
     /// }</code>
+    /// </example>
+    /// <example>
+    ///   <para>Coloured figures</para>
+    ///   <code>New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; failed = 0 }) -FigureStatus @{ passed = 'Pass'; warnings = 'Warn' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRunResult")]
     [OutputType(typeof(RunResult))]
@@ -47,6 +52,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public IDictionary? Next { get; set; }
 
+        /// <summary><para type="description">The status of figures that need attention, by label: their numbers take the status colour (Pass, Warn, Fail...). Figures not named stay neutral.</para></summary>
+        [Parameter]
+        public IDictionary? FigureStatus { get; set; }
+
+        /// <summary><para type="description">How long the run took, shown with the result and kept in the history (a TimeSpan, seconds, or a number with a unit such as 86s). Default: the time on the run's session clock, which is real time, or the simulated clock's time when the run was given one (New-ConsoleClock).</para></summary>
+        [Parameter]
+        [Binding.TimeSpanTransformation]
+        public TimeSpan? Elapsed { get; set; }
+
         /// <summary><para type="description">A widget with details under the figures (for example a table of what changed).</para></summary>
         [Parameter]
         public Layout.IWidget? Details { get; set; }
@@ -54,9 +68,21 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             RunResult result = new RunResult(Title, Status) { Summary = Summary, Details = Details };
+            if (Elapsed.HasValue) {
+                result.Elapsed = Elapsed.Value;
+            }
             if (Figure != null) {
                 foreach (DictionaryEntry entry in Figure) {
-                    result.Figure(PSWidgets.ToText(entry.Key), PSWidgets.ToText(entry.Value));
+                    string label = PSWidgets.ToText(entry.Key);
+                    object? status = FigureStatus == null ? null : FindStatus(FigureStatus, label);
+                    if (status == null) {
+                        result.Figure(label, PSWidgets.ToText(entry.Value));
+                    } else if (Binding.StatusArguments.TryParse(status, out StatusKind kind)) {
+                        result.Figure(label, PSWidgets.ToText(entry.Value), kind);
+                    } else {
+                        ThrowTerminatingError(new ErrorRecord(new PSArgumentException("'" + PSWidgets.ToText(status) + "' is not a status. Use one of: " + string.Join(", ", StatusKinds.Words) + "."), "ConsoleMonsterRunResultFigureStatus", ErrorCategory.InvalidArgument, label));
+                        return;
+                    }
                 }
             }
             if (Next != null) {
@@ -69,6 +95,15 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             WriteObject(result);
+        }
+
+        private static object? FindStatus(IDictionary statuses, string label) {
+            foreach (DictionaryEntry entry in statuses) {
+                if (string.Equals(PSWidgets.ToText(entry.Key), label, StringComparison.OrdinalIgnoreCase)) {
+                    return PSText.Unwrap(entry.Value);
+                }
+            }
+            return null;
         }
     }
 }

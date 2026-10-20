@@ -202,6 +202,64 @@ try { Read-ConsoleSelection 'Pick' -Choices 'a', 'b' -ErrorAction Stop } catch {
             $text | Should -Match 'id=PromptCancelled'
         }
 
+        It 'applies a built-in menu preset from the presets list and shows it in the review command' {
+            # A fixed screen captured in memory: the preset list with its preview, then the form's review with the command.
+            $text = Invoke-PromptChild -Script @'
+$keys = [ConsoleMonster.Input.ScriptedInput]::new('wait:200 Enter wait:200 Down wait:200 Enter wait:200 Escape wait:200 Down wait:200 Enter wait:200 PageDown wait:400'); $keys.RealTime = $true
+$options = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$options.Input = $keys; $options.Mode = 'Rich'
+$capture = [ConsoleMonster.Interactive.ScreenCapture]::new(120, 30, $false); $options.Capture = $capture
+$options.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(120, 30, 'TrueColor', 'Full')
+$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Default 'Daily' -Parameter Target
+    New-ConsoleField Copies 'Copies' -Type Number -Integer -Default 1 -Parameter Copies
+}
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuPreset 'Quick' -Form $form -Values @{ Copies = 2 } -Preview 'quick preview'
+    New-ConsoleMenuPreset 'Sunday' -Form $form -Values @{ Target = 'Weekly'; Copies = 4 } -Preview { New-ConsoleText 'sunday preview' }
+    New-ConsoleMenuItem 'Presets' -Presets
+    New-ConsoleMenuItem 'Back up' -Form $form
+    New-ConsoleMenuItem 'Quit' -Exit
+}
+# The keys end on the review, which ends the menu with an input error.
+try { Show-ConsoleMenu $menu -Layout Shell -StorageRoot ([IO.Path]::GetTempPath()) -ErrorAction Stop } catch { 'ended=' + $_.FullyQualifiedErrorId.Split(',')[0] }
+$frames = @($capture.Frames | ForEach-Object { $_.ToPlainText() })
+foreach ($phrase in 'built in', 'sunday preview', "Preset 'Sunday' applied", 'Start-AppBackup -Target Weekly -Copies 4') {
+    if ($frames | Where-Object { $_.Contains($phrase) }) { "saw=$phrase" } else { "missing=$phrase" }
+}
+'@
+            $text | Should -Match 'saw=built in'
+            $text | Should -Match 'saw=sunday preview'
+            $text | Should -Match "saw=Preset 'Sunday' applied"
+            $text | Should -Match 'saw=Start-AppBackup -Target Weekly -Copies 4'
+        }
+
+        It 'runs a menu run on a simulated clock whose result takes the clock''s time' {
+            $text = Invoke-PromptChild -Script @'
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('r q')
+$script:result = $null
+$menu = New-ConsoleMenu 'Tool' {
+    New-ConsoleMenuItem 'Run' -Hotkey r -Action {
+        $clock = New-ConsoleClock -Speed 0
+        $dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsoleSummaryBar -Total 2; New-ConsoleActivityList -Name running }
+        $script:result = $MenuContext.Run($dashboard, {
+            Update-ConsoleActivity -Name running -Id 1 -Activity 'first check'
+            $clock.Wait(42)
+            Update-ConsoleSummaryBar -Done 2 -Counter @{ passed = 2 }
+            New-ConsoleRunResult 'Checks finished'
+        }, $clock)
+    }
+    New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
+}
+Show-ConsoleMenu $menu -Layout Inline
+"elapsed=$($script:result.Elapsed) status=$($script:result.Status)"
+'@
+            # The result was given no -Elapsed: its time comes from the session clock, which is the simulated one.
+            $text | Should -Match 'elapsed=00:00:42 status=Pass'
+            # The printed result shows that time next to its title.
+            $text | Should -Match 'Checks finished\s+00:00:42'
+        }
+
         It 'runs a menu whose scriptblock actions see the script scope' {
             $text = Invoke-PromptChild -Script @'
 $script:log = [System.Collections.Generic.List[string]]::new()
@@ -214,6 +272,125 @@ Show-ConsoleMenu $menu -Layout Inline
 "log=$($script:log -join ';')"
 '@
             $text | Should -Match 'log=built Build'
+        }
+    }
+
+    Context 'Choices, presets, run results and clocks (no screen)' {
+        BeforeAll {
+            $script:Checks = @(
+                [pscustomobject] @{ Id = 'TimeOffset'; Name = 'Time offset'; Category = 'Identity'; Seconds = 0.8; Retired = $null }
+                [pscustomobject] @{ Id = 'FreeSpace'; Name = 'Free space'; Category = 'Storage'; Seconds = 1.3; Retired = 'replaced by Volume health' }
+                [pscustomobject] @{ Id = 'CertChain'; Name = 'Cert chain'; Category = 'Certificates'; Seconds = 3.5; Retired = $null }
+            )
+        }
+
+        It 'builds choices with a muted badge, a disabled reason, a selection and a command-line value that keeps the object''s properties' {
+            $field = New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Disabled Retired -Selected { $_.Id -eq 'CertChain' } -Parameter Check
+            $choices = @($field.Choices)
+            ($choices | ForEach-Object Title) -join ',' | Should -Be 'Time offset,Free space,Cert chain'
+            ($choices | ForEach-Object { [string] $_.Value }) -join ',' | Should -Be 'TimeOffset,FreeSpace,CertChain'
+            $choices[0].Value.Category | Should -Be 'Identity'
+            $choices[0].Badge.PlainText | Should -Be '~0.8 s'
+            $choices[0].Badge.ToMarkup() | Should -Match '(?i)muted'
+            $choices[1].DisabledReason | Should -Be 'replaced by Volume health'
+            $choices[0].DisabledReason | Should -BeNullOrEmpty
+            @($choices | Where-Object Selected).Title | Should -Be 'Cert chain'
+        }
+
+        It 'marks loaded choices with property names: badge, disabled reason and selection' {
+            $domain = New-ConsoleField Domain 'Domain' -Type Select -Choices 'corp.example.test' -Default 'corp.example.test' -Parameter Domain
+            $servers = New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+                param($Values)
+                [pscustomobject] @{ Name = 'SRV01'; Role = 'Web'; Offline = $null; Online = $true; Domain = $Values.Domain }
+                [pscustomobject] @{ Name = 'SRV02'; Role = 'File'; Offline = 'offline since 07:12'; Online = $false; Domain = $Values.Domain }
+            } -Display Name -CommandValue Name -Badge Role -Disabled Offline -Selected Online
+            $form = New-ConsoleForm 'Fleet' -Field $domain, $servers
+            $loaded = @($servers.Loader.Invoke($form.GetValues(), [System.Threading.CancellationToken]::None).GetAwaiter().GetResult())
+            $loaded.Count | Should -Be 2
+            $loaded[0].Badge.PlainText | Should -Be 'Web'
+            $loaded[0].Selected | Should -BeTrue
+            $loaded[1].Selected | Should -BeFalse
+            $loaded[1].DisabledReason | Should -Be 'offline since 07:12'
+            [string] $loaded[1].Value | Should -Be 'SRV02'
+            $loaded[1].Value.Domain | Should -Be 'corp.example.test'
+        }
+
+        It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {
+            $extra = New-ConsoleFormPreset 'Storage only' -Values @{ Checks = 'Free space' } -Description 'Only the storage check.'
+            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra {
+                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -Parameter Check
+                New-ConsoleField Parallel 'Servers at a time' -Type Number -Integer -Default 4 -Parameter ThrottleLimit
+                New-ConsoleFormPreset 'Nightly' -Values @{ Checks = 'TimeOffset', 'Cert chain'; Parallel = 8 } -Preview { 'two checks, eight at a time' }
+            }
+            ($form.Presets | ForEach-Object Name) -join ',' | Should -Be 'Storage only,Nightly'
+            $form.Presets[0].Description | Should -Be 'Only the storage check.'
+            $form.Presets[1].Preview | Should -Not -BeNullOrEmpty
+            # A title names its choice: the preset holds the choice's value.
+            (@($form.Presets[1].Values['Checks']) | ForEach-Object { [string] $_ }) -join ',' | Should -Be 'TimeOffset,CertChain'
+            Set-ConsoleFormValue $form $form.Presets[1].Values
+            $form.BuildCommand() | Should -Be 'Invoke-FleetCheck -Check TimeOffset,CertChain -ThrottleLimit 8'
+        }
+
+        It 'sets form values from a hashtable or an earlier run and refuses anything else' {
+            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' {
+                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -Parameter Check
+                New-ConsoleField Notify 'Email the report' -Type Toggle -Parameter Notify
+            }
+            Set-ConsoleFormValue -Form $form -Value @{ Checks = @('Free space'); Notify = $true; Unknown = 1 }
+            $form.BuildCommand() | Should -Be 'Invoke-FleetCheck -Check FreeSpace -Notify'
+            $earlier = $form.GetValues()
+            Set-ConsoleFormValue $form @{ Checks = @(); Notify = $false }
+            $form.BuildCommand() | Should -Be 'Invoke-FleetCheck'
+            Set-ConsoleFormValue $form $earlier
+            $form.BuildCommand() | Should -Be 'Invoke-FleetCheck -Check FreeSpace -Notify'
+            { Set-ConsoleFormValue $form 'text' -ErrorAction Stop } | Should -Throw '*hashtable*'
+        }
+
+        It 'creates menu presets with form values, selections and a preview, and adds them to the menu' {
+            $form = New-ConsoleForm 'Fleet' { New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id }
+            $targets = New-ConsoleMenuItem 'Targets' -MultiSelect ([pscustomobject] @{ Name = 'SRV01' }), ([pscustomobject] @{ Name = 'SRV02' }) -Display Name
+            $first = New-ConsoleMenuPreset 'First' -Form $form -Values @{ Checks = 'Time offset' } -Item $targets -Selection 'SRV02' -Description 'The first wave.' -Preview { New-ConsoleText 'preview' }
+            $first.Description | Should -Be 'The first wave.'
+            $first.Preview | Should -Not -BeNullOrEmpty
+            $second = New-ConsoleMenuPreset 'Second' -Form $form -Values @{ Checks = 'FreeSpace' }
+            $menu = New-ConsoleMenu 'Fleet' -Item $targets -Preset $first {
+                $second
+                New-ConsoleMenuItem 'Presets' -Presets
+            }
+            ($menu.Presets | ForEach-Object Name) -join ',' | Should -Be 'First,Second'
+            $menu.Items.Count | Should -Be 2
+            { New-ConsoleMenuPreset 'Broken' -Values @{ Checks = 'x' } -ErrorAction Stop } | Should -Throw '*-Form*'
+            { New-ConsoleMenuPreset 'Broken' -Selection 'x' -ErrorAction Stop } | Should -Throw '*-Item*'
+        }
+
+        It 'colours run result figures by status and keeps a given elapsed time' {
+            $result = New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; servers = 11 }) -FigureStatus @{ passed = 'Success'; Warnings = 'Warn' } -Elapsed 86s
+            $result.Elapsed | Should -Be ([timespan]::FromSeconds(86))
+            ($result.Figures | ForEach-Object Key) -join ',' | Should -Be 'passed,warnings,servers'
+            $result.FigureStatus['passed'] | Should -Be 'Pass'
+            $result.FigureStatus['warnings'] | Should -Be 'Warn'
+            $result.FigureStatus.ContainsKey('servers') | Should -BeFalse
+            (New-ConsoleRunResult 'Real time').Elapsed | Should -Be ([timespan]::Zero)
+            { New-ConsoleRunResult 'Bad' -Figure @{ failed = 1 } -FigureStatus @{ failed = 'Purple' } -ErrorAction Stop } | Should -Throw '*not a status*'
+        }
+
+        It 'moves a simulated clock without sleeping at speed 0, paces it at a speed, and converts it to session options' {
+            $clock = New-ConsoleClock -Speed 0
+            $watch = [System.Diagnostics.Stopwatch]::StartNew()
+            $clock.Wait(90)
+            $clock.Advance(1.5)
+            $clock.WaitUntil(10)
+            $clock.Hold(5)
+            $watch.ElapsedMilliseconds | Should -BeLessThan 1000
+            $clock.Elapsed | Should -Be ([timespan]::FromSeconds(91.5))
+            "$clock" | Should -Be '00:01:31'
+            $options = [ConsoleMonster.Live.LiveSessionOptions] $clock
+            $options.Clock.Invoke() | Should -Be ([timespan]::FromSeconds(91.5))
+            $paced = New-ConsoleClock -Speed 20
+            $watch.Restart()
+            $paced.Wait(4)
+            $watch.ElapsedMilliseconds | Should -BeGreaterOrEqual 150
+            $paced.Seconds | Should -Be 4
         }
     }
 }

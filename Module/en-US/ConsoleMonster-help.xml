@@ -4763,6 +4763,158 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleActivityList</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleActivityList</command:noun>
+      <maml:description>
+        <maml:para>Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.</maml:para>
+        <maml:para>Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-ConsoleActivity from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Start-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.</maml:para>
+      <maml:para>Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-ConsoleActivity from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Start-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleActivityList</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>MaxVisible</maml:name>
+          <maml:description>
+            <maml:para>The most activities shown (default 8); more are summed up in one line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The live name used by Update-ConsoleActivity (default $progress, where Write-Progress also goes in Start-ConsoleDashboard).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoElapsed</maml:name>
+          <maml:description>
+            <maml:para>Leaves out the time each activity has taken at the end of its row.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ShowIds</maml:name>
+          <maml:description>
+            <maml:para>Starts each row with the activity's id (#3), for parallel work.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>MaxVisible</maml:name>
+        <maml:description>
+          <maml:para>The most activities shown (default 8); more are summed up in one line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The live name used by Update-ConsoleActivity (default $progress, where Write-Progress also goes in Start-ConsoleDashboard).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoElapsed</maml:name>
+        <maml:description>
+          <maml:para>Leaves out the time each activity has taken at the end of its row.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ShowIds</maml:name>
+        <maml:description>
+          <maml:para>Starts each row with the activity's id (#3), for parallel work.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.ActivityList</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsolePanel -Title 'Running' { New-ConsoleActivityList -Name running -MaxVisible 4 } }&#xD;
+Start-ConsoleDashboard $dashboard {&#xD;
+    Update-ConsoleActivity -Name running -Id 1 -Activity 'SRV01 · Free space'&#xD;
+    Start-Sleep -Seconds 1&#xD;
+    Update-ConsoleActivity -Name running -Id 1 -Complete&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>The checks running on four workers</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleAlign</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleAlign</command:noun>
@@ -5605,20 +5757,44 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       <command:noun>ConsoleCellMap</command:noun>
       <maml:description>
         <maml:para>Creates a cell map: one status symbol per item of a run, with a legend of counts.</maml:para>
-        <maml:para>The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. To add cells later, pipe the map to Add-ConsoleItem.</maml:para>
+        <maml:para>The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-ConsoleCell.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a cell map: one status symbol per item of a run, with a legend of counts.</maml:para>
-      <maml:para>The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. To add cells later, pipe the map to Add-ConsoleItem.</maml:para>
+      <maml:para>The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-ConsoleCell.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleCellMap</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Columns</maml:name>
+          <maml:description>
+            <maml:para>The cells per row (0 = as many as fit). Set it to draw a grid, such as one row per server and one column per check; cells past the width are cut off rather than moved to the next row.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Count</maml:name>
           <maml:description>
             <maml:para>The total number of items; cells beyond the given states are pending.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>LegendLines</maml:name>
+          <maml:description>
+            <maml:para>The most lines the legend wraps onto when it is wider than the map (default 1: it is cut off instead).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -5663,6 +5839,18 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RowLabels</maml:name>
+          <maml:description>
+            <maml:para>Labels drawn muted before the rows, one per row in order; the cells start after the widest label. With -Columns they make a labelled grid with one legend below it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Status</maml:name>
           <maml:description>
@@ -5679,9 +5867,33 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Columns</maml:name>
+        <maml:description>
+          <maml:para>The cells per row (0 = as many as fit). Set it to draw a grid, such as one row per server and one column per check; cells past the width are cut off rather than moved to the next row.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Count</maml:name>
         <maml:description>
           <maml:para>The total number of items; cells beyond the given states are pending.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>LegendLines</maml:name>
+        <maml:description>
+          <maml:para>The most lines the legend wraps onto when it is wider than the map (default 1: it is cut off instead).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -5722,6 +5934,18 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>RowLabels</maml:name>
+        <maml:description>
+          <maml:para>Labels drawn muted before the rows, one per row in order; the cells start after the widest label. With -Columns they make a labelled grid with one legend below it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -5772,6 +5996,13 @@ New-ConsoleCellMap -Status $states -Count 40 | Write-ConsoleWidget</dev:code>
         <dev:code>$results | ForEach-Object Result | New-ConsoleCellMap | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>States from objects</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>New-ConsoleCellMap -Name checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Write-ConsoleWidget</dev:code>
+        <dev:remarks>
+          <maml:para>A grid of three servers by four checks, with the server names beside the rows</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -5970,21 +6201,130 @@ New-ConsoleLineChart -Height 7 {&#xD;
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleClock</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleClock</command:noun>
+      <maml:description>
+        <maml:para>Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.</maml:para>
+        <maml:para>A live session reads the clock for the header clock, the summary bar's elapsed time and time left, the times of log lines and activities, and the run result's duration, so a demo or a replay of logged work shows its own time instead of the wall clock. Give it to a menu run as the third argument of $MenuContext.Run($dashboard, { ... }, $clock), or to Start-ConsoleDashboard -Clock. In the script, $clock.Wait(seconds) and $clock.WaitUntil(seconds) move it forward in small steps, sleeping 1/-Speed of each simulated second (never at speed 0, which runs at once); $clock.Advance(seconds) jumps without waiting and $clock.Hold(seconds) waits real time with the clock standing still. $clock.Elapsed is the time on the clock. Once the dashboard is stopped (Ctrl+C) waits stop sleeping, so the script reaches its end at once.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.</maml:para>
+      <maml:para>A live session reads the clock for the header clock, the summary bar's elapsed time and time left, the times of log lines and activities, and the run result's duration, so a demo or a replay of logged work shows its own time instead of the wall clock. Give it to a menu run as the third argument of $MenuContext.Run($dashboard, { ... }, $clock), or to Start-ConsoleDashboard -Clock. In the script, $clock.Wait(seconds) and $clock.WaitUntil(seconds) move it forward in small steps, sleeping 1/-Speed of each simulated second (never at speed 0, which runs at once); $clock.Advance(seconds) jumps without waiting and $clock.Hold(seconds) waits real time with the clock standing still. $clock.Elapsed is the time on the clock. Once the dashboard is stopped (Ctrl+C) waits stop sleeping, so the script reaches its end at once.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleClock</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Speed</maml:name>
+          <maml:description>
+            <maml:para>Simulated seconds per real second while the script waits (default 1, real time); 0 never sleeps.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Speed</maml:name>
+        <maml:description>
+          <maml:para>Simulated seconds per real second while the script waits (default 1, real time); 0 never sleeps.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Live.SimulatedClock</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleMenuItem 'Run checks' -Action {&#xD;
+    $clock = New-ConsoleClock -Speed 7&#xD;
+    $dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsoleSummaryBar -Total 3; New-ConsoleLog -Height 5 }&#xD;
+    $null = $MenuContext.Run($dashboard, {&#xD;
+        foreach ($done in 1..3) {&#xD;
+            $clock.Wait(4.5)&#xD;
+            Update-ConsoleSummaryBar -Done $done -Counter @{ passed = $done }&#xD;
+            Write-ConsoleLog "Check $done passed"&#xD;
+        }&#xD;
+        New-ConsoleRunResult 'Checks finished'&#xD;
+    }, $clock)&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A menu run on a simulated clock seven times faster than real time</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$clock = New-ConsoleClock -Speed 10&#xD;
+Start-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {&#xD;
+    param($Clock, $Entries)&#xD;
+    foreach ($entry in $Entries) { $Clock.WaitUntil($entry.Seconds); Write-ConsoleLog $entry.Text }&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A dashboard replaying logged work at its recorded pace, ten times faster</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleColumns</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleColumns</command:noun>
       <maml:description>
         <maml:para>Places console widgets side by side.</maml:para>
-        <maml:para>Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.</maml:para>
+        <maml:para>Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Places console widgets side by side.</maml:para>
-      <maml:para>Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.</maml:para>
+      <maml:para>Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleColumns</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CollapseBelow</maml:name>
+          <maml:description>
+            <maml:para>The width in cells below which the columns stack vertically (default: the sum of the children's minimum widths, counting 16 cells for each shared column).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Content</maml:name>
           <maml:description>
@@ -6005,6 +6345,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FixedWidth</maml:name>
+          <maml:description>
+            <maml:para>Fixed widths in cells, one per child in order; 0 (or no entry) keeps the child's share of the width (-Weight).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32[]</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -6036,6 +6388,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>CollapseBelow</maml:name>
+        <maml:description>
+          <maml:para>The width in cells below which the columns stack vertically (default: the sum of the children's minimum widths, counting 16 cells for each shared column).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Content</maml:name>
         <maml:description>
@@ -6056,6 +6420,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FixedWidth</maml:name>
+        <maml:description>
+          <maml:para>Fixed widths in cells, one per child in order; 0 (or no entry) keeps the child's share of the width (-Weight).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -6110,6 +6486,17 @@ New-ConsoleLineChart -Height 7 {&#xD;
         <dev:code>New-ConsoleColumns { New-ConsolePanel -Title 'Steps' -Weight 2 { New-ConsoleStatusList -Name steps }; New-ConsolePanel -Title 'Info' { New-ConsoleKeyValue -Name info } }</dev:code>
         <dev:remarks>
           <maml:para>Two panels, the first twice as wide</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 {&#xD;
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check' }&#xD;
+    New-ConsolePanel -Title 'Slowest' { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Took' }&#xD;
+    New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8 -Height 5 }&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -6317,12 +6704,12 @@ New-ConsoleLineChart -Height 7 {&#xD;
       <command:noun>ConsoleField</command:noun>
       <maml:description>
         <maml:para>Creates a form field for New-ConsoleForm.</maml:para>
-        <maml:para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).</maml:para>
+        <maml:para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a form field for New-ConsoleForm.</maml:para>
-      <maml:para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).</maml:para>
+      <maml:para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -6335,6 +6722,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
           <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
           <dev:type>
             <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Badge</maml:name>
+          <maml:description>
+            <maml:para>Short muted text at the right of a choice ("~2 s", "Web"): a property name or a scriptblock. Rich text keeps its own style.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -6359,6 +6758,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>CommandValue</maml:name>
+          <maml:description>
+            <maml:para>The value of a choice: the text the equivalent command shows and the field returns, a property name or a scriptblock. The returned text keeps the choice object's properties, so $_.Name still works in -Preview and in the submitted values; presets and remembered choices store the text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -6391,6 +6802,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
           <maml:name>Describe</maml:name>
           <maml:description>
             <maml:para>A sentence for the focused choice: a property name or a scriptblock.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Disabled</maml:name>
+          <maml:description>
+            <maml:para>Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -6717,6 +7140,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Selected</maml:name>
+          <maml:description>
+            <maml:para>Whether a choice starts selected: a property name or a scriptblock returning $true. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Step</maml:name>
           <maml:description>
             <maml:para>The step of a number field.</maml:para>
@@ -6789,6 +7224,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Badge</maml:name>
+        <maml:description>
+          <maml:para>Short muted text at the right of a choice ("~2 s", "Web"): a property name or a scriptblock. Rich text keeps its own style.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Choices</maml:name>
         <maml:description>
@@ -6809,6 +7256,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>CommandValue</maml:name>
+        <maml:description>
+          <maml:para>The value of a choice: the text the equivalent command shows and the field returns, a property name or a scriptblock. The returned text keeps the choice object's properties, so $_.Name still works in -Preview and in the submitted values; presets and remembered choices store the text.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -6841,6 +7300,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
         <maml:name>Describe</maml:name>
         <maml:description>
           <maml:para>A sentence for the focused choice: a property name or a scriptblock.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Disabled</maml:name>
+        <maml:description>
+          <maml:para>Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -7167,6 +7638,18 @@ New-ConsoleLineChart -Height 7 {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Selected</maml:name>
+        <maml:description>
+          <maml:para>Whether a choice starts selected: a property name or a scriptblock returning $true. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Step</maml:name>
         <maml:description>
           <maml:para>The step of a number field.</maml:para>
@@ -7261,6 +7744,25 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
           <maml:para>A conditional field</maml:para>
         </dev:remarks>
       </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {&#xD;
+    param($Values)&#xD;
+    Get-AppServer -Domain $Values.Domain | ForEach-Object {&#xD;
+        [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }&#xD;
+    }&#xD;
+} -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online</dev:code>
+        <dev:remarks>
+          <maml:para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Parameter Check</dev:code>
+        <dev:remarks>
+          <maml:para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</maml:para>
+        </dev:remarks>
+      </command:example>
     </command:examples>
     <command:relatedLinks />
   </command:command>
@@ -7271,12 +7773,12 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
       <command:noun>ConsoleForm</command:noun>
       <maml:description>
         <maml:para>Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</maml:para>
-        <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.</maml:para>
+        <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</maml:para>
-      <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.</maml:para>
+      <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -7354,6 +7856,18 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preset</maml:name>
+          <maml:description>
+            <maml:para>Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">FormPreset[]</command:parameterValue>
+          <dev:type>
+            <maml:name>FormPreset[]</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -7474,6 +7988,18 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preset</maml:name>
+        <maml:description>
+          <maml:para>Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">FormPreset[]</command:parameterValue>
+        <dev:type>
+          <maml:name>FormPreset[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>StorageKey</maml:name>
         <maml:description>
@@ -7540,6 +8066,170 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
 }</dev:code>
         <dev:remarks>
           <maml:para>A two-page wizard</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {&#xD;
+    New-ConsoleField Name 'Share name' -Required -Parameter Name&#xD;
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly&#xD;
+    New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A form that comes with a preset</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleFormPreset</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFormPreset</command:noun>
+      <maml:description>
+        <maml:para>Creates a preset a form comes with: field values under one name, with a description and a preview.</maml:para>
+        <maml:para>Give the presets to New-ConsoleForm (-Preset, or emit them in its scriptblock next to the fields). They are listed before the presets people save, marked as built in, and cannot be overwritten or deleted; applying one (Read-ConsoleForm -Preset, or the menu's command palette) sets the fields it names the way a saved preset does. -Values maps field names to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice, and a value for a field whose choices load is chosen once they arrive.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a preset a form comes with: field values under one name, with a description and a preview.</maml:para>
+      <maml:para>Give the presets to New-ConsoleForm (-Preset, or emit them in its scriptblock next to the fields). They are listed before the presets people save, marked as built in, and cannot be overwritten or deleted; applying one (Read-ConsoleForm -Preset, or the menu's command palette) sets the fields it names the way a saved preset does. -Values maps field names to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice, and a value for a field whose choices load is chosen once they arrive.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFormPreset</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Description</maml:name>
+          <maml:description>
+            <maml:para>A sentence about the preset, shown with it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The name; a preset people save cannot take it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preview</maml:name>
+          <maml:description>
+            <maml:para>Content describing what the preset fills in, for lists that preview a preset while it has focus: a scriptblock run once now, widgets, text (markup) or objects (as a list).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Values</maml:name>
+          <maml:description>
+            <maml:para>Field values by field name (ignoring case): a string, a number, a bool, or a list for a multi-choice field.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Description</maml:name>
+        <maml:description>
+          <maml:para>A sentence about the preset, shown with it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The name; a preset people save cannot take it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preview</maml:name>
+        <maml:description>
+          <maml:para>Content describing what the preset fills in, for lists that preview a preset while it has focus: a scriptblock run once now, widgets, text (markup) or objects (as a list).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Values</maml:name>
+        <maml:description>
+          <maml:para>Field values by field name (ignoring case): a string, a number, a bool, or a list for a multi-choice field.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.FormPreset</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$form = New-ConsoleForm 'Report' -Command 'Export-AppReport' {&#xD;
+    New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -Parameter Period&#xD;
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -Parameter Path&#xD;
+    New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week'; Path = 'D:\Reports\Weekly' } -Description 'Every Monday.'&#xD;
+    New-ConsoleFormPreset 'Monthly' -Values @{ Period = 'Month'; Path = 'D:\Reports\Monthly' }&#xD;
+}&#xD;
+Read-ConsoleForm $form -Preset Weekly</dev:code>
+        <dev:remarks>
+          <maml:para>A form with two built-in presets</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -9256,12 +9946,12 @@ New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'lat
       <command:noun>ConsoleLiveTable</command:noun>
       <maml:description>
         <maml:para>Creates a table whose rows change while a dashboard runs.</maml:para>
-        <maml:para>Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.</maml:para>
+        <maml:para>Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Format-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a table whose rows change while a dashboard runs.</maml:para>
-      <maml:para>Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.</maml:para>
+      <maml:para>Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Format-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -9288,11 +9978,11 @@ New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'lat
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Column</maml:name>
           <maml:description>
-            <maml:para>The column headers, in order.</maml:para>
+            <maml:para>The columns, in order: header texts, or hashtables with Name (the header) and the column options of Format-ConsoleTable, such as Alignment (Right for numbers and times), Width, MinWidth, MaxWidth, Flexible (takes the spare width), Overflow, Presenter and Markup (string values are markup, [fail]9 days[/]).</maml:para>
           </maml:description>
-          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
           <dev:type>
-            <maml:name>String[]</maml:name>
+            <maml:name>Object[]</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -9394,11 +10084,11 @@ New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'lat
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Column</maml:name>
         <maml:description>
-          <maml:para>The column headers, in order.</maml:para>
+          <maml:para>The columns, in order: header texts, or hashtables with Name (the header) and the column options of Format-ConsoleTable, such as Alignment (Right for numbers and times), Width, MinWidth, MaxWidth, Flexible (takes the spare width), Overflow, Presenter and Markup (string values are markup, [fail]9 days[/]).</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
         <dev:type>
-          <maml:name>String[]</maml:name>
+          <maml:name>Object[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -9501,6 +10191,14 @@ New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'lat
         <dev:code>New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Duration' -MaxRows 20</dev:code>
         <dev:remarks>
           <maml:para>The 20 most recent jobs, newest state first</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal&#xD;
+New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual'; Flexible = $true; Markup = $true } -MaxRows 5</dev:code>
+        <dev:remarks>
+          <maml:para>The slowest checks with a right-aligned time, and failures whose last column takes the spare width and reads markup</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -10061,12 +10759,12 @@ New-ConsoleLog {&#xD;
       <command:noun>ConsoleMenu</command:noun>
       <maml:description>
         <maml:para>Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.</maml:para>
-        <maml:para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.</maml:para>
+        <maml:para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenuPreset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.</maml:para>
-      <maml:para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.</maml:para>
+      <maml:para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenuPreset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -10074,7 +10772,7 @@ New-ConsoleLog {&#xD;
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
           <maml:name>Content</maml:name>
           <maml:description>
-            <maml:para>A scriptblock whose New-ConsoleMenuItem output becomes the items.</maml:para>
+            <maml:para>A scriptblock whose New-ConsoleMenuItem output becomes the items (and New-ConsoleMenuPreset output the built-in presets).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
           <dev:type>
@@ -10125,6 +10823,18 @@ New-ConsoleLog {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preset</maml:name>
+          <maml:description>
+            <maml:para>Presets the app comes with (New-ConsoleMenuPreset), listed before the saved ones by a -Presets item.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">MenuPreset[]</command:parameterValue>
+          <dev:type>
+            <maml:name>MenuPreset[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Subtitle</maml:name>
           <maml:description>
@@ -10155,7 +10865,7 @@ New-ConsoleLog {&#xD;
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
         <maml:name>Content</maml:name>
         <maml:description>
-          <maml:para>A scriptblock whose New-ConsoleMenuItem output becomes the items.</maml:para>
+          <maml:para>A scriptblock whose New-ConsoleMenuItem output becomes the items (and New-ConsoleMenuPreset output the built-in presets).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         <dev:type>
@@ -10202,6 +10912,18 @@ New-ConsoleLog {&#xD;
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>MenuLayout</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preset</maml:name>
+        <maml:description>
+          <maml:para>Presets the app comes with (New-ConsoleMenuPreset), listed before the saved ones by a -Presets item.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">MenuPreset[]</command:parameterValue>
+        <dev:type>
+          <maml:name>MenuPreset[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -10261,6 +10983,19 @@ New-ConsoleLog {&#xD;
 Show-ConsoleMenu $menu -Layout Classic</dev:code>
         <dev:remarks>
           <maml:para>A small script menu</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$menu = New-ConsoleMenu 'Backup helper' {&#xD;
+    New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'&#xD;
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets&#xD;
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
+    New-ConsoleMenuItem -Exit&#xD;
+}&#xD;
+Show-ConsoleMenu $menu -Layout Shell</dev:code>
+        <dev:remarks>
+          <maml:para>An app with built-in presets for its form</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -10540,7 +11275,7 @@ Show-ConsoleMenu $menu -Layout Classic</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Presets</maml:name>
           <maml:description>
-            <maml:para>Makes the item list the menu's saved presets (Enter applies one, Delete removes it).</maml:para>
+            <maml:para>Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -10919,7 +11654,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Presets</maml:name>
         <maml:description>
-          <maml:para>Makes the item list the menu's saved presets (Enter applies one, Delete removes it).</maml:para>
+          <maml:para>Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -11071,6 +11806,246 @@ Description and RunText.</maml:para>
         <dev:code>New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }</dev:code>
         <dev:remarks>
           <maml:para>An action that asks first and shows a toast</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleMenuPreset</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleMenuPreset</command:noun>
+      <maml:description>
+        <maml:para>Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.</maml:para>
+        <maml:para>Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) and add a New-ConsoleMenuItem -Presets item: it lists them first, marked as built in, before the presets people save; they cannot be overwritten or deleted. Applying one sets the values it names and keeps the rest. -Form with -Values fills in a form opened from the menu (a list for a multi-choice field; a value for a field whose choices load is chosen once they arrive). -Item with -Selection selects values in a selection item. -Preview is shown beside the list while the preset has focus: a scriptblock (run once, now), widgets, text or objects.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.</maml:para>
+      <maml:para>Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) and add a New-ConsoleMenuItem -Presets item: it lists them first, marked as built in, before the presets people save; they cannot be overwritten or deleted. Applying one sets the values it names and keeps the rest. -Form with -Values fills in a form opened from the menu (a list for a multi-choice field; a value for a field whose choices load is chosen once they arrive). -Item with -Selection selects values in a selection item. -Preview is shown beside the list while the preset has focus: a scriptblock (run once, now), widgets, text or objects.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleMenuPreset</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Description</maml:name>
+          <maml:description>
+            <maml:para>A sentence shown while the preset has focus in the list.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Form</maml:name>
+          <maml:description>
+            <maml:para>A form opened from the menu whose fields the preset fills in (with -Values).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Form</command:parameterValue>
+          <dev:type>
+            <maml:name>Form</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Item</maml:name>
+          <maml:description>
+            <maml:para>A selection item of the menu (New-ConsoleMenuItem -Select or -MultiSelect) whose values the preset selects (with -Selection).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">MenuItem</command:parameterValue>
+          <dev:type>
+            <maml:name>MenuItem</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The name; a preset people save cannot take it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preview</maml:name>
+          <maml:description>
+            <maml:para>Content shown beside the list (below it when narrow) while the preset has focus: a scriptblock run once now, widgets, text (markup) or objects (as a list).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Selection</maml:name>
+          <maml:description>
+            <maml:para>The values to select in -Item: the choice objects or their texts; values the item does not offer are skipped.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Values</maml:name>
+          <maml:description>
+            <maml:para>The values for -Form by field name: a string, a number, a bool, or a list for a multi-choice field. Values that name a choice (the object, its title or its text) take that choice.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Description</maml:name>
+        <maml:description>
+          <maml:para>A sentence shown while the preset has focus in the list.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Form</maml:name>
+        <maml:description>
+          <maml:para>A form opened from the menu whose fields the preset fills in (with -Values).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Form</command:parameterValue>
+        <dev:type>
+          <maml:name>Form</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Item</maml:name>
+        <maml:description>
+          <maml:para>A selection item of the menu (New-ConsoleMenuItem -Select or -MultiSelect) whose values the preset selects (with -Selection).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">MenuItem</command:parameterValue>
+        <dev:type>
+          <maml:name>MenuItem</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The name; a preset people save cannot take it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preview</maml:name>
+        <maml:description>
+          <maml:para>Content shown beside the list (below it when narrow) while the preset has focus: a scriptblock run once now, widgets, text (markup) or objects (as a list).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Selection</maml:name>
+        <maml:description>
+          <maml:para>The values to select in -Item: the choice objects or their texts; values the item does not offer are skipped.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Values</maml:name>
+        <maml:description>
+          <maml:para>The values for -Form by field name: a string, a number, a bool, or a list for a multi-choice field. Values that name a choice (the object, its title or its text) take that choice.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.MenuPreset</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {&#xD;
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target&#xD;
+    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress&#xD;
+}&#xD;
+$menu = New-ConsoleMenu 'Backup helper' {&#xD;
+    New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {&#xD;
+        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })&#xD;
+    }&#xD;
+    New-ConsoleMenuItem 'Presets' -Presets&#xD;
+    New-ConsoleMenuItem 'Back up' -Form $form&#xD;
+    New-ConsoleMenuItem -Exit&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A preset that fills in a form, with what it sets as the preview</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'&#xD;
+$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {&#xD;
+    New-ConsoleMenuItem 'Presets' -Presets&#xD;
+}</dev:code>
+        <dev:remarks>
+          <maml:para>A preset that selects servers in a selection item</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -12462,12 +13437,12 @@ Description and RunText.</maml:para>
       <command:noun>ConsoleRunResult</command:noun>
       <maml:description>
         <maml:para>Creates the result a menu run returns: a title, a status, a summary, figures and next actions.</maml:para>
-        <maml:para>Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -Status takes the shared status vocabulary (default Pass).</maml:para>
+        <maml:para>Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates the result a menu run returns: a title, a status, a summary, figures and next actions.</maml:para>
-      <maml:para>Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -Status takes the shared status vocabulary (default Pass).</maml:para>
+      <maml:para>Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -12485,9 +13460,33 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Elapsed</maml:name>
+          <maml:description>
+            <maml:para>How long the run took, shown with the result and kept in the history (a TimeSpan, seconds, or a number with a unit such as 86s). Default: the time on the run's session clock, which is real time, or the simulated clock's time when the run was given one (New-ConsoleClock).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+          <dev:type>
+            <maml:name>TimeSpan</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Figure</maml:name>
           <maml:description>
             <maml:para>Figures: labels mapped to values, shown large (use [ordered] to keep order).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FigureStatus</maml:name>
+          <maml:description>
+            <maml:para>The status of figures that need attention, by label: their numbers take the status colour (Pass, Warn, Fail...). Figures not named stay neutral.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
           <dev:type>
@@ -12569,9 +13568,33 @@ Description and RunText.</maml:para>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Elapsed</maml:name>
+        <maml:description>
+          <maml:para>How long the run took, shown with the result and kept in the history (a TimeSpan, seconds, or a number with a unit such as 86s). Default: the time on the run's session clock, which is real time, or the simulated clock's time when the run was given one (New-ConsoleClock).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>TimeSpan</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Figure</maml:name>
         <maml:description>
           <maml:para>Figures: labels mapped to values, shown large (use [ordered] to keep order).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FigureStatus</maml:name>
+        <maml:description>
+          <maml:para>The status of figures that need attention, by label: their numbers take the status colour (Pass, Warn, Fail...). Figures not named stay neutral.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
         <dev:type>
@@ -12672,6 +13695,13 @@ Description and RunText.</maml:para>
 }</dev:code>
         <dev:remarks>
           <maml:para>A backup run that reports what it did</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; failed = 0 }) -FigureStatus @{ passed = 'Pass'; warnings = 'Warn' }</dev:code>
+        <dev:remarks>
+          <maml:para>Coloured figures</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -15729,7 +16759,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Preset</maml:name>
           <maml:description>
-            <maml:para>A saved preset to apply first.</maml:para>
+            <maml:para>A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -15846,7 +16876,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Preset</maml:name>
         <maml:description>
-          <maml:para>A saved preset to apply first.</maml:para>
+          <maml:para>A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -18659,6 +19689,108 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Set-ConsoleFormValue</command:name>
+      <command:verb>Set</command:verb>
+      <command:noun>ConsoleFormValue</command:noun>
+      <maml:description>
+        <maml:para>Sets field values of a form, whether or not it is shown.</maml:para>
+        <maml:para>Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Value maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Value also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Sets field values of a form, whether or not it is shown.</maml:para>
+      <maml:para>Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Value maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Value also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Set-ConsoleFormValue</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Form</maml:name>
+          <maml:description>
+            <maml:para>The form from New-ConsoleForm.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Form</command:parameterValue>
+          <dev:type>
+            <maml:name>Form</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
+          <maml:name>Value</maml:name>
+          <maml:description>
+            <maml:para>Values by field name (a hashtable), or the result of an earlier run of the form (a form result or its Values).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Form</maml:name>
+        <maml:description>
+          <maml:para>The form from New-ConsoleForm.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Form</command:parameterValue>
+        <dev:type>
+          <maml:name>Form</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
+        <maml:name>Value</maml:name>
+        <maml:description>
+          <maml:para>Values by field name (a hashtable), or the result of an earlier run of the form (a form result or its Values).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleMenuItem 'Use the lab' -Action { Set-ConsoleFormValue -Form $form -Value @{ Domain = 'lab.example.test'; Parallel = 2 }; $MenuContext.Toast('Lab values applied') }</dev:code>
+        <dev:remarks>
+          <maml:para>A menu action that fills in the form opened from another item</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>$last = Read-ConsoleForm $form -PassThru&#xD;
+Set-ConsoleFormValue $form $last&#xD;
+Read-ConsoleForm $form</dev:code>
+        <dev:remarks>
+          <maml:para>Start a form from the answers of its last run</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Set-ConsoleRegion</command:name>
       <command:verb>Set</command:verb>
       <command:noun>ConsoleRegion</command:noun>
@@ -20612,6 +21744,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Clock</maml:name>
+          <maml:description>
+            <maml:para>A run clock (New-ConsoleClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SimulatedClock</command:parameterValue>
+          <dev:type>
+            <maml:name>SimulatedClock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Dashboard</maml:name>
           <maml:description>
@@ -20767,6 +21911,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Clock</maml:name>
+        <maml:description>
+          <maml:para>A run clock (New-ConsoleClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SimulatedClock</command:parameterValue>
+        <dev:type>
+          <maml:name>SimulatedClock</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -21047,6 +22203,629 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:code>Start-ConsoleReplay -Dashboard $dashboard -Path .\run.jsonl -Speed 2</dev:code>
         <dev:remarks>
           <maml:para>Replay twice as fast</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Update-ConsoleActivity</command:name>
+      <command:verb>Update</command:verb>
+      <command:noun>ConsoleActivity</command:noun>
+      <maml:description>
+        <maml:para>Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.</maml:para>
+        <maml:para>-Id identifies the activity: a new id adds a row, an existing one updates it, and -Complete removes it (with the activities under it). -Activity is the title, -Status a short text after it, -Percent the share done (leave it out for work of unknown length, which spins) and -SecondsRemaining an estimate shown as time left. -ParentId indents the activity under another one. The time each activity has taken follows the session clock, so a simulated clock (New-ConsoleClock) drives it too. Safe to call from any runspace or thread.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.</maml:para>
+      <maml:para>-Id identifies the activity: a new id adds a row, an existing one updates it, and -Complete removes it (with the activities under it). -Activity is the title, -Status a short text after it, -Percent the share done (leave it out for work of unknown length, which spins) and -SecondsRemaining an estimate shown as time left. -ParentId indents the activity under another one. The time each activity has taken follows the session clock, so a simulated clock (New-ConsoleClock) drives it too. Safe to call from any runspace or thread.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="Update">
+        <maml:name>Update-ConsoleActivity</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Activity</maml:name>
+          <maml:description>
+            <maml:para>The title.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Id</maml:name>
+          <maml:description>
+            <maml:para>The activity id (a new id adds a row).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The activity list name (default $progress).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ParentId</maml:name>
+          <maml:description>
+            <maml:para>The id of the activity this one is indented under.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Percent</maml:name>
+          <maml:description>
+            <maml:para>The share done, 0 to 100; leave it out for work of unknown length (it spins).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>SecondsRemaining</maml:name>
+          <maml:description>
+            <maml:para>An estimate of the seconds left, shown as time left.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>A short text after the title ("retrying", "3 of 8").</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Complete">
+        <maml:name>Update-ConsoleActivity</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Complete</maml:name>
+          <maml:description>
+            <maml:para>Finishes the activity: its row (and the rows under it) disappear.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Id</maml:name>
+          <maml:description>
+            <maml:para>The activity id (a new id adds a row).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The activity list name (default $progress).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Activity</maml:name>
+        <maml:description>
+          <maml:para>The title.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Complete</maml:name>
+        <maml:description>
+          <maml:para>Finishes the activity: its row (and the rows under it) disappear.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Id</maml:name>
+        <maml:description>
+          <maml:para>The activity id (a new id adds a row).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The activity list name (default $progress).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ParentId</maml:name>
+        <maml:description>
+          <maml:para>The id of the activity this one is indented under.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Percent</maml:name>
+        <maml:description>
+          <maml:para>The share done, 0 to 100; leave it out for work of unknown length (it spins).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>SecondsRemaining</maml:name>
+        <maml:description>
+          <maml:para>An estimate of the seconds left, shown as time left.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>A short text after the title ("retrying", "3 of 8").</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Update-ConsoleActivity -Name running -Id 7 -Activity 'SRV01 · Cert chain'&#xD;
+Update-ConsoleActivity -Name running -Id 7 -Complete</dev:code>
+        <dev:remarks>
+          <maml:para>Show a check while it runs, then remove it</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>1..4 | ForEach-Object { Update-ConsoleActivity -Name running -Id 9000 -Activity 'Writing fleet.html' -Percent ($_ * 25) }</dev:code>
+        <dev:remarks>
+          <maml:para>A report written in steps, with a bar</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Update-ConsoleCell</command:name>
+      <command:verb>Update</command:verb>
+      <command:noun>ConsoleCell</command:noun>
+      <maml:description>
+        <maml:para>Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.</maml:para>
+        <maml:para>-Index names the cells by position, from 0 (in a grid with -Columns, row * columns + column); -Status is their new state: Pass, Fail, Warn, Skip, Info, Running or Pending (PowerShell's words such as Success and Error work too). An index past the end grows the map. -Add appends cells in the -Status state instead, and -Count sets the number of cells (new ones are pending). Safe to call from any runspace or thread.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.</maml:para>
+      <maml:para>-Index names the cells by position, from 0 (in a grid with -Columns, row * columns + column); -Status is their new state: Pass, Fail, Warn, Skip, Info, Running or Pending (PowerShell's words such as Success and Error work too). An index past the end grows the map. -Add appends cells in the -Status state instead, and -Count sets the number of cells (new ones are pending). Safe to call from any runspace or thread.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="Set">
+        <maml:name>Update-ConsoleCell</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Index</maml:name>
+          <maml:description>
+            <maml:para>The cells to set, by position from 0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The cell map name (default cells).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>The new state (for -Add, the state of the new cells; default Pending).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Add">
+        <maml:name>Update-ConsoleCell</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Add</maml:name>
+          <maml:description>
+            <maml:para>Appends cells in the -Status state.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The cell map name (default cells).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Status</maml:name>
+          <maml:description>
+            <maml:para>The new state (for -Add, the state of the new cells; default Pending).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>StatusKind</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Times</maml:name>
+          <maml:description>
+            <maml:para>How many cells -Add appends (default 1).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Count">
+        <maml:name>Update-ConsoleCell</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Count</maml:name>
+          <maml:description>
+            <maml:para>Sets the number of cells: new ones are pending, extra ones are removed (at least 1).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The cell map name (default cells).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Add</maml:name>
+        <maml:description>
+          <maml:para>Appends cells in the -Status state.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Count</maml:name>
+        <maml:description>
+          <maml:para>Sets the number of cells: new ones are pending, extra ones are removed (at least 1).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Index</maml:name>
+        <maml:description>
+          <maml:para>The cells to set, by position from 0.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The cell map name (default cells).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Status</maml:name>
+        <maml:description>
+          <maml:para>The new state (for -Add, the state of the new cells; default Pending).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Pending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Running</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Pass</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Fail</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warn</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Skip</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Info</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>StatusKind</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Times</maml:name>
+        <maml:description>
+          <maml:para>How many cells -Add appends (default 1).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Update-ConsoleCell -Name checks -Index 7 -Status Running&#xD;
+Update-ConsoleCell -Name checks -Index 7 -Status Pass</dev:code>
+        <dev:remarks>
+          <maml:para>A check starts and passes on the second server of a grid with five checks per row</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Update-ConsoleCell -Name files -Count 40&#xD;
+Update-ConsoleCell -Name files -Index 0, 1, 2 -Status Pass</dev:code>
+        <dev:remarks>
+          <maml:para>Grow a map as items are found, then mark them</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -22219,6 +23998,178 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
         <dev:code>Update-ConsoleStatus -Key restore -Status Pass -Detail '1.6s'</dev:code>
         <dev:remarks>
           <maml:para>Mark a step as passed with its duration</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Update-ConsoleSummaryBar</command:name>
+      <command:verb>Update</command:verb>
+      <command:noun>ConsoleSummaryBar</command:noun>
+      <maml:description>
+        <maml:para>Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.</maml:para>
+        <maml:para>-Done sets the items done (-Total changes the total; without it the bar keeps its total) and -Counter sets counts by label, in one call; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour, and new labels are added after the existing ones. The elapsed time and the time left follow the session clock, so a simulated clock (New-ConsoleClock) drives them too. Safe to call from any runspace or thread.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.</maml:para>
+      <maml:para>-Done sets the items done (-Total changes the total; without it the bar keeps its total) and -Counter sets counts by label, in one call; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour, and new labels are added after the existing ones. The elapsed time and the time left follow the session clock, so a simulated clock (New-ConsoleClock) drives them too. Safe to call from any runspace or thread.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Update-ConsoleSummaryBar</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Counter</maml:name>
+          <maml:description>
+            <maml:para>Labels mapped to counts (use [ordered] to keep the order of new labels); status words take their status symbol and colour.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Done</maml:name>
+          <maml:description>
+            <maml:para>Items done.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The summary bar name (default summary).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Total</maml:name>
+          <maml:description>
+            <maml:para>Items in total; without it the bar keeps the total it has (0 = unknown).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Counter</maml:name>
+        <maml:description>
+          <maml:para>Labels mapped to counts (use [ordered] to keep the order of new labels); status words take their status symbol and colour.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Done</maml:name>
+        <maml:description>
+          <maml:para>Items done.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The summary bar name (default summary).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Total</maml:name>
+        <maml:description>
+          <maml:para>Items in total; without it the bar keeps the total it has (0 = unknown).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Update-ConsoleSummaryBar -Done $done -Counter ([ordered] @{ passed = $passed; warnings = $warned; failed = $failed })</dev:code>
+        <dev:remarks>
+          <maml:para>Count a finished check</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Update-ConsoleSummaryBar -Name summary -Done 12 -Total 80</dev:code>
+        <dev:remarks>
+          <maml:para>A run whose total grows as work is discovered</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

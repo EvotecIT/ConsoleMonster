@@ -143,6 +143,50 @@ Describe 'One grammar for every widget' {
             $map.Count | Should -Be 5
             (New-ConsoleSummaryBar -Done 3 -Total 4 -Counter ([ordered] @{ passed = 2; failed = 1 }) | Get-WidgetText) | Should -Match '3/4'
         }
+
+        It 'draws a cell map as a labelled grid with a wrapping legend' {
+            $map = New-ConsoleCellMap -Status Pass, Fail, Warn, Pass, Skip -Count 6 -Columns 3 -RowLabels 'SRV01', 'SRV02' -LegendLines 2
+            $map.Columns | Should -Be 3
+            $map.RowLabels -join ',' | Should -Be 'SRV01,SRV02'
+            $map.LegendLines | Should -Be 2
+            $lines = @(($map | Get-WidgetText -Width 30) -split "`n" | Where-Object { $_.Trim() })
+            $lines[0] | Should -Match '^SRV01 '
+            $lines[1] | Should -Match '^SRV02 '
+            # Four states and the pending one do not fit one line of 30 cells: the legend takes a second line.
+            $lines.Count | Should -Be 4
+        }
+
+        It 'gives columns fixed widths by position and a width to stack below' {
+            $columns = New-ConsoleColumns -FixedWidth 0, 12 -CollapseBelow 40 {
+                New-ConsolePanel -Title 'Wide' -Weight 2 { 'left' }
+                New-ConsolePanel -Title 'Fixed' -Weight 5 { 'right' }
+            }
+            $columns.CollapseBelow | Should -Be 40
+            $columns.Sizes[1].Kind | Should -Be 'Fixed'
+            $columns.Sizes[1].Value | Should -Be 12
+            # The fixed width replaces the child's own share.
+            $columns.Children[1].GetType().Name | Should -Be 'Panel'
+            $side = @(($columns | Get-WidgetText -Width 60) -split "`n")
+            $side[0].TrimEnd().Length | Should -Be 60
+            $side[0].TrimEnd() | Should -Match 'Fixed\W{2,4}$'
+            $side[0].TrimEnd().Substring(48) | Should -Match 'Fixed'
+            $stacked = @(($columns | Get-WidgetText -Width 39) -split "`n" | Where-Object { $_.Trim() })
+            $stacked.Count | Should -BeGreaterThan @($side | Where-Object { $_.Trim() }).Count
+        }
+
+        It 'takes live table columns with options and an activity list with its settings' {
+            $table = New-ConsoleLiveTable -Name slowest -Column 'Check', @{ Name = 'Took'; Alignment = 'Right' }, @{ Name = 'Actual'; Flexible = $true; Markup = $true }
+            $table.Table.Columns[0].Alignment | Should -Not -Be 'Right'
+            $table.Table.Columns[1].Alignment | Should -Be 'Right'
+            $table.Table.Columns[2].Flexible | Should -BeTrue
+            { New-ConsoleLiveTable -Name bad -Column @{ Name = 'Took'; Align = 'Right' } -ErrorAction Stop } | Should -Throw '*Align*'
+            $list = New-ConsoleActivityList -MaxVisible 3 -ShowIds -NoElapsed
+            $list.Name | Should -Be '$progress'
+            $list.MaxVisible | Should -Be 3
+            $list.ShowIds | Should -BeTrue
+            $list.ShowElapsed | Should -BeFalse
+            $list.Count | Should -Be 0
+        }
     }
 
     Context 'Add-ConsoleItem' {

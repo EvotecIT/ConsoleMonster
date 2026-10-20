@@ -7,7 +7,7 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form field for New-ConsoleForm.</para>
-    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).</para>
+    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.</para>
     /// </summary>
     /// <example>
     ///   <para>Dependent fields: picking a site loads its servers</para>
@@ -20,6 +20,20 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>
     /// New-ConsoleField Notify 'Send an email' -Type Toggle
     /// New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }</code>
+    /// </example>
+    /// <example>
+    ///   <para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</para>
+    ///   <code>
+    /// New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+    ///     param($Values)
+    ///     Get-AppServer -Domain $Values.Domain | ForEach-Object {
+    ///         [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
+    ///     }
+    /// } -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online</code>
+    /// </example>
+    /// <example>
+    ///   <para>Checks offered by name, returned and shown in the command as their ids, with a typical time as a badge</para>
+    ///   <code>New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Parameter Check</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
@@ -75,6 +89,22 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">A sentence for the focused choice: a property name or a scriptblock.</para></summary>
         [Parameter]
         public object? Describe { get; set; }
+
+        /// <summary><para type="description">Short muted text at the right of a choice ("~2 s", "Web"): a property name or a scriptblock. Rich text keeps its own style.</para></summary>
+        [Parameter]
+        public object? Badge { get; set; }
+
+        /// <summary><para type="description">Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.</para></summary>
+        [Parameter]
+        public object? Disabled { get; set; }
+
+        /// <summary><para type="description">Whether a choice starts selected: a property name or a scriptblock returning $true. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</para></summary>
+        [Parameter]
+        public object? Selected { get; set; }
+
+        /// <summary><para type="description">The value of a choice: the text the equivalent command shows and the field returns, a property name or a scriptblock. The returned text keeps the choice object's properties, so $_.Name still works in -Preview and in the submitted values; presets and remembered choices store the text.</para></summary>
+        [Parameter]
+        public object? CommandValue { get; set; }
 
         /// <summary><para type="description">Preview content for the focused choice in the editor ($_ is the choice).</para></summary>
         [Parameter]
@@ -241,13 +271,24 @@ namespace ConsoleMonster.PowerShell {
                         Minimum = Minimum.HasValue ? (int)Minimum.Value : (int?)null,
                         Maximum = Maximum.HasValue ? (int)Maximum.Value : (int?)null
                     };
+                    ChoiceSelectors selectors = new ChoiceSelectors {
+                        Display = Display,
+                        Group = GroupBy,
+                        Description = Describe,
+                        Badge = Badge,
+                        MutedBadge = true,
+                        Disabled = Disabled,
+                        Selected = multiple ? Default : null,
+                        SelectedBy = Selected,
+                        CommandValue = CommandValue
+                    };
                     if (Choices != null) {
-                        foreach (Choice c in PSInteractive.Choices(new List<object?>(Choices), Display, GroupBy, Describe, null, null, null, multiple ? Default : null)) {
+                        foreach (Choice c in PSInteractive.Choices(new List<object?>(Choices), selectors)) {
                             choice.Choices.Add(c);
                         }
                     }
                     if (LoadChoices != null) {
-                        choice.Loader = PSInteractive.Loader(LoadChoices, Display, GroupBy, Describe, ArgumentList);
+                        choice.Loader = PSInteractive.Loader(LoadChoices, selectors, ArgumentList);
                     }
                     if (Preview != null) {
                         ScriptBlock preview = Preview;

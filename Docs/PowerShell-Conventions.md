@@ -81,12 +81,17 @@ keeps working from PowerShell and is what C# code uses.
 | Progress bar (`ProgressBar`) | `New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass` | | `Update-ConsoleProgress` | `Value`, `Total`, `Status` |
 | Spinner (`Spinner`) | `New-ConsoleSpinner 'Schema' -Detail 'cached' -Status Pass` | | `Update-ConsoleSpinner` | `Detail`, `Status` |
 | Live table (`LiveTable`) | `New-ConsoleLiveTable -Column Job, State` | `Add-ConsoleItem` (objects or hashtables) | `Update-ConsoleTable` | `Set(key, values)`, `Remove(key)`, `Clear()` |
-| Cell map (`CellMap`) | `New-ConsoleCellMap -Status $states -Count 40` | `Add-ConsoleItem` (status words) | drawn by `Invoke-ConsoleRun` | `Add(state)`, `Set(index, state)`, `Resize(count)` |
-| Summary bar (`SummaryBar`) | `New-ConsoleSummaryBar -Done 30 -Total 40 -Counter ([ordered] @{ passed = 27; failed = 2 })` | | drawn by `Invoke-ConsoleRun` | `SetProgress(done, total)`, `SetCounter(label, count, status)` |
+| Cell map (`CellMap`) | `New-ConsoleCellMap -Status $states -Count 40`, `-Columns 4 -RowLabels 'SRV01', 'SRV02'` | `Add-ConsoleItem` (status words) | `Update-ConsoleCell -Index 7 -Status Pass`, `-Add`, `-Count`; drawn by `Invoke-ConsoleRun` | `Add(state)`, `Set(index, state)`, `Resize(count)` |
+| Summary bar (`SummaryBar`) | `New-ConsoleSummaryBar -Done 30 -Total 40 -Counter ([ordered] @{ passed = 27; failed = 2 })` | | `Update-ConsoleSummaryBar -Done 31 -Counter @{ passed = 28 }` (a value left out keeps what the bar has); drawn by `Invoke-ConsoleRun` | `SetProgress(done, total)`, `SetCounter(label, count, status)`; a `progress` event with `SummaryBar.Keep` keeps done or total |
+| Activity list (`ActivityList`) | `New-ConsoleActivityList -Name running -MaxVisible 6` (the default name, `$progress`, takes `Write-Progress`) | | `Update-ConsoleActivity -Name running -Id 3 -Activity 'DC01 · DNS' -Percent 40`, `-Complete` | `update` and `complete` events (`session.Post`) |
 | Region (`Slot`) | `New-ConsoleRegion -Name main { ... }` | | `Set-ConsoleRegion` | `session.Region("main").Set(widget)` |
 | Padding (`Padding`) | `New-ConsolePadding -Padding 2, 1 { ... }` | | | `new Padding(child, left, top, right, bottom)` |
 | Align (`Align`) | `New-ConsoleAlign -Horizontal Right { ... }` | | | `new Align(child, horizontal, vertical)` |
-| Menu run result (`RunResult`) | `New-ConsoleRunResult 'Done' -Figure @{ ... } -Next @{ ... }` | | | `new RunResult(title).Figure(...).Next(...)` |
+| Menu run result (`RunResult`) | `New-ConsoleRunResult 'Done' -Figure @{ ... } -FigureStatus @{ failed = 'Fail' } -Next @{ ... }` | | | `new RunResult(title).Figure(...).Next(...)` |
+| Simulated clock (`SimulatedClock`) | `New-ConsoleClock -Speed 7`, given to `$MenuContext.Run($dashboard, { ... }, $clock)` or `Start-ConsoleDashboard -Clock` | | `$clock.Wait(2.5)`, `WaitUntil`, `Advance`, `Hold`; the header, summary bar, log, activities and run result follow it | `new SimulatedClock(speed)`, `ToSessionOptions()`, `Read` for `LiveSessionOptions.Clock` |
+| Menu preset (`MenuPreset`) | `New-ConsoleMenu -Preset (New-ConsoleMenuPreset 'Nightly' -Form $form -Values @{ ... } -Preview { ... })` | | | `menu.Preset(name, p => p.Form(form, values).Selection(item, values).WithPreview(widget))` |
+| Form preset (`FormPreset`) | `New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week' }` inside `New-ConsoleForm`, or `-Preset` | | | `form.Preset(name, values, description)` |
+| Form values (`Form`) | `Set-ConsoleFormValue -Form $form -Value @{ Domain = 'lab.example.test' }` | | | `form.Apply(values)` |
 
 ## Using the object directly
 

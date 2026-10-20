@@ -110,8 +110,23 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Builds choices from objects; the chosen objects themselves are returned to the script.</summary>
-        public static List<Choice> Choices(IEnumerable<object?> items, object? display, object? group, object? description, object? badge, object? hotkey, ScriptBlock? disabled, object? selected) {
+        public static List<Choice> Choices(IEnumerable<object?> items, object? display, object? group, object? description, object? badge, object? hotkey, object? disabled, object? selected) {
+            return Choices(items, new ChoiceSelectors { Display = display, Group = group, Description = description, Badge = badge, Hotkey = hotkey, Disabled = disabled, Selected = selected });
+        }
+
+        /// <summary>
+        /// Builds choices from objects with every selector: the chosen objects themselves are returned to the script, or,
+        /// with <see cref="ChoiceSelectors.CommandValue"/>, the command-line text carrying the object's properties.
+        /// </summary>
+        public static List<Choice> Choices(IEnumerable<object?> items, ChoiceSelectors selectors) {
             List<Choice> choices = new List<Choice>();
+            object? display = selectors.Display;
+            object? group = selectors.Group;
+            object? description = selectors.Description;
+            object? badge = selectors.Badge;
+            object? hotkey = selectors.Hotkey;
+            object? disabled = PSText.Unwrap(selectors.Disabled);
+            object? selected = selectors.Selected;
             HashSet<string> preselected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             ScriptBlock? selectedScript = PSText.Unwrap(selected) as ScriptBlock;
             if (selected != null && selectedScript == null) {
@@ -125,7 +140,8 @@ namespace ConsoleMonster.PowerShell {
                     continue;
                 }
                 object? title = display != null ? Select(item, display) : null;
-                Choice choice = new Choice(item, title != null ? Text(title) : Text(item));
+                object? value = selectors.CommandValue != null ? CommandValue(item, selectors.CommandValue) : item;
+                Choice choice = new Choice(value, title != null ? Text(title) : Text(item));
                 if (PSText.Unwrap(title) is RichText richTitle) {
                     choice.RichTitle = richTitle;
                 }
@@ -142,7 +158,7 @@ namespace ConsoleMonster.PowerShell {
                     if (PSText.Unwrap(b) is RichText richBadge) {
                         choice.Badge = richBadge;
                     } else if (b != null && Text(b).Length > 0) {
-                        choice.Badge = RichText.Plain(Text(b));
+                        choice.Badge = selectors.MutedBadge ? RichText.Plain(Text(b), new RichStyle(ThemeToken.Muted)) : RichText.Plain(Text(b));
                     }
                 }
                 if (hotkey != null) {
@@ -152,12 +168,14 @@ namespace ConsoleMonster.PowerShell {
                     }
                 }
                 if (disabled != null) {
-                    object? reason = Last(InvokeWith(disabled, item));
-                    if (reason != null && !(PSText.Unwrap(reason) is bool b && !b)) {
-                        choice.DisabledReason = PSText.Unwrap(reason) is bool ? "unavailable" : Text(reason);
+                    object? reason = PSText.Unwrap(disabled is ScriptBlock disabledScript ? Last(InvokeWith(disabledScript, item)) : Select(item, disabled));
+                    if (reason != null && !(reason is bool off && !off) && !(reason is string empty && empty.Length == 0)) {
+                        choice.DisabledReason = reason is bool ? "unavailable" : Text(reason);
                     }
                 }
-                if (selectedScript != null) {
+                if (selectors.SelectedBy != null) {
+                    choice.Selected = LanguagePrimitives.IsTrue(PSText.Unwrap(Select(item, selectors.SelectedBy)));
+                } else if (selectedScript != null) {
                     choice.Selected = LanguagePrimitives.IsTrue(Last(InvokeWith(selectedScript, item)));
                 } else if (preselected.Count > 0) {
                     choice.Selected = preselected.Contains(choice.Title) || preselected.Contains(Text(item));
@@ -165,6 +183,48 @@ namespace ConsoleMonster.PowerShell {
                 choices.Add(choice);
             }
             return choices;
+        }
+
+        /// <summary>
+        /// The value of a choice built with a command-line value: the text the equivalent command shows (a property or a
+        /// scriptblock's result), carrying the object's properties as note properties, so scripts and previews still read
+        /// them ($_.Name) while presets, remembered choices and the command line use the text.
+        /// </summary>
+        private static object? CommandValue(object? item, object selector) {
+            object? selected = PSText.Unwrap(Select(item, selector));
+            if (selected == null) {
+                return item;
+            }
+            PSObject value = new PSObject(Text(selected));
+            if (item == null) {
+                return value;
+            }
+            object? raw = PSText.Unwrap(item);
+            if (raw is string || raw is ValueType) {
+                return value;
+            }
+            if (raw is IDictionary dictionary) {
+                foreach (DictionaryEntry entry in dictionary) {
+                    string name = Text(entry.Key);
+                    if (name.Length > 0 && value.Properties[name] == null) {
+                        value.Properties.Add(new PSNoteProperty(name, entry.Value));
+                    }
+                }
+                return value;
+            }
+            foreach (PSPropertyInfo property in PSObject.AsPSObject(item).Properties) {
+                if (!property.IsGettable || value.Properties[property.Name] != null) {
+                    continue;
+                }
+                object? propertyValue;
+                try {
+                    propertyValue = property.Value;
+                } catch (GetValueException) {
+                    continue;
+                }
+                value.Properties.Add(new PSNoteProperty(property.Name, propertyValue));
+            }
+            return value;
         }
 
         public static IEnumerable<object?> Enumerate(object? value) {
@@ -278,24 +338,29 @@ namespace ConsoleMonster.PowerShell {
         /// cancel it). The script sees the current values as $Values and gets them as its first argument; variables of the
         /// caller are not visible, so pass what it needs through the values or -ArgumentList.
         /// </summary>
-        public static Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> Loader(ScriptBlock script, object? display, object? group, object? description, object?[]? arguments) {
+        /// <param name="script">The script.</param>
+        /// <param name="selectors">How to build the choices from its output (property names only: scriptblocks cannot run on the loader's thread).</param>
+        /// <param name="arguments">More arguments for the script.</param>
+        public static Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> Loader(ScriptBlock script, ChoiceSelectors selectors, object?[]? arguments) {
             string text = script.ToString();
+            ChoiceSelectors isolated = selectors.PropertiesOnly();
             return (values, token) => Task.Run<IEnumerable<Choice>>(() => {
                 Hashtable map = new Hashtable(StringComparer.OrdinalIgnoreCase);
                 foreach (KeyValuePair<string, object?> pair in values) {
                     map[pair.Key] = pair.Value;
                 }
-                return RunIsolated(text, map, arguments, display, group, description, token);
+                return RunIsolated(text, map, arguments, isolated, token);
             }, token);
         }
 
         /// <summary>A loader for a menu selection item.</summary>
         public static Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>> MenuLoader(ScriptBlock script, object? display, object? group, object? description, object?[]? arguments) {
             string text = script.ToString();
-            return (context, token) => Task.Run<IEnumerable<Choice>>(() => RunIsolated(text, new Hashtable(), arguments, display, group, description, token), token);
+            ChoiceSelectors isolated = new ChoiceSelectors { Display = display, Group = group, Description = description }.PropertiesOnly();
+            return (context, token) => Task.Run<IEnumerable<Choice>>(() => RunIsolated(text, new Hashtable(), arguments, isolated, token), token);
         }
 
-        private static IEnumerable<Choice> RunIsolated(string script, Hashtable values, object?[]? arguments, object? display, object? group, object? description, CancellationToken token) {
+        private static IEnumerable<Choice> RunIsolated(string script, Hashtable values, object?[]? arguments, ChoiceSelectors selectors, CancellationToken token) {
             using (System.Management.Automation.PowerShell shell = System.Management.Automation.PowerShell.Create(RunspaceMode.NewRunspace)) {
                 shell.Runspace.SessionStateProxy.SetVariable("Values", values);
                 shell.AddScript(script).AddArgument(values);
@@ -322,13 +387,13 @@ namespace ConsoleMonster.PowerShell {
                             items.Add(item);
                         }
                     }
-                    return Choices(items, PropertyOnly(display), PropertyOnly(group), PropertyOnly(description), null, null, null, null);
+                    return Choices(items, selectors);
                 }
             }
         }
 
         // Scriptblocks belong to the caller's runspace and cannot run on the loader's thread; only property names are used there.
-        private static object? PropertyOnly(object? selector) => PSText.Unwrap(selector) is ScriptBlock ? null : selector;
+        internal static object? PropertyOnly(object? selector) => PSText.Unwrap(selector) is ScriptBlock ? null : selector;
 
         public static SecureString ToSecureString(string text) {
             SecureString secure = new SecureString();

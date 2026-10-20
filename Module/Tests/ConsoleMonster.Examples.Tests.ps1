@@ -10,6 +10,12 @@ BeforeDiscovery {
         @{ Path = $_.FullName; Name = $_.FullName.Substring($script:RepositoryRoot.Length + 1).Replace('\', '/') }
     }
 
+    # Headless runs: every example once, plus extra runs of the same script in another layout, each a case of its own
+    # named after the script and the run (its settings are in ExampleCases under that name).
+    $script:ExampleRuns = @($script:ExampleScripts) + @(
+        $script:ExampleScripts | Where-Object Name -EQ 'Module/Examples/Example-FleetHealth.ps1' | ForEach-Object { @{ Path = $_.Path; Name = $_.Name + ' (Inline)' } }
+    )
+
     # Documents whose PowerShell snippets must use the cmdlet form.
     $script:DocumentFiles = @(
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'README.md')
@@ -124,6 +130,40 @@ BeforeAll {
         'Module/Examples/Example-LoginOverview.ps1'  = @{ Arguments = '-Sample' }
         'Module/Examples/Example-RichText.ps1'       = @{ Arguments = '-LogFolder ([IO.Path]::GetTempPath())' }
         'Module/Examples/Example-ScriptMenu.ps1'     = @{ Arguments = '-Layout Inline'; Input = 'b Enter Escape End Enter' }
+        # The whole fleet story as an app on a fixed 140 x 40 screen captured headless: apply the Nightly preset from the
+        # presets list and go back to the sidebar (Esc), choose the domain and look at its servers once they load (the keys
+        # keep their pauses), add Cert chain, review the command, run on the simulated clock, rerun the failed checks from
+        # the results, look at the history and quit. The phrases must have been on screen.
+        'Module/Examples/Example-FleetHealth.ps1'    = @{
+            Arguments = '-Layout Shell -Speed 0'
+            Input     = 'wait:300 Enter wait:300 Down wait:200 Down wait:200 Up wait:300 Enter wait:300 Escape wait:300 Down wait:300 Enter wait:300 Enter wait:300 Enter wait:2500 Enter wait:300 Down Down Down wait:300 Enter wait:300 PageDown wait:300 Enter wait:300 Down Down Down Down Down Down Down Down Down wait:300 Space wait:300 Enter wait:300 PageDown wait:500 PageDown wait:800 Enter wait:8000 Down wait:300 Enter wait:500 Shift+Tab wait:300 Down wait:800 End wait:300 Enter'
+            RealTime  = $true
+            Screen    = '140x40'
+            Expect    = @(
+                "Preset 'Nightly"
+                'Invoke-FleetCheck -Domain corp.contoso.com'
+                'Check map'
+                '121 checks on 11 servers in corp.contoso.com. 4 need action now; 7 warnings to review.'
+                'Queued 4 failed checks for a rerun'
+                # The history row of the new run (the run's own screens say "7 warnings").
+                ' 7 warn '
+            )
+        }
+        # The same app in the Inline layout, in the scrollback: apply the Nightly preset from the presets list, choose the
+        # domain, page through to the review, run, rerun the failed checks from the next steps, open the history and quit.
+        # Without a Screen the phrases are looked up in what the run printed.
+        'Module/Examples/Example-FleetHealth.ps1 (Inline)' = @{
+            Arguments = '-Layout Inline -Speed 0'
+            Input     = 'wait:300 p wait:300 Down wait:200 Enter wait:300 n wait:300 Enter wait:300 Enter wait:2000 PageDown wait:300 PageDown wait:300 PageDown wait:500 Enter wait:5000 Down wait:300 Enter wait:500 h wait:500 End wait:300 Enter'
+            RealTime  = $true
+            Expect    = @(
+                "all sites' applied"
+                'Invoke-FleetCheck -Domain corp.contoso.com'
+                '110 checks on 11 servers in corp.contoso.com. 4 need action now; 6 warnings to review.'
+                'Queued 4 failed checks for a rerun'
+                '4 runs'
+            )
+        }
         'Module/Examples/Example-Stress.ps1'         = @{ Arguments = '-Seconds 2' }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
@@ -133,16 +173,29 @@ BeforeAll {
 }
 
 Describe 'Examples run headless' -Tag 'Examples' {
-    It '<Name> runs without errors' -ForEach $script:ExampleScripts {
+    It '<Name> runs without errors' -ForEach $script:ExampleRuns {
         $case = $script:ExampleCases[$Name]
         if ($null -eq $case) { $case = @{} }
-        $keys = if ($case['Input']) { "[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])')" } else { '' }
+        # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
+        $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
+        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
+        # A case with a Screen draws the rich layouts on a fixed screen captured in memory, whose frames the Expect phrases
+        # are looked up in afterwards.
+        $screen = ''
+        $expect = ''
+        if ($case['Screen']) {
+            $width, $height = $case['Screen'] -split 'x'
+            $screen = "`$capture = [ConsoleMonster.Interactive.ScreenCapture]::new($width, $height, `$false); `$options = [ConsoleMonster.Interactive.InteractiveOptions]::Default; `$options.Mode = 'Rich'; `$options.Capture = `$capture; `$options.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, $height, 'TrueColor', 'Full')"
+            $phrases = @($case['Expect'] | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ', '
+            $expect = "`$frames = @(`$capture.Frames | ForEach-Object { `$_.ToPlainText() }); foreach (`$phrase in @($phrases)) { if (`$frames | Where-Object { `$_.Contains(`$phrase) }) { 'EXAMPLE-SAW: ' + `$phrase } else { 'EXAMPLE-MISSING: ' + `$phrase } }"
+        }
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 Import-Module '$script:ModulePath' -Force
 $keys
+$screen
 Set-Location -LiteralPath '$(Split-Path -Parent $Path)'
 try {
     & '$Path' $arguments | Out-String | Out-Null
@@ -150,6 +203,7 @@ try {
 } catch {
     'EXAMPLE-FAILED: ' + `$_
 }
+$expect
 'EXAMPLE-ERRORS=' + `$Error.Count
 foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
 "@
@@ -161,6 +215,18 @@ foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
         $report | Should -Match 'EXAMPLE-DONE' -Because $report
         if (-not $case['ExpectErrors']) {
             $report | Should -Match 'EXAMPLE-ERRORS=0' -Because $report
+        }
+        # On a captured screen the child reports each phrase it saw; otherwise the phrase must be in what it printed.
+        $printed = ($lines | ForEach-Object { ($_ -replace ($escape + '\][^\a]*?(\a|' + $escape + '\\)'), '') -replace ($escape + '\[[0-9;?]*[ -/]*[@-~]'), '' }) -join "`n"
+        foreach ($phrase in @($case['Expect'])) {
+            if (-not $phrase) {
+                continue
+            }
+            if ($case['Screen']) {
+                $report | Should -Match ('EXAMPLE-SAW: ' + [regex]::Escape($phrase)) -Because $report
+            } else {
+                $printed.Contains($phrase) | Should -BeTrue -Because "the run should have printed '$phrase'. $report"
+            }
         }
     }
 }

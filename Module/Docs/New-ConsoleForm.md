@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-Field <Field[]>] [-Description <string>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [<CommonParameters>]
+New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-Field <Field[]>] [-Description <string>] [-Command <string>] [-CommandStyle <CommandStyle>] [-NoReview] [-SubmitText <string>] [-StorageKey <string>] [-Preset <FormPreset[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ## EXAMPLES
 
@@ -33,6 +33,17 @@ $form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
 ```
 
 A two-page wizard
+
+### EXAMPLE 2
+```powershell
+$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+    New-ConsoleField Name 'Share name' -Required -Parameter Name
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly
+    New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
+}
+```
+
+A form that comes with a preset
 
 ## PARAMETERS
 
@@ -121,6 +132,22 @@ Leaves out the review page.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Preset
+Presets the form comes with (New-ConsoleFormPreset), listed before the saved ones; presets emitted in the scriptblock are added too.
+
+```yaml
+Type: FormPreset[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

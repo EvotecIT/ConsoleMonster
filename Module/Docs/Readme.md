@@ -100,6 +100,11 @@ Runs a script block for every input item, optionally in parallel, with a live vi
 
 ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, output, errors and warnings are written when it ends, so nothing prints inside the view, and progress bars from the script block are hidden. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.
 
+### [New-ConsoleActivityList](New-ConsoleActivityList.md)
+Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
+
+Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-ConsoleActivity from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Start-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
+
 ### [New-ConsoleAlign](New-ConsoleAlign.md)
 Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.
 
@@ -118,17 +123,22 @@ Use it inside the script block of New-ConsoleBarChart when a bar or a segment ne
 ### [New-ConsoleCellMap](New-ConsoleCellMap.md)
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 
-The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. To add cells later, pipe the map to Add-ConsoleItem.
+The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -Status or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. To add cells later, pipe the map to Add-ConsoleItem; in a live dashboard, update cells with Update-ConsoleCell.
 
 ### [New-ConsoleChartSeries](New-ConsoleChartSeries.md)
 Creates one series of a line or scatter chart: a name, values and an optional tone.
 
 Use it inside the script block of New-ConsoleLineChart. Values come from -Value or from the pipeline, oldest first, and are spaced evenly. -Tone takes a theme role (Accent, Accent2, Pass, Fail, Warn, Series1 to Series6); without it the chart picks the next series colour, and a series named with a status word (failed, passed, warnings) takes that status colour. To add a series to a chart made earlier, pipe the chart to Add-ConsoleItem; in a running dashboard, append values with Add-ConsoleValue -Key.
 
+### [New-ConsoleClock](New-ConsoleClock.md)
+Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.
+
+A live session reads the clock for the header clock, the summary bar's elapsed time and time left, the times of log lines and activities, and the run result's duration, so a demo or a replay of logged work shows its own time instead of the wall clock. Give it to a menu run as the third argument of $MenuContext.Run($dashboard, { ... }, $clock), or to Start-ConsoleDashboard -Clock. In the script, $clock.Wait(seconds) and $clock.WaitUntil(seconds) move it forward in small steps, sleeping 1/-Speed of each simulated second (never at speed 0, which runs at once); $clock.Advance(seconds) jumps without waiting and $clock.Hold(seconds) waits real time with the clock standing still. $clock.Elapsed is the time on the clock. Once the dashboard is stopped (Ctrl+C) waits stop sleeping, so the script reaches its end at once.
+
 ### [New-ConsoleColumns](New-ConsoleColumns.md)
 Places console widgets side by side.
 
-Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.
+Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
 
 ### [New-ConsoleDashboard](New-ConsoleDashboard.md)
 Defines a live console dashboard: a header with title and clock, the body and a footer.
@@ -138,12 +148,17 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Start-C
 ### [New-ConsoleField](New-ConsoleField.md)
 Creates a form field for New-ConsoleForm.
 
-A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).
+A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge, -Disabled and -Selected read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names), and -CommandValue picks the text the equivalent command shows and the field returns.
 
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
+
+### [New-ConsoleFormPreset](New-ConsoleFormPreset.md)
+Creates a preset a form comes with: field values under one name, with a description and a preview.
+
+Give the presets to New-ConsoleForm (-Preset, or emit them in its scriptblock next to the fields). They are listed before the presets people save, marked as built in, and cannot be overwritten or deleted; applying one (Read-ConsoleForm -Preset, or the menu's command palette) sets the fields it names the way a saved preset does. -Values maps field names to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice, and a value for a field whose choices load is chosen once they arrive.
 
 ### [New-ConsoleGrid](New-ConsoleGrid.md)
 Lays console widgets out in an equal-width grid.
@@ -183,7 +198,7 @@ Series come from a script block of New-ConsoleChartSeries calls (each with its v
 ### [New-ConsoleLiveTable](New-ConsoleLiveTable.md)
 Creates a table whose rows change while a dashboard runs.
 
-Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Format-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
 
 ### [New-ConsoleLog](New-ConsoleLog.md)
 Creates a log region: the newest lines of a log, bottom-aligned.
@@ -203,12 +218,17 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ### [New-ConsoleMenu](New-ConsoleMenu.md)
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
 
-The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.
+The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenuPreset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.
 
 ### [New-ConsoleMenuItem](New-ConsoleMenuItem.md)
 Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
 
 What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.
+
+### [New-ConsoleMenuPreset](New-ConsoleMenuPreset.md)
+Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.
+
+Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) and add a New-ConsoleMenuItem -Presets item: it lists them first, marked as built in, before the presets people save; they cannot be overwritten or deleted. Applying one sets the values it names and keeps the rest. -Form with -Values fills in a form opened from the menu (a list for a multi-choice field; a value for a field whose choices load is chosen once they arrive). -Item with -Selection selects values in a selection item. -Preview is shown beside the list while the preset has focus: a scriptblock (run once, now), widgets, text or objects.
 
 ### [New-ConsolePadding](New-ConsolePadding.md)
 Adds empty space around console widgets.
@@ -248,7 +268,7 @@ The line uses the border colour and the glyph tier's line character.
 ### [New-ConsoleRunResult](New-ConsoleRunResult.md)
 Creates the result a menu run returns: a title, a status, a summary, figures and next actions.
 
-Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -Status takes the shared status vocabulary (default Pass).
+Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.
 
 ### [New-ConsoleSparkline](New-ConsoleSparkline.md)
 Creates a sparkline: a compact trend of recent values.
@@ -355,6 +375,11 @@ Sends a raw live event to any widget of a running dashboard.
 
 The general form behind the Update-* cmdlets, for custom widgets and less common operations (for example the dashboard's title or status). Operations are defined by each widget.
 
+### [Set-ConsoleFormValue](Set-ConsoleFormValue.md)
+Sets field values of a form, whether or not it is shown.
+
+Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Value maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Value also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
+
 ### [Set-ConsoleRegion](Set-ConsoleRegion.md)
 Replaces the content of a region (New-ConsoleRegion) in the running dashboard.
 
@@ -410,6 +435,16 @@ Replays a recorded dashboard session (JSON lines) into a dashboard.
 
 Recordings are written by Start-ConsoleDashboard -RecordPath. Replays keep the original timing, scaled by -Speed (0 plays as fast as possible). Useful for demos, documentation captures, tests and bug reports.
 
+### [Update-ConsoleActivity](Update-ConsoleActivity.md)
+Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.
+
+-Id identifies the activity: a new id adds a row, an existing one updates it, and -Complete removes it (with the activities under it). -Activity is the title, -Status a short text after it, -Percent the share done (leave it out for work of unknown length, which spins) and -SecondsRemaining an estimate shown as time left. -ParentId indents the activity under another one. The time each activity has taken follows the session clock, so a simulated clock (New-ConsoleClock) drives it too. Safe to call from any runspace or thread.
+
+### [Update-ConsoleCell](Update-ConsoleCell.md)
+Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.
+
+-Index names the cells by position, from 0 (in a grid with -Columns, row * columns + column); -Status is their new state: Pass, Fail, Warn, Skip, Info, Running or Pending (PowerShell's words such as Success and Error work too). An index past the end grows the map. -Add appends cells in the -Status state instead, and -Count sets the number of cells (new ones are pending). Safe to call from any runspace or thread.
+
 ### [Update-ConsoleLane](Update-ConsoleLane.md)
 Updates a lane of a running dashboard: progress, step results, status and detail.
 
@@ -434,6 +469,11 @@ Updates a spinner in a running dashboard.
 Updates an item of a status list in a running dashboard.
 
 Adds the item when it does not exist. -Detail shows a right-aligned muted note such as a duration.
+
+### [Update-ConsoleSummaryBar](Update-ConsoleSummaryBar.md)
+Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.
+
+-Done sets the items done (-Total changes the total; without it the bar keeps its total) and -Counter sets counts by label, in one call; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour, and new labels are added after the existing ones. The elapsed time and the time left follow the session clock, so a simulated clock (New-ConsoleClock) drives them too. Safe to call from any runspace or thread.
 
 ### [Update-ConsoleTable](Update-ConsoleTable.md)
 Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.

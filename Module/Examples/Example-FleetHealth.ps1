@@ -1,0 +1,376 @@
+﻿param(
+    [ValidateSet('Shell', 'Classic', 'Inline')][string] $Layout = 'Shell',
+    # Simulated seconds per real second during the run; 0 runs it without waiting.
+    [double] $Speed = 7
+)
+# Fleet health check, the complete-application showcase as a script: built-in presets with previews, a form whose servers
+# load for the chosen domain, grouped checks with a preview, the review with the equivalent command, and a run into a
+# dashboard on a simulated clock that ends on a results summary with next actions. The outcomes are fixed, so every run
+# tells the same story. All data is invented.
+Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+
+#region more
+$servers = foreach ($server in @(
+        , @('DC01', 'corp.contoso.com', 'Warsaw', 'Domain controller', '10.20.1.11', $null)
+        , @('DC02', 'corp.contoso.com', 'Warsaw', 'Domain controller', '10.20.1.12', $null)
+        , @('FS01', 'corp.contoso.com', 'Warsaw', 'File', '10.20.1.21', $null)
+        , @('SQL01', 'corp.contoso.com', 'Warsaw', 'Database', '10.20.1.31', $null)
+        , @('WEB01', 'corp.contoso.com', 'Warsaw', 'Web', '10.20.1.41', $null)
+        , @('DC11', 'corp.contoso.com', 'Dublin', 'Domain controller', '10.30.1.11', $null)
+        , @('FS11', 'corp.contoso.com', 'Dublin', 'File', '10.30.1.21', $null)
+        , @('SQL11', 'corp.contoso.com', 'Dublin', 'Database', '10.30.1.31', $null)
+        , @('WEB11', 'corp.contoso.com', 'Dublin', 'Web', '10.30.1.41', $null)
+        , @('DC21', 'corp.contoso.com', 'Berlin', 'Domain controller', '10.40.1.11', $null)
+        , @('WEB21', 'corp.contoso.com', 'Berlin', 'Web', '10.40.1.41', $null)
+        , @('FS22', 'corp.contoso.com', 'Berlin', 'File', '10.40.1.22', 'offline since 07:12')
+        , @('OSL-DC1', 'fabrikam.net', 'Oslo', 'Domain controller', '172.16.1.10', $null)
+        , @('OSL-FS1', 'fabrikam.net', 'Oslo', 'File', '172.16.1.20', $null)
+        , @('OSL-WEB1', 'fabrikam.net', 'Oslo', 'Web', '172.16.1.40', $null)
+        , @('MAD-DC1', 'fabrikam.net', 'Madrid', 'Domain controller', '172.17.1.10', $null)
+        , @('MAD-APP1', 'fabrikam.net', 'Madrid', 'Web', '172.17.1.40', $null)
+        , @('MAD-SQL1', 'fabrikam.net', 'Madrid', 'Database', '172.17.1.30', $null)
+        , @('LAB-DC1', 'lab.adatum.com', 'Lab', 'Domain controller', '192.168.50.10', $null)
+        , @('LAB-WEB1', 'lab.adatum.com', 'Lab', 'Web', '192.168.50.40', $null)
+        , @('LAB-SQL1', 'lab.adatum.com', 'Lab', 'Database', '192.168.50.30', $null)
+        , @('LAB-TEST1', 'lab.adatum.com', 'Lab', 'File', '192.168.50.90', 'in maintenance until Friday')
+    )) {
+    # Database servers and the remote site are slower.
+    $slowness = $(if ($server[3] -eq 'Database') { 1.5 } else { 1.0 }) * $(if ($server[2] -eq 'Berlin') { 1.3 } else { 1.0 })
+    [pscustomobject] @{ Name = $server[0]; Domain = $server[1]; Site = $server[2]; Role = $server[3]; Address = $server[4]; Offline = $server[5]; Slowness = $slowness }
+}
+$domains = [ordered] @{ 'corp.contoso.com' = 'Warsaw, Dublin, Berlin'; 'fabrikam.net' = 'Oslo, Madrid'; 'lab.adatum.com' = 'Lab' }
+$checks = @(
+    [pscustomobject] @{ Id = 'SecureChannel'; Name = 'Secure channel'; Category = 'Identity'; Expected = 'trusted'; Seconds = 1.2; About = "Tests the computer account's trust with the domain." }
+    [pscustomobject] @{ Id = 'TimeOffset'; Name = 'Time offset'; Category = 'Identity'; Expected = 'under 1 s'; Seconds = 0.8; About = "Compares the clock with the domain's time source." }
+    [pscustomobject] @{ Id = 'LocalAdmins'; Name = 'Local admins'; Category = 'Identity'; Expected = 'approved list'; Seconds = 2.5; About = 'Compares local Administrators with the approved list.' }
+    [pscustomobject] @{ Id = 'ForwardRecord'; Name = 'Forward record'; Category = 'DNS'; Expected = 'matches IP'; Seconds = 0.6; About = "Resolves the host name and compares the A record with the server's address." }
+    [pscustomobject] @{ Id = 'ReverseRecord'; Name = 'Reverse record'; Category = 'DNS'; Expected = 'PTR present'; Seconds = 0.7; About = "Looks up the PTR record of the server's address." }
+    [pscustomobject] @{ Id = 'Resolvers'; Name = 'DNS resolvers'; Category = 'DNS'; Expected = '2 of 2'; Seconds = 1.5; About = "Asks each configured resolver for the domain's SOA record." }
+    [pscustomobject] @{ Id = 'CertExpiry'; Name = 'Cert expiry'; Category = 'Certificates'; Expected = '30+ days'; Seconds = 1.8; About = 'Finds machine certificates that expire within 30 days.' }
+    [pscustomobject] @{ Id = 'CertChain'; Name = 'Cert chain'; Category = 'Certificates'; Expected = 'trusted root'; Seconds = 3.5; About = "Builds each certificate's chain to a trusted root." }
+    [pscustomobject] @{ Id = 'MissingUpdates'; Name = 'Missing updates'; Category = 'Updates'; Expected = '0'; Seconds = 6.5; About = 'Lists security updates released more than 14 days ago and not installed.' }
+    [pscustomobject] @{ Id = 'PendingRestart'; Name = 'Pending restart'; Category = 'Updates'; Expected = 'no'; Seconds = 1.0; About = 'Reports a restart waiting after updates or role changes.' }
+    [pscustomobject] @{ Id = 'FreeSpace'; Name = 'Free space'; Category = 'Storage'; Expected = '15% free'; Seconds = 1.3; About = 'Measures free space on every fixed volume.' }
+    [pscustomobject] @{ Id = 'VolumeHealth'; Name = 'Volume health'; Category = 'Storage'; Expected = 'healthy'; Seconds = 4.0; About = 'Reads the health and operational status of every volume.' }
+    [pscustomobject] @{ Id = 'AutoServices'; Name = 'Auto services'; Category = 'Services'; Expected = 'all running'; Seconds = 2.2; About = 'Checks that automatic services are running.' }
+    [pscustomobject] @{ Id = 'EventErrors'; Name = 'Event errors'; Category = 'Services'; Expected = 'under 20'; Seconds = 5.0; About = 'Counts System and Application errors in the last 24 hours.' }
+)
+$categories = 'Identity', 'DNS', 'Certificates', 'Updates', 'Storage', 'Services'
+# Results that are not a plain pass; everything else passes.
+$outcomes = @{
+    'DC02/TimeOffset'      = 'Fail', '4.7 s'
+    'FS11/MissingUpdates'  = 'Fail', '3 updates'
+    'SQL11/FreeSpace'      = 'Fail', '6% on D:'
+    'WEB21/CertExpiry'     = 'Fail', '9 days'
+    'DC11/TimeOffset'      = 'Warn', '0.9 s'
+    'DC21/Resolvers'       = 'Warn', '1 of 2'
+    'WEB01/CertChain'      = 'Warn', 'intermediate ends in 40 days'
+    'SQL01/PendingRestart' = 'Warn', 'since Sunday'
+    'FS01/EventErrors'     = 'Warn', '27'
+    'SQL11/EventErrors'    = 'Warn', '34'
+    'WEB11/AutoServices'   = 'Warn', '1 restarted'
+}
+$nightly = 'SecureChannel', 'TimeOffset', 'ForwardRecord', 'Resolvers', 'CertExpiry', 'MissingUpdates', 'PendingRestart', 'FreeSpace', 'AutoServices', 'EventErrors'
+$presets = @(
+    [pscustomobject] @{ Name = 'Morning · identity & DNS'; Scope = 'domain controllers'; Role = 'Domain controller'; Schedule = 'weekdays 07:00'; Parallel = 4; Format = 'Html'; Notify = $false; Checks = 'SecureChannel', 'TimeOffset', 'LocalAdmins', 'ForwardRecord', 'ReverseRecord', 'Resolvers' }
+    [pscustomobject] @{ Name = 'Nightly · all sites'; Scope = 'every online server'; Role = $null; Schedule = 'every day 02:00'; Parallel = 8; Format = 'Html'; Notify = $true; Checks = $nightly }
+    [pscustomobject] @{ Name = 'Patch Tuesday · updates'; Scope = 'every online server'; Role = $null; Schedule = 'second Tuesday 22:00'; Parallel = 12; Format = 'Csv'; Notify = $true; Checks = 'MissingUpdates', 'PendingRestart', 'AutoServices', 'EventErrors' }
+    [pscustomobject] @{ Name = 'Certificates · web tier'; Scope = 'web servers'; Role = 'Web'; Schedule = 'Mondays 06:00'; Parallel = 4; Format = 'Html'; Notify = $false; Checks = 'CertExpiry', 'CertChain', 'ForwardRecord' }
+)
+$script:history = foreach ($run in @(
+        , @('Sun 18 Oct 02:00', 'corp.contoso.com', 11, 10, 104, 5, 1, 83)
+        , @('Mon 19 Oct 02:00', 'corp.contoso.com', 11, 10, 103, 6, 1, 86)
+        , @('Mon 19 Oct 07:00', 'fabrikam.net', 2, 6, 12, 0, 0, 14)
+    )) {
+    [pscustomobject] @{ When = $run[0]; Domain = $run[1]; Servers = $run[2]; Checks = $run[3]; Passed = $run[4]; Warnings = $run[5]; Failed = $run[6]; Elapsed = [timespan]::FromSeconds($run[7]) }
+}
+$loadDelay = if ($Speed -gt 0) { 1100 } else { 0 }
+#endregion
+
+# The form: a domain whose servers load, grouped checks with a preview, options, and the review with the command.
+$domainChoices = foreach ($domain in $domains.Keys) {
+    [pscustomobject] @{ Name = $domain; Sites = $domains[$domain]; Count = @($servers | Where-Object Domain -EQ $domain).Count }
+}
+$domainField = New-ConsoleField Domain 'Domain' -Type Select -Page Scope -Required -Parameter Domain -Choices $domainChoices -Display Name -CommandValue Name `
+    -Describe { "$($_.Count) servers · $($_.Sites)" } -Badge { "$($_.Count) servers" } -Help 'Choosing a domain loads its servers from the inventory.'
+# The servers load in their own runspace when the domain changes: grouped by site, offline ones disabled, online ones chosen.
+$serversField = New-ConsoleField Servers 'Servers' -Type MultiSelect -Page Scope -DependsOn Domain -Minimum 1 -Parameter ComputerName `
+    -Help 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.' -ArgumentList $servers, $loadDelay -LoadChoices {
+    param($Values, $Inventory, $Delay)
+    Start-Sleep -Milliseconds $Delay
+    foreach ($server in $Inventory) {
+        if ($server.Domain -eq $Values.Domain) {
+            [pscustomobject] @{ Name = $server.Name; Site = $server.Site; Role = $server.Role; Detail = "$($server.Role) · $($server.Address)"; Offline = $server.Offline; Online = -not $server.Offline }
+        }
+    }
+} -Display Name -CommandValue Name -GroupBy Site -Badge Role -Describe Detail -Disabled Offline -Selected Online
+$checksField = New-ConsoleField Checks 'Checks' -Type MultiSelect -Page Checks -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Describe About -Minimum 1 -Parameter Check `
+    -Badge { '~{0} s' -f $_.Seconds.ToString('0.#', [cultureinfo]::InvariantCulture) } -Selected { $_.Id -in 'SecureChannel', 'TimeOffset', 'ForwardRecord' } `
+    -Help 'Grouped by category; the preview shows what a healthy server reports.' -Preview {
+    New-ConsoleText $_.About
+    New-ConsoleKeyValue -Markup -Data ([ordered] @{ Category = $_.Category; Healthy = "[pass]$($_.Expected)[/]"; Typical = "about $($_.Seconds) s per server"; Parameter = "[accent]-Check $_[/]" })
+}
+$parallelField = New-ConsoleField Parallel 'Servers at a time' -Type Number -Page Options -Integer -Minimum 1 -Maximum 16 -Default 4 -Parameter ThrottleLimit
+$formats = @([pscustomobject] @{ Value = 'Html'; Title = 'HTML' }, [pscustomobject] @{ Value = 'Csv'; Title = 'CSV' }, [pscustomobject] @{ Value = 'Json'; Title = 'JSON' })
+$formatField = New-ConsoleField Format 'Report format' -Type Select -Page Options -Choices $formats -Display Title -CommandValue Value -Default 'Html' -Parameter Format
+$reportField = New-ConsoleField Report 'Report folder' -Type Path -Kind Folder -Page Options -Default 'C:\Reports\Fleet' -Parameter ReportPath
+$notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -Parameter Notify
+$emailField = New-ConsoleField Email 'Recipient' -Page Options -Default 'ops@contoso.com' -Parameter To -VisibleWhen { $Values.Notify } -Validate { if ($_ -notmatch '@') { 'Enter an email address' } }
+$form = New-ConsoleForm 'New check' -Command 'Invoke-FleetCheck' -SubmitText 'Run checks' -Description 'Checks the health of every chosen server.' `
+    -Field $domainField, $serversField, $checksField, $parallelField, $formatField, $reportField, $notifyField, $emailField
+
+$menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30' {
+    # Built-in presets fill in the form (servers are chosen once the domain's servers load); people can save their own.
+    foreach ($preset in $presets) {
+        $names = @($servers | Where-Object { -not $_.Offline -and (-not $preset.Role -or $_.Role -eq $preset.Role) } | ForEach-Object Name)
+        $preview = New-ConsoleRows -Gap 1 {
+            New-ConsoleKeyValue -Markup -Data ([ordered] @{
+                    Servers  = $preset.Scope
+                    Checks   = "$(@($preset.Checks).Count) [muted]· $(@($checks | Where-Object { $preset.Checks -contains $_.Id } | ForEach-Object Category | Select-Object -Unique) -join ', ')[/]"
+                    Workers  = "$($preset.Parallel) servers at a time"
+                    Report   = $preset.Format.ToUpper() + $(if ($preset.Notify) { ' [muted]· emailed[/]' })
+                    Schedule = $preset.Schedule
+                })
+            "[muted]$((@($preset.Checks) | ForEach-Object { $id = $_; ($checks | Where-Object Id -EQ $id).Name }) -join ' · ')[/]"
+        }
+        New-ConsoleMenuPreset $preset.Name -Preview $preview -Form $form -Values @{ Servers = $names; Checks = $preset.Checks; Parallel = $preset.Parallel; Format = $preset.Format; Notify = $preset.Notify }
+    }
+    New-ConsoleMenuItem 'Presets' -Hotkey p -IconName Favorite -Description 'Scopes for New check. Applying one fills in the form; the domain stays your choice.' -Presets
+    New-ConsoleMenuItem 'New check' -Hotkey n -IconName Run -Description 'Choose a domain, its servers and the checks, review the equivalent command, and run.' -Form $form -OnSubmit {
+        $chosen = @($Values.Checks | ForEach-Object { [string] $_ })
+        $names = @($Values.Servers | ForEach-Object { [string] $_ })
+        $plan = [pscustomobject] @{
+            Domain   = [string] $Values.Domain
+            Servers  = @($servers | Where-Object { $names -contains $_.Name })
+            Checks   = @($checks | Where-Object { $chosen -contains $_.Id })
+            Parallel = [int] $Values.Parallel
+            Format   = [string] $Values.Format
+            Notify   = [bool] $Values.Notify
+            Email    = $Values.Email
+        }
+        $plan | Add-Member -NotePropertyMembers @{
+            Total      = $plan.Servers.Count * $plan.Checks.Count
+            ReportFile = "fleet-20261020-0930.$($plan.Format.ToLower())"
+            Categories = @($categories | Where-Object { $plan.Checks.Category -contains $_ })
+        }
+        $plan | Add-Member -NotePropertyName ReportPath -NotePropertyValue "$(([string] $Values.Report).TrimEnd('\'))\$($plan.ReportFile)"
+        $laneTotal = @{}
+        foreach ($category in $plan.Categories) { $laneTotal[$category] = $plan.Servers.Count * @($plan.Checks | Where-Object Category -EQ $category).Count }
+
+        # The dashboard: one row per server and one column per check in the map, the categories with the plan, what runs now.
+        $dashboard = New-ConsoleDashboard -Title '[bold]Fleet health check[/]' -Subtitle $plan.Domain {
+            New-ConsoleSummaryBar -Total $plan.Total -BarWidth 24 -Counter ([ordered] @{ passed = 0; warnings = 0; failed = 0 })
+            New-ConsolePhases -Phase 'Discover', 'Connect', 'Check', 'Report'
+            New-ConsoleColumns {
+                New-ConsolePanel -Title 'Check map' -Weight 1.0 { New-ConsoleCellMap -Name cells -Count $plan.Total -Columns $plan.Checks.Count -RowLabels $plan.Servers.Name -LegendLines 2 }
+                New-ConsolePanel -Title 'Categories' -Weight 1.15 {
+                    New-ConsoleRows {
+                        New-ConsoleLanes -Name categories { foreach ($category in $plan.Categories) { New-ConsoleLane $category -Total $laneTotal[$category] } }
+                        New-ConsoleRule
+                        New-ConsoleKeyValue -Markup -Data ([ordered] @{
+                                Domain  = "[accent]$($plan.Domain)[/]"
+                                Servers = "$($plan.Servers.Count) [muted]· $(@($plan.Servers.Site | Select-Object -Unique).Count) sites[/]"
+                                Checks  = "$($plan.Checks.Count) [muted]· $($plan.Total) in all[/]"
+                                Report  = $plan.Format.ToUpper() + $(if ($plan.Notify) { ' [muted]· emailed[/]' })
+                            })
+                    }
+                }
+                New-ConsolePanel -Title 'Running' -Weight 0.95 -Caption "$($plan.Parallel) workers" { New-ConsoleActivityList -Name running -MaxVisible 8 }
+            }
+            New-ConsoleColumns -FixedWidth 0, 0, 17 {
+                New-ConsolePanel -Title 'Failures' -Weight 1.52 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', 'Expected', @{ Name = 'Actual'; Flexible = $true; Markup = $true } -MaxRows 5 -Border Minimal }
+                New-ConsolePanel -Title 'Slowest checks' -Weight 1 { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal }
+                New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8, 16 -Height 5 }
+            }
+            New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog -Height 6 }
+        }
+        # The run moves a simulated clock: the header, the summary bar, the log and the results show its time.
+        $clock = New-ConsoleClock -Speed $Speed
+        $null = $MenuContext.Run($dashboard, {
+                #region more
+                $random = New-Object System.Random 20261020
+                # Every duration is drawn up front, server by server, so the schedule never changes what the seed gives.
+                $connect = @($plan.Servers | ForEach-Object { 0.4 + $random.NextDouble() * 0.7 })
+                $seconds = @{}
+                for ($s = 0; $s -lt $plan.Servers.Count; $s++) {
+                    for ($c = 0; $c -lt $plan.Checks.Count; $c++) {
+                        # A check that finds a problem looks closer (a retry, a second source), so it takes a few seconds longer.
+                        $retry = if ($outcomes.ContainsKey("$($plan.Servers[$s].Name)/$($plan.Checks[$c].Id)")) { 3 } else { 0 }
+                        $seconds["$s/$c"] = [math]::Round($plan.Checks[$c].Seconds * $plan.Servers[$s].Slowness * (0.6 + $random.NextDouble() * 0.9) + $retry, 1)
+                    }
+                }
+                $format = { param($Value) $Value.ToString('0.0', [cultureinfo]::InvariantCulture) + ' s' }
+                # Runs work items on workers in simulated time: each item is steps that run one after another on the same
+                # worker; a free worker takes the next item. Finishing order follows the simulated clock, never the real one.
+                $schedule = {
+                    param($Items, $Steps, $Started, $Finished, $ItemDone)
+                    # The running items by item number (a plain hashtable: [ordered] would read a number as a position).
+                    $slots = @{}
+                    $next = 0
+                    while ($next -lt $Items -or $slots.Count -gt 0) {
+                        while ($slots.Count -lt [math]::Max(1, $plan.Parallel) -and $next -lt $Items) {
+                            $sequence = @(& $Steps $next)
+                            $slots[$next] = [pscustomobject] @{ Item = $next; Steps = $sequence; Step = 0; Ends = $clock.Seconds + $sequence[0] }
+                            & $Started $next 0
+                            $next++
+                        }
+                        $clock.WaitUntil(($slots.Values | Measure-Object -Property Ends -Minimum).Minimum)
+                        foreach ($slot in @($slots.Values | Where-Object { $_.Ends -le $clock.Seconds + 0.000001 } | Sort-Object Ends, Item)) {
+                            & $Finished $slot.Item $slot.Step $slot.Steps[$slot.Step]
+                            if ($slot.Step + 1 -lt $slot.Steps.Count) {
+                                $slot.Step++
+                                $slot.Ends = $clock.Seconds + $slot.Steps[$slot.Step]
+                                & $Started $slot.Item $slot.Step
+                            } else {
+                                $slots.Remove($slot.Item)
+                                & $ItemDone $slot.Item
+                            }
+                        }
+                    }
+                }
+
+                # Discover: the inventory and the plan.
+                Send-ConsoleEvent dashboard status -Text 'discovering' -State Running
+                Update-ConsolePhase -Key Discover -Status Running
+                Write-ConsoleLog "Reading the inventory of $($plan.Domain)" -Highlight Smart
+                $clock.Wait(0.8)
+                $inDomain = @($servers | Where-Object Domain -EQ $plan.Domain)
+                Write-ConsoleLog "$($inDomain.Count) servers in $(@($inDomain.Site | Select-Object -Unique).Count) sites; $($plan.Servers.Count) selected" -Highlight Smart
+                foreach ($offline in @($inDomain | Where-Object Offline)) {
+                    Write-ConsoleLog "$($offline.Name) skipped: $($offline.Offline)" -Level warn -Highlight Smart
+                }
+                $clock.Wait(0.9)
+                Write-ConsoleLog "$($plan.Total) checks planned: $($plan.Servers.Count) servers, $($plan.Checks.Count) checks, $($plan.Parallel) at a time" -Highlight Smart
+                $clock.Wait(0.5)
+                Update-ConsolePhase -Key Discover -Status Pass -Detail "$($plan.Servers.Count) servers"
+
+                # Connect: a remote session per server, several at a time.
+                Send-ConsoleEvent dashboard status -Text 'connecting' -State Running
+                Update-ConsolePhase -Key Connect -Status Running
+                & $schedule $plan.Servers.Count { param($S) $connect[$S] } {
+                    param($S, $C) Update-ConsoleActivity -Name running -Id (1000 + $S) -Activity "Connecting $($plan.Servers[$S].Name)"
+                } {
+                    param($S, $C, $Took)
+                    Update-ConsoleActivity -Name running -Id (1000 + $S) -Complete
+                    Write-ConsoleLog "Connected to $($plan.Servers[$S].Name) ($($plan.Servers[$S].Address)) in $(& $format $Took)" -Highlight Smart
+                } { param($S) }
+                Update-ConsolePhase -Key Connect -Status Pass -Detail "$($plan.Servers.Count)/$($plan.Servers.Count)"
+
+                # Check: every server runs its checks in order; the busiest part of the screen.
+                Send-ConsoleEvent dashboard status -Text 'checking' -State Running
+                Update-ConsolePhase -Key Check -Status Running
+                $tally = @{ Done = 0; Passed = 0; Warned = 0; Failed = 0 }
+                $laneDone = @{}
+                $state = @{ Slow = @(); Findings = [ordered] @{} }
+                $serverSeconds = @{}
+                & $schedule $plan.Servers.Count { param($S) for ($c = 0; $c -lt $plan.Checks.Count; $c++) { $seconds["$S/$c"] } } {
+                    param($S, $C)
+                    $check = $plan.Checks[$C]
+                    Update-ConsoleCell -Index ($S * $plan.Checks.Count + $C) -Status Running
+                    Update-ConsoleActivity -Name running -Id ($S * 100 + $C) -Activity "$($plan.Servers[$S].Name) · $($check.Name)"
+                    if (-not $laneDone.ContainsKey($check.Category)) {
+                        $laneDone[$check.Category] = 0
+                        Update-ConsoleLane -Name categories -Key $check.Category -Status Running -Detail "$($plan.Servers[$S].Name) · $($check.Name)"
+                    }
+                } {
+                    param($S, $C, $Took)
+                    $server = $plan.Servers[$S]
+                    $check = $plan.Checks[$C]
+                    $outcome = $outcomes["$($server.Name)/$($check.Id)"]
+                    $status = if ($outcome) { $outcome[0] } else { 'Pass' }
+                    $tally.Done++
+                    $serverSeconds[$S] += $Took
+                    Update-ConsoleActivity -Name running -Id ($S * 100 + $C) -Complete
+                    Update-ConsoleCell -Index ($S * $plan.Checks.Count + $C) -Status $status
+                    Update-ConsoleLane -Name categories -Key $check.Category -Result $status -Detail "$($server.Name) · $($check.Name)"
+                    $laneDone[$check.Category]++
+                    if ($laneDone[$check.Category] -eq $laneTotal[$check.Category]) {
+                        Update-ConsoleLane -Name categories -Key $check.Category -Complete
+                    }
+                    switch ($status) {
+                        'Fail' {
+                            $tally.Failed++
+                            $state.Findings["$($server.Name)/$($check.Id)"] = [pscustomobject] @{ Server = $server.Name; Check = $check.Name; Expected = $check.Expected; Actual = "[fail]$($outcome[1])[/]" }
+                            Update-ConsoleTable -Name failures -Key "$($server.Name)/$($check.Id)" -Value $server.Name, $check.Name, $check.Expected, "[fail]$($outcome[1])[/]"
+                            Write-ConsoleLog "$($server.Name) · $($check.Name): $($outcome[1]), expected $($check.Expected)" -Level err -Highlight Smart
+                        }
+                        'Warn' {
+                            $tally.Warned++
+                            Write-ConsoleLog "$($server.Name) · $($check.Name): $($outcome[1]), expected $($check.Expected)" -Level warn -Highlight Smart
+                        }
+                        default { $tally.Passed++ }
+                    }
+                    Update-ConsoleSummaryBar -Done $tally.Done -Counter ([ordered] @{ passed = $tally.Passed; warnings = $tally.Warned; failed = $tally.Failed })
+                    Add-ConsoleValue -Name durations -Value $Took
+                    # The slowest five so far, slowest first; the table changes only when the list does.
+                    $slow = $state.Slow
+                    if ($slow.Count -lt 5 -or $Took -gt $slow[-1].Seconds) {
+                        # The new check goes after every check at least as slow, so an equal time keeps the earlier one ahead.
+                        $candidate = [pscustomobject] @{ Check = $check.Name; Server = $server.Name; Seconds = $Took }
+                        $slow = @(@($slow | Where-Object Seconds -GE $Took) + $candidate + @($slow | Where-Object Seconds -LT $Took) | Select-Object -First 5)
+                        $state.Slow = $slow
+                        for ($rank = 0; $rank -lt $slow.Count; $rank++) {
+                            Update-ConsoleTable -Name slowest -Key "$($rank + 1)" -Value $slow[$rank].Check, $slow[$rank].Server, ($slow[$rank].Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+                        }
+                    }
+                } {
+                    param($S) Write-ConsoleLog "$($plan.Servers[$S].Name) finished $($plan.Checks.Count) checks in $(& $format $serverSeconds[$S])" -Highlight Smart
+                }
+                $overall = if ($tally.Failed) { 'Fail' } elseif ($tally.Warned) { 'Warn' } else { 'Pass' }
+                Update-ConsolePhase -Key Check -Status $overall -Detail "$($tally.Failed) failed"
+
+                # Report: the file, then the email.
+                Send-ConsoleEvent dashboard status -Text 'writing the report' -State Running
+                Update-ConsolePhase -Key Report -Status Running
+                foreach ($step in 1..4) {
+                    Update-ConsoleActivity -Name running -Id 9000 -Activity "Writing $($plan.ReportFile)" -Percent ($step * 25)
+                    $clock.Wait(0.6)
+                }
+                Update-ConsoleActivity -Name running -Id 9000 -Complete
+                Write-ConsoleLog "Report saved: $($plan.ReportPath) (412 KB)" -Highlight Smart
+                if ($plan.Notify) {
+                    $clock.Wait(0.5)
+                    Write-ConsoleLog "Report emailed to $($plan.Email)" -Highlight Smart
+                }
+                Update-ConsolePhase -Key Report -Status Pass -Detail $plan.Format.ToUpper()
+                Send-ConsoleEvent dashboard status -Text "$($tally.Failed) failed · $($tally.Warned) warnings" -State $overall
+                # The finished screen stays a moment, with the clock standing still.
+                $clock.Hold(1.2)
+
+                $script:history = @($script:history) + [pscustomobject] @{ When = 'Tue 20 Oct 09:30'; Domain = $plan.Domain; Servers = $plan.Servers.Count; Checks = $plan.Checks.Count; Passed = $tally.Passed; Warnings = $tally.Warned; Failed = $tally.Failed; Elapsed = $clock.Elapsed }
+                $script:lastReport = $plan.ReportFile
+                $script:lastFailed = $tally.Failed
+                $next = [ordered] @{ 'Open the report' = { $MenuContext.Toast("Opened $script:lastReport", 'Info') } }
+                if ($tally.Failed) {
+                    $next['Rerun the failed checks'] = { $MenuContext.Toast("Queued $script:lastFailed failed checks for a rerun", 'Info') }
+                }
+                $next['Export findings to CSV'] = { $MenuContext.Toast('Saved findings-20261020-0930.csv') }
+                $summary = if ($tally.Failed) { "$($tally.Failed) need action now; $($tally.Warned) warnings to review." } elseif ($tally.Warned) { "$($tally.Warned) warnings to review; nothing failed." } else { 'Nothing needs action.' }
+                $details = if ($state.Findings.Count) { $state.Findings.Values | Format-ConsoleTable -Property Server, Check, Expected, @{ Name = 'Actual'; Flexible = $true; Markup = $true } -Border Minimal -AsWidget }
+                #endregion
+                New-ConsoleRunResult 'Fleet check finished' -Status $overall -Summary "$($plan.Total) checks on $($plan.Servers.Count) servers in $($plan.Domain). $summary" `
+                    -Figure ([ordered] @{ passed = $tally.Passed; warnings = $tally.Warned; failed = $tally.Failed; servers = $plan.Servers.Count }) `
+                    -FigureStatus @{ passed = 'Pass'; warnings = $(if ($tally.Warned) { 'Warn' } else { 'Pass' }); failed = $(if ($tally.Failed) { 'Fail' } else { 'Pass' }) } `
+                    -Details $details -Next $next
+            }, $clock)
+    }
+    New-ConsoleMenuItem 'History' -Hotkey h -IconName List -Description 'Earlier runs, newest first.' -State { "$(@($script:history).Count) runs" } -Page {
+        $rows = for ($i = @($script:history).Count - 1; $i -ge 0; $i--) {
+            $run = @($script:history)[$i]
+            $tone = if ($run.Failed) { 'fail' } elseif ($run.Warnings) { 'warn' } else { 'pass' }
+            [pscustomobject] @{
+                When    = $run.When
+                Domain  = $run.Domain
+                Servers = $run.Servers
+                Checks  = $run.Servers * $run.Checks
+                Result  = "[$tone]$($run.Passed) passed · $($run.Warnings) warn · $($run.Failed) failed[/]"
+                Took    = '{0:hh\:mm\:ss}' -f $run.Elapsed
+            }
+        }
+        $rows | Format-ConsoleTable -Property When, Domain, @{ Name = 'Servers'; Alignment = 'Right' }, @{ Name = 'Checks'; Alignment = 'Right' }, @{ Name = 'Result'; Markup = $true }, @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal -NoSort -AsWidget
+    }
+    New-ConsoleMenuItem -Separator
+    New-ConsoleMenuItem 'Quit' -Exit
+}
+
+Show-ConsoleMenu $menu -Layout $Layout -AppName 'ConsoleMonster fleet health check'

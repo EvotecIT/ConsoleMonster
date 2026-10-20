@@ -84,4 +84,45 @@ $captured
 '@
         $text | Should -Match '\[OK\] backup'
     }
+
+    It 'updates cells, the summary bar and activities by name, keeping the bar''s total' {
+        $text = Invoke-ContentChild -Script @'
+$map = New-ConsoleCellMap -Name checks -Count 4 -Columns 2 -RowLabels 'SRV01', 'SRV02'
+$bar = New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 0; failed = 0 })
+$list = New-ConsoleActivityList -Name running
+$d = New-ConsoleDashboard -Title 'Fleet' { $bar; $map; $list }
+Start-ConsoleDashboard $d {
+    Update-ConsoleActivity -Name running -Id 1 -Activity 'SRV01 check'
+    Update-ConsoleActivity -Name running -Id 2 -Activity 'SRV02 check' -Percent 50 -Status 'second try'
+    Update-ConsoleCell -Name checks -Index 0, 1 -Status Pass
+    Update-ConsoleCell -Name checks -Index 3 -Status Error
+    Update-ConsoleCell -Name checks -Add -Status Warn
+    Update-ConsoleSummaryBar -Done 1 -Counter ([ordered] @{ passed = 1 })
+    Update-ConsoleSummaryBar -Done 3 -Counter ([ordered] @{ passed = 2; failed = 1 })
+    Update-ConsoleActivity -Name running -Id 1 -Complete
+}
+"map=$($map[0]),$($map[1]),$($map[2]),$($map[3]),$($map[4])"
+"bar=$($bar.Done)/$($bar.Total)"
+"activities=$($list.Count)"
+'@
+        $text | Should -Match 'map=Pass,Pass,Pending,Fail,Warn'
+        $text | Should -Match 'bar=3/4'
+        $text | Should -Match 'activities=1'
+        $text | Should -Match 'SRV02 check'
+        $text | Should -Match '2 passed'
+    }
+
+    It 'shows the time of a simulated clock in the header and the log with Start-ConsoleDashboard -Clock' {
+        $text = Invoke-ContentChild -Script @'
+$clock = New-ConsoleClock -Speed 0
+$d = New-ConsoleDashboard -Title 'Replay' { New-ConsoleLog -Height 3 }
+Start-ConsoleDashboard $d -Clock $clock -ArgumentList $clock {
+    param($Clock)
+    $Clock.Advance(83)
+    Write-ConsoleLog 'replayed'
+}
+'@
+        $text | Should -Match '00:01:23'
+        $text | Should -Match '01:23 +replayed'
+    }
 }

@@ -79,6 +79,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Transient { get; set; }
 
+        /// <summary><para type="description">A run clock (New-ConsoleClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</para></summary>
+        [Parameter]
+        public SimulatedClock? Clock { get; set; }
+
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
         public int FramesPerSecond { get; set; } = 15;
@@ -126,7 +130,8 @@ namespace ConsoleMonster.PowerShell {
                 Summary = Summary,
                 RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath),
                 AutoRecord = AutoRecord,
-                RecordingName = "dashboard"
+                RecordingName = "dashboard",
+                Clock = Clock == null ? null : new Func<TimeSpan>(Clock.Read)
             };
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
             if (HostOutput.UseHost(this, profile)) {
