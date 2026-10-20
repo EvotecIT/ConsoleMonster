@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a table whose rows change while a dashboard runs.</para>
     /// <para type="description">Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.</para>
+    /// </summary>
     /// <example>
     ///   <para>The 20 most recent jobs, newest state first</para>
     ///   <code>New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Duration' -MaxRows 20</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleLiveTable")]
     [OutputType(typeof(LiveTable))]
     public sealed class CmdletNewConsoleLiveTable : PSCmdlet {

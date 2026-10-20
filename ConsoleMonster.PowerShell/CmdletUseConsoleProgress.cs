@@ -9,16 +9,17 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script and shows its Write-Progress calls as an inline progress area.</para>
     /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
+    /// </summary>
     /// <example>
     ///   <para>An existing loop, unchanged</para>
-    ///   <code>Use-ConsoleProgress {
+    ///   <code>
+    /// Use-ConsoleProgress {
     ///     foreach ($i in 1..50) {
     ///         Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
     ///         Start-Sleep -Milliseconds 50
     ///     }
     /// }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsOther.Use, "ConsoleProgress")]
     [OutputType(typeof(object))]
     public sealed class CmdletUseConsoleProgress : PSCmdlet {

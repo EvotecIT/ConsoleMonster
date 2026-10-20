@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Replaces the content of a region (New-ConsoleRegion) in the running dashboard.</para>
     /// <para type="description">The new widget is shown from the next frame on; the surrounding frame stays, and live widgets inside the new content (lanes, logs, live tables) can be updated by name right away. Use it from the dashboard script, like the Update-Console* commands.</para>
+    /// </summary>
     /// <example>
     ///   <para>Show a table when the query finishes</para>
     ///   <code>Set-ConsoleRegion -Name main { $rows | Format-ConsoleTable -AsWidget }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Set, "ConsoleRegion", DefaultParameterSetName = "Content")]
     public sealed class CmdletSetConsoleRegion : LiveCmdlet {
         /// <summary><para type="description">The region name.</para></summary>

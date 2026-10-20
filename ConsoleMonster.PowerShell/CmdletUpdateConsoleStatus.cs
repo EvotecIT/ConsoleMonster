@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Updates an item of a status list in a running dashboard.</para>
     /// <para type="description">Adds the item when it does not exist. -Detail shows a right-aligned muted note such as a duration.</para>
+    /// </summary>
     /// <example>
     ///   <para>Mark a step as passed with its duration</para>
     ///   <code>Update-ConsoleStatus -Key restore -Status Pass -Detail '1.6s'</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Update, "ConsoleStatus")]
     public sealed class CmdletUpdateConsoleStatus : LiveCmdlet {
         /// <summary><para type="description">The item key.</para></summary>

@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Defines a live console dashboard: a header with title and clock, the body and a footer.</para>
     /// <para type="description">The scriptblock emits the body widgets top to bottom. Pass the result to Start-ConsoleDashboard to run it live, or to Write-ConsoleWidget to print it once.</para>
+    /// </summary>
     /// <example>
     ///   <para>A dashboard with lanes and a log that fills the rest of the screen</para>
     ///   <code>$d = New-ConsoleDashboard -Title 'Deploy' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes -Name servers }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboard")]
     [OutputType(typeof(Dashboard))]
     public sealed class CmdletNewConsoleDashboard : PSCmdlet {

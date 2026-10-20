@@ -8,6 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.</para>
     /// <para type="description">Takes ErrorRecords (from $Error, $_ in a catch block, -ErrorVariable) and .NET exceptions from the pipeline. Each shows the type and the message, the category and error id, PowerShell's position message with the failing line, the script stack, the .NET frames as Type.Method() with shortened paths and file:line links, framework frames collapsed into "+n framework frames", and the inner exceptions as "Caused by". With -AsWidget the views are returned for New-ConsolePanel, dashboards or Export-ConsoleFrame instead of written. Redirected output is plain text.</para>
+    /// </summary>
     /// <example>
     ///   <para>The last error</para>
     ///   <code>$Error[0] | Format-ConsoleError</code>
@@ -16,7 +17,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>In a catch block, with the framework frames</para>
     ///   <code>try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Format-ConsoleError -ShowFrameworkFrames }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleError")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletFormatConsoleError : ConsoleErrorCmdlet {
@@ -91,11 +91,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes an error or exception readably (Format-ConsoleError without -AsWidget).</para>
     /// <para type="description">The same view as Format-ConsoleError: type, message, position, script stack, frames with file:line links, collapsed framework frames and inner errors.</para>
+    /// </summary>
     /// <example>
     ///   <para>In a catch block</para>
     ///   <code>try { [int]::Parse('x') } catch { Write-ConsoleException $_ }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleException")]
     public sealed class CmdletWriteConsoleException : ConsoleErrorCmdlet {
     }

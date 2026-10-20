@@ -11,6 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows source text with syntax highlighting, line numbers and highlighted lines.</para>
     /// <para type="description">Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, log lines and Markdown, or plain text with -Language Smart (numbers, booleans, GUIDs, IP addresses, URLs, paths, dates, DNs, quoted strings). -Language Auto (the default) picks the language from the file extension, then from the content, and falls back to plain text. Text comes from -Path or from pipeline strings (joined as lines). The text is always literal: markup is not read and control characters are dropped. -LineNumbers adds a gutter, -Highlight marks lines (10, '10-14'), long lines are truncated with an ellipsis or wrapped with -Wrap, and output stops after -MaxLines lines with "+n more lines". A file is shown on a panel titled with its name (-Title changes it, -NoTitle leaves the panel out). Redirected output is plain text.</para>
+    /// </summary>
     /// <example>
     ///   <para>A script with line numbers and two lines marked</para>
     ///   <code>Format-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'</code>
@@ -19,7 +20,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A log file's last lines</para>
     ///   <code>Get-Content .\agent.log -Tail 20 | Format-ConsoleCode -Language Log</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleCode", DefaultParameterSetName = "Text")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletFormatConsoleCode : PSCmdlet {
@@ -130,6 +130,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.</para>
     /// <para type="description">A thin convenience over Format-ConsoleCode -Language Json. Pipeline strings are joined (so Get-Content works); when they are JSON they are re-indented, otherwise they are shown as a JSON string. Other objects are collected and written with ConsoleMonster's shared value rules to -Depth levels (default 4): dictionaries with any key type, cycles as "(cycle)", values past the depth as "…", secure strings masked and byte arrays as their size.</para>
+    /// </summary>
     /// <example>
     ///   <para>An object as highlighted JSON</para>
     ///   <code>Get-Process -Id $PID | Select-Object Name, Id, StartTime | Format-ConsoleJson</code>
@@ -138,7 +139,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A JSON file with line numbers</para>
     ///   <code>Get-Content .\settings.json | Format-ConsoleJson -LineNumbers</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleJson")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletFormatConsoleJson : PSCmdlet {

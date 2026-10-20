@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.</para>
     /// <para type="description">The content keeps its measured size and is placed within the space the parent gives it. Horizontal alignment uses the full width; vertical alignment applies when the parent gives more rows than the content needs (-Height or -Fill). Widgets that already use the full width, such as progress bars, only move vertically.</para>
+    /// </summary>
     /// <example>
     ///   <para>A centred logo above a dashboard</para>
-    ///   <code>New-ConsoleAlign -Horizontal Center { New-ConsoleLogo -Text 'TESTIMOX' }</code>
+    ///   <code>New-ConsoleAlign -Horizontal Center { New-ConsoleLogo -Text 'Monster' }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleAlign")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleAlign : PSCmdlet {

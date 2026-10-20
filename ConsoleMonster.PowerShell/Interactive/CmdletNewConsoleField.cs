@@ -8,17 +8,19 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form field for New-ConsoleForm.</para>
     /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validate and the type's own checks) and the command-line parameter it supplies (-Parameter) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values).</para>
+    /// </summary>
     /// <example>
     ///   <para>Dependent fields: picking a site loads its servers</para>
-    ///   <code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
+    ///   <code>
+    /// New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
     /// New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -Parameter Server</code>
     /// </example>
     /// <example>
     ///   <para>A conditional field</para>
-    ///   <code>New-ConsoleField Notify 'Send an email' -Type Toggle
+    ///   <code>
+    /// New-ConsoleField Notify 'Send an email' -Type Toggle
     /// New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleField")]
     [OutputType(typeof(Field))]
     public sealed class CmdletNewConsoleField : PSCmdlet {

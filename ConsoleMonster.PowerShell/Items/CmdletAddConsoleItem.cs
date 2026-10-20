@@ -1,0 +1,56 @@
+using System.Management.Automation;
+
+namespace ConsoleMonster.PowerShell {
+    /// <summary>
+    /// <para type="synopsis">Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.</para>
+    /// <para type="description">The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLog and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Write-ConsoleWidget. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatus, Write-ConsoleLog...) instead.</para>
+    /// </summary>
+    /// <example>
+    ///   <para>Add log lines as the script goes, then show the log</para>
+    ///   <code>
+    /// $log = New-ConsoleLog -Height 5
+    /// $log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -At 2s }
+    /// $log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -At 31s }
+    /// $log | Write-ConsoleWidget</code>
+    /// </example>
+    /// <example>
+    ///   <para>Grow a tree in a loop</para>
+    ///   <code>
+    /// $tree = New-ConsoleTree 'Shares'
+    /// foreach ($share in Get-SmbShare) {
+    ///     $tree | Add-ConsoleItem { New-ConsoleTreeNode $share.Name -Detail $share.Path }
+    /// }
+    /// $tree | Write-ConsoleWidget</code>
+    /// </example>
+    /// <example>
+    ///   <para>Values for a sparkline, written on</para>
+    ///   <code>New-ConsoleSparkline -Label 'req/s' | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Write-ConsoleWidget</code>
+    /// </example>
+    [Cmdlet(VerbsCommon.Add, "ConsoleItem")]
+    public sealed class CmdletAddConsoleItem : PSCmdlet {
+        /// <summary><para type="description">The widget to add to (pipeline input): a tree or tree node, key/value list, status list, phases, bar chart, stacked bar, line chart, log, lanes, cell map, sparkline, histogram or live table.</para></summary>
+        [Parameter(Mandatory = true, ValueFromPipeline = true)]
+        public PSObject InputObject { get; set; } = null!;
+
+        /// <summary><para type="description">The items: a script block that emits them, or the items themselves.</para></summary>
+        [Parameter(Position = 0, Mandatory = true)]
+        public object Item { get; set; } = null!;
+
+        /// <summary><para type="description">For a live table: the property whose value is the row key (default the first column).</para></summary>
+        [Parameter]
+        public string? KeyProperty { get; set; }
+
+        /// <summary><para type="description">Writes the widget to the pipeline after adding.</para></summary>
+        [Parameter]
+        public SwitchParameter PassThru { get; set; }
+
+        /// <inheritdoc />
+        protected override void ProcessRecord() {
+            object widget = PSText.Unwrap(InputObject) ?? InputObject;
+            PSItems.AddAll(this, widget, PSItems.Items(Item), KeyProperty);
+            if (PassThru.IsPresent) {
+                WriteObject(InputObject);
+            }
+        }
+    }
+}

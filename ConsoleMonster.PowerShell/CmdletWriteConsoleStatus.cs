@@ -10,16 +10,17 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows one status line that updates in place, with an optional spinner, clock and elapsed time.</para>
     /// <para type="description">Each call replaces the line (Write-Color style pieces, colours, -Markup, -Style and -Role as in Write-ConsoleText). -Spinner, -ShowClock and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).</para>
+    /// </summary>
     /// <example>
     ///   <para>A copy loop with a spinner and elapsed time</para>
-    ///   <code>foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
+    ///   <code>
+    /// foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
     /// Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete</code>
     /// </example>
     /// <example>
     ///   <para>A waiting line with a clock (PSWriteColor issue #15)</para>
     ///   <code>Write-ConsoleStatus 'You have waited ' -Color Green -BackgroundColor Blue -ShowClock -ShowElapsed; Start-Sleep 5; Write-ConsoleStatus 'Done' -Status Pass -Complete</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleStatus")]
     public sealed class CmdletWriteConsoleStatus : PSCmdlet {
         private static string? _lastFallback;
@@ -51,6 +52,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A theme role for pieces without their own colour.</para></summary>
         [Parameter]
+        [Alias("Tone")]
         public ThemeToken? Role { get; set; }
 
         /// <summary><para type="description">A status marker before the text (Pass, Fail, Warn, Info, Running...).</para></summary>

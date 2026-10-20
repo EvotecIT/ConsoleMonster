@@ -9,6 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Formats pipeline objects as a width-aware table and writes it to the host.</para>
     /// <para type="description">Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.</para>
+    /// </summary>
     /// <example>
     ///   <para>Largest files, sizes as bytes, paths shortened in the middle</para>
     ///   <code>Get-ChildItem -File | Sort-Object Length -Descending | Format-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }</code>
@@ -17,7 +18,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Services grouped by status</para>
     ///   <code>Get-Service | Format-ConsoleTable -GroupBy Status -Property Name, DisplayName, StartType</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleTable")]
     [Alias("fct")]
     public sealed class CmdletFormatConsoleTable : PSCmdlet {

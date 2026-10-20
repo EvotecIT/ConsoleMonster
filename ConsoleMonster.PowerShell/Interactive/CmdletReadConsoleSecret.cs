@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks for a secret and returns a SecureString (or a string with -AsPlainText).</para>
     /// <para type="description">The typed text is masked (or not shown at all with -Hidden); Ctrl+R reveals it while held open. The answer never appears in the scrollback summary. In remoting and the ISE the host reads it (ReadLineAsSecureString).</para>
+    /// </summary>
     /// <example>
     ///   <para>A password for a credential</para>
-    ///   <code>$password = Read-ConsoleSecret 'Password for svc-backup'; $credential = [pscredential]::new('svc-backup', $password)</code>
+    ///   <code>$password = Read-ConsoleSecret 'Password for svc-backup'; $credential = New-Object pscredential 'svc-backup', $password</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleSecret")]
     [OutputType(typeof(System.Security.SecureString), typeof(string))]
     public sealed class CmdletReadConsoleSecret : PromptCmdlet {

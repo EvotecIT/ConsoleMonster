@@ -6,16 +6,17 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.</para>
     /// <para type="description">The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.</para>
+    /// </summary>
     /// <example>
     ///   <para>A small script menu</para>
-    ///   <code>$menu = New-ConsoleMenu 'Backup helper' {
+    ///   <code>
+    /// $menu = New-ConsoleMenu 'Backup helper' {
     ///     New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
     ///     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
     ///     New-ConsoleMenuItem -Exit
     /// }
     /// Show-ConsoleMenu $menu -Layout Classic</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleMenu")]
     [OutputType(typeof(Menu))]
     public sealed class CmdletNewConsoleMenu : PSCmdlet {

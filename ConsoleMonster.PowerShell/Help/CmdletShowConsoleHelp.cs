@@ -10,6 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.</para>
     /// <para type="description">Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics are written as they are. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
+    /// </summary>
     /// <example>
     ///   <para>A cmdlet</para>
     ///   <code>Show-ConsoleHelp Get-ChildItem</code>
@@ -18,7 +19,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Through a pager</para>
     ///   <code>Show-ConsoleHelp Format-ConsoleTable | more</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Show, "ConsoleHelp")]
     [OutputType(typeof(string))]
     public sealed class CmdletShowConsoleHelp : PSCmdlet {

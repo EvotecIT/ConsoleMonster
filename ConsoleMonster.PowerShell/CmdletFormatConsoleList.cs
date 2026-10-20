@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Formats pipeline objects as record views (labelled values) and writes them to the host.</para>
     /// <para type="description">Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Format-ConsoleTable. Redirected output is plain text.</para>
+    /// </summary>
     /// <example>
     ///   <para>A process as a record</para>
     ///   <code>Get-Process -Id $PID | Format-ConsoleList -Property Name, Id, @{ Name = 'WorkingSet64'; Presenter = 'Bytes' }, StartTime, Modules -Depth 1</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleList")]
     [Alias("fcl")]
     public sealed class CmdletFormatConsoleList : PSCmdlet {

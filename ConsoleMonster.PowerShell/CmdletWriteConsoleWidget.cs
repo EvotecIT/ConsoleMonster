@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes console widgets once (tables, trees, panels, charts, dashboards).</para>
     /// <para type="description">Renders each widget at the terminal width in the detected mode: VT colours and Unicode glyphs in a terminal, append-only lines when redirected, plain ASCII with CONSOLEMONSTER_MODE=plain. Override detection with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE or NO_COLOR.</para>
+    /// </summary>
     /// <example>
     ///   <para>Print a panel with a table</para>
     ///   <code>New-ConsolePanel -Title 'Disks' { Get-Volume | Select-Object DriveLetter, FileSystemLabel, SizeRemaining | New-ConsoleTable -Border Minimal } | Write-ConsoleWidget</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleWidget")]
     public sealed class CmdletWriteConsoleWidget : PSCmdlet {
         /// <summary><para type="description">The widgets to write; strings are treated as markup.</para></summary>

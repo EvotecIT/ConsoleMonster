@@ -8,6 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the structure of pipeline objects as a tree (or an inspector view) and writes it to the host.</para>
     /// <para type="description">Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries, nested to -Depth levels. Collections list up to -MaxItems items followed by "+N more"; reference cycles and the depth limit are marked instead of recursing forever. -Include and -Exclude filter member names (wildcards). With -AsInspector the object is shown as a record view: nested objects as indented sections and uniform collections as nested tables. Redirected output is plain text.</para>
+    /// </summary>
     /// <example>
     ///   <para>A nested configuration</para>
     ///   <code>Get-Content settings.json -Raw | ConvertFrom-Json | Format-ConsoleTree -Depth 4</code>
@@ -16,7 +17,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A certificate as an inspector</para>
     ///   <code>Get-ChildItem Cert:\CurrentUser\My | Select-Object -First 1 | Format-ConsoleTree -AsInspector -Include Subject, Issuer, NotAfter, Extensions, DnsNameList</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Format, "ConsoleTree")]
     public sealed class CmdletFormatConsoleTree : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();

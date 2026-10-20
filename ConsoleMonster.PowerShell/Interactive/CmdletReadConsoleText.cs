@@ -7,6 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks for a line of text.</para>
     /// <para type="description">A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para>
+    /// </summary>
     /// <example>
     ///   <para>A validated name</para>
     ///   <code>$name = Read-ConsoleText 'Server name' -Default 'srv01' -Pattern '[a-z][a-z0-9-]{1,14}' -PatternMessage 'Lower case letters, digits and dashes'</code>
@@ -15,7 +16,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
     ///   <code>Read-ConsoleText 'Email' -Validate { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleText")]
     [OutputType(typeof(string))]
     public sealed class CmdletReadConsoleText : PromptCmdlet {

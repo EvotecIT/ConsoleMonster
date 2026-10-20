@@ -11,6 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows pipeline input in the view that fits it best.</para>
     /// <para type="description">One object becomes an inspector; objects of one shape a table (cards when the window is narrow), using their DefaultDisplayPropertySet and presenters by type (bytes for Length and Size, dates, durations, Yes/No, status markers for enums such as Running/Stopped); hierarchical objects (a child collection of the same type, or -ChildProperty) a tree; a numeric series a bar chart; strings highlighted code when a language is detected, otherwise text. -View overrides the choice; Grid opens the interactive Show-ConsoleGrid and returns what you pick.</para>
+    /// </summary>
     /// <example>
     ///   <para>Let it choose</para>
     ///   <code>Get-ChildItem | Show-Console</code>
@@ -19,7 +20,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A tree of folders by their children</para>
     ///   <code>$tree | Show-Console -ChildProperty Children</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Show, "Console")]
     public sealed class CmdletShowConsole : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();

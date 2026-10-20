@@ -6,11 +6,24 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Updates a progress bar in a running dashboard.</para>
     /// <para type="description">-Value sets the value, -Increment adds to it, -Label renames the bar and -Status sets a final state that recolours it.</para>
+    /// </summary>
     /// <example>
     ///   <para>Advance by one</para>
     ///   <code>Update-ConsoleProgress -Increment 1</code>
     /// </example>
-    /// </summary>
+    /// <example>
+    ///   <para>A dashboard whose bar follows a copy loop</para>
+    ///   <code>
+    /// $files = Get-ChildItem C:\Reports -File
+    /// $dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }
+    /// Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {
+    ///     param($Files)
+    ///     foreach ($file in $Files) {
+    ///         Copy-Item $file.FullName D:\Backup
+    ///         Update-ConsoleProgress -Increment 1
+    ///     }
+    /// }</code>
+    /// </example>
     [Cmdlet(VerbsData.Update, "ConsoleProgress")]
     public sealed class CmdletUpdateConsoleProgress : LiveCmdlet {
         /// <summary><para type="description">The progress bar name (default progress).</para></summary>

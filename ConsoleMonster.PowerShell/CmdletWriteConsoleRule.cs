@@ -5,11 +5,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes a horizontal rule, optionally with a title.</para>
     /// <para type="description">A quick section separator for scripts.</para>
+    /// </summary>
     /// <example>
     ///   <para>A section header</para>
     ///   <code>Write-ConsoleRule 'Step 2: collect'</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleRule")]
     public sealed class CmdletWriteConsoleRule : PSCmdlet {
         /// <summary><para type="description">The title (markup allowed).</para></summary>

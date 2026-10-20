@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Updates a phase of a running dashboard's phase strip.</para>
     /// <para type="description">Set -Status Running when a phase starts; its duration is measured until it gets a final status (Pass, Fail, Warn, Skip). -Detail replaces the shown detail (for example a percentage).</para>
+    /// </summary>
     /// <example>
     ///   <para>Start and finish a phase</para>
     ///   <code>Update-ConsolePhase -Key Build -Status Running; dotnet build; Update-ConsolePhase -Key Build -Status Pass</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Update, "ConsolePhase")]
     public sealed class CmdletUpdateConsolePhase : LiveCmdlet {
         /// <summary><para type="description">The phase key.</para></summary>

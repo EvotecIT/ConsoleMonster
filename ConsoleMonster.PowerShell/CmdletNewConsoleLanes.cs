@@ -4,18 +4,37 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a lanes widget: one row per worker, server or item of a parallel workload.</para>
-    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane or appear on their first Update-ConsoleLane.</para>
+    /// <para type="description">Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.</para>
+    /// </summary>
     /// <example>
     ///   <para>Lanes for three servers with 40 steps each</para>
     ///   <code>New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02', 'DC03' -Total 40</code>
     /// </example>
-    /// </summary>
+    /// <example>
+    ///   <para>Lanes at different points, printed once</para>
+    ///   <code>
+    /// New-ConsoleLanes {
+    ///     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
+    ///     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
+    ///     New-ConsoleLane 'DC03' -Total 40
+    /// } | Write-ConsoleWidget</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLanes")]
     [OutputType(typeof(Lanes))]
     public sealed class CmdletNewConsoleLanes : PSCmdlet {
-        /// <summary><para type="description">The live name (default lanes).</para></summary>
+        /// <summary><para type="description">The live name (default lanes). A script block here is taken as -Content.</para></summary>
         [Parameter(Position = 0)]
-        public string Name { get; set; } = "lanes";
+        public object Name { get; set; } = "lanes";
+
+        /// <summary><para type="description">A script block that emits the lanes: New-ConsoleLane calls, or names.</para></summary>
+        [Parameter(Position = 1)]
+        public ScriptBlock? Content { get; set; }
+
+        /// <summary><para type="description">Lanes from the pipeline: New-ConsoleLane objects or names.</para></summary>
+        [Parameter(ValueFromPipeline = true)]
+        public PSObject? InputObject { get; set; }
+
+        private readonly System.Collections.Generic.List<object> _piped = new System.Collections.Generic.List<object>();
 
         /// <summary><para type="description">Lanes to declare up front (key and label).</para></summary>
         [Parameter]
@@ -48,7 +67,16 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Lanes lanes = new Lanes(Name) {
+            if (InputObject != null) {
+                _piped.AddRange(PSItems.Items(InputObject));
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void EndProcessing() {
+            object? name = PSText.Unwrap(Name);
+            ScriptBlock? content = name is ScriptBlock script ? script : Content;
+            Lanes lanes = new Lanes(name is ScriptBlock || name == null ? "lanes" : PSWidgets.ToText(name)) {
                 Shape = Shape,
                 Columns = Column == null ? null : ProgressColumns.FromNames(Column),
                 HideCompleted = HideCompleted.IsPresent,
@@ -66,6 +94,8 @@ namespace ConsoleMonster.PowerShell {
                     }
                 }
             }
+            PSItems.AddAll(this, lanes, PSItems.Items(content));
+            PSItems.AddAll(this, lanes, _piped);
             WriteObject(lanes);
         }
     }

@@ -12,6 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows pipeline objects in an interactive grid and returns the rows you choose.</para>
     /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI) the rows are printed as a table with a warning and nothing is returned; -Mode None fails with an error instead.</para>
+    /// </summary>
     /// <example>
     ///   <para>Pick services to restart</para>
     ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf</code>
@@ -20,7 +21,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Browse processes sorted by memory</para>
     ///   <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortBy Memory -Descending -OutputMode None</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Show, "ConsoleGrid")]
     [OutputType(typeof(object))]
     public sealed class CmdletShowConsoleGrid : PSCmdlet {

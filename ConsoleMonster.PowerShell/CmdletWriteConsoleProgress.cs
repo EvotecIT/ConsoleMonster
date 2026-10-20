@@ -5,11 +5,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes a progress update, drawn by ConsoleMonster when Enable-ConsoleFormatting -Feature Progress is on.</para>
     /// <para type="description">Takes the same parameters as Write-Progress. With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias of this command for the session, so scripts and functions that call Write-Progress get ConsoleMonster's progress area: one row per activity below the cursor (nested with -ParentId), with a bar, the percentage, the status and the elapsed time. Output and errors written in between appear above the area, warnings and Write-Host lines too, and the area disappears when every activity completes or the command ends. $ProgressPreference and -ProgressAction are honoured. Without the feature, in redirected output, jobs, remoting and other hosts, it writes PowerShell's own progress record. Progress written by compiled cmdlets (Copy-Item, Invoke-WebRequest) is still shown by PowerShell.</para>
+    /// </summary>
     /// <example>
     ///   <para>An existing loop, after Enable-ConsoleFormatting -Feature Progress</para>
     ///   <code>foreach ($i in 1..50) { Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2); Start-Sleep -Milliseconds 50 }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleProgress")]
     public sealed class CmdletWriteConsoleProgress : PSCmdlet {
         /// <summary><para type="description">The activity (the row's title).</para></summary>

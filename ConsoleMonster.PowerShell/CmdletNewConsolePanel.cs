@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a bordered panel with a title around other console widgets.</para>
     /// <para type="description">-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.</para>
+    /// </summary>
     /// <example>
     ///   <para>A panel holding a lanes widget, taking two shares of a row</para>
     ///   <code>New-ConsolePanel -Title 'Targets' -Weight 2 { New-ConsoleLanes -Name targets }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsolePanel")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsolePanel : PSCmdlet {

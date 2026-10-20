@@ -5,11 +5,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Lays console widgets out in an equal-width grid.</para>
     /// <para type="description">Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.</para>
+    /// </summary>
     /// <example>
     ///   <para>Three charts in a row</para>
     ///   <code>New-ConsoleGrid -Columns 3 { New-ConsoleSparkline -Name a; New-ConsoleSparkline -Name b; New-ConsoleSparkline -Name c }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleGrid")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleGrid : PSCmdlet {

@@ -9,6 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.</para>
     /// <para type="description">Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.</para>
+    /// </summary>
     /// <example>
     ///   <para>Save a report as plain text</para>
     ///   <code>Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }</code>
@@ -17,7 +18,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Capture a table as a string</para>
     ///   <code>$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsOther.Use, "ConsoleTarget", DefaultParameterSetName = "String")]
     public sealed class CmdletUseConsoleTarget : PSCmdlet {
         /// <summary><para type="description">The commands whose output goes to the target.</para></summary>

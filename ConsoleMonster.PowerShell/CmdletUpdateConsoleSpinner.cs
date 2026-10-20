@@ -6,12 +6,13 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Updates a spinner in a running dashboard.</para>
     /// <para type="description">-Label renames it, -Detail changes the muted detail, -Restart restarts its clock and returns it to running, and -Status sets a final state that replaces the animation with the status marker.</para>
+    /// </summary>
     /// <example>
     ///   <para>Report progress, then finish</para>
-    ///   <code>Update-ConsoleSpinner -Detail 'zone 4'
+    ///   <code>
+    /// Update-ConsoleSpinner -Detail 'zone 4'
     /// Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Update, "ConsoleSpinner")]
     public sealed class CmdletUpdateConsoleSpinner : LiveCmdlet {
         /// <summary><para type="description">The spinner name (default spinner).</para></summary>

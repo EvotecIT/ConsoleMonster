@@ -6,15 +6,16 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</para>
     /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back.</para>
+    /// </summary>
     /// <example>
     ///   <para>A two-page wizard</para>
-    ///   <code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+    ///   <code>
+    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
     ///     New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
     ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
     ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
     /// }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleForm")]
     [OutputType(typeof(Form))]
     public sealed class CmdletNewConsoleForm : PSCmdlet {

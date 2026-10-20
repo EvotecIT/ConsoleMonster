@@ -5,11 +5,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Places console widgets side by side.</para>
     /// <para type="description">Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.</para>
+    /// </summary>
     /// <example>
     ///   <para>Two panels, the first twice as wide</para>
     ///   <code>New-ConsoleColumns { New-ConsolePanel -Title 'Steps' -Weight 2 { New-ConsoleStatusList -Name steps }; New-ConsolePanel -Title 'Info' { New-ConsoleKeyValue -Name info } }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleColumns")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleColumns : PSCmdlet {
