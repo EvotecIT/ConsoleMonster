@@ -1,6 +1,6 @@
 ﻿# Everyday commands as PowerShell shows them, then the same commands after one line: Enable-ConsoleFormatting.
-# The hidden lines only print the prompt before each command, as a terminal would.
 #region hidden
+# The hidden lines only print the prompt before each command, as a terminal would.
 function Write-Prompt([string] $Command) { Start-Sleep -Milliseconds 700; Write-Host "PS> $Command" -ForegroundColor Yellow; Start-Sleep -Milliseconds 400 }
 Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')
 Write-ConsoleRule '[muted]before[/]'

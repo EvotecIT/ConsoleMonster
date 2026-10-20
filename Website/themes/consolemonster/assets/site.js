@@ -247,7 +247,7 @@
         // A replay that has not loaded yet (its panel was hidden) starts once it mounts.
         if (!p) {
           if (replay && tab === chosen) replay.setAttribute(fromUrl ? 'data-autoplay' : 'data-cm-play', '');
-          if (replay && tab !== chosen) replay.removeAttribute('data-autoplay');
+          if (replay && tab !== chosen) { replay.removeAttribute('data-autoplay'); replay.removeAttribute('data-cm-play'); }
           return;
         }
         if (fromUrl) { if (tab !== chosen) p.pause(); return; }

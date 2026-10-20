@@ -13,7 +13,7 @@
           "line": "Better output for the commands you already run: one line turns it on for the session.",
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
-          "note": "Get-Process, Get-ChildItem, a hashtable and Get-Service, first as PowerShell shows them and then after Enable-ConsoleFormatting, recorded on PowerShell 7 from the script in the tab beside it.",
+          "note": "Get-Process, Get-ChildItem and a hashtable as PowerShell shows them, then again after Enable-ConsoleFormatting with Get-Service grouped by status, recorded on PowerShell 7 from the script in the tab beside it.",
           "install": [
             {
               "lang": "powershell",
@@ -466,7 +466,7 @@
     },
     "formatting": {
       "title": "Before and after Enable-ConsoleFormatting",
-      "body": "Four everyday commands: processes, files, a hashtable and services, first as PowerShell shows them, then with ConsoleMonster turned on for the session.",
+      "body": "Processes, files and a hashtable, first as PowerShell shows them, then with ConsoleMonster turned on for the session, followed by services grouped by status.",
       "label": "Get-Process, Get-ChildItem and a hashtable before and after Enable-ConsoleFormatting, then Get-Service grouped by status",
       "use": {
         "title": "Use it in every session",

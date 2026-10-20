@@ -21,7 +21,7 @@
       <p class="cm-stage__lede">{{ copy.lede }}</p>
     </div>
     {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
-         (#everyday, #monster). Without JavaScript the Everyday panel shows and the Monster panel stays hidden. ## ~}}
+         (#everyday, #monster). Without JavaScript both panels show, Everyday first (pages.css). ## ~}}
     <div class="cm-paths" data-cm-tabs data-cm-paths>
       <div class="cm-seg cm-paths__switch" role="tablist" aria-label="{{ copy.paths.label }}">
         {{~ for path in copy.paths.items ~}}
