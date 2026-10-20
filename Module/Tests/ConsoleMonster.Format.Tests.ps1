@@ -232,4 +232,28 @@ $h | Format-ConsoleTree -Depth 3 -Width 80
         ([regex]::Matches($parts[1], 'Config')).Count | Should -Be 1
         $parts[1] | Should -Match 'svc'
     }
+
+    It 'shows a lone dictionary without a heading unless the caller gives a title' {
+        $script = @'
+@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleTable -Width 60 -AsString
+'=====SPLIT====='
+@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleList -Width 60 -AsString
+'=====SPLIT====='
+@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleTable -Title 'Mail' -Width 60 -AsString
+'=====SPLIT====='
+@{ Name = 'alpha'; Port = 8080 } | Format-ConsoleList -Width 60 -AsString
+'@
+        $text = Invoke-FormatChild -Script $script
+        $parts = $text -split '=====SPLIT====='
+        foreach ($part in $parts[0], $parts[1]) {
+            $part | Should -Not -Match 'Hashtable'
+            $part | Should -Match 'Domain\s+evotec\.xyz'
+            $part | Should -Match 'Records\s+14'
+        }
+        $parts[2] | Should -Match '(?m)^\s*Mail\b'
+        $parts[2] | Should -Match 'Domain\s+evotec\.xyz'
+        # A Name key is a field like the others, not a heading.
+        $parts[3] | Should -Match 'Name\s+alpha'
+        $parts[3] | Should -Match 'Port\s+8080'
+    }
 }

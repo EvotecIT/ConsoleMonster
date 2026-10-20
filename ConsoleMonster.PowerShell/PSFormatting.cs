@@ -300,8 +300,12 @@ namespace ConsoleMonster.PowerShell {
                         }
                     }
                 } else {
+                    // A lone dictionary without a caller's title shows its entries with no heading, as PowerShell shows a
+                    // hashtable: every key, a Name key included, is a field (otherwise the heading would be its type name or a
+                    // key's value).
+                    bool lone = expanded.Count == 1 && title == null && ValueShaper.Prepare(run[0], shape) is System.Collections.IDictionary;
                     foreach (PSObject item in run) {
-                        AddRecord(view, columns, key, item, 0, depth, expanded.Count > 1 || title == null, shape, budget);
+                        AddRecord(view, columns, key, item, 0, depth, (expanded.Count > 1 || title == null) && !lone, shape, budget);
                     }
                 }
             }
