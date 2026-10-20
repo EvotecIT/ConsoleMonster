@@ -21,6 +21,13 @@ the global `powerforge-web` tool. The engine is pinned in `.powerforge/engine-lo
 has the PowerShell command reference mode); CI builds that ref. A local CLI older than the lock can fail the API steps:
 build the pinned ref from a `git archive` of PSPublishModule instead.
 
+Caching: the CI pipeline's optimize step hashes every CSS and JS file into a content-addressed name (`hashAssets` in
+`pipeline.json`) and rewrites the references, so a deploy never pairs new HTML with old styles or scripts. Prism's own
+scripts keep fixed names because its autoloader and `site.js` build their URLs. What scripts fetch by a fixed URL at run
+time (frame bundles, replays, recordings, Prism) carries the page's content version instead: `render` writes a hash of
+those folders to `data/assets.json`, `partials/head.html` puts it in `<meta name="cm-runtime">`, and `frames.js` and
+`site.js` add it as `?v=`.
+
 ## Real output only
 
 Every terminal frame on the site is ConsoleMonster output. Nothing is a screenshot and nothing is drawn by hand.
@@ -85,8 +92,14 @@ The site is set in the medium it documents: a terminal cell grid.
   player-data format (`Recording.ExportPlayerData` for live-event recordings; `Replay/PlayerData.cs` writes the same
   format for pseudo-console runs and storyboards, which are not event recordings). `partials/player.html` shows a mid-run
   poster without JavaScript; `assets/frames.js` only mounts the engine player near the viewport, picks the phone
-  rendering, seeks to the poster's moment and moves the player's screen into the site window. Engine gaps go in the PR's
+  rendering, opens it at the poster's moment (the player's `start` option) and moves the player's screen into the site
+  window. A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
+  window and its controls are always one width. Engine gaps go in the PR's
   engine notes, not into a fork of the player.
+- **Spacing.** One scale in `tokens.css` (`--cm-space-1` to `--cm-space-8`) and one rhythm between sections
+  (`--cm-section`, 96 px wide and 64 px on phones); a band keeps 64 px on each side of its edge. Use the tokens for every
+  gap between blocks rather than new pixel values. The home hero is one centred column whose players share one stage width
+  (`--cm-stage-w`), so switching between Everyday and Monster never moves or resizes the window.
 - **Selection.** Tabs, tier switches and width controls use `.cm-seg`; the chosen option is drawn as ConsoleMonster's
   focus row. Tabs follow the ARIA tab pattern, switches the radio group pattern (arrow keys move and select).
 - **Panels.** `.cm-panel` is ConsoleMonster's `Panel` widget in CSS (the title set into the top border); the gallery uses

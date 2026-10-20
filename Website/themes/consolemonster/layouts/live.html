@@ -103,7 +103,7 @@
       <h2 id="stream-title">{{ copy.stream.title }}</h2>
       <p>{{ copy.stream.body }}</p>
     </div>
-    {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines" ~}}
+    {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines"; screen_class = "cm-stream" ~}}
     {{ include "screen" }}
   </section>
 

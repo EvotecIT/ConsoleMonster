@@ -16,6 +16,19 @@
   --cm-max: 1240px;
   --cm-gutter: clamp(16px, 4vw, 40px);
 
+  /* One spacing scale for every page: steps for gaps inside a block, and one rhythm between sections (96 px on wide
+     screens, 64 px on phones). A band (a full-width ground, such as the dark stage) keeps 64 px on each side of its edge,
+     so the edge itself separates it from its neighbours instead of adding a second section gap. The home hero's stage is one width for both paths, so switching never moves the player. */
+  --cm-space-1: 4px;
+  --cm-space-2: 8px;
+  --cm-space-3: 12px;
+  --cm-space-4: 16px;
+  --cm-space-5: 24px;
+  --cm-space-6: 32px;
+  --cm-space-7: 48px;
+  --cm-space-8: 64px;
+  --cm-section: clamp(64px, 7vw, 96px);
+  --cm-stage-w: 1040px;
   --cm-page: #eceff3;
   --cm-surface: #ffffff;
   --cm-sunken: #e2e6ec;

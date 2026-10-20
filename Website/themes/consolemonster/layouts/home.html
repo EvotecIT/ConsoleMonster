@@ -14,6 +14,9 @@
 {{ include "site-header" }}
 <main id="main" class="cm-main">
 {{~ h = data.home; live = data.live; copy = data.copy.home; ribbon = data.figures["tier-ribbon"] ~}}
+{{~ ## The hero is one centred column: the headline and lede, the path switch, the chosen path's line and link, and its
+     player on a stage of one width (--cm-stage-w) for both paths, so switching never moves or resizes the window; the
+     install lines and the code sit side by side under it, as wide as the stage. ## ~}}
 <section class="cm-stage cm-tone-dark cm-hero" aria-labelledby="cm-hero-title">
   <div class="cm-wrap">
     <div class="cm-hero__intro">
@@ -30,9 +33,12 @@
       </div>
       {{~ for path in copy.paths.items; pd = data.demos[path.demo] ~}}
       <div class="cm-paths__panel" id="cm-path-{{ path.id }}" role="tabpanel" aria-labelledby="cm-path-{{ path.id }}-tab"{{ if !for.first }} hidden{{ end }}>
-        <p class="cm-paths__line">{{ path.line }} <a href="{{ path.url }}">{{ path.linkText }}</a></p>
+        <div class="cm-paths__lead">
+          <p class="cm-paths__line">{{ path.line }}</p>
+          <a class="cm-paths__more" href="{{ path.url }}">{{ path.linkText }}</a>
+        </div>
         <div class="cm-hero__stage">
-          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 14; player_class = "cm-window--center" ~}}
+          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 18; player_class = "cm-window--fill" ~}}
           {{ include "player" }}
           <p class="cm-hero__note">{{ path.note }}</p>
         </div>
@@ -80,7 +86,7 @@
   </div>
   <ul class="cm-demos">
     {{~ for l in side.links ~}}
-    <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong>{{ l.title }}</strong><span>{{ l.body }}</span><code>{{ l.command }}</code></a></li>
+    <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong class="cm-demos__title">{{ l.title }}</strong><p class="cm-demos__body">{{ l.body }}</p><code class="cm-demos__command">{{ l.command }}</code></a></li>
     {{~ end ~}}
   </ul>
 </section>
@@ -162,7 +168,7 @@
     </div>
     <div>
       <h3>{{ copy.live.streamTitle }}</h3>
-      {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines in stream mode" ~}}
+      {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines in stream mode"; screen_class = "cm-stream" ~}}
       {{ include "screen" }}
     </div>
   </div>
