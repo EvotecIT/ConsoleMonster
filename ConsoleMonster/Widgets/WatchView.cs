@@ -9,8 +9,9 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// The view of a command run again and again (<see cref="ConsoleWatch"/>, Watch-Console): a heading with the interval,
-    /// the title, the run number and the time of the last run, then the latest output. With <see cref="Differences"/>, the
-    /// cells that changed since the previous run are shown in reverse video, so changes stand out without colour.
+    /// the title, the run number and the time of the last run, then the latest output. With <see cref="Differences"/>, each
+    /// value (a table cell, a word or number) that changed since the previous run is shown bold on a soft surface tone, over
+    /// its own colours, until a run leaves it unchanged; without colour a marker before it (↑, ↓ or *) says so.
     /// <para>Live operation: <c>update</c> (Payload = the new content widget, Value = the run number, Text = a status such
     /// as an error message, or null).</para>
     /// </summary>
@@ -31,7 +32,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The time between runs, shown in the heading.</summary>
         public TimeSpan Interval { get; set; } = TimeSpan.FromSeconds(2);
 
-        /// <summary>Whether cells that changed since the previous run are highlighted (reverse video).</summary>
+        /// <summary>Whether values that changed since the previous run are highlighted (bold on a soft surface; a marker without colour).</summary>
         public bool Differences { get; set; }
 
         /// <summary>The number of the latest run (1 for the first).</summary>
@@ -82,16 +83,168 @@ namespace ConsoleMonster.Widgets {
             string[,] grid = new string[body.Width, body.Height];
             for (int y = 0; y < body.Height; y++) {
                 for (int x = 0; x < body.Width; x++) {
-                    Cell cell = body.Get(x, y);
-                    grid[x, y] = cell.Glyph;
-                    // A changed cell is marked, also one that turned blank (a value that disappeared).
-                    if (Differences && _previous != null && !cell.IsContinuation && Changed(_previous, x, y, cell.Glyph)) {
-                        body.SetStyle(x, y, cell.Style.With(TextDecoration.Reverse));
-                    }
+                    grid[x, y] = body.Get(x, y).Glyph;
+                }
+            }
+            if (Differences && _previous != null) {
+                for (int y = 0; y < body.Height; y++) {
+                    MarkRow(body, grid, _previous, y, context);
                 }
             }
             _rendered = grid;
         }
+
+        // A value is a word, a number ("1 204 311") or a marked status ("▴ Warning"): when any of its cells
+        // changed since the previous run, the whole value gets the change tone (bold on a soft surface, its own colours
+        // kept), and only until the next run that leaves it unchanged. Without colour, a marker in the gap before it says
+        // so: ↑ or ↓ for a number that went up or down, * otherwise.
+        private static void MarkRow(Region body, string[,] grid, string[,] previous, int y, RenderContext context) {
+            int width = body.Width;
+            if (IsRuleRow(grid, y, width)) {
+                // A border row ("+-----+", "──────") is layout, not a value, also when a column width changes.
+                return;
+            }
+            int x = 0;
+            while (x < width) {
+                if (IsGap(grid, x, y, width)) {
+                    x++;
+                    continue;
+                }
+                int start = x;
+                while (x < width && !IsGap(grid, x, y, width)) {
+                    x++;
+                }
+                int end = x;
+                // A value that got shorter leaves changed blank cells right after it; they belong to it.
+                while (end < width && grid[end, y] == " " && Changed(previous, end, y, " ") && !IsBorder(At(previous, end, y))) {
+                    end++;
+                }
+                bool changed = false;
+                for (int i = start; i < end && !changed; i++) {
+                    changed = Changed(previous, i, y, grid[i, y]);
+                }
+                if (changed) {
+                    Mark(body, grid, previous, start, x, end, y, context);
+                }
+                x = Math.Max(x, end);
+            }
+        }
+
+        private static void Mark(Region body, string[,] grid, string[,] previous, int start, int textEnd, int end, int y, RenderContext context) {
+            if (context.Profile.ColorDepth == Capabilities.ColorDepth.None) {
+                // In the gap before the value, or after it when the value starts the line.
+                int at = start > 0 && grid[start - 1, y] == " " ? start - 1 : textEnd < body.Width && grid[textEnd, y] == " " ? textEnd : -1;
+                if (at >= 0) {
+                    body.Put(at, y, Marker(grid, previous, start, textEnd, y, context), context.Style(ThemeToken.Muted));
+                }
+                return;
+            }
+            Color tone = context.Style(ThemeToken.Surface).Background;
+            for (int i = start; i < end; i++) {
+                Cell cell = body.Get(i, y);
+                if (cell.IsContinuation) {
+                    continue;
+                }
+                Style style = cell.Style.With(TextDecoration.Bold);
+                // A cell with its own background (a badge, a status pill) keeps it and is underlined instead.
+                body.SetStyle(i, y, tone.IsDefault || !cell.Style.Background.IsDefault ? style.With(TextDecoration.Underline) : style.WithBackground(tone));
+            }
+        }
+
+        private static bool IsRuleRow(string[,] grid, int y, int width) {
+            bool any = false;
+            for (int x = 0; x < width; x++) {
+                string glyph = grid[x, y] ?? " ";
+                if (glyph == " " || glyph.Length == 0) {
+                    continue;
+                }
+                if (!IsBorder(glyph) && glyph != "+" && glyph != "-" && glyph != "=") {
+                    return false;
+                }
+                any = true;
+            }
+            return any;
+        }
+
+        private static string Marker(string[,] grid, string[,] previous, int start, int end, int y, RenderContext context) {
+            bool ascii = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii;
+            // The previous value may have been wider ("40" where "4" is now): read all of it.
+            int from = Math.Min(start, previous.GetLength(0));
+            int to = Math.Min(end, previous.GetLength(0));
+            if (y < previous.GetLength(1)) {
+                while (from > 0 && !IsGap(previous, from - 1, y, previous.GetLength(0))) {
+                    from--;
+                }
+                while (to < previous.GetLength(0) && !IsGap(previous, to, y, previous.GetLength(0))) {
+                    to++;
+                }
+            }
+            System.Globalization.NumberFormatInfo numbers = context.Culture.NumberFormat;
+            if (TryNumber(Text(grid, start, end, y), numbers, out double now) && TryNumber(Text(previous, from, to, y), numbers, out double before) && now != before) {
+                return now > before ? (ascii ? "^" : "↑") : (ascii ? "v" : "↓");
+            }
+            return "*";
+        }
+
+        private static string Text(string[,] grid, int start, int end, int y) {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = start; i < end; i++) {
+                sb.Append(At(grid, i, y));
+            }
+            return sb.ToString().Trim();
+        }
+
+        // The number a value shows, read with the culture's separators ("1 204,5" in pl-PL, "1,204.5" in en-US; spaces and
+        // a percent sign allowed). Anything else is not a number, so its change is marked with "*".
+        private static bool TryNumber(string text, NumberFormatInfo numbers, out double value) {
+            string group = numbers.NumberGroupSeparator;
+            string separator = numbers.NumberDecimalSeparator;
+            System.Text.StringBuilder digits = new System.Text.StringBuilder();
+            for (int i = 0; i < text.Length; i++) {
+                char c = text[i];
+                if (char.IsDigit(c) || c == '-') {
+                    digits.Append(c);
+                } else if (string.CompareOrdinal(text, i, separator, 0, separator.Length) == 0) {
+                    digits.Append('.');
+                    i += separator.Length - 1;
+                } else if (string.CompareOrdinal(text, i, group, 0, group.Length) == 0) {
+                    i += group.Length - 1;
+                } else if (c != ' ' && c != '\u00a0' && c != '\u202f' && c != '%') {
+                    value = 0;
+                    return false;
+                }
+            }
+            return double.TryParse(digits.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+        }
+
+        // Value boundaries: table borders and spaces, except a single space inside a number or after a status marker.
+        private static bool IsGap(string[,] grid, int x, int y, int width) {
+            string glyph = grid[x, y];
+            if (IsBorder(glyph)) {
+                return true;
+            }
+            if (glyph != " ") {
+                return false;
+            }
+            if (x == 0 || x + 1 >= width) {
+                return true;
+            }
+            string before = grid[x - 1, y] ?? " ";
+            string after = grid[x + 1, y] ?? " ";
+            // An empty glyph is the second cell of a wide character (CJK, emoji): a space after it separates words.
+            if (before.Length == 0 || after.Length == 0 || before == " " || after == " " || IsBorder(before) || IsBorder(after)) {
+                return true;
+            }
+            // One space joins digit groups ("1 204 311") and a status marker to its word ("▴ Warning", "[WARN] Warning"); between words it
+            // separates values.
+            bool digits = char.IsDigit(before[0]) && char.IsDigit(after[0]);
+            bool marker = ((!char.IsLetterOrDigit(before[0]) && before[0] > '\u007f') || before[0] == ']') && char.IsLetter(after[0]);
+            return !(digits || marker);
+        }
+
+        private static bool IsBorder(string glyph) => glyph.Length == 1 && ((glyph[0] >= '\u2500' && glyph[0] <= '\u257f') || glyph[0] == '|');
+
+        private static string At(string[,] grid, int x, int y) => x < grid.GetLength(0) && y < grid.GetLength(1) ? grid[x, y] ?? " " : " ";
 
         private static bool Changed(string[,] previous, int x, int y, string glyph) {
             string before = x < previous.GetLength(0) && y < previous.GetLength(1) ? previous[x, y] ?? " " : " ";

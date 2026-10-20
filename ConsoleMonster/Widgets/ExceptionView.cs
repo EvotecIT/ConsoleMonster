@@ -123,8 +123,8 @@ namespace ConsoleMonster.Widgets {
             if (!ShowStack) {
                 return;
             }
-            AddFrames(lines, info.ScriptFrames, body, context);
-            AddFrames(lines, info.Frames, body, context);
+            AddFrames(lines, info.ScriptFrames, body, width, context);
+            AddFrames(lines, info.Frames, body, width, context);
         }
 
         private List<StyledLine>? _sourceCache;
@@ -168,7 +168,7 @@ namespace ConsoleMonster.Widgets {
                 lines.Add(Prefixed(body, row));
             }
         }
-        private void AddFrames(List<StyledLine> lines, List<ExceptionFrame> frames, string body, RenderContext context) {
+        private void AddFrames(List<StyledLine> lines, List<ExceptionFrame> frames, string body, int width, RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             Style text = context.Style(ThemeToken.Text);
             int shown = 0;
@@ -184,20 +184,57 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 FlushFramework(lines, body, ref hiddenFramework, muted);
-                List<TextSpan> spans = new List<TextSpan> { new TextSpan(body + "at ", muted), new TextSpan(ShortMethod(frame.Method), text) };
+                string method = ShortMethod(frame.Method);
+                string? location = frame.File == null ? null : ShortPath(frame.File) + (frame.Line > 0 ? ":" + frame.Line.ToString(CultureInfo.InvariantCulture) : string.Empty);
+                Style locationStyle = muted;
                 if (frame.File != null) {
-                    string location = ShortPath(frame.File) + (frame.Line > 0 ? ":" + frame.Line.ToString(CultureInfo.InvariantCulture) : string.Empty);
                     string? link = Link(frame.File);
-                    spans.Add(new TextSpan("  "));
-                    spans.Add(new TextSpan(location, link == null ? muted : muted.With(TextDecoration.Underline).WithLink(link)));
+                    locationStyle = link == null ? muted : muted.With(TextDecoration.Underline).WithLink(link);
                 }
-                lines.Add(new StyledLine(spans));
+                string at = body + "at ";
+                int oneLine = DisplayWidth.Measure(at) + DisplayWidth.Measure(method) + (location == null ? 0 : 2 + DisplayWidth.Measure(location));
+                if (width <= 0 || oneLine <= width) {
+                    List<TextSpan> spans = new List<TextSpan> { new TextSpan(at, muted), new TextSpan(method, text) };
+                    if (location != null) {
+                        spans.Add(new TextSpan("  "));
+                        spans.Add(new TextSpan(location, locationStyle));
+                    }
+                    lines.Add(new StyledLine(spans));
+                } else {
+                    // Too wide: the method wraps at its spaces under "at", and the file goes on its own line, shortened in
+                    // the front (outer folders) when it still does not fit, so the file name and line number stay readable.
+                    string hang = new string(' ', DisplayWidth.Measure(at));
+                    IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(StyledLine.From(method, text), Math.Max(10, width - hang.Length));
+                    for (int i = 0; i < wrapped.Count; i++) {
+                        List<TextSpan> spans = new List<TextSpan> { new TextSpan(i == 0 ? at : hang, muted) };
+                        spans.AddRange(wrapped[i]);
+                        lines.Add(new StyledLine(spans));
+                    }
+                    if (location != null) {
+                        string shortened = TailOfPath(location, Math.Max(10, width - hang.Length), context.Ellipsis);
+                        lines.Add(new StyledLine(new[] { new TextSpan(hang, muted), new TextSpan(shortened, locationStyle) }));
+                    }
+                }
                 shown++;
             }
             FlushFramework(lines, body, ref hiddenFramework, muted);
             if (hiddenApp > 0) {
                 lines.Add(StyledLine.From(body + Localization.WidgetLabels.Format(hiddenApp == 1 ? Localization.WidgetLabels.Current.OneMoreFrame : Localization.WidgetLabels.Current.ManyMoreFrames, hiddenApp.ToString(CultureInfo.InvariantCulture)), muted));
             }
+        }
+
+        // The end of a path that fits: "…\Rendering\Tests.cs:28", cut at a folder boundary when one is close.
+        private static string TailOfPath(string path, int width, string ellipsis) {
+            if (DisplayWidth.Measure(path) <= width) {
+                return path;
+            }
+            int keep = Math.Max(1, width - DisplayWidth.Measure(ellipsis));
+            string tail = path.Substring(Math.Max(0, path.Length - keep));
+            int separator = tail.IndexOfAny(new[] { '\\', '/' });
+            if (separator > 0 && separator < tail.Length / 2) {
+                tail = tail.Substring(separator);
+            }
+            return ellipsis + tail;
         }
 
         private static void FlushFramework(List<StyledLine> lines, string body, ref int hidden, Style muted) {

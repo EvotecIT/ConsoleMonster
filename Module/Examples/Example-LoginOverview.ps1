@@ -118,19 +118,21 @@ function Get-OverviewData {
 $data = Get-OverviewData -Sample:$Sample
 $memoryPercent = if ($data.MemoryTotal -gt 0) { [math]::Round(100 * $data.MemoryUsed / $data.MemoryTotal) } else { 0 }
 $invariant = [System.Globalization.CultureInfo]::InvariantCulture
+# Percentages the way every ConsoleMonster widget writes them (the bar chart below too): "61%".
+$percentText = { param([double] $Value) [ConsoleMonster.Widgets.NumberFormat]::Percent($Value / 100) }
 $facts = [ordered] @{
     'OS'         = $data.Os
     'Kernel'     = $data.Kernel
     'Uptime'     = '{0} days {1} h {2} min' -f $data.Uptime.Days, $data.Uptime.Hours, $data.Uptime.Minutes
     'Load'       = (($data.Load | ForEach-Object { $_.ToString('0.00', $invariant) }) -join ' / ') + " ($($data.Cpus) CPUs)"
-    'Memory'     = '{0} of {1} GB ({2} %)' -f ($data.MemoryUsed / 1GB).ToString('0.0', $invariant), ($data.MemoryTotal / 1GB).ToString('0.0', $invariant), $memoryPercent
+    'Memory'     = '{0} of {1} GB ({2})' -f ($data.MemoryUsed / 1GB).ToString('0.0', $invariant), ($data.MemoryTotal / 1GB).ToString('0.0', $invariant), (& $percentText $memoryPercent)
     'Last login' = $data.LastLogin
 }
 $health = [ordered] @{}
-$health["Memory $memoryPercent %"] = if ($memoryPercent -ge 90) { 'fail' } elseif ($memoryPercent -ge 75) { 'warn' } else { 'pass' }
+$health["Memory $(& $percentText $memoryPercent)"] = if ($memoryPercent -ge 90) { 'fail' } elseif ($memoryPercent -ge 75) { 'warn' } else { 'pass' }
 foreach ($mount in $data.Disks.Keys) {
     $percent = $data.Disks[$mount]
-    $health["Disk $mount $percent %"] = if ($percent -ge 90) { 'fail' } elseif ($percent -ge 80) { 'warn' } else { 'pass' }
+    $health["Disk $mount $(& $percentText $percent)"] = if ($percent -ge 90) { 'fail' } elseif ($percent -ge 80) { 'warn' } else { 'pass' }
 }
 if ($data.FailedUnits.Count -eq 0) {
     $health['No failed units'] = 'pass'

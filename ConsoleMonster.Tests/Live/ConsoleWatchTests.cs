@@ -78,22 +78,65 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Contains("partial", printed[0]);
         }
 
-        [Fact]
-        public void WatchView_Differences_HighlightsOnlyChangedCells() {
-            WatchView view = new WatchView { Differences = true };
-            RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.None, GlyphTier.Full), Theme.Dark);
-            view.Update(new TextBlock("count 41 of 99"), 1);
-            CellBuffer first = new CellBuffer(30, 2);
-            view.Render(new Region(first), context);
-            view.Update(new TextBlock("count 42 of 9"), 2);
+        private static CellBuffer RenderTwice(WatchView view, RenderContext context, string before, string after) {
+            view.Update(new TextBlock(before), 1);
+            view.Render(new Region(new CellBuffer(30, 2)), context);
+            view.Update(new TextBlock(after), 2);
             CellBuffer second = new CellBuffer(30, 2);
             view.Render(new Region(second), context);
-            // Row 1 holds the content: "count 4" is unchanged, the "2" changed.
-            Assert.Equal(TextDecoration.None, second[0, 1].Style.Decoration & TextDecoration.Reverse);
-            Assert.Equal(TextDecoration.Reverse, second[7, 1].Style.Decoration & TextDecoration.Reverse);
-            Assert.Equal(TextDecoration.None, second[9, 1].Style.Decoration & TextDecoration.Reverse);
-            // The last "9" disappeared: the blank cell is marked too.
-            Assert.Equal(TextDecoration.Reverse, second[13, 1].Style.Decoration & TextDecoration.Reverse);
+            return second;
+        }
+
+        [Fact]
+        public void WatchView_Differences_TonesWholeChangedValuesOnly() {
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            Color tone = context.Style(ThemeToken.Surface).Background;
+            WatchView view = new WatchView { Differences = true };
+            CellBuffer second = RenderTwice(view, context, "count 41 of 99", "count 42 of 9");
+            // Row 1 holds the content: "count" and "of" are unchanged; "42" changed as a whole, not only its "2".
+            Assert.NotEqual(tone, second[0, 1].Style.Background);
+            Assert.Equal(tone, second[6, 1].Style.Background);
+            Assert.Equal(tone, second[7, 1].Style.Background);
+            Assert.True((second[6, 1].Style.Decoration & TextDecoration.Bold) != 0);
+            Assert.NotEqual(tone, second[9, 1].Style.Background);
+            // "99" became "9": the value and the cell it left are toned.
+            Assert.Equal(tone, second[12, 1].Style.Background);
+            Assert.Equal(tone, second[13, 1].Style.Background);
+            // The next run with the same values clears the tone.
+            view.Update(new TextBlock("count 42 of 9"), 3);
+            CellBuffer third = new CellBuffer(30, 2);
+            view.Render(new Region(third), context);
+            Assert.NotEqual(tone, third[6, 1].Style.Background);
+        }
+
+        [Fact]
+        public void WatchView_Differences_WideCharactersBorderRowsAndCultureDecimals() {
+            RenderContext colour = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            // Wide characters before a space do not break the value scan.
+            CellBuffer wide = RenderTwice(new WatchView { Differences = true }, colour, "名前 Alice 1", "名前 Alice 2");
+            Assert.Contains("Alice", wide.GetRowText(1));
+            // A border row that changes width is layout, not a value.
+            RenderContext plain = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.None, GlyphTier.Ascii).WithCulture(System.Globalization.CultureInfo.GetCultureInfo("pl-PL")), Theme.Dark);
+            CellBuffer border = RenderTwice(new WatchView { Differences = true }, plain, "+------+", "+--------+");
+            Assert.DoesNotContain("*", border.GetRowText(1));
+            // pl-PL decimals: 1,5 down to 1,25 is a drop.
+            CellBuffer decimals = RenderTwice(new WatchView { Differences = true }, plain, "load  1,5", "load  1,25");
+            Assert.Contains("v1,25", decimals.GetRowText(1));
+            // A value at the start of the line gets its marker after it.
+            CellBuffer first = RenderTwice(new WatchView { Differences = true }, plain, "41 waiting", "48 waiting");
+            Assert.StartsWith("48^waiting", first.GetRowText(1));
+        }
+
+        [Fact]
+        public void WatchView_Differences_WithoutColour_MarksValuesBeforeThem() {
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            CellBuffer second = RenderTwice(new WatchView { Differences = true }, context, "left  41  queue a  40", "left  48  queue b   4");
+            string row = second.GetRowText(1);
+            Assert.Contains("↑48", row);
+            // "40" became "4": the whole previous value is compared, so it went down.
+            Assert.Contains("↓4", row);
+            Assert.Contains("*b", row);
+            Assert.StartsWith("left", row);
         }
     }
 }

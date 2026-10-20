@@ -147,37 +147,24 @@ namespace ConsoleMonster.Extensions.Logging {
             return true;
         }
 
+        // The exception through ConsoleMonster's error view: type and message, the frames with user code emphasised and
+        // framework frames collapsed, wrapped at word and path boundaries, indented under the entry.
         private void AddException(List<StyledLine> lines, Exception exception, RenderContext context) {
-            Style fail = context.Style(ThemeToken.Fail);
-            Style muted = context.Style(ThemeToken.Muted);
-            lines.Add(new StyledLine(new[] {
-                new TextSpan("    " + exception.GetType().FullName + ": ", fail),
-                new TextSpan(exception.Message.Replace("\r\n", " ").Replace('\n', ' '), context.Style(ThemeToken.Text))
-            }));
-            if (Options.MaxExceptionLines <= 0) {
-                return;
-            }
-            string[] details = exception.ToString().Replace("\r\n", "\n").Split('\n');
-            int shown = 0;
-            // The first line repeats the type and message.
-            for (int i = 1; i < details.Length && shown < Options.MaxExceptionLines; i++) {
-                if (details[i].Trim().Length == 0) {
-                    continue;
-                }
-                lines.Add(StyledLine.From("      " + details[i].Trim(), muted));
-                shown++;
-            }
-            int rest = 0;
-            for (int i = 1; i < details.Length; i++) {
-                if (details[i].Trim().Length > 0) {
-                    rest++;
-                }
-            }
-            if (rest > shown) {
-                lines.Add(StyledLine.From("      +" + (rest - shown).ToString(CultureInfo.InvariantCulture) + " more", muted));
+            ExceptionView view = new ExceptionView(exception) {
+                ShowStack = Options.MaxExceptionLines > 0,
+                MaxFrames = Math.Max(1, Options.MaxExceptionLines),
+                ShowSource = false
+            };
+            const int indent = 4;
+            // On a terminal the view fits the window; in redirected logs and files nothing is wrapped or shortened.
+            int width = context.Profile.Mode == OutputMode.Interactive ? Math.Max(20, context.Profile.Width - indent - 1) : 100000;
+            string pad = new string(' ', indent);
+            foreach (StyledLine line in view.Lines(width, context)) {
+                List<TextSpan> spans = new List<TextSpan> { new TextSpan(pad) };
+                spans.AddRange(line);
+                lines.Add(new StyledLine(spans));
             }
         }
-
         private string? CategoryText(string category) {
             if (string.IsNullOrEmpty(category) || Options.Category == LogCategoryFormat.None) {
                 return null;

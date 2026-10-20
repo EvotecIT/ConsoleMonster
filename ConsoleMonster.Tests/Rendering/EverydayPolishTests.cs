@@ -14,6 +14,32 @@ namespace ConsoleMonster.Tests.Rendering {
             TableShowcaseGoldenTests.WithInvariantCulture(() => Terminal.RenderText(widget, TerminalProfile.Fixed(width, 40, depth, tier), Theme.Dark))
                 .Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
 
+        [Theory]
+        [InlineData(29, 100, "29%")]
+        [InlineData(57, 100, "57%")]
+        [InlineData(999, 1000, "99%")]
+        [InlineData(7, 7, "100%")]
+        public void Percent_RoundsDownPastBinaryNoise(int part, int whole, string expected) {
+            Assert.Equal(expected, NumberFormat.Percent(part / (double)whole));
+        }
+
+        [Fact]
+        public void ExceptionView_NarrowWidth_KeepsEveryLineInsideAndTheFileOnItsOwnLine() {
+            Exception error;
+            try {
+                throw new InvalidOperationException("The report template folder is missing.");
+            } catch (InvalidOperationException ex) {
+                error = ex;
+            }
+            ConsoleMonster.Canvas.RenderContext context = new ConsoleMonster.Canvas.RenderContext(TerminalProfile.Fixed(60, 40, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            System.Collections.Generic.List<ConsoleMonster.Text.StyledLine> lines = new ExceptionView(error) { ShowSource = false }.Lines(48, context);
+            Assert.All(lines, line => Assert.True(line.Width <= 48, line.PlainText));
+            // The method and its file are on separate lines once they do not fit together.
+            int at = lines.FindIndex(line => line.PlainText.TrimStart().StartsWith("at ", StringComparison.Ordinal));
+            Assert.True(at >= 0);
+            Assert.True(lines.Skip(at + 1).Take(5).Any(line => line.PlainText.Contains("EverydayPolishTests.cs")), string.Join("\n", lines.Select(line => line.PlainText)));
+        }
+
         [Fact]
         public void IdentifierLabels_AreNeverGrouped_InRecordsAndTrees() {
             RecordView record = new RecordView("server");

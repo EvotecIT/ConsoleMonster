@@ -58,7 +58,8 @@ namespace ConsoleMonster.Widgets {
                 return "-";
             }
             double clamped = Math.Max(0, Math.Min(1, fraction));
-            return Math.Floor(clamped * 100).ToString("0", CultureInfo.InvariantCulture) + "%";
+            // Whole percents round down (99.9% done is not 100%), past binary noise: 29 of 100 is 29%, not 28%.
+            return Math.Floor(clamped * 100 + 1e-9).ToString("0", CultureInfo.InvariantCulture) + "%";
         }
 
         /// <summary>Formats a duration compactly: 850ms, 12.4s, 1m 12s, 1h 02m.</summary>

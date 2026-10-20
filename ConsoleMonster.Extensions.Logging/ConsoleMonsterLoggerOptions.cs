@@ -35,7 +35,7 @@ namespace ConsoleMonster.Extensions.Logging {
         /// <summary>Whether the event id is shown (default false).</summary>
         public bool IncludeEventId { get; set; }
 
-        /// <summary>The most lines of an exception's details printed under its log line (default 12; 0 for the type and message only).</summary>
+        /// <summary>The most stack frames of an exception printed under its log line (default 12; framework frames are collapsed; 0 for the type and message only).</summary>
         public int MaxExceptionLines { get; set; } = 12;
 
         /// <summary>

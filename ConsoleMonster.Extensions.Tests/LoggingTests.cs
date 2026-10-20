@@ -67,7 +67,7 @@ namespace ConsoleMonster.Extensions.Tests {
         }
 
         [Fact]
-        public void Log_AnException_PrintsItsTypeMessageAndLimitedDetails() {
+        public void Log_AnException_PrintsItThroughTheErrorViewUnderTheEntry() {
             (ILoggerFactory factory, StringTerminalWriter writer) = Factory(options => options.MaxExceptionLines = 1);
             using (factory) {
                 ILogger log = factory.CreateLogger("Jobs");
@@ -79,8 +79,22 @@ namespace ConsoleMonster.Extensions.Tests {
             }
             string text = writer.ToString();
             Assert.Contains("critical: Backup failed", text);
-            Assert.Contains("System.InvalidOperationException: disk full", text);
-            Assert.Contains("more", text);
+            // ConsoleMonster's error view, indented under the entry: the type, the message and the inner exception.
+            string[] lines = text.Replace("\r", string.Empty).Split('\n');
+            Assert.Contains(lines, line => line.StartsWith("    ", StringComparison.Ordinal) && line.Contains("InvalidOperationException"));
+            Assert.Contains(lines, line => line.StartsWith("    ", StringComparison.Ordinal) && line.Contains("disk full"));
+            Assert.Contains("TimeoutException", text);
+        }
+
+        [Fact]
+        public void Log_AnExceptionInARedirectedLog_IsNotWrappedOrShortened() {
+            (ILoggerFactory factory, StringTerminalWriter writer) = Factory();
+            string message = string.Join(" ", Enumerable.Repeat("the archive folder could not be reached", 5));
+            using (factory) {
+                factory.CreateLogger("Jobs").LogError(new InvalidOperationException(message), "Archive failed");
+            }
+            Assert.Contains(message, writer.ToString());
+            Assert.DoesNotContain("…", writer.ToString());
         }
 
         [Fact]
