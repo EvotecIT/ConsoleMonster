@@ -84,6 +84,43 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.DoesNotContain("·  00:0", running.ToPlainText());
         }
 
+        // A menu whose run moves a simulated clock 83 s and returns a result without a duration.
+        private static Menu Clocked(SimulatedClock clock, LiveSessionOptions options, Action<RunResult> done) {
+            Menu menu = new Menu("Toolbox");
+            menu.Item("Patch", i => i.Hotkey('p').Action(ctx => done(ctx.Run(new ProgressBar("Overall", "overall") { Total = 2 }, run => {
+                clock.Advance(83);
+                return new RunResult("Done");
+            }, options))));
+            menu.Exit("Quit");
+            return menu;
+        }
+
+        [Fact]
+        public void ShellRun_SimulatedClock_GivesTheResultTheClocksTime() {
+            SimulatedClock clock = new SimulatedClock();
+            RunResult? result = null;
+            ScreenCapture capture = new ScreenCapture(Width, Height);
+            Clocked(clock, clock.ToSessionOptions(), r => result = r).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:600 Escape Ctrl+Q"), StorageRoot = Storage() });
+            Assert.NotNull(result);
+            Assert.Equal(TimeSpan.FromSeconds(83), result!.Elapsed);
+            Assert.Contains(capture.Frames, f => f.ToPlainText().Contains("00:01:23"));
+        }
+
+        [Fact]
+        public void InlineRun_SimulatedClock_GivesTheResultTheClocksTime() {
+            SimulatedClock clock = new SimulatedClock();
+            LiveSessionOptions options = ConsoleMonster.Tests.Live.LiveSessionTests.Options(new ConsoleMonster.Tests.Live.FakeOutput(false));
+            options.Clock = clock.Read;
+            RunResult? result = null;
+            RecordingSurface surface = new RecordingSurface(80, 20, true);
+            PromptHarness.Guard(surface, () => {
+                Clocked(clock, options, r => result = r).Run(new MenuOptions { Layout = MenuLayout.Inline, Interactive = PromptHarness.Options("p End Enter", surface) });
+                return 0;
+            });
+            Assert.NotNull(result);
+            Assert.Equal(TimeSpan.FromSeconds(83), result!.Elapsed);
+        }
+
         [Fact]
         public void ShellRun_PlainWidget_IsTitledWithTheRunLabel() {
             ScreenCapture capture = new ScreenCapture(Width, Height);

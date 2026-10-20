@@ -190,7 +190,12 @@ namespace ConsoleMonster.Examples.Showcases {
 
         private static RunResult Check(RunContext run, FleetView view, FleetPlan plan, SimulatedClock clock, FleetHealthOptions settings, FleetTally tally) {
             LiveSession session = run.Session;
-            Pacer pace = new Pacer(clock, settings.Speed, run.CancellationToken);
+            CancellationToken token = run.CancellationToken;
+            // The clock moves at the options' speed; a stopped run (Ctrl+C) ends at the next wait.
+            void Wait(double seconds) {
+                clock.Wait(seconds, token);
+                token.ThrowIfCancellationRequested();
+            }
             Random random = new Random(settings.Seed);
             PhasesHandle phases = view.Phases.Handle(session);
             LanesHandle lanes = view.Lanes.Handle(session);
@@ -221,21 +226,21 @@ namespace ConsoleMonster.Examples.Showcases {
             Status("discovering", StatusKind.Running);
             phases.Start("Discover");
             Log("Reading the inventory of " + plan.Domain);
-            pace.Wait(0.8);
+            Wait(0.8);
             List<FleetServer> inDomain = FleetData.Servers.Where(s => s.Domain == plan.Domain).ToList();
             Log(inDomain.Count + " servers in " + inDomain.Select(s => s.Site).Distinct().Count() + " sites; " + plan.Servers.Count + " selected");
             foreach (FleetServer offline in inDomain.Where(s => s.Offline != null)) {
                 Log(offline.Name + " skipped: " + offline.Offline, "warn");
             }
-            pace.Wait(0.9);
+            Wait(0.9);
             Log(plan.Total + " checks planned: " + plan.Servers.Count + " servers, " + plan.Checks.Count + " checks, " + plan.Parallel + " at a time");
-            pace.Wait(0.5);
+            Wait(0.5);
             phases.Complete("Discover", StatusKind.Pass, plan.Servers.Count + " servers");
 
             // Connect: a remote session per server, several at a time.
             Status("connecting", StatusKind.Running);
             phases.Start("Connect");
-            Schedule(pace, plan.Servers.Count, plan.Parallel, s => new[] { connect[s] }, (s, c) => Activity(ConnectKey(s), "Connecting " + plan.Servers[s].Name), (s, c, took) => {
+            Schedule(clock, token, plan.Servers.Count, plan.Parallel, s => new[] { connect[s] }, (s, c) => Activity(ConnectKey(s), "Connecting " + plan.Servers[s].Name), (s, c, took) => {
                 Done(ConnectKey(s));
                 Log("Connected to " + plan.Servers[s].Name + " (" + plan.Servers[s].Address + ") in " + Seconds(took));
             }, s => { });
@@ -253,7 +258,7 @@ namespace ConsoleMonster.Examples.Showcases {
             List<FleetSlowCheck> slow = new List<FleetSlowCheck>();
             List<FleetFinding> findings = new List<FleetFinding>();
             double[] serverSeconds = new double[plan.Servers.Count];
-            Schedule(pace, plan.Servers.Count, plan.Parallel, s => Enumerable.Range(0, plan.Checks.Count).Select(c => seconds[s, c]).ToArray(), (s, c) => {
+            Schedule(clock, token, plan.Servers.Count, plan.Parallel, s => Enumerable.Range(0, plan.Checks.Count).Select(c => seconds[s, c]).ToArray(), (s, c) => {
                 FleetCheck check = plan.Checks[c];
                 session.Post(new LiveEvent("cells", "set", key: plan.Cell(s, c).ToString(CultureInfo.InvariantCulture), state: StatusKind.Running.ToString()));
                 Activity(CheckKey(s, c), plan.Servers[s].Name + " · " + check.Name);
@@ -312,18 +317,19 @@ namespace ConsoleMonster.Examples.Showcases {
             phases.Start("Report");
             for (int step = 1; step <= 4; step++) {
                 Activity("report", "Writing " + plan.ReportFile, step * 25);
-                pace.Wait(0.6);
+                Wait(0.6);
             }
             Done("report");
             Log("Report saved: " + plan.ReportPath + " (412 KB)");
             if (plan.Notify) {
-                pace.Wait(0.5);
+                Wait(0.5);
                 Log("Report emailed to " + plan.Email);
             }
             phases.Complete("Report", StatusKind.Pass, plan.Format.ToUpperInvariant());
             StatusKind overall = failed > 0 ? StatusKind.Fail : warned > 0 ? StatusKind.Warn : StatusKind.Pass;
             Status(failed + " failed · " + warned + " warnings", overall);
-            pace.Hold(settings.Hold);
+            clock.Hold(settings.Hold.TotalSeconds, token);
+            token.ThrowIfCancellationRequested();
 
             tally.Set(passed, warned, failed, clock.Elapsed);
             Table details = new Table { Border = TableBorder.Minimal };
@@ -337,8 +343,7 @@ namespace ConsoleMonster.Examples.Showcases {
             RunResult result = new RunResult("Fleet check finished", overall) {
                 Summary = plan.Total + " checks on " + plan.Servers.Count + " servers in " + plan.Domain + ". "
                     + (failed > 0 ? failed + " need action now; " + warned + " warnings to review." : warned > 0 ? warned + " warnings to review; nothing failed." : "Nothing needs action."),
-                Details = findings.Count > 0 ? details : null,
-                Elapsed = clock.Elapsed
+                Details = findings.Count > 0 ? details : null
             };
             result.Figure("passed", passed.ToString(CultureInfo.InvariantCulture), StatusKind.Pass);
             result.Figure("warnings", warned.ToString(CultureInfo.InvariantCulture), warned > 0 ? StatusKind.Warn : StatusKind.Pass);
@@ -356,23 +361,26 @@ namespace ConsoleMonster.Examples.Showcases {
         /// Runs work items on workers in simulated time: each item is a sequence of steps that run one after another on the
         /// same worker; a free worker takes the next item. Finishing order follows the simulated clock, never the real one.
         /// </summary>
-        private static void Schedule(Pacer pace, int items, int workers, Func<int, double[]> steps, Action<int, int> started, Action<int, int, double> finished, Action<int> itemDone) {
+        private static void Schedule(SimulatedClock clock, CancellationToken token, int items, int workers, Func<int, double[]> steps, Action<int, int> started, Action<int, int, double> finished, Action<int> itemDone) {
             List<FleetSlot> running = new List<FleetSlot>();
             int next = 0;
             while (next < items || running.Count > 0) {
                 while (running.Count < Math.Max(1, workers) && next < items) {
                     double[] sequence = steps(next);
-                    FleetSlot slot = new FleetSlot(next, sequence, pace.Now);
+                    FleetSlot slot = new FleetSlot(next, sequence, clock.Seconds);
                     running.Add(slot);
                     started(slot.Item, 0);
                     next++;
                 }
                 double soonest = running.Min(r => r.Ends);
-                pace.AdvanceTo(soonest);
-                foreach (FleetSlot slot in running.Where(r => pace.Reached(r.Ends)).OrderBy(r => r.Ends).ThenBy(r => r.Item).ToList()) {
+                clock.WaitUntil(soonest, token);
+                token.ThrowIfCancellationRequested();
+                // Whole ticks, as the clock counts them, so a step that ends exactly now is never missed by rounding.
+                long now = clock.Elapsed.Ticks;
+                foreach (FleetSlot slot in running.Where(r => (long)Math.Round(r.Ends * TimeSpan.TicksPerSecond) <= now).OrderBy(r => r.Ends).ThenBy(r => r.Item).ToList()) {
                     finished(slot.Item, slot.Step, slot.Steps[slot.Step]);
                     if (slot.Step + 1 < slot.Steps.Length) {
-                        slot.Advance(pace.Now);
+                        slot.Advance(clock.Seconds);
                         started(slot.Item, slot.Step);
                     } else {
                         running.Remove(slot);
@@ -508,7 +516,7 @@ namespace ConsoleMonster.Examples.Showcases {
         private sealed class FleetJob {
             private readonly FleetPlan _plan;
             private readonly FleetView _view;
-            private readonly SimulatedClock _clock = new SimulatedClock();
+            private readonly SimulatedClock _clock;
             private readonly FleetHealthOptions _settings;
             private readonly FleetTally _tally = new FleetTally();
 
@@ -516,7 +524,8 @@ namespace ConsoleMonster.Examples.Showcases {
                 _plan = new FleetPlan(values);
                 _view = new FleetView(_plan);
                 _settings = settings;
-                Options = new LiveSessionOptions { Clock = _clock.Read };
+                _clock = new SimulatedClock(settings.Speed);
+                Options = _clock.ToSessionOptions();
             }
 
             public Dashboard Dashboard => _view.Dashboard;
@@ -551,72 +560,6 @@ namespace ConsoleMonster.Examples.Showcases {
                 Warnings = warnings;
                 Failed = failed;
                 Elapsed = elapsed;
-            }
-        }
-
-        /// <summary>A monotonic clock the run moves forward; the live session reads it for the header clock and event times.</summary>
-        private sealed class SimulatedClock {
-            private long _ticks;
-
-            public long Ticks => Interlocked.Read(ref _ticks);
-
-            public TimeSpan Elapsed => TimeSpan.FromTicks(Ticks);
-
-            public double Seconds => Elapsed.TotalSeconds;
-
-            public TimeSpan Read() => Elapsed;
-
-            public void Advance(long ticks) => Interlocked.Add(ref _ticks, ticks);
-        }
-
-        /// <summary>
-        /// Moves the simulated clock forward in small steps, sleeping in proportion so the screen moves smoothly. Times are
-        /// whole ticks, so a step never rounds to nothing.
-        /// </summary>
-        private sealed class Pacer {
-            private static readonly long Step = TimeSpan.FromMilliseconds(250).Ticks;
-            private readonly SimulatedClock _clock;
-            private readonly double _speed;
-            private readonly CancellationToken _token;
-            // Real time is measured from the start, so coarse timer ticks never add up into a slower run.
-            private readonly System.Diagnostics.Stopwatch _real = System.Diagnostics.Stopwatch.StartNew();
-
-            public Pacer(SimulatedClock clock, double speed, CancellationToken token) {
-                _clock = clock;
-                _speed = speed;
-                _token = token;
-            }
-
-            public double Now => _clock.Seconds;
-
-            public static long ToTicks(double seconds) => (long)Math.Round(seconds * TimeSpan.TicksPerSecond);
-
-            public bool Reached(double seconds) => ToTicks(seconds) <= _clock.Ticks;
-
-            public void AdvanceTo(double target) {
-                long goal = ToTicks(target);
-                while (_clock.Ticks < goal) {
-                    long step = Math.Min(Step, goal - _clock.Ticks);
-                    if (_speed > 0) {
-                        long due = (long)((_clock.Ticks + step) / _speed);
-                        long wait = due - _real.Elapsed.Ticks;
-                        if (wait > 0) {
-                            _token.WaitHandle.WaitOne(TimeSpan.FromTicks(wait));
-                        }
-                    }
-                    _token.ThrowIfCancellationRequested();
-                    _clock.Advance(step);
-                }
-            }
-
-            public void Wait(double seconds) => AdvanceTo(Now + seconds);
-
-            // Real time with the clock standing still: the finished screen stays a moment before the results (nothing advances after it).
-            public void Hold(TimeSpan span) {
-                if (_speed > 0 && span > TimeSpan.Zero) {
-                    _token.WaitHandle.WaitOne(span);
-                    _token.ThrowIfCancellationRequested();
-                }
             }
         }
 

@@ -208,7 +208,7 @@ namespace ConsoleMonster.Interactive {
                     pane = new ReviewPane(item, () => Context(item), Labels, action => Invoke(item, action, null), text => Clipboard.TrySetText(text), _store == null ? null : (Action)PromptPresetName, ShowToast, Back);
                     break;
                 case MenuItemKind.Presets:
-                    pane = new PresetsPane(item, Labels, MenuPresets, ApplyMenuPreset, DeleteMenuPreset);
+                    pane = new PresetsPane(item, Labels, ListMenuPresets, ApplyMenuPreset, DeleteMenuPreset);
                     break;
                 case MenuItemKind.Exit:
                     pane = new ActionPane(item, Labels, RequestExit);
@@ -386,7 +386,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             Dictionary<string, object?> values = new Dictionary<string, object?>(StringComparer.Ordinal);
-            Collect(_root, string.Empty, values);
+            MenuPresets.Collect(_root, string.Empty, values);
             try {
                 _store.SaveLast(SelectionKey, values);
             } catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException) {
@@ -394,53 +394,11 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private static void Collect(Menu menu, string path, Dictionary<string, object?> values) {
-            foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
-                if (item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) {
-                    List<string> stored = new List<string>();
-                    foreach (object? v in item.Selection) {
-                        if (v != null) {
-                            stored.Add(CommandLine.Format(v));
-                        }
-                    }
-                    values[key] = stored;
-                }
-                if (item.SubmenuDefinition != null) {
-                    Collect(item.SubmenuDefinition, key + "/", values);
-                }
-            }
-        }
-
         private void RestoreSelections() {
             if (_store == null || !_options.RememberLastChoices || !(_store.LoadLast(SelectionKey) is IDictionary<string, object?> values)) {
                 return;
             }
-            Restore(_root, string.Empty, values);
-        }
-
-        private static void Restore(Menu menu, string path, IDictionary<string, object?> values) {
-            foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
-                if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && values.TryGetValue(key, out object? stored) && stored is System.Collections.IEnumerable list) {
-                    HashSet<string> wanted = new HashSet<string>(StringComparer.Ordinal);
-                    foreach (object? v in list) {
-                        if (v is string s) {
-                            wanted.Add(s);
-                        }
-                    }
-                    List<object?> selection = new List<object?>();
-                    foreach (Choice c in item.Choices) {
-                        if (c.Value != null && c.IsEnabled && wanted.Contains(CommandLine.Format(c.Value))) {
-                            selection.Add(c.Value);
-                        }
-                    }
-                    item.SetSelection(selection);
-                }
-                if (item.SubmenuDefinition != null) {
-                    Restore(item.SubmenuDefinition, key + "/", values);
-                }
-            }
+            MenuPresets.Restore(_root, string.Empty, values);
         }
 
         // ---- palette ---------------------------------------------------------------------------------------------

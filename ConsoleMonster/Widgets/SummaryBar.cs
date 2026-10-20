@@ -16,7 +16,8 @@ namespace ConsoleMonster.Widgets {
     /// appear. The time left is estimated from the elapsed time and the share done. In a live session the elapsed time
     /// follows the session's clock (<see cref="LiveSessionOptions.Clock"/>, so a simulated clock drives it too), from the
     /// first progress until progress reaches the total; elsewhere it is real time since the first progress.
-    /// <para>Live operations: <c>progress</c> (Value = done, Total = total), <c>counter</c> (Key = label, Value = count,
+    /// <para>Live operations: <c>progress</c> (Value = done, Total = total; <see cref="Keep"/> for either keeps what the
+    /// bar has, so an update of done alone leaves the total as it is), <c>counter</c> (Key = label, Value = count,
     /// State = status word for its symbol and colour).</para>
     /// </summary>
     public sealed class SummaryBar : LiveWidget {
@@ -34,6 +35,13 @@ namespace ConsoleMonster.Widgets {
         /// <param name="name">The live name (default <c>summary</c>).</param>
         public SummaryBar(string name = "summary") : base(name) {
         }
+
+        /// <summary>
+        /// The value a <c>progress</c> event gives for done or total to keep what the bar has (any negative number or NaN
+        /// does the same). Events are applied in order, so an update that keeps the total uses the total of the update
+        /// before it, even when that one has not been drawn yet.
+        /// </summary>
+        public const double Keep = -1;
 
         /// <summary>Items done.</summary>
         public double Done { get; private set; }
@@ -136,7 +144,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             if (liveEvent.Operation == "progress") {
-                SetProgress(liveEvent.Value, liveEvent.Total);
+                SetProgress(Kept(liveEvent.Value, Done), Kept(liveEvent.Total, Total));
                 // A live session stamps each event with its clock, so the run starts and ends at the event's time; an
                 // unstamped event (time 0, applied outside a session) leaves the mark to the next clocked frame.
                 if (liveEvent.Time > 0) {
@@ -147,6 +155,9 @@ namespace ConsoleMonster.Widgets {
                 SetCounter(liveEvent.Key!, (int)liveEvent.Value, status);
             }
         }
+
+        // A negative or NaN value keeps the current one.
+        private static double Kept(double value, double current) => double.IsNaN(value) || value < 0 ? current : value;
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));

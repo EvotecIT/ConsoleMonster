@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
@@ -191,9 +190,36 @@ namespace ConsoleMonster.Interactive {
                             Terminal.Write(item.PageFactory(context));
                         }
                         return;
+                    case MenuItemKind.Presets:
+                        ChoosePreset(item);
+                        return;
                 }
             } catch (PromptCancelledException) {
                 // Backing out of a prompt returns to the menu.
+            }
+        }
+
+        // The presets as a selection, as the Shell and Classic layouts list them: the built-in ones first, with their
+        // preview, then the saved ones. Picking one applies it (selections, then the forms' values); forms opened after
+        // show its values.
+        private void ChoosePreset(MenuItem item) {
+            IReadOnlyList<PresetListing> presets = MenuPresets.List(_root, _store);
+            if (presets.Count == 0) {
+                Log(_labels.NoPresets, StatusKind.Info);
+                return;
+            }
+            List<Choice> choices = new List<Choice>();
+            foreach (PresetListing preset in presets) {
+                choices.Add(new Choice(preset.Name, preset.Name) {
+                    Description = preset.Description,
+                    Preview = preset.Preview,
+                    Badge = preset.BuiltIn ? RichText.Plain(_labels.BuiltIn, new RichStyle(ThemeToken.Muted)) : null
+                });
+            }
+            choices.Add(new Choice(null, _labels.Back));
+            SelectPrompt<object?> prompt = new SelectPrompt<object?>(item.Title, choices) { Description = item.Description, PageSize = 14 };
+            if (prompt.Show(Interactive, _token) is string name && MenuPresets.Apply(_root, _store, name)) {
+                ShowToast(new Toast(PromptLabels.Format(_labels.PresetApplied, name), StatusKind.Info));
             }
         }
 
@@ -217,7 +243,6 @@ namespace ConsoleMonster.Interactive {
         public T Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) => prompt.Show(Interactive, cancellationToken);
 
         public RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
-            Stopwatch watch = Stopwatch.StartNew();
             LiveSession session = new LiveSession(dashboard, options ?? new LiveSessionOptions());
             RunResult result;
             session.Start();
@@ -230,8 +255,9 @@ namespace ConsoleMonster.Interactive {
             } finally {
                 session.Stop();
             }
+            // The run's time on the session clock: real time, or the simulated clock the options give.
             if (result.Elapsed == TimeSpan.Zero) {
-                result.Elapsed = watch.Elapsed;
+                result.Elapsed = session.Elapsed;
             }
             ShowResult(result);
             return result;

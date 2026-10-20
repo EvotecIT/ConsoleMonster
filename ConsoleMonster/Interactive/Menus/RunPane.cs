@@ -127,7 +127,6 @@ namespace ConsoleMonster.Interactive {
             }
             WindowsConsoleInput? raw = input as WindowsConsoleInput;
             raw?.Suspend();
-            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
             RunResult result;
             RunPane pane = new RunPane(dashboard, view.Labels);
             show(pane);
@@ -150,8 +149,9 @@ namespace ConsoleMonster.Interactive {
                 PromptHost.Current = previous;
                 raw?.Resume();
             }
+            // The run's time on the session clock: real time, or the simulated clock the options give.
             if (result.Elapsed == TimeSpan.Zero) {
-                result.Elapsed = watch.Elapsed;
+                result.Elapsed = session.Elapsed;
             }
             return result;
         }

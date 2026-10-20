@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ConsoleMonster.Interactive;
+using ConsoleMonster.Output;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Interactive {
@@ -75,6 +76,51 @@ namespace ConsoleMonster.Tests.Interactive {
                 Assert.Equal(@"D:\Nightly", options.Find("Folder")!.Value);
                 Assert.Equal(3m, options.Find("Depth")!.Value);
                 Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("Preset 'Nightly' applied"));
+            } finally {
+                Clean(root);
+            }
+        }
+
+        [Fact]
+        public void MenuPresets_InlineLayout_ListsAndAppliesThemLikeTheShell() {
+            string root = Root();
+            try {
+                new ChoiceStore("Toolbox", root).SavePreset("menu", "Alpha", new Dictionary<string, object?> { ["selections"] = new Dictionary<string, object?> { ["Targets"] = new List<object?> { "SRV01" } } });
+                Menu menu = Toolbox(out MenuItem targets, out Form options);
+                RecordingSurface surface = new RecordingSurface(100, 26, true);
+                PromptHarness.Guard(surface, () => {
+                    menu.Run(new MenuOptions { Layout = MenuLayout.Inline, Interactive = PromptHarness.Options("p Enter End Enter", surface), StorageRoot = root });
+                    return 0;
+                });
+                string list = surface.Frames.Select(f => f.ToPlainText()).First(f => f.Contains("Alpha"));
+                Assert.True(list.IndexOf("Nightly", StringComparison.Ordinal) < list.IndexOf("Alpha", StringComparison.Ordinal), "The built-in preset is not listed first:\n" + list);
+                Assert.Contains("built in", list.Split('\n').First(l => l.Contains("Nightly")));
+                Assert.DoesNotContain("built in", list.Split('\n').First(l => l.Contains("Alpha")));
+
+                Assert.Equal(new[] { "SRV02", "WEB01" }, targets.GetSelection<string>().ToArray());
+                Assert.Equal(@"D:\Nightly", options.Find("Folder")!.Value);
+                Assert.Equal(3m, options.Find("Depth")!.Value);
+            } finally {
+                Clean(root);
+            }
+        }
+
+        [Fact]
+        public void MenuPresets_InlineLayoutWithoutPresets_SaysSoAndReturnsToTheMenu() {
+            string root = Root();
+            try {
+                Menu menu = new Menu("Toolbox");
+                menu.Item("Presets", i => i.Hotkey('p').Presets());
+                menu.Exit("Quit");
+                RecordingSurface surface = new RecordingSurface(100, 26, true);
+                RecordingTarget printed = ConsoleMonster.Testing.TestTerminal.Target(100);
+                using (Terminal.Use(printed)) {
+                    PromptHarness.Guard(surface, () => {
+                        menu.Run(new MenuOptions { Layout = MenuLayout.Inline, Interactive = PromptHarness.Options("p End Enter", surface), StorageRoot = root });
+                        return 0;
+                    });
+                }
+                Assert.Contains(new PromptLabels().NoPresets, printed.Text);
             } finally {
                 Clean(root);
             }
