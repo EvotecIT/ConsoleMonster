@@ -9,7 +9,7 @@
     "duration": 45250,
     "fps": 8,
     "start": 26125,
-    "bytes": 2728675,
+    "bytes": 1504768,
     "poster": {
       "w": 140,
       "h": 40,
@@ -32,7 +32,7 @@
     "duration": 9667,
     "fps": 6,
     "start": 3000,
-    "bytes": 185576,
+    "bytes": 105082,
     "poster": {
       "w": 100,
       "h": 13,
@@ -55,7 +55,7 @@
     "duration": 11000,
     "fps": 6,
     "start": 5500,
-    "bytes": 34270,
+    "bytes": 19050,
     "poster": {
       "w": 96,
       "h": 9,
@@ -75,7 +75,7 @@
     "duration": 7167,
     "fps": 6,
     "start": 3000,
-    "bytes": 68809,
+    "bytes": 38694,
     "poster": {
       "w": 96,
       "h": 22,
@@ -95,7 +95,7 @@
     "duration": 15000,
     "fps": 5,
     "start": 12000,
-    "bytes": 38263,
+    "bytes": 23153,
     "poster": {
       "w": 100,
       "h": 39,
@@ -129,7 +129,7 @@
     "duration": 4500,
     "fps": 6,
     "start": 1500,
-    "bytes": 17758,
+    "bytes": 10191,
     "poster": {
       "w": 100,
       "h": 35,
@@ -149,7 +149,7 @@
     "duration": 8125,
     "fps": 8,
     "start": 2500,
-    "bytes": 52949,
+    "bytes": 30710,
     "poster": {
       "w": 96,
       "h": 4,
@@ -183,7 +183,7 @@
     "duration": 4666,
     "fps": 6,
     "start": 1666,
-    "bytes": 13534,
+    "bytes": 7627,
     "poster": {
       "w": 100,
       "h": 19,
@@ -204,7 +204,7 @@
     "duration": 15334,
     "fps": 6,
     "start": 9167,
-    "bytes": 86276,
+    "bytes": 55216,
     "poster": {
       "w": 110,
       "h": 17,
@@ -238,7 +238,7 @@
     "duration": 24500,
     "fps": 6,
     "start": 6333,
-    "bytes": 81830,
+    "bytes": 49480,
     "poster": {
       "w": 100,
       "h": 26,

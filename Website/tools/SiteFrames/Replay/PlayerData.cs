@@ -15,7 +15,9 @@ namespace SiteFrames.Replay {
     /// The rows are the site's cell HTML, styled by the site's frames.css, so the data carries no CSS of its own.
     /// </summary>
     internal static class PlayerData {
-        private static readonly JsonSerializerOptions Json = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Default };
+        // Player data is fetched as JSON and never placed inside a page, so markup characters stay as they are: escaping each
+        // <, > and quote of the rows' HTML as \u00XX made a large replay almost half escapes.
+        private static readonly JsonSerializerOptions Json = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
         public static string Write(Site site, IReadOnlyList<TimedFrame> frames, string title, double fps, long hold, out long duration, out int count, IReadOnlyList<(long Time, string Label)>? markers = null) {
             if (frames.Count == 0) {
