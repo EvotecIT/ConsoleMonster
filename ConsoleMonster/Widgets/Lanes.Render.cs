@@ -42,20 +42,68 @@ namespace ConsoleMonster.Widgets {
                 return 1;
             }
             List<Lane> candidates = Candidates();
-            return Math.Max(1, candidates.Count + (candidates.Count < _lanes.Count ? 1 : 0));
+            int collapsed = Collapsed().Count;
+            bool summary = candidates.Count + collapsed < _lanes.Count;
+            return Math.Max(1, candidates.Count + (summary ? 1 : 0) + ExtraRows());
         }
 
+        // Lanes on their own rows: not hidden by HideCompleted and not folded by CollapseWhen.
         private List<Lane> Candidates() {
-            if (!HideCompleted) {
+            if (!HideCompleted && !CollapseWhen.HasValue) {
                 return _lanes;
             }
             List<Lane> open = new List<Lane>();
             foreach (Lane lane in _lanes) {
-                if (!lane.IsFinished) {
+                if ((!HideCompleted || !lane.IsFinished) && !(CollapseWhen.HasValue && lane.Status == CollapseWhen.Value)) {
                     open.Add(lane);
                 }
             }
             return open;
+        }
+
+        private List<Lane> Collapsed() {
+            List<Lane> folded = new List<Lane>();
+            if (CollapseWhen.HasValue) {
+                foreach (Lane lane in _lanes) {
+                    if (lane.Status == CollapseWhen.Value) {
+                        folded.Add(lane);
+                    }
+                }
+            }
+            return folded;
+        }
+
+        private int RunningCount() {
+            int running = 0;
+            foreach (Lane lane in _lanes) {
+                if (lane.Status == StatusKind.Running) {
+                    running++;
+                }
+            }
+            return running;
+        }
+
+        // The rows after the lanes: the folded lanes' line and the running count.
+        private int ExtraRows() => (Collapsed().Count > 0 ? 1 : 0) + (ShowRunningCount && RunningCount() > 0 ? 1 : 0);
+
+        // "– Skipped: Alpha (46) · Beta (5)" and "● 3 running", from row y down.
+        private void DrawExtras(Region region, int y, RenderContext context) {
+            List<Lane> folded = Collapsed();
+            if (folded.Count > 0 && y < region.Height) {
+                StatusKind state = CollapseWhen!.Value;
+                string marker = context.Glyphs.StatusSymbol(state);
+                region.Write(0, y, marker, context.Style(state));
+                List<string> names = new List<string>();
+                foreach (Lane lane in folded) {
+                    names.Add(lane.Label + (lane.Total > 0 ? " (" + lane.Total.ToString("N0", context.Culture) + ")" : string.Empty));
+                }
+                string text = CellMap.CountLabel(state, folded.Count, context) + ": " + string.Join(" " + context.Glyphs.Get(Glyph.Dot) + " ", names.ToArray());
+                region.Write(2, y++, TextWrapper.Truncate(text, Math.Max(1, region.Width - 2), context.Ellipsis), context.Style(ThemeToken.Muted));
+            }
+            int running = RunningCount();
+            if (ShowRunningCount && running > 0 && y < region.Height) {
+                region.Write(0, y, context.Spinner() + " " + Localization.WidgetLabels.Format(context.Labels.RunningCount, running.ToString("N0", context.Culture)), context.Style(ThemeToken.Running));
+            }
         }
 
         /// <inheritdoc />
@@ -78,14 +126,18 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             List<Lane> candidates = Candidates();
-            bool reserved = candidates.Count < _lanes.Count;
-            List<Lane> visible = SelectVisible(candidates, region.Height - (reserved ? 1 : 0), reserved);
-            int hidden = _lanes.Count - visible.Count;
+            int folded = Collapsed().Count;
+            int extras = ExtraRows();
+            bool reserved = candidates.Count + folded < _lanes.Count;
+            List<Lane> visible = SelectVisible(candidates, region.Height - (reserved ? 1 : 0) - extras, reserved);
+            int hidden = _lanes.Count - visible.Count - folded;
+            int after = visible.Count + (hidden > 0 && visible.Count < region.Height ? 1 : 0);
             if (Columns != null && Columns.Count > 0) {
                 RenderColumns(region, visible, context);
                 if (hidden > 0) {
                     DrawMore(region, visible, hidden, context);
                 }
+                DrawExtras(region, after, context);
                 return;
             }
 
@@ -124,6 +176,7 @@ namespace ConsoleMonster.Widgets {
             if (hidden > 0) {
                 DrawMore(region, visible, hidden, context);
             }
+            DrawExtras(region, after, context);
         }
 
         // "+3 more · 2 done · 1 queued" for the lanes that are not shown.
@@ -135,7 +188,7 @@ namespace ConsoleMonster.Widgets {
             int done = 0;
             int queued = 0;
             foreach (Lane lane in _lanes) {
-                if (visible.Contains(lane)) {
+                if (visible.Contains(lane) || (CollapseWhen.HasValue && lane.Status == CollapseWhen.Value)) {
                     continue;
                 }
                 if (lane.IsFinished) {
@@ -260,15 +313,20 @@ namespace ConsoleMonster.Widgets {
             Style muted = context.Style(ThemeToken.Muted);
             string marker;
             Style markerStyle;
-            if (lane.Status == StatusKind.Running) {
+            // A running lane whose work is all done reads as passed: a check mark, not a spinner.
+            StatusKind shown = lane.Status == StatusKind.Running && lane.Total > 0 && lane.Done >= lane.Total ? StatusKind.Pass : lane.Status;
+            if (shown == StatusKind.Running) {
                 marker = context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : lane.Order);
                 markerStyle = context.Style(ThemeToken.Running);
             } else {
-                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(lane.Status) : glyphs.StatusMarker(lane.Status);
-                markerStyle = context.Style(lane.Status);
+                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(shown) : glyphs.StatusMarker(shown);
+                markerStyle = context.Style(shown);
             }
             region.Write(0, y, marker, markerStyle);
-            Style labelStyle = lane.Status == StatusKind.Pending ? muted : context.Style(ThemeToken.Text);
+            Style labelStyle = lane.Status == StatusKind.Pending && DimPending ? muted : context.Style(ThemeToken.Text);
+            if (BoldActive && lane.Status == StatusKind.Running) {
+                labelStyle = labelStyle.With(TextDecoration.Bold);
+            }
             region.Write(2, y, TextWrapper.Truncate(RichLines.Line(lane.LabelText, lane.Label, labelStyle, context), labelWidth, context.Ellipsis));
 
             int x = 2 + labelWidth + 2;

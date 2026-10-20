@@ -51,7 +51,7 @@ namespace ConsoleMonster.Widgets {
         public void Write(string text, string level = "info", TimeSpan time = default) {
             string[] lines = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
             foreach (string line in lines) {
-                _entries.Enqueue(new LogEntry(time, level ?? "info", line.Replace("\t", "    ")));
+                _entries.Enqueue(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    ")));
                 TotalLines++;
                 while (_entries.Count > Math.Max(1, Capacity)) {
                     _entries.Dequeue();
@@ -68,7 +68,7 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(text));
             }
             foreach (string line in text.ToMarkup().Replace("\r\n", "\n").Split('\n')) {
-                _entries.Enqueue(new LogEntry(time, level ?? "info", RichText.FromMarkup(line)));
+                _entries.Enqueue(new LogEntry(time, Level(level ?? "info"), RichText.FromMarkup(line)));
                 TotalLines++;
                 while (_entries.Count > Math.Max(1, Capacity)) {
                     _entries.Dequeue();
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent.Operation != "write") {
                 return null;
             }
-            string tag = Tag(liveEvent.State ?? "info");
+            string tag = Tag(Level(liveEvent.State ?? "info"));
             // Rich text narrates as its plain text: stream and plain output never show markup tags.
             string text = liveEvent.Text ?? string.Empty;
             if (liveEvent.IsMarkup) {
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Widgets {
             int count = Math.Min(all.Length, PreferredHeight);
             int levelWidth = 0;
             for (int i = all.Length - count; i < all.Length; i++) {
-                levelWidth = Math.Max(levelWidth, Tag(all[i].Level).Length);
+                levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[i].Level, context)));
             }
             int rows = 0;
             for (int i = all.Length - 1; i >= all.Length - count && rows < PreferredHeight; i--) {
@@ -153,7 +153,7 @@ namespace ConsoleMonster.Widgets {
             int startRow = 0;
             int levelWidth = 0;
             for (int i = 0; i < count; i++) {
-                levelWidth = Math.Max(levelWidth, Tag(all[all.Length - count + i].Level).Length);
+                levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[all.Length - count + i].Level, context)));
             }
             levelWidth = levelWidth > 0 ? _levelColumn.Resolve(levelWidth) : 0;
             if (Wrap) {
@@ -176,7 +176,7 @@ namespace ConsoleMonster.Widgets {
                 x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
             }
             if (levelWidth > 0) {
-                StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level), TagStyle(entry.Level, context), LevelColumn.Alignment, context.Ellipsis);
+                StatColumn.Write(region, x, y, levelWidth, Tag(entry.Level, context), TagStyle(entry.Level, context), LevelColumn.Alignment, context.Ellipsis);
                 x += levelWidth + 1;
             }
             return x;
@@ -238,35 +238,86 @@ namespace ConsoleMonster.Widgets {
             kept.Add(new StyledLine(spans));
             return kept;
         }
-        private static bool IsQuiet(string level) => level == "verbose" || level == "debug";
+        private static string Level(string level) => LogTags.Normalize(level);
 
-        private static string Tag(string level) {
+        // Entries hold a normalized level (Write normalizes once), so drawing a frame only switches on it.
+        private static bool IsQuiet(string level) => LogTags.IsQuiet(level);
+
+        private static string Tag(string level, RenderContext? context = null) => LogTags.Tag(level, context);
+
+        private static Style TagStyle(string level, RenderContext context) => LogTags.Style(level, context);
+    }
+
+    /// <summary>
+    /// How log levels look in ConsoleMonster (the log region, Write-ConsoleLog, the logging provider of
+    /// ConsoleMonster.Extensions.Logging): the tag word with a status marker when glyphs allow ("✗ ERR", "▴ WARN",
+    /// "✓ OK"), its style, and which levels are quiet (verbose and debug text is muted).
+    /// </summary>
+    public static class LogTags {
+        /// <summary>The level as one of <see cref="LogLevels.Names"/> (info, warn, err, verbose, debug, pass, skip); unknown words are info.</summary>
+        /// <param name="level">A level name or one of PowerShell's words.</param>
+        /// <returns>The normalized level.</returns>
+        public static string Normalize(string? level) {
+            LogLevels.TryNormalize(level, out string normalized);
+            return normalized;
+        }
+
+        /// <summary>Whether text at a level is shown muted (verbose and debug).</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <returns>True for quiet levels.</returns>
+        public static bool IsQuiet(string level) => level == "verbose" || level == "debug";
+
+        /// <summary>The level column's text: the tag word, with the status marker in front when the context's glyphs allow; empty for info.</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <param name="context">The render context, or null for the word alone (narrated lines).</param>
+        /// <returns>The tag.</returns>
+        public static string Tag(string level, RenderContext? context = null) {
+            string word;
+            StatusKind? status = null;
             switch (level) {
                 case "err":
-                case "error":
-                case "fail":
-                    return "ERR";
+                    word = "ERR";
+                    status = StatusKind.Fail;
+                    break;
                 case "warn":
-                case "warning":
-                    return "WARN";
+                    word = "WARN";
+                    status = StatusKind.Warn;
+                    break;
                 case "verbose":
-                    return "VERB";
+                    word = "VERB";
+                    break;
                 case "debug":
-                    return "DBG";
+                    word = "DBG";
+                    break;
                 case "pass":
-                    return "OK";
+                    word = "OK";
+                    status = StatusKind.Pass;
+                    break;
+                case "skip":
+                    word = "SKIP";
+                    status = StatusKind.Skip;
+                    break;
                 default:
                     return string.Empty;
             }
+            if (context == null || status == null || context.Glyphs.Tier == Capabilities.GlyphTier.Ascii) {
+                return word;
+            }
+            return context.Glyphs.StatusMarker(status.Value) + " " + word;
         }
-        private static Style TagStyle(string level, RenderContext context) {
+
+        /// <summary>The tag's style: failure, warning or pass colours; muted for the rest.</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <param name="context">The render context.</param>
+        /// <returns>The style.</returns>
+        public static Style Style(string level, RenderContext context) {
+            if (context == null) {
+                throw new ArgumentNullException(nameof(context));
+            }
             switch (level) {
                 case "err":
-                case "error":
-                case "fail":
                     return context.Style(ThemeToken.Fail);
                 case "warn":
-                case "warning":
                     return context.Style(ThemeToken.Warn);
                 case "pass":
                     return context.Style(ThemeToken.Pass);

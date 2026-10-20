@@ -27,7 +27,7 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 84
+        $commands.Count | Should -Be 89
         $commands.Name | Should -Contain 'Invoke-ConsolePester'
         $commands.Name | Should -Contain 'Write-ConsoleTable'
         $commands.Name | Should -Contain 'Start-ConsoleDashboard'
@@ -36,6 +36,7 @@ Describe 'ConsoleMonster module' {
 
     It 'writes a table with right-aligned numbers and status markers' {
         $text = Invoke-ConsoleChild -Script @'
+[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')
 @(
     [pscustomobject] @{ Name = 'alpha'; Count = 7; Result = 'pass' }
     [pscustomobject] @{ Name = 'beta'; Count = 1234; Result = 'fail' }
@@ -43,7 +44,8 @@ Describe 'ConsoleMonster module' {
 '@
         $text | Should -Match 'Name\s+Count\s+Result'
         $text | Should -Match 'alpha\s+7'
-        $text | Should -Match 'beta\s+1234'
+        # Write-ConsoleTable formats numbers in the culture, as Format-ConsoleTable does.
+        $text | Should -Match 'beta\s+1,234'
         $text | Should -Match (([char] 0xD7) + ' fail')
     }
 

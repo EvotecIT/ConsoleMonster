@@ -1,0 +1,402 @@
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Management.Automation;
+using System.Management.Automation.Language;
+using System.Management.Automation.Runspaces;
+using System.Text;
+using System.Threading;
+using ConsoleMonster.Live;
+using ConsoleMonster.Styling;
+
+namespace ConsoleMonster.PowerShell {
+    /// <summary>
+    /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
+    /// <para type="description">ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, output, errors and warnings are written when it ends, so nothing prints inside the view, and progress bars from the script block are hidden. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
+    /// <example>
+    ///   <para>Check servers in parallel</para>
+    ///   <code>$port = 443; $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 8 -Name Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</code>
+    /// </example>
+    /// <example>
+    ///   <para>One at a time, in the current scope</para>
+    ///   <code>Get-ChildItem *.log | ForEach-ConsoleItem { Compress-Archive $_ "$($_.BaseName).zip" -Force }</code>
+    /// </example>
+    /// </summary>
+    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
+    [Alias("ForEach-ConsoleItem")]
+    public sealed class CmdletInvokeConsoleRun : PSCmdlet {
+        private readonly List<PSObject> _items = new List<PSObject>();
+        private volatile bool _stopping;
+        private readonly List<System.Management.Automation.PowerShell> _inFlight = new List<System.Management.Automation.PowerShell>();
+
+        /// <summary><para type="description">The items (pipeline input).</para></summary>
+        [Parameter(ValueFromPipeline = true)]
+        public PSObject? InputObject { get; set; }
+
+        /// <summary><para type="description">The script block run for each item ($_ is the item).</para></summary>
+        [Parameter(Mandatory = true, Position = 0)]
+        public ScriptBlock ScriptBlock { get; set; } = null!;
+
+        /// <summary><para type="description">Runs items at the same time, each in its own runspace (pass caller variables with $using:name).</para></summary>
+        [Parameter]
+        public SwitchParameter Parallel { get; set; }
+
+        /// <summary><para type="description">How many items run at the same time with -Parallel (default 5).</para></summary>
+        [Parameter]
+        [ValidateRange(1, 1024)]
+        public int ThrottleLimit { get; set; } = 5;
+
+        /// <summary><para type="description">Seconds an item may run with -Parallel before it is stopped and counted as failed (default no limit; ignored with a warning without -Parallel).</para></summary>
+        [Parameter]
+        [ValidateRange(0, 864000)]
+        public double TimeoutSeconds { get; set; }
+
+        /// <summary><para type="description">Writes each item's output as soon as it finishes instead of in input order (when the live view is not showing).</para></summary>
+        [Parameter]
+        public SwitchParameter Unordered { get; set; }
+
+        /// <summary><para type="description">Each item's label in the view: a property name or a script block ($_ is the item). Default a name-like property, or the item's text.</para></summary>
+        [Parameter]
+        [Alias("Label")]
+        public object? Name { get; set; }
+
+        /// <summary><para type="description">A title above the live view (markup).</para></summary>
+        [Parameter]
+        public object? Title { get; set; }
+
+        /// <inheritdoc />
+        protected override void ProcessRecord() {
+            if (InputObject != null) {
+                _items.Add(InputObject);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void EndProcessing() {
+            if (_items.Count == 0) {
+                return;
+            }
+            if (TimeoutSeconds > 0 && !Parallel.IsPresent) {
+                WriteWarning("-TimeoutSeconds applies to -Parallel runs only; the items run without a time limit.");
+            }
+            Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
+            bool live = !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
+            // Built before the view starts, so an unsupported $using: fails without drawing a run first.
+            Hashtable usings = new Hashtable(StringComparer.OrdinalIgnoreCase);
+            string? parallelScript = Parallel.IsPresent ? ParallelScript(usings, live) : null;
+            // While the view is live every output (objects that may print further down the pipeline, errors, warnings)
+            // waits until it ends, so nothing prints inside the view.
+            bool hold = live;
+            RunOptions options = new RunOptions {
+                Title = Title != null ? PSText.Markup(Title) : null,
+                Interactive = live,
+                Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
+                Print = line => HostOutput.WriteHostLine(this, line)
+            };
+            List<string> labels = _items.Select(LabelOf).ToList();
+            Writer writer = new Writer(Unordered.IsPresent, hold);
+            using (RunMonitor monitor = new RunMonitor(_items.Count, options)) {
+                if (parallelScript != null) {
+                    RunParallel(monitor, labels, writer, parallelScript, usings);
+                } else {
+                    RunSequential(monitor, labels, writer, live);
+                }
+            }
+            writer.Flush(true);
+        }
+
+        /// <inheritdoc />
+        protected override void StopProcessing() {
+            _stopping = true;
+            lock (_inFlight) {
+                foreach (System.Management.Automation.PowerShell ps in _inFlight) {
+                    try {
+                        ps.BeginStop(null, null);
+                    } catch (Exception ex) when (ex is InvalidOperationException || ex is ObjectDisposedException) {
+                    }
+                }
+            }
+            base.StopProcessing();
+        }
+
+        private string LabelOf(PSObject item) {
+            object? name = Name is PSObject wrapped ? wrapped.BaseObject : Name;
+            try {
+                if (name is ScriptBlock script) {
+                    Collection<PSObject> result = script.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", item) });
+                    return result.Count > 0 ? PSWidgets.ToText(result[0]) : string.Empty;
+                }
+                if (name is string property && property.Length > 0) {
+                    return PSWidgets.ToText(item.Properties[property]?.Value);
+                }
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                return PSWidgets.ToText(item.BaseObject);
+            }
+            return item.BaseObject is string text ? text : Values.ValueShaper.Title(Binding.PSObjectMemberSource.UnwrapPSObject(item) ?? item);
+        }
+
+        // One at a time on the pipeline thread, dot-sourced in the caller's scope as ForEach-Object does (variables set in
+        // the body stay); every stream is collected so nothing writes over the view, and progress is quiet while it is live.
+        private void RunSequential(RunMonitor monitor, List<string> labels, Writer writer, bool quiet) {
+            ScriptBlock sequential = ScriptBlock.Create(SequentialScript);
+            for (int i = 0; i < _items.Count; i++) {
+                if (_stopping) {
+                    break;
+                }
+                monitor.Started(i, labels[i]);
+                Stopwatch watch = Stopwatch.StartNew();
+                Collection<PSObject> merged = new Collection<PSObject>();
+                Exception? failure = null;
+                try {
+                    SessionState.InvokeCommand.InvokeScript(false, sequential, null, ScriptBlock, _items[i], quiet, merged);
+                } catch (Exception ex) when (!(ex is PipelineStoppedException) && !_stopping) {
+                    failure = ex;
+                }
+                if (_stopping) {
+                    monitor.Finished(i, StatusKind.Skip, labels[i], watch.Elapsed);
+                    break;
+                }
+                Finish(monitor, writer, i, labels[i], merged, failure, false, watch.Elapsed);
+            }
+        }
+
+        // Dot-sourced into the caller's scope: it removes its own variables and restores the caller's $ProgressPreference.
+        private const string SequentialScript = "param($__cmBody, $__cmItem, $__cmQuiet, $__cmOutput)\n"
+            + "$__cmProgress = Get-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore\n"
+            + "$__cmProgressValue = if ($__cmProgress) { $__cmProgress.Value } else { $null }\n"
+            + "$__cmGlobalProgress = $global:ProgressPreference\n"
+            // Script-module functions (Compress-Archive, Install-Module) read the global value, not the caller's scope.
+            + "if ($__cmQuiet) { $ProgressPreference = 'SilentlyContinue'; $global:ProgressPreference = 'SilentlyContinue' }\n"
+            // The dot-sourced block makes the redirection reach native programs inside the body (their stderr lines).
+            + "try { . { , $__cmItem | ForEach-Object -Process $__cmBody } *>&1 | ForEach-Object { $__cmOutput.Add($_) } }\n"
+            + "finally {\n"
+            + "    if ($__cmQuiet) { $global:ProgressPreference = $__cmGlobalProgress; if ($__cmProgress) { $ProgressPreference = $__cmProgressValue } else { Remove-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore } }\n"
+            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmOutput, __cmProgress, __cmProgressValue, __cmGlobalProgress -Scope 0 -ErrorAction Ignore\n"
+            + "}";
+
+        // Up to ThrottleLimit items at a time in a runspace pool; completions come back to the pipeline thread.
+        private void RunParallel(RunMonitor monitor, List<string> labels, Writer writer, string script, Hashtable usings) {
+            TimeSpan? timeout = TimeoutSeconds > 0 ? TimeSpan.FromSeconds(TimeoutSeconds) : (TimeSpan?)null;
+            BlockingCollection<int> done = new BlockingCollection<int>();
+            Dictionary<int, Flight> flights = new Dictionary<int, Flight>();
+            using (RunspacePool pool = RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)) {
+                pool.Open();
+                int next = 0;
+                int finished = 0;
+                while (finished < _items.Count) {
+                    while (!_stopping && next < _items.Count && flights.Count < ThrottleLimit) {
+                        int index = next++;
+                        System.Management.Automation.PowerShell ps = System.Management.Automation.PowerShell.Create();
+                        ps.RunspacePool = pool;
+                        ps.AddScript(script).AddArgument(_items[index]).AddArgument(usings);
+                        Flight flight = new Flight(ps);
+                        flights[index] = flight;
+                        lock (_inFlight) {
+                            _inFlight.Add(ps);
+                        }
+                        monitor.Started(index, labels[index]);
+                        flight.Result = ps.BeginInvoke<PSObject, PSObject>(null, flight.Output, null, ar => {
+                            flight.Watch.Stop();
+                            done.Add(index);
+                        }, null);
+                    }
+                    if (flights.Count == 0) {
+                        // Stopped before every item started: the rest count as skipped.
+                        break;
+                    }
+                    if (timeout.HasValue) {
+                        foreach (Flight flight in flights.Values) {
+                            if (!flight.TimedOut && flight.Watch.Elapsed > timeout.Value) {
+                                flight.TimedOut = true;
+                                if (!flight.Result!.IsCompleted) {
+                                    try {
+                                        flight.Shell.BeginStop(null, null);
+                                    } catch (InvalidOperationException) {
+                                        // It completed between the check and BeginStop; its recorded deadline still applies.
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!done.TryTake(out int completed, 100)) {
+                        continue;
+                    }
+                    Flight current = flights[completed];
+                    flights.Remove(completed);
+                    lock (_inFlight) {
+                        _inFlight.Remove(current.Shell);
+                    }
+                    finished++;
+                    Collection<PSObject> merged = new Collection<PSObject>();
+                    Exception? failure = null;
+                    try {
+                        current.Shell.EndInvoke(current.Result!);
+                    } catch (Exception ex) {
+                        // An item stopped for its timeout (or by Ctrl+C) ends with PipelineStoppedException: that is the
+                        // timeout or the stop, not the item's own failure.
+                        failure = ex;
+                    }
+                    foreach (PSObject item in current.Output) {
+                        merged.Add(item);
+                    }
+                    if (_stopping && !current.TimedOut) {
+                        monitor.Finished(completed, StatusKind.Skip, labels[completed], current.Watch.Elapsed);
+                    } else if (current.TimedOut) {
+                        Finish(monitor, writer, completed, labels[completed], merged, new TimeoutException("timed out after " + Widgets.NumberFormat.Duration(timeout!.Value)), true, current.Watch.Elapsed);
+                    } else {
+                        Finish(monitor, writer, completed, labels[completed], merged, failure, false, current.Watch.Elapsed);
+                    }
+                    current.Shell.Dispose();
+                    current.Output.Dispose();
+                    writer.Flush(false);
+                }
+            }
+        }
+
+        // The script for a runspace: $using:name read from the passed table, the body run with $_ as the item, every stream merged.
+        private string ParallelScript(Hashtable usings, bool quiet) {
+            Ast body = ScriptBlock.Ast;
+            string text = body.Extent.Text;
+            int origin = body.Extent.StartOffset;
+            List<UsingExpressionAst> found = body.FindAll(ast => ast is UsingExpressionAst, true).Cast<UsingExpressionAst>().OrderByDescending(ast => ast.Extent.StartOffset).ToList();
+            StringBuilder rewritten = new StringBuilder(text);
+            foreach (UsingExpressionAst use in found) {
+                if (!(use.SubExpression is VariableExpressionAst variable)) {
+                    throw new PSArgumentException("Only $using:name is supported in -Parallel script blocks: " + use.Extent.Text);
+                }
+                string name = variable.VariablePath.UserPath;
+                string local = "__cmUsing_" + name.Replace(':', '_');
+                usings[local] = SessionState.PSVariable.GetValue(name);
+                rewritten.Remove(use.Extent.StartOffset - origin, use.Extent.Text.Length).Insert(use.Extent.StartOffset - origin, "$" + local);
+            }
+            string block = rewritten.ToString().Trim();
+            if (!block.StartsWith("{", StringComparison.Ordinal)) {
+                block = "{" + block + "}";
+            }
+            return "param($__cmItem, $__cmUsing)\n"
+                + (quiet ? "$ProgressPreference = 'SilentlyContinue'\n" : string.Empty)
+                + "foreach ($__cmPair in $__cmUsing.GetEnumerator()) { Set-Variable -Name $__cmPair.Key -Value $__cmPair.Value }\n"
+                + ". { , $__cmItem | ForEach-Object -Process " + block + " } *>&1";
+        }
+
+        // Sorts an item's merged streams: output to the writer, errors as error records (they fail the item), the rest re-emitted.
+        private void Finish(RunMonitor monitor, Writer writer, int index, string label, Collection<PSObject> merged, Exception? failure, bool timedOut, TimeSpan duration) {
+            List<Action> emits = new List<Action>();
+            string? message = null;
+            foreach (PSObject item in merged) {
+                switch (item?.BaseObject) {
+                    case null:
+                        break;
+                    case ErrorRecord native when PSStreams.IsNativeErrorLine(native):
+                        // A native tool's stderr line (git, robocopy, curl write progress there): shown as host text,
+                        // as PowerShell shows it without redirection; it does not fail the item.
+                        string line = native.ToString();
+                        emits.Add(() => HostOutput.WriteHostLine(this, line));
+                        break;
+                    case ErrorRecord error:
+                        message ??= error.ToString();
+                        emits.Add(() => WriteError(error));
+                        break;
+                    case WarningRecord warning:
+                        emits.Add(() => WriteWarning(warning.Message));
+                        break;
+                    case VerboseRecord verbose:
+                        emits.Add(() => WriteVerbose(verbose.Message));
+                        break;
+                    case DebugRecord debug:
+                        emits.Add(() => WriteDebug(debug.Message));
+                        break;
+                    case InformationRecord information:
+                        emits.Add(() => WriteInformation(information));
+                        break;
+                    default:
+                        PSObject output = item!;
+                        emits.Add(() => WriteObject(output));
+                        break;
+                }
+            }
+            if (failure != null) {
+                Exception reported = failure is RuntimeException runtime && runtime.ErrorRecord?.Exception != null ? runtime.ErrorRecord.Exception : failure;
+                message = timedOut ? failure.Message : reported.Message;
+                ErrorRecord record = failure is IContainsErrorRecord contains && contains.ErrorRecord != null
+                    ? contains.ErrorRecord
+                    : new ErrorRecord(reported, timedOut ? "ItemTimedOut" : "ItemFailed", timedOut ? ErrorCategory.OperationTimeout : ErrorCategory.NotSpecified, _items[index]);
+                emits.Add(() => WriteError(record));
+            }
+            monitor.Finished(index, message != null ? StatusKind.Fail : StatusKind.Pass, label, duration, message, timedOut);
+            writer.Add(index, emits);
+        }
+
+        private sealed class Flight {
+            internal Flight(System.Management.Automation.PowerShell shell) {
+                Shell = shell;
+            }
+
+            internal System.Management.Automation.PowerShell Shell { get; }
+
+            internal IAsyncResult? Result { get; set; }
+
+            internal PSDataCollection<PSObject> Output { get; } = new PSDataCollection<PSObject>();
+
+            internal Stopwatch Watch { get; } = Stopwatch.StartNew();
+
+            internal bool TimedOut { get; set; }
+        }
+
+        // Writes each item's output on the pipeline thread: in input order (an item waits for the ones before it) or as it
+        // finishes; held back entirely while the live view is showing.
+        private sealed class Writer {
+            private readonly Dictionary<int, List<Action>> _pending = new Dictionary<int, List<Action>>();
+            private readonly List<int> _finished = new List<int>();
+            private readonly bool _unordered;
+            private readonly bool _hold;
+            private int _next;
+
+            internal Writer(bool unordered, bool hold) {
+                _unordered = unordered;
+                _hold = hold;
+            }
+
+            internal void Add(int index, List<Action> emits) {
+                _pending[index] = emits;
+                _finished.Add(index);
+                Flush(false);
+            }
+
+            internal void Flush(bool final) {
+                if (_hold && !final) {
+                    return;
+                }
+                if (_unordered) {
+                    // In the order the items finished (also when the output was held for the live view).
+                    foreach (int index in _finished) {
+                        Emit(index);
+                    }
+                    _finished.Clear();
+                    return;
+                }
+                while (_pending.ContainsKey(_next)) {
+                    Emit(_next++);
+                }
+                if (final) {
+                    // Items never run leave gaps: write what finished, in order.
+                    foreach (int index in _pending.Keys.OrderBy(key => key).ToList()) {
+                        Emit(index);
+                    }
+                }
+            }
+
+            private void Emit(int index) {
+                foreach (Action emit in _pending[index]) {
+                    emit();
+                }
+                _pending.Remove(index);
+            }
+        }
+    }
+}

@@ -177,6 +177,23 @@ try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($
             $text | Should -Match 'error=Prompt'
         }
 
+        It 'prints the rows as a table with a warning when no one can pick, and returns nothing' {
+            . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
+            $lines = @(
+                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
+                "Import-Module '$(Join-Path $PSScriptRoot '..\ConsoleMonster.psd1')' -Force"
+                "`$rows = @([pscustomobject] @{ Name = 'alpha'; Role = 'web' }, [pscustomobject] @{ Name = 'beta'; Role = 'sql' })"
+                "`$picked = @(`$rows | Show-ConsoleGrid -Title 'Servers' -WarningVariable warned -WarningAction SilentlyContinue)"
+                "'PICKED=' + `$picked.Count"
+                "'WARNED=' + (`$warned -join ' ')"
+            )
+            $text = (Invoke-TestChild -Runtime ([System.Diagnostics.Process]::GetCurrentProcess().Path) -Script ($lines -join "`n")) -join "`n"
+            $text | Should -Match 'alpha'
+            $text | Should -Match 'beta'
+            $text | Should -Match 'PICKED=0'
+            $text | Should -Match 'WARNED=.*interactive console'
+        }
+
         It 'cancels with a PromptCancelled error on Esc' {
             $text = Invoke-PromptChild -Script @'
 [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Escape')

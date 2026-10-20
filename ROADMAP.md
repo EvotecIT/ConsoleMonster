@@ -58,7 +58,32 @@ that product. Gaps are closed with general extension points, not per-product shi
 
 ## Next
 
-No round is scheduled. The next work comes from the pending decision below or from the backlog.
+The agreed order. Steps 1–4 are implemented together in the everyday-path PR. Product trials in step 5 happen in the
+referenced repositories.
+
+1. **The everyday path.** Ordinary PowerShell output that is excellent without configuration: one value-shaping layer
+   for every command, capturable output, labelled group headings, one status vocabulary with PowerShell's own words,
+   one date format, short values that never break, `Enable-ConsoleFormatting` with views for the common commands, and
+   Linux and macOS parity. (Done.)
+2. **Live runs.** Generic widgets for running many items: an outcome grid (one cell per item, a shape per state), a
+   summary bar, an activity list and lane options; the test-run view built from them; `Watch-Console` to re-run a
+   script block as a live view; `ForEach-ConsoleItem -Parallel` with a live view and ordinary output objects
+   (`ConsoleRun.ForEachAsync` in C#). (Done.)
+3. **Better defaults.** `Enable-ConsoleFormatting` can also install the error view for `$ErrorView` and `Write-Progress`
+   rendering, each opt-in; `Show-ConsoleHelp` renders PowerShell's own help objects. (Done.)
+4. **.NET.** Hosting and logging packages (`ConsoleMonster.Hosting`, `ConsoleMonster.Extensions.Logging`) and a
+   `dotnet new` template, outside the zero-dependency core; a decision paper on a command-line layer
+   (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step). (Done.)
+5. **Trials in real products.** TestimoX.CLI and PSPublishModule adopt ConsoleMonster after the everyday path ships.
+   The work happens in those repositories; gaps found there come back here as general extension points.
+6. **One definition, every output.** The same view definition rendered to the terminal here and, through bridges in
+   their own packages, to other outputs.
+
+## Ownership
+
+ConsoleMonster renders terminals. HTML belongs to HtmlForgeX, and Markdown, Word and Excel belong to OfficeIMO. Step 6
+means bridges outside the core: ConsoleMonster never emits semantic HTML or Markdown itself. Its HTML and SVG frame
+export stays, because it is a picture of the terminal, not a document.
 
 ## Decision pending: command-line parsing
 
@@ -69,25 +94,25 @@ Our own source-generated, AOT-safe command-line layer that integrates with Conso
 - one definition drives parsing, help, completion and forms.
 
 To weigh: the maintenance cost of owning a parser against the value of one definition for all four. Several product
-executables use a command-line parser today.
+executables use a command-line parser today. The decision paper written in step 4 lays out the options.
 
 ## Backlog
 
-- Documentation viewers: rich rendering of help, Markdown and examples (`Show-Documentation`, `Get-Help` style).
-- One shared highlighting engine for tools that keep their own today (PSPublishModule could consume ConsoleMonster's).
-- Images and raster export through ChartForgeX, as one bridge in a separate package so the core stays dependency-free:
-  images in (pictures drawn into the cell grid) and rasters out (the cell grid of any widget, frame or recording
-  rasterized to PNG and the other raster formats ChartForgeX supports).
-- Mouse support.
-- Per-log highlighting in log regions (today highlighting applies per line through `Write-ConsoleLog -Highlight`).
-- Collapsing long JSON arrays.
-- Logging provider and adapter packages, when a consumer needs them.
-- QR codes and barcodes in the terminal through CodeGlyphX.
-- Watching a live run remotely: a local browser mirror built on the HTML exporter, and `Watch-ConsoleSession` to attach
-  from another terminal, including over SSH.
-- One definition, every output: the same view rendered to the terminal, an HtmlForgeX report, an HtmlForgeX.Email
-  message, and OfficeIMO Word and Excel documents.
-- Interactive terminal charts through ChartForgeX: zoom and pan, a crosshair, and charts linked to tables.
+Grouped under the step they would join; the rest stays unscheduled.
+
+- With live runs (step 2): watching a live run remotely, a local browser mirror built on the HTML exporter and
+  `Watch-ConsoleSession` to attach from another terminal, including over SSH; per-log highlighting in log regions.
+- With better defaults (step 3): collapsing long JSON arrays; one shared highlighting engine for tools that keep their
+  own today (PSPublishModule could consume ConsoleMonster's).
+- With .NET (step 4): an AOT-compiled `cmon` command-line tool.
+- With one definition, every output (step 6): raster export through ChartForgeX as a bridge in a separate package (the
+  cell grid of any widget, frame or recording rasterized to PNG and the other raster formats ChartForgeX supports).
+- Unscheduled, terminal work:
+  - images drawn into the cell grid through ChartForgeX, in the same separate package as raster export;
+  - QR codes and barcodes in the terminal through CodeGlyphX;
+  - interactive terminal charts through ChartForgeX (zoom and pan, a crosshair, charts linked to tables);
+  - a documentation viewer for Markdown and examples in the terminal, with OfficeIMO reading the Markdown;
+  - mouse support.
 
 ## Not planned
 

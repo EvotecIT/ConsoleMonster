@@ -68,14 +68,16 @@ namespace ConsoleMonster.Widgets {
             List<StyledLine> lines = new List<StyledLine>();
             ExceptionInfo? info = _info;
             int indent = 0;
+            string? outer = null;
             for (int level = 0; info != null && level <= MaxInner; level++, info = info.Inner) {
-                AddError(lines, info, indent, level > 0, width, context);
+                AddError(lines, info, indent, level > 0, width, context, outer);
+                outer = info.Message;
                 indent += 2;
             }
             return lines;
         }
 
-        private void AddError(List<StyledLine> lines, ExceptionInfo info, int indent, bool inner, int width, RenderContext context) {
+        private void AddError(List<StyledLine> lines, ExceptionInfo info, int indent, bool inner, int width, RenderContext context, string? outerMessage = null) {
             string pad = new string(' ', indent);
             Style fail = context.Style(StatusKind.Fail);
             Style muted = context.Style(ThemeToken.Muted);
@@ -89,32 +91,40 @@ namespace ConsoleMonster.Widgets {
             head.Add(new TextSpan(info.Type, fail.With(TextDecoration.Bold)));
             lines.Add(new StyledLine(head));
             string body = pad + "  ";
-            foreach (string paragraph in info.Message.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
+            // A cause with the same message as the error it caused ("Attempted to divide by zero." twice) shows its type only.
+            string message = inner && string.Equals(info.Message.Trim(), (outerMessage ?? string.Empty).Trim(), StringComparison.Ordinal) ? string.Empty : info.Message;
+            foreach (string paragraph in message.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
+                if (message.Length == 0) {
+                    break;
+                }
                 foreach (StyledLine wrapped in TextWrapper.Wrap(StyledLine.From(paragraph.TrimEnd(), text), Math.Max(10, width - body.Length))) {
                     lines.Add(Prefixed(body, wrapped));
                 }
             }
-            string facts = Join(info.Category, info.ErrorId, context);
+            string facts = Join(info.Category, UsefulErrorId(info), context);
             if (facts.Length > 0) {
                 foreach (StyledLine wrapped in TextWrapper.Wrap(StyledLine.From(facts, muted), Math.Max(10, width - body.Length))) {
                     lines.Add(Prefixed(body, wrapped));
                 }
             }
-            if (!string.IsNullOrEmpty(info.PositionMessage)) {
+            // The location once: the source lines around the failing line when the file can be read (the stack names the
+            // file), otherwise PowerShell's position message with the failing code underlined.
+            int before = lines.Count;
+            if (ShowSource && !inner) {
+                AddSource(lines, info, body, width, context);
+            }
+            if (lines.Count == before && !string.IsNullOrEmpty(info.PositionMessage)) {
                 foreach (string raw in info.PositionMessage!.Replace("\r\n", "\n").Trim('\n').Split('\n')) {
                     string line = raw.TrimEnd();
                     bool marker = line.TrimStart('+', ' ').Length > 0 && line.TrimStart('+', ' ').Trim('~').Length == 0;
                     lines.Add(StyledLine.From(body + line, marker ? fail : muted));
                 }
             }
-            if (ShowSource && !inner) {
-                AddSource(lines, info, body, width, context);
-            }
             if (!ShowStack) {
                 return;
             }
-            AddFrames(lines, info.ScriptFrames, body, context);
-            AddFrames(lines, info.Frames, body, context);
+            AddFrames(lines, info.ScriptFrames, body, width, context);
+            AddFrames(lines, info.Frames, body, width, context);
         }
 
         private List<StyledLine>? _sourceCache;
@@ -158,7 +168,7 @@ namespace ConsoleMonster.Widgets {
                 lines.Add(Prefixed(body, row));
             }
         }
-        private void AddFrames(List<StyledLine> lines, List<ExceptionFrame> frames, string body, RenderContext context) {
+        private void AddFrames(List<StyledLine> lines, List<ExceptionFrame> frames, string body, int width, RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             Style text = context.Style(ThemeToken.Text);
             int shown = 0;
@@ -174,20 +184,57 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 FlushFramework(lines, body, ref hiddenFramework, muted);
-                List<TextSpan> spans = new List<TextSpan> { new TextSpan(body + "at ", muted), new TextSpan(ShortMethod(frame.Method), text) };
+                string method = ShortMethod(frame.Method);
+                string? location = frame.File == null ? null : ShortPath(frame.File) + (frame.Line > 0 ? ":" + frame.Line.ToString(CultureInfo.InvariantCulture) : string.Empty);
+                Style locationStyle = muted;
                 if (frame.File != null) {
-                    string location = ShortPath(frame.File) + (frame.Line > 0 ? ":" + frame.Line.ToString(CultureInfo.InvariantCulture) : string.Empty);
                     string? link = Link(frame.File);
-                    spans.Add(new TextSpan("  "));
-                    spans.Add(new TextSpan(location, link == null ? muted : muted.With(TextDecoration.Underline).WithLink(link)));
+                    locationStyle = link == null ? muted : muted.With(TextDecoration.Underline).WithLink(link);
                 }
-                lines.Add(new StyledLine(spans));
+                string at = body + "at ";
+                int oneLine = DisplayWidth.Measure(at) + DisplayWidth.Measure(method) + (location == null ? 0 : 2 + DisplayWidth.Measure(location));
+                if (width <= 0 || oneLine <= width) {
+                    List<TextSpan> spans = new List<TextSpan> { new TextSpan(at, muted), new TextSpan(method, text) };
+                    if (location != null) {
+                        spans.Add(new TextSpan("  "));
+                        spans.Add(new TextSpan(location, locationStyle));
+                    }
+                    lines.Add(new StyledLine(spans));
+                } else {
+                    // Too wide: the method wraps at its spaces under "at", and the file goes on its own line, shortened in
+                    // the front (outer folders) when it still does not fit, so the file name and line number stay readable.
+                    string hang = new string(' ', DisplayWidth.Measure(at));
+                    IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(StyledLine.From(method, text), Math.Max(10, width - hang.Length));
+                    for (int i = 0; i < wrapped.Count; i++) {
+                        List<TextSpan> spans = new List<TextSpan> { new TextSpan(i == 0 ? at : hang, muted) };
+                        spans.AddRange(wrapped[i]);
+                        lines.Add(new StyledLine(spans));
+                    }
+                    if (location != null) {
+                        string shortened = TailOfPath(location, Math.Max(10, width - hang.Length), context.Ellipsis);
+                        lines.Add(new StyledLine(new[] { new TextSpan(hang, muted), new TextSpan(shortened, locationStyle) }));
+                    }
+                }
                 shown++;
             }
             FlushFramework(lines, body, ref hiddenFramework, muted);
             if (hiddenApp > 0) {
                 lines.Add(StyledLine.From(body + Localization.WidgetLabels.Format(hiddenApp == 1 ? Localization.WidgetLabels.Current.OneMoreFrame : Localization.WidgetLabels.Current.ManyMoreFrames, hiddenApp.ToString(CultureInfo.InvariantCulture)), muted));
             }
+        }
+
+        // The end of a path that fits: "…\Rendering\Tests.cs:28", cut at a folder boundary when one is close.
+        private static string TailOfPath(string path, int width, string ellipsis) {
+            if (DisplayWidth.Measure(path) <= width) {
+                return path;
+            }
+            int keep = Math.Max(1, width - DisplayWidth.Measure(ellipsis));
+            string tail = path.Substring(Math.Max(0, path.Length - keep));
+            int separator = tail.IndexOfAny(new[] { '\\', '/' });
+            if (separator > 0 && separator < tail.Length / 2) {
+                tail = tail.Substring(separator);
+            }
+            return ellipsis + tail;
         }
 
         private static void FlushFramework(List<StyledLine> lines, string body, ref int hidden, Style muted) {
@@ -202,6 +249,35 @@ namespace ConsoleMonster.Widgets {
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(prefix) };
             spans.AddRange(line);
             return new StyledLine(spans);
+        }
+
+        // The error id only when it adds something: its first part ("PathNotFound" of "PathNotFound,Microsoft...GetItemCommand"),
+        // and not when it only repeats the message, the type or the category ("custom failure", "RuntimeException").
+        private static string? UsefulErrorId(ExceptionInfo info) {
+            if (string.IsNullOrEmpty(info.ErrorId)) {
+                return null;
+            }
+            string id = info.ErrorId!.Trim();
+            // A thrown string's id is the message itself, commas and all.
+            if (string.Equals(id, info.Message.Trim(), StringComparison.OrdinalIgnoreCase)) {
+                return null;
+            }
+            int comma = id.IndexOf(',');
+            if (comma > 0) {
+                id = id.Substring(0, comma);
+            }
+            id = id.Trim();
+            string shortType = info.Type.Substring(info.Type.LastIndexOf('.') + 1);
+            string type = shortType.EndsWith("Exception", StringComparison.Ordinal) ? shortType.Substring(0, shortType.Length - "Exception".Length) : shortType;
+            string category = info.Category ?? string.Empty;
+            if (id.Length == 0
+                || string.Equals(id, info.Message.Trim(), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(id, shortType, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(id, type, StringComparison.OrdinalIgnoreCase)
+                || category.StartsWith(id, StringComparison.OrdinalIgnoreCase)) {
+                return null;
+            }
+            return id;
         }
 
         private static string Join(string? category, string? errorId, RenderContext context) {
@@ -232,6 +308,11 @@ namespace ConsoleMonster.Widgets {
         /// <returns>The short path.</returns>
         public string ShortPath(string path) {
             string basePath = BasePath ?? Environment.CurrentDirectory;
+            if (Text.DisplayPath.IsForeign(path)) {
+                // A path from another system (a Windows trace shown on Unix, or the reverse): shortened as text, since the
+                // host's path APIs would misread it.
+                return Text.DisplayPath.Short(path, Text.DisplayPath.IsForeign(basePath) ? basePath : null);
+            }
             try {
                 string full = Path.GetFullPath(path);
                 string root = Path.GetFullPath(basePath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
@@ -246,6 +327,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         private static string? Link(string path) {
+            if (Text.DisplayPath.IsForeign(path)) {
+                return null;
+            }
             try {
                 return Path.IsPathRooted(path) ? new Uri(Path.GetFullPath(path)).AbsoluteUri : null;
             } catch (Exception ex) when (ex is ArgumentException || ex is UriFormatException || ex is NotSupportedException || ex is PathTooLongException) {

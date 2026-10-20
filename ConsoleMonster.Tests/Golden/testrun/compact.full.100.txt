@@ -1,12 +1,14 @@
- Pester · 3 failed · 5 passed · 1 skipped · 1 block failed · 9 of 12         ● running  ·  00:00:00
+ Pester                                                                      ● running  ·  00:00:00
 
+ ━━━━━━━━━━━━━━━─────  9/12  75%  ~1s left  · ✗ 3 failed  ✓ 5 passed  – 1 skipped  ✗ 1 block failed
 ╭─ Files ──────────────────────────────────────────────────────────────────────────── 2 of 3 done ─╮
 │                                                                                                  │
 │ ✗ Broken.Tests.ps1  ━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%  ✓0 ✗1 –0  done in 40ms                     │
 │ ✗ Sample.Tests.ps1  ━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%  ✓3 ✗2 –1  done in 1.6s                     │
 │ ⠹ Module.Tests.ps1  ━━━━━━━━━━━────────────────  40%  ✓2 ✗0 –0  has help for every cmdlet        │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
- ⠋ Module › Help › has help for every cmdlet
+ ✗ ✓ ✗ ✗ – ✓ ✓ ✓ ✓ ● ○ ○
+ ⠙ Module › Help › has help for every cmdlet
 ╭─ Failures ─────────────────────────────────────────────────────────────────────────────────── 3 ─╮
 │                                                                                                  │
 │ ✗ Broken                                                                                         │
@@ -17,6 +19,5 @@
 │   expected abxde                                                                                 │
 │   actual   abcde                                                                                 │
 │   Sample.Tests.ps1:3                                                                             │
-│ + 1 more failure                                                                                 │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
  ctrl+c stop

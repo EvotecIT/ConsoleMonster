@@ -57,6 +57,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Depth { get; set; } = 3;
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, Show-Console behaves like the Format-Console commands: PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File), piped into another command the view goes on as plain lines, and inside scripts and functions or on Windows PowerShell 5.1 it is drawn on the screen.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -69,52 +73,68 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
+            Values.ShapeOptions shape = PSShaping.Options();
+            IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, shape);
             ConsoleViewOptions options = new ConsoleViewOptions { View = View, ChildProperty = ChildProperty, Chart = Chart.IsPresent, Title = PSText.Markup(Title), Depth = Depth };
+            options.Sources.Add(new DirectoryEntryMemberSource());
             options.Sources.Add(new PSObjectMemberSource());
-            List<object?> values = new List<object?>(_items.Count);
-            foreach (PSObject item in _items) {
-                values.Add(ObjectInspector.IsScalarValue(item.BaseObject) ? item.BaseObject : item);
+            List<object?> values = new List<object?>(items.Count);
+            foreach (PSObject item in items) {
+                values.Add(PSShaping.IsValueLike(item, shape) ? Values.ValueShaper.Prepare(item, shape) : item);
             }
             ConsoleViewKind kind = ConsoleView.Decide(values, options);
+            bool requested = View.HasValue;
             IWidget widget;
             switch (kind) {
                 case ConsoleViewKind.Grid:
-                    ShowGrid();
+                    ShowGrid(items);
                     return;
                 case ConsoleViewKind.Table:
                 case ConsoleViewKind.Cards:
-                    Table table = PSFormatting.BuildTable(_items, Property, null, false, true);
-                    table.Title = options.Title;
-                    if (kind == ConsoleViewKind.Cards) {
-                        table.AlwaysCards = true;
-                    }
-                    widget = table;
+                    widget = Tables(items, kind == ConsoleViewKind.Cards, options.Title);
                     break;
-                case ConsoleViewKind.Inspector:
-                    InspectorOptions inspect = PSFormatting.InspectorOptions(Depth, 50, null, null);
+                case ConsoleViewKind.Inspector when requested:
                     List<IWidget> views = new List<IWidget>();
-                    foreach (PSObject item in _items) {
+                    foreach (PSObject item in items) {
 #pragma warning disable IL2026
-                        views.Add(new InspectorView(ObjectInspector.Inspect(item, inspect), options.Title));
+                        views.Add(new InspectorView(ObjectInspector.Inspect(item, PSFormatting.InspectorOptions(Depth, 50, null, null, 5000, item)), options.Title));
 #pragma warning restore IL2026
                     }
                     widget = views.Count == 1 ? views[0] : new Rows(views.ToArray()) { Gap = 1 };
+                    break;
+                case ConsoleViewKind.Inspector:
+                    // One object is a record (its fields, nested records expanded one level); objects of different kinds are
+                    // one table per kind. The inspector (the whole object graph) is only shown on request: -View Inspector.
+                    widget = items.Count == 1
+                        ? PSFormatting.BuildList(items, Property, null, false, 1, options.Title, null, this)
+                        : Tables(items, false, options.Title);
                     break;
                 default:
                     options.View = kind;
                     widget = ConsoleView.Auto(values, options);
                     break;
             }
-            PSFormatting.Write(this, widget, Width);
+            PSFormatting.Emit(this, widget, Width, null, AsString.IsPresent);
         }
 
-        private void ShowGrid() {
+        private IWidget Tables(IReadOnlyList<PSObject> items, bool cards, string? title) {
+            bool first = true;
+            List<IWidget> tables = PSFormatting.BuildTables(items, Property, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = this }, table => {
+                if (title != null) {
+                    table.Title = first ? title : null;
+                }
+                table.AlwaysCards = cards;
+                first = false;
+            });
+            return PSFormatting.Combine(tables);
+        }
+        private void ShowGrid(IReadOnlyList<PSObject> items) {
             using (System.Management.Automation.PowerShell grid = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace)) {
                 grid.AddCommand("ConsoleMonster\\Show-ConsoleGrid");
                 if (Property != null) {
                     grid.AddParameter("Property", Property);
                 }
-                foreach (PSObject picked in grid.Invoke(_items)) {
+                foreach (PSObject picked in grid.Invoke(items)) {
                     WriteObject(picked);
                 }
             }

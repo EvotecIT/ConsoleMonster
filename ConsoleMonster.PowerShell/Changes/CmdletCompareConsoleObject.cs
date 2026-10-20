@@ -172,7 +172,8 @@ namespace ConsoleMonster.PowerShell {
 
     internal static class PSChanges {
         internal static ChangeSet Compare(object[]? before, IEnumerable<object?>? after, string[]? key, string[]? compare, string[]? ignore, int depth, bool includeEqual) {
-            DiffOptions options = new DiffOptions { Depth = Math.Max(1, depth), IncludeUnchanged = includeEqual };
+            DiffOptions options = new DiffOptions { Depth = Math.Max(1, depth), IncludeUnchanged = includeEqual, Unwrap = PSObjectMemberSource.UnwrapPSObject };
+            options.Sources.Add(new DirectoryEntryMemberSource());
             options.Sources.Add(new PSObjectMemberSource());
             foreach (string name in key ?? Array.Empty<string>()) {
                 options.Key.Add(name);
@@ -192,11 +193,9 @@ namespace ConsoleMonster.PowerShell {
                 yield break;
             }
             foreach (object? item in items) {
-                if (item is PSObject ps && Data.ObjectInspector.IsScalarValue(ps.BaseObject)) {
-                    yield return ps.BaseObject;
-                } else {
-                    yield return item;
-                }
+                // Scalars, dictionaries, collections and data values compare as themselves; other objects keep their
+                // PowerShell wrapper so note and script properties are read.
+                yield return item == null ? null : PSObjectMemberSource.UnwrapPSObject(item);
             }
         }
     }

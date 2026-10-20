@@ -10,6 +10,160 @@ the C# library.
 [.NET API](https://consolemonster.dev/api/) · [PowerShell commands](https://consolemonster.dev/powershell/commands/) ·
 [Examples and usage guide](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Usage.md)
 
+## Make PowerShell output nicer in one line
+
+Install the module once, then turn the formatting on for the session:
+
+```powershell
+Install-Module ConsoleMonster -Scope CurrentUser
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting
+```
+
+Files, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries that reach the
+console are then shown as ConsoleMonster tables and records. The objects don't change: pipelines into other commands,
+`Format-*`, `Out-String`, redirected output, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting`
+turns it off again.
+
+To keep it on in every session, print the lines for your profile. The command only prints them and never edits the profile:
+
+```powershell
+Enable-ConsoleFormatting -ProfileSnippet
+```
+
+```text
+# ConsoleMonster: nicer default output in every session. Add these lines to C:\Users\you\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting
+```
+
+## Format-Console commands
+
+The `Format-Console*` commands work like `Format-Table` and `Format-List`, and take the same `-Property` lists and
+calculated properties. `fct` and `fcl` are short aliases for `Format-ConsoleTable` and `Format-ConsoleList`.
+
+```powershell
+$servers = @(
+    [pscustomobject] @{ Name = 'web-01'; Status = 'Running'; Cpu = 12.5; Region = 'Warsaw'; Tags = @('prod', 'dmz') }
+    [pscustomobject] @{ Name = 'web-02'; Status = 'Warning'; Cpu = 71; Region = 'Dublin'; Tags = @('prod') }
+    [pscustomobject] @{ Name = 'sql-01'; Status = 'Stopped'; Cpu = 0; Region = 'Dublin'; Tags = @() }
+)
+$servers | Format-Table
+```
+
+```text
+Name   Status     Cpu Region Tags
+----   ------     --- ------ ----
+web-01 Running 12.500 Warsaw {prod, dmz}
+web-02 Warning     71 Dublin {prod}
+sql-01 Stopped      0 Dublin {}
+```
+
+```powershell
+$servers | Format-ConsoleTable
+```
+
+```text
+╭────────┬───────────┬──────┬────────┬───────────╮
+│ Name   │ Status    │  Cpu │ Region │ Tags      │
+├────────┼───────────┼──────┼────────┼───────────┤
+│ web-01 │ ✓ Running │ 12.5 │ Warsaw │ prod, dmz │
+│ web-02 │ ▴ Warning │ 71.0 │ Dublin │ prod      │
+│ sql-01 │ – Stopped │  0.0 │ Dublin │ —         │
+╰────────┴───────────┴──────┴────────┴───────────╯
+```
+
+- Status words get a marker and a colour, including PowerShell's own words (Success, Warning, Error, Information).
+- The numbers in a column share the decimals the column needs, so the decimal separators line up.
+- Short values (numbers, sizes, booleans, dates, statuses) never wrap. Long text wraps onto at most three lines, and
+  `-Wrap` shows all of it.
+- Identifiers such as `Id`, `Port` and `ProcessId` are never grouped with thousands separators.
+- Dates use one format everywhere: `yyyy-MM-dd HH:mm` in local time, whatever the culture, so they sort and compare
+  the same on every machine. Numbers follow the culture, or `-Culture` and `CONSOLEMONSTER_CULTURE`.
+- Types with a known view keep their usual columns, and files keep their directory heading:
+
+```text
+ Directory: C:\Windows
+╭───────┬──────────────────┬─────────┬──────────────╮
+│ Mode  │ LastWriteTime    │  Length │ Name         │
+├───────┼──────────────────┼─────────┼──────────────┤
+│ la--- │ 2026-09-09 07:09 │  352 KB │ notepad.exe  │
+│ la--- │ 2026-10-14 02:06 │ 3.32 MB │ explorer.exe │
+╰───────┴──────────────────┴─────────┴──────────────╯
+```
+
+One object stays a one-row table, as with `Format-Table` (a single dictionary is shown as a record, see below).
+`Format-ConsoleList`, or `Format-ConsoleTable -View Record`, shows labelled fields instead:
+
+```powershell
+$servers[0] | Format-ConsoleList
+```
+
+```text
+web-01
+  Status  ✓ Running
+  Cpu     12.5
+  Region  Warsaw
+  Tags    prod, dmz
+```
+
+`Format-ConsoleTree` shows an object's structure, `Format-ConsoleJson` writes JSON through the same rules,
+`Format-ConsoleError` shows an error with its location once, and `Show-Console` picks a view for you.
+
+## Arrays, dictionaries and grouping
+
+Arrays in a cell are joined (`prod, dmz`), and an empty one shows a dash. A dictionary is shown as a record, and a list of
+dictionaries as a table of their keys:
+
+```powershell
+@{ Name = 'web-01'; Port = 8080; Enabled = $true } | Format-ConsoleTable
+@{ Name = 'web-01'; Port = 8080 }, @{ Name = 'web-02'; Port = 8443 } | Format-ConsoleTable
+```
+
+```text
+web-01
+  Enabled  ✓ yes
+  Port     8080
+╭────────┬──────╮
+│ Name   │ Port │
+├────────┼──────┤
+│ web-01 │ 8080 │
+│ web-02 │ 8443 │
+╰────────┴──────╯
+```
+
+`-GroupBy` puts the rows under labelled rules with their counts. The grouped column is left out, because the heading
+already names it (`-ShowGroupColumn` keeps it):
+
+```powershell
+$servers | Format-ConsoleTable -GroupBy Region -Property Name, Status, Cpu
+```
+
+```text
+╭──────────────┬───────────┬──────╮
+│ Name         │ Status    │  Cpu │
+├─ Dublin · 2 ─┼───────────┼──────┤
+│ web-02       │ ▴ Warning │ 71.0 │
+│ sql-01       │ – Stopped │  0.0 │
+├─ Warsaw · 1 ─┼───────────┼──────┤
+│ web-01       │ ✓ Running │ 12.5 │
+╰──────────────┴───────────┴──────╯
+```
+
+## Keep the output
+
+The output reaches every PowerShell consumer: `| Out-String`, `| Out-File`, `| Select-String` and `| more` get plain
+lines. On PowerShell 7.2 and later, a command typed at the prompt can also be captured with `$x = ...`, `> file` or
+`-OutVariable`. Inside scripts and functions, and on Windows PowerShell 5.1, add `-AsString` to keep the text in a
+variable. Use `-AsWidget` to compose a table into a panel or a dashboard, or to export it:
+
+```powershell
+$report = $servers | Format-ConsoleTable -AsString
+$servers | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./servers.html
+```
+
+The [command reference](https://consolemonster.dev/powershell/commands/) has parameters and examples for every cmdlet.
+
 ## Choose your starting point
 
 | What you need | Start here |
@@ -23,37 +177,6 @@ the C# library.
 
 The .NET package has no runtime package dependencies. It targets **.NET Standard 2.0, .NET Framework 4.7.2, .NET 8 and .NET 10**.
 The module supports **Windows PowerShell 5.1 and PowerShell 7**. Both are MIT licensed.
-
-## Start with PowerShell
-
-Install the module once, then import it in your script:
-
-```powershell
-Install-Module ConsoleMonster -Scope CurrentUser
-Import-Module ConsoleMonster
-```
-
-This example uses ordinary objects and works without a Windows-specific data source:
-
-```powershell
-$servers = @(
-    [pscustomobject] @{ Name = 'web-01'; Status = 'Pass'; Region = 'Warsaw' }
-    [pscustomobject] @{ Name = 'web-02'; Status = 'Warn'; Region = 'Dublin' }
-    [pscustomobject] @{ Name = 'web-03'; Status = 'Fail'; Region = 'Dublin' }
-)
-
-$servers | Write-ConsoleTable -Title 'Servers' -StatusProperty Status
-```
-
-Use `Write-ConsoleTable` to print a table, or `Format-ConsoleTable -AsWidget` when you want to compose or export it.
-As with `Write-Host`, assigning the result of `Write-ConsoleTable` to a variable does not capture its displayed text.
-
-```powershell
-$servers | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./servers.html
-Get-Help Write-ConsoleTable -Full
-```
-
-The [command reference](https://consolemonster.dev/powershell/commands/) has parameters and examples for every cmdlet.
 
 ## Start with C#
 
@@ -87,6 +210,18 @@ compiled into the library, so consuming projects do not need a source generator.
 For typed data, start with `Table.For(items)` and select columns with expressions. For formatted sizes, durations,
 numbers and status cells, use the built-in cell presenters. The [table guide](https://consolemonster.dev/tables/)
 shows both languages and the output at different window widths.
+
+### Logging, hosting and a template
+
+Three optional packages build on the zero-dependency core:
+
+- [`ConsoleMonster.Extensions.Logging`](ConsoleMonster.Extensions.Logging/README.md): `logging.AddConsoleMonster()`
+  writes `ILogger` entries with ConsoleMonster's level tags, timestamps, categories and scopes. Entries go into a
+  running dashboard's log region, and print as plain lines when the output is redirected.
+- [`ConsoleMonster.Hosting`](ConsoleMonster.Hosting/README.md): `services.AddConsoleDashboard()` shows a generic host's
+  hosted services and log live. It stays out of the way when the output is redirected or the app runs as a service.
+- [`ConsoleMonster.Templates`](Templates/ConsoleMonster.Templates/README.md): `dotnet new consolemonster` creates an
+  app with a menu, logging, the host dashboard and native AOT publishing.
 
 ## Keep long-running work visible
 

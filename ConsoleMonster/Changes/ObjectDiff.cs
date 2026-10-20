@@ -42,8 +42,14 @@ namespace ConsoleMonster.Changes {
         /// <summary>The new value.</summary>
         public object? After { get; }
 
+        /// <summary>The old value as display text; dates that differ only below a minute show their seconds.</summary>
+        public string BeforeText => ObjectDiff.PairText(Before, After);
+
+        /// <summary>The new value as display text; dates that differ only below a minute show their seconds.</summary>
+        public string AfterText => ObjectDiff.PairText(After, Before);
+
         /// <inheritdoc />
-        public override string ToString() => Path + ": " + ObjectDiff.Text(Before) + " -> " + ObjectDiff.Text(After);
+        public override string ToString() => Path + ": " + BeforeText + " -> " + AfterText;
     }
 
     /// <summary>One object of a comparison: added, removed, changed (with its property changes) or unchanged.</summary>
@@ -142,6 +148,9 @@ namespace ConsoleMonster.Changes {
 
         /// <summary>Whether the change removes objects: the case for a typed confirmation.</summary>
         public bool IsDestructive => Removed > 0;
+
+        /// <summary>The member paths that were not compared because reading them stalled (neither changed nor the same).</summary>
+        public IReadOnlyList<string> NotCompared { get; internal set; } = new string[0];
     }
 
     /// <summary>Options for <see cref="ObjectDiff"/>.</summary>
@@ -163,6 +172,20 @@ namespace ConsoleMonster.Changes {
 
         /// <summary>Whether unchanged objects are listed too (they are always counted).</summary>
         public bool IncludeUnchanged { get; set; }
+
+        /// <summary>Turns a host wrapper into the value to compare (for example a PowerShell object around a dictionary), or null.</summary>
+        public Func<object, object>? Unwrap { get; set; }
+
+        /// <summary>How long getters may stall in one comparison before slow members stop being read (default 2 seconds).</summary>
+        public TimeSpan TimeBudget { get; set; } = TimeSpan.FromSeconds(2);
+
+        // The stall guard of the comparison in progress, and the field cache shared by every read in it.
+        internal Values.ShapeBudget? Budget { get; set; }
+
+        internal Values.ShapeOptions? Shape { get; set; }
+
+        // Member paths skipped in the current comparison because reading them stalled.
+        internal List<string> NotCompared { get; } = new List<string>();
 
         /// <summary>Member sources tried before reflection (PowerShell objects, dictionaries, JSON).</summary>
         public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();
@@ -188,6 +211,19 @@ namespace ConsoleMonster.Changes {
                 return Compare(Items(before), Items(after), options);
             }
             options ??= new DiffOptions();
+            // Each comparison has its own stall guard and field cache (options may be reused).
+            options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
+            options.Shape = null;
+            options.NotCompared.Clear();
+            return WithNotCompared(CompareOne(before, after, options), options);
+        }
+
+        private static ChangeSet WithNotCompared(ChangeSet set, DiffOptions options) {
+            set.NotCompared = options.NotCompared.ToArray();
+            return set;
+        }
+
+        private static ChangeSet CompareOne(object? before, object? after, DiffOptions options) {
             if (before == null && after == null) {
                 return new ChangeSet(new ObjectChange[0]);
             }
@@ -198,7 +234,7 @@ namespace ConsoleMonster.Changes {
             if (after == null) {
                 return new ChangeSet(new[] { Described(new ObjectChange(ChangeKind.Removed, key, before, null), before, options) });
             }
-            IReadOnlyList<PropertyChange> properties = CompareObjects(before, after, options);
+            IReadOnlyList<PropertyChange> properties = CompareObjectsCore(before, after, options);
             ObjectChange change = new ObjectChange(properties.Count > 0 ? ChangeKind.Changed : ChangeKind.Unchanged, key, before, after, properties);
             return new ChangeSet(change.Kind == ChangeKind.Unchanged && !options.IncludeUnchanged ? new ObjectChange[0] : new[] { change }).WithUnchanged(change.Kind == ChangeKind.Unchanged ? 1 : 0);
         }
@@ -210,6 +246,14 @@ namespace ConsoleMonster.Changes {
         /// <returns>The change set.</returns>
         public static ChangeSet Compare(IEnumerable<object?> before, IEnumerable<object?> after, DiffOptions? options = null) {
             options ??= new DiffOptions();
+            // Each comparison has its own stall guard and field cache (options may be reused).
+            options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
+            options.Shape = null;
+            options.NotCompared.Clear();
+            return WithNotCompared(CompareMany(before, after, options), options);
+        }
+
+        private static ChangeSet CompareMany(IEnumerable<object?> before, IEnumerable<object?> after, DiffOptions options) {
             List<object> oldItems = (before ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
             List<object> newItems = (after ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
             Dictionary<string, Queue<object>> oldByKey = new Dictionary<string, Queue<object>>(StringComparer.Ordinal);
@@ -228,7 +272,7 @@ namespace ConsoleMonster.Changes {
                 string key = KeyOf(newItems[i], options, i);
                 if (oldByKey.TryGetValue(key, out Queue<object>? queue) && queue.Count > 0) {
                     object old = queue.Dequeue();
-                    IReadOnlyList<PropertyChange> properties = CompareObjects(old, newItems[i], options);
+                    IReadOnlyList<PropertyChange> properties = CompareObjectsCore(old, newItems[i], options);
                     if (properties.Count > 0) {
                         changed.Add(new ObjectChange(ChangeKind.Changed, key, old, newItems[i], properties));
                     } else {
@@ -262,6 +306,13 @@ namespace ConsoleMonster.Changes {
         /// <returns>The changes.</returns>
         public static IReadOnlyList<PropertyChange> CompareObjects(object? before, object? after, DiffOptions? options = null) {
             options ??= new DiffOptions();
+            // A direct call is its own comparison: fresh stall guard and field cache, even when the options are reused.
+            options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
+            options.Shape = null;
+            return CompareObjectsCore(before, after, options);
+        }
+
+        private static IReadOnlyList<PropertyChange> CompareObjectsCore(object? before, object? after, DiffOptions options) {
             List<PropertyChange> changes = new List<PropertyChange>();
             CompareInto(changes, string.Empty, before, after, options, 0);
             return changes;
@@ -284,10 +335,50 @@ namespace ConsoleMonster.Changes {
                 }
                 return "{" + string.Join(", ", parts) + "}";
             }
-            return Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+            if (value is System.Security.SecureString || value is byte[]) {
+                return Values.ValueShaper.ScalarText(value);
+            }
+            if (string.Equals(value.GetType().FullName, "System.Management.Automation.PSObject", StringComparison.Ordinal)) {
+                // A host wrapper (a PowerShell object) knows its own text (@{Name=...}); reflection would only find the wrapper.
+                return Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+            }
+            if (!ObjectInspector.IsScalarValue(value)) {
+                // A nested record past the comparison depth: its title (pwsh (90836)), not its .NET type name.
+                return Values.ValueShaper.Title(value);
+            }
+            // Dates read as they do in tables and records (yyyy-MM-dd HH:mm, local time).
+            return Presenters.DatePresenter.Text(value) ?? Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// A value as display text next to the value it is compared with: when two different dates would read the same (they
+        /// differ below a minute), the seconds are shown, so a change never looks like no change.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="other">The value on the other side.</param>
+        /// <returns>The text.</returns>
+        public static string PairText(object? value, object? other) {
+            string text = Text(value);
+            if ((value is DateTime || value is DateTimeOffset) && (other is DateTime || other is DateTimeOffset) && !Equals(value, other) && Text(other) == text) {
+                string precise = Presenters.DatePresenter.Text(value, null, true) ?? text;
+                if (precise == Presenters.DatePresenter.Text(other, null, true)) {
+                    precise = Presenters.DatePresenter.ExactText(value) ?? precise;
+                }
+                return precise;
+            }
+            return text;
         }
 
         private static void CompareInto(List<PropertyChange> changes, string path, object? before, object? after, DiffOptions options, int depth) {
+            if (before is Values.BudgetExceeded || after is Values.BudgetExceeded) {
+                // A member that stopped being read (its getter kept stalling) is not compared: neither changed nor the same.
+                // The change set lists it, so the view can say so.
+                string skipped = path.Length == 0 ? "(value)" : path;
+                if (!options.NotCompared.Contains(skipped)) {
+                    options.NotCompared.Add(skipped);
+                }
+                return;
+            }
             if (IsLeaf(before) && IsLeaf(after) || depth >= options.Depth) {
                 if (!ValuesEqual(before, after)) {
                     changes.Add(new PropertyChange(path.Length == 0 ? "(value)" : path, before, after));
@@ -379,13 +470,28 @@ namespace ConsoleMonster.Changes {
             if (value == null) {
                 return members;
             }
-            IMemberSource source = options.Sources.FirstOrDefault(s => s.CanRead(value)) ?? (Dictionaries.CanRead(value) ? Dictionaries : Reflection);
-            foreach (InspectMember member in source.GetMembers(value)) {
-                try {
-                    members[member.Name] = member.Value;
-                } catch (Exception ex) when (!(ex is OutOfMemoryException)) {
-                    members[member.Name] = null;
+            // The shared field rules: registered and data adapters first, then the caller's sources, then reflection, with
+            // plumbing members (CIM metadata, provider paths, collection synchronisation) left out.
+            Values.ShapeOptions? shape = options.Shape;
+            if (shape == null) {
+                shape = new Values.ShapeOptions { Unwrap = options.Unwrap };
+                foreach (IMemberSource source in options.Sources) {
+                    shape.Sources.Add(source);
                 }
+                options.Shape = shape;
+            }
+            object prepared = Values.ValueShaper.Prepare(value, shape) ?? value;
+            if (Values.ValueShaper.FindAdapter(prepared, shape) == null) {
+                IMemberSource fallback = Dictionaries.CanRead(prepared) ? Dictionaries : Reflection;
+                foreach (InspectMember member in fallback.GetMembers(prepared)) {
+                    members[member.Name] = Read(member);
+                }
+                return members;
+            }
+            Values.ShapeBudget budget = options.Budget ?? new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
+            foreach (InspectMember member in Values.ValueShaper.Fields(prepared, shape)) {
+                // Members whose getters keep stalling (remote objects) stop being read once the stalls use up the budget.
+                members[member.Name] = budget.Guard(member.Name, () => Read(member));
             }
             return members;
         }
@@ -409,7 +515,19 @@ namespace ConsoleMonster.Changes {
             return "#" + (index + 1).ToString(CultureInfo.InvariantCulture);
         }
 
+        private static object? Read(InspectMember member) {
+            try {
+                return member.Value;
+            } catch (Exception ex) when (!(ex is OutOfMemoryException) && !ObjectInspector.IsCancellation(ex)) {
+                return null;
+            }
+        }
+
         private static bool ValuesEqual(object? a, object? b) {
+            // Secure strings cannot be compared without revealing them; two of them count as the same value.
+            if (a is System.Security.SecureString && b is System.Security.SecureString) {
+                return true;
+            }
             if (a == null || b == null) {
                 return a == null && b == null || (a == null ? Text(b).Length == 0 && b is string : Text(a).Length == 0 && a is string);
             }

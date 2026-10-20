@@ -58,23 +58,22 @@ Certificate
     CN=ISRG Root X1          in 8 y     RSA 4096
 
  TestimoX · ad.evotec.xyz run summary
-┌───────────────────────┬────────┬────────┬────────┬──────────┬──────────┐
-│ Target                │ Result │ Passed │ Failed │ Warnings │ Duration │
-├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┤
-│ Domains  2                                                             │
-│ ad.evotec.xyz         │ × FAIL │      9 │    × 2 │      ! 5 │     24 s │
-│ eu.ad.evotec.xyz      │ × FAIL │     13 │    × 1 │      ! 1 │     16 s │
-│ Subtotal              │        │     22 │    × 3 │      ! 6 │     40 s │
-│ Domain controllers  5                                                  │
-│ DC01.ad.evotec.xyz    │ ! WARN │     26 │      0 │      ! 3 │     17 s │
-│ DC02.ad.evotec.xyz    │ ! WARN │     23 │      0 │      ! 6 │     17 s │
-│ DC03.ad.evotec.xyz    │ × FAIL │     23 │    × 3 │      ! 4 │     19 s │
-│ DC07.eu.ad.evotec.xyz │ × FAIL │     21 │    × 4 │      ! 4 │     16 s │
-│ DC09.eu.ad.evotec.xyz │ √ PASS │     30 │      0 │        0 │     15 s │
-│ Subtotal              │        │    123 │    × 7 │     ! 17 │ 1 m 24 s │
-├───────────────────────┼────────┼────────┼────────┼──────────┼──────────┤
-│ Total                 │        │    145 │   × 10 │     ! 23 │ 2 m 04 s │
-└───────────────────────┴────────┴────────┴────────┴──────────┴──────────┘
+┌──────────────────────────┬────────┬────────┬────────┬──────────┬──────────┐
+│ Target                   │ Result │ Passed │ Failed │ Warnings │ Duration │
+├─ Domains · 2 ────────────┼────────┼────────┼────────┼──────────┼──────────┤
+│ ad.evotec.xyz            │ × FAIL │      9 │    × 2 │      ! 5 │     24 s │
+│ eu.ad.evotec.xyz         │ × FAIL │     13 │    × 1 │      ! 1 │     16 s │
+│ Subtotal                 │        │     22 │    × 3 │      ! 6 │     40 s │
+├─ Domain controllers · 5 ─┼────────┼────────┼────────┼──────────┼──────────┤
+│ DC01.ad.evotec.xyz       │ ! WARN │     26 │      0 │      ! 3 │     17 s │
+│ DC02.ad.evotec.xyz       │ ! WARN │     23 │      0 │      ! 6 │     17 s │
+│ DC03.ad.evotec.xyz       │ × FAIL │     23 │    × 3 │      ! 4 │     19 s │
+│ DC07.eu.ad.evotec.xyz    │ × FAIL │     21 │    × 4 │      ! 4 │     16 s │
+│ DC09.eu.ad.evotec.xyz    │ √ PASS │     30 │      0 │        0 │     15 s │
+│ Subtotal                 │        │    123 │    × 7 │     ! 17 │ 1 m 24 s │
+├──────────────────────────┼────────┼────────┼────────┼──────────┼──────────┤
+│ Total                    │        │    145 │   × 10 │     ! 23 │ 2 m 04 s │
+└──────────────────────────┴────────┴────────┴────────┴──────────┴──────────┘
  +1 column (Score)
 
  PSPublishModule · ConsoleMonster 2.0.0 artifacts

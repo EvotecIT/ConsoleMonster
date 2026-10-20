@@ -103,7 +103,8 @@ $value = $broken[0].GetValue($items[0])
 'BINDING:' + (@{ Keys = @($columns | ForEach-Object { $_.Column.IsKey }); Value = $value; Error = $broken[0].LastError } | ConvertTo-Json -Compress)
 '@
         $result.Keys | Should -Be @($false, $true)
-        $result.Value | Should -BeNullOrEmpty
+        # A failing expression is a warning marker in its cell (FieldError), never a silently empty value.
+        $result.Value.Message | Should -Match 'evaluation failed'
         $result.Error | Should -Match 'evaluation failed'
     }
 
@@ -140,7 +141,8 @@ $columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, $nul
 $objectName = $columns | Where-Object Name -eq 'Name' | ForEach-Object { $_.GetValue($items[1]) }
 'BINDING:' + (@{ Names = @($columns | ForEach-Object Name); Scalar = $columns[0].GetValue($items[0]); ObjectName = $objectName } | ConvertTo-Json -Compress)
 '@
-        $result.Names | Should -Be @('Value', 'Name', 'Extra')
+        # The first record's default display set applies whatever comes before it (the same columns as when the record is first).
+        $result.Names | Should -Be @('Value', 'Name')
         $result.Scalar | Should -Be 7
         $result.ObjectName | Should -Be 'Ada'
     }

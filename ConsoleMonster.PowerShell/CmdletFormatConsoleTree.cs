@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">How deep nested objects are followed (default 3).</para></summary>
+        /// <summary><para type="description">How deep nested objects are followed. Without it, .NET objects with more than 12 members (a process, a file, a service) open one level, and smaller objects, dictionaries and parsed JSON three, so a tree stays a readable size.</para></summary>
         [Parameter]
         public int Depth { get; set; } = 3;
 
@@ -61,6 +61,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public System.Globalization.CultureInfo? Culture { get; set; }
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Also writes the input objects to the pipeline.</para></summary>
         [Parameter]
         public SwitchParameter PassThru { get; set; }
@@ -77,16 +80,18 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes);
             List<IWidget> widgets = new List<IWidget>();
             foreach (PSObject item in _items) {
+                // The root object shows all its properties; nested objects with a default display set show that set.
+                int depth = MyInvocation.BoundParameters.ContainsKey(nameof(Depth)) ? Depth : InspectorOptions.DefaultDepthFor(PSFormatting.FieldCount(item), Depth);
+                InspectorOptions options = PSFormatting.InspectorOptions(depth, MaxItems, Include, Exclude, MaxNodes, item);
 #pragma warning disable IL2026
                 InspectNode node = ObjectInspector.Inspect(item, options);
 #pragma warning restore IL2026
                 widgets.Add(AsInspector.IsPresent ? new InspectorView(node, PSText.Markup(Title)) : (IWidget)InspectorTree.Build(node, PSText.Markup(Title)));
             }
             IWidget output = widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
-            PSFormatting.Write(this, output, Width, Culture);
+            PSFormatting.Emit(this, output, Width, Culture, AsString.IsPresent, PassThru.IsPresent);
             if (PassThru.IsPresent) {
                 foreach (PSObject item in _items) {
                     WriteObject(item);

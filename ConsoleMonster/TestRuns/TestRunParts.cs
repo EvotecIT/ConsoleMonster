@@ -130,7 +130,7 @@ namespace ConsoleMonster.TestRuns {
                     name = TextWrapper.Truncate(StyledLine.From(name, text), room, context.Ellipsis).PlainText;
                 }
                 x = region.Write(x, i, name, text, room);
-                string file = System.IO.Path.GetFileName(record.Container);
+                string file = Text.DisplayPath.FileName(record.Container);
                 if (!string.IsNullOrEmpty(file) && x + 2 + DisplayWidth.Measure(file) <= region.Width) {
                     region.Write(x + 2, i, file, muted);
                 }

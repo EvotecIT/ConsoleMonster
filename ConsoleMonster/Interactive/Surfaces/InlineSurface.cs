@@ -44,13 +44,18 @@ namespace ConsoleMonster.Interactive {
             _sizeSource = sizeSource;
             ReadSize(out _windowWidth, out _windowHeight);
             if (writer == null) {
-                try {
-                    _startOnNewLine = Console.CursorLeft > 0;
-                } catch (Exception ex) when (ex is System.IO.IOException || ex is InvalidOperationException || ex is PlatformNotSupportedException) {
-                    _startOnNewLine = false;
-                }
+                // On Unix the column is unknown (querying it would read the reply from the keyboard input): the area starts on
+                // a new line, so text before it (Write-Host -NoNewline) is never overwritten.
+                _startOnNewLine = StartOnNewLine(Output.ConsoleCursor.CanQuery, () => Console.CursorLeft, () => Console.CursorTop);
             }
         }
+
+        /// <summary>
+        /// Whether the area starts on a new line: when the cursor is past the start of a line, or when its column is unknown
+        /// (never queried when <paramref name="canQuery"/> is false).
+        /// </summary>
+        internal static bool StartOnNewLine(bool canQuery, Func<int> readLeft, Func<int> readTop) =>
+            !Output.ConsoleCursor.TryGetPosition(canQuery, readLeft, readTop, out int left, out _) || left > 0;
 
         public int Width => Math.Max(10, _windowWidth - 1);
 

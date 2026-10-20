@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script and shows its Write-Progress calls as an inline progress area.</para>
-    /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
+    /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. In jobs, remoting, the ISE and redirected output the script simply runs. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
     /// <example>
     ///   <para>An existing loop, unchanged</para>
     ///   <code>Use-ConsoleProgress {
@@ -73,6 +73,19 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                 }
                 return;
             }
+            using (IDisposable? foreground = SessionProgress.TryEnterForeground()) {
+                if (foreground == null) {
+                    // Another runspace owns the one terminal area. Keep the script and native progress in this runspace.
+                    foreach (PSObject item in ScriptBlock.Invoke()) {
+                        WriteObject(item);
+                    }
+                    return;
+                }
+                RunWithArea();
+            }
+        }
+
+        private void RunWithArea() {
             ActivityList activities = new ActivityList();
             LiveSessionOptions options = new LiveSessionOptions {
                 Mode = LiveMode.Inline,
@@ -89,8 +102,17 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                         ["Write-Progress"] = ScriptBlock.Create(ProgressProxy),
                         ["Write-Host"] = ScriptBlock.Create(HostProxy)
                     };
-                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", new ProgressBridge(session)) };
-                    output = ScriptBlock.InvokeWithContext(functions, variables);
+                    ProgressBridge bridge = new ProgressBridge(session);
+                    List<PSVariable> variables = new List<PSVariable> { new PSVariable("__cmProgressBridge", bridge) };
+                    // With Enable-ConsoleFormatting -Feature Progress, Write-Progress is an alias, which wins over the
+                    // function above: Write-ConsoleProgress hands its calls to this area while the script runs.
+                    ProgressBridge? previous = SessionProgress.Override;
+                    SessionProgress.Override = bridge;
+                    try {
+                        output = ScriptBlock.InvokeWithContext(functions, variables);
+                    } finally {
+                        SessionProgress.Override = previous;
+                    }
                 } finally {
                     session.Stop();
                 }

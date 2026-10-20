@@ -58,7 +58,8 @@ namespace ConsoleMonster.Widgets {
                 return "-";
             }
             double clamped = Math.Max(0, Math.Min(1, fraction));
-            return Math.Floor(clamped * 100).ToString("0", CultureInfo.InvariantCulture) + "%";
+            // Whole percents round down (99.9% done is not 100%), past binary noise: 29 of 100 is 29%, not 28%.
+            return Math.Floor(clamped * 100 + 1e-9).ToString("0", CultureInfo.InvariantCulture) + "%";
         }
 
         /// <summary>Formats a duration compactly: 850ms, 12.4s, 1m 12s, 1h 02m.</summary>
@@ -78,6 +79,14 @@ namespace ConsoleMonster.Widgets {
                 return duration.Minutes.ToString(CultureInfo.InvariantCulture) + "m " + duration.Seconds.ToString("00", CultureInfo.InvariantCulture) + "s";
             }
             return ((int)duration.TotalHours).ToString(CultureInfo.InvariantCulture) + "h " + duration.Minutes.ToString("00", CultureInfo.InvariantCulture) + "m";
+        }
+
+        /// <summary>A time left, rounded up: <c>12s</c> under a minute, otherwise as <see cref="Duration"/> (<c>3m 05s</c>).</summary>
+        /// <param name="remaining">The time left.</param>
+        /// <returns>The text.</returns>
+        public static string Remaining(TimeSpan remaining) {
+            double seconds = Math.Max(0, Math.Ceiling(remaining.TotalSeconds));
+            return seconds < 60 ? seconds.ToString("0", CultureInfo.InvariantCulture) + "s" : Duration(TimeSpan.FromSeconds(seconds));
         }
 
         /// <summary>Formats a clock: 00:01:23 (or 01:23 under an hour when <paramref name="shortForm"/> is true).</summary>

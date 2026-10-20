@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -9,7 +10,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// Horizontal bars with labels and values, sub-cell precise per glyph tier. All bars share one colour unless an item
-    /// sets its own token, so the chart does not shout. Live operations (Key = label): <c>set</c> (Value), <c>add</c> (Value).
+    /// sets its own token or a value crosses <see cref="Warning"/> or <see cref="Critical"/>, so the chart does not shout. Live operations (Key = label): <c>set</c> (Value), <c>add</c> (Value).
     /// </summary>
     public sealed class BarChart : LiveWidget {
         private readonly List<ChartItem> _items = new List<ChartItem>();
@@ -47,6 +48,32 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>A unit appended to values (for example <c>ms</c>).</summary>
         public string? Unit { get; set; }
+
+        /// <summary>
+        /// The value from which a bar is a warning (warning colour), or null. With <see cref="Critical"/> below it, lower
+        /// values are worse (free space); otherwise higher values are (disk use). An item's own colour wins.
+        /// </summary>
+        public double? Warning { get; set; }
+
+        /// <summary>The value from which a bar is critical (fail colour), or null. See <see cref="Warning"/>.</summary>
+        public double? Critical { get; set; }
+
+        /// <summary>The status a value reaches against <see cref="Warning"/> and <see cref="Critical"/>, or null below both.</summary>
+        /// <param name="value">The value.</param>
+        /// <returns>Fail, Warn or null.</returns>
+        public StatusKind? Threshold(double value) {
+            if (!NumberFormat.IsFinite(value)) {
+                return null;
+            }
+            bool lowerIsWorse = Warning.HasValue && Critical.HasValue && Critical.Value < Warning.Value;
+            if (Critical.HasValue && (lowerIsWorse ? value <= Critical.Value : value >= Critical.Value)) {
+                return StatusKind.Fail;
+            }
+            if (Warning.HasValue && (lowerIsWorse ? value <= Warning.Value : value >= Warning.Value)) {
+                return StatusKind.Warn;
+            }
+            return null;
+        }
 
         /// <summary>Adds or updates an item with a multicolour label (its plain text is the key).</summary>
         /// <param name="label">The rich label.</param>
@@ -109,7 +136,7 @@ namespace ConsoleMonster.Widgets {
             double max = Max ?? 0;
             foreach (ChartItem item in _items) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
-                valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(FormatValue(item.Value, context)));
+                valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
                 if (!Max.HasValue && NumberFormat.IsFinite(item.Value)) {
                     max = Math.Max(max, item.Value);
                 }
@@ -125,14 +152,23 @@ namespace ConsoleMonster.Widgets {
                 ChartItem item = _items[i];
                 region.Write(0, i, TextWrapper.Truncate(RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context), labelWidth, context.Ellipsis));
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
-                BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(item.Token ?? BarToken), context, false, Shape);
+                StatusKind? reached = item.Token.HasValue ? null : Threshold(item.Value);
+                ThemeToken token = item.Token ?? (reached.HasValue ? reached.Value.ToToken() : BarToken);
+                BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(token), context, false, Shape);
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, FormatValue(item.Value, context), muted, ValueColumn.Alignment, context.Ellipsis);
+                    StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : muted, ValueColumn.Alignment, context.Ellipsis);
                 }
             }
         }
 
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
+
+        // The value with a status symbol in front when it crossed a threshold and colour cannot show it (never colour alone).
+        private string ValueText(ChartItem item, RenderContext context) {
+            string text = FormatValue(item.Value, context);
+            StatusKind? reached = item.Token.HasValue ? null : Threshold(item.Value);
+            return reached.HasValue && !context.HasColor ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
+        }
 
         // NaN and infinite values draw no bar and show a dash instead of "InfinityM".
         private string FormatValue(double value, RenderContext context) => NumberFormat.IsFinite(value) ? FormatValue(value) : NumberFormat.Missing(context.Glyphs.Tier);

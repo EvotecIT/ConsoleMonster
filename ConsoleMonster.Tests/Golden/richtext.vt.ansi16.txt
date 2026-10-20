@@ -39,8 +39,8 @@
 
 \e[0;94m⠋\e[0m \e[0;96mSRV\e[0;1;93m01\e[0m  \e[0;96m━━━━━━━━━\e[0;90m─────────\e[0m  \e[0;90m50%\e[0m  \e[0;90m✓\e[36G0\e[0m \e[0;90m✗\e[39G0\e[0m \e[0;90m▴\e[42G0\e[0m  \e[0;90mcopying \e[0;92mWeekly.xlsx\e[0m
 
-\e[0;91mERR\e[0m \e[0;96mDC03 \e[0;91mreplication failed\e[0;90m - no inbound replication for 4h from\e[0m
-\e[0m    \e[0;90mDC02\e[0m
+\e[0;91m✗\e[2G ERR\e[0m \e[0;96mDC03 \e[0;91mreplication failed\e[0;90m - no inbound replication for 4h\e[0m
+\e[0m      \e[0;90mfrom DC02\e[0m
 
 \e[0;96mSRV\e[0;1;93m01\e[0m \e[0;94m▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆\e[0m \e[0;90m12\e[0m
 \e[0;96mSRV\e[0;1;93m02\e[0m \e[0;94m▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆\e[0m                         \e[0;90m7\e[0m

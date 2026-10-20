@@ -309,7 +309,17 @@ namespace ConsoleMonster.Capabilities {
                 reason = "stream/CI";
                 return GlyphTier.Basic;
             }
-            if (Get("WT_SESSION").Length > 0 || Equal(Get("TERM_PROGRAM"), "vscode") || !_environment.IsWindows) {
+            if (!_environment.IsWindows) {
+                // Unix terminals draw what the locale's character set allows: LC_ALL, then LC_CTYPE, then LANG decide.
+                // C and POSIX (and any other non-UTF-8 code set) get ASCII; a UTF-8 locale or none at all gets full glyphs.
+                if (!UnicodeLocale(out string locale)) {
+                    reason = locale;
+                    return GlyphTier.Ascii;
+                }
+                reason = "modern terminal, " + locale;
+                return GlyphTier.Full;
+            }
+            if (Get("WT_SESSION").Length > 0 || Equal(Get("TERM_PROGRAM"), "vscode")) {
                 reason = "modern terminal";
                 return GlyphTier.Full;
             }
@@ -330,6 +340,36 @@ namespace ConsoleMonster.Capabilities {
                 }
             }
             return GlyphTier.Basic;
+        }
+
+        // The effective character-type locale (POSIX precedence: LC_ALL, then LC_CTYPE, then LANG; empty values are skipped)
+        // and whether it is UTF-8. No locale at all counts as UTF-8, since terminals and .NET write UTF-8 by default.
+        private bool UnicodeLocale(out string description) {
+            foreach (string name in new[] { "LC_ALL", "LC_CTYPE", "LANG" }) {
+                string value = Get(name);
+                if (value.Length == 0) {
+                    continue;
+                }
+                description = "locale " + name + "=" + value;
+                string codeSet = value;
+                int at = codeSet.IndexOf('@');
+                if (at >= 0) {
+                    codeSet = codeSet.Substring(0, at);
+                }
+                if (Equal(codeSet, "C") || Equal(codeSet, "POSIX")) {
+                    return false;
+                }
+                int dot = codeSet.IndexOf('.');
+                if (dot < 0) {
+                    // A bare code set (LC_CTYPE=UTF-8, as macOS Terminal and SSH from a Mac set it) is that code set; a
+                    // language without a code set (en_US) uses the system's legacy default, which is not UTF-8.
+                    return Equal(codeSet.Replace("-", string.Empty), "UTF8");
+                }
+                string set = codeSet.Substring(dot + 1).Replace("-", string.Empty);
+                return Equal(set, "UTF8");
+            }
+            description = "locale not set";
+            return true;
         }
 
         private TerminalKind DetectKind() {

@@ -54,17 +54,18 @@ Value 4  C:\Support\GitHub\ConsoleMonster\
 Value 5  https://mta-sts.evotec.xyz/.
          well-known/mta-sts.txt
 Log region with Wrap (44 cells)
-WARN resolved
-     evotec-xyz.mail.protection.outlook.com
-WARN resolved
-     include:spf.protection.outlook.com
-     include:_spf.google.com
-WARN resolved
-     selector1-evotec-xyz._domainkey.
-     evotecpl.onmicrosoft.com
-WARN resolved
-     C:\Support\GitHub\ConsoleMonster\
-     Artefacts\Packed\…
-WARN resolved
-     https://mta-sts.evotec.xyz/.well-known/
-     mta-sts.txt
+▴ WARN resolved
+       evotec-xyz.mail.protection.outlook.
+       com
+▴ WARN resolved
+       include:spf.protection.outlook.com
+       include:_spf.google.com
+▴ WARN resolved
+       selector1-evotec-xyz._domainkey.
+       evotecpl.onmicrosoft.com
+▴ WARN resolved
+       C:\Support\GitHub\ConsoleMonster\
+       Artefacts\Packed\…
+▴ WARN resolved
+       https://mta-sts.evotec.xyz/.
+       well-known/mta-sts.txt

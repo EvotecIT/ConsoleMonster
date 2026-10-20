@@ -83,6 +83,21 @@ namespace ConsoleMonster.Widgets {
         /// </summary>
         public bool Transient { get; set; }
 
+        /// <summary>Whether a waiting (pending) lane's label is dimmed (default true).</summary>
+        public bool DimPending { get; set; } = true;
+
+        /// <summary>Whether a running lane's label is bold, so the active work stands out (default false).</summary>
+        public bool BoldActive { get; set; }
+
+        /// <summary>Whether a last row counts the running lanes ("● 3 running") while any run (default false).</summary>
+        public bool ShowRunningCount { get; set; }
+
+        /// <summary>
+        /// A state whose lanes fold into one summary row instead of a row each, for example <see cref="StatusKind.Skip"/>:
+        /// "– 2 skipped: Alpha (46) · Beta (5)". Null (default) keeps every lane on its own row.
+        /// </summary>
+        public StatusKind? CollapseWhen { get; set; }
+
         /// <summary>The moving window that smooths rates and remaining-time estimates (default 10 seconds).</summary>
         public TimeSpan RateWindow { get; set; } = TimeSpan.FromSeconds(10);
 

@@ -25,6 +25,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The initial status (default Running).</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind Status { get; set; } = StatusKind.Running;
 
         /// <summary><para type="description">The live name (default spinner).</para></summary>

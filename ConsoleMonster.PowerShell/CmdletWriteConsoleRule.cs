@@ -16,9 +16,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
         public object? Title { get; set; }
 
+        /// <summary><para type="description">The width in cells (default the window), to match other output laid out with -Width.</para></summary>
+        [Parameter]
+        public int Width { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            HostOutput.Write(this, new Rule(PSText.Markup(Title)));
+            Capabilities.TerminalProfile? profile = Width > 0 ? Terminal.GetCurrentProfile().WithSize(Width, Terminal.GetCurrentProfile().Height) : null;
+            HostOutput.Write(this, new Rule(PSText.Markup(Title)), profile, Width > 0);
         }
     }
 }

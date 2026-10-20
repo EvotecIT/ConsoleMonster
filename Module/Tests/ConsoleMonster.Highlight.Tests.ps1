@@ -40,6 +40,24 @@ Describe 'Format-ConsoleCode, Format-ConsoleJson and smart highlighting' {
         $text | Should -Match '"ok": true'
     }
 
+    It 'writes JSON through the shared value rules: re-indented strings, mixed arrays, any key, cycles, no warnings' {
+        $text = Invoke-HighlightChild @'
+'== string'; '{"a":1,"b":[1,2]}' | Format-ConsoleJson -AsString
+'== plain'; 'hello' | Format-ConsoleJson -AsString
+'== mixed'; Format-ConsoleJson -InputObject @(1, 'two', @{ k = 3 }, $null) -AsString
+'== keys'; @{ 1 = 'one'; [guid]::Empty = 2 } | Format-ConsoleJson -AsString
+'== cycle'; $a = [pscustomobject] @{ Name = 'a' }; $a | Add-Member -NotePropertyName Self -NotePropertyValue $a; $a | Format-ConsoleJson -AsString 3>&1
+'@
+        $parts = $text -split '== \w+'
+        $parts[1] | Should -Match '"b": \[\s*1,\s*2\s*\]'
+        $parts[2].Trim() | Should -Be '"hello"'
+        $parts[3] | Should -Match '\[\s*1,\s*"two",\s*\{\s*"k": 3\s*\},\s*null\s*\]'
+        $parts[4] | Should -Match '"1": "one"'
+        $parts[4] | Should -Match '"00000000-0000-0000-0000-000000000000": 2'
+        $parts[5] | Should -Match '"Self": "\(cycle\)"'
+        $parts[5] | Should -Not -Match 'WARNING|truncated'
+    }
+
     It 'highlights table columns and log markup with Smart' {
         $text = Invoke-HighlightChild @'
 [pscustomobject] @{ Host = 'srv1'; Address = '10.0.0.12'; Seen = '2026-10-17 14:03' } | Format-ConsoleTable -Property Host, @{ Name = 'Address'; Highlight = 'Smart' }, @{ Name = 'Seen'; Highlight = 'Smart' }

@@ -7,7 +7,7 @@ namespace ConsoleMonster.TestRuns {
     public sealed class TestRunSnapshot {
         internal TestRunSnapshot(int? total, int passed, int failed, int skipped, int inconclusive, int notRun, IReadOnlyList<TestContainerState> containers,
             IReadOnlyList<TestRecord> failures, IReadOnlyList<TestRecord> slowest, IReadOnlyList<double> durations, string? currentName,
-            IReadOnlyList<string>? currentBlocks, string? currentContainer, TimeSpan elapsed, bool isFinished) {
+            IReadOnlyList<string>? currentBlocks, string? currentContainer, TimeSpan elapsed, bool isFinished, IReadOnlyList<StatusKind>? outcomes = null, TimeSpan? currentStarted = null) {
             Total = total;
             Passed = passed;
             Failed = failed;
@@ -23,7 +23,15 @@ namespace ConsoleMonster.TestRuns {
             CurrentContainer = currentContainer;
             Elapsed = elapsed;
             IsFinished = isFinished;
+            Outcomes = outcomes ?? new StatusKind[0];
+            CurrentStarted = currentStarted;
         }
+
+        /// <summary>The outcome of every test that ended, in the order they ended (for an outcome grid).</summary>
+        public IReadOnlyList<StatusKind> Outcomes { get; }
+
+        /// <summary>When the running test started (run time), or null.</summary>
+        public TimeSpan? CurrentStarted { get; }
 
         /// <summary>The planned test count, once discovery has finished.</summary>
         public int? Total { get; }

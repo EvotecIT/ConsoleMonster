@@ -1,4 +1,4 @@
-Describe 'Show-Console, default formatting and the taskbar indicator' {
+﻿Describe 'Show-Console, default formatting and the taskbar indicator' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -35,7 +35,8 @@ Describe 'Show-Console, default formatting and the taskbar indicator' {
 '== cards'
 1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -View Cards -Width 60
 '@
-        $text | Should -Match 'PSCustomObject\s+.\s+2 members'
+        # One object is a record: its title (Name) and its other fields.
+        $text | Should -Match 'srv01\s*\n\s+Up\s+(?:.\s+)?yes'
         $text | Should -Match 'Name\s+.\s+Count'
         $text | Should -Match 'root\s*\n\s+.+leaf'
         $text | Should -Match '9'
@@ -45,6 +46,9 @@ Describe 'Show-Console, default formatting and the taskbar indicator' {
     It 'leaves redirected output, pipelines and Out-String unchanged and Disable removes the Out-Default function' {
         $text = Invoke-ViewChild -Script @'
 $before = Get-Item $PSHOME | Out-String
+# The header line of PowerShell's own view on this platform (Windows: Mode LastWriteTime Length Name; Unix: UnixMode User ...).
+$beforeLines = @($before -split "`r?`n")
+for ($i = 1; $i -lt $beforeLines.Count; $i++) { if ($beforeLines[$i] -match '^\s*-{2,}') { "HEADER=$($beforeLines[$i - 1].Trim())"; break } }
 $pipeBefore = @(Get-ChildItem $PSHOME -File | Select-Object -First 3 | ForEach-Object Name) -join ','
 Enable-ConsoleFormatting
 "ENABLED=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
@@ -60,8 +64,10 @@ Disable-ConsoleFormatting
         $text | Should -Match 'SAMESTRING=True'
         $text | Should -Match 'SAMEPIPE=True'
         $text | Should -Match 'DISABLED=True'
-        # Redirected: Get-Item still prints PowerShell's own view, not a ConsoleMonster table.
-        $text | Should -Match 'LastWriteTime\s+Length\s+Name|Mode\s+LastWriteTime'
+        # Redirected: Get-Item still prints PowerShell's own view (its own header on this platform), not a ConsoleMonster table.
+        $header = (($text -split "`n") | Where-Object { $_ -like 'HEADER=*' } | Select-Object -First 1).Substring(7)
+        $header | Should -Not -BeNullOrEmpty
+        @($text -split "`n" | Where-Object { $_ -notlike 'HEADER=*' -and $_.Trim() -eq $header }).Count | Should -BeGreaterThan 0
         $text | Should -Not -Match '[┌╭]'
     }
 
@@ -88,6 +94,154 @@ $servers | Out-ConsoleDefault -Force
         $text | Should -Match 'a plain string'
         # After -Remove the objects get PowerShell's default output again.
         $text | Should -Match 'Name\s+State\s*\n-+\s+-+'
+    }
+
+    It 'selects type-specific and default PowerShell table rows for every object' {
+        $text = Invoke-ViewChild -Script @'
+$path = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.format.ps1xml')
+$xml = '<Configuration><ViewDefinitions><View><Name>ReviewConditional</Name><ViewSelectedBy><TypeName>Review.Conditional</TypeName></ViewSelectedBy><TableControl><TableHeaders><TableColumnHeader><Label>Result</Label></TableColumnHeader></TableHeaders><TableRowEntries><TableRowEntry><EntrySelectedBy><TypeName>Review.Special</TypeName></EntrySelectedBy><TableColumnItems><TableColumnItem><PropertyName>Special</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry><TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>Default</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View></ViewDefinitions></Configuration>'
+try {
+    [IO.File]::WriteAllText($path, $xml)
+    Update-FormatData -PrependPath $path -ErrorAction Stop
+    $values = @(
+        [pscustomobject] @{ Kind = 'special'; Special = 'selected'; Conditional = 'wrong'; Default = 'wrong' }
+        [pscustomobject] @{ Kind = 'default'; Special = 'wrong'; Conditional = 'wrong'; Default = 'fallback' }
+    )
+    foreach ($value in $values) { $value.PSObject.TypeNames.Insert(0, 'Review.Conditional') }
+    $values[0].PSObject.TypeNames.Add('Review.Special')
+    '== native'
+    $values | Format-Table | Out-String
+    '== console'
+    $values | Format-ConsoleTable -AsString
+} finally {
+    Remove-Item -LiteralPath $path
+}
+'@
+        $sections = $text -split '== console'
+        $sections.Count | Should -Be 2
+        foreach ($section in $sections) {
+            $section | Should -Match 'selected'
+            $section | Should -Match 'fallback'
+            $section | Should -Not -Match 'wrong'
+        }
+    }
+
+    It 'keeps case-distinct dictionary columns and resolves an exact property name' {
+        $text = Invoke-ViewChild -Script @'
+$data = [System.Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
+$data.Add('Name', 'first')
+$data.Add('name', 'second')
+'== both'
+Format-ConsoleTable -InputObject $data -Property Name, name -AsString
+'== lower'
+Format-ConsoleTable -InputObject $data -Property name -AsString
+'== grouped'
+$data.Add('Size', 7)
+Format-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -AsString
+'@
+        $sections = $text -split '== lower'
+        $sections[0] | Should -Match 'Name.+name'
+        $sections[0] | Should -Match 'first.+second'
+        $grouped = $sections[1] -split '== grouped'
+        $grouped[0] | Should -Match 'second'
+        $grouped[0] | Should -Not -Match 'first'
+        $grouped[1] | Should -Match 'first'
+        $grouped[1] | Should -Match 'second'
+        $grouped[1] | Should -Match 'Size'
+    }
+
+    It 'takes over a shaper-only registration and keeps an existing explicit view' {
+        $text = Invoke-ViewChild -Script @'
+Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'replacement' } }
+$value = [pscustomobject] @{ Original = 'unshaped' }
+$value.PSObject.TypeNames.Insert(0, 'Review.Shape')
+$value | Out-ConsoleDefault -Force
+Register-ConsoleView -TypeName 'Review.Shape' -View Table -Property @{ Name = 'OnlyCustom'; Expression = { 'kept' } }
+Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'updated' } }
+$value | Out-ConsoleDefault -Force
+'@
+        $text | Should -Match 'replacement'
+        $text | Should -Not -Match 'unshaped'
+        $text | Should -Match 'OnlyCustom'
+        $text | Should -Match 'kept'
+    }
+
+    It 'exports the fct and fcl aliases and prints a profile snippet without changing anything' {
+        $text = Invoke-ViewChild -Script @'
+"FCT=$((Get-Alias fct).Definition) FCL=$((Get-Alias fcl).Definition)"
+$snippet = @(Enable-ConsoleFormatting -ProfileSnippet -NoBuiltIn)
+"LINES=$($snippet.Count)"
+$snippet
+"SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore))"
+'@
+        $text | Should -Match 'FCT=Format-ConsoleTable FCL=Format-ConsoleList'
+        $text | Should -Match 'LINES=3'
+        $text | Should -Match '(?m)^Import-Module ConsoleMonster$'
+        $text | Should -Match '(?m)^Enable-ConsoleFormatting -NoBuiltIn$'
+        $text | Should -Match 'SHIM=False'
+    }
+
+    It 'shows commands and modules with the built-in views' {
+        $text = Invoke-ViewChild -Script @'
+Get-Command Get-Item, Get-ChildItem, gci | Format-ConsoleTable -Width 120
+Get-Module ConsoleMonster | Format-ConsoleTable -Width 120
+'@
+        $text | Should -Match 'CommandType\s+\S\s+Name\s+\S\s+Version\s+\S\s+Source'
+        $text | Should -Match 'Cmdlet\s+\S\s+Get-Item\s'
+        $text | Should -Match 'Alias\s+\S\s+gci -> Get-ChildItem'
+        $text | Should -Match 'ModuleType\s+\S\s+Version\s+\S\s+Name\s+\S\s+Commands'
+    }
+
+    It 'shows events, addresses and volumes with the built-in views on Windows' -Skip:(-not ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop')) {
+        $text = Invoke-ViewChild -Script @'
+Get-WinEvent -LogName System -MaxEvents 2 -ErrorAction Ignore | Format-ConsoleTable -Width 140
+Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First 1 | Format-ConsoleTable -Width 140
+'@
+        $text | Should -Match 'TimeCreated\s+\S\s+Id\s+\S\s+Level\s+\S\s+ProviderName\s+\S\s+Message'
+        $text | Should -Match 'DriveLetter\s+\S.*Health\s+\S\s+Free\s+\S\s+Size'
+    }
+
+    It 'Watch-Console prints every run without a console, and a failed run does not stop it' {
+        $text = Invoke-ViewChild -Script @'
+$script:n = 0
+Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' }; [pscustomobject] @{ Run = $script:n } } -Count 3 -Interval 0.1 -Title 'demo'
+'END'
+'@
+        $text | Should -Match 'demo\s+#1'
+        $text | Should -Match 'demo\s+#3'
+        $text | Should -Match 'second run failed'
+        $text | Should -Match 'END'
+    }
+
+    It 'Watch-Console shows the command''s own error for a stopped run, not the exception that carried it' {
+        $text = Invoke-ViewChild -Script @'
+# A path that cannot exist on any platform: a missing child of the temp folder.
+$missing = Join-Path ([System.IO.Path]::GetTempPath()) ('cm-missing-' + [guid]::NewGuid().ToString('N') + [System.IO.Path]::DirectorySeparatorChar + 'missing.txt')
+Watch-Console { Get-Item -LiteralPath $missing -ErrorAction Stop } -Count 1 -Title 'demo'
+'@
+        $text | Should -Match 'ItemNotFoundException'
+        $text | Should -Not -Match 'ActionPreferenceStopException'
+    }
+
+    It 'Watch-Console piped into another command prints into the pipeline and collects the other streams' {
+        $text = Invoke-ViewChild -Script @'
+$text = Watch-Console { Write-Host 'host text'; Write-Warning 'careful'; Write-Error 'broken'; 42 } -Count 2 -Interval 0.1 -Title 'demo' | Out-String
+"RUNS=$(([regex]::Matches($text, 'demo\s+#\d')).Count)"
+"ERRORS=$($text -match '1 error')"
+"NOTES=$($text -match 'host text' -and $text -match 'careful' -and $text -match 'broken')"
+'@
+        $text | Should -Match 'RUNS=2'
+        $text | Should -Match 'ERRORS=True'
+        $text | Should -Match 'NOTES=True'
+    }
+
+    It 'unrolls a collection that arrives as one object, as Out-Default does' {
+        $text = Invoke-ViewChild -Script @'
+@(@(1, 2), @(3, 4)) | Out-ConsoleDefault -Force
+Write-Output -NoEnumerate @(5, 6) | Out-ConsoleDefault -Force
+'@
+        $text | Should -Match '1\s*\n2\s*\n3\s*\n4\s*\n5\s*\n6'
+        $text | Should -Not -Match 'SyncRoot'
     }
 
     It 'never writes the taskbar sequence in redirected output, even in Windows Terminal' {

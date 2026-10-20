@@ -84,6 +84,7 @@ namespace ConsoleMonster.Widgets {
             }
             int available = Math.Max(visible.Count, maxWidth - Overhead(visible.Count, gap));
             int[] widths = Distribute(visibleDesired, visibleMinimum, available, visible);
+            WidenForGroupHeadings(widths, visible, rows, maxWidth, gap);
             layout.Visible = visible.ToArray();
             layout.Widths = widths;
             layout.Alignments = new HorizontalAlignment[visible.Count];
@@ -100,6 +101,9 @@ namespace ConsoleMonster.Widgets {
                 }
                 layout.Rows.Add(row);
             }
+            // A first group heading takes the place of the header separator, or of a boxed table's top rule without a header.
+            layout.MergeFirstGroup = layout.Rows.Count > 0 && layout.Rows[0].Kind == TableRowKind.Group
+                && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
             if (total != null) {
                 FitRow(total, layout, context);
                 layout.Total = total;
@@ -122,9 +126,10 @@ namespace ConsoleMonster.Widgets {
             int want = content.HasVisual ? text + 1 + content.Presented!.VisualWidth : text;
             desired = Math.Max(desired, want);
             int least;
-            if (content.Presented != null && content.Alignment == HorizontalAlignment.Right) {
-                // Numbers, sizes and durations never wrap or truncate: a cut number is a wrong number. A data bar
-                // next to the number takes only the space left over.
+            if (content.Atomic || (content.Presented != null && content.Alignment == HorizontalAlignment.Right)) {
+                // Short values never wrap or truncate: numbers, sizes and durations (a cut number is a wrong number),
+                // booleans, dates, enums and status words. Free text gives way first. A data bar next to a number takes
+                // only the space left over.
                 minimum = Math.Max(minimum, text);
                 return;
             }
@@ -311,7 +316,7 @@ namespace ConsoleMonster.Widgets {
                 int visual = CellRendering.VisualCells(content, width, content.TextWidth);
                 int textWidth = Math.Max(1, width - visual - (visual > 0 ? 1 : 0));
                 TableColumn column = _columns[c];
-                row.Lines[v] = Fit(content.Lines, textWidth, column.Overflow, column.MaxLines, context);
+                row.Lines[v] = Fit(content.Lines, textWidth, column.Overflow, column.MaxLines > 0 ? column.MaxLines : WrapLines, context);
                 row.VisualCells[v] = visual;
                 height = Math.Max(height, row.Lines[v].Count);
             }
@@ -330,6 +335,15 @@ namespace ConsoleMonster.Widgets {
             if (shown < all) {
                 CultureInfo culture = Presentation.Culture ?? context.Culture;
                 string text = Localization.WidgetLabels.Format(context.Labels.Showing, shown.ToString("N0", culture), all.ToString("N0", culture));
+                // With groups: how many of them the shown rows cover, "Showing 5 of 1 214 · 2 of 612 groups".
+                int groups = GroupsWithRows(_rowGroups.Count);
+                if (groups > 0) {
+                    int visibleGroups = GroupsWithRows(shown);
+                    string separator = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
+                    text += separator + (visibleGroups < groups
+                        ? Localization.WidgetLabels.Format(context.Labels.GroupsShowing, visibleGroups.ToString("N0", culture), groups.ToString("N0", culture))
+                        : Localization.WidgetLabels.Format(groups == 1 ? context.Labels.OneGroup : context.Labels.ManyGroups, groups.ToString("N0", culture)));
+                }
                 layout.ShowingLine = TextWrapper.Truncate(StyledLine.From(text, context.Style(ThemeToken.Muted)), Math.Max(1, maxWidth - (IsBoxed ? 1 : 0)), context.Ellipsis);
             }
             int height = 0;
@@ -337,10 +351,10 @@ namespace ConsoleMonster.Widgets {
                 height++;
             }
             if (IsBoxed) {
-                height += 2;
+                height += layout.MergeFirstGroup && !ShowHeader ? 1 : 2;
             }
             if (ShowHeader) {
-                height += layout.HeaderHeight + (HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) ? 1 : 0);
+                height += layout.HeaderHeight + (HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) && !layout.MergeFirstGroup ? 1 : 0);
             }
             foreach (TableLayoutRow row in layout.Rows) {
                 height += row.Height;
@@ -359,6 +373,61 @@ namespace ConsoleMonster.Widgets {
             }
             layout.TotalHeight = height;
         }
+
+        // A group heading is drawn into the rule over the first column ("├─ Domain controllers · 5 ─┼"), so the first column
+        // is widened to hold the widest heading when the window has room and the growth is modest (at most its own width or
+        // eight cells), and the column lines stay joined; the other columns keep their widths. A narrow first column such
+        // as a process Id is not stretched to several times its width for a long heading: the table is then only made at
+        // least as wide as the heading (the last columns take the width), so it is not cut short, and the heading crosses
+        // into the next columns. A column with a fixed Width or MaxWidth is not widened past it.
+        private void WidenForGroupHeadings(int[] widths, List<int> visible, List<TableLayoutRow> rows, int maxWidth, int gap) {
+            int label = 0;
+            foreach (TableLayoutRow row in rows) {
+                if (row.Kind == TableRowKind.Group && row.Spanning != null) {
+                    label = Math.Max(label, row.Spanning.Width);
+                }
+            }
+            if (label == 0 || widths.Length == 0) {
+                return;
+            }
+            int free = maxWidth - (TrackAllocator.Sum(widths) + Overhead(visible.Count, gap));
+            if (free <= 0) {
+                return;
+            }
+            bool ruled = IsBoxed || Border == TableBorder.Minimal;
+            if (ruled) {
+                // Boxed "├─ label ─┼": the label, a space either side and a rule glyph either side; Minimal "─ label ─ ".
+                int want = label + (IsBoxed ? 2 : 4);
+                int grow = want - widths[0] <= Math.Max(8, widths[0]) ? Math.Min(Math.Min(want, CapOf(visible[0])) - widths[0], free) : 0;
+                if (grow > 0) {
+                    widths[0] += grow;
+                    free -= grow;
+                }
+                if (widths[0] >= want) {
+                    return;
+                }
+            }
+            int needed = label + (IsBoxed ? 6 : ruled ? 3 : 0);
+            int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible.Count, gap)), free);
+            if (extra <= 0) {
+                return;
+            }
+            // The last columns take it, past the heading, rather than stretching the first one.
+            for (int v = widths.Length - 1; v >= 0; v--) {
+                int room = CapOf(visible[v]) - widths[v];
+                if (room > 0) {
+                    int take = Math.Min(room, extra);
+                    widths[v] += take;
+                    extra -= take;
+                    if (extra == 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        // The widest a column may be made for a group heading: its fixed Width or MaxWidth, otherwise unbounded.
+        private int CapOf(int column) => _columns[column].Width ?? _columns[column].MaxWidth ?? int.MaxValue;
 
         private HorizontalAlignment AutomaticAlignment(int column, List<TableLayoutRow> rows) {
             int right = 0;

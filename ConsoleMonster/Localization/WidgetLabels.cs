@@ -115,6 +115,18 @@ namespace ConsoleMonster.Localization {
         /// <summary>A table cut short: <c>Showing {0} of {1}</c>.</summary>
         public string Showing { get; set; } = "Showing {0} of {1}";
 
+        /// <summary>A group heading whose rows are cut short: <c>{0} of {1}</c> (rows shown of the group's rows).</summary>
+        public string GroupOf { get; set; } = "{0} of {1}";
+
+        /// <summary>The groups of a table cut short, after "Showing": <c>{0} of {1} groups</c>.</summary>
+        public string GroupsShowing { get; set; } = "{0} of {1} groups";
+
+        /// <summary>One group, after "Showing": <c>{0} group</c>.</summary>
+        public string OneGroup { get; set; } = "{0} group";
+
+        /// <summary>Several groups, after "Showing": <c>{0} groups</c>.</summary>
+        public string ManyGroups { get; set; } = "{0} groups";
+
         /// <summary>One record (cards).</summary>
         public string OneRecord { get; set; } = "{0} record";
 
@@ -297,6 +309,18 @@ namespace ConsoleMonster.Localization {
 
         /// <summary>Unchanged objects: <c>{0} unchanged</c>.</summary>
         public string ChangesUnchanged { get; set; } = "{0} unchanged";
+
+        /// <summary>Items before a window: <c>+{0} earlier</c>.</summary>
+        public string EarlierCount { get; set; } = "+{0} earlier";
+
+        /// <summary>Items with a warning: <c>{0} warnings</c>.</summary>
+        public string WarningCount { get; set; } = "{0} warnings";
+
+        /// <summary>The heading of a watched command: <c>Every {0}:</c> with the interval.</summary>
+        public string WatchEvery { get; set; } = "Every {0}:";
+
+        /// <summary>Properties left out of a comparison because reading them stalled: <c>{0} not compared</c>.</summary>
+        public string ChangesNotCompared { get; set; } = "{0} not compared";
 
         /// <summary>The item column of a change table.</summary>
         public string ChangesItem { get; set; } = "Item";

@@ -162,6 +162,11 @@ namespace ConsoleMonster.Changes {
                 "[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesChanged, Changes.Changed.ToString(CultureInfo.InvariantCulture))) + "[/]",
                 "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesUnchanged, Changes.Unchanged.ToString(CultureInfo.InvariantCulture))) + "[/]"
             };
+            if (Changes.NotCompared.Count > 0) {
+                // Members whose getters stalled were skipped, not judged equal: say so, with their names when few.
+                string names = Changes.NotCompared.Count <= 3 ? " (" + string.Join(", ", Changes.NotCompared) + ")" : string.Empty;
+                parts.Add("[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesNotCompared, Changes.NotCompared.Count.ToString(CultureInfo.InvariantCulture)) + names) + "[/]");
+            }
             return string.Join("  ", parts);
         }
 
@@ -184,8 +189,8 @@ namespace ConsoleMonster.Changes {
                         foreach (PropertyChange property in change.Properties) {
                             bool longValue = IsLong(property.Before) || IsLong(property.After);
                             table.AddRow(first ? marker : "", first ? Tone(change.Kind, key) : "", Markup.Escape(property.Path),
-                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[fail]" + Markup.Escape(ObjectDiff.Text(property.Before)) + "[/]",
-                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[pass]" + Markup.Escape(ObjectDiff.Text(property.After)) + "[/]");
+                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[fail]" + Markup.Escape(property.BeforeText) + "[/]",
+                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[pass]" + Markup.Escape(property.AfterText) + "[/]");
                             first = false;
                         }
                         break;
@@ -246,8 +251,8 @@ namespace ConsoleMonster.Changes {
                 table.AddColumn(Markup.Escape(_labels.ChangesProperty)).AddColumn(Markup.Escape(_labels.ChangesBefore)).AddColumn(Markup.Escape(_labels.ChangesAfter));
                 // Every property: changed ones with both sides, an added or removed object's with its one side.
                 foreach (PropertyChange property in change.Kind == ChangeKind.Changed ? change.Properties : change.Values) {
-                    string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(ObjectDiff.Text(property.Before)) + "[/]";
-                    string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(ObjectDiff.Text(property.After)) + "[/]";
+                    string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(property.BeforeText) + "[/]";
+                    string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(property.AfterText) + "[/]";
                     table.AddRow(Markup.Escape(property.Path), before, after);
                 }
                 yield return table;
@@ -267,8 +272,8 @@ namespace ConsoleMonster.Changes {
                     case ChangeKind.Changed:
                         lines.Add("[warn]~ " + Markup.Escape(change.Key) + "[/]");
                         foreach (PropertyChange property in change.Properties) {
-                            string before = ObjectDiff.Text(property.Before);
-                            string after = ObjectDiff.Text(property.After);
+                            string before = property.BeforeText;
+                            string after = property.AfterText;
                             if (before.IndexOf('\n') >= 0 || after.IndexOf('\n') >= 0) {
                                 lines.Add("  [muted]" + Markup.Escape(property.Path) + ":[/]");
                                 lines.AddRange(TextDiff(before, after).Select(line => "  " + DiffMarkup(line)));

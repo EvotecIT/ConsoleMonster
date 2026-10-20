@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
@@ -76,11 +77,18 @@ namespace ConsoleMonster.TestRuns {
         /// <returns>The dashboard.</returns>
         public IWidget Build(TestRunSnapshot snapshot, int width, int height, RenderContext context) {
             Rows body = new Rows();
-            int fileRows = Math.Max(1, snapshot.Containers.Count);
+            int fileRows = FileRows(snapshot);
+            CellMap map = OutcomeMap(snapshot);
+            int mapRows = MapRows(map, width, context);
+            // The compact order: the summary line, the files, the outcome of every test, the running test, the first failures.
+            body.Add(new Padding(Summary(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
             if (Compact) {
                 fileRows = Math.Min(fileRows, CompactFiles);
                 body.Add(FilesPanel(snapshot, context), LayoutSize.Fixed(fileRows + 3));
-                body.Add(new Padding(new CurrentTestLine(snapshot), 1, 0, 1, 0), LayoutSize.Fixed(1));
+                if (mapRows > 0) {
+                    body.Add(new Padding(map, 1, 0, 1, 0), LayoutSize.Fixed(mapRows));
+                }
+                body.Add(new Padding(Running(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 if (snapshot.Failures.Count > 0) {
                     FailureList failures = new FailureList(snapshot.Failures, CompactFailures);
                     body.Add(FailuresPanel(snapshot, failures), LayoutSize.Fraction());
@@ -89,7 +97,10 @@ namespace ConsoleMonster.TestRuns {
                 int bodyHeight = Math.Max(6, height - 3);
                 fileRows = Math.Min(fileRows, Math.Max(3, bodyHeight / 3));
                 body.Add(FilesPanel(snapshot, context), LayoutSize.Fixed(fileRows + 3));
-                body.Add(new Padding(new CurrentTestLine(snapshot), 1, 0, 1, 0), LayoutSize.Fixed(1));
+                if (mapRows > 0) {
+                    body.Add(new Padding(map, 1, 0, 1, 0), LayoutSize.Fixed(Math.Min(mapRows, Math.Max(2, bodyHeight / 5))));
+                }
+                body.Add(new Padding(Running(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 Rows side = new Rows();
                 side.Add(new Panel(new SlowestList(snapshot.Slowest), Text.Markup.Escape(context.Labels.TestsSlowest)) { PaddingTop = 1 }, LayoutSize.Fixed(Math.Max(1, _run.SlowestCount) + 3));
                 Histogram histogram = new Histogram(DurationEdges, "durations") { EdgeFormat = Milliseconds, Token = ThemeToken.Series1 };
@@ -104,7 +115,6 @@ namespace ConsoleMonster.TestRuns {
             }
             StatusKind status = snapshot.Status;
             return new Dashboard(Title ?? Text.Markup.Escape(context.Labels.TestsTitle), body) {
-                Subtitle = TestRunText.Totals(snapshot, context.Glyphs, false),
                 Status = status == StatusKind.Running ? context.Labels.TestsStatusRunning : status == StatusKind.Fail ? context.Labels.TestsStatusFailed : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed,
                 StatusLevel = status,
                 ShowClock = true
@@ -113,8 +123,90 @@ namespace ConsoleMonster.TestRuns {
 
         private static string Milliseconds(double value) => value < 1000 ? value.ToString("0", CultureInfo.InvariantCulture) + "ms" : (value / 1000).ToString("0.#", CultureInfo.InvariantCulture) + "s";
 
+        // Files on their own rows: skipped files fold into one line of the lanes.
+        private static int FileRows(TestRunSnapshot snapshot) {
+            int rows = 0;
+            bool skipped = false;
+            foreach (TestContainerState container in snapshot.Containers) {
+                if (container.Status == StatusKind.Skip) {
+                    skipped = true;
+                } else {
+                    rows++;
+                }
+            }
+            return Math.Max(1, rows + (skipped ? 1 : 0));
+        }
+
+        // Every test's outcome in order, the running test spinning, the rest waiting.
+        private static CellMap OutcomeMap(TestRunSnapshot snapshot) {
+            // The summary line above already counts each outcome, so the map goes without its legend.
+            CellMap map = new CellMap("tests") { MaxRows = 4, ShowLegend = false, Window = CellMap.CellWindow.Active, SpinRunning = false };
+            foreach (StatusKind outcome in snapshot.Outcomes) {
+                map.Add(outcome);
+            }
+            if (!snapshot.IsFinished && snapshot.CurrentName != null) {
+                map.Add(StatusKind.Running);
+            }
+            if (snapshot.Total.HasValue && !snapshot.IsFinished) {
+                map.Resize(Math.Max(map.Count, snapshot.Total.Value));
+            }
+            return map;
+        }
+
+        private static int MapRows(CellMap map, int width, RenderContext context) =>
+            map.Count == 0 ? 0 : map.Measure(new Constraints(Math.Max(1, width - 2)), context).Height;
+
+        // Done of total, the share, the time left and the counts, zeros dimmed.
+        // The header keeps the title, status and clock; this line carries the counts, failures first.
+        private static IWidget Summary(TestRunSnapshot snapshot, RenderContext context) {
+            // The header shows the clock, so the summary line does not repeat the duration; the count is of tests.
+            SummaryBar bar = new SummaryBar("summary") { Elapsed = snapshot.Elapsed, ShowDuration = false, DoneLabel = context.Labels.TestsDoneCount };
+            bar.SetProgress(snapshot.Done, snapshot.Total ?? 0);
+            Localization.WidgetLabels labels = context.Labels;
+            bar.SetCounter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
+            bar.SetCounter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
+            bar.SetCounter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);
+            if (snapshot.Inconclusive > 0) {
+                bar.SetCounter(labels.TestsInconclusiveCount, snapshot.Inconclusive, StatusKind.Warn);
+            }
+            if (snapshot.NotRun > 0) {
+                bar.SetCounter(labels.TestsNotRunCount, snapshot.NotRun, StatusKind.Skip);
+            }
+            if (snapshot.BlockFailures > 0) {
+                bar.SetCounter(snapshot.BlockFailures == 1 ? labels.TestsOneBlockFailed : labels.TestsManyBlocksFailed, snapshot.BlockFailures, StatusKind.Fail);
+            }
+            return bar;
+        }
+
+        // The running test as an activity row with its own elapsed time; before and after the run, the status line.
+        private static IWidget Running(TestRunSnapshot snapshot, RenderContext context) {
+            if (snapshot.IsFinished || snapshot.CurrentName == null || !snapshot.CurrentStarted.HasValue) {
+                return new CurrentTestLine(snapshot);
+            }
+            ActivityList list = new ActivityList("running") { MaxVisible = 1 };
+            List<string> parts = new List<string>(snapshot.CurrentBlocks) { snapshot.CurrentName };
+            list.Apply(new Live.LiveEvent(ActivityList.ProgressTarget, "update", key: "1", text: string.Join(" " + Interactive.InteractiveGlyphs.For(context).Breadcrumb + " ", parts.ToArray()), value: -1, total: -1, time: (long)snapshot.CurrentStarted.Value.TotalMilliseconds));
+            return new RunClock(list, snapshot.Elapsed);
+        }
+
+        // Renders a widget with the run's clock, so elapsed times follow the run rather than the session.
+        private sealed class RunClock : IWidget {
+            private readonly IWidget _inner;
+            private readonly TimeSpan _elapsed;
+
+            public RunClock(IWidget inner, TimeSpan elapsed) {
+                _inner = inner;
+                _elapsed = elapsed;
+            }
+
+            public Size Measure(Constraints constraints, RenderContext context) => _inner.Measure(constraints, context.WithClock(context.Tick, _elapsed));
+
+            public void Render(Region region, RenderContext context) => _inner.Render(region, context.WithClock(context.Tick, _elapsed));
+        }
+
         private int CompactHeight(TestRunSnapshot snapshot, int width, RenderContext context) {
-            int height = 3 + Math.Min(Math.Max(1, snapshot.Containers.Count), CompactFiles) + 3 + 1;
+            // The dashboard chrome (3), the summary line, the files panel (rows and 3 of chrome), the outcome map and the running test.
+            int height = 3 + 1 + Math.Min(FileRows(snapshot), CompactFiles) + 3 + MapRows(OutcomeMap(snapshot), width, context) + 1;
             if (snapshot.Failures.Count > 0) {
                 height += new FailureList(snapshot.Failures, CompactFailures).Measure(new Constraints(Math.Max(1, width - 4)), context).Height + 3;
             }
@@ -122,7 +214,7 @@ namespace ConsoleMonster.TestRuns {
         }
 
         private static Panel FilesPanel(TestRunSnapshot snapshot, RenderContext context) {
-            Lanes lanes = new Lanes("files") { MaxLabelWidth = 36, CountSkipped = true };
+            Lanes lanes = new Lanes("files") { MaxLabelWidth = 36, CountSkipped = true, BoldActive = true, CollapseWhen = StatusKind.Skip };
             int done = 0;
             foreach (TestContainerState container in snapshot.Containers) {
                 Lane lane = lanes.Add(container.Key, container.Name, container.Tests);

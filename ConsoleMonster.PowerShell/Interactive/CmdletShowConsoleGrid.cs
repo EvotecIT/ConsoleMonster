@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows pipeline objects in an interactive grid and returns the rows you choose.</para>
-    /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list; without an interactive user the cmdlet fails with a clear error.</para>
+    /// <para type="description">An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Format-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI) the rows are printed as a table with a warning and nothing is returned; -Mode None fails with an error instead.</para>
     /// <example>
     ///   <para>Pick services to restart</para>
     ///   <code>Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf</code>
@@ -79,7 +79,11 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(_items, Property);
+            // The same columns and cell values as Format-ConsoleTable (shared value rules); a collection passed as one object is its items.
+            Values.ShapeOptions shape = PSShaping.Options(Culture);
+            Values.ShapeBudget budget = Values.ShapeBudget.For(shape);
+            IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, shape);
+            IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, Property, shape, this);
             Grid grid = new Grid(Title) { Selection = OutputMode };
             if (Culture != null) {
                 grid.Presentation = new PresentationOptions { Culture = Culture };
@@ -87,10 +91,14 @@ namespace ConsoleMonster.PowerShell {
             foreach (BoundColumn column in columns) {
                 grid.AddColumn(column.Column);
             }
-            foreach (PSObject item in _items) {
+            foreach (PSObject item in items) {
                 object?[] values = new object?[columns.Count];
                 for (int c = 0; c < columns.Count; c++) {
-                    values[c] = PropertyBinder.Unwrap(columns[c].GetValue(item));
+                    object? value = PSFormatting.Read(columns[c], item, budget);
+                    object? prepared = value is Values.FieldError || value is Values.BudgetExceeded ? value : Values.ValueShaper.Prepare(value, shape);
+                    object? cell = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, Values.ShapeBudget.For(shape));
+                    // The grid sorts and filters cell values: marked cells (empty collections, failed getters) become their text.
+                    values[c] = cell is ConsoleMonster.Widgets.TableCell marked ? Markup.Strip(marked.Markup) : cell;
                 }
                 grid.AddRow(item, values);
             }
@@ -107,6 +115,16 @@ namespace ConsoleMonster.PowerShell {
             GridResult result;
             try {
                 result = grid.Show(options, (_stop ??= new CancellationTokenSource()).Token);
+            } catch (PromptUnavailableException) when (Mode != InteractionMode.None) {
+                // No one to pick rows: print them as Format-ConsoleTable would, through the host (nothing goes down the
+                // pipeline, so a command after the grid gets no rows it was not given), and say so.
+                WriteWarning("Show-ConsoleGrid needs an interactive console; showing the rows as a table instead. Nothing is returned.");
+                List<PSObject> rows = new List<PSObject>(items);
+                Layout.IWidget table = PSFormatting.Combine(PSFormatting.BuildTables(rows, Property, null, new TableBuildOptions { Cmdlet = this, Culture = Culture }, built => {
+                    built.Title = Markup.Escape(Title);
+                }));
+                PSFormatting.Write(this, table, 0, Culture);
+                return;
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCancelledException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Title);
                 throw;

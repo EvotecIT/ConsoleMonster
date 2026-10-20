@@ -64,10 +64,96 @@
 
     It 'evaluates calculated properties, groups with subtotals and limits to the top rows' {
         $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
-        $text | Should -Match 'NuGet  1'
-        $text | Should -Match 'Module  2'
+        # Groups are sorted by key: the two Module rows come first and -Top 2 shows only them.
+        $text | Should -Match 'Module\D{1,8}2'
+        $text | Should -Not -Match 'nupkg'
+        $text | Should -Match 'Subtotal\s+\|\s+2,886'
+        $text | Should -Match 'Showing 2 of 3'
+    }
+
+    It 'keeps the input order of groups with -NoSort' {
+        $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -NoSort -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text | Should -Match 'NuGet\D{1,8}1'
         $text | Should -Match 'Subtotal\s+\|\s+1,447'
         $text | Should -Match 'Showing 2 of 3'
+    }
+
+    It 'hides the column that repeats the group key, compared by where its values come from' {
+        # The process view's ProcessName column is an alias of Name; a calculated { $_.Kind } column reads Kind.
+        $text = Invoke-FormatChild -Script @'
+$p = Get-Process -Id $PID
+'== byname'; @($p, $p) | Format-ConsoleTable -GroupBy Name -Width 100
+'== byalias'; @($p, $p) | Format-ConsoleTable -GroupBy ProcessName -Width 100
+'== shown'; @($p, $p) | Format-ConsoleTable -GroupBy Name -ShowGroupColumn -Width 100
+'== single'; $p | Format-ConsoleTable -GroupBy Name -Width 100
+'== calculated'; $artifacts | Format-ConsoleTable -GroupBy Kind -Width 100 -Property @{ Name = 'Label'; Expression = { $_.Kind } }, Name
+'@
+        $parts = $text -split '== \w+'
+        $parts[1] | Should -Not -Match 'ProcessName'
+        $parts[1] | Should -Match '(pwsh|powershell)\D{1,4}2'
+        $parts[2] | Should -Not -Match 'ProcessName'
+        $parts[3] | Should -Match 'ProcessName'
+        # A single row stays a table, under its group heading.
+        $parts[4] | Should -Match '(pwsh|powershell)\D{1,4}1'
+        $parts[4] | Should -Not -Match 'ProcessName'
+        $parts[5] | Should -Not -Match 'Label'
+        $parts[5] | Should -Match 'Module\D{1,4}2'
+    }
+
+    It 'shows the numbers of a column with the decimals the column needs' {
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Cpu = 7.0 }, [pscustomobject] @{ Name = 'b'; Cpu = 11.75 }, [pscustomobject] @{ Name = 'c'; Cpu = 3 }) | Format-ConsoleTable -Width 60"
+        $text | Should -Match '\|\s+7\.00 \|'
+        $text | Should -Match '\|\s+11\.75 \|'
+        $text | Should -Match '\|\s+3\.00 \|'
+    }
+
+    It 'wraps long text onto three lines unless -Wrap is given, and keeps short values whole' {
+        $script = "`$rows = @([pscustomobject] @{ Name = 'a'; Enabled = `$true; Notes = ('word ' * 60) }, [pscustomobject] @{ Name = 'b'; Enabled = `$false; Notes = 'short' })"
+        $default = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50"
+        $all = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50 -Wrap"
+        @($default -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -Be 5
+        $default | Should -Match '\.\.\. \|'
+        @($all -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -BeGreaterThan 5
+        $default | Should -Match '\| yes\s+\|'
+    }
+
+    It 'marks status fields in Format-ConsoleList records too' {
+        $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Format-ConsoleList -Width 60"
+        $text | Should -Match 'Status\s+\[FAIL\] Failed'
+        $text | Should -Match 'Health\s+\[PASS\] Healthy'
+    }
+
+    It 'marks status columns with PowerShell''s own words in Format-ConsoleTable' {
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Format-ConsoleTable -Width 60"
+        $text | Should -Match '\[PASS\] Success'
+        $text | Should -Match '\[WARN\] Warning'
+        $text | Should -Match '\[FAIL\] Error'
+    }
+
+    It 'keeps one object a table unless -View Record, and puts object content in a panel' {
+        $text = Invoke-FormatChild -Script @'
+'== one'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -Width 60
+'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -View Record -Width 60
+'== panel'; New-ConsolePanel -Title 'Server' -Content ([pscustomobject] @{ Name = 'alpha'; Port = 8080 }) | Write-ConsoleWidget -Width 60
+'@
+        $parts = $text -split '== \w+'
+        $parts[1] | Should -Match '\| Name\s+\| Port \| Size \|'
+        $parts[1] | Should -Match '\| alpha \|\s+8080 \|'
+        $parts[2] | Should -Match '(?m)^alpha\s*$'
+        $parts[2] | Should -Match 'Port\s+8080'
+        $parts[3] | Should -Match 'Server'
+        $parts[3] | Should -Match 'Port\s+8080'
+    }
+
+    It 'opens one level of a wide object in Format-ConsoleTree unless -Depth is given' {
+        $text = Invoke-FormatChild -Script @'
+"DEFAULT=$((Get-Process -Id $PID | Format-ConsoleTree -AsString).Split("`n").Count)"
+"DEEP=$((Get-Process -Id $PID | Format-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
+"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Format-ConsoleTree -AsString).Split("`n").Count)"
+'@
+        [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
+        [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
+        [int] ($text -replace '(?s).*SMALL=(\d+).*', '$1') | Should -Be 5
     }
 
     It 'passes objects through with -PassThru' {
@@ -128,5 +214,22 @@ $h | Format-ConsoleTree -Depth 3 -Width 80
         $text | Should -Match 'A\s+1'
         $text | Should -Match 'Self\s+\(cycle: \$\)'
         $text | Should -Not -Match 'SyncRoot'
+    }
+
+    It 'keeps the title and caption when a single dictionary is shown as a record' {
+        $script = @'
+@{ a = 1 } | Format-ConsoleTable -Title 'Config' -Caption 'from defaults' -Width 60 -AsString
+'=====SPLIT====='
+@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | Format-ConsoleTable -Title 'Config' -Width 60 -AsString
+'@
+        $text = Invoke-FormatChild -Script $script
+        $parts = $text -split '=====SPLIT====='
+        # The record's heading line carries the title and, after it, the caption as its summary.
+        $parts[0] | Should -Match '(?m)^\s*Config\b.*from defaults'
+        $parts[0] | Should -Match 'a\s+1'
+        $parts[0] | Should -Not -Match 'Hashtable'
+        # The title heads only the first widget: the record, not the table after it.
+        ([regex]::Matches($parts[1], 'Config')).Count | Should -Be 1
+        $parts[1] | Should -Match 'svc'
     }
 }

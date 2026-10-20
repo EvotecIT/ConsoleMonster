@@ -103,7 +103,7 @@ namespace ConsoleMonster.Views {
                 case ConsoleViewKind.Empty:
                     return new TextBlock(string.Empty);
                 case ConsoleViewKind.Text:
-                    return new TextBlock(Markup.Escape(string.Join("\n", items.Select(item => Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty))));
+                    return new TextBlock(Markup.Escape(string.Join("\n", items.Select(item => Values.ValueShaper.Text(item)))));
                 case ConsoleViewKind.Code:
                     return CodeView.For(string.Join("\n", items.Select(item => Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty)), "auto");
                 case ConsoleViewKind.Chart:
@@ -303,8 +303,11 @@ namespace ConsoleMonster.Views {
                 return null;
             }
             string type = TypeName(item, options);
+            // Looking for a child collection must not read every member of a remote object: slow getters are skipped once
+            // their stalls use up the budget.
+            Values.ShapeBudget budget = new Values.ShapeBudget(TimeSpan.FromSeconds(2), int.MaxValue);
             foreach (InspectMember member in Members(item, options)) {
-                if (SafeRead(member) is IEnumerable sequence && !(sequence is string) && !(sequence is IDictionary)) {
+                if (budget.Guard(member.Name, () => SafeRead(member)) is IEnumerable sequence && !(sequence is string) && !(sequence is IDictionary)) {
                     foreach (object? first in sequence) {
                         if (first != null && string.Equals(TypeName(first, options), type, StringComparison.Ordinal)) {
                             return member.Name;

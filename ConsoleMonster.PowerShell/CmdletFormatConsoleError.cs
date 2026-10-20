@@ -48,6 +48,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoStack { get; set; }
 
+        /// <summary><para type="description">Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., &gt; file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.</para></summary>
+        [Parameter]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Lays the output out for this width instead of the terminal's.</para></summary>
         [Parameter]
         public int Width { get; set; }
@@ -80,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             if (views.Count > 0) {
-                PSFormatting.Write(this, views.Count == 1 ? views[0] : new Rows(views.ToArray()) { Gap = 1 }, Width, null);
+                PSFormatting.Emit(this, views.Count == 1 ? views[0] : new Rows(views.ToArray()) { Gap = 1 }, Width, null, AsString.IsPresent);
             }
         }
     }
@@ -120,8 +123,12 @@ namespace ConsoleMonster.PowerShell {
             info.ScriptFrames.AddRange(ExceptionInfo.ParseScriptStackTrace(record.ScriptStackTrace));
             info.PositionMessage = record.InvocationInfo?.PositionMessage is string position && position.Length > 0 ? position : null;
             ErrorCategoryInfo category = record.CategoryInfo;
-            if (category != null && category.Category != ErrorCategory.NotSpecified) {
-                info.Category = category.Category + (string.IsNullOrEmpty(category.TargetName) ? string.Empty : " (" + category.TargetName + (string.IsNullOrEmpty(category.TargetType) ? string.Empty : ":" + category.TargetType) + ")");
+            // The category only when it adds something: not "NotSpecified", not "OperationStopped" for a plain throw, and
+            // without a target the message already names (the missing path).
+            if (category != null && category.Category != ErrorCategory.NotSpecified
+                && !(category.Category == ErrorCategory.OperationStopped && (string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0))) {
+                bool targetKnown = string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0;
+                info.Category = category.Category + (targetKnown ? string.Empty : " (" + category.TargetName + ")");
             }
             info.ErrorId = string.IsNullOrEmpty(record.FullyQualifiedErrorId) ? null : record.FullyQualifiedErrorId;
             return info;

@@ -44,30 +44,52 @@ namespace ConsoleMonster.PowerShell.Binding {
             "WarnBelow",
             "PassBelow",
             "Tone",
+            "FormatString",
         };
 
         /// <summary>Binds property expressions and column configuration to a dataset.</summary>
         public static IReadOnlyList<BoundColumn> Bind(
             IReadOnlyList<PSObject> items,
             object[]? property
+        ) => Bind(items, property, null, null);
+
+        /// <summary>
+        /// Binds property expressions and column configuration to a dataset. Without properties, the columns come from
+        /// <see cref="ColumnResolver"/> (registered view, data keys, PowerShell's table view, default display set, fields).
+        /// The key column is the one the shared title rule picks (Name, DisplayName, …Name, Id), else the first.
+        /// </summary>
+        /// <param name="items">The objects.</param>
+        /// <param name="property">Property names and calculated properties, or null for the default columns.</param>
+        /// <param name="options">Shape options, or null for PowerShell defaults.</param>
+        /// <param name="cmdlet">The calling cmdlet (for PowerShell's table views), or null.</param>
+        /// <returns>The bound columns.</returns>
+        internal static IReadOnlyList<BoundColumn> Bind(
+            IReadOnlyList<PSObject> items,
+            object[]? property,
+            Values.ShapeOptions? options,
+            PSCmdlet? cmdlet
         ) {
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
+            Values.ShapeOptions shape = options ?? PSShaping.Options();
+            StringComparison comparison = items.Any(item => Values.ValueShaper.Prepare(item, shape) is object prepared && Values.ValueShaper.IsStructural(prepared)) ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             List<BoundColumn> result = new List<BoundColumn>();
-            if (property == null || property.Length == 0) {
-                foreach (string name in DefaultNames(items))
-                    result.Add(Create(name, name, null));
-            }
-            else {
-                foreach (object spec in property) {
-                    if (spec is string text) {
-                        foreach (string matched in MatchNames(items, text))
+            bool literal = property == null || property.Length == 0;
+            object[] specs = literal ? ColumnResolver.Resolve(items, cmdlet, shape, out _) : property!;
+            {
+                foreach (object spec in specs) {
+                    if (spec is string literalName && literal) {
+                        if (!result.Any(c => string.Equals(c.Name, literalName, comparison)))
+                            result.Add(Create(literalName, literalName, null));
+                    }
+                    else if (spec is string text) {
+                        foreach (string matched in MatchNames(items, text, shape))
                             if (
                                 !result.Any(c =>
                                     string.Equals(
                                         c.Name,
                                         matched,
-                                        StringComparison.OrdinalIgnoreCase
+                                        comparison
                                     )
                                 )
                             )
@@ -83,13 +105,28 @@ namespace ConsoleMonster.PowerShell.Binding {
                         );
                 }
             }
-            if (result.Count > 0 && !result.Any(c => c.Column.IsKey))
-                result[0].Column.IsKey = true;
+            if (result.Count > 0 && !result.Any(c => c.Column.IsKey)) {
+                int key = Values.ValueShaper.TitleIndex(result.Select(c => c.Name).ToList());
+                result[key >= 0 ? key : 0].Column.IsKey = true;
+            }
+            foreach (BoundColumn column in result)
+                column.Options = shape;
             return result.AsReadOnly();
         }
 
         /// <summary>Evaluates a string property name or script block against one PowerShell item.</summary>
-        public static object? Evaluate(PSObject item, object expression) {
+        public static object? Evaluate(PSObject item, object expression) => Evaluate(item, expression, null);
+
+        /// <summary>
+        /// Evaluates a property name or script block against one item. Names read dictionary keys, data-row columns, XML
+        /// attributes and JSON fields through the shared value rules, PowerShell properties otherwise; <c>Value</c> is the
+        /// item itself when it is a scalar or a collection. Getter exceptions propagate (the caller marks the cell).
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <param name="expression">A property name or a script block.</param>
+        /// <param name="options">Shape options, or null for PowerShell defaults.</param>
+        /// <returns>The value.</returns>
+        internal static object? Evaluate(PSObject item, object expression, Values.ShapeOptions? options) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
             if (expression is ScriptBlock script) {
@@ -97,23 +134,79 @@ namespace ConsoleMonster.PowerShell.Binding {
                     null,
                     new List<PSVariable> { new PSVariable("_", item) }
                 );
-                return output.Count == 0 ? null : Unwrap(output[0]);
+                if (output.Count > 1) {
+                    // Several outputs (format views such as $_.ExportedCommands.Keys) are one collection value, joined in the cell.
+                    List<object?> values = new List<object?>(output.Count);
+                    foreach (PSObject piece in output)
+                        values.Add(FormatViews.StripEscapes(Unwrap(piece)));
+                    return values;
+                }
+                return output.Count == 0 ? null : FormatViews.StripEscapes(Unwrap(output[0]));
             }
+            Values.ShapeOptions shape = options ?? PSShaping.Options();
             string propertyName =
                 Convert.ToString(expression, CultureInfo.InvariantCulture) ?? string.Empty;
-            if (
-                string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase)
-                && ColumnInference.IsScalar(Unwrap(item))
-            )
-                return Unwrap(item);
-            PSPropertyInfo? property = item.Properties[propertyName];
-            if (property == null || !property.IsGettable)
+            object? prepared = Values.ValueShaper.Prepare(item, shape);
+            if (string.Equals(propertyName, "Value", StringComparison.OrdinalIgnoreCase) && PSShaping.IsValueLike(item, shape))
+                return prepared;
+            // Dictionary keys are the data (a key named Count beats the Count property); for other data values (files, data
+            // rows, XML) PowerShell's own properties come first (Mode, PSParentPath), then the shared fields.
+            if (prepared is IDictionary)
+                return Values.ValueShaper.TryGetField(prepared, propertyName, out object? key, shape) ? Unwrap(key) : null;
+            // A dedicated source (directory entries) reads its own fields; PowerShell's adapter would bind to the directory.
+            // Other names (an LDAP attribute asked for with -Property) still go to PowerShell's adapter below.
+            if (prepared != null && shape.Sources.Any(s => !(s is PSObjectMemberSource) && s.CanRead(prepared)) && Values.ValueShaper.TryGetField(prepared, propertyName, out object? own, shape))
+                return Unwrap(own);
+            PSObject source = prepared as PSObject ?? (ReferenceEquals(prepared, item.BaseObject) ? item : PSObject.AsPSObject(prepared));
+            PSPropertyInfo? property = source.Properties[propertyName];
+            if (property == null || !property.IsGettable) {
+                if (prepared != null && !(prepared is PSObject) && Values.ValueShaper.TryGetField(prepared, propertyName, out object? other, shape))
+                    return Unwrap(other);
                 return null;
+            }
             return Unwrap(property.Value);
         }
 
+        private static readonly System.Text.RegularExpressions.Regex SinglePropertyScript =
+            new System.Text.RegularExpressions.Regex(@"^\s*\$(?:_|PSItem)\.(?<name>[\p{L}\p{N}_]+)\s*$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// The property a column expression reads, past alias properties of <paramref name="sample"/> (ProcessName on a
+        /// process is an alias of Name): a property name, or a script block that only reads one property. Null for other
+        /// expressions. Lets a group key and a column be compared by where their values come from, not by their names.
+        /// </summary>
+        /// <param name="expression">A property name, a script block, or another expression.</param>
+        /// <param name="sample">An item to resolve aliases on, or null.</param>
+        /// <returns>The source property name, or null.</returns>
+        internal static string? SourceProperty(object? expression, PSObject? sample) {
+            expression = expression is PSObject wrapped ? wrapped.BaseObject : expression;
+            string? name = expression switch {
+                string text => text,
+                ScriptBlock script => SinglePropertyScript.Match(script.ToString()) is System.Text.RegularExpressions.Match match && match.Success ? match.Groups["name"].Value : null,
+                _ => null
+            };
+            if (string.IsNullOrEmpty(name) || sample == null) {
+                return name;
+            }
+            for (int hop = 0; hop < 8; hop++) {
+                PSAliasProperty? alias;
+                try {
+                    alias = sample.Properties[name!] as PSAliasProperty;
+                } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                    break;
+                }
+                if (alias == null || string.IsNullOrEmpty(alias.ReferencedMemberName)) {
+                    break;
+                }
+                name = alias.ReferencedMemberName;
+            }
+            return name;
+        }
+
+        // A PowerShell object around a scalar, collection or data value reads as that value; PSCustomObjects and other
+        // objects stay PowerShell objects so their PowerShell properties keep working.
         internal static object? Unwrap(object? value) =>
-            value is PSObject wrapped ? wrapped.BaseObject : value;
+            value is PSObject wrapped ? PSObjectMemberSource.UnwrapPSObject(wrapped) : value;
 
         private static BoundColumn Create(string name, object expression, IDictionary? options) {
             // Property names are data: shown literally. A Header option is written by the script author: a string is
@@ -126,7 +219,14 @@ namespace ConsoleMonster.PowerShell.Binding {
                     : ConsoleMonster.Text.Markup.Escape(name);
             TableColumn column = new TableColumn(header) { Key = name };
             ApplyOptions(column, options);
-            return new BoundColumn(name, column, expression);
+            BoundColumn bound = new BoundColumn(name, column, expression);
+            if (TryOption(options, "FormatString", out object? format) && format != null) {
+                bound.FormatString = Convert.ToString(format, CultureInfo.InvariantCulture);
+                // Formatted values are text; FormatString is almost always numeric (N2, {0:N0}), so they stay right-aligned.
+                if (!TryOption(options, "Alignment", out _))
+                    column.Alignment = HorizontalAlignment.Right;
+            }
+            return bound;
         }
 
         private static BoundColumn CreateCalculated(IDictionary source) {
@@ -179,7 +279,8 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetEnum<ColumnOverflow>(options, "Overflow", value => column.Overflow = value);
             SetEnum<HorizontalAlignment>(options, "Alignment", value => column.Alignment = value);
             SetEnum<ColumnAggregate>(options, "Aggregate", value => column.Aggregate = value);
-            SetInt(options, "MaxLines", value => column.MaxLines = value);
+            // MaxLines = 0 in a column hashtable keeps its meaning of "no limit"; leaving it out follows the table (3 lines, or every line with -Wrap).
+            SetInt(options, "MaxLines", value => column.MaxLines = value <= 0 ? TableColumn.Unlimited : value);
             SetInt(options, "Priority", value => column.Priority = value);
             SetInt(options, "MinWidth", value => column.MinWidth = value);
             SetInt(options, "MaxWidth", value => column.MaxWidth = value);
@@ -187,6 +288,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             SetBool(options, "Key", value => column.IsKey = value);
             SetBool(options, "Identifier", value => column.Presenter = value ? CellPresenters.Identifier : column.Presenter);
             SetBool(options, "Flexible", value => column.Flexible = value);
+
             if (TryOption(options, "Presenter", out object? presenter))
                 column.Presenter = CellPresenters.FromName(
                     Convert.ToString(presenter, CultureInfo.InvariantCulture) ?? string.Empty,
@@ -310,47 +412,24 @@ namespace ConsoleMonster.PowerShell.Binding {
             );
         }
 
-        private static IEnumerable<string> DefaultNames(IReadOnlyList<PSObject> items) {
-            if (items.Count == 0)
-                return Array.Empty<string>();
-            bool hasScalar = items.Any(IsScalar);
-            if (hasScalar && items.All(IsScalar))
-                return new[] { "Value" };
-            PSPropertySet? display = IsScalar(items[0]) ? null : GetDefaultDisplay(items[0]);
+        private static IEnumerable<string> MatchNames(IReadOnlyList<PSObject> items, string pattern, Values.ShapeOptions shape) {
             List<string> names = new List<string>();
-            if (display != null) {
-                if (hasScalar)
-                    names.Add("Value");
-                foreach (string name in display.ReferencedPropertyNames)
-                    if (!names.Contains(name, StringComparer.OrdinalIgnoreCase))
-                        names.Add(name);
-                return names;
-            }
             foreach (PSObject item in items) {
-                if (IsScalar(item))
+                object? prepared = Values.ValueShaper.Prepare(item, shape);
+                bool structural = prepared != null && !(prepared is PSObject) && Values.ValueShaper.IsStructural(prepared);
+                List<string> candidates = (structural
+                    ? Values.ValueShaper.Fields(prepared!, shape).Select(field => field.Name)
+                    : item.Properties.Where(Usable).Select(member => member.Name)).ToList();
+                if (structural && pattern.IndexOfAny(new[] { '*', '?' }) < 0 && candidates.Contains(pattern, StringComparer.Ordinal)) {
+                    if (!names.Contains(pattern, StringComparer.Ordinal)) {
+                        names.Add(pattern);
+                    }
                     continue;
-                foreach (PSPropertyInfo member in item.Properties)
-                    if (
-                        Usable(member)
-                        && !names.Contains(member.Name, StringComparer.OrdinalIgnoreCase)
-                    )
-                        names.Add(member.Name);
+                }
+                foreach (string name in candidates)
+                    if (Wildcard(name, pattern) && !names.Contains(name, structural ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase))
+                        names.Add(name);
             }
-            if (hasScalar && !names.Contains("Value", StringComparer.OrdinalIgnoreCase))
-                names.Insert(0, "Value");
-            return names;
-        }
-
-        private static IEnumerable<string> MatchNames(IReadOnlyList<PSObject> items, string pattern) {
-            List<string> names = new List<string>();
-            foreach (PSObject item in items)
-            foreach (PSPropertyInfo member in item.Properties)
-                if (
-                    Usable(member)
-                    && Wildcard(member.Name, pattern)
-                    && !names.Contains(member.Name, StringComparer.OrdinalIgnoreCase)
-                )
-                    names.Add(member.Name);
             if (pattern.IndexOfAny(new[] { '*', '?' }) < 0 && names.Count == 0)
                 names.Add(pattern);
             return names;
@@ -368,7 +447,6 @@ namespace ConsoleMonster.PowerShell.Binding {
         internal static PSPropertySet? GetDefaultDisplayForSource(PSObject item) =>
             GetDefaultDisplay(item);
 
-        private static bool IsScalar(PSObject item) => ColumnInference.IsScalar(Unwrap(item));
 
         private static object? First(IDictionary<string, object?> map, params string[] keys) {
             foreach (string key in keys)

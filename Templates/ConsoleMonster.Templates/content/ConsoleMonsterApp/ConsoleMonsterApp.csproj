@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>TARGET_FRAMEWORK</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ConsoleMonsterApp</RootNamespace>
+<!--#if (!NoAot) -->
+    <!-- dotnet publish -c Release -r win-x64 (or linux-x64, osx-arm64) makes one native executable. -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+<!--#endif -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ConsoleMonster" Version="CONSOLEMONSTER_VERSION" />
+    <PackageReference Include="ConsoleMonster.Extensions.Logging" Version="CONSOLEMONSTER_VERSION" />
+    <PackageReference Include="ConsoleMonster.Hosting" Version="CONSOLEMONSTER_VERSION" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+  </ItemGroup>
+</Project>

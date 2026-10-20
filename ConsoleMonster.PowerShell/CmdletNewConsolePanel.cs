@@ -6,7 +6,7 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a bordered panel with a title around other console widgets.</para>
-    /// <para type="description">The scriptblock emits the panel content (several widgets are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.</para>
+    /// <para type="description">-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.</para>
     /// <example>
     ///   <para>A panel holding a lanes widget, taking two shares of a row</para>
     ///   <code>New-ConsolePanel -Title 'Targets' -Weight 2 { New-ConsoleLanes -Name targets }</code>
@@ -15,9 +15,9 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.New, "ConsolePanel")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsolePanel : PSCmdlet {
-        /// <summary><para type="description">Scriptblock that emits the panel content.</para></summary>
+        /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Format-ConsoleList and Format-ConsoleTable).</para></summary>
         [Parameter(Position = 0)]
-        public ScriptBlock? Content { get; set; }
+        public object? Content { get; set; }
 
         /// <summary><para type="description">A widget to use as content instead of a scriptblock.</para></summary>
         [Parameter(ValueFromPipeline = true)]
@@ -53,7 +53,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            List<IWidget> children = PSWidgets.Collect(Content);
+            List<IWidget> children = PSWidgets.CollectAny(Content, this);
             if (Widget != null) {
                 children.Add(Widget);
             }

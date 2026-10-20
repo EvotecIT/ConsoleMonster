@@ -133,16 +133,18 @@ Certificate
     autodiscover.evotec.xyz
     mta-sts.evotec.xyz
   Chain  3 certificates
-    Subject                  Expires   Key
-    -----------------------  --------  -----------
-    CN=mail.evotec.xyz       [WARN]    ECDSA P-256
-                             in 22 d
-    CN=R11, O=Let's Encrypt  in 4 mo   RSA 2048
-    CN=ISRG Root X1          in 8 y    RSA 4096
+    Subject                  Expires         Key
+    -----------------------  --------------  -----
+    CN=mail.evotec.xyz       [WARN] in 22 d  ECDSA
+                                             P-256
+    CN=R11, O=Let's Encrypt  in 4 mo         RSA
+                                             2048
+    CN=ISRG Root X1          in 8 y          RSA
+                                             4096
 
 TestimoX · ad.evotec.xyz run summary  -  7 records
 
-Domains
+Domains  2
   ad.evotec.xyz
     Result    [FAIL]
     Passed    9
@@ -158,7 +160,7 @@ Domains
     Duration  16 s
     Score     ########   87 %
 
-Domain controllers
+Domain controllers  5
   DC01.ad.evotec.xyz
     Result    [WARN]
     Passed    26

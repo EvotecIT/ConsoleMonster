@@ -97,7 +97,8 @@ namespace ConsoleMonster.Tests.TestRuns {
             int before = TestTerminal.Render(view, 80).Height;
             run.TestFinished(new TestRecord(Sample, "fails", StatusKind.Fail) { Message = "Expected 1, but got 2.", File = Sample, Line = 9 });
             int after = TestTerminal.Render(view, 80).Height;
-            Assert.Equal(8, before);
+            // The header, the summary line, the files panel (one lane), the running line and the footer.
+            Assert.Equal(9, before);
             Assert.True(after > before + 3, "the failures panel adds rows: " + before + " -> " + after);
         }
 

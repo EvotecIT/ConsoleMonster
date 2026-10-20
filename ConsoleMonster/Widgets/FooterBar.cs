@@ -23,6 +23,28 @@ namespace ConsoleMonster.Widgets {
         public string Label { get; }
     }
 
+    /// <summary>One segment on the right of a footer: text with an optional link (OSC 8 where the terminal supports it) and tone.</summary>
+    public readonly struct FooterSegment {
+        /// <summary>Creates a segment.</summary>
+        /// <param name="text">The text.</param>
+        /// <param name="link">A link target (http, https, mailto, ftp), or null.</param>
+        /// <param name="tone">The tone, or null for muted text.</param>
+        public FooterSegment(string text, string? link = null, ThemeToken? tone = null) {
+            Text = text ?? string.Empty;
+            Link = link;
+            Tone = tone;
+        }
+
+        /// <summary>The text.</summary>
+        public string Text { get; }
+
+        /// <summary>The link target, or null.</summary>
+        public string? Link { get; }
+
+        /// <summary>The tone, or null for muted text.</summary>
+        public ThemeToken? Tone { get; }
+    }
+
     /// <summary>
     /// The one key-hint footer of every surface (dashboards, menus, forms, prompts, runs, inline areas): a row starting at
     /// column 1 with keys in Accent and labels in Muted, two spaces between hints, optional text on the right (Muted), and a
@@ -50,6 +72,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Text on the right, or null.</summary>
         public StyledLine? Right { get; set; }
 
+        /// <summary>Segments on the right (after <see cref="Right"/>), separated by a dot: a run id, a report link, a status.</summary>
+        public List<FooterSegment> Segments { get; } = new List<FooterSegment>();
+
         /// <summary>The first column (default 1).</summary>
         public int Indent { get; set; } = 1;
 
@@ -61,7 +86,12 @@ namespace ConsoleMonster.Widgets {
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
-            StyledLine? right = Right == null ? null : Right.WithBaseStyle(context.Style(ThemeToken.Muted));
+            // Segments give way from the end, then Right itself, so the hints always keep their room.
+            int keep = Segments.Count;
+            StyledLine? right = RightLine(context, keep);
+            while (right != null && keep > 0 && region.Width - 1 - right.Width <= Indent + 20) {
+                right = RightLine(context, --keep);
+            }
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
             StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis) : Line(Hints, context, available, KeepLast);
@@ -69,6 +99,31 @@ namespace ConsoleMonster.Widgets {
             if (right != null && rightWidth > 0 && region.Width - 1 - rightWidth > Indent + left.Width + 1) {
                 region.Write(region.Width - 1 - rightWidth, 0, right);
             }
+        }
+
+        // Right and the segments as one muted line; a segment's link is underlined and carried as OSC 8.
+        private StyledLine? RightLine(RenderContext context, int segments) {
+            Style muted = context.Style(ThemeToken.Muted);
+            List<TextSpan> spans = new List<TextSpan>();
+            if (Right != null) {
+                spans.AddRange(Right.WithBaseStyle(muted));
+            }
+            string dot = " " + context.Glyphs.Get(Glyphs.Glyph.Dot) + " ";
+            for (int i = 0; i < segments && i < Segments.Count; i++) {
+                FooterSegment segment = Segments[i];
+                if (segment.Text.Length == 0) {
+                    continue;
+                }
+                if (spans.Count > 0) {
+                    spans.Add(new TextSpan(dot, muted));
+                }
+                Style style = segment.Tone.HasValue ? context.Style(segment.Tone.Value) : muted;
+                if (!string.IsNullOrEmpty(segment.Link)) {
+                    style = style.With(TextDecoration.Underline).WithLink(segment.Link!);
+                }
+                spans.Add(new TextSpan(segment.Text, style));
+            }
+            return spans.Count == 0 ? null : new StyledLine(spans);
         }
 
         /// <summary>The hints as one styled line no wider than <paramref name="available"/> cells.</summary>

@@ -1,5 +1,6 @@
 # Tests on every push and pull request: xUnit on .NET Framework 4.7.2, .NET 8 and .NET 10, and Pester on Windows PowerShell 5.1 and
-# PowerShell 7 against the development binaries, all on Windows. No secrets, no publishing.
+# PowerShell 7 against the development binaries on Windows; xUnit, Pester on PowerShell 7, native AOT and terminal probes on Ubuntu;
+# the same xUnit and Pester on macOS for pull requests only. No secrets, no publishing.
 name: Test
 
 on:
@@ -48,6 +49,10 @@ jobs:
       - name: Test
         run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 15
+
+      - name: Test the logging and hosting packages
+        run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 10
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
@@ -123,4 +128,199 @@ jobs:
         if: always()
         with:
           name: pester-results-${{ matrix.shell }}
+          path: pester-results.xml
+
+  dotnet-linux:
+    name: 'xUnit (Ubuntu, ${{ matrix.framework }})'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [net8.0, net10.0]
+    env:
+      TERM: xterm-256color
+      LANG: C.UTF-8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore
+        run: |
+          dotnet restore ConsoleMonster.Tests/ConsoleMonster.Tests.csproj
+          dotnet restore ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj
+      - name: Build (warnings as errors)
+        run: |
+          dotnet build ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
+          dotnet build ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
+      - name: Test
+        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 15
+      - name: Test the logging and hosting packages
+        run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 10
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-linux-${{ matrix.framework }}
+          path: '**/*.trx'
+
+  dotnet-macos:
+    name: 'xUnit (macOS, ${{ matrix.framework }})'
+    # Pull requests only: macOS runners cost more, and Ubuntu already covers Unix on every push.
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [net8.0, net10.0]
+    env:
+      TERM: xterm-256color
+      LANG: en_US.UTF-8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore
+        run: dotnet restore ConsoleMonster.Tests/ConsoleMonster.Tests.csproj
+      - name: Build (warnings as errors)
+        run: dotnet build ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
+      - name: Test
+        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 15
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-macos-${{ matrix.framework }}
+          path: '**/*.trx'
+
+  native-aot-linux:
+    name: 'Native AOT (Ubuntu, net10.0)'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Publish native executable (trim and AOT warnings are errors)
+        run: dotnet publish Tests/AotSmoke/AotSmoke.csproj -c Release -f net10.0 -r linux-x64 -o Artefacts/AotSmoke
+      - name: Run native executable (native and linker coverage; it prints no glyphs)
+        run: |
+          ./Artefacts/AotSmoke/AotSmoke
+          LANG=C ./Artefacts/AotSmoke/AotSmoke
+
+  pester-linux:
+    name: 'Pester and terminal probes (Ubuntu, PowerShell 7)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      TERM: xterm-256color
+      LANG: C.UTF-8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Build the module binaries (Debug, net8.0 and net10.0)
+        run: |
+          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import smoke (exports match the manifest)
+        run: |
+          $manifest = Import-PowerShellDataFile ./Module/ConsoleMonster.psd1
+          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
+          $exported = @((Get-Module ConsoleMonster).ExportedCmdlets.Keys | Sort-Object)
+          $expected = @($manifest.CmdletsToExport | Sort-Object)
+          $difference = Compare-Object $expected $exported
+          if ($difference) { $difference | Format-Table | Out-String | Write-Host; throw "Exported cmdlets differ from the manifest ($($exported.Count) exported, $($expected.Count) in the manifest)." }
+          Write-Host "Exports match the manifest: $($exported.Count) cmdlets"
+      - name: Glyph tier follows the locale in a real terminal (C and POSIX ASCII, UTF-8 full)
+        shell: bash
+        run: |
+          set -euo pipefail
+          probe() {
+            # -like gives the plain decision strings (Select-String would highlight the match with escape codes in a terminal).
+            script -qec "env -u COLORTERM -u NO_COLOR -u CI -u GITHUB_ACTIONS -u LC_ALL -u LC_CTYPE TERM=xterm-256color LANG=$1 pwsh -NoProfile -Command \"Import-Module ./Module/ConsoleMonster.psd1; (Get-ConsoleCapability).Decisions -like 'glyphs:*'\"" /dev/null | tr -d '\r'
+          }
+          for locale in C POSIX; do
+            out="$(probe "$locale")"; echo "LANG=$locale -> $out"
+            grep -q 'glyphs: Ascii' <<< "$out"
+          done
+          out="$(probe C.UTF-8)"; echo "LANG=C.UTF-8 -> $out"
+          grep -q 'glyphs: Full' <<< "$out"
+      - name: Prompt input works without a cursor-position reply
+        shell: bash
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          # 'script' gives pwsh a terminal that never answers ESC[6n; the selection must still read the queued keys.
+          # The keys are sent once the prompt is on screen (the typescript is flushed as it is written), not after a fixed wait.
+          # The typescript's first line is script's own command header, which contains the title too: it is skipped.
+          rm -f select.log
+          { for i in $(seq 1 120); do tail -n +2 select.log 2>/dev/null | grep -q 'Pick' && break; sleep 0.5; done; sleep 1; printf '\033[B'; sleep 1; printf '\r'; sleep 2; } | script -qfec "env -u CI -u GITHUB_ACTIONS TERM=xterm-256color pwsh -NoProfile -Command \"Import-Module ./Module/ConsoleMonster.psd1; 'RESULT=' + (Read-ConsoleSelection -Title Pick -Choices a, b, c)\"" select.log > /dev/null || true
+          tr -d '\r' < select.log | sed -r 's/\x1b\[[0-9;?]*[ -/]*[@-~]//g' | tail -n 5
+          tr -d '\r' < select.log | grep -q 'RESULT=b'
+      - name: Install Pester
+        run: Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+      - name: Run Pester
+        run: |
+          Import-Module Pester -MinimumVersion 5.5.0
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = 'Module/Tests'
+          $configuration.Run.Exit = $true
+          $configuration.Output.Verbosity = 'Detailed'
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputPath = 'pester-results.xml'
+          Invoke-Pester -Configuration $configuration
+        timeout-minutes: 20
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pester-results-linux
+          path: pester-results.xml
+
+  pester-macos:
+    name: 'Pester (macOS, PowerShell 7)'
+    # Pull requests only, as for xUnit on macOS.
+    if: github.event_name == 'pull_request'
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      TERM: xterm-256color
+      LANG: en_US.UTF-8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Build the module binaries (Debug, net8.0 and net10.0)
+        run: |
+          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Pester
+        run: Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+      - name: Run Pester
+        run: |
+          Import-Module Pester -MinimumVersion 5.5.0
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = 'Module/Tests'
+          $configuration.Run.Exit = $true
+          $configuration.Output.Verbosity = 'Detailed'
+          $configuration.TestResult.Enabled = $true
+          $configuration.TestResult.OutputPath = 'pester-results.xml'
+          Invoke-Pester -Configuration $configuration
+        timeout-minutes: 20
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: pester-results-macos
           path: pester-results.xml

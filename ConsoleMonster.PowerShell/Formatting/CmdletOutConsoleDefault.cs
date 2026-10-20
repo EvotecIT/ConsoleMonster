@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.</para>
-    /// <para type="description">This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; files and folders, processes and services after Enable-ConsoleFormatting) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</para>
+    /// <para type="description">This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</para>
     /// <example>
     ///   <para>Show processes the ConsoleMonster way once</para>
     ///   <code>Get-Process | Out-ConsoleDefault</code>
@@ -33,9 +33,31 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
+        /// <summary><para type="description">Set by the Out-Default function of Enable-ConsoleFormatting: only the enabled features apply (registered types, the error view, the progress area).</para></summary>
+        [Parameter(DontShow = true)]
+        public SwitchParameter Shim { get; set; }
+
+        /// <summary><para type="description">Set by the Out-Default function when PowerShell added it to a command typed at the prompt (not an explicit Out-Default in a script): the progress area ends with that command.</para></summary>
+        [Parameter(DontShow = true)]
+        public SwitchParameter TopLevel { get; set; }
+
+        private bool _types = true;
+        private bool _errors;
+        private bool _progress;
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
-            _active = Force.IsPresent || Displayed();
+            _active = Force.IsPresent || ConsoleFormatting.Displayed(this);
+            if (Shim.IsPresent) {
+                ConsoleFormattingFeature features = ConsoleFormatting.Features;
+                _types = (features & ConsoleFormattingFeature.Output) != 0;
+                _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (Force.IsPresent || !ErrorRedirected());
+                _progress = (features & ConsoleFormattingFeature.Progress) != 0;
+                if (_progress && TopLevel.IsPresent) {
+                    // A new pipeline: an area left by an interrupted one (Ctrl+C) goes.
+                    SessionProgress.EndPipeline();
+                }
+            }
             ScriptBlock inner = ScriptBlock.Create(Transcript.IsPresent ? "Microsoft.PowerShell.Core\\Out-Default -Transcript" : "Microsoft.PowerShell.Core\\Out-Default");
             _inner = inner.GetSteppablePipeline(CommandOrigin.Internal);
             _inner.Begin(this);
@@ -43,34 +65,99 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (InputObject == null) {
+            Handle(InputObject, true);
+        }
+
+        // A collection that arrives as one object (Write-Output -NoEnumerate, an array of arrays) is shown one level
+        // unrolled, as PowerShell's Out-Default shows it, using PowerShell's own rule for what is enumerable (not strings,
+        // dictionaries or XML nodes).
+        private void Handle(PSObject? item, bool unroll) {
+            if (_progress) {
+                // Output goes where the progress area was; the next Write-Progress draws it again below.
+                SessionProgress.Suspend();
+            }
+            if (item == null) {
                 Flush();
-                _inner!.Process(InputObject);
+                _inner!.Process(item);
                 return;
             }
-            ConsoleViewRegistration? view = _active ? ConsoleFormatting.Find(InputObject) : null;
+            // Get-Error's detailed records (PSExtendedError) keep PowerShell's view.
+            if (_errors && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
+                return;
+            }
+            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
                     Flush();
                 }
                 _batchView ??= view;
-                _batch.Add(InputObject);
+                _batch.Add(item);
+                return;
+            }
+            System.Collections.IEnumerable? elements = unroll ? LanguagePrimitives.GetEnumerable(item.BaseObject) : null;
+            if (elements != null) {
+                foreach (object? element in elements) {
+                    Handle(element == null ? null : PSObject.AsPSObject(element), false);
+                }
                 return;
             }
             Flush();
-            _inner!.Process(InputObject);
+            _inner!.Process(item);
         }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (_progress && TopLevel.IsPresent) {
+                SessionProgress.EndPipeline();
+            }
             Flush();
             _inner?.End();
+        }
+
+        // The error view of Enable-ConsoleFormatting -Feature ErrorView: the type, the message, the category and id, the
+        // position in the script (and the stack with $ErrorView = 'DetailedView'). CategoryView keeps PowerShell's view.
+        private bool WriteErrorView(ErrorRecord record) {
+            string view = Convert.ToString(GetVariableValue("ErrorView"), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+            if (string.Equals(view, "CategoryView", StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+            Flush();
+            ExceptionView widget = new ExceptionView(PSErrors.Describe(record)) { ShowStack = string.Equals(view, "DetailedView", StringComparison.OrdinalIgnoreCase) };
+            // Through PowerShell's Out-Default as a rendering (drawn by ConsoleMonster's out-of-band view), so it stays in
+            // order with the table rows PowerShell may still be holding.
+            _inner!.Process(PSObject.AsPSObject(new ConsoleRendering(widget, 0, null) { DisplayOnly = true }));
+            return true;
+        }
+
+        private static bool IsExtended(PSObject item) {
+            foreach (string name in item.TypeNames) {
+                if (name.EndsWith("#PSExtendedError", StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Errors written to a redirected stderr (2> file) keep PowerShell's route, so they land in the file.
+        private static bool ErrorRedirected() {
+            try {
+                return Console.IsErrorRedirected;
+            } catch (System.IO.IOException) {
+                return true;
+            }
         }
 
         /// <inheritdoc />
         protected override void StopProcessing() {
             _inner?.Dispose();
         }
+
+        // Dictionaries (@{ }, [ordered]) are shown as ConsoleMonster records (one) or tables of their keys (several), like
+        // every other taken-over type, instead of PowerShell's Name/Value table.
+        private static readonly ConsoleViewRegistration Dictionaries = new ConsoleViewRegistration("System.Collections.IDictionary", ConsoleViewKind.Table, null, null, "Dictionary", null, true);
+
+        private static ConsoleViewRegistration? DictionaryView(PSObject item) =>
+            ConsoleFormatting.TakeOverBuiltIns && item.BaseObject is System.Collections.IDictionary ? Dictionaries : null;
 
         private void Flush() {
             if (_batch.Count == 0 || _batchView == null) {
@@ -80,23 +167,19 @@ namespace ConsoleMonster.PowerShell {
             switch (_batchView.View) {
                 case ConsoleViewKind.Table:
                 case ConsoleViewKind.Cards:
-                    object? groupBy = _batchView.GroupBy;
-                    string? title = null;
-                    if (_batchView.Title != null) {
-                        title = SharedTitle(_batchView.Title);
-                        if (title == null) {
-                            groupBy ??= _batchView.Title;
+                    bool cards = _batchView.View == ConsoleViewKind.Cards;
+                    // The same columns, titles and cell values as Format-ConsoleTable: the registered view is found again
+                    // by the column resolver, so its columns, its title ("Directory: ...") and its grouping apply.
+                    List<IWidget> tables = PSFormatting.BuildTables(_batch, null, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = this }, table => {
+                        if (cards) {
+                            table.AlwaysCards = true;
                         }
-                    }
-                    Table table = PSFormatting.BuildTable(_batch, _batchView.Property, groupBy, false, true);
-                    table.Title = title == null ? null : Text.Markup.Escape(title);
-                    if (_batchView.View == ConsoleViewKind.Cards) {
-                        table.AlwaysCards = true;
-                    }
-                    widget = table;
+                    });
+                    widget = PSFormatting.Combine(tables);
                     break;
                 default:
                     ConsoleViewOptions options = new ConsoleViewOptions { View = _batchView.View };
+                    options.Sources.Add(new Binding.DirectoryEntryMemberSource());
                     options.Sources.Add(new Binding.PSObjectMemberSource());
                     widget = ConsoleView.Auto(new List<object?>(_batch), options);
                     break;
@@ -106,33 +189,5 @@ namespace ConsoleMonster.PowerShell {
             _batchView = null;
         }
 
-        // The title every object in the batch shares, or null when they differ.
-        private string? SharedTitle(ScriptBlock title) {
-            string? shared = null;
-            foreach (PSObject item in _batch) {
-                string text = string.Join(" ", title.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", item) }));
-                if (shared == null) {
-                    shared = text;
-                } else if (!string.Equals(shared, text, StringComparison.Ordinal)) {
-                    return null;
-                }
-            }
-            return shared;
-        }
-
-        // Only output displayed on a real local console: not redirected, not a job, remoting or another host.
-        private bool Displayed() {
-            if (!string.Equals(Host?.Name, "ConsoleHost", StringComparison.Ordinal)) {
-                return false;
-            }
-            try {
-                if (Console.IsOutputRedirected) {
-                    return false;
-                }
-            } catch (System.IO.IOException) {
-                return false;
-            }
-            return Terminal.IsConsole(Terminal.Target);
-        }
     }
 }

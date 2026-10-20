@@ -177,11 +177,7 @@ namespace ConsoleMonster.Widgets {
         private static readonly string[] ByteUnits = { "B", "KB", "MB", "GB", "TB" };
 
         // An estimate in whole seconds under a minute ("6s"), otherwise the usual duration ("1m 05s").
-        private static string Eta(TimeSpan remaining) {
-            return remaining.TotalSeconds < 60
-                ? Math.Ceiling(remaining.TotalSeconds).ToString("0", CultureInfo.InvariantCulture) + "s"
-                : NumberFormat.Duration(TimeSpan.FromSeconds(Math.Ceiling(remaining.TotalSeconds)));
-        }
+        private static string Eta(TimeSpan remaining) => NumberFormat.Remaining(remaining);
 
         private static string Bytes(double value) {
             int unit = 0;
@@ -221,11 +217,13 @@ namespace ConsoleMonster.Widgets {
 
             public override StyledLine Render(ProgressRow row, RenderContext context) {
                 IGlyphSet glyphs = context.Glyphs;
-                if (row.Status == StatusKind.Running) {
+                // A running row whose work is all done reads as passed: a check mark, not a spinner.
+                StatusKind status = row.Status == StatusKind.Running && row.Total > 0 && row.Done >= row.Total ? StatusKind.Pass : row.Status;
+                if (status == StatusKind.Running) {
                     return StyledLine.From(context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : row.Order), context.Style(ThemeToken.Running));
                 }
-                string marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(row.Status) : glyphs.StatusMarker(row.Status);
-                return StyledLine.From(marker, context.Style(row.Status));
+                string marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(status) : glyphs.StatusMarker(status);
+                return StyledLine.From(marker, context.Style(status));
             }
 
             public override string? Summarize(ProgressRow row, RenderContext context) => null;

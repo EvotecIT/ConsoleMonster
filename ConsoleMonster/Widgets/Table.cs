@@ -78,6 +78,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;
 
+        /// <summary>
+        /// Titles for the rows in record and card views, by data row index (a null or empty entry uses the key column), so a
+        /// caller can title a record "pwsh (90836)" while the key column stays the name. Null for none.
+        /// </summary>
+        public IList<string?>? RowTitles { get; set; }
+
         /// <summary>Whether a footer names the columns hidden for lack of width (default true).</summary>
         public bool ShowHiddenColumns { get; set; } = true;
 
@@ -98,6 +104,17 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Shows only the first N rows (0 = all) followed by <c>Showing N of M</c>; totals still cover every row.</summary>
         public int MaxRows { get; set; }
+
+        private int _wrapLines = 3;
+
+        /// <summary>
+        /// The most lines a wrapped value uses when its column sets no <see cref="TableColumn.MaxLines"/> (default 3; 0 =
+        /// no limit): a long description stays a few lines with an ellipsis instead of taking the screen.
+        /// </summary>
+        public int WrapLines {
+            get => _wrapLines;
+            set => _wrapLines = value < 0 ? 0 : value;
+        }
 
         /// <summary>
         /// The total number of records when the caller added only some of them (for example the first 50 of 1,234), so the

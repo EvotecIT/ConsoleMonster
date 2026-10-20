@@ -4,7 +4,7 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes a line to the log region of a running dashboard.</para>
-    /// <para type="description">-Level sets the tag: info, warn, err, verbose, debug or pass. Only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para>
+    /// <para type="description">-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para>
     /// <example>
     ///   <para>Log a warning</para>
     ///   <code>Write-ConsoleLog 'DC03 responded slowly' -Level warn</code>
@@ -17,9 +17,10 @@ namespace ConsoleMonster.PowerShell {
         [AllowEmptyString]
         public object Message { get; set; } = string.Empty;
 
-        /// <summary><para type="description">The level: info, warn, err, verbose, debug or pass.</para></summary>
+        /// <summary><para type="description">The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Write-ConsoleStatus).</para></summary>
         [Parameter]
-        [ValidateSet("info", "warn", "err", "verbose", "debug", "pass")]
+        [Binding.LogLevelTransformation]
+        [ArgumentCompleter(typeof(Binding.LogLevelCompleter))]
         public string Level { get; set; } = "info";
 
         /// <summary><para type="description">The log name; defaults to the dashboard's log region.</para></summary>

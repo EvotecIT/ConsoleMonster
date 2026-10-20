@@ -19,6 +19,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The new status.</para></summary>
         [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
         public StatusKind Status { get; set; } = StatusKind.Running;
 
         /// <summary><para type="description">The item label (markup allowed).</para></summary>

@@ -270,7 +270,8 @@ Write-ConsoleText ('[red]alert[/] ' + $esc + ']0;PWNED' + [char] 7 + ' end')
 
         It 'keeps the cell colours on the coloured host route' {
             $records = Invoke-TextJob -ScriptBlock {
-                [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
+                # The table is the last command of its own pipeline, so it is drawn through the job's host (piped on, it would be text).
+                & { [pscustomobject] @{ Name = 'SPF' } | Format-ConsoleTable -Property Name, @{ Name = 'Result'; Expression = { New-ConsoleText 'PASS' -Color Green } } } 6>&1 | ForEach-Object { $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor }
             }
             ($records -join "`n") | Should -Match 'PASS\|Green'
         }
@@ -312,6 +313,39 @@ Write-ConsoleStatus 'finished' -Status Pass -Complete
             @($lines | Where-Object { $_ -eq 'step one' }).Count | Should -Be 1
             $lines | Should -Contain 'step two'
             $lines[-1] | Should -Match 'finished$'
+        }
+    }
+
+    Context 'One status vocabulary' {
+        It 'accepts PowerShell''s status words for -Status and lists the vocabulary for an unknown one' {
+            $text = Invoke-TextChild -Script @'
+Write-ConsoleStatus 'deployed' -Status Success -Complete
+Write-ConsoleStatus 'slow' -Status Warning -Complete
+Write-ConsoleStatus 'broken' -Status Failure -Complete
+Write-ConsoleStatus 'noted' -Status Information -Complete
+try { Write-ConsoleStatus 'x' -Status Bogus } catch { 'ERROR=' + $_.Exception.Message }
+'@
+            # Each line carries its status marker (the glyphs depend on the console's tier).
+            $lines = @($text -split "`n")
+            $lines -match '^\S+ deployed$' | Should -Not -BeNullOrEmpty
+            $lines -match '^\S+ slow$' | Should -Not -BeNullOrEmpty
+            $lines -match '^\S+ broken$' | Should -Not -BeNullOrEmpty
+            $pass = (@($lines | Where-Object { $_ -match 'deployed' })[0] -split ' ')[0]
+            $fail = (@($lines | Where-Object { $_ -match 'broken' })[0] -split ' ')[0]
+            $pass | Should -Not -Be $fail
+            $text | Should -Match "ERROR=.*'Bogus' is not a status\. Use one of: .*Success.*Warning"
+        }
+
+        It 'maps PowerShell''s words to log levels for Write-ConsoleLog and completes them' {
+            $transform = [ConsoleMonster.PowerShell.Binding.LogLevelTransformationAttribute]::new()
+            $transform.Transform($null, 'Information') | Should -Be 'info'
+            $transform.Transform($null, 'Warning') | Should -Be 'warn'
+            $transform.Transform($null, 'Error') | Should -Be 'err'
+            $transform.Transform($null, 'Verbose') | Should -Be 'verbose'
+            { $transform.Transform($null, 'loud') } | Should -Throw
+            $completions = (TabExpansion2 -inputScript 'Write-ConsoleLog x -Level Wa' -cursorColumn 28).CompletionMatches.CompletionText
+            $completions | Should -Contain 'warn'
+            $completions | Should -Contain 'Warning'
         }
     }
 

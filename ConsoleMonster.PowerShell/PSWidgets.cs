@@ -63,6 +63,69 @@ namespace ConsoleMonster.PowerShell {
             return widget;
         }
 
+        /// <summary>
+        /// Panel content from anything: a scriptblock (its output), a widget, a string, or other objects, which go through
+        /// the shared value rules (one object as a record, several as a table, as Format-ConsoleList and Format-ConsoleTable
+        /// show them). Widgets and text keep their place among the objects.
+        /// </summary>
+        public static List<IWidget> CollectAny(object? content, PSCmdlet cmdlet) {
+            List<IWidget> widgets = new List<IWidget>();
+            object? raw = content is PSObject wrapped ? wrapped.BaseObject : content;
+            if (raw == null) {
+                return widgets;
+            }
+            List<PSObject> items = new List<PSObject>();
+            if (raw is ScriptBlock script) {
+                foreach (PSObject emitted in script.Invoke()) {
+                    // An array emitted as one object is its items, as the other containers read it.
+                    if (emitted?.BaseObject is object[] array) {
+                        foreach (object element in array) {
+                            if (element != null) {
+                                items.Add(PSObject.AsPSObject(element));
+                            }
+                        }
+                    } else if (emitted != null) {
+                        items.Add(emitted);
+                    }
+                }
+            } else if (raw is IWidget || raw is string) {
+                items.Add(PSObject.AsPSObject(raw));
+            } else if (LanguagePrimitives.GetEnumerable(raw) is System.Collections.IEnumerable list) {
+                foreach (object? element in list) {
+                    if (element != null) {
+                        items.Add(PSObject.AsPSObject(element));
+                    }
+                }
+            } else {
+                items.Add(content is PSObject ps ? ps : PSObject.AsPSObject(raw));
+            }
+            List<PSObject> objects = new List<PSObject>();
+            foreach (PSObject item in items) {
+                if (item == null) {
+                    continue;
+                }
+                IWidget? widget = AsWidget(item);
+                if (widget != null) {
+                    FlushObjects(widgets, objects, cmdlet);
+                    widgets.Add(widget);
+                } else {
+                    objects.Add(item);
+                }
+            }
+            FlushObjects(widgets, objects, cmdlet);
+            return widgets;
+        }
+
+        private static void FlushObjects(List<IWidget> widgets, List<PSObject> objects, PSCmdlet cmdlet) {
+            if (objects.Count == 0) {
+                return;
+            }
+            widgets.Add(objects.Count == 1
+                ? PSFormatting.BuildList(objects.ToArray(), null, null, false, 1, null, null, cmdlet)
+                : PSFormatting.Combine(PSFormatting.BuildTables(objects.ToArray(), null, null, new TableBuildOptions { Cmdlet = cmdlet }, table => table.RecordViewRows = 0)));
+            objects.Clear();
+        }
+
         private static void AddItem(List<IWidget> widgets, object? item) {
             object? raw = item is PSObject ps ? ps.BaseObject : item;
             if (raw is object[] array) {

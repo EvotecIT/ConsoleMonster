@@ -18,7 +18,7 @@ namespace ConsoleMonster.Presenters {
         /// <param name="timeZone">The time zone for absolute dates, or null for the context's.</param>
         public DatePresenter(DateDisplay display = DateDisplay.Absolute, string? format = null, TimeZoneInfo? timeZone = null) {
             Display = display;
-            Format = format ?? "yyyy-MM-dd HH:mm";
+            Format = format ?? DefaultFormat;
             TimeZone = timeZone;
         }
 
@@ -65,6 +65,55 @@ namespace ConsoleMonster.Presenters {
             }
             return new PresentedValue(line) { Number = (time - context.Now).TotalDays };
         }
+
+        /// <summary>
+        /// A point in time as text the same way everywhere (tables, records, titles, trees, Show-Console and the change
+        /// view): ISO-style <c>yyyy-MM-dd HH:mm</c> in the local time zone (or <paramref name="timeZone"/>), whatever the
+        /// culture, so dates sort and read the same on every machine; "never" for <see cref="DateTime.MinValue"/> and
+        /// <see cref="DateTime.MaxValue"/>. With <paramref name="precise"/> the seconds (and milliseconds when present) are
+        /// added, for two values that differ below a minute.
+        /// </summary>
+        /// <param name="value">A <see cref="DateTime"/> or <see cref="DateTimeOffset"/>.</param>
+        /// <param name="timeZone">The time zone, or null for local time.</param>
+        /// <param name="precise">Whether to show seconds.</param>
+        /// <returns>The text, or null when the value is not a point in time.</returns>
+        public static string? Text(object? value, TimeZoneInfo? timeZone = null, bool precise = false) {
+            if (!(value is DateTime) && !(value is DateTimeOffset)) {
+                return null;
+            }
+            if (IsSentinel(value)) {
+                return "never";
+            }
+            TryGetTime(value, out DateTimeOffset time);
+            DateTimeOffset local;
+            try {
+                local = TimeZoneInfo.ConvertTime(time, timeZone ?? TimeZoneInfo.Local);
+            } catch (ArgumentOutOfRangeException) {
+                local = time;
+            }
+            string format = !precise ? DefaultFormat : local.Millisecond != 0 ? "yyyy-MM-dd HH:mm:ss.fff" : "yyyy-MM-dd HH:mm:ss";
+            return local.ToString(format, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>A point in time to the tick, in the same time zone as <see cref="Text"/> (for values that differ below a millisecond).</summary>
+        /// <param name="value">A <see cref="DateTime"/> or <see cref="DateTimeOffset"/>.</param>
+        /// <returns>The text, or null when the value is not a point in time.</returns>
+        public static string? ExactText(object? value) {
+            if (!(value is DateTime) && !(value is DateTimeOffset) || IsSentinel(value)) {
+                return Text(value);
+            }
+            TryGetTime(value, out DateTimeOffset time);
+            DateTimeOffset local;
+            try {
+                local = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.Local);
+            } catch (ArgumentOutOfRangeException) {
+                local = time;
+            }
+            return local.ToString("yyyy-MM-dd HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>The absolute format every command uses by default.</summary>
+        public const string DefaultFormat = "yyyy-MM-dd HH:mm";
 
         /// <summary>Formats an offset from now: <c>just now</c>, <c>45 s ago</c>, <c>3 h ago</c>, <c>in 12 d</c>, <c>2 y ago</c>.</summary>
         /// <param name="offset">The value minus now.</param>
