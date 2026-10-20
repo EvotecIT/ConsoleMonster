@@ -47,6 +47,7 @@
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
         <TypeName>ConsoleMonster.Widgets.FooterBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.HeaderBar</TypeName>
+        <TypeName>ConsoleMonster.Widgets.HelpView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Histogram</TypeName>
         <TypeName>ConsoleMonster.Widgets.InspectorView</TypeName>
         <TypeName>ConsoleMonster.Widgets.KeyValueList</TypeName>
