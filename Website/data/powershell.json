@@ -312,8 +312,13 @@
     },
     {
       "verb": "New",
-      "count": 40,
+      "count": 44,
       "commands": [
+        {
+          "name": "New-ConsoleActivityList",
+          "synopsis": "Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.",
+          "url": "/powershell/commands/new-consoleactivitylist/"
+        },
         {
           "name": "New-ConsoleAlign",
           "synopsis": "Aligns console widgets left, centre or right, and top, middle or bottom, inside their space.",
@@ -340,6 +345,11 @@
           "url": "/powershell/commands/new-consolechartseries/"
         },
         {
+          "name": "New-ConsoleClock",
+          "synopsis": "Creates a run clock (ConsoleMonster.Live.SimulatedClock) the script moves forward, for simulated runs whose screen shows simulated time.",
+          "url": "/powershell/commands/new-consoleclock/"
+        },
+        {
           "name": "New-ConsoleColumns",
           "synopsis": "Places console widgets side by side.",
           "url": "/powershell/commands/new-consolecolumns/"
@@ -358,6 +368,11 @@
           "name": "New-ConsoleForm",
           "synopsis": "Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.",
           "url": "/powershell/commands/new-consoleform/"
+        },
+        {
+          "name": "New-ConsoleFormPreset",
+          "synopsis": "Creates a preset a form comes with: field values under one name, with a description and a preview.",
+          "url": "/powershell/commands/new-consoleformpreset/"
         },
         {
           "name": "New-ConsoleGrid",
@@ -423,6 +438,11 @@
           "name": "New-ConsoleMenuItem",
           "synopsis": "Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.",
           "url": "/powershell/commands/new-consolemenuitem/"
+        },
+        {
+          "name": "New-ConsoleMenuPreset",
+          "synopsis": "Creates a preset a menu comes with: form values and selections under one name, with a description and a preview.",
+          "url": "/powershell/commands/new-consolemenupreset/"
         },
         {
           "name": "New-ConsolePadding",
@@ -534,8 +554,18 @@
     },
     {
       "verb": "Update",
-      "count": 6,
+      "count": 9,
       "commands": [
+        {
+          "name": "Update-ConsoleActivity",
+          "synopsis": "Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.",
+          "url": "/powershell/commands/update-consoleactivity/"
+        },
+        {
+          "name": "Update-ConsoleCell",
+          "synopsis": "Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashboard.",
+          "url": "/powershell/commands/update-consolecell/"
+        },
         {
           "name": "Update-ConsoleLane",
           "synopsis": "Updates a lane of a running dashboard: progress, step results, status and detail.",
@@ -560,6 +590,11 @@
           "name": "Update-ConsoleStatus",
           "synopsis": "Updates an item of a status list in a running dashboard.",
           "url": "/powershell/commands/update-consolestatus/"
+        },
+        {
+          "name": "Update-ConsoleSummaryBar",
+          "synopsis": "Updates a summary bar (New-ConsoleSummaryBar) in the running dashboard: progress and counters.",
+          "url": "/powershell/commands/update-consolesummarybar/"
         },
         {
           "name": "Update-ConsoleTable",
@@ -799,8 +834,13 @@
     },
     {
       "verb": "Set",
-      "count": 3,
+      "count": 4,
       "commands": [
+        {
+          "name": "Set-ConsoleFormValue",
+          "synopsis": "Sets field values of a form, whether or not it is shown.",
+          "url": "/powershell/commands/set-consoleformvalue/"
+        },
         {
           "name": "Set-ConsoleRegion",
           "synopsis": "Replaces the content of a region (New-ConsoleRegion) in the running dashboard.",

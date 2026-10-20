@@ -39,11 +39,11 @@
           "id": "monster",
           "title": "Monster",
           "key": 5,
-          "demo": "parallel",
-          "line": "Live dashboards, parallel runs, menus and forms when you need the full monster.",
-          "url": "/docs/live-runs/",
-          "linkText": "Live runs",
-          "note": "Forty items through ForEach-ConsoleItem -Parallel, recorded on PowerShell 7 from the script beside it: three servers fail, one runs past the four-second limit, and the run goes on.",
+          "demo": "app",
+          "line": "Full console applications: menus, forms, live dashboards and results, from one library.",
+          "url": "/interactive/",
+          "linkText": "Menus, forms and apps",
+          "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part.",
           "install": [
             {
               "lang": "powershell",
@@ -56,15 +56,15 @@
               "text": "dotnet add package ConsoleMonster"
             }
           ],
-          "codeTitle": "The code behind this run",
+          "codeTitle": "The app's main program",
           "code": [
+            {
+              "tab": "C#",
+              "source": "csharp"
+            },
             {
               "tab": "PowerShell",
               "source": "powershell"
-            },
-            {
-              "tab": "The same run in C#",
-              "source": "csharp"
             }
           ]
         }
@@ -124,42 +124,42 @@
       {
         "id": "monster-features",
         "title": "Monster",
-        "body": "When a script or an app needs more: live runs, watch views, dashboards, menus and forms, recorded and replayed.",
+        "body": "Complete console applications: an admin tool with menus and forms, live dashboards, parallel runs and test runs, recorded and replayed.",
         "links": [
           {
-            "title": "Live runs",
-            "url": "/docs/live-runs/",
+            "title": "An admin tool",
+            "url": "/interactive/",
             "key": 5,
-            "body": "Many items in parallel, with failures and a time limit.",
-            "command": "ForEach-ConsoleItem -Parallel"
+            "body": "A shell with menus and forms, then a run and its results.",
+            "command": "Show-ConsoleMenu"
           },
           {
-            "title": "Watch a command",
-            "url": "/docs/live-runs/#demo-watch",
-            "key": 2,
-            "body": "A command re-run as a live view, changes marked.",
-            "command": "Watch-Console"
-          },
-          {
-            "title": "Live dashboards",
+            "title": "Live operations dashboard",
             "url": "/live/",
             "key": 1,
-            "body": "Lanes, phases and logs updated from many threads.",
+            "body": "Phases, lanes and logs updated from many threads.",
             "command": "Start-ConsoleDashboard"
           },
           {
-            "title": "Hosting dashboard",
-            "url": "/docs/hosting/",
-            "key": 4,
-            "body": "A .NET generic host with each service's state and the log.",
-            "command": "AddConsoleDashboard()"
+            "title": "Parallel fleet run",
+            "url": "/docs/live-runs/",
+            "key": 2,
+            "body": "Many servers at once, with failures and a time limit.",
+            "command": "ForEach-ConsoleItem -Parallel"
           },
           {
-            "title": "Menus and forms",
-            "url": "/interactive/",
+            "title": "Test runs",
+            "url": "/docs/live-runs/#demo-pester",
+            "key": 4,
+            "body": "Pester results as they run, failures with expected and actual.",
+            "command": "Invoke-ConsolePester"
+          },
+          {
+            "title": ".NET host dashboard",
+            "url": "/docs/hosting/",
             "key": 6,
-            "body": "Prompts, menus, forms and the grid; the template app opens one.",
-            "command": "Show-ConsoleMenu"
+            "body": "A generic host with each service's state and the log.",
+            "command": "AddConsoleDashboard()"
           },
           {
             "title": "Recording and replay",
@@ -615,6 +615,26 @@
           {
             "title": "Template",
             "url": "/docs/template/"
+          }
+        ]
+      }
+    },
+    "app": {
+      "title": "A fleet health check, start to finish",
+      "body": "One program built on ConsoleMonster: a Shell menu with presets, a form with dependent fields and a review page, a full-screen live dashboard, and a results summary with next steps. The same app exists as a PowerShell script.",
+      "label": "A fleet health check app: menu, form, live dashboard and results",
+      "use": {
+        "title": "Build one like it",
+        "label": ".NET and PowerShell",
+        "install": "dotnet add package ConsoleMonster",
+        "links": [
+          {
+            "title": "Menus, forms and apps",
+            "url": "/interactive/"
+          },
+          {
+            "title": "Show-ConsoleMenu",
+            "url": "/powershell/commands/show-consolemenu/"
           }
         ]
       }

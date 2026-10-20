@@ -38,6 +38,12 @@ namespace SiteFrames.Pages {
             /// <summary>A PowerShell script under Website/examples/demos (recorded on PowerShell 7), or null.</summary>
             public string? Script { get; set; }
 
+            /// <summary>
+            /// The PowerShell twin of a recorded program: a script relative to the repository, shown short (its <c>#region more</c>
+            /// and <c>#region hidden</c> parts folded) with the whole file as the full program. Null for script demos.
+            /// </summary>
+            public string? PowerShellTwin { get; set; }
+
             /// <summary>A script shown as the full program instead of the demo script (a wrapper that calls it), or null.</summary>
             public string? FullScript { get; set; }
 
@@ -71,6 +77,16 @@ namespace SiteFrames.Pages {
         }
 
         private static IEnumerable<Demo> All() {
+            // The home page's Monster hero: a whole application (a Shell menu, a form, a live dashboard and the results),
+            // recorded from the Release build driving itself with scripted keys on a fixed clock and seed.
+            yield return new Demo("app", "ConsoleMonster.Examples fleet", 140, 40) {
+                Program = (Path.Combine("ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe"), "fleet --demo"),
+                CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), "Build", null),
+                PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
+                PosterShare = 0.62,
+                Fps = 8,
+                Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") }
+            };
             yield return new Demo("parallel", "ForEach-ConsoleItem -Parallel", 100, 24) {
                 Script = "parallel.ps1",
                 AllowErrors = true,
@@ -153,7 +169,19 @@ namespace SiteFrames.Pages {
             LivePage.Build(site);
             Build(site, Path.Combine("ConsoleMonster.Examples.Extensions", "ConsoleMonster.Examples.Extensions.csproj"));
             Build(site, Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"));
+            // SITEFRAMES_DEMOS (comma-separated ids) records only those demos, leaving the other recordings as they are.
+            HashSet<string>? wanted = null;
+            string? filter = Environment.GetEnvironmentVariable("SITEFRAMES_DEMOS");
+            if (!string.IsNullOrWhiteSpace(filter)) {
+                wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string id in filter!.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
+                    wanted.Add(id.Trim());
+                }
+            }
             foreach (Demo demo in All()) {
+                if (wanted != null && !wanted.Contains(demo.Id)) {
+                    continue;
+                }
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
                 if (demo.Script != null) {
@@ -241,6 +269,12 @@ namespace SiteFrames.Pages {
                     } else {
                         entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
                     }
+                }
+                if (demo.Script == null && demo.PowerShellTwin != null) {
+                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Path.Combine(site.Repository, demo.PowerShellTwin)));
+                    entry["powershell"] = shortForm;
+                    entry["powershellFile"] = demo.PowerShellTwin.Replace('\\', '/');
+                    entry["powershellFull"] = full.TrimEnd('\n');
                 }
                 if (demo.CSharp != null) {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
