@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
         private const long DrawInterval = 66;
 
         /// <summary>Whether the Progress feature is on.</summary>
-        internal static bool Enabled { get; set; }
+        internal static bool Enabled { get => FormattingSessionState.Current.ProgressEnabled; set => FormattingSessionState.Current.ProgressEnabled = value; }
 
         /// <summary>The progress area of a running Use-ConsoleProgress, which takes the calls while it runs; or null.</summary>
         internal static ProgressBridge? Override { get; set; }

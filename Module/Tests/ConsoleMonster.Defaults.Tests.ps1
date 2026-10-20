@@ -19,6 +19,68 @@
         }
     }
 
+    It 'restores only the current runspace commands when formatting is disabled' {
+        $text = Invoke-DefaultsChild @'
+$first = [powershell]::Create()
+$second = [powershell]::Create()
+try {
+    $setup = {
+        param($modulePath, $label, $alias)
+        Import-Module $modulePath
+        Set-Item function:global:Out-Default ([scriptblock]::Create("'$label'"))
+        Set-Alias Write-Progress $alias -Scope Global
+        Enable-ConsoleFormatting -Feature All -Force
+    }
+    $null = $first.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('FIRST').AddArgument('Write-Output').Invoke()
+    $null = $second.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('SECOND').AddArgument('Write-Host').Invoke()
+    $first.Commands.Clear()
+    $first.AddScript('Disable-ConsoleFormatting -Feature Progress; "FIRST_ALIAS=$((Get-Alias Write-Progress).Definition)"').Invoke()
+    $second.Commands.Clear()
+    $second.AddScript('"SECOND_STILL_ENABLED=$((Get-Command Out-Default).Definition -match ''ConsoleMonster'') SECOND_ALIAS=$((Get-Alias Write-Progress).Definition)"; Disable-ConsoleFormatting; "SECOND_FUNCTION=$((Get-Command Out-Default).Definition) SECOND_RESTORED_ALIAS=$((Get-Alias Write-Progress).Definition)"').Invoke()
+    $first.Commands.Clear()
+    $first.AddScript('Disable-ConsoleFormatting -Feature ErrorView; "FIRST_OUTPUT_STILL_ENABLED=$((Get-Command Out-Default).Definition -match ''ConsoleMonster'')"; Disable-ConsoleFormatting -Feature Output; "FIRST_FUNCTION=$((Get-Command Out-Default).Definition)"').Invoke()
+} finally {
+    $first.Dispose()
+    $second.Dispose()
+}
+'@
+        $text | Should -Match 'FIRST_ALIAS=Write-Output'
+        $text | Should -Match 'FIRST_OUTPUT_STILL_ENABLED=True'
+        $text | Should -Match "FIRST_FUNCTION='FIRST'"
+        $text | Should -Match 'SECOND_STILL_ENABLED=True SECOND_ALIAS=Write-ConsoleProgress'
+        $text | Should -Match "SECOND_FUNCTION='SECOND' SECOND_RESTORED_ALIAS=Write-Host"
+    }
+
+    It 'restores the replaced function and prior removal hook for <feature>' -ForEach @(
+        @{ feature = 'Output' }
+        @{ feature = 'ErrorView' }
+        @{ feature = 'All' }
+    ) {
+        $text = Invoke-DefaultsChild (@'
+function global:Out-Default { 'ORIGINAL_CALLBACK' }
+$owner = (Get-Command Enable-ConsoleFormatting).Module
+$owner.OnRemove = { 'PREVIOUS_REMOVE' }
+Enable-ConsoleFormatting -Feature __FEATURE__ -Force
+Remove-Module ConsoleMonster
+"RESTORED_FUNCTION=$((Get-Command Out-Default -CommandType Function).Definition)"
+'@.Replace('__FEATURE__', $feature))
+        $text | Should -Match 'RESTORED_FUNCTION=.*ORIGINAL_CALLBACK'
+        $text | Should -Match 'PREVIOUS_REMOVE'
+    }
+
+    It 'restores the latest alias on module removal after disabling and enabling again' {
+        $text = Invoke-DefaultsChild @'
+Set-Alias Write-Progress Write-Output -Scope Global
+Enable-ConsoleFormatting -Feature Progress -Force
+Disable-ConsoleFormatting
+Set-Alias Write-Progress Write-Host -Scope Global
+Enable-ConsoleFormatting -Feature Progress -Force
+Remove-Module ConsoleMonster
+"RESTORED_ALIAS=$((Get-Alias Write-Progress).Definition)"
+'@
+        $text | Should -Match 'RESTORED_ALIAS=Write-Host'
+    }
+
     It 'turns Write-Progress into an alias of Write-ConsoleProgress and removes it again' {
         $text = Invoke-DefaultsChild @'
 Enable-ConsoleFormatting -Feature Progress

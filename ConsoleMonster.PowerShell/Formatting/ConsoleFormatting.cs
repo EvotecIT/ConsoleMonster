@@ -75,16 +75,16 @@ namespace ConsoleMonster.PowerShell {
         /// Whether Out-ConsoleDefault takes over the built-in types (files, processes, services). Enable-ConsoleFormatting
         /// -NoBuiltIn turns it off; the built-in views still pick the columns of Format-ConsoleTable and the other commands.
         /// </summary>
-        internal static bool TakeOverBuiltIns { get; set; } = true;
+        internal static bool TakeOverBuiltIns { get => FormattingSessionState.Current.TakeOverBuiltIns; set => FormattingSessionState.Current.TakeOverBuiltIns = value; }
 
         /// <summary>The features turned on in this session.</summary>
-        internal static ConsoleFormattingFeature Features { get; set; }
+        internal static ConsoleFormattingFeature Features { get => FormattingSessionState.Current.Features; set => FormattingSessionState.Current.Features = value; }
 
         /// <summary>The user's own Out-Default function replaced with -Force, restored by Disable-ConsoleFormatting.</summary>
-        internal static ScriptBlock? SavedOutDefault { get; set; }
+        internal static ScriptBlock? SavedOutDefault { get => FormattingSessionState.Current.SavedOutDefault; set => FormattingSessionState.Current.SavedOutDefault = value; }
 
         /// <summary>The user's own Write-Progress alias replaced with -Force (its definition), restored by Disable-ConsoleFormatting.</summary>
-        internal static string? SavedWriteProgressAlias { get; set; }
+        internal static string? SavedWriteProgressAlias { get => FormattingSessionState.Current.SavedWriteProgressAlias; set => FormattingSessionState.Current.SavedWriteProgressAlias = value; }
 
         /// <summary>The command the Write-Progress alias points to while the Progress feature is on.</summary>
         internal const string ProgressCommand = "Write-ConsoleProgress";
@@ -133,28 +133,34 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>
-        /// Makes removing the module also remove the Write-Progress alias (which points to one of its commands) and put back
-        /// a user alias it replaced, on Windows PowerShell 5.1 and PowerShell 7, through the module's OnRemove.
+        /// Restores commands still owned by this installation when its module is removed, on PowerShell 5.1 and 7.
+        /// Captured backups stay usable even if PowerShell's assembly cleanup has already reset the installation state.
         /// </summary>
-        internal static void RemoveAliasWithModule(PSModuleInfo? module) {
+        internal static void RestoreCommandsWithModule(PSModuleInfo? module) {
             if (module == null) {
                 return;
             }
-            string restore = SavedWriteProgressAlias == null
-                ? string.Empty
-                : "; Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value '" + SavedWriteProgressAlias.Replace("'", "''") + "' -Scope Global -Force";
             ScriptBlock? previous = module.OnRemove;
-            if (previous != null && previous.ToString().IndexOf("__cmProgressCleanup", StringComparison.Ordinal) >= 0) {
-                // Installed by an earlier Enable, with the module's own OnRemove chained already.
-                return;
+            FormattingSessionState state = FormattingSessionState.Current;
+            if (ReferenceEquals(previous, state.ProgressCleanupHook)) {
+                // Refresh the saved alias after a disable/re-enable, without chaining our obsolete hook.
+                previous = state.PreviousModuleOnRemove;
             }
             // A closure keeps the module's earlier OnRemove (for example type accelerator cleanup) running after ours.
-            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious) { $__cmProgressCleanup = $true; "
+            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious, $__cmOutDefault, $__cmProgressAlias, $__cmReset) { $__cmProgressCleanup = $true; "
                 + "if ((Microsoft.PowerShell.Utility\\Get-Alias -Name Write-Progress -Scope Global -ErrorAction Ignore).Definition -eq '" + ProgressCommand + "') { "
-                + "Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force" + restore + " }; "
+                + "Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force; "
+                + "if ($__cmProgressAlias) { Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value $__cmProgressAlias -Scope Global -Force } }; "
+                + "$__cmFunction = Microsoft.PowerShell.Core\\Get-Command -Name Out-Default -CommandType Function -ErrorAction Ignore; "
+                + "if ($__cmFunction -and $__cmFunction.Definition.IndexOf('" + Marker + "', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { "
+                + "if ($__cmOutDefault) { Microsoft.PowerShell.Management\\Set-Item -Path 'Function:\\global:Out-Default' -Value $__cmOutDefault } "
+                + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
+                + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous);
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)state.Reset);
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
+                state.PreviousModuleOnRemove = previous;
+                state.ProgressCleanupHook = cleanup;
                 module.OnRemove = cleanup;
             }
         }

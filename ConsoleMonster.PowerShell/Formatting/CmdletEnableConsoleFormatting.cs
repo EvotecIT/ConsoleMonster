@@ -67,6 +67,7 @@ namespace ConsoleMonster.PowerShell {
             if (!ours) {
                 SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
+            ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
         }
 
         // Write-Progress as a global alias of Write-ConsoleProgress: an alias wins over the cmdlet everywhere, also inside
@@ -87,7 +88,6 @@ namespace ConsoleMonster.PowerShell {
             }
             InvokeCommand.InvokeScript("Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value " + ConsoleFormatting.ProgressCommand + " -Scope Global -Force");
             SessionProgress.Enabled = true;
-            ConsoleFormatting.RemoveAliasWithModule(MyInvocation.MyCommand.Module);
             return true;
         }
     }

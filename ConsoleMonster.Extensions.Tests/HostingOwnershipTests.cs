@@ -9,6 +9,37 @@ using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests {
     public sealed class HostingOwnershipTests {
+        private sealed class AsyncOnlyService : IHostedService, IAsyncDisposable {
+            public int Disposals { get; private set; }
+            public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            public ValueTask DisposeAsync() { Disposals++; return default; }
+        }
+
+        [Theory]
+        [InlineData(ConsoleDashboardMode.Always, false)]
+        [InlineData(ConsoleDashboardMode.Always, true)]
+        [InlineData(ConsoleDashboardMode.Never, false)]
+        [InlineData(ConsoleDashboardMode.Never, true)]
+        public async Task Dashboard_PreservesAsyncOnlyOwnedServiceDisposalContract(ConsoleDashboardMode mode, bool asyncDispose) {
+            AsyncOnlyService service = new AsyncOnlyService();
+            ServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IHostedService>(_ => service);
+            services.AddConsoleDashboard(options => options.Mode = mode);
+            ServiceProvider provider = services.BuildServiceProvider();
+            Assert.Equal(2, provider.GetServices<IHostedService>().Count());
+            if (asyncDispose) {
+                await provider.DisposeAsync();
+                Assert.Equal(1, service.Disposals);
+            } else {
+                InvalidOperationException error = Assert.Throws<InvalidOperationException>(() => provider.Dispose());
+                Assert.Contains("IAsyncDisposable", error.Message);
+                Assert.Contains("DisposeAsync", error.Message);
+                Assert.Equal(0, service.Disposals);
+                await service.DisposeAsync();
+            }
+        }
+
         private sealed class ExternalService : IHostedService, IDisposable, IAsyncDisposable {
             public int Disposals { get; private set; }
             public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -88,7 +88,12 @@ namespace ConsoleMonster.Hosting {
         // returned it); an instance the application registered stays the application's.
         internal static void Dispose(IHostedService inner, bool owned) {
             if (owned) {
-                (inner as IDisposable)?.Dispose();
+                if (inner is IDisposable disposable) {
+                    disposable.Dispose();
+                } else if (inner is IAsyncDisposable) {
+                    // Match the container's contract for an async-only service instead of silently losing cleanup.
+                    throw new InvalidOperationException(inner.GetType() + " only implements IAsyncDisposable. Use DisposeAsync to dispose the container.");
+                }
             }
         }
 
