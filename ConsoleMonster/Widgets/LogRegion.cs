@@ -238,17 +238,40 @@ namespace ConsoleMonster.Widgets {
             kept.Add(new StyledLine(spans));
             return kept;
         }
-        private static string Level(string level) {
+        private static string Level(string level) => LogTags.Normalize(level);
+
+        // Entries hold a normalized level (Write normalizes once), so drawing a frame only switches on it.
+        private static bool IsQuiet(string level) => LogTags.IsQuiet(level);
+
+        private static string Tag(string level, RenderContext? context = null) => LogTags.Tag(level, context);
+
+        private static Style TagStyle(string level, RenderContext context) => LogTags.Style(level, context);
+    }
+
+    /// <summary>
+    /// How log levels look in ConsoleMonster (the log region, Write-ConsoleLog, the logging provider of
+    /// ConsoleMonster.Extensions.Logging): the tag word with a status marker when glyphs allow ("✗ ERR", "▴ WARN",
+    /// "✓ OK"), its style, and which levels are quiet (verbose and debug text is muted).
+    /// </summary>
+    public static class LogTags {
+        /// <summary>The level as one of <see cref="LogLevels.Names"/> (info, warn, err, verbose, debug, pass, skip); unknown words are info.</summary>
+        /// <param name="level">A level name or one of PowerShell's words.</param>
+        /// <returns>The normalized level.</returns>
+        public static string Normalize(string? level) {
             LogLevels.TryNormalize(level, out string normalized);
             return normalized;
         }
 
-        // Entries hold a normalized level (Write normalizes once), so drawing a frame only switches on it.
-        private static bool IsQuiet(string level) => level == "verbose" || level == "debug";
+        /// <summary>Whether text at a level is shown muted (verbose and debug).</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <returns>True for quiet levels.</returns>
+        public static bool IsQuiet(string level) => level == "verbose" || level == "debug";
 
-        // The level column: the tag word, with the status marker in front when glyphs allow ("✗ ERR", "▴ WARN", "✓ OK");
-        // narrated (stream) lines keep the word alone.
-        private static string Tag(string level, RenderContext? context = null) {
+        /// <summary>The level column's text: the tag word, with the status marker in front when the context's glyphs allow; empty for info.</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <param name="context">The render context, or null for the word alone (narrated lines).</param>
+        /// <returns>The tag.</returns>
+        public static string Tag(string level, RenderContext? context = null) {
             string word;
             StatusKind? status = null;
             switch (level) {
@@ -283,7 +306,14 @@ namespace ConsoleMonster.Widgets {
             return context.Glyphs.StatusMarker(status.Value) + " " + word;
         }
 
-        private static Style TagStyle(string level, RenderContext context) {
+        /// <summary>The tag's style: failure, warning or pass colours; muted for the rest.</summary>
+        /// <param name="level">A normalized level.</param>
+        /// <param name="context">The render context.</param>
+        /// <returns>The style.</returns>
+        public static Style Style(string level, RenderContext context) {
+            if (context == null) {
+                throw new ArgumentNullException(nameof(context));
+            }
             switch (level) {
                 case "err":
                     return context.Style(ThemeToken.Fail);

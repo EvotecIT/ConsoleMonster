@@ -50,6 +50,10 @@ jobs:
         run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 15
 
+      - name: Test the logging and hosting packages
+        run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        timeout-minutes: 10
+
       - name: Upload test results
         uses: actions/upload-artifact@v7
         if: always()
