@@ -17,3 +17,5 @@ Module/Lib/Standard/*
 Module/Lib/Core/*
 .nuget
 *.user
+Templates/*/bin
+Templates/*/obj

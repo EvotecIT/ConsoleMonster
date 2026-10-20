@@ -211,6 +211,18 @@ For typed data, start with `Table.For(items)` and select columns with expression
 numbers and status cells, use the built-in cell presenters. The [table guide](https://consolemonster.dev/tables/)
 shows both languages and the output at different window widths.
 
+### Logging, hosting and a template
+
+Three optional packages build on the zero-dependency core:
+
+- [`ConsoleMonster.Extensions.Logging`](ConsoleMonster.Extensions.Logging/README.md): `logging.AddConsoleMonster()`
+  writes `ILogger` entries with ConsoleMonster's level tags, timestamps, categories and scopes. Entries go into a
+  running dashboard's log region, and print as plain lines when the output is redirected.
+- [`ConsoleMonster.Hosting`](ConsoleMonster.Hosting/README.md): `services.AddConsoleDashboard()` shows a generic host's
+  hosted services and log live. It stays out of the way when the output is redirected or the app runs as a service.
+- [`ConsoleMonster.Templates`](Templates/ConsoleMonster.Templates/README.md): `dotnet new consolemonster` creates an
+  app with a menu, logging, the host dashboard and native AOT publishing.
+
 ## Keep long-running work visible
 
 A dashboard combines named widgets with a session that accepts updates while work runs. In PowerShell, the dashboard

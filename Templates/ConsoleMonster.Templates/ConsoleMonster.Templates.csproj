@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Title>ConsoleMonster.Templates</Title>
+        <Description>
+            dotnet new templates for ConsoleMonster: "consolemonster" creates a console app with a menu, a status report,
+            Microsoft.Extensions.Logging through ConsoleMonster, a generic host with the live console dashboard, and
+            native AOT publishing.
+        </Description>
+        <PackageId>ConsoleMonster.Templates</PackageId>
+        <PackageType>Template</PackageType>
+        <VersionPrefix>2.0.1</VersionPrefix>
+        <AssemblyVersion>2.0.1</AssemblyVersion>
+        <FileVersion>2.0.1</FileVersion>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageTags>dotnet-new;templates;console;terminal;dashboard;consolemonster</PackageTags>
+        <PackageProjectUrl>https://github.com/EvotecIT/ConsoleMonster</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IsPackable>true</IsPackable>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <ContentTargetFolders>content</ContentTargetFolders>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <NoDefaultExcludes>true</NoDefaultExcludes>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+</Project>

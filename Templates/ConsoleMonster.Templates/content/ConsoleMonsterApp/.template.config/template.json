@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Evotec",
+  "classifications": [ "Console", "ConsoleMonster", "Terminal" ],
+  "identity": "ConsoleMonster.Templates.App",
+  "groupIdentity": "ConsoleMonster.App",
+  "name": "ConsoleMonster console app",
+  "description": "A console app with a ConsoleMonster menu and status report, logging through ConsoleMonster, a generic host with the live console dashboard, and native AOT publishing.",
+  "shortName": "consolemonster",
+  "sourceName": "ConsoleMonsterApp",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework.",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net8.0", "description": ".NET 8" },
+        { "choice": "net10.0", "description": ".NET 10" }
+      ],
+      "defaultValue": "net8.0",
+      "replaces": "TARGET_FRAMEWORK"
+    },
+    "ConsoleMonsterVersion": {
+      "type": "parameter",
+      "description": "The ConsoleMonster package version (default: the newest 2.0 release).",
+      "datatype": "string",
+      "defaultValue": "2.0.*",
+      "replaces": "CONSOLEMONSTER_VERSION"
+    },
+    "NoAot": {
+      "type": "parameter",
+      "description": "Leaves native AOT publishing off.",
+      "datatype": "bool",
+      "defaultValue": "false"
+    }
+  },
+  "primaryOutputs": [ { "path": "ConsoleMonsterApp.csproj" } ],
+  "postActions": []
+}
