@@ -25,9 +25,10 @@ Recordings are written by Start-ConsoleDashboard -RecordPath. Replays keep the o
 
 ### EXAMPLE 1
 ```powershell
-Start-ConsoleReplay -Dashboard 'Value' -Path 'C:\Path'
+Start-ConsoleReplay -Dashboard $dashboard -Path .\run.jsonl -Speed 2
 ```
 
+Replay twice as fast
 
 ## PARAMETERS
 

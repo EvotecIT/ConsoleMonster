@@ -25,9 +25,10 @@ Columns come from -Property or from the first object's properties (or hashtable 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTable -Border 'Value'
+Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Write-ConsoleWidget
 ```
 
+Services as a table with a status column
 
 ## PARAMETERS
 

@@ -13,7 +13,7 @@ Same parameters as New-ConsoleKeyValue; the list is written immediately.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleKeyValue [[-Data] <Object>] [-InputObject <psobject>] [-Markup] [-Name <string>] [<CommonParameters>]
+Write-ConsoleKeyValue [[-Data] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Markup] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,14 +25,31 @@ Same parameters as New-ConsoleKeyValue; the list is written immediately.
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleKeyValue -Name 'Name'
+Get-Item $PROFILE | Select-Object Name, Length, LastWriteTime | Write-ConsoleKeyValue
 ```
 
+Show an object's properties
 
 ## PARAMETERS
 
+### -Content
+A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -Data.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Data
-A hashtable or an object whose properties become the pairs.
+A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
 
 ```yaml
 Type: Object

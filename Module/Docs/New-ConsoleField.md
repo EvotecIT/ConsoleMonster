@@ -25,9 +25,19 @@ A field has a name (its key in the result), a label, help shown while it has foc
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleField -Name 'Name'
+New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
+New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -Parameter Server
 ```
 
+Dependent fields: picking a site loads its servers
+
+### EXAMPLE 2
+```powershell
+New-ConsoleField Notify 'Send an email' -Type Toggle
+New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }
+```
+
+A conditional field
 
 ## PARAMETERS
 

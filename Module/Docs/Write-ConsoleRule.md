@@ -13,7 +13,7 @@ A quick section separator for scripts.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleRule [[-Title] <Object>] [<CommonParameters>]
+Write-ConsoleRule [[-Title] <Object>] [-Width <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,9 +25,10 @@ A quick section separator for scripts.
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleRule -Title 'Value'
+Write-ConsoleRule 'Step 2: collect'
 ```
 
+A section header
 
 ## PARAMETERS
 
@@ -42,6 +43,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Width
+The width in cells (default the window), to match other output laid out with -Width.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

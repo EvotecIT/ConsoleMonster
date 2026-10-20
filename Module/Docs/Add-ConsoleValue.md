@@ -25,9 +25,10 @@ Appends to a sparkline or line-chart series (-Key names the series), counts a va
 
 ### EXAMPLE 1
 ```powershell
-Add-ConsoleValue -Name 'Name' -Value 1
+Add-ConsoleValue -Name throughput -Key completed -Value 42
 ```
 
+Append a throughput sample
 
 ## PARAMETERS
 

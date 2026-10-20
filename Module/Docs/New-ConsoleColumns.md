@@ -25,9 +25,10 @@ Children share the width equally unless they were created with -Weight. Children
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleColumns -Content { }
+New-ConsoleColumns { New-ConsolePanel -Title 'Steps' -Weight 2 { New-ConsoleStatusList -Name steps }; New-ConsolePanel -Title 'Info' { New-ConsoleKeyValue -Name info } }
 ```
 
+Two panels, the first twice as wide
 
 ## PARAMETERS
 

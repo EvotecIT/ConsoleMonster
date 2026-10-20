@@ -25,9 +25,11 @@ Updates a spinner in a running dashboard.
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleSpinner -Name 'Name'
+Update-ConsoleSpinner -Detail 'zone 4'
+Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'
 ```
 
+Report progress, then finish
 
 ## PARAMETERS
 

@@ -6,30 +6,54 @@ schema: 2.0.0
 ---
 # Format-ConsoleJson
 ## SYNOPSIS
-Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.
+Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.
 
-A thin convenience over Format-ConsoleCode -Language Json. Strings are taken as JSON text (pipeline strings are joined, so Get-Content works); other objects are collected and converted with ConvertTo-Json -Depth (default 4) first.
+A thin convenience over Format-ConsoleCode -Language Json. Pipeline strings are joined (so Get-Content works); when they are JSON they are re-indented, otherwise they are shown as a JSON string. Other objects are collected and written with ConsoleMonster's shared value rules to -Depth levels (default 4): dictionaries with any key type, cycles as "(cycle)", values past the depth as "…", secure strings masked and byte arrays as their size.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleJson [[-InputObject] <Object>] [-Depth <int>] [-LineNumbers] [-MaxLines <int>] [-Title <string>] [-Width <int>] [-AsWidget] [<CommonParameters>]
+Format-ConsoleJson [[-InputObject] <Object>] [-Depth <int>] [-LineNumbers] [-MaxLines <int>] [-Title <string>] [-AsString] [-Width <int>] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.
+Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.
 
-A thin convenience over Format-ConsoleCode -Language Json. Strings are taken as JSON text (pipeline strings are joined, so Get-Content works); other objects are collected and converted with ConvertTo-Json -Depth (default 4) first.
+A thin convenience over Format-ConsoleCode -Language Json. Pipeline strings are joined (so Get-Content works); when they are JSON they are re-indented, otherwise they are shown as a JSON string. Other objects are collected and written with ConsoleMonster's shared value rules to -Depth levels (default 4): dictionaries with any key type, cycles as "(cycle)", values past the depth as "…", secure strings masked and byte arrays as their size.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleJson -AsWidget
+Get-Process -Id $PID | Select-Object Name, Id, StartTime | Format-ConsoleJson
 ```
 
+An object as highlighted JSON
+
+### EXAMPLE 2
+```powershell
+Get-Content .\settings.json | Format-ConsoleJson -LineNumbers
+```
+
+A JSON file with line numbers
 
 ## PARAMETERS
+
+### -AsString
+Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AsWidget
 Returns the view instead of writing it.
@@ -48,7 +72,7 @@ Accept wildcard characters: False
 ```
 
 ### -Depth
-The depth for ConvertTo-Json (default 4).
+How many levels of objects and lists are written (default 4); deeper values are shown as one line of text.
 
 ```yaml
 Type: Int32

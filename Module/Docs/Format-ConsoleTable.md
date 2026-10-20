@@ -8,28 +8,52 @@ schema: 2.0.0
 ## SYNOPSIS
 Formats pipeline objects as a width-aware table and writes it to the host.
 
-Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards; a single object becomes a record view. Redirected output is plain text without escape codes.
+Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-PassThru] [-AsWidget] [<CommonParameters>]
+Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-AsString] [-PassThru] [-AsWidget] [-ShowGroupColumn] [-NoSort] [-View <string>] [-Wrap] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Formats pipeline objects as a width-aware table and writes it to the host.
 
-Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards; a single object becomes a record view. Redirected output is plain text without escape codes.
+Columns come from -Property (like Format-Table: names, wildcards and calculated properties @{ Name; Expression }), from the type's DefaultDisplayPropertySet, or from the objects' properties. Column options go in the same hashtables: Overflow (Wrap, Truncate, TruncateMiddle, Never), MaxLines, Priority, Key, MinWidth, MaxWidth, Width, Alignment, Presenter (Text, Status, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress, Link), Unit, Aggregate, Header and tone rules (FailAbove, WarnAbove, FailBelow, WarnBelow, PassAbove, PassBelow, Tone). When the table is too wide, low-priority columns hide with a footer that names them; below -CardsBelow cells the rows become record cards. One object stays a one-row table; -View Record shows objects as labelled fields and -View Cards as cards. Redirected output is plain text without escape codes.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleTable -AsWidget
+Get-ChildItem -File | Sort-Object Length -Descending | Format-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }
 ```
 
+Largest files, sizes as bytes, paths shortened in the middle
+
+### EXAMPLE 2
+```powershell
+Get-Service | Format-ConsoleTable -GroupBy Status -Property Name, DisplayName, StartType
+```
+
+Services grouped by status
 
 ## PARAMETERS
+
+### -AsString
+Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AsWidget
 Writes the table widget to the pipeline instead of drawing it (for Export-ConsoleFrame, New-ConsolePanel or a dashboard).
@@ -159,6 +183,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoSort
+Keeps the groups of -GroupBy in the order their keys first appear (by default they are sorted by key).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PassThru
 Also writes the input objects to the pipeline.
 
@@ -186,6 +226,22 @@ Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowGroupColumn
+Keeps the -GroupBy column in the rows (by default the group heading names the key and the column is left out).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -239,11 +295,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -View
+How the rows are laid out: Table (default; one object stays a one-row table, as with Format-Table), or Record (Cards is the same) for each object as labelled fields, as a single object used to be shown and as narrow windows show rows; -Top, the "Showing" line and -Total still apply.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Table, Record, Cards
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Width
 Lays the table out for this width instead of the terminal's (for files, logs and previews).
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Wrap
+Shows every line of long values. Without it a value wraps onto at most three lines and the last ends with an ellipsis (a column's MaxLines option still applies). Short values (numbers, sizes, booleans, dates, enums, statuses) never wrap either way.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

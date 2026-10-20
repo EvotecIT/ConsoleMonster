@@ -25,9 +25,10 @@ The typed text is masked (or not shown at all with -Hidden); Ctrl+R reveals it w
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleSecret -Title 'Value'
+$password = Read-ConsoleSecret 'Password for svc-backup'; $credential = New-Object pscredential 'svc-backup', $password
 ```
 
+A password for a credential
 
 ## PARAMETERS
 

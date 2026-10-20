@@ -25,9 +25,10 @@ The general form behind the Update-* cmdlets, for custom widgets and less common
 
 ### EXAMPLE 1
 ```powershell
-Send-ConsoleEvent -Target 'Value' -Operation 'Value'
+Send-ConsoleEvent -Target dashboard -Operation status -Text 'deploying wave 2' -State running
 ```
 
+Change the dashboard status in the header
 
 ## PARAMETERS
 

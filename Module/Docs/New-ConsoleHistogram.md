@@ -13,7 +13,7 @@ Creates a histogram of values counted into buckets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleHistogram -Edge <double[]> [-Value <double[]>] [-Height <int>] [-Unit <string>] [-Name <string>] [<CommonParameters>]
+New-ConsoleHistogram -Edge <double[]> [-Value <double[]>] [-Height <int>] [-Unit <string>] [-Tone <ThemeToken>] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,9 +25,10 @@ Creates a histogram of values counted into buckets.
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleHistogram -Edge @(1)
+New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Write-ConsoleWidget
 ```
 
+Request durations in seconds
 
 ## PARAMETERS
 
@@ -71,6 +72,22 @@ Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Tone
+The colour as a theme role: Series1 (default), Accent, Pass, Fail, Warn and the other series colours.
+
+```yaml
+Type: ThemeToken
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
 Position: named

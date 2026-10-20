@@ -25,9 +25,10 @@ Matching entries of the typed folder are listed under the box (folders first); T
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsolePath -Title 'Value'
+$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
 ```
 
+An existing CSV file
 
 ## PARAMETERS
 

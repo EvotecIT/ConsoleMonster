@@ -25,9 +25,11 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleForm -Form 'Value'
+$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
+if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }
 ```
 
+Run a wizard and use the answers
 
 ## PARAMETERS
 

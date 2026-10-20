@@ -8,26 +8,27 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a bordered panel with a title around other console widgets.
 
-The scriptblock emits the panel content (several widgets are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
+-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <scriptblock>] [-Widget <IWidget>] [-Title <Object>] [-Caption <Object>] [-Footer <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsolePanel [[-Content] <Object>] [-Widget <IWidget>] [-Title <Object>] [-Caption <Object>] [-Footer <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a bordered panel with a title around other console widgets.
 
-The scriptblock emits the panel content (several widgets are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
+-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Border 'Value'
+New-ConsolePanel -Title 'Targets' -Weight 2 { New-ConsoleLanes -Name targets }
 ```
 
+A panel holding a lanes widget, taking two shares of a row
 
 ## PARAMETERS
 
@@ -64,10 +65,10 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-Scriptblock that emits the panel content.
+The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Format-ConsoleList and Format-ConsoleTable).
 
 ```yaml
-Type: ScriptBlock
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

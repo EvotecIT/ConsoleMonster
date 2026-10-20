@@ -25,9 +25,17 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 
 ### EXAMPLE 1
 ```powershell
-Start-ConsoleDashboard -Dashboard 'Value' -ScriptBlock { }
+$d = New-ConsoleDashboard -Title 'Patch' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }
+'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
+    param($Server)
+    Update-ConsoleLane -Key $Server -Status Running -Total 5
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }
+    Write-Host "$Server patched"
+    Update-ConsoleLane -Key $Server -Complete
+}
 ```
 
+Three servers processed in parallel, three at a time
 
 ## PARAMETERS
 

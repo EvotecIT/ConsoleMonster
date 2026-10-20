@@ -25,9 +25,10 @@ Same parameters as New-ConsoleTable; the table is written immediately in the det
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleTable -Border 'Value'
+Get-Process | Sort-Object WS -Descending | Select-Object -First 10 Name, Id, @{ n = 'MB'; e = { [math]::Round($_.WS / 1MB) } } | Write-ConsoleTable -Title 'Top processes'
 ```
 
+Top processes by memory
 
 ## PARAMETERS
 

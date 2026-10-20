@@ -25,9 +25,10 @@ Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the b
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleMenu -Menu 'Value'
+Show-ConsoleMenu $menu -Layout Shell -AppName 'ServerToolbox' -RememberLastChoices
 ```
 
+Run a menu as an app
 
 ## PARAMETERS
 

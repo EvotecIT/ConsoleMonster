@@ -25,9 +25,11 @@ While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSpinner -Name 'Name'
+$d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
+Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }
 ```
 
+A spinner inside a dashboard, finished from the script
 
 ## PARAMETERS
 

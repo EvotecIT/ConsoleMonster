@@ -30,15 +30,10 @@ The new widget is shown from the next frame on; the surrounding frame stays, and
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleRegion -Name 'Name'
+Set-ConsoleRegion -Name main { $rows | Format-ConsoleTable -AsWidget }
 ```
 
-
-### EXAMPLE 2
-```powershell
-Set-ConsoleRegion -Name 'Name' -Clear
-```
-
+Show a table when the query finishes
 
 ## PARAMETERS
 

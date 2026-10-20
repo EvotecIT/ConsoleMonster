@@ -8,26 +8,38 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane or appear on their first Update-ConsoleLane.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-Name] <string>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [<CommonParameters>]
+New-ConsoleLanes [[-Name] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
 
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane or appear on their first Update-ConsoleLane.
+Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Lanes can be declared up front with -Lane (names sharing one -Total), with a script block of New-ConsoleLane calls (each with its own total, progress, status and counts), from the pipeline, or appear on their first Update-ConsoleLane in a live dashboard. To add lanes later, pipe the widget to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLanes -Name 'Name'
+New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02', 'DC03' -Total 40
 ```
 
+Lanes for three servers with 40 steps each
+
+### EXAMPLE 2
+```powershell
+New-ConsoleLanes {
+    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
+    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
+    New-ConsoleLane 'DC03' -Total 40
+} | Write-ConsoleWidget
+```
+
+Lanes at different points, printed once
 
 ## PARAMETERS
 
@@ -63,6 +75,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Content
+A script block that emits the lanes: New-ConsoleLane calls, or names.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -HideCompleted
 Finished lanes leave the display and are counted in the summary line.
 
@@ -76,6 +104,22 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+Lanes from the pipeline: New-ConsoleLane objects or names.
+
+```yaml
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -96,10 +140,10 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-The live name (default lanes).
+The live name (default lanes). A script block here is taken as -Content.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -164,7 +208,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

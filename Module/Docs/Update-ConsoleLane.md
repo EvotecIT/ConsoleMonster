@@ -25,9 +25,17 @@ With -Result, counts one completed step (or -Steps steps) as passed, failed, war
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleLane -Key 'Value'
+Update-ConsoleLane -Key DC01 -Result Pass -Detail 'Checking replication'
 ```
 
+Record a passed step and say what comes next
+
+### EXAMPLE 2
+```powershell
+Update-ConsoleLane -Key DC01 -Complete
+```
+
+Finish a lane
 
 ## PARAMETERS
 

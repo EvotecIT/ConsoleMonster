@@ -25,9 +25,17 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleText -Title 'Value'
+$name = Read-ConsoleText 'Server name' -Default 'srv01' -Pattern '[a-z][a-z0-9-]{1,14}' -PatternMessage 'Lower case letters, digits and dashes'
 ```
 
+A validated name
+
+### EXAMPLE 2
+```powershell
+Read-ConsoleText 'Email' -Validate { if ($_ -notmatch '@') { 'Enter an email address' } }
+```
+
+A scriptblock validator ($_ is the answer; return $true, $false or an error message)
 
 ## PARAMETERS
 

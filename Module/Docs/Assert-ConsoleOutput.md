@@ -25,9 +25,12 @@ Renders a widget at a fixed width, glyph tier and culture (invariant by default)
 
 ### EXAMPLE 1
 ```powershell
-Assert-ConsoleOutput -InputObject 'Value' -GoldenPath 'C:\Path'
+It 'renders the report table' {
+    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+}
 ```
 
+A table snapshot in a Pester test
 
 ## PARAMETERS
 

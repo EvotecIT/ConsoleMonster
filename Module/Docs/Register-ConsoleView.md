@@ -13,7 +13,7 @@ Objects whose type names include -TypeName are shown in the given view when they
 ## SYNTAX
 ### Register (Default)
 ```powershell
-Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <scriptblock>] [-Group <string>] [<CommonParameters>]
+Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <scriptblock>] [-Group <string>] [-Shaper <scriptblock>] [<CommonParameters>]
 ```
 
 ### Remove
@@ -30,15 +30,10 @@ Objects whose type names include -TypeName are shown in the given view when they
 
 ### EXAMPLE 1
 ```powershell
-Register-ConsoleView -TypeName @('Name')
+Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime
 ```
 
-
-### EXAMPLE 2
-```powershell
-Register-ConsoleView -TypeName @('Name') -Remove
-```
-
+Show a module's result objects as a table
 
 ## PARAMETERS
 
@@ -100,6 +95,25 @@ Aliases: None
 Possible values:
 
 Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shaper
+A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
+ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: Register
+Aliases: None
+Possible values:
+
+Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

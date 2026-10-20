@@ -8,34 +8,71 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).
 
--Data maps series names to arrays of values; values are spaced evenly. Append values live with Add-ConsoleValue -Key series.
+Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -Data (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLineChart [[-Data] <IDictionary>] [-Series <string[]>] [-Height <int>] [-Scatter] [-Unit <string>] [-Name <string>] [<CommonParameters>]
+New-ConsoleLineChart [[-Data] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Series <string[]>] [-Height <int>] [-Scatter] [-Unit <string>] [-Minimum <Double>] [-Maximum <Double>] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).
 
--Data maps series names to arrays of values; values are spaced evenly. Append values live with Add-ConsoleValue -Key series.
+Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -Data (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLineChart -Name 'Name'
+$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }
+$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }
+New-ConsoleLineChart -Height 7 {
+    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent
+    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail
+} | Write-ConsoleWidget
 ```
 
+Two series with their own tones
+
+### EXAMPLE 2
+```powershell
+New-ConsoleLineChart -Height 8 -Data ([ordered] @{ cpu = 12, 30, 45, 38, 52; memory = 40, 41, 43, 47, 50 }) | Write-ConsoleWidget
+```
+
+Series from a hashtable
+
+### EXAMPLE 3
+```powershell
+$samples = foreach ($i in 0..59) { 40 + ($i * 37) % 23 }
+New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'latency' $samples -Tone Accent2 } | Write-ConsoleWidget
+```
+
+A scatter of latency samples
 
 ## PARAMETERS
 
-### -Data
-Series names mapped to value arrays.
+### -Content
+A script block that emits the series: New-ConsoleChartSeries calls.
 
 ```yaml
-Type: IDictionary
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Data
+Series names mapped to value arrays (a script block here is taken as -Content).
+
+```yaml
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -52,6 +89,54 @@ Rows including the axis (default 8).
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+Series from the pipeline: New-ConsoleChartSeries objects.
+
+```yaml
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Maximum
+The highest value on the axis (default: the largest value).
+
+```yaml
+Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Minimum
+The lowest value on the axis (default: the smallest value).
+
+```yaml
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -132,7 +217,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

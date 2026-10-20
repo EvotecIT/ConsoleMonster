@@ -25,9 +25,10 @@ Rows have stable keys and are added, updated, removed or cleared with Update-Con
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLiveTable -Name 'Name'
+New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Duration' -MaxRows 20
 ```
 
+The 20 most recent jobs, newest state first
 
 ## PARAMETERS
 

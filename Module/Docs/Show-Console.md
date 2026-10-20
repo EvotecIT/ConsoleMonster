@@ -13,7 +13,7 @@ One object becomes an inspector; objects of one shape a table (cards when the wi
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <ConsoleViewKind>] [-Property <Object[]>] [-ChildProperty <string>] [-Chart] [-Title <Object>] [-Width <int>] [-Depth <int>] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-View <ConsoleViewKind>] [-Property <Object[]>] [-ChildProperty <string>] [-Chart] [-Title <Object>] [-Width <int>] [-Depth <int>] [-AsString] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,11 +25,35 @@ One object becomes an inspector; objects of one shape a table (cards when the wi
 
 ### EXAMPLE 1
 ```powershell
-Show-Console -Chart
+Get-ChildItem | Show-Console
 ```
 
+Let it choose
+
+### EXAMPLE 2
+```powershell
+$tree | Show-Console -ChildProperty Children
+```
+
+A tree of folders by their children
 
 ## PARAMETERS
+
+### -AsString
+Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, Show-Console behaves like the Format-Console commands: PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File), piped into another command the view goes on as plain lines, and inside scripts and functions or on Windows PowerShell 5.1 it is drawn on the screen.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Chart
 Shows objects as a bar chart (label from the first text property, value from the first number).

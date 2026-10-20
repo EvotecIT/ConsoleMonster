@@ -8,28 +8,73 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a phase strip for pipelines: Restore › Build › Test › Pack.
 
-The active phase is emphasised and finished phases show their duration. Update phases live with Update-ConsolePhase.
+Phases come from -Phase (names, all pending) or from a script block of New-ConsoleStatusItem calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-ConsolePhase, which also measures their duration.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePhases [-Phase] <string[]> [-Name <string>] [<CommonParameters>]
+New-ConsolePhases [[-Phase] <Object[]>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a phase strip for pipelines: Restore › Build › Test › Pack.
 
-The active phase is emphasised and finished phases show their duration. Update phases live with Update-ConsolePhase.
+Phases come from -Phase (names, all pending) or from a script block of New-ConsoleStatusItem calls, each with its status and a detail such as a duration. The active phase is emphasised and finished phases show their detail. To add phases later, pipe the strip to Add-ConsoleItem; in a live dashboard, update phases with Update-ConsolePhase, which also measures their duration.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePhases -Phase @('Value')
+New-ConsolePhases {
+    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
+    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
+    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
+    New-ConsoleStatusItem 'Report'
+} | Write-ConsoleWidget
 ```
 
+A run part-way through
+
+### EXAMPLE 2
+```powershell
+New-ConsolePhases -Phase 'Restore', 'Build', 'Test', 'Pack'
+```
+
+Build phases for a live dashboard
 
 ## PARAMETERS
+
+### -Content
+A script block that emits the phases: New-ConsoleStatusItem calls (or phase names).
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+Phases from the pipeline: New-ConsoleStatusItem objects or names.
+
+```yaml
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
 
 ### -Name
 The live name (default phases).
@@ -48,15 +93,15 @@ Accept wildcard characters: False
 ```
 
 ### -Phase
-The phases in order.
+The phase names in order, all pending (a script block here is taken as -Content).
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
-Required: True
+Required: False
 Position: 0
 Default value: None
 Accept pipeline input: False
@@ -68,7 +113,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

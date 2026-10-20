@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Writes a line to the log region of a running dashboard.
 
--Level sets the tag: info, warn, err, verbose, debug or pass. Only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
+-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,15 +19,16 @@ Write-ConsoleLog [-Message] <Object> [-Level <string>] [-Name <string>] [-Highli
 ## DESCRIPTION
 Writes a line to the log region of a running dashboard.
 
--Level sets the tag: info, warn, err, verbose, debug or pass. Only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
+-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleLog -Message 'Value'
+Write-ConsoleLog 'DC03 responded slowly' -Level warn
 ```
 
+Log a warning
 
 ## PARAMETERS
 
@@ -48,13 +49,13 @@ Accept wildcard characters: False
 ```
 
 ### -Level
-The level: info, warn, err, verbose, debug or pass.
+The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Write-ConsoleStatus).
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: info, warn, err, verbose, debug, pass
+Possible values:
 
 Required: False
 Position: named

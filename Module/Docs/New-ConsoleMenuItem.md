@@ -25,9 +25,17 @@ What the item does follows from the parameter you give: -Action (a scriptblock, 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenuItem -Action { }
+New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description }
 ```
 
+A multi-selection with a computed badge
+
+### EXAMPLE 2
+```powershell
+New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }
+```
+
+An action that asks first and shows a toast
 
 ## PARAMETERS
 

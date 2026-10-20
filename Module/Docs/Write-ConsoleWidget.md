@@ -25,9 +25,10 @@ Renders each widget at the terminal width in the detected mode: VT colours and U
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleWidget -Widget @('Value')
+New-ConsolePanel -Title 'Disks' { Get-Volume | Select-Object DriveLetter, FileSystemLabel, SizeRemaining | New-ConsoleTable -Border Minimal } | Write-ConsoleWidget
 ```
 
+Print a panel with a table
 
 ## PARAMETERS
 

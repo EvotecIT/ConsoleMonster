@@ -25,9 +25,17 @@ Shows the question with the answers inline (the default focused); Y and N answer
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleConfirm -Title 'Value'
+if (Read-ConsoleConfirm 'Restart the service now?' -Default $true) { Restart-Service Spooler }
 ```
 
+A question with a default
+
+### EXAMPLE 2
+```powershell
+if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Description 'This cannot be undone.') { ... }
+```
+
+A typed confirmation before deleting
 
 ## PARAMETERS
 

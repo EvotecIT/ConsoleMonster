@@ -25,9 +25,10 @@ Like Compare-Object, with a much better display: objects are matched by -Propert
 
 ### EXAMPLE 1
 ```powershell
-Compare-ConsoleObject -ReferenceObject @('Value') -DifferenceObject @('Value')
+Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName
 ```
 
+What changed between two exports
 
 ## PARAMETERS
 

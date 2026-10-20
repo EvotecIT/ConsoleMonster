@@ -25,9 +25,10 @@ Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), t
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleRegion -Name 'Name'
+New-ConsolePanel -Title 'Result' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
 ```
 
+A panel whose content switches from a spinner to a table
 
 ## PARAMETERS
 

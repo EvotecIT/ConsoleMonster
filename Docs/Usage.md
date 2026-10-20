@@ -38,6 +38,34 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 {
 }
 ```
 
+Widgets read the same way everywhere: containers take a script block of children, and widgets with items take a script
+block of item commands (`New-ConsoleTreeNode`, `New-ConsoleStatusItem`, `New-ConsoleKeyValueItem`, `New-ConsoleBarItem`,
+`New-ConsoleChartSeries`, `New-ConsoleLogEntry`, `New-ConsoleLane`) with the shared `-Status`, `-Detail`, `-Tone` and
+`-Value` parameters. A widget made earlier grows with `Add-ConsoleItem`. [PowerShell conventions](PowerShell-Conventions.md)
+lists every widget with its cmdlet form, its live update command and its .NET method form.
+
+```powershell
+New-ConsoleColumns {
+    New-ConsolePanel -Title 'Mail' {
+        New-ConsoleTree '[bold]evotec.xyz[/]' {
+            New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records'
+            New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups'
+            New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+        }
+    }
+    New-ConsolePanel -Title 'Build' {
+        New-ConsoleStatusList {
+            New-ConsoleStatusItem 'Restore' -Status Pass -Detail '1.6 s'
+            New-ConsoleStatusItem 'Test' -Status Warn -Detail '1 skipped'
+            New-ConsoleStatusItem 'Publish' -Status Pending
+        }
+    }
+} | Write-ConsoleWidget
+
+# Hierarchical objects become a tree; -Depth, -MaxItems and -MaxNodes keep it bounded.
+Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Write-ConsoleWidget
+```
+
 Where cmdlet output goes:
 
 - On a real local interactive console, output is drawn directly, with colour and live dashboards.

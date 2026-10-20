@@ -25,9 +25,10 @@ Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colou
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleTheme -Name 'Name'
+Set-ConsoleTheme -Name Light
 ```
 
+Use the light theme
 
 ## PARAMETERS
 

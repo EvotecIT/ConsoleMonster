@@ -25,9 +25,24 @@ Creates rich text: multicolour words for table cells, calculated properties, tit
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleText -Alignment 'Value'
+Get-Service | Format-ConsoleTable -Property Name, @{ Name = 'Status'; Expression = { if ($_.Status -eq 'Running') { New-ConsoleText 'Running' -Color Green } else { New-ConsoleText $_.Status -Role Fail -Style Bold } } }
 ```
 
+A status cell from a calculated property
+
+### EXAMPLE 2
+```powershell
+New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Write-ConsoleWidget
+```
+
+Multicolour words, Write-Color style
+
+### EXAMPLE 3
+```powershell
+New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]2.0[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'
+```
+
+Markup and a gradient
 
 ## PARAMETERS
 
@@ -149,7 +164,7 @@ A theme role for pieces without their own colour (Pass, Fail, Warn, Info, Muted,
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: Token
+Aliases: Token, Tone
 Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
