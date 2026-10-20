@@ -36,6 +36,12 @@ namespace ConsoleMonster.Interactive {
         void ShowModal(Modal modal);
 
         void ShowToast(Toast toast);
+
+        /// <summary>
+        /// Queues a call for the view's own thread (it runs on the view's next tick); returns false when the view cannot
+        /// take calls from other threads (or has closed).
+        /// </summary>
+        bool TryPost(Action call);
     }
 
     /// <summary>A dialog asking for one line of text (a preset name).</summary>

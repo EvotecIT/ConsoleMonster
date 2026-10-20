@@ -334,7 +334,11 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        /// <summary>Makes the item list the menu's saved presets (Enter applies one, Delete removes it).</summary>
+        /// <summary>
+        /// Makes the item list the menu's presets: the built-in ones (<see cref="Menu.Presets"/> of the root menu) first,
+        /// marked as built in, then the saved ones. Enter applies one; Delete removes a saved one. A saved preset whose name
+        /// matches a built-in one (ignoring case) is hidden.
+        /// </summary>
         /// <returns>The item.</returns>
         public MenuItem Presets() {
             Kind = MenuItemKind.Presets;

@@ -27,7 +27,14 @@ namespace ConsoleMonster.Interactive {
         private bool _dirty;
         private string? _preset;
 
-        public FormView(Form form, IViewHost host, ChoiceStore? store, bool remember, Func<string, bool>? copy = null) {
+        // The thread the view runs on: values applied from any other thread are queued through the host.
+        private readonly int _ownerThread = Thread.CurrentThread.ManagedThreadId;
+
+        /// <summary>
+        /// Opens a form: its defaults, then (opt-in) the remembered choices, then <paramref name="preset"/>, then any values
+        /// the app applied while no view showed it, so the most recent intent wins.
+        /// </summary>
+        public FormView(Form form, IViewHost host, ChoiceStore? store, bool remember, Func<string, bool>? copy = null, string? preset = null) {
             _form = form ?? throw new ArgumentNullException(nameof(form));
             _host = host ?? throw new ArgumentNullException(nameof(host));
             _store = store;
@@ -49,10 +56,23 @@ namespace ConsoleMonster.Interactive {
             if (_store != null && _remember && _store.LoadLast(_form.Key) is IDictionary<string, object?> last) {
                 Apply(last);
             }
+            if (!string.IsNullOrEmpty(preset)) {
+                ApplyPreset(preset!);
+            }
+            // Values the app applied before the form was shown: those kept for options still to load, then every batch
+            // again, so neither the remembered choices nor the preset overwrite them.
+            Pend(_form.TakePending());
+            foreach (KeyValuePair<Dictionary<string, object?>, bool> batch in _form.TakeDetached()) {
+                ApplyValues(batch.Key, batch.Value, false);
+            }
+            _form.View = this;
             StartPendingLoads();
             FocusFirstField();
             TakeSnapshot();
         }
+
+        /// <summary>Stops taking values applied to the form (it has closed); the form keeps later values itself.</summary>
+        public void Detach() => _form.Detach(this);
 
         private Dictionary<Field, object?> _saved = new Dictionary<Field, object?>();
 
@@ -136,39 +156,127 @@ namespace ConsoleMonster.Interactive {
             return (Math.Min(_page, StepCount - 1) + 1).ToString(System.Globalization.CultureInfo.CurrentCulture) + "/" + StepCount.ToString(System.Globalization.CultureInfo.CurrentCulture);
         }
 
-        /// <summary>Applies a preset by name.</summary>
+        /// <summary>Applies a preset by name: a built-in one (<see cref="Form.Presets"/>) first, else a saved one.</summary>
         public bool ApplyPreset(string name) {
-            if (_store == null || !(_store.LoadPreset(_form.Key, name) is IDictionary<string, object?> values)) {
+            FormPreset? builtIn = _form.FindPreset(name);
+            if (builtIn != null) {
+                ApplyValues(builtIn.Values, false, true);
+                name = builtIn.Name;
+            } else if (_store != null && _store.LoadPreset(_form.Key, name) is IDictionary<string, object?> values) {
+                ApplyValues(values, true, true);
+            } else {
                 return false;
             }
-            Apply(values);
             _preset = name;
-            _dirty = true;
-            StartPendingLoads();
             _host.ShowToast(new Toast(PromptLabels.Format(Labels.PresetApplied, name), StatusKind.Info));
             return true;
         }
 
-        /// <summary>Applies stored values (a menu preset) and reloads dependent options.</summary>
-        public void ApplyValues(IDictionary<string, object?> values) {
-            Apply(values);
-            _dirty = true;
+        /// <summary>
+        /// Applies values (a preset, or values the app sets while the form is open): the fields take them, every shown
+        /// text follows, and choice fields whose options load from a field that changed load again (a value given for such
+        /// a field is chosen once its options arrive). With <paramref name="markDirty"/> the form counts as changed;
+        /// without it, a form with no unsaved changes takes the values as its saved state.
+        /// </summary>
+        /// <param name="values">Values by field name.</param>
+        /// <param name="stored">Whether the values are in stored form (a saved preset) rather than as the fields take them.</param>
+        /// <param name="markDirty">Whether the form counts as changed afterwards.</param>
+        public void ApplyValues(IDictionary<string, object?> values, bool stored, bool markDirty) {
+            Dictionary<Field, string> before = _form.Signatures();
+            Pend(_form.Assign(values, stored));
+            // Fields that depend on a changed field are reset as a user's change would reset them (see Changed), unless a
+            // value is given for them; those whose options load from it load again.
+            foreach (Field dependent in _form.StaleDependents(before)) {
+                FieldState state = _states[dependent];
+                bool given = Form.TryGet(values, dependent.Name, out object? wanted);
+                if (dependent is ChoiceField choice && choice.Loader != null) {
+                    state.CancelLoad();
+                    state.LoadError = null;
+                    choice.Choices.Clear();
+                    choice.Value = Form.Reset(choice);
+                    state.HasPendingStored = given;
+                    state.PendingStored = given ? Form.StoredForm(choice, wanted, stored) : null;
+                } else if (!given) {
+                    dependent.Value = Form.Reset(dependent);
+                }
+            }
+            Dictionary<Field, string> after = _form.Signatures();
+            foreach (KeyValuePair<Field, FieldState> pair in _states) {
+                pair.Value.SyncEditor();
+                if (after[pair.Key] != before[pair.Key] || Form.TryGet(values, pair.Key.Name, out _)) {
+                    pair.Value.Error = null;
+                }
+            }
+            // An open choice list holds its own copy of the selection; close it so it cannot write back an old one.
+            if (_editor != null && (Form.TryGet(values, _editor.Field.Name, out _) || after[_editor.Field] != before[_editor.Field])) {
+                _editor = null;
+            }
+            if (markDirty) {
+                _dirty = true;
+            } else if (!_dirty) {
+                TakeSnapshot();
+            }
             StartPendingLoads();
         }
 
-        public IReadOnlyList<string> PresetNames() => _store == null ? (IReadOnlyList<string>)new string[0] : _store.PresetNames(_form.Key);
+        /// <summary>
+        /// Applies values the app sets (<see cref="Form.Apply(IDictionary{string, object})"/>) as the form's saved state:
+        /// at once on the view's own thread; from another thread, queued through the host for its next tick.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The call comes from another thread and the host cannot queue it.</exception>
+        public void ApplyFromApp(IDictionary<string, object?> values) {
+            Dictionary<string, object?> copy = Form.Copy(values);
+            if (Thread.CurrentThread.ManagedThreadId == _ownerThread) {
+                ApplyValues(copy, false, false);
+                return;
+            }
+            bool queued = _host.TryPost(() => {
+                // The form may have closed before the queued call ran: the values then go to the form itself.
+                if (ReferenceEquals(_form.View, this)) {
+                    ApplyValues(copy, false, false);
+                } else {
+                    _form.ApplyDetached(copy, false);
+                }
+            });
+            if (!queued) {
+                throw new InvalidOperationException("Form '" + _form.Title + "' is shown on another thread that cannot take values from this one; apply them from the thread that shows the form or from an action of the menu that shows it.");
+            }
+        }
 
-        private void Apply(IDictionary<string, object?> stored) {
-            IReadOnlyList<string> pending = _form.ApplyStored(stored);
-            foreach (string name in pending) {
-                Field? field = _form.Find(name);
-                if (field != null && stored.TryGetValue(name, out object? value)) {
-                    _states[field].PendingStored = value;
-                    _states[field].HasPendingStored = true;
+        /// <summary>The preset names: the built-in ones first (in the order declared), then the saved ones (sorted).</summary>
+        public IReadOnlyList<string> PresetNames() {
+            List<string> names = new List<string>();
+            foreach (FormPreset preset in _form.Presets) {
+                names.Add(preset.Name);
+            }
+            if (_store != null) {
+                foreach (string saved in _store.PresetNames(_form.Key)) {
+                    if (_form.FindPreset(saved) == null) {
+                        names.Add(saved);
+                    }
                 }
             }
+            return names;
+        }
+
+        /// <summary>Whether a preset name is one of the form's built-in presets.</summary>
+        public bool IsBuiltInPreset(string name) => _form.FindPreset(name) != null;
+
+        private void Apply(IDictionary<string, object?> stored) {
+            Pend(_form.Assign(stored, true));
             foreach (FieldState state in _states.Values) {
                 state.SyncEditor();
+            }
+        }
+
+        // Keeps values for choice fields whose options are still to load; they apply when the options arrive.
+        private void Pend(Dictionary<string, object?> pending) {
+            foreach (KeyValuePair<string, object?> pair in pending) {
+                Field? field = _form.Find(pair.Key);
+                if (field != null && _states.TryGetValue(field, out FieldState? state)) {
+                    state.PendingStored = pair.Value;
+                    state.HasPendingStored = true;
+                }
             }
         }
 
@@ -275,7 +383,8 @@ namespace ConsoleMonster.Interactive {
 
         private void StartPendingLoads() {
             foreach (Field field in _form.Fields) {
-                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0 && !_states[field].Loading && DependenciesSatisfied(field)) {
+                // A load that finished but is not taken up yet (Load still set) counts too, so it never starts twice.
+                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0 && _states[field].Load == null && DependenciesSatisfied(field)) {
                     StartLoad(choice);
                 }
             }
@@ -338,6 +447,11 @@ namespace ConsoleMonster.Interactive {
                     field.Value = preselected;
                 } else if (!field.Multiple && field.Value == null && field.Default != null && field.Find(field.Default) != null) {
                     field.Value = field.Default;
+                }
+                // Options that arrive while the form has no unsaved changes are part of its saved state, so Discard keeps
+                // the value they brought (a value applied by the app, a preselection, a default).
+                if (!_dirty) {
+                    _saved[field] = Clone(field.Value);
                 }
                 if (_editor != null && _editor.Field == field) {
                     _editor.Reload();
@@ -420,7 +534,13 @@ namespace ConsoleMonster.Interactive {
             if (_store == null) {
                 return;
             }
-            _host.ShowModal(new TextDialog(Labels.SavePreset, null, _preset, null, name => {
+            string? suggested = _preset != null && _form.FindPreset(_preset) == null ? _preset : null;
+            _host.ShowModal(new TextDialog(Labels.SavePreset, null, suggested, null, name => {
+                // A built-in preset is read-only: its name cannot be taken by a saved one.
+                if (_form.FindPreset(name) != null) {
+                    _host.ShowToast(new Toast(PromptLabels.Format(Labels.PresetReadOnly, name), StatusKind.Warn));
+                    return;
+                }
                 if (TryStore(() => _store.SavePreset(_form.Key, name, _form.ToStored()))) {
                     _preset = name;
                     _host.ShowToast(new Toast(PromptLabels.Format(Labels.PresetSaved, name)));

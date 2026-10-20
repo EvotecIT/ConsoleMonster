@@ -22,6 +22,7 @@ namespace ConsoleMonster.Interactive {
         private ActionOutput? _output;
         private ConsoleCapture? _capture;
         private string? _outputTitle;
+        private bool _closed;
 
         private bool OnOwnerThread => Thread.CurrentThread.ManagedThreadId == _ownerThread;
 
@@ -74,6 +75,25 @@ namespace ConsoleMonster.Interactive {
             }));
         }
 
+        /// <summary>
+        /// Queues a call that needs no answer (values applied to an open form) for the menu's thread from any thread while
+        /// the menu runs; on the menu's thread it runs at once. Returns false once the menu has closed.
+        /// </summary>
+        public bool TryPost(Action call) {
+            if (Volatile.Read(ref _closed)) {
+                return false;
+            }
+            if (OnOwnerThread) {
+                call();
+                return true;
+            }
+            _calls.Enqueue(new PendingCall(() => {
+                call();
+                return null;
+            }));
+            return true;
+        }
+
         private void EnsureAsyncCaller() {
             if (_asyncAction == null) {
                 throw new InvalidOperationException("Menu services (prompts, runs, toasts, navigation) can only be used from the menu's own thread or from an async action while it runs.");
@@ -95,6 +115,7 @@ namespace ConsoleMonster.Interactive {
         /// queued, so its worker never waits for a menu that is gone.
         /// </summary>
         internal void Shutdown() {
+            Volatile.Write(ref _closed, true);
             try {
                 _asyncCancel?.Cancel();
             } catch (ObjectDisposedException) {
@@ -103,6 +124,10 @@ namespace ConsoleMonster.Interactive {
                 pending.Fail(new OperationCanceledException("The menu has closed."));
             }
             EndOutputSilently();
+            // Values applied to the menu's forms from now on go to the forms themselves.
+            foreach (IPane pane in _panes.Values) {
+                (pane as FormView)?.Detach();
+            }
         }
 
         private void EndOutputSilently() {
