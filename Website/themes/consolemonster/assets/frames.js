@@ -17,20 +17,49 @@
   }
 
   // Bundles the reader is likely to ask for next are fetched while the browser is idle, so switching feels instant.
-  function idle(fn) { (window.requestIdleCallback || function (f) { return setTimeout(f, 1200); })(fn, { timeout: 4000 }); }
+  function idle(fn, timeout) {
+    if (window.requestIdleCallback) window.requestIdleCallback(fn, { timeout: timeout || 4000 });
+    else setTimeout(fn, timeout ? 16 : 1200);
+  }
 
   // Puts a frame ({ w, h, dark, light }) into the screens inside a window.
   function show(win, frame) {
     win.querySelectorAll('pre.cm-screen').forEach(function (pre) {
       var light = pre.classList.contains('cm-screen--light');
       pre.innerHTML = light ? (frame.light || frame.dark) : frame.dark;
-      pre.style.setProperty('--cols', frame.w);
+      if (pre.style.getPropertyValue('--cols') !== String(frame.w)) pre.style.setProperty('--cols', frame.w);
     });
   }
 
+  function text(node, value) { if (node && value != null && node.textContent !== String(value)) node.textContent = value; }
+
   function chips(win, values) {
     var list = win.querySelectorAll('.cm-window__meta .cm-chip');
-    values.forEach(function (value, index) { if (list[index] && value != null) list[index].textContent = value; });
+    values.forEach(function (value, index) { text(list[index], value); });
+  }
+
+  // Swaps many frames without stalling the page: the windows on or near the screen change in this frame, the rest in
+  // idle time a few at a time (they skip rendering while off screen anyway). A newer swap from the same control cancels
+  // the rest of its older one. Every position is read before anything is written, so the writes cost one layout.
+  function swap(control, jobs) {
+    if (control.cmPending) control.cmPending.cancelled = true;
+    var batch = control.cmPending = { cancelled: false };
+    var height = window.innerHeight || document.documentElement.clientHeight;
+    var near = [], later = [];
+    jobs.forEach(function (job) {
+      var box = job.el.getBoundingClientRect();
+      (box.bottom > -height / 2 && box.top < height * 1.5 ? near : later).push(job);
+    });
+    near.forEach(function (job) { job.run(); });
+    var done = function () { if (control.cmPending === batch) control.cmPending = null; };
+    var next = function (deadline) {
+      if (batch.cancelled) return;
+      do { var job = later.shift(); job.run(); markScrollable(job.el); } while (later.length && deadline && deadline.timeRemaining && deadline.timeRemaining() > 4);
+      if (later.length) idle(next, 250); else done();
+    };
+    if (later.length) idle(next, 250); else done();
+    // The scroll hints are read after the browser has laid out the new frames, not in the middle of writing them.
+    requestAnimationFrame(function () { setTimeout(markScrollable, 0); });
   }
 
   // Radio groups made of .cm-seg buttons: arrows move and select, the chosen option has aria-checked.
@@ -70,15 +99,19 @@
       tiers.setAttribute('aria-busy', 'true');
       load('/frames/widgets/' + key + '.json').then(function (bundle) {
         if (key !== state.color + '-' + state.glyphs) return;
+        var colourLabel = labels.color[state.color], glyphLabel = labels.glyphs[state.glyphs];
+        var jobs = [];
         document.querySelectorAll('[data-cm-widget]').forEach(function (article) {
           var frame = bundle[article.getAttribute('data-cm-widget')];
           var win = article.querySelector('.cm-window');
           if (!frame || !win) return;
-          show(win, frame);
-          chips(win, [frame.w + '×' + frame.h, labels.color[state.color], labels.glyphs[state.glyphs]]);
-          var size = article.querySelector('[data-cm-size]');
-          if (size) size.textContent = frame.w + ' × ' + frame.h;
+          jobs.push({ el: article, run: function () {
+            show(win, frame);
+            chips(win, [frame.w + '×' + frame.h, colourLabel, glyphLabel]);
+            text(article.querySelector('[data-cm-size]'), frame.w + ' × ' + frame.h);
+          } });
         });
+        swap(tiers, jobs);
         var colour = state.color === 'none' ? 'no colour' : labels.color[state.color] + ' colour';
         if (note) note.textContent = 'Every frame below is drawn for ' + colour + ' and the ' + labels.glyphs[state.glyphs].toLowerCase() + ' glyph set.';
         tiers.removeAttribute('aria-busy');
@@ -122,13 +155,14 @@
       selectedWidth = width;
       load(base + width + '.json').then(function (bundle) {
         if (width !== selectedWidth) return;
+        var jobs = [];
         scope.querySelectorAll('[data-cm-frame]').forEach(function (holder) {
           var frame = bundle[holder.getAttribute('data-cm-frame')];
           var win = holder.querySelector('.cm-window');
           if (!frame || !win) return;
-          show(win, frame);
-          chips(win, [frame.w + '×' + frame.h]);
+          jobs.push({ el: holder, run: function () { show(win, frame); chips(win, [frame.w + '×' + frame.h]); } });
         });
+        swap(control, jobs);
         if (output) output.textContent = option.getAttribute('data-note') || '';
       }, function () {
         if (width === selectedWidth && output) output.textContent = 'This width could not be loaded. The frames are unchanged.';
@@ -208,17 +242,26 @@
   } else {
     replays.forEach(mountReplay);
   }
-  // A frame wider than its window at the smallest font scrolls inside the window; the window says so in its bar.
-  function markScrollable() {
-    document.querySelectorAll('.cm-window').forEach(function (win) {
+  // A frame wider than its window at the smallest font scrolls inside the window; the window says so in its bar. Windows
+  // that skip rendering off screen are measured when they come near (measuring them now would render them all).
+  // Deferred only where the browser also says when a skipped window comes near; otherwise every window is measured now.
+  var deferred = !!(Element.prototype.checkVisibility && ('oncontentvisibilityautostatechange' in window));
+  function markScrollable(root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll('.cm-window').forEach(function (win) {
+      if (deferred && !win.checkVisibility({ contentVisibilityAuto: true })) return;
       var body = win.querySelector('.cm-window__body');
       if (body) win.classList.toggle('is-scrollable', body.scrollWidth > body.clientWidth + 2);
     });
   }
+  document.addEventListener('contentvisibilityautostatechange', function (event) {
+    if (!event.skipped) markScrollable(event.target);
+  }, true);
   var hintTimer = 0;
-  window.addEventListener('resize', function () { clearTimeout(hintTimer); hintTimer = setTimeout(markScrollable, 150); });
-  window.addEventListener('load', markScrollable);
-  document.addEventListener('cm:tab', markScrollable);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(markScrollable);
-  markScrollable();
+  var hint = function () { markScrollable(); };
+  window.addEventListener('resize', function () { clearTimeout(hintTimer); hintTimer = setTimeout(hint, 150); });
+  window.addEventListener('load', hint);
+  document.addEventListener('cm:tab', hint);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(hint);
+  hint();
 })();

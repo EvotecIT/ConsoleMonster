@@ -25,7 +25,7 @@ p { margin: 0 0 1em; }
 :root[data-theme="dark"] .cm-only-light, :root:not([data-theme="dark"]) .cm-only-dark { display: none !important; }
 
 /* Header: brand, two navigation groups, the current page chip and the actions. Identical on every page. */
-.cm-header { position: sticky; top: 0; z-index: 30; height: 64px; background: color-mix(in srgb, var(--cm-page) 88%, transparent); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid var(--cm-line); }
+.cm-header { position: sticky; top: 0; z-index: 30; height: 64px; background: var(--cm-page); border-bottom: 1px solid var(--cm-line); }
 .cm-header__inner { display: flex; align-items: center; gap: 28px; height: 64px; width: min(100% - 2 * var(--cm-gutter), var(--cm-max)); margin-inline: auto; }
 .cm-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--cm-ink); text-decoration: none; font: 700 17px/1 var(--cm-mono); letter-spacing: -.02em; white-space: nowrap; }
 .cm-brand:hover { text-decoration: none; }
@@ -82,7 +82,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-footer__family a { color: var(--cm-muted); }
 
 /* Masthead of inner pages: title and lede over a faint cell grid. */
-.cm-masthead { position: relative; padding: 64px 0 40px; border-bottom: 1px solid var(--cm-line); background-image: radial-gradient(var(--cm-line) 1px, transparent 1.2px); background-size: 14px 24px; background-position: -1px -1px; }
+.cm-masthead { position: relative; padding: 64px 0 40px; border-bottom: 1px solid var(--cm-line); background-image: var(--cm-dots); background-size: 14px 24px; background-position: -1px -1px; }
 .cm-masthead::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--cm-page) 30%, color-mix(in srgb, var(--cm-page) 55%, transparent)); pointer-events: none; }
 .cm-masthead__inner { position: relative; z-index: 1; }
 .cm-masthead h1 { max-width: 24ch; font-size: clamp(32px, 4.6vw, 52px); font-weight: 800; }
@@ -90,7 +90,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-masthead__extra { margin-top: 24px; }
 
 /* The stage: a band that stays dark, with the title beside or above real output. */
-.cm-stage { position: relative; padding: 72px 0 64px; background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; overflow: hidden; }
+.cm-stage { position: relative; padding: 72px 0 64px; background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: var(--cm-stage-dots); background-size: 14px 24px; overflow: hidden; }
 .cm-stage__inner { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; }
 .cm-stage--wide .cm-stage__inner { grid-template-columns: minmax(0, 1fr); gap: 36px; }
 .cm-stage h1 { max-width: 18ch; font-size: clamp(34px, 5vw, 60px); font-weight: 800; color: #f8fafc; }
@@ -120,6 +120,18 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 /* Terminal windows: a title bar with the real terminal profile, then the frame. */
 .cm-window { position: relative; display: block; min-width: 0; margin: 0; container-type: inline-size; }
 .cm-window__frame { display: flex; flex-direction: column; width: fit-content; max-width: 100%; min-width: min(100%, 280px); border-radius: 10px; overflow: hidden; background: var(--cm-term-bg); box-shadow: 0 0 0 1px var(--cm-term-edge), var(--cm-shadow); }
+/* A frame contains its own layout and paint: rewriting its rows (a tier, a width, a replay) restyles and repaints only
+   the frame, and the page around it lays out again only when the frame's size changes. Its own shadow still draws. */
+.cm-window__frame { contain: layout paint style; }
+/* Long pages render what is near the screen: specimens and sections further down skip style, layout and paint until
+   the reader gets close, and keep their last size afterwards (contain-intrinsic-size: auto; the first guess is near
+   the typical height). That containment clips paint at the box, so the clip margin keeps the window edges and shadows
+   that reach past it. */
+[data-cm-widget], [data-cm-frame], main > .cm-section, main > .cm-band { content-visibility: auto; overflow-clip-margin: 48px; }
+[data-cm-widget] { contain-intrinsic-size: auto 460px; }
+[data-cm-frame] { contain-intrinsic-size: auto 320px; }
+main > .cm-section { contain-intrinsic-size: auto 560px; }
+main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-window--center .cm-window__frame { margin-inline: auto; }
 .cm-window--fill .cm-window__frame { width: auto; }
 .cm-window__bar { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 10px 0 12px; background: var(--cm-term-bar); color: var(--cm-term-bar-ink); font: 500 12px/1 var(--cm-mono); border-bottom: 1px solid var(--cm-term-edge); }
@@ -189,7 +201,9 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-code__file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-code__copy { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); cursor: pointer; }
 .cm-code__copy:hover { background: var(--cm-sunken); color: var(--cm-ink); }
-.cm-code pre { margin: 0; padding: 14px 16px 16px; overflow: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre; overflow-wrap: normal; word-break: normal; }
+/* Long code lines wrap instead of scrolling sideways: every block that scrolls becomes its own composited layer, and on
+   a page of side-by-side snippets those layers (and the ones they force above them) were most of the layer tree. */
+.cm-code pre { margin: 0; padding: 14px 16px 16px; overflow-x: hidden; overflow-y: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; }
 .cm-code code { white-space: inherit; }
 .cm-code__full { border-top: 1px solid var(--cm-line); }
 .cm-code__full summary { display: flex; align-items: center; gap: 8px; padding: 9px 14px; color: var(--cm-ink-2); font: 600 12.5px/1.2 var(--cm-mono); cursor: pointer; list-style: none; }
@@ -327,7 +341,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-band + .cm-section { padding-top: 96px; }
 .cm-band--surface { background: var(--cm-surface); border-top: 1px solid var(--cm-line); border-bottom: 1px solid var(--cm-line); }
 .cm-band--surface .cm-panel__title, .cm-band--surface .cm-panel__caption { background: var(--cm-surface); }
-.cm-band--dark { background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; }
+.cm-band--dark { background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: var(--cm-stage-dots); background-size: 14px 24px; }
 .cm-band--dark h2, .cm-band--dark h3 { color: #f8fafc; }
 .cm-band--dark .cm-section__head p, .cm-band--dark .cm-section__source { color: #c3cad6; }
 .cm-band--dark a { color: #93c5fd; }

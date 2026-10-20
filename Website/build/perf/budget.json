@@ -1,0 +1,20 @@
+{
+  "$comment": "Rendering budget for site-perf.cjs (1900x1900 CSS px at 1.5x, dark theme, accessibility on; CPU figures include the small cost of tracing and the layer tree). Limits are the measured cost after the October 2026 performance pass plus headroom for slower CI machines. Layer limits and the browser-process CPU of frame swaps catch the regressions that made the site heavy: composited-layer explosions and a terminal frame exposed cell by cell to assistive technology.",
+  "default": {
+    "frameP95": 34,
+    "cellScreens": 0,
+    "longAnimationFrames": 8,
+    "layers": 70,
+    "largestLayerMP": 4,
+    "browserCpuPercent": 40,
+    "rendererCpuPercent": 70
+  },
+  "widgets": { "layers": 90 },
+  "idle-home": { "rendererCpuPercent": 15, "timersPerSecond": 10, "rafPerSecond": 2 },
+  "idle-home-monster": { "rendererCpuPercent": 15, "timersPerSecond": 10, "rafPerSecond": 2 },
+  "idle-home-below": { "rendererCpuPercent": 3, "gpuCpuPercent": 3, "timersPerSecond": 1, "rafPerSecond": 0.2 },
+  "idle-widgets": { "rendererCpuPercent": 3, "gpuCpuPercent": 3, "timersPerSecond": 1, "rafPerSecond": 0.2 },
+  "idle-tables": { "rendererCpuPercent": 3, "gpuCpuPercent": 3, "timersPerSecond": 1, "rafPerSecond": 0.2 },
+  "idle-docs": { "rendererCpuPercent": 8, "timersPerSecond": 3, "rafPerSecond": 0.2 },
+  "idle-api": { "rendererCpuPercent": 3, "gpuCpuPercent": 3, "timersPerSecond": 1, "rafPerSecond": 0.2 }
+}
