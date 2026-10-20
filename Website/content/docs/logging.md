@@ -1,6 +1,6 @@
 ---
 title: Logging
-description: ConsoleMonster.Extensions.Logging is a Microsoft.Extensions.Logging provider with ConsoleMonster's level tags and colours, scopes, exceptions and plain lines when output is redirected.
+description: A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags, scopes and exceptions, and plain lines when output is redirected.
 slug: logging
 order: 10
 ---

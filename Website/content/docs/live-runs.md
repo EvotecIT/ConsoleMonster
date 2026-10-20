@@ -1,6 +1,6 @@
 ---
 title: Live runs
-description: Run a script block for many items, in parallel, with a live view of progress and failures; re-run a command as a live view with Watch-Console; and watch Pester tests as they run.
+description: Run a script block for many items in parallel with a live view, re-run a command with Watch-Console, and watch Pester tests as they run.
 slug: live-runs
 order: 7
 ---

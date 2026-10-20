@@ -1,6 +1,6 @@
 ---
 title: dotnet new template
-description: The consolemonster template creates a console app with a menu, a status report, logging through ConsoleMonster, a generic host with the live dashboard and native AOT publishing.
+description: dotnet new consolemonster: a console app with a menu, a status report, logging, the hosting dashboard and native AOT.
 slug: template
 order: 12
 ---

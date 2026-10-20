@@ -1,6 +1,6 @@
 ---
 title: Help, errors and progress
-description: Show-ConsoleHelp renders PowerShell's own help; Enable-ConsoleFormatting adds an error view and a progress area for the session, each opt-in.
+description: Show-ConsoleHelp renders PowerShell's own help; Enable-ConsoleFormatting adds an error view and a progress area, each opt-in.
 slug: help-and-defaults
 order: 8
 ---

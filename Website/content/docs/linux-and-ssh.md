@@ -1,6 +1,6 @@
 ---
 title: Linux and SSH
-description: What ConsoleMonster detects on Linux and macOS terminals and over SSH, a login overview for your servers, and how to hook it into the pwsh profile or bash.
+description: What ConsoleMonster detects on Linux and macOS terminals and over SSH, and a login overview for your servers.
 slug: linux-and-ssh
 order: 9
 ---

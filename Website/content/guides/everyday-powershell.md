@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: One line, Enable-ConsoleFormatting, makes ordinary output readable for the session; -ProfileSnippet keeps it on. Files, processes, dictionaries, arrays in cells and groups, before and after.
+description: Enable-ConsoleFormatting makes ordinary output readable for the session: files, processes, hashtables, arrays and groups, before and after.
 slug: everyday-powershell
 order: 1
 ---
