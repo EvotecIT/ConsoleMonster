@@ -28,7 +28,7 @@ namespace SiteFrames.Pages {
 
             public string Id { get; }
 
-            /// <summary>The window title: the command a reader would type.</summary>
+            /// <summary>The window title: the command a reader would type, or an app's own name.</summary>
             public string Title { get; }
 
             public int Width { get; }
@@ -79,7 +79,7 @@ namespace SiteFrames.Pages {
         private static IEnumerable<Demo> All() {
             // The home page's Monster hero: a whole application (a Shell menu, a form, a live dashboard and the results),
             // recorded from the Release build driving itself with scripted keys on a fixed clock and seed.
-            yield return new Demo("app", "ConsoleMonster.Examples fleet", 140, 40) {
+            yield return new Demo("app", "Fleet health check", 140, 40) {
                 Program = (Path.Combine("ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe"), "fleet --demo"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), "Build", null),
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),

@@ -10,6 +10,7 @@
           "title": "Everyday",
           "key": 3,
           "demo": "formatting",
+          "loop": true,
           "line": "Better output for the commands you already run: one line turns it on for the session.",
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
@@ -43,7 +44,7 @@
           "line": "Full console applications: menus, forms, live dashboards and results, from one library.",
           "url": "/interactive/",
           "linkText": "Menus, forms and apps",
-          "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part.",
+          "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
           "install": [
             {
               "lang": "powershell",

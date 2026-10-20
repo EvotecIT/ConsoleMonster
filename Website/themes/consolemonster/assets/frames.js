@@ -199,9 +199,10 @@
       if (replay.cmCancelled) return;
       if (replay.hasAttribute('data-autoplay')) replay.setAttribute('data-cm-autoplay', '');
       if (replay.hasAttribute('data-loop')) replay.setAttribute('data-cm-loop', '');
-      var player = window.ConsoleMonsterPlayer.mount(replay, data);
+      // The player opens at the poster's moment, so its first frame is the one the poster showed (drawn once, not the
+      // first frame and then a seek), and autoplay still applies.
+      var player = window.ConsoleMonsterPlayer.mount(replay, data, { start: start });
       if (!player) return;
-      if (start) player.seek(start);
       if (replay.hasAttribute('data-cm-play')) player.play();
       var screen = replay.querySelector('.cm-player > pre.cm-screen');
       if (screen && poster) {

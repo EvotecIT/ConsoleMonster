@@ -38,6 +38,11 @@ The review's high findings and M1-M4, M6 and M7 are fixed. Still open, with the 
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
 
+## Website follow-ups
+- Monster hero on phones: the fleet health app is a 140 x 40 recording, so on a phone it is drawn small and scrolls
+  sideways. Record a compact phone rendering (a `data-compact` replay with its own poster moment, as the assessment
+  replay on /live/ has) and use it below 700 px.
+
 ## v1.x (only with a real consumer)
 - ChartForgeX.Terminal: ChartForgeX scenes on the ConsoleMonster canvas.
 - Hyperlinks (OSC 8) in markup (`[link=...]` is parsed and shown as text today; the Link cell presenter already emits OSC 8).

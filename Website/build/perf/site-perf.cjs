@@ -96,6 +96,18 @@ async function wheel(page, steps, delta, pause) {
     for (let i = 0; i < steps; i++) { await page.mouse.wheel(0, -delta); await wait(pause); }
 }
 
+// Waits until the Monster hero's player has played to its end and stopped (it plays once).
+async function monsterEnded(page) {
+    await page.waitForFunction(() => {
+        const host = document.querySelector('[data-cm-replay*="demo-app"]');
+        const player = host && host.__cmPlayer;
+        if (!player || !player.state) return false;
+        const s = player.state();
+        return !s.playing && !s.wanted && s.time >= s.duration;
+    }, null, { timeout: 90000, polling: 500 });
+    await wait(500);
+}
+
 // Idle scenarios leave a page alone: the target is next to nothing when nothing plays.
 function idle(url, extra) {
     return Object.assign({ url, idle: true, async run(page, options) { await wait(options.idleSeconds * 1000); } }, extra || {});
@@ -134,9 +146,12 @@ const scenarios = {
     },
     docs: { url: '/docs/live-runs/', async run(page) { await wheel(page, 30, 350, 90); } },
     api: { url: '/api/consolemonster-widgets-table/', async run(page) { await wheel(page, 30, 400, 80); } },
-    // At rest. The home page's hero plays (one player, in view); everything else should cost about nothing.
+    // At rest. The home page's Everyday hero loops (one player, in view); everything else should cost about nothing.
     'idle-home': idle('/'),
-    'idle-home-monster': idle('/#monster'),
+    // The Monster hero plays once when opened (from the poster's moment to the results) and then stops: measured while it
+    // plays, and at rest once it has ended, which must cost about nothing.
+    'playing-home-monster': idle('/#monster'),
+    'idle-home-monster': idle('/#monster', { async before(page) { await monsterEnded(page); } }),
     'idle-home-below': idle('/', { async before(page) { await wait(2500); await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await wait(1000); } }),
     'idle-widgets': idle('/widgets/'),
     'idle-tables': idle('/tables/'),

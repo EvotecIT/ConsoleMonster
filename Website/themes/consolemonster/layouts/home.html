@@ -32,7 +32,7 @@
       <div class="cm-paths__panel" id="cm-path-{{ path.id }}" role="tabpanel" aria-labelledby="cm-path-{{ path.id }}-tab"{{ if !for.first }} hidden{{ end }}>
         <p class="cm-paths__line">{{ path.line }} <a href="{{ path.url }}">{{ path.linkText }}</a></p>
         <div class="cm-hero__stage">
-          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = true; player_max = 14; player_class = "cm-window--center" ~}}
+          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 14; player_class = "cm-window--center" ~}}
           {{ include "player" }}
           <p class="cm-hero__note">{{ path.note }}</p>
         </div>
