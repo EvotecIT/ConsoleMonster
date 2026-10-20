@@ -233,10 +233,11 @@
     // A path opened from the URL is not a click: its replay asks to autoplay, and the player decides (one per page, none
     // with reduced motion). A click on the switch plays the chosen path.
     var fromUrl = false;
-    var fromHash = function () {
+    // Only the address the page opened with counts as not a click; a later change of the hash (a link on the page) is.
+    var fromHash = function (initial) {
       var id = (location.hash || '').replace('#', '');
       var tab = tabs.filter(function (t) { return t.getAttribute('data-cm-path') === id; })[0];
-      if (tab && tab.getAttribute('aria-selected') !== 'true') { fromUrl = true; tab.click(); fromUrl = false; }
+      if (tab && tab.getAttribute('aria-selected') !== 'true') { fromUrl = initial === true; tab.click(); fromUrl = false; }
     };
     set.addEventListener('cm:tab', function (event) {
       var chosen = event.detail;
@@ -256,7 +257,7 @@
       var hash = '#' + chosen.getAttribute('data-cm-path');
       if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);
     });
-    window.addEventListener('hashchange', fromHash);
-    fromHash();
+    window.addEventListener('hashchange', function () { fromHash(false); });
+    fromHash(true);
   });
 })();
