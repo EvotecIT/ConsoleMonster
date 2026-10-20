@@ -13,6 +13,19 @@ namespace ConsoleMonster.Widgets {
             Status = status;
         }
 
+        /// <summary>Creates a pair whose value is formatted by a presenter (sizes, durations, dates, statuses...).</summary>
+        /// <param name="key">The key (plain text).</param>
+        /// <param name="value">The raw value.</param>
+        /// <param name="presenter">The presenter, or null for the one the key and value suggest.</param>
+        /// <param name="status">An optional status marker.</param>
+        /// <returns>The pair, for <see cref="KeyValueList.Add(KeyValueItem)"/>.</returns>
+        public static KeyValueItem ForValue(string key, object? value, Presenters.ICellPresenter? presenter = null, StatusKind? status = null) {
+            return new KeyValueItem(key, string.Empty, status) {
+                Cell = TableCell.FromValue(value),
+                Presenter = presenter ?? Presenters.CellPresenters.ForLabel(key, value)
+            };
+        }
+
         /// <summary>The key.</summary>
         public string Key { get; }
 

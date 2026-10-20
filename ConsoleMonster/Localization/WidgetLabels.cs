@@ -349,6 +349,15 @@ namespace ConsoleMonster.Localization {
         /// <summary>A collection cut short without a known count.</summary>
         public string MoreUnknown { get; set; } = "+ more";
 
+        /// <summary>A tree node that repeats an item already on its path: <c>(cycle)</c>.</summary>
+        public string TreeCycle { get; set; } = "(cycle)";
+
+        /// <summary>Children not followed past a tree's depth limit: <c>… (depth limit)</c>.</summary>
+        public string TreeDepthLimit { get; set; } = "… (depth limit)";
+
+        /// <summary>The end of a tree that reached its node limit: <c>… (node limit reached)</c>.</summary>
+        public string TreeNodeLimit { get; set; } = "… (node limit reached)";
+
         /// <summary>Hidden columns of an inspected collection: <c>+{0} more columns</c>.</summary>
         public string MoreColumns { get; set; } = "+{0} more columns";
 
