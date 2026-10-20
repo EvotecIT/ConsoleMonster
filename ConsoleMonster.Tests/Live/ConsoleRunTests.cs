@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
     /// <summary>Running many items with a view: input order, failures and timeouts, cancellation and printed lines.</summary>
+    [Collection("Live sessions")]
     public sealed class ConsoleRunTests {
         [Fact]
         public async Task ForEachAsync_ReturnsResultsInInputOrder_AndPrintsALinePerItem() {

@@ -228,9 +228,18 @@ namespace ConsoleMonster.Live {
                     } catch (OperationCanceledException) {
                         break;
                     }
+                    // Cancellation and a released slot can race: acquiring the slot does not establish admission.
+                    if (linked.IsCancellationRequested) {
+                        gate.Release();
+                        break;
+                    }
                     int index = i;
                     running.Add(Task.Run(async () => {
                         try {
+                            // Work queued before cancellation may not have started on a worker yet.
+                            if (linked.IsCancellationRequested) {
+                                return;
+                            }
                             results[index] = await RunOne(list[index], index, body, o, monitor, linked.Token).ConfigureAwait(false);
                         } finally {
                             gate.Release();
