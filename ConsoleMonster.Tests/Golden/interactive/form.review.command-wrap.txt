@@ -1,0 +1,26 @@
+ Health check › Review
+╭─ Review ───────────────────────────── 2/2 ─╮
+│                                            │
+│  ● Checks ── ● Review                      │
+│                                            │
+│  Review                                    │
+│                                            │
+│    Checks    5 of 5 selected: SecureCha…   │
+│    Servers   3 of 3 selected: APP01, AP…   │
+│                                            │
+│  ╭─ Equivalent command ─────────────────╮  │
+│  │ Invoke-HealthCheck                   │  │
+│  │   -Check SecureChannel,TimeOffset,   │  │
+│  │     ForwardRecord,PendingReboot,     │  │
+│  │     DiskSpace                        │  │
+│  │   -ComputerName APP01,APP02,DB01     │  │
+│  ╰──────────────────────────────────────╯  │
+│                                            │
+│                                            │
+│                                            │
+│                                            │
+│                                            │
+│                                            │
+│              [Run]  Copy command   Back    │
+╰────────────────────────────────────────────╯
+ ←→ move  enter run  esc back  f1 keys
