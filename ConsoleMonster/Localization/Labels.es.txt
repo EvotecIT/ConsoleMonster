@@ -109,6 +109,7 @@ Prompt.Exit = Salir
 Prompt.DiscardChanges = ¿Descartar los cambios sin guardar y salir?
 Prompt.Preview = Vista previa
 Prompt.Results = Resultados
+Prompt.Running = En ejecución
 Prompt.NextActions = Siguientes pasos
 Prompt.PressEnterToRun = Pulsa Enter para ejecutar.
 Prompt.EnterNumber = Escribe un número

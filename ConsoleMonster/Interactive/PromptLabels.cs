@@ -362,6 +362,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The results heading after a run.</summary>
         public string Results { get; set; } = "Results";
 
+        /// <summary>The breadcrumb of a run while it lasts; the dashboard's own title names the content panel.</summary>
+        public string Running { get; set; } = "Running";
+
         /// <summary>The next-actions heading after a run.</summary>
         public string NextActions { get; set; } = "Next steps";
 

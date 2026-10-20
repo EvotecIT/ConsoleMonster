@@ -315,8 +315,13 @@ namespace ConsoleMonster.Interactive {
             } else {
                 IPane pane = Current;
                 HeaderBar header = new HeaderBar(Markup.Escape(_form.Title));
-                IReadOnlyList<string> crumbs = _override != null ? new[] { _override.Title } : Pane.Crumbs;
+                // A run after the form: the breadcrumb says it is running and the panel carries the dashboard's title.
+                IReadOnlyList<string> crumbs = _override != null ? new[] { Labels.Running } : Pane.Crumbs;
                 foreach (string crumb in crumbs) {
+                    // A first page named like the form is not said twice.
+                    if (header.Crumbs.Count == 0 && string.Equals(crumb, Markup.Strip(_form.Title), StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
                     header.Crumbs.Add(crumb);
                 }
                 string title = _override?.Title ?? (Pane.Crumbs.Count > 0 ? Pane.Crumbs[0] : Pane.Title);

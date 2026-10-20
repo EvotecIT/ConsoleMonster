@@ -109,6 +109,7 @@ Prompt.Exit = Beenden
 Prompt.DiscardChanges = Ungespeicherte Änderungen verwerfen und beenden?
 Prompt.Preview = Vorschau
 Prompt.Results = Ergebnisse
+Prompt.Running = Läuft
 Prompt.NextActions = Nächste Schritte
 Prompt.PressEnterToRun = Zum Ausführen Enter drücken.
 Prompt.EnterNumber = Eine Nummer eingeben

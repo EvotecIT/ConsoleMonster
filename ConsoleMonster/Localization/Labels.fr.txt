@@ -109,6 +109,7 @@ Prompt.Exit = Quitter
 Prompt.DiscardChanges = Abandonner les modifications non enregistrées et quitter ?
 Prompt.Preview = Aperçu
 Prompt.Results = Résultats
+Prompt.Running = En cours
 Prompt.NextActions = Étapes suivantes
 Prompt.PressEnterToRun = Appuyez sur Entrée pour exécuter.
 Prompt.EnterNumber = Saisissez un numéro

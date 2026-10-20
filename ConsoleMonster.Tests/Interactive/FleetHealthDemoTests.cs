@@ -85,7 +85,7 @@ namespace ConsoleMonster.Tests.Interactive {
             foreach (CellBuffer frame in capture.Frames) {
                 string text = frame.ToPlainText();
                 string header = text.Split('\n')[0];
-                if (header.Contains("New check › " + FleetHealth.Title)) {
+                if (header.Contains("New check › Running")) {
                     continue;
                 }
                 string body = text.Substring(0, Math.Max(0, text.TrimEnd('\n').LastIndexOf('\n')));

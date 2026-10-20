@@ -33,12 +33,23 @@ namespace ConsoleMonster.Interactive {
                 if (ReferenceEquals(_stack[i].Pane, _lists[_root])) {
                     continue;
                 }
-                crumbs.Add(_stack[i].Title);
+                AddCrumb(crumbs, _stack[i].Title);
             }
             if (CurrentPane != null) {
-                crumbs.AddRange(CurrentPane.Crumbs);
+                foreach (string crumb in CurrentPane.Crumbs) {
+                    AddCrumb(crumbs, crumb);
+                }
             }
             return crumbs;
+        }
+
+        // A crumb that repeats the one before it (an item and the page it opens with the same name), or the app's title in
+        // first place, is not said twice.
+        private void AddCrumb(List<string> crumbs, string crumb) {
+            string previous = crumbs.Count == 0 ? Markup.Strip(_root.Title) : crumbs[crumbs.Count - 1];
+            if (!string.Equals(previous, crumb, StringComparison.OrdinalIgnoreCase)) {
+                crumbs.Add(crumb);
+            }
         }
 
         protected override IWidget Build(ViewFrame frame) {
@@ -111,7 +122,7 @@ namespace ConsoleMonster.Interactive {
 
         private Panel ContentPanel(ViewFrame frame, bool focused) {
             IPane? pane = CurrentPane;
-            string title = Current?.Title ?? _root.Title;
+            string title = Current?.PanelTitle ?? Current?.Title ?? _root.Title;
             IWidget inner = pane == null ? (IWidget)UiLine.Empty : pane.Build(frame, focused);
             return new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape(title)) {
                 Caption = pane?.Caption == null ? null : Markup.Escape(pane.Caption),

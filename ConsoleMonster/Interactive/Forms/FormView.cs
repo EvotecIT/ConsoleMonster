@@ -145,7 +145,8 @@ namespace ConsoleMonster.Interactive {
                 if (StepCount > 1) {
                     crumbs.Add(OnReview ? Labels.Review : _form.Pages[_page].Title);
                 }
-                if (_editor != null) {
+                // A field named like its page (a "Checks" field on the "Checks" page) is not said twice.
+                if (_editor != null && (crumbs.Count == 0 || !string.Equals(crumbs[crumbs.Count - 1], _editor.Field.Label, StringComparison.OrdinalIgnoreCase))) {
                     crumbs.Add(_editor.Field.Label);
                 }
                 return crumbs;

@@ -12,7 +12,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
-    /// A run started from a menu, shown in the app's own frame: the same header bar (the breadcrumb gains the run), the
+    /// A run started from a menu, shown in the app's own frame: the same header bar (the breadcrumb gains "Running"), the
     /// same content panel (titled with the dashboard's title, with its subtitle, status and the clock as the caption; a run
     /// of any other widget is titled "Run" with the clock) and the same footer (ctrl+c stop). A dashboard's own header and
     /// footer are left out, so going from choosing to running changes only the content. Rendered by the live session's
@@ -29,7 +29,7 @@ namespace ConsoleMonster.Interactive {
             _labels = labels;
         }
 
-        // The dashboard's own title names the panel (and the breadcrumb); a plain widget run is just "Run".
+        // The dashboard's own title names the panel (the breadcrumb says "Running"); a plain widget run is just "Run".
         public string Title => _dashboard != null && !string.IsNullOrWhiteSpace(_dashboard.Title) ? Markup.Strip(_dashboard.Title) : _labels.Run;
 
         /// <summary>The run clock, set by the view before each frame.</summary>

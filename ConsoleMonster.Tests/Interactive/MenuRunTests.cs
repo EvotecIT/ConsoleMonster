@@ -14,9 +14,9 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Interactive {
     /// <summary>
-    /// A run started from a menu (or after a form shown on its own) draws inside the app's frame: a dashboard names the
-    /// content panel and the breadcrumb with its title and shows its subtitle, status and clock as the panel caption; a run
-    /// of any other widget is called "Run".
+    /// A run started from a menu (or after a form shown on its own) draws inside the app's frame: the breadcrumb says
+    /// "Running", a dashboard names the content panel with its title and shows its subtitle, status and clock as the panel
+    /// caption; a run of any other widget is called "Run".
     /// </summary>
     [Collection("Live sessions")]
     public sealed class MenuRunTests {
@@ -58,13 +58,15 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [InlineData(GlyphTier.Full, "›", "·")]
         [InlineData(GlyphTier.Ascii, ">", "|")]
-        public void ShellRun_Dashboard_TitlesThePanelAndBreadcrumbAndCaptionsSubtitleStatusAndClock(GlyphTier tier, string crumb, string separator) {
+        public void ShellRun_Dashboard_TitlesThePanelSaysRunningInTheBreadcrumbAndCaptionsSubtitleStatusAndClock(GlyphTier tier, string crumb, string separator) {
             Dashboard dashboard = new Dashboard("[bold]Patching[/]", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "4 servers", Status = "copying files", StatusLevel = StatusKind.Running };
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "status", text: "verifying"))).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q", tier), StorageRoot = Storage() });
 
             CellBuffer running = RunFrame(capture, "4 servers  " + separator + "  copying files  " + separator + "  00:0");
-            Assert.Contains("Toolbox " + crumb + " Patch " + crumb + " Patching", running.GetRowText(0));
+            Assert.Contains("Toolbox " + crumb + " Patch " + crumb + " Running", running.GetRowText(0));
+            // The dashboard's title is said once, on the panel, not again in the breadcrumb.
+            Assert.DoesNotContain("Patching", running.GetRowText(0));
             // The content panel's top border carries the dashboard's title (markup stripped), not "Run".
             Assert.Contains("Patching", running.GetRowText(1));
             Assert.DoesNotContain(" Run ", running.GetRowText(1));
@@ -80,7 +82,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Patching(dashboard).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
 
             CellBuffer running = RunFrame(capture, "00:0");
-            Assert.Contains("Toolbox › Patch › Patching", running.GetRowText(0));
+            Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.DoesNotContain("·  00:0", running.ToPlainText());
         }
 
@@ -127,7 +129,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Patching(new ProgressBar("Overall", "overall") { Total = 2 }).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
 
             CellBuffer running = RunFrame(capture, "00:0");
-            Assert.Contains("Toolbox › Patch › Run", running.GetRowText(0));
+            Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.Contains("Run", running.GetRowText(1));
         }
 
@@ -152,7 +154,7 @@ namespace ConsoleMonster.Tests.Interactive {
 
             Assert.True(result.Submitted);
             CellBuffer running = RunFrame(capture, "lab-east  ·  saving  ·  00:0");
-            Assert.Contains("Settings › Applying settings", running.GetRowText(0));
+            Assert.Contains("Settings › Running", running.GetRowText(0));
             Assert.Contains("Applying settings", running.GetRowText(1));
         }
     }
