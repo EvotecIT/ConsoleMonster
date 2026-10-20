@@ -8,26 +8,38 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen. Write to it explicitly with Write-ConsoleLog.
+Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLog. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLog [[-Name] <string>] [-Height <int>] [-Capacity <int>] [<CommonParameters>]
+New-ConsoleLog [[-Name] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Height <int>] [-Capacity <int>] [-NoTime] [-Wrap] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen. Write to it explicitly with Write-ConsoleLog.
+Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLog. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLog -Name 'Name'
+New-ConsoleLog -Height 5 {
+    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
+    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
+    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -At 53s
+} | Write-ConsoleWidget
 ```
 
+A short log printed once
+
+### EXAMPLE 2
+```powershell
+New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+```
+
+A log that fills the rest of a dashboard
 
 ## PARAMETERS
 
@@ -42,6 +54,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Content
+A script block that emits the lines: New-ConsoleLogEntry calls, or strings for info lines.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -63,11 +91,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default log).
+### -InputObject
+Lines from the pipeline: New-ConsoleLogEntry objects or strings.
 
 ```yaml
-Type: String
+Type: PSObject
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Name
+The live name (default log). A script block here is taken as -Content.
+
+```yaml
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -79,12 +123,44 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoTime
+Hide the time at the start of each line.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Wrap
+Wrap long lines (up to three rows each) instead of cutting them.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

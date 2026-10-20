@@ -134,25 +134,51 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// Labels the bucket edges: the left edge of every bar plus the right end of the last one (buckets + 1 labels).
-        /// The first and last edges are always shown; inner labels that would touch a neighbour are skipped.
+        /// The first and last edges are always shown (the last when it does not run into the first). When the bars are too
+        /// narrow for every label, every Nth inner edge is labelled, with the smallest N that keeps a space between labels,
+        /// so the labels thin out evenly; an inner label that would touch the last one is left out.
         /// </summary>
         private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style) {
             int buckets = _counts.Length;
+            string[] labels = new string[buckets];
+            int[] starts = new int[buckets];
+            int[] widths = new int[buckets];
+            for (int b = 0; b < buckets; b++) {
+                labels[b] = EdgeLabel(_edges[b]);
+                starts[b] = plotX + (int)((long)b * plotWidth / buckets);
+                widths[b] = DisplayWidth.Measure(labels[b]);
+            }
             string last = EdgeLabel(_edges[buckets]);
             int lastStart = Math.Max(plotX, region.Width - DisplayWidth.Measure(last));
+            int step = LabelStep(starts, widths);
             int labelEnd = 0;
-            for (int b = 0; b < buckets; b++) {
-                int x = plotX + (int)((long)b * plotWidth / buckets);
-                string label = EdgeLabel(_edges[b]);
-                int end = x + DisplayWidth.Measure(label);
-                if (x < labelEnd || (b > 0 && end + 1 > lastStart)) {
-                    continue;
+            for (int b = 0; b < buckets; b += step) {
+                if (b > 0 && starts[b] + widths[b] + 1 > lastStart) {
+                    break;
                 }
-                labelEnd = region.Write(x, row, label, style) + 1;
+                labelEnd = region.Write(starts[b], row, labels[b], style) + 1;
             }
             if (lastStart >= labelEnd) {
                 region.Write(lastStart, row, last, style);
             }
+        }
+
+        /// <summary>The smallest step between labelled edges at which no label touches the next one (one free cell between).</summary>
+        /// <param name="starts">Where each edge label starts.</param>
+        /// <param name="widths">The width of each edge label.</param>
+        /// <returns>The step, at least 1.</returns>
+        internal static int LabelStep(IReadOnlyList<int> starts, IReadOnlyList<int> widths) {
+            int count = starts.Count;
+            for (int step = 1; step < count; step++) {
+                bool fits = true;
+                for (int b = step; b < count && fits; b += step) {
+                    fits = starts[b] >= starts[b - step] + widths[b - step] + 1;
+                }
+                if (fits) {
+                    return step;
+                }
+            }
+            return Math.Max(1, count);
         }
 
         private string EdgeLabel(double value) => EdgeFormat != null ? EdgeFormat(value) : NumberFormat.Compact(value) + (Unit ?? string.Empty);

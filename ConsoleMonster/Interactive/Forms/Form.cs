@@ -8,7 +8,7 @@ namespace ConsoleMonster.Interactive {
     /// A form or wizard: fields on one or more pages, a review page with the equivalent command line, named presets and
     /// (opt-in) remembered choices. Show it on its own (<see cref="Show"/>) or open it from a menu item.
     /// </summary>
-    public sealed class Form {
+    public sealed partial class Form {
         /// <summary>Creates a form.</summary>
         /// <param name="title">The title.</param>
         public Form(string title) {
@@ -40,6 +40,44 @@ namespace ConsoleMonster.Interactive {
         public string? StorageKey { get; set; }
 
         internal string Key => StorageKey ?? Title;
+
+        /// <summary>
+        /// The presets the form comes with: listed before the presets people save, marked as built in, never overwritten
+        /// or deleted, and applied the same way (by <see cref="FormOptions.Preset"/> or the menu's command palette). A
+        /// saved preset whose name matches a built-in one (ignoring case) is hidden.
+        /// </summary>
+        public IList<FormPreset> Presets { get; } = new List<FormPreset>();
+
+        /// <summary>Adds a built-in preset (see <see cref="Presets"/>).</summary>
+        /// <param name="name">The name; a saved preset cannot take it.</param>
+        /// <param name="values">Field values by field name, as the fields take them (a list for a multi-choice field).</param>
+        /// <param name="description">A sentence about it, or null.</param>
+        /// <returns>The form.</returns>
+        public Form Preset(string name, IDictionary<string, object?> values, string? description = null) {
+            Presets.Add(new FormPreset(name, values) { Description = description });
+            return this;
+        }
+
+        /// <summary>Adds a built-in preset and configures it (see <see cref="Presets"/>): <c>p =&gt; p.Value("Path", @"D:\Weekly").Describe("...")</c>.</summary>
+        /// <param name="name">The name; a saved preset cannot take it.</param>
+        /// <param name="configure">Sets the preset's values, description and preview.</param>
+        /// <returns>The form.</returns>
+        public Form Preset(string name, Action<FormPreset> configure) {
+            FormPreset preset = new FormPreset(name, new Dictionary<string, object?>());
+            configure?.Invoke(preset);
+            Presets.Add(preset);
+            return this;
+        }
+
+        /// <summary>The built-in preset with a name (ignoring case), or null.</summary>
+        internal FormPreset? FindPreset(string name) {
+            foreach (FormPreset preset in Presets) {
+                if (string.Equals(preset.Name, name, StringComparison.OrdinalIgnoreCase)) {
+                    return preset;
+                }
+            }
+            return null;
+        }
 
         /// <summary>Adds a page.</summary>
         /// <param name="title">The page title.</param>
@@ -218,21 +256,10 @@ namespace ConsoleMonster.Interactive {
         /// <param name="stored">The values.</param>
         /// <returns>Names whose options are not loaded yet (applied after loading).</returns>
         public IReadOnlyList<string> ApplyStored(IDictionary<string, object?> stored) {
-            List<string> pending = new List<string>();
-            foreach (KeyValuePair<string, object?> pair in stored) {
-                Field? field = Find(pair.Key);
-                if (field == null || !field.Remember) {
-                    continue;
-                }
-                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0) {
-                    pending.Add(field.Name);
-                    continue;
-                }
-                if (field.TryRestore(pair.Value, out object? value)) {
-                    field.Value = value;
-                }
+            if (stored == null) {
+                throw new ArgumentNullException(nameof(stored));
             }
-            return pending;
+            return new List<string>(Assign(stored, true).Keys);
         }
 
         /// <summary>Shows the form and waits for it to be submitted or cancelled.</summary>

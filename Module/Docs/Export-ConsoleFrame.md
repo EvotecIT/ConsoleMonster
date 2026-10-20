@@ -25,9 +25,17 @@ Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-c
 
 ### EXAMPLE 1
 ```powershell
-Export-ConsoleFrame -InputObject 'Value'
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
 ```
 
+A table as an HTML page
+
+### EXAMPLE 2
+```powershell
+$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome
+```
+
+A dashboard as an SVG in a window frame, dark only
 
 ## PARAMETERS
 

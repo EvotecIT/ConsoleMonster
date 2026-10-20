@@ -25,9 +25,18 @@ Each call replaces the line (Write-Color style pieces, colours, -Markup, -Style 
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleStatus -BackgroundColor @('Value')
+foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
+Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete
 ```
 
+A copy loop with a spinner and elapsed time
+
+### EXAMPLE 2
+```powershell
+Write-ConsoleStatus 'You have waited ' -Color Green -BackgroundColor Blue -ShowClock -ShowElapsed; Start-Sleep 5; Write-ConsoleStatus 'Done' -Status Pass -Complete
+```
+
+A waiting line with a clock (PSWriteColor issue #15)
 
 ## PARAMETERS
 
@@ -117,7 +126,7 @@ A theme role for pieces without their own colour.
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: None
+Aliases: Tone
 Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False

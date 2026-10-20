@@ -7,12 +7,13 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows a form or wizard and returns the answers.</para>
     /// <para type="description">The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\&lt;app&gt;. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.</para>
+    /// </summary>
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
-    ///   <code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
+    ///   <code>
+    /// $answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
     /// if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleForm")]
     [OutputType(typeof(PSObject), typeof(FormResult))]
     public sealed class CmdletReadConsoleForm : PSCmdlet {
@@ -39,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Inline { get; set; }
 
-        /// <summary><para type="description">A saved preset to apply first.</para></summary>
+        /// <summary><para type="description">A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.</para></summary>
         [Parameter]
         public string? Preset { get; set; }
 

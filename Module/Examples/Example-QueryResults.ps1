@@ -1,6 +1,6 @@
 ﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
 
-# DnsClientX / DomainDetective style query results, printed once (no live view).
+# DNS and mail-security query results, printed once (no live view).
 # Works the same in Windows Terminal, conhost, redirected output and CONSOLEMONSTER_MODE=plain.
 
 Write-ConsoleRule '[bold]DNS query results[/] [muted]· evotec.xyz[/]'
@@ -46,7 +46,7 @@ $latency = New-ConsoleBarChart -Name latency -Unit ' ms' -Data ([ordered] @{ Clo
 
 New-ConsoleColumns {
     New-ConsolePanel -Title 'Delegation' -Widget $delegation
-    New-ConsolePanel -Title 'Mail security' -Caption 'DomainDetective' {
+    New-ConsolePanel -Title 'Mail security' -Caption 'evotec.xyz' {
         $checks
         New-ConsoleRule
         $latency

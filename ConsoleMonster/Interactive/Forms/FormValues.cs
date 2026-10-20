@@ -93,6 +93,9 @@ namespace ConsoleMonster.Interactive {
             return copy;
         }
 
+        /// <summary>A copy of every value, hidden fields included.</summary>
+        internal Dictionary<string, object?> AllValues() => new Dictionary<string, object?>(_values, StringComparer.OrdinalIgnoreCase);
+
         /// <inheritdoc />
         public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => ToDictionary().GetEnumerator();
 

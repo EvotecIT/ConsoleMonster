@@ -22,8 +22,8 @@ namespace ConsoleMonster.Tests.Rendering {
             table.AddColumn(new TableColumn("Owner") { Priority = 0 });
             table.AddColumn(new TableColumn("Status") { Priority = 9, Presenter = CellPresenters.Status });
             table.AddColumn(new TableColumn("Notes") { Priority = 0 });
-            table.AddValues("dc01.ad.evotec.xyz", "Warsaw-HQ", "Przemyslaw Klys", StatusKind.Pass, "primary domain controller");
-            table.AddValues("dc02.ad.evotec.xyz", "Krakow-Branch", "Ada Lovelace", StatusKind.Fail, "replication lag");
+            table.AddValues("dc01.ad.adatum.com", "Warsaw-HQ", "Przemyslaw Klys", StatusKind.Pass, "primary domain controller");
+            table.AddValues("dc02.ad.adatum.com", "Krakow-Branch", "Ada Lovelace", StatusKind.Fail, "replication lag");
             return table;
         }
 
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Negotiation_BelowCardThreshold_RendersRecordCards() {
             string text = Render(Wide(), 40);
             Assert.Contains("2 records", text);
-            Assert.Contains("dc02.ad.evotec.xyz", text);
+            Assert.Contains("dc02.ad.adatum.com", text);
             Assert.Contains("Owner", text);
             Assert.Contains("Ada Lovelace", text);
             Assert.DoesNotContain("columns (", text);
@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Overflow_TruncateModes_KeepTheExpectedEnd(ColumnOverflow overflow, string expected) {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0 };
             table.AddColumn(new TableColumn("Path") { Overflow = overflow, Width = 20 });
-            table.AddValues(@"C:\ProgramData\DnsClientX\cache\A.json");
+            table.AddValues(@"C:\ProgramData\DnsCache\A.json");
             string text = Render(table, 40);
             Assert.Contains(overflow == ColumnOverflow.Truncate ? expected : "A.json", text);
             Assert.Contains("…", text);
@@ -159,7 +159,7 @@ namespace ConsoleMonster.Tests.Rendering {
             int header = Array.FindIndex(lines, line => line.Contains("Host"));
             Assert.True(header >= 0);
             // Header, one separator row, then data: no blank padding row in between.
-            Assert.Contains("dc01.ad.evotec.xyz", lines[header + 2]);
+            Assert.Contains("dc01.ad.adatum.com", lines[header + 2]);
         }
 
         [Fact]

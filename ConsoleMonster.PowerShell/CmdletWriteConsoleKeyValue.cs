@@ -5,11 +5,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes an aligned key/value list.</para>
     /// <para type="description">Same parameters as New-ConsoleKeyValue; the list is written immediately.</para>
+    /// </summary>
     /// <example>
     ///   <para>Show an object's properties</para>
     ///   <code>Get-Item $PROFILE | Select-Object Name, Length, LastWriteTime | Write-ConsoleKeyValue</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Write, "ConsoleKeyValue")]
     public sealed class CmdletWriteConsoleKeyValue : CmdletNewConsoleKeyValue {
         /// <summary><para type="description">An object from the pipeline whose properties become the pairs.</para></summary>

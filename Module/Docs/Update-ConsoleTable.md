@@ -35,21 +35,10 @@ Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in 
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleTable -Key 'Value'
+Update-ConsoleTable -Name jobs -Key $job.Id -Value $job.Name, 'Running', $elapsed
 ```
 
-
-### EXAMPLE 2
-```powershell
-Update-ConsoleTable -Clear
-```
-
-
-### EXAMPLE 3
-```powershell
-Update-ConsoleTable -Key 'Value' -Remove
-```
-
+Track a job from start to finish
 
 ## PARAMETERS
 

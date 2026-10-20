@@ -25,9 +25,10 @@ Sends a "set" update to the named widget. For a key/value list the value is show
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleValue -Key 'Value' -Value 'Value'
+Set-ConsoleValue -Name summary -Key 'Evaluated' -Value '154 / 332'
 ```
 
+Update a summary pair
 
 ## PARAMETERS
 

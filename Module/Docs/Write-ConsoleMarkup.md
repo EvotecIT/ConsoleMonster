@@ -25,9 +25,17 @@ Supports [bold], [italic], [underline], the 256-colour palette names ([red], [ca
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleMarkup -Text 'Value'
+Write-ConsoleMarkup '[pass]Deployed[/] 14 servers in [muted]3m 12s[/]'
 ```
 
+A status line
+
+### EXAMPLE 2
+```powershell
+Write-ConsoleMarkup '[cadetblue]Checking[/] ' -NoNewLine; Write-ConsoleMarkup '[pass]done[/]'
+```
+
+A prefix and the rest of the line from another call
 
 ## PARAMETERS
 

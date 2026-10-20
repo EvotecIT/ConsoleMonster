@@ -8,26 +8,38 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a labelled progress bar.
 
-Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. Update it live with Update-ConsoleProgress.
+Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. -Status marks a finished bar (Pass, Fail, Warn, Skip) with its status colour. Update it live with Update-ConsoleProgress.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleProgress [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Name <string>] [-Shape <BarShape>] [-Column <string[]>] [<CommonParameters>]
+New-ConsoleProgress [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Status <StatusKind>] [-Name <string>] [-Shape <BarShape>] [-Column <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a labelled progress bar.
 
-Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. Update it live with Update-ConsoleProgress.
+Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. -Status marks a finished bar (Pass, Fail, Warn, Skip) with its status colour. Update it live with Update-ConsoleProgress.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleProgress -Name 'Name'
+New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Write-ConsoleWidget
 ```
 
+A static progress bar
+
+### EXAMPLE 2
+```powershell
+New-ConsoleRows {
+    New-ConsoleProgress 'Build' -Value 64 -Total 100
+    New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass
+    New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block
+} | Write-ConsoleWidget
+```
+
+Several bars, one of them finished
 
 ## PARAMETERS
 
@@ -87,6 +99,22 @@ Type: BarShape
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Block, Line
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Status
+The status (default Running): Pass, Fail, Warn or Skip mark a finished bar in that colour (PowerShell's words such as Success and Error work too).
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
 Position: named

@@ -45,3 +45,85 @@ jobs:
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository_override: ${{ vars.POWERFORGE_REPOSITORY }}
       powerforge_ref_override: ${{ vars.POWERFORGE_REF }}
+
+  # Rendering budget: builds the site, serves it and drives it in headless Chromium (Website/build/perf/site-perf.cjs).
+  # Fails when tier switches, width switches, the home page's paths or a page at rest go over Website/build/perf/budget.json:
+  # composited layers, the largest layer, terminal screens exposed cell by cell, frame times, long frames, process CPU and
+  # timers. Each failing scenario is retried before the job fails. It runs only when the website itself changed (an
+  # engine-only change is covered by verify-site), and skips the checks verify-site already runs.
+  render-budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check for website changes
+        id: changes
+        shell: bash
+        run: |
+          case "${{ github.event_name }}" in
+            pull_request) base="${{ github.event.pull_request.base.sha }}" ;;
+            push) base="${{ github.event.before }}" ;;
+            *) base="" ;;
+          esac
+          # No usable base (a manual run, a new branch): measure.
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "website=true"
+          elif git diff --quiet "$base" HEAD -- Website/ .github/workflows/website-ci.yml; then
+            echo "website=false"
+          else
+            echo "website=true"
+          fi >> "$GITHUB_OUTPUT"
+      - name: Read the locked PowerForge engine
+        if: steps.changes.outputs.website == 'true'
+        id: engine
+        shell: bash
+        run: |
+          lock=Website/.powerforge/engine-lock.json
+          echo "repository=${{ vars.POWERFORGE_REPOSITORY }}" >> "$GITHUB_OUTPUT"
+          echo "ref=${{ vars.POWERFORGE_REF }}" >> "$GITHUB_OUTPUT"
+          echo "lockRepository=$(jq -r .repository "$lock")" >> "$GITHUB_OUTPUT"
+          echo "lockRef=$(jq -r .ref "$lock")" >> "$GITHUB_OUTPUT"
+      - name: Check out the PowerForge engine
+        if: steps.changes.outputs.website == 'true'
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.engine.outputs.repository || steps.engine.outputs.lockRepository }}
+          ref: ${{ steps.engine.outputs.ref || steps.engine.outputs.lockRef }}
+          path: _powerforge
+      - if: steps.changes.outputs.website == 'true'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - if: steps.changes.outputs.website == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Build the site
+        if: steps.changes.outputs.website == 'true'
+        shell: pwsh
+        # The optimized (minified) output is what readers get, so the optimize step stays; the checks verify-site runs do not.
+        run: ./Website/build.ps1 -CI -PowerForgeRoot "$PWD/_powerforge" -Skip verify,seo-doctor,audit,agent-ready
+      - name: Install Playwright and Chromium
+        if: steps.changes.outputs.website == 'true'
+        run: |
+          mkdir -p _perf && cd _perf
+          npm init -y > /dev/null
+          npm install --no-save --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Measure against the budget
+        if: steps.changes.outputs.website == 'true'
+        run: |
+          node Website/build/perf/serve.cjs Website/_site 8080 &
+          curl --silent --output /dev/null --retry 20 --retry-delay 1 --retry-connrefused http://localhost:8080/
+          NODE_PATH="$PWD/_perf/node_modules" node Website/build/perf/site-perf.cjs --base http://localhost:8080 --out perf-results --budget Website/build/perf/budget.json --idle-seconds 10 --attempts 3
+      - name: Upload the measurements
+        if: always() && steps.changes.outputs.website == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: render-budget
+          path: perf-results
+          if-no-files-found: ignore

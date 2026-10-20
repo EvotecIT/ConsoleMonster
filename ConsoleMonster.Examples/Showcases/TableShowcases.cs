@@ -6,16 +6,16 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Tables and complex data from four products: DnsClientX records (wrap and middle truncation), DomainDetective checks
-    /// and a certificate record view, a TestimoX run summary grouped by target type with subtotals and totals, and
-    /// PSPublishModule artifacts with bytes and durations. Each negotiates its width: columns hide by priority with a
+    /// Tables and complex data from four kinds of tool output: DNS records (wrap and middle truncation), mail-security checks
+    /// and a certificate record view, an assessment run summary grouped by target type with subtotals and totals, and
+    /// build artifacts with bytes and durations. Each negotiates its width: columns hide by priority with a
     /// footer, and narrow widths switch to record cards. Data is synthetic.
     /// </summary>
     public static class TableShowcases {
         /// <summary>The fixed reference time, so relative dates read the same in every capture.</summary>
         public static readonly DateTimeOffset Now = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.FromHours(2));
 
-        /// <summary>DnsClientX: records for a domain, with a long SPF value that wraps and a cache path truncated in the middle.</summary>
+        /// <summary>DNS records for a domain, with a long SPF value that wraps and a cache path truncated in the middle.</summary>
         /// <returns>The table.</returns>
         public static Table DnsRecords() {
             Table table = new Table { Title = "[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]" };
@@ -26,7 +26,7 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Data") { Priority = 10, Overflow = ColumnOverflow.Wrap, MaxLines = 3, Flexible = true, MinWidth = 28 });
             table.AddColumn(new TableColumn("Latency") { Priority = 3, Presenter = new NumberPresenter("ms"), ToneRules = { ToneRule.Above(100, ThemeToken.Warn) } });
             table.AddColumn(new TableColumn("Cache file") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20, MaxWidth = 36 });
-            const string Cache = @"C:\ProgramData\DnsClientX\cache\evotec.xyz\";
+            const string Cache = @"C:\ProgramData\DnsCache\evotec.xyz\";
             table.AddValues("evotec.xyz", "A", 300, "104.21.48.12", 12, Cache + "A.json");
             table.AddValues("evotec.xyz", "AAAA", 300, "2606:4700:3036::6815:300c", 14, Cache + "AAAA.json");
             table.AddValues("evotec.xyz", "MX", 3600, "10 evotec-xyz.mail.protection.outlook.com", 18, Cache + "MX.json");
@@ -37,10 +37,10 @@ namespace ConsoleMonster.Examples.Showcases {
             return table;
         }
 
-        /// <summary>DomainDetective: mail-security checks with status presenters, a detail that wraps to two lines and durations.</summary>
+        /// <summary>Mail-security checks with status presenters, a detail that wraps to two lines and durations.</summary>
         /// <returns>The table.</returns>
         public static Table DomainChecks() {
-            Table table = new Table { Title = "[bold]evotec.xyz[/] [muted]· DomainDetective checks[/]" };
+            Table table = new Table { Title = "[bold]evotec.xyz[/] [muted]· mail security checks[/]" };
             table.AddColumn(new TableColumn("Check") { IsKey = true, Overflow = ColumnOverflow.Never });
             table.AddColumn(new TableColumn("Status") { Priority = 10, Presenter = CellPresenters.Status });
             table.AddColumn(new TableColumn("Detail") { Priority = 5, Overflow = ColumnOverflow.Wrap, MaxLines = 2, Flexible = true, MinWidth = 18 });
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Examples.Showcases {
             return table;
         }
 
-        /// <summary>DomainDetective: the certificate of a host as a record view with sections and nested tables.</summary>
+        /// <summary>The certificate of a host as a record view with sections and nested tables.</summary>
         /// <returns>The record view.</returns>
         public static RecordView Certificate() {
             RecordView view = new RecordView("[bold]mail.evotec.xyz[/]") { Summary = "TLS certificate · ECDSA P-256 · Let's Encrypt" };
@@ -93,10 +93,10 @@ namespace ConsoleMonster.Examples.Showcases {
             return view;
         }
 
-        /// <summary>TestimoX: a run summary grouped by target type, with subtotals, a totals row and a score bar.</summary>
+        /// <summary>An assessment run summary grouped by target type, with subtotals, a totals row and a score bar.</summary>
         /// <returns>The table.</returns>
-        public static Table TestimoXSummary() {
-            Table table = new Table { Title = "[bold]TestimoX[/] [muted]· ad.evotec.xyz run summary[/]", ShowSubtotals = true, ShowTotals = true };
+        public static Table AssessmentSummary() {
+            Table table = new Table { Title = "[bold]Nightly checks[/] [muted]· run summary[/]", ShowSubtotals = true, ShowTotals = true };
             table.AddColumn(new TableColumn("Target") { IsKey = true, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 12 });
             table.AddColumn(new TableColumn("Result") { Priority = 10, Presenter = CellPresenters.Status });
             table.AddColumn(new TableColumn("Passed") { Priority = 8, Presenter = CellPresenters.Number, Aggregate = ColumnAggregate.Sum });
@@ -105,21 +105,21 @@ namespace ConsoleMonster.Examples.Showcases {
             table.AddColumn(new TableColumn("Duration") { Priority = 4, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
             table.AddColumn(new TableColumn("Score") { Priority = 2, Presenter = new DataBarPresenter(100, new NumberPresenter("%")), Aggregate = ColumnAggregate.Average });
             table.AddGroup("Domains");
-            table.AddValues("ad.evotec.xyz", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
-            table.AddValues("eu.ad.evotec.xyz", StatusKind.Fail, 13, 1, 1, TimeSpan.FromSeconds(16), 87);
+            table.AddValues("ad.adatum.com", StatusKind.Fail, 9, 2, 5, TimeSpan.FromSeconds(24), 56);
+            table.AddValues("eu.ad.adatum.com", StatusKind.Fail, 13, 1, 1, TimeSpan.FromSeconds(16), 87);
             table.AddGroup("Domain controllers");
-            table.AddValues("DC01.ad.evotec.xyz", StatusKind.Warn, 26, 0, 3, TimeSpan.FromSeconds(17), 90);
-            table.AddValues("DC02.ad.evotec.xyz", StatusKind.Warn, 23, 0, 6, TimeSpan.FromSeconds(17), 79);
-            table.AddValues("DC03.ad.evotec.xyz", StatusKind.Fail, 23, 3, 4, TimeSpan.FromSeconds(19), 77);
-            table.AddValues("DC07.eu.ad.evotec.xyz", StatusKind.Fail, 21, 4, 4, TimeSpan.FromSeconds(16), 72);
-            table.AddValues("DC09.eu.ad.evotec.xyz", StatusKind.Pass, 30, 0, 0, TimeSpan.FromSeconds(15), 100);
+            table.AddValues("DC01.ad.adatum.com", StatusKind.Warn, 26, 0, 3, TimeSpan.FromSeconds(17), 90);
+            table.AddValues("DC02.ad.adatum.com", StatusKind.Warn, 23, 0, 6, TimeSpan.FromSeconds(17), 79);
+            table.AddValues("DC03.ad.adatum.com", StatusKind.Fail, 23, 3, 4, TimeSpan.FromSeconds(19), 77);
+            table.AddValues("DC07.eu.ad.adatum.com", StatusKind.Fail, 21, 4, 4, TimeSpan.FromSeconds(16), 72);
+            table.AddValues("DC09.eu.ad.adatum.com", StatusKind.Pass, 30, 0, 0, TimeSpan.FromSeconds(15), 100);
             return table;
         }
 
-        /// <summary>PSPublishModule: build artifacts with sizes, build times, relative dates, paths and hashes.</summary>
+        /// <summary>Build artifacts with sizes, build times, relative dates, paths and hashes.</summary>
         /// <returns>The table.</returns>
         public static Table PublishArtifacts() {
-            Table table = new Table { Title = "[bold]PSPublishModule[/] [muted]· ConsoleMonster 2.0.0 artifacts[/]", ShowTotals = true, MaxRows = 5, TotalRowCount = 1234 };
+            Table table = new Table { Title = "[bold]Build artifacts[/] [muted]· ConsoleMonster 2.0.0[/]", ShowTotals = true, MaxRows = 5, TotalRowCount = 1234 };
             table.Presentation.Now = Now;
             table.AddColumn(new TableColumn("Artifact") { IsKey = true, Overflow = ColumnOverflow.Never });
             table.AddColumn(new TableColumn("Kind") { Priority = 3 });
@@ -138,7 +138,7 @@ namespace ConsoleMonster.Examples.Showcases {
             return table;
         }
 
-        /// <summary>Selected showcases stacked: a comma-separated list of dns, checks, certificate, testimox and artifacts.</summary>
+        /// <summary>Selected showcases stacked: a comma-separated list of dns, checks, certificate, summary and artifacts.</summary>
         /// <param name="names">The section names.</param>
         /// <returns>The widget tree.</returns>
         public static IWidget Sections(string names) {
@@ -154,8 +154,8 @@ namespace ConsoleMonster.Examples.Showcases {
                     case "certificate":
                         widgets.Add(Certificate());
                         break;
-                    case "testimox":
-                        widgets.Add(TestimoXSummary());
+                    case "summary":
+                        widgets.Add(AssessmentSummary());
                         break;
                     case "artifacts":
                         widgets.Add(PublishArtifacts());
@@ -168,7 +168,7 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <summary>All showcases stacked, for one width.</summary>
         /// <returns>The widget tree.</returns>
         public static IWidget All() {
-            return new Rows(DnsRecords(), DomainChecks(), Certificate(), TestimoXSummary(), PublishArtifacts()) { Gap = 1 };
+            return new Rows(DnsRecords(), DomainChecks(), Certificate(), AssessmentSummary(), PublishArtifacts()) { Gap = 1 };
         }
     }
 }

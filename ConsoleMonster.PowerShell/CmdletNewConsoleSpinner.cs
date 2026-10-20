@@ -6,12 +6,13 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a spinner: a one-line activity indicator for work without a known total.</para>
     /// <para type="description">While running it animates (braille on modern fonts, | / - \ on Basic and ASCII) and shows the label, a muted detail and the elapsed time. Once finished it shows the status marker in the status colour and the final duration. Update it live with Update-ConsoleSpinner.</para>
+    /// </summary>
     /// <example>
     ///   <para>A spinner inside a dashboard, finished from the script</para>
-    ///   <code>$d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
+    ///   <code>
+    /// $d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
     /// Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleSpinner")]
     [OutputType(typeof(Spinner))]
     public sealed class CmdletNewConsoleSpinner : PSCmdlet {

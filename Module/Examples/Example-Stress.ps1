@@ -34,7 +34,8 @@ $roles = @('coordinator') + $workers + @('library1', 'library2', 'host1', 'host2
 $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $roles.Count -ArgumentList $Seconds {
     param($Role, $Seconds)
     $end = [DateTime]::UtcNow.AddSeconds($Seconds)
-    $random = [System.Random]::new($Role.GetHashCode())
+    # One seed per role (the sum of its characters), so every run of the stress test makes the same choices.
+    $null = Get-Random -SetSeed (([int[]] [char[]] $Role | Measure-Object -Sum).Sum)
     if ($Role -eq 'coordinator') {
         $process = [System.Diagnostics.Process]::GetCurrentProcess()
         $cpuStart = $process.TotalProcessorTime
@@ -82,17 +83,17 @@ $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $
     } elseif ($Role -like 'w*') {
         Update-ConsoleLane -Name workers -Key $Role -Status Running
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
-            $result = if ($random.Next(100) -lt 4) { 'Fail' } else { 'Pass' }
+            $result = if ((Get-Random -Maximum 100) -lt 4) { 'Fail' } else { 'Pass' }
             Update-ConsoleLane -Name workers -Key $Role -Result $result
         }
         Update-ConsoleLane -Name workers -Key $Role -Complete
     } elseif ($Role -like 'library*') {
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
-            Start-Sleep -Milliseconds $random.Next(50, 300)
-            if ($random.Next(10) -eq 0) {
-                [Console]::Error.WriteLine("FakeLib ERROR: socket reset $($random.Next(999))")
+            Start-Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 300)
+            if ((Get-Random -Maximum 10) -eq 0) {
+                [Console]::Error.WriteLine("FakeLib ERROR: socket reset $(Get-Random -Maximum 999)")
             } else {
-                [Console]::WriteLine("FakeLib: cache miss $($random.Next(9999))")
+                [Console]::WriteLine("FakeLib: cache miss $(Get-Random -Maximum 9999)")
             }
         }
     } else {
@@ -100,7 +101,7 @@ $results = $roles | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $
         while ([DateTime]::UtcNow -lt $end -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             $n++
             Write-Host "$Role`: Write-Host line $n"
-            Start-Sleep -Milliseconds $random.Next(100, 400)
+            Start-Sleep -Milliseconds (Get-Random -Minimum 100 -Maximum 400)
         }
     }
 }

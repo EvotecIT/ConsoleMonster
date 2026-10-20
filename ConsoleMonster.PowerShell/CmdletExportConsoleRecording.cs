@@ -8,12 +8,13 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a dashboard recording to an HTML player, an animated SVG or asciicast.</para>
     /// <para type="description">Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.</para>
+    /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
-    ///   <code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
+    ///   <code>
+    /// Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
     /// Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Export, "ConsoleRecording")]
     [OutputType(typeof(string), typeof(FileInfo))]
     public sealed class CmdletExportConsoleRecording : PSCmdlet {

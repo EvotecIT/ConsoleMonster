@@ -8,31 +8,50 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
 
-The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.
+The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenuPreset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleMenu [-Title] <string> [[-Content] <scriptblock>] [-Item <MenuItem[]>] [-Description <string>] [-Subtitle <string>] [-Layout <MenuLayout>] [<CommonParameters>]
+New-ConsoleMenu [-Title] <string> [[-Content] <scriptblock>] [-Item <MenuItem[]>] [-Preset <MenuPreset[]>] [-Description <string>] [-Subtitle <string>] [-Layout <MenuLayout>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
 
-The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu.
+The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenuPreset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenu -Title 'Value'
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu -Layout Classic
 ```
 
+A small script menu
+
+### EXAMPLE 2
+```powershell
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu -Layout Shell
+```
+
+An app with built-in presets for its form
 
 ## PARAMETERS
 
 ### -Content
-A scriptblock whose New-ConsoleMenuItem output becomes the items.
+A scriptblock whose New-ConsoleMenuItem output becomes the items (and New-ConsoleMenuPreset output the built-in presets).
 
 ```yaml
 Type: ScriptBlock
@@ -87,6 +106,22 @@ Type: MenuLayout
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values: Auto, Classic, Shell, Inline
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Preset
+Presets the app comes with (New-ConsoleMenuPreset), listed before the saved ones by a -Presets item.
+
+```yaml
+Type: MenuPreset[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
 
 Required: False
 Position: named

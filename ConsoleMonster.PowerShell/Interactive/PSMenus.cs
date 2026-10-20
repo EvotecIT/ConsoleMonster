@@ -11,7 +11,13 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Runs a content scriptblock and keeps the menu items it outputs.</summary>
         /// <param name="content">The scriptblock.</param>
         /// <returns>The items.</returns>
-        public static List<MenuItem> CollectItems(ScriptBlock? content) {
+        public static List<MenuItem> CollectItems(ScriptBlock? content) => CollectItems(content, null);
+
+        /// <summary>Runs a content scriptblock and keeps the menu items it outputs, and the built-in presets when asked.</summary>
+        /// <param name="content">The scriptblock.</param>
+        /// <param name="presets">Receives the presets (New-ConsoleMenuPreset) it outputs, or null to ignore them.</param>
+        /// <returns>The items.</returns>
+        public static List<MenuItem> CollectItems(ScriptBlock? content, List<MenuPreset>? presets) {
             List<MenuItem> items = new List<MenuItem>();
             if (content == null) {
                 return items;
@@ -19,6 +25,8 @@ namespace ConsoleMonster.PowerShell {
             foreach (PSObject output in content.Invoke()) {
                 if (output?.BaseObject is MenuItem item) {
                     items.Add(item);
+                } else if (presets != null && output?.BaseObject is MenuPreset preset) {
+                    presets.Add(preset);
                 }
             }
             return items;

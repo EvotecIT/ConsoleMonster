@@ -25,9 +25,10 @@ Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour de
 
 ### EXAMPLE 1
 ```powershell
-Get-ConsoleCapability -Refresh
+Get-ConsoleCapability | Select-Object -ExpandProperty Decisions
 ```
 
+Show the profile and the decisions
 
 ## PARAMETERS
 

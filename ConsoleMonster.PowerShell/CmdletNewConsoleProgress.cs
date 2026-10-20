@@ -4,12 +4,21 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a labelled progress bar.</para>
-    /// <para type="description">Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. Update it live with Update-ConsoleProgress.</para>
+    /// <para type="description">Shows a bar with sub-cell precision for the glyph tier, the percentage and value/total. -Status marks a finished bar (Pass, Fail, Warn, Skip) with its status colour. Update it live with Update-ConsoleProgress.</para>
+    /// </summary>
     /// <example>
     ///   <para>A static progress bar</para>
     ///   <code>New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Write-ConsoleWidget</code>
     /// </example>
-    /// </summary>
+    /// <example>
+    ///   <para>Several bars, one of them finished</para>
+    ///   <code>
+    /// New-ConsoleRows {
+    ///     New-ConsoleProgress 'Build' -Value 64 -Total 100
+    ///     New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass
+    ///     New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block
+    /// } | Write-ConsoleWidget</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleProgress")]
     [OutputType(typeof(ProgressBar))]
     public sealed class CmdletNewConsoleProgress : PSCmdlet {
@@ -24,6 +33,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The total (default 100).</para></summary>
         [Parameter]
         public double Total { get; set; } = 100;
+
+        /// <summary><para type="description">The status (default Running): Pass, Fail, Warn or Skip mark a finished bar in that colour (PowerShell's words such as Success and Error work too).</para></summary>
+        [Parameter]
+        [Binding.StatusKindTransformation]
+        [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
+        public Styling.StatusKind Status { get; set; } = Styling.StatusKind.Running;
 
         /// <summary><para type="description">The live name (default progress).</para></summary>
         [Parameter]
@@ -40,7 +55,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Shape = Shape, Columns = Column == null ? null : ProgressColumns.FromNames(Column) });
+            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Status = Status, Shape = Shape, Columns = Column == null ? null : ProgressColumns.FromNames(Column) });
         }
     }
 }

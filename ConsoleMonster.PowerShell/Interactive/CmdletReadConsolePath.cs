@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks for a file or folder path, with completion.</para>
     /// <para type="description">Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).</para>
+    /// </summary>
     /// <example>
     ///   <para>An existing CSV file</para>
     ///   <code>$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsolePath")]
     [OutputType(typeof(string))]
     public sealed class CmdletReadConsolePath : PromptCmdlet {

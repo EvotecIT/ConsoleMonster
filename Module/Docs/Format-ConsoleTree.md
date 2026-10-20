@@ -13,7 +13,7 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <Object>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-PassThru] [<CommonParameters>]
+Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <Object>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,14 +25,38 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleTree -AsInspector
+Get-Content settings.json -Raw | ConvertFrom-Json | Format-ConsoleTree -Depth 4
 ```
 
+A nested configuration
+
+### EXAMPLE 2
+```powershell
+Get-ChildItem Cert:\CurrentUser\My | Select-Object -First 1 | Format-ConsoleTree -AsInspector -Include Subject, Issuer, NotAfter, Extensions, DnsNameList
+```
+
+A certificate as an inspector
 
 ## PARAMETERS
 
 ### -AsInspector
 Shows a record view (sections and nested tables) instead of a tree.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsString
+Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
 
 ```yaml
 Type: SwitchParameter
@@ -64,7 +88,7 @@ Accept wildcard characters: False
 ```
 
 ### -Depth
-How deep nested objects are followed (default 3).
+How deep nested objects are followed. Without it, .NET objects with more than 12 members (a process, a file, a service) open one level, and smaller objects, dictionaries and parsed JSON three, so a tree stays a readable size.
 
 ```yaml
 Type: Int32

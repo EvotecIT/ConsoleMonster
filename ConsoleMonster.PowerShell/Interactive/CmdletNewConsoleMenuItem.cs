@@ -10,6 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.</para>
     /// <para type="description">What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.</para>
+    /// </summary>
     /// <example>
     ///   <para>A multi-selection with a computed badge</para>
     ///   <code>New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description }</code>
@@ -18,7 +19,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>An action that asks first and shows a toast</para>
     ///   <code>New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem")]
     [OutputType(typeof(MenuItem))]
     public sealed class CmdletNewConsoleMenuItem : PSCmdlet {
@@ -134,7 +134,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ScriptBlock? Review { get; set; }
 
-        /// <summary><para type="description">Makes the item list the menu's saved presets (Enter applies one, Delete removes it).</para></summary>
+        /// <summary><para type="description">Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).</para></summary>
         [Parameter]
         public SwitchParameter Presets { get; set; }
 

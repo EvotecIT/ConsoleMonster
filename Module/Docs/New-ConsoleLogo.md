@@ -25,9 +25,10 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLogo -Text 'Value'
+New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -From '#22d3ee' -To '#a78bfa' | Write-ConsoleWidget
 ```
 
+A banner with a tagline
 
 ## PARAMETERS
 

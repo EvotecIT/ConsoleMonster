@@ -287,6 +287,12 @@ namespace ConsoleMonster.Interactive {
         /// <summary>No presets exist yet.</summary>
         public string NoPresets { get; set; } = "No presets yet. Save one from the review page.";
 
+        /// <summary>The mark of a preset the app comes with.</summary>
+        public string BuiltIn { get; set; } = "built in";
+
+        /// <summary>A built-in preset cannot be saved over or deleted: {0} its name.</summary>
+        public string PresetReadOnly { get; set; } = "'{0}' is built in and can't be changed or deleted";
+
         /// <summary>The command was copied.</summary>
         public string CommandCopied { get; set; } = "Command copied to the clipboard";
 
@@ -355,6 +361,9 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>The results heading after a run.</summary>
         public string Results { get; set; } = "Results";
+
+        /// <summary>The breadcrumb of a run while it lasts; the dashboard's own title names the content panel.</summary>
+        public string Running { get; set; } = "Running";
 
         /// <summary>The next-actions heading after a run.</summary>
         public string NextActions { get; set; } = "Next steps";

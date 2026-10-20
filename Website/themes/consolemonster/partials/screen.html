@@ -1,25 +1,39 @@
 {{~ ## A terminal window around a frame from the site tool. Set screen_frame (an object with w, h, dark and light),
      screen_title (the tab label), screen_meta (an array of profile chips, for example ["60x12", "24-bit", "Full"]),
-     screen_label (the accessible name), screen_id (optional element id), screen_dark = true to show only the dark
-     rendering, and screen_max (optional largest font size in px). ## ~}}
+     screen_label (a short description: its first sentence, cut at the first ". ", follows the title in the accessible
+     name; a label that starts with the title is used alone, and an empty one or one equal to the title is skipped),
+     screen_id (optional element id), screen_dark = true to show only the dark rendering, and screen_max (optional
+     largest font size in px). Each screen is one image to assistive technology:
+     a frame is hundreds of styled cells, and exposing every cell made each frame swap rebuild a huge accessibility tree
+     (with a screen reader, password manager or other UI Automation client running, that alone kept the browser busy). ## ~}}
 {{~ f = screen_frame ~}}
+{{~ ## The accessible name: the title and the first sentence of the description, or "terminal output" when there is none. ## ~}}
+{{~ screen_name = screen_title + ", terminal output"
+    if screen_label && screen_label != "" && screen_label != screen_title
+      screen_sentence = regex.replace (screen_label | string.split ". " | array.first) `\.$` ""
+      if screen_sentence | string.starts_with screen_title
+        screen_name = screen_sentence
+      else
+        screen_name = screen_title + ": " + screen_sentence
+      end
+    end ~}}
 <figure class="cm-window{{ if screen_class }} {{ screen_class }}{{ end }}"{{ if screen_id }} id="{{ screen_id }}"{{ end }}>
   <div class="cm-window__frame">
   <figcaption class="cm-window__bar">
     <span class="cm-window__tab"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m3 4 4 4-4 4M8.5 12H13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{ screen_title }}</span></span>
     <span class="cm-window__meta">{{ for m in screen_meta }}<span class="cm-chip">{{ m }}</span>{{ end }}</span>
   </figcaption>
-  <div class="cm-window__body" tabindex="0" role="group" aria-label="{{ screen_label ?? screen_title }}">
+  <div class="cm-window__body" tabindex="0" role="group" aria-label="Scrollable terminal output">
     {{~ if f.lightOnly ~}}
-    <pre class="cm-screen cm-screen--light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.lightOnly }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.lightOnly }}</pre>
     {{~ else if screen_alt ~}}
-    <pre class="cm-screen cm-screen--dark cm-screen--wide" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
-    <pre class="cm-screen cm-screen--dark cm-screen--narrow" style="--cols:{{ screen_alt.w }}">{{ screen_alt.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--wide" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--narrow" style="--cols:{{ screen_alt.w }}">{{ screen_alt.dark }}</pre>
     {{~ else if screen_dark || !f.light ~}}
-    <pre class="cm-screen cm-screen--dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
     {{~ else ~}}
-    <pre class="cm-screen cm-screen--light cm-only-light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.light }}</pre>
-    <pre class="cm-screen cm-screen--dark cm-only-dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light cm-only-light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.light }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-only-dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
     {{~ end ~}}
   </div>
   </div>

@@ -23,20 +23,17 @@ $menu = New-ConsoleMenu 'Backup helper' -Description 'Back up and restore the re
         if (-not $MenuContext.Confirm('Start a backup of \\fs01\reports now?', $true)) { return }
         $steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify', 'Prune old backups'
         $dashboard = New-ConsoleDashboard -Title 'Backup' { New-ConsolePanel -Title 'Steps' { $steps } }
-        $MenuContext.Run($dashboard, [Func[ConsoleMonster.Interactive.RunContext, ConsoleMonster.Interactive.RunResult]] {
-            param($run)
+        # The run's script block returns the result screen the menu shows when the dashboard closes.
+        $null = $MenuContext.Run($dashboard, {
             foreach ($step in 'Scan files', 'Copy changes', 'Verify', 'Prune old backups') {
                 Update-ConsoleStatus $step -Status Running
                 Start-Sleep -Milliseconds 600
                 Update-ConsoleStatus $step -Status Pass
             }
-            $result = [ConsoleMonster.Interactive.RunResult]::new('Backup finished')
-            $result.Summary = '1 284 files copied, 312 MB.'
-            [void] $result.Figure('files', '1 284')
-            [void] $result.Figure('copied', '312 MB')
-            [void] $result.Next('Show where the log is', [Action[ConsoleMonster.Interactive.MenuContext]] { param($m) $m.Toast('Log: D:\Backups\backup.log') })
-            $result
-        }) | Out-Null
+            New-ConsoleRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
+                'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
+            }
+        })
     }
     New-ConsoleMenuItem 'Restore' -Hotkey r -Description 'Puts a backup back on the share.' -Action {
         $backup = Read-ConsoleSelection 'Backup to restore' -Choices $backups -Display Name -Badge Size -Describe Kind

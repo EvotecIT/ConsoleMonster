@@ -37,7 +37,11 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Actions offered next ("Open report", "Run failed again", "Export").</summary>
         public IList<MenuItem> NextActions { get; } = new List<MenuItem>();
 
-        /// <summary>How long the run took.</summary>
+        /// <summary>
+        /// How long the run took; left at zero, a run started with <see cref="MenuContext.Run"/>
+        /// fills it in from the session clock (<see cref="ConsoleMonster.Live.LiveSessionOptions.Clock"/>), so a
+        /// <see cref="ConsoleMonster.Live.SimulatedClock"/> gives its time.
+        /// </summary>
         public TimeSpan Elapsed { get; set; }
 
         /// <summary>The exception that ended the run, if any.</summary>

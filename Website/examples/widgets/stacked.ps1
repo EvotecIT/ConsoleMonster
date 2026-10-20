@@ -1,5 +1,6 @@
-﻿$results = New-ConsoleBarChart -Stacked
-$results.Add('Passed', 412, 'Pass').
-    Add('Warnings', 51, 'Warn').
-    Add('Failed', 23, 'Fail').
-    Add('Skipped', 14, 'Skip') | Write-ConsoleWidget
+﻿New-ConsoleBarChart -Stacked {
+    New-ConsoleBarItem 'Passed' 412 -Tone Pass
+    New-ConsoleBarItem 'Warnings' 51 -Tone Warn
+    New-ConsoleBarItem 'Failed' 23 -Tone Fail
+    New-ConsoleBarItem 'Skipped' 14 -Tone Skip
+} | Write-ConsoleWidget

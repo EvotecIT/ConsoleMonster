@@ -25,9 +25,10 @@ Everything Read-ConsoleSelection does, plus checkboxes: Space toggles (on a grou
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleMultiSelection -Title 'Value'
+$tasks = Read-ConsoleMultiSelection 'Tasks' -Choices $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Minimum 1
 ```
 
+Grouped tasks with a preview
 
 ## PARAMETERS
 

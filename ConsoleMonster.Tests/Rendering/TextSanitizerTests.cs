@@ -66,7 +66,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 HandleCancelKey = false,
                 PrintFinalState = false
             };
-            Widgets.LogRegion log = new Widgets.LogRegion();
+            ConsoleMonster.Widgets.LogRegion log = new ConsoleMonster.Widgets.LogRegion();
             using (LiveSession session = new LiveSession(log, options)) {
                 session.Start();
                 session.Post(new LiveEvent("log", "write", text: "injected " + Hostile(), state: "warn"));

@@ -186,21 +186,42 @@ namespace ConsoleMonster.Interactive {
         public bool Back() => false;
     }
 
-    /// <summary>The menu's saved presets: Enter applies one (every selection and form value), Delete removes it.</summary>
+    /// <summary>A preset in the presets list: its name, a description, and whether the app declared it (read-only).</summary>
+    internal sealed class PresetListing {
+        public PresetListing(string name, string? description, bool builtIn, IWidget? preview = null) {
+            Name = name;
+            Description = description;
+            BuiltIn = builtIn;
+            Preview = preview;
+        }
+
+        public string Name { get; }
+
+        public string? Description { get; }
+
+        public bool BuiltIn { get; }
+
+        public IWidget? Preview { get; }
+    }
+
+    /// <summary>
+    /// The menu's presets: the built-in ones first, marked as built in, then the saved ones. Enter applies one (every
+    /// selection and form value it holds); Delete removes a saved one.
+    /// </summary>
     internal sealed class PresetsPane : IPane {
         private readonly MenuItem _item;
         private readonly PromptLabels _labels;
-        private readonly Func<IReadOnlyList<string>> _names;
+        private readonly Func<IReadOnlyList<PresetListing>> _presets;
         private readonly Action<string> _apply;
         private readonly Action<string> _delete;
         private ChoiceList _list;
         private ChoicePane _pane;
         private string _signature = string.Empty;
 
-        public PresetsPane(MenuItem item, PromptLabels labels, Func<IReadOnlyList<string>> names, Action<string> apply, Action<string> delete) {
+        public PresetsPane(MenuItem item, PromptLabels labels, Func<IReadOnlyList<PresetListing>> presets, Action<string> apply, Action<string> delete) {
             _item = item;
             _labels = labels;
-            _names = names;
+            _presets = presets;
             _apply = apply;
             _delete = delete;
             _list = new ChoiceList(new Choice[0], false) { Labels = labels };
@@ -218,15 +239,24 @@ namespace ConsoleMonster.Interactive {
         public IReadOnlyList<string> Crumbs => new string[0];
 
         private void Refresh() {
-            IReadOnlyList<string> names = _names();
-            string signature = string.Join("\u0001", names);
+            IReadOnlyList<PresetListing> presets = _presets();
+            List<string> keys = new List<string>();
+            foreach (PresetListing preset in presets) {
+                keys.Add((preset.BuiltIn ? "b:" : "s:") + preset.Name);
+            }
+            string signature = string.Join("\u0001", keys.ToArray());
             if (signature == _signature) {
                 return;
             }
             _signature = signature;
             List<Choice> choices = new List<Choice>();
-            foreach (string name in names) {
-                choices.Add(new Choice(name, name));
+            foreach (PresetListing preset in presets) {
+                choices.Add(new Choice(preset.Name, preset.Name) {
+                    Description = preset.Description,
+                    Preview = preset.Preview,
+                    Badge = preset.BuiltIn ? RichText.Plain(_labels.BuiltIn, new RichStyle(ThemeToken.Muted)) : null,
+                    Tag = preset
+                });
             }
             _list = new ChoiceList(choices, false) { Labels = _labels };
             _pane = new ChoicePane(_list, new CaretSlot()) { Fill = true };
@@ -257,11 +287,13 @@ namespace ConsoleMonster.Interactive {
                     _apply(name);
                 }
             }, new KeyChord(ConsoleKey.Enter)) { Order = 20 });
+            // A built-in preset cannot be deleted: the key stays bound (it explains why) but is not offered in the footer.
+            bool builtIn = _list.FocusedChoice?.Tag is PresetListing focused && focused.BuiltIn;
             bindings.Add(new KeyBinding("delete", () => {
                 if (_list.FocusedChoice?.Value is string name) {
                     _delete(name);
                 }
-            }, new KeyChord(ConsoleKey.Delete)) { KeyText = "del", Order = 30 });
+            }, new KeyChord(ConsoleKey.Delete)) { KeyText = "del", Order = 30, InFooter = !builtIn });
         }
 
         public bool HandleUnbound(InputEvent input) => _list.HandleText(input, out _);

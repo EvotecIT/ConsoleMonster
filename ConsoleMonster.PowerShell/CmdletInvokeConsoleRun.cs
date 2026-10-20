@@ -18,6 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
     /// <para type="description">ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, output, errors and warnings are written when it ends, so nothing prints inside the view, and progress bars from the script block are hidden. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
+    /// </summary>
     /// <example>
     ///   <para>Check servers in parallel</para>
     ///   <code>$port = 443; $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 8 -Name Name { Test-NetConnection $_.Name -Port $using:port -InformationLevel Quiet }</code>
@@ -26,7 +27,14 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>One at a time, in the current scope</para>
     ///   <code>Get-ChildItem *.log | ForEach-ConsoleItem { Compress-Archive $_ "$($_.BaseName).zip" -Force }</code>
     /// </example>
-    /// </summary>
+    /// <example>
+    ///   <para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</para>
+    ///   <code>
+    /// 1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Name { "web$('{0:d2}' -f $_)" } {
+    ///     Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
+    ///     if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
+    /// }</code>
+    /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
     [Alias("ForEach-ConsoleItem")]
     public sealed class CmdletInvokeConsoleRun : PSCmdlet {

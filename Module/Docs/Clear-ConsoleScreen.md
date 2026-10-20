@@ -25,9 +25,10 @@ On an interactive console the screen and its scrollback are cleared and the curs
 
 ### EXAMPLE 1
 ```powershell
-Clear-ConsoleScreen
+Clear-ConsoleScreen; Show-ConsoleMenu -Title 'Tools' -Items $items
 ```
 
+Start a menu screen from a clean console
 
 ## PARAMETERS
 

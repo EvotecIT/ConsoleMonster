@@ -25,9 +25,24 @@ The parameters and aliases of Write-Color (PSWriteColor) work the same way: -Tex
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleText -BackGroundColor @('Value')
+Write-ConsoleText -Text 'Updating group: ', $Group -Color Gray, Green -StartTab 1
 ```
 
+Write-Color style
+
+### EXAMPLE 2
+```powershell
+Write-ConsoleText '1.', ' Option one' -Color Yellow, Green -PadRight 30 -LogFile .\menu.csv -LogFormat Csv -Level Info
+```
+
+A menu with padding and a log file in CSV
+
+### EXAMPLE 3
+```powershell
+Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTime -SplitLines "`n"
+```
+
+A multi-line message aligned under the time stamp
 
 ## PARAMETERS
 
@@ -405,7 +420,7 @@ A theme role for pieces without their own colour (Pass, Fail, Warn, Info, Muted,
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: None
+Aliases: Tone
 Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False

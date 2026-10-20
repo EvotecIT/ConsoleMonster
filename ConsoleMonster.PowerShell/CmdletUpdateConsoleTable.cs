@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.</para>
     /// <para type="description">-Key identifies the row: a new key adds a row, an existing key replaces its values. -Remove deletes the row and -Clear deletes them all; the column widths stay.</para>
+    /// </summary>
     /// <example>
     ///   <para>Track a job from start to finish</para>
     ///   <code>Update-ConsoleTable -Name jobs -Key $job.Id -Value $job.Name, 'Running', $elapsed</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Update, "ConsoleTable", DefaultParameterSetName = "Row")]
     public sealed class CmdletUpdateConsoleTable : LiveCmdlet {
         /// <summary><para type="description">The live table name (default table).</para></summary>

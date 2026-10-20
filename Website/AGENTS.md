@@ -28,7 +28,7 @@ Every terminal frame on the site is ConsoleMonster output. Nothing is a screensh
 
 ```powershell
 dotnet build ConsoleMonster.PowerShell -c Release                              # the module the PowerShell captures load
-dotnet run --project Website/tools/SiteFrames -c Release -- capture Website    # Windows only; optional area: widgets, home, live, powershell, benchmarks, docs
+dotnet run --project Website/tools/SiteFrames -c Release -- capture Website    # Windows only; optional area: widgets, home, live, powershell, benchmarks, docs, demos
 dotnet run --project Website/tools/SiteFrames -c Release -- render Website     # deterministic: frames, replays, data
 pwsh Website/build/Render-SiteImages.ps1                                       # social card and touch icon (needs Edge)
 ```
@@ -51,7 +51,14 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   `// <example>` markers; the site shows exactly those lines. Table showcases show their method from
   `ConsoleMonster.Examples`. PowerShell examples live in `examples/**/*.ps1` (UTF-8 with a BOM for Windows PowerShell 5.1)
   and are shown verbatim.
-- Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`,
+- Demos (`Pages/DemosPage.cs`): one recording per feature, captured from `examples/demos/*.ps1` on PowerShell 7 or from
+  programs (`ConsoleMonster.Examples.Extensions`, and `tools/TemplateDemo`, which compiles the template's own `Program.cs`
+  with scripted keys). `render` writes `static/replays/demo-*.json` and `data/demos.json` with the sources read from those
+  same files; `#region more` folds setup into the full program and `#region hidden` hides presentation lines (an echoed
+  prompt) from the short form. Captures strip window titles and build with `ContinuousIntegrationBuild` so no local path
+  is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`, `autoplay`); its words and the
+  install line come from `data/copy.json` (`demos`).
+- Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`, `demos.json`,
   `figures.json`, `home.json`, `benchmarks.json`, `visuals.json`; `static/frames/**`, `static/replays/**`,
   `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/assets/player/**`, `static/apple-touch-icon.png`, and
   `tools/SiteFrames/glyphs.txt` (every glyph the frames use).
@@ -70,8 +77,9 @@ The site is set in the medium it documents: a terminal cell grid.
   output beside or under the title. Docs and guides open with `partials/masthead.html`. No eyebrow labels above either.
 - **Screens.** Every frame uses `partials/screen.html`: a window bar with the real terminal profile as chips, then the
   frame. Static frames have a dark and a light rendering and follow the site theme; replays, stage art and captured
-  PowerShell output stay dark. A frame scales to fit its column down to 9 px and then scrolls inside its window, so the
-  page never scrolls sideways.
+  PowerShell output stay dark. A frame scales to fit its column down to 9 px (5.5 px on phones, so a 100-column frame
+  fits a 400 px screen) and then scrolls inside its window, which then shows a scroll hint in its bar, so the page never
+  scrolls sideways. Replays can carry chapter marks (`markers` in the player data) under the position bar.
 - **Players.** Replays play in ConsoleMonster's own player: `render` copies `ConsoleExporter.PlayerScript` and
   `PlayerStyles` to `static/assets/player/` (generated, never edit them) and writes `static/replays/*.json` in the engine's
   player-data format (`Recording.ExportPlayerData` for live-event recordings; `Replay/PlayerData.cs` writes the same

@@ -11,6 +11,12 @@ namespace ConsoleMonster.Interactive {
     /// titled box (wrapped between arguments), and the button row at the bottom right.
     /// </summary>
     internal static class ReviewDrawing {
+        /// <summary>The cells continuation lines of the equivalent command are indented by.</summary>
+        public const int CommandIndent = 2;
+
+        /// <summary>The most lines the equivalent command box shows.</summary>
+        public const int MaxCommandLines = 6;
+
         public static int LabelWidth(IEnumerable<KeyValuePair<string, string>> rows, int width) {
             int widest = 0;
             foreach (KeyValuePair<string, string> row in rows) {
@@ -28,9 +34,15 @@ namespace ConsoleMonster.Interactive {
             int valueX = 2 + labelWidth;
             List<string> commandLines = new List<string>();
             if (!string.IsNullOrEmpty(command)) {
-                commandLines.AddRange(CommandLine.Wrap(command!, Math.Max(10, region.Width - 6)));
+                // Breaks fall between arguments and list items, continuation lines indented, so no word is split.
+                commandLines.AddRange(CommandLine.Wrap(command!, Math.Max(10, region.Width - 6), CommandIndent));
+                if (commandLines.Count > MaxCommandLines) {
+                    // The box shows at most MaxCommandLines lines: the last one says that more follow (Copy command has it all).
+                    commandLines.RemoveRange(MaxCommandLines - 1, commandLines.Count - MaxCommandLines + 1);
+                    commandLines.Add(new string(' ', CommandIndent) + context.Ellipsis);
+                }
             }
-            int commandHeight = commandLines.Count == 0 ? 0 : Math.Min(commandLines.Count, 6) + 2;
+            int commandHeight = commandLines.Count == 0 ? 0 : commandLines.Count + 2;
             int problemRows = problems.Count == 0 ? 0 : Math.Min(problems.Count, Math.Max(1, region.Height / 4));
             int reserved = 2 + (commandHeight > 0 ? commandHeight + 1 : 0) + (problemRows > 0 ? problemRows + 1 : 0);
             int limit = Math.Max(1, region.Height - reserved);

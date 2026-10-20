@@ -62,6 +62,22 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Adds or replaces a pair made beforehand, keeping its presenter (a key already in the list is replaced in place).</summary>
+        /// <param name="item">The pair.</param>
+        /// <returns>This instance.</returns>
+        public KeyValueList Add(KeyValueItem item) {
+            if (item == null) {
+                throw new ArgumentNullException(nameof(item));
+            }
+            if (_index.TryGetValue(item.Key, out int existing)) {
+                _items[existing] = item;
+            } else {
+                _index[item.Key] = _items.Count;
+                _items.Add(item);
+            }
+            return this;
+        }
+
         /// <summary>Adds or replaces a pair whose value is formatted by a presenter (sizes, durations, dates, statuses...).</summary>
         /// <param name="key">The key (plain text).</param>
         /// <param name="value">The raw value.</param>

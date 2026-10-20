@@ -58,8 +58,9 @@ that product. Gaps are closed with general extension points, not per-product shi
 
 ## Next
 
-The agreed order. Steps 1–4 are implemented together in the everyday-path PR. Product trials in step 5 happen in the
-referenced repositories.
+The agreed order. Steps 1–4 shipped in 2.0.x (the everyday-path PR, followed by one PowerShell grammar for every widget and
+the documentation and website round). Steps 5 and 6 are next; product trials in step 5 happen in the referenced
+repositories.
 
 1. **The everyday path.** Ordinary PowerShell output that is excellent without configuration: one value-shaping layer
    for every command, capturable output, labelled group headings, one status vocabulary with PowerShell's own words,
@@ -74,6 +75,15 @@ referenced repositories.
 4. **.NET.** Hosting and logging packages (`ConsoleMonster.Hosting`, `ConsoleMonster.Extensions.Logging`) and a
    `dotnet new` template, outside the zero-dependency core; a decision paper on a command-line layer
    (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step). (Done.)
+
+   Shipped alongside steps 1–4: one PowerShell grammar for every widget (item commands such as `New-ConsoleTreeNode`,
+   `New-ConsoleStatusItem` and `New-ConsoleLogEntry`, hierarchical objects into `New-ConsoleTree`, and
+   `Add-ConsoleItem` for widgets made earlier; see `Docs/PowerShell-Conventions.md`), command help with real examples
+   for every cmdlet, and website pages and demos for the everyday path, live runs, help and defaults, Linux and SSH, and
+   the .NET packages.
+
+Next:
+
 5. **Trials in real products.** TestimoX.CLI and PSPublishModule adopt ConsoleMonster after the everyday path ships.
    The work happens in those repositories; gaps found there come back here as general extension points.
 6. **One definition, every output.** The same view definition rendered to the terminal here and, through bridges in

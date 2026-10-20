@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks the user to pick any number of the choices and returns the chosen objects.</para>
     /// <para type="description">Everything Read-ConsoleSelection does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.</para>
+    /// </summary>
     /// <example>
     ///   <para>Grouped tasks with a preview</para>
     ///   <code>$tasks = Read-ConsoleMultiSelection 'Tasks' -Choices $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Minimum 1</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleMultiSelection")]
     public sealed class CmdletReadConsoleMultiSelection : SelectionCmdlet {
         /// <summary><para type="description">Pre-selected choices: the objects or their displayed texts, or a scriptblock returning $true for selected ones.</para></summary>

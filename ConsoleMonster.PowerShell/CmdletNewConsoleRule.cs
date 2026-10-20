@@ -6,11 +6,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a horizontal rule, optionally with a title.</para>
     /// <para type="description">The line uses the border colour and the glyph tier's line character.</para>
+    /// </summary>
     /// <example>
     ///   <para>A titled separator</para>
     ///   <code>New-ConsoleRule -Title 'Results'</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleRule")]
     [OutputType(typeof(Rule))]
     public sealed class CmdletNewConsoleRule : PSCmdlet {

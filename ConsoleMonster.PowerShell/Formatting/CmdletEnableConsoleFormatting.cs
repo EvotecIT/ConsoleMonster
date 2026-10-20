@@ -6,6 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
     /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), commands (Get-Command), modules (Get-Module), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
+    /// </summary>
     /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
@@ -14,7 +15,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
     ///   <code>Enable-ConsoleFormatting -ProfileSnippet</code>
     /// </example>
-    /// </summary>
+    /// <example>
+    ///   <para>Everything: default output, the error view and the progress area</para>
+    ///   <code>Enable-ConsoleFormatting -Feature All</code>
+    /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
         /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
@@ -98,6 +102,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</para>
     /// <para type="description">Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off; the Out-Default function stays while any feature is on. Registrations stay for the next Enable-ConsoleFormatting.</para>
+    /// </summary>
     /// <example>
     ///   <para>Back to PowerShell's formatting</para>
     ///   <code>Disable-ConsoleFormatting</code>
@@ -106,7 +111,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Keep the views, go back to PowerShell's progress</para>
     ///   <code>Disable-ConsoleFormatting -Feature Progress</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
         /// <summary><para type="description">What to turn off: Output, ErrorView, Progress or All (the default).</para></summary>
@@ -141,11 +145,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.</para>
     /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.</para>
+    /// </summary>
     /// <example>
     ///   <para>Show a module's result objects as a table</para>
     ///   <code>Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsLifecycle.Register, "ConsoleView", DefaultParameterSetName = "Register")]
     public sealed class CmdletRegisterConsoleView : PSCmdlet {
         /// <summary><para type="description">The type names (as in PSObject.TypeNames).</para></summary>

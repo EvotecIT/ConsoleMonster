@@ -12,21 +12,23 @@
 
       * pwsh as the login shell, in ~/.config/powershell/Microsoft.PowerShell_profile.ps1:
 
-            if ($env:SSH_CONNECTION -and -not $env:CM_OVERVIEW_SHOWN) {
+            # ssh host command loads this profile too: SSH_TTY and a console that is not redirected mean a person logged in.
+            if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {
                 $env:CM_OVERVIEW_SHOWN = 1
                 & ~/bin/Example-LoginOverview.ps1
             }
 
-      * bash as the login shell, at the end of ~/.profile:
+      * bash as the login shell, at the end of ~/.profile (or ~/.bash_profile when you have one; bash then skips ~/.profile):
 
             case $- in
-                *i*) if [ -n "$SSH_CONNECTION" ] && command -v pwsh >/dev/null; then
+                *i*) if [ -n "$SSH_TTY" ] && command -v pwsh >/dev/null; then
                          pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1
                      fi ;;
             esac
 
-    Output that is not a terminal (scp, rsync, ssh host command) is skipped by both guards: the profile only runs for
-    interactive shells, and ConsoleMonster prints plain text when output is redirected anyway.
+    Output that is not a terminal (scp, rsync, ssh host command) is skipped by both guards: the pwsh guard needs a terminal
+    and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output
+    is redirected anyway.
 #>
 # The repository copy when the script runs from the repository, the installed module otherwise (~/bin).
 $local = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -72,7 +74,7 @@ function Get-OverviewData {
             Host        = 'app-web-03'
             Os          = 'Ubuntu 24.04.3 LTS'
             Kernel      = '6.8.0-85-generic'
-            Uptime      = [timespan]::new(41, 6, 12, 0)
+            Uptime      = New-TimeSpan -Days 41 -Hours 6 -Minutes 12
             Load        = @(0.42, 0.61, 0.58)
             Cpus        = 8
             MemoryTotal = 32GB
@@ -118,8 +120,8 @@ function Get-OverviewData {
 $data = Get-OverviewData -Sample:$Sample
 $memoryPercent = if ($data.MemoryTotal -gt 0) { [math]::Round(100 * $data.MemoryUsed / $data.MemoryTotal) } else { 0 }
 $invariant = [System.Globalization.CultureInfo]::InvariantCulture
-# Percentages the way every ConsoleMonster widget writes them (the bar chart below too): "61%".
-$percentText = { param([double] $Value) [ConsoleMonster.Widgets.NumberFormat]::Percent($Value / 100) }
+# Percentages the way every ConsoleMonster widget writes them (the bar chart below too): whole percents rounded down, "61%".
+$percentText = { param([double] $Value) '{0}%' -f [math]::Floor([math]::Max(0, [math]::Min(100, $Value))) }
 $facts = [ordered] @{
     'OS'         = $data.Os
     'Kernel'     = $data.Kernel

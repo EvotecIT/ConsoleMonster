@@ -8,13 +8,19 @@
  *   <script type="application/json" id="run-data">{...}</script>
  *
  * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
- * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}. Players found when the page loads are
- * mounted automatically; ConsoleMonsterPlayer.mount(element, data) and ConsoleMonsterPlayer.scan(root) mount others.
+ * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
+ * hosts add (ExportPlayerData does not write them): chapter marks under the position bar, each a button that seeks to its moment. Players found when the page loads are
+ * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
+ * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
+ * applies (data-cm-start, a deep link, opens there too but does not autoplay). player.state() reports the position, the
+ * duration and whether it is playing.
  *
  * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
  * frame rate at most, scaled by playback speed, and the clock, the position bar and its accessible text change at most once a second (and on
  * seeking). A player pauses while off-screen or while the tab is hidden and resumes on return. Only one player per page
- * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion.
+ * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion. With
+ * data-cm-loop a player starts again from the beginning when it reaches the end, until it is paused; without it a player
+ * stops on the last frame and nothing runs until the reader plays it again.
  */
 (function () {
     'use strict';
@@ -53,7 +59,7 @@
         return e;
     }
 
-    function Player(host, data) {
+    function Player(host, data, options) {
         var self = this;
         var frames = data.frames || [];
         var rows = data.rows || [];
@@ -102,13 +108,33 @@
         var play = el('button', 'cm-play', controls);
         play.type = 'button';
         play.textContent = 'Play';
-        var seek = el('input', 'cm-seek', controls);
+        var track = el('span', 'cm-track', controls);
+        var seek = el('input', 'cm-seek', track);
         seek.type = 'range';
         seek.min = '0';
         seek.max = String(total);
         seek.step = '10';
         seek.value = '0';
         seek.setAttribute('aria-label', 'Position');
+        // Chapter marks: a labelled button per marker under the position bar, placed at its share of the recording.
+        var marks = data.markers && data.markers.length ? el('span', 'cm-marks', track) : null;
+        if (marks) {
+            controls.classList.add('cm-has-marks');
+            data.markers.forEach(function (marker) {
+                var at = Math.max(0, Math.min(total, +marker[0] || 0));
+                var share = total > 0 ? at / total : 0;
+                var mark = el('button', 'cm-mark', marks);
+                mark.type = 'button';
+                mark.textContent = String(marker[1] || '');
+                mark.setAttribute('aria-label', 'Go to ' + mark.textContent);
+                mark.style.left = (share * 100).toFixed(2) + '%';
+                // The tick is the label's left edge, at the marker's moment; near the end the label hangs left of a right-hand tick.
+                if (share > 0.85) {
+                    mark.className += ' cm-mark--end';
+                }
+                mark.addEventListener('click', function () { self.seek(at); });
+            });
+        }
         var time = el('span', 'cm-time', controls);
         var rate = el('select', 'cm-speed', controls);
         rate.setAttribute('aria-label', 'Speed');
@@ -181,6 +207,15 @@
             var now = performance.now();
             advance(now);
             draw();
+            if (t >= total && self.loop && want) {
+                // Looping: back to the first frame, still playing.
+                t = 0;
+                shown = -1;
+                draw();
+                labels(now);
+                schedule(now);
+                return;
+            }
             if (t >= total) {
                 labels(now);
                 want = false;
@@ -301,8 +336,13 @@
             host.removeAttribute('data-cm-player');
         };
 
+        self.state = function () {
+            return { time: t, duration: total, playing: playing, wanted: want };
+        };
+
         self.element = host;
         self.autoplay = host.hasAttribute('data-cm-autoplay') && host.getAttribute('data-cm-autoplay') !== 'false';
+        self.loop = host.hasAttribute('data-cm-loop') && host.getAttribute('data-cm-loop') !== 'false';
 
         play.addEventListener('click', function () {
             if (want) {
@@ -324,7 +364,7 @@
             }
         });
         function onKeyDown(e) {
-            if (e.target === seek || e.target === rate || e.target === play) {
+            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select'))) {
                 return;
             }
             if (e.key === ' ' || e.key === 'k') {
@@ -340,10 +380,14 @@
         }
         host.addEventListener('keydown', onKeyDown);
 
+        // A deep link (data-cm-start) opens at its moment without autoplay; options.start opens there and keeps it, so a host
+        // that starts at a poster's moment draws that frame once instead of the first frame and then a seek.
         var start = parseFloat(host.getAttribute('data-cm-start') || '');
         if (!isNaN(start)) {
             t = Math.max(0, Math.min(total, start));
             autoplayed = true;
+        } else if (options && isFinite(+options.start) && +options.start > 0) {
+            t = Math.max(0, Math.min(total, +options.start));
         }
         draw();
         labels(performance.now());
@@ -361,7 +405,7 @@
         box.textContent = 'This recording could not be loaded: ' + message;
     }
 
-    function mount(host, data) {
+    function mount(host, data, options) {
         if (!host || host.__cmPlayer) {
             return host ? host.__cmPlayer : null;
         }
@@ -369,7 +413,7 @@
             fail(host, 'not ConsoleMonster player data');
             return null;
         }
-        return new Player(host, data);
+        return new Player(host, data, options);
     }
 
     function load(host) {

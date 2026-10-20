@@ -26,12 +26,7 @@ namespace ConsoleMonster.PowerShell {
         /// </summary>
         /// <param name="liveEvent">The event.</param>
         protected void Send(LiveEvent liveEvent) {
-            LiveSession? session = Session;
-            if (session == null) {
-                object? variable = SessionState.PSVariable.GetValue("ConsoleSession");
-                session = (variable is PSObject ps ? ps.BaseObject : variable) as LiveSession;
-            }
-            session ??= LiveSession.Current;
+            LiveSession? session = ResolveSession();
             if (session == null) {
                 WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Start-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
                 return;
@@ -40,6 +35,17 @@ namespace ConsoleMonster.PowerShell {
                 WriteWarning(UnknownTargetMessage(session, liveEvent.Target, null));
             }
             session.Post(liveEvent);
+        }
+
+        /// <summary>The session updates go to: -Session, then $ConsoleSession, then the running dashboard; null when none runs.</summary>
+        /// <returns>The session, or null.</returns>
+        protected LiveSession? ResolveSession() {
+            LiveSession? session = Session;
+            if (session == null) {
+                object? variable = SessionState.PSVariable.GetValue("ConsoleSession");
+                session = (variable is PSObject ps ? ps.BaseObject : variable) as LiveSession;
+            }
+            return session ?? LiveSession.Current;
         }
 
         /// <summary>The warning for updates sent to a widget name the dashboard does not have.</summary>

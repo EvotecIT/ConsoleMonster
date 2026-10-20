@@ -8,9 +8,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a console dashboard live while a script does the work.</para>
     /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-ConsoleLane, Update-ConsolePhase, Write-ConsoleLog and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.</para>
+    /// </summary>
     /// <example>
     ///   <para>Three servers processed in parallel, three at a time</para>
-    ///   <code>$d = New-ConsoleDashboard -Title 'Patch' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }
+    ///   <code>
+    /// $d = New-ConsoleDashboard -Title 'Patch' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }
     /// 'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     ///     param($Server)
     ///     Update-ConsoleLane -Key $Server -Status Running -Total 5
@@ -19,7 +21,6 @@ namespace ConsoleMonster.PowerShell {
     ///     Update-ConsoleLane -Key $Server -Complete
     /// }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsLifecycle.Start, "ConsoleDashboard")]
     public sealed class CmdletStartConsoleDashboard : PSCmdlet, IDisposable {
         private volatile bool _stopping;
@@ -78,6 +79,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Transient { get; set; }
 
+        /// <summary><para type="description">A run clock (New-ConsoleClock) for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</para></summary>
+        [Parameter]
+        public SimulatedClock? Clock { get; set; }
+
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
         public int FramesPerSecond { get; set; } = 15;
@@ -125,7 +130,8 @@ namespace ConsoleMonster.PowerShell {
                 Summary = Summary,
                 RecordPath = RecordPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordPath),
                 AutoRecord = AutoRecord,
-                RecordingName = "dashboard"
+                RecordingName = "dashboard",
+                Clock = Clock == null ? null : new Func<TimeSpan>(Clock.Read)
             };
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
             if (HostOutput.UseHost(this, profile)) {

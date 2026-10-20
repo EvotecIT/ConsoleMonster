@@ -1,13 +1,13 @@
 ﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
 
-# TestimoX-style parallel run, live: every server is processed in its own runspace (4 at a time).
+# A parallel assessment run, live: every server is processed in its own runspace (4 at a time).
 # Each runspace updates its lane, records rule results and writes to the log with Write-Host / Write-Warning.
 
-$servers = 1..10 | ForEach-Object { 'DC{0:00}.ad.evotec.xyz' -f $_ }
+$servers = 1..10 | ForEach-Object { 'DC{0:00}.ad.adatum.com' -f $_ }
 $rules = 'LDAP signing required', 'SMB signing enforced', 'Replication latency per partner', 'DNS scavenging',
 'Time source hierarchy', 'Kerberos AES-only encryption', 'Audit policy baseline', 'Print Spooler disabled'
 
-$dashboard = New-ConsoleDashboard -Title '[bold]TestimoX[/]' -Subtitle "ad.evotec.xyz · $($servers.Count) domain controllers" -Gap 1 {
+$dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle "ad.adatum.com · $($servers.Count) domain controllers" -Gap 1 {
     New-ConsoleColumns {
         New-ConsolePanel -Title 'Domain controllers' -Weight 2.3 { New-ConsoleLanes -Name lanes -Lane $servers -Total $rules.Count }
         New-ConsolePanel -Title 'Results' {

@@ -23,10 +23,10 @@ namespace ConsoleMonster.Examples.Showcases {
 
             Lanes lanes = new Lanes();
             LanesHandle lh = lanes.Handle(new ImmediateDispatcher(lanes));
-            lh.Add("dc1", "DC01.ad.evotec.xyz", 40);
-            lh.Add("dc2", "DC02.ad.evotec.xyz", 40);
-            lh.Add("dc3", "DC03.eu.ad.evotec.xyz", 40);
-            lh.Add("dc4", "DC04.eu.ad.evotec.xyz", 40);
+            lh.Add("dc1", "DC01.ad.adatum.com", 40);
+            lh.Add("dc2", "DC02.ad.adatum.com", 40);
+            lh.Add("dc3", "DC03.eu.ad.adatum.com", 40);
+            lh.Add("dc4", "DC04.eu.ad.adatum.com", 40);
             for (int i = 0; i < 40; i++) {
                 lh.Advance("dc1", i % 9 == 0 ? StatusKind.Warn : StatusKind.Pass, "LDAP signing required");
             }

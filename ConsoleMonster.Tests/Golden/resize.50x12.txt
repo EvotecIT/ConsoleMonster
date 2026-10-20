@@ -1,12 +1,12 @@
-TestimoX · 123/332 · ✗4 ▴14 · 00:00… · needs 60×20
+Nightly checks · 123/332 · ✗4 ▴14 ·… · needs 60×20
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate
  ○ Report
 
-⠸ ad.evotec.xyz (…  ━━━━━━──────  50%  ✓ 7 ✗ 0 ▴ 1
-✗ eu.ad.evotec.xy…  ━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1
-⠴ DC01.ad.evotec.…  ━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3
-⠦ DC02.ad.evotec.…  ━━━━━━━━━━━─  90%  ✓20 ✗ 0 ▴ 6
-⠧ DC03.ad.evotec.…  ━━━━━━━━────  66%  ✓16 ✗ 3 ▴ 1
-⠇ DC04.ad.evotec.…  ━━━━━━━━━───  76%  ✓20 ✗ 0 ▴ 2
-⠏ DC05.ad.evotec.…  ────────────   0%  ✓ 0 ✗ 0 ▴ 0
+⠸ ad.adatum.com (…  ━━━━━━──────  50%  ✓ 7 ✗ 0 ▴ 1
+✗ eu.ad.adatum.co…  ━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1
+⠴ DC01.ad.adatum.…  ━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3
+⠦ DC02.ad.adatum.…  ━━━━━━━━━━━─  90%  ✓20 ✗ 0 ▴ 6
+⠧ DC03.ad.adatum.…  ━━━━━━━━────  66%  ✓16 ✗ 3 ▴ 1
+⠇ DC04.ad.adatum.…  ━━━━━━━━━───  76%  ✓20 ✗ 0 ▴ 2
+⠏ DC05.ad.adatum.…  ────────────   0%  ✓ 0 ✗ 0 ▴ 0
   +5 more · 0 done · 5 queued

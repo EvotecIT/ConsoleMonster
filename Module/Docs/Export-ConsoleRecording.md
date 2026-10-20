@@ -25,9 +25,11 @@ Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pic
 
 ### EXAMPLE 1
 ```powershell
-Export-ConsoleRecording -Dashboard 'Value' -Path 'C:\Path'
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
+Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36
 ```
 
+An animated SVG and an HTML player of the same run
 
 ## PARAMETERS
 

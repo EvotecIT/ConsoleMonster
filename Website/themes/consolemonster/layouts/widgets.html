@@ -67,7 +67,7 @@
       <p class="cm-specimen__summary">{{ e.summary }}</p>
       <div class="cm-specimen__body">
         <div class="cm-specimen__output">
-          {{~ screen_frame = e.frame; screen_title = e.title; screen_meta = [e.frame.w + "×" + e.frame.h, "24-bit", "Full"]; screen_label = e.title + " rendered by ConsoleMonster" ~}}
+          {{~ screen_frame = e.frame; screen_title = e.title; screen_meta = [e.frame.w + "×" + e.frame.h, "24-bit", "Full"]; screen_label = e.summary ~}}
           {{ include "screen" }}
           {{~ if e.parity.ps7 || e.parity.ps5 ~}}
           <p class="cm-parity">

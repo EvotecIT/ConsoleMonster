@@ -12,6 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.</para>
     /// <para type="description">Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
+    /// </summary>
     /// <example>
     ///   <para>A table as an HTML page</para>
     ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html</code>
@@ -20,7 +21,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A dashboard as an SVG in a window frame, dark only</para>
     ///   <code>$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Export, "ConsoleFrame")]
     [OutputType(typeof(string), typeof(FileInfo))]
     public sealed class CmdletExportConsoleFrame : PSCmdlet {

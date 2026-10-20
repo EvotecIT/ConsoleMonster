@@ -38,16 +38,16 @@ namespace SiteFrames.Pages {
             string showcases = Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "TableShowcases.cs");
             string pages = Path.Combine(site.Tool, "Catalog", "PageExamples.cs");
             Section[] sections = {
-                new Section("dns", "Priority, overflow and a footer for what is hidden", "DnsClientX-style records. The key column never hides; the SPF value wraps at its separators; the cache path is shortened in the middle; low-priority columns hide first and the footer names them.",
+                new Section("dns", "Priority, overflow and a footer for what is hidden", "DNS records. The key column never hides; the SPF value wraps at its separators; the cache path is shortened in the middle; low-priority columns hide first and the footer names them.",
                     TableShowcases.DnsRecords, SourceSnippets.Method(showcases, "public static Table DnsRecords()"),
                     new[] { "Priority, MinWidth and MaxWidth per column", "Wrap with MaxLines, Truncate, TruncateMiddle or Never", "A footer such as +2 columns (TTL, Cache file)" }),
-                new Section("checks", "Status, durations and tone rules", "DomainDetective-style mail checks. Status presenters show a symbol and a word, so the result reads without colour; durations use the presenter's units.",
+                new Section("checks", "Status, durations and tone rules", "Mail-security checks. Status presenters show a symbol and a word, so the result reads without colour; durations use the presenter's units.",
                     TableShowcases.DomainChecks, SourceSnippets.Method(showcases, "public static Table DomainChecks()"),
                     new[] { "Cell presenters shared by tables, cards, key/value lists and trees", "A tone rule colours a value by threshold", "Below 60 cells the rows become cards" }),
-                new Section("testimox", "Groups, subtotals and totals", "A TestimoX run summary grouped by target type, with subtotals, a totals row and a score drawn as a data bar inside the cell.",
-                    TableShowcases.TestimoXSummary, SourceSnippets.Method(showcases, "public static Table TestimoXSummary()"),
+                new Section("summary", "Groups, subtotals and totals", "An assessment run summary grouped by target type, with subtotals, a totals row and a score drawn as a data bar inside the cell.",
+                    TableShowcases.AssessmentSummary, SourceSnippets.Method(showcases, "public static Table AssessmentSummary()"),
                     new[] { "AddGroup with ShowSubtotals", "Sum, Count, Average, Min and Max per column", "A data bar presenter in a cell" }),
-                new Section("artifacts", "Bytes, relative dates and top N", "PSPublishModule-style build artifacts: sizes in bytes, build times, relative dates against a fixed clock, and the first five of 1,234 rows.",
+                new Section("artifacts", "Bytes, relative dates and top N", "Build artifacts: sizes in bytes, build times, relative dates against a fixed clock, and the first five of 1,234 rows.",
                     TableShowcases.PublishArtifacts, SourceSnippets.Method(showcases, "public static Table PublishArtifacts()"),
                     new[] { "Bytes, Duration and Date presenters", "MaxRows with TotalRowCount prints Showing 5 of 1,234", "Numbers follow the culture; the site renders en-US" }),
                 new Section("certificate", "One record as a record view", "A certificate as sections, fields and nested tables. Empty fields are hidden and dates show both absolute and relative forms.",

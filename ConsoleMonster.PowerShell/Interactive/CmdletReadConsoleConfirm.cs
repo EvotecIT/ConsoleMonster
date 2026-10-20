@@ -7,6 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks a yes/no question and returns $true or $false.</para>
     /// <para type="description">Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.</para>
+    /// </summary>
     /// <example>
     ///   <para>A question with a default</para>
     ///   <code>if (Read-ConsoleConfirm 'Restart the service now?' -Default $true) { Restart-Service Spooler }</code>
@@ -15,7 +16,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A typed confirmation before deleting</para>
     ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Description 'This cannot be undone.') { ... }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
     [OutputType(typeof(bool))]
     public sealed class CmdletReadConsoleConfirm : PromptCmdlet {

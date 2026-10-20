@@ -13,7 +13,7 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Rendering {
     /// <summary>
-    /// The TestimoX dashboard mid-run at the widths a user drags through (wide, 100, 80, 60) and below its minimum size
+    /// The assessment dashboard mid-run at the widths a user drags through (wide, 100, 80, 60) and below its minimum size
     /// (compact status line plus priority widgets), and a sweep of sizes that must never throw.
     /// </summary>
     public sealed class ResizeLayoutTests {
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Dashboard_TooSmall_ShowsTheCompactStatusLine() {
             string text = Compose(MidRun(), 79, 12);
-            Assert.StartsWith("TestimoX", text);
+            Assert.StartsWith("Nightly checks", text);
             Assert.Contains("window too small: 79\u00D712", text);
             Assert.Contains("needs 60\u00D720", Compose(MidRun(), 50, 12));
         }

@@ -25,9 +25,17 @@ Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-G
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleSelection -Title 'Value'
+$service = Get-Service | Read-ConsoleSelection 'Service to restart' -Display DisplayName -Describe Name -GroupBy Status
 ```
 
+Pick a service
+
+### EXAMPLE 2
+```powershell
+$environment = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'
+```
+
+Strings with a default
 
 ## PARAMETERS
 

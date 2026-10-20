@@ -25,9 +25,17 @@ What the item does follows from the parameter you give: -Action (a scriptblock, 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleMenuItem -Action { }
+New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description }
 ```
 
+A multi-selection with a computed badge
+
+### EXAMPLE 2
+```powershell
+New-ConsoleMenuItem 'Clear cache' -Action { if ($MenuContext.Confirm('Clear the cache?')) { Clear-AppCache; $MenuContext.Toast('Cache cleared') } }
+```
+
+An action that asks first and shows a toast
 
 ## PARAMETERS
 
@@ -352,7 +360,7 @@ Accept wildcard characters: False
 ```
 
 ### -Presets
-Makes the item list the menu's saved presets (Enter applies one, Delete removes it).
+Makes the item list the menu's presets: the ones it comes with (New-ConsoleMenu -Preset or New-ConsoleMenuPreset in its scriptblock) first, marked as built in, with their previews, then the saved ones. Enter applies one; Delete removes a saved one (Shell and Classic layouts; the Inline layout applies them only).
 
 ```yaml
 Type: SwitchParameter

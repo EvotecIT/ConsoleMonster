@@ -25,9 +25,10 @@ Children fill the grid row by row. When columns would become narrower than 24 ce
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleGrid -Content { }
+New-ConsoleGrid -Columns 3 { New-ConsoleSparkline -Name a; New-ConsoleSparkline -Name b; New-ConsoleSparkline -Name c }
 ```
 
+Three charts in a row
 
 ## PARAMETERS
 

@@ -12,10 +12,11 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
-    /// A run started from a menu, shown in the app's own frame: the same header bar (the breadcrumb gains the run), the
-    /// same content panel (titled with the dashboard's title, the status and the clock as its caption) and the same footer
-    /// (ctrl+c stop). A dashboard's own header and footer are left out, so going from choosing to running changes only the
-    /// content. Rendered by the live session's thread while the run lasts.
+    /// A run started from a menu, shown in the app's own frame: the same header bar (the breadcrumb gains "Running"), the
+    /// same content panel (titled with the dashboard's title, with its subtitle, status and the clock as the caption; a run
+    /// of any other widget is titled "Run" with the clock) and the same footer (ctrl+c stop). A dashboard's own header and
+    /// footer are left out, so going from choosing to running changes only the content. Rendered by the live session's
+    /// thread while the run lasts.
     /// </summary>
     internal sealed class RunPane : IPane {
         private readonly IWidget _body;
@@ -28,15 +29,32 @@ namespace ConsoleMonster.Interactive {
             _labels = labels;
         }
 
-        public string Title => _labels.Run;
+        // The dashboard's own title names the panel (the breadcrumb says "Running"); a plain widget run is just "Run".
+        public string Title => _dashboard != null && !string.IsNullOrWhiteSpace(_dashboard.Title) ? Markup.Strip(_dashboard.Title) : _labels.Run;
 
         /// <summary>The run clock, set by the view before each frame.</summary>
         public TimeSpan Elapsed { get; set; }
 
+        /// <summary>The mark between the caption's parts for the glyph tier ("·", or "|" in ASCII), set by the view before each frame.</summary>
+        public string Separator { get; set; } = "·";
+
+        // The caption carries what the dashboard's header would have shown: its subtitle and status, then the clock. The
+        // status is read on every frame, so a status the work posts while it runs shows at once.
         public string? Caption {
             get {
                 string clock = NumberFormat.Clock(Elapsed);
-                return _dashboard != null && !string.IsNullOrEmpty(_dashboard.Status) ? Markup.Strip(_dashboard.Status!) + "  " + clock : clock;
+                if (_dashboard == null) {
+                    return clock;
+                }
+                List<string> parts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(_dashboard.Subtitle)) {
+                    parts.Add(Markup.Strip(_dashboard.Subtitle!));
+                }
+                if (!string.IsNullOrWhiteSpace(_dashboard.Status)) {
+                    parts.Add(Markup.Strip(_dashboard.Status!));
+                }
+                parts.Add(clock);
+                return string.Join("  " + Separator + "  ", parts.ToArray());
             }
         }
 
@@ -80,6 +98,7 @@ namespace ConsoleMonster.Interactive {
 
         public void Render(Region region, RenderContext context) {
             _pane.Elapsed = context.Elapsed;
+            _pane.Separator = InteractiveGlyphs.For(context).Separator;
             ViewFrame frame = new ViewFrame(context, region.Width, region.Height, false, context.Elapsed);
             _app.BuildFrame(frame).Render(region, context);
         }
@@ -108,7 +127,6 @@ namespace ConsoleMonster.Interactive {
             }
             WindowsConsoleInput? raw = input as WindowsConsoleInput;
             raw?.Suspend();
-            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
             RunResult result;
             RunPane pane = new RunPane(dashboard, view.Labels);
             show(pane);
@@ -131,8 +149,9 @@ namespace ConsoleMonster.Interactive {
                 PromptHost.Current = previous;
                 raw?.Resume();
             }
+            // The run's time on the session clock: real time, or the simulated clock the options give.
             if (result.Elapsed == TimeSpan.Zero) {
-                result.Elapsed = watch.Elapsed;
+                result.Elapsed = session.Elapsed;
             }
             return result;
         }

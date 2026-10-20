@@ -8,11 +8,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Compares two sets of objects and shows what was added, removed and changed, property by property.</para>
     /// <para type="description">Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.</para>
+    /// </summary>
     /// <example>
     ///   <para>What changed between two exports</para>
     ///   <code>Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Compare, "ConsoleObject")]
     [OutputType(typeof(ObjectChange))]
     public sealed class CmdletCompareConsoleObject : PSCmdlet {
@@ -85,11 +85,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the changes an action would make and asks before making them: the what-if pattern.</para>
     /// <para type="description">Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.</para>
+    /// </summary>
     /// <example>
     ///   <para>Preview a group membership change</para>
     ///   <code>if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.Show, "ConsoleChanges", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     [OutputType(typeof(bool))]
     public sealed class CmdletShowConsoleChanges : PSCmdlet {

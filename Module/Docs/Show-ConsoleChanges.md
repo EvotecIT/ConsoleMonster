@@ -25,9 +25,10 @@ Compares -Before with -After (as Compare-ConsoleObject does), shows the preview,
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleChanges -Before @('Value') -After @('Value')
+if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }
 ```
 
+Preview a group membership change
 
 ## PARAMETERS
 

@@ -98,7 +98,8 @@ namespace ConsoleMonster.Interactive {
         public RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
             Location? location = null;
             RunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
-                location = new Location(pane.Title, pane, null);
+                // The breadcrumb says the app is running; the dashboard's title names the panel, so it is not said twice.
+                location = new Location(Labels.Running, pane, context.Item);
                 Push(location);
             }, () => {
                 if (location != null) {
@@ -131,6 +132,9 @@ namespace ConsoleMonster.Interactive {
             }
 
             public string Title { get; }
+
+            /// <summary>The content panel's title when it differs from the breadcrumb (a run: "Running" there, the dashboard here).</summary>
+            public string? PanelTitle => (Pane as RunPane)?.Title;
 
             public IPane Pane { get; }
 
@@ -208,7 +212,7 @@ namespace ConsoleMonster.Interactive {
                     pane = new ReviewPane(item, () => Context(item), Labels, action => Invoke(item, action, null), text => Clipboard.TrySetText(text), _store == null ? null : (Action)PromptPresetName, ShowToast, Back);
                     break;
                 case MenuItemKind.Presets:
-                    pane = new PresetsPane(item, Labels, MenuPresetNames, ApplyMenuPreset, DeleteMenuPreset);
+                    pane = new PresetsPane(item, Labels, ListMenuPresets, ApplyMenuPreset, DeleteMenuPreset);
                     break;
                 case MenuItemKind.Exit:
                     pane = new ActionPane(item, Labels, RequestExit);
@@ -386,7 +390,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             Dictionary<string, object?> values = new Dictionary<string, object?>(StringComparer.Ordinal);
-            Collect(_root, string.Empty, values);
+            MenuPresets.Collect(_root, string.Empty, values);
             try {
                 _store.SaveLast(SelectionKey, values);
             } catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException) {
@@ -394,136 +398,11 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private static void Collect(Menu menu, string path, Dictionary<string, object?> values) {
-            foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
-                if (item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) {
-                    List<string> stored = new List<string>();
-                    foreach (object? v in item.Selection) {
-                        if (v != null) {
-                            stored.Add(CommandLine.Format(v));
-                        }
-                    }
-                    values[key] = stored;
-                }
-                if (item.SubmenuDefinition != null) {
-                    Collect(item.SubmenuDefinition, key + "/", values);
-                }
-            }
-        }
-
         private void RestoreSelections() {
             if (_store == null || !_options.RememberLastChoices || !(_store.LoadLast(SelectionKey) is IDictionary<string, object?> values)) {
                 return;
             }
-            Restore(_root, string.Empty, values);
-        }
-
-        private static void Restore(Menu menu, string path, IDictionary<string, object?> values) {
-            foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
-                if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && values.TryGetValue(key, out object? stored) && stored is System.Collections.IEnumerable list) {
-                    HashSet<string> wanted = new HashSet<string>(StringComparer.Ordinal);
-                    foreach (object? v in list) {
-                        if (v is string s) {
-                            wanted.Add(s);
-                        }
-                    }
-                    List<object?> selection = new List<object?>();
-                    foreach (Choice c in item.Choices) {
-                        if (c.Value != null && c.IsEnabled && wanted.Contains(CommandLine.Format(c.Value))) {
-                            selection.Add(c.Value);
-                        }
-                    }
-                    item.SetSelection(selection);
-                }
-                if (item.SubmenuDefinition != null) {
-                    Restore(item.SubmenuDefinition, key + "/", values);
-                }
-            }
-        }
-
-        // ---- menu presets: every selection and form value under one name ------------------------------------------
-
-        private const string PresetKey = "menu";
-
-        private IReadOnlyList<string> MenuPresetNames() => _store == null ? (IReadOnlyList<string>)new string[0] : _store.PresetNames(PresetKey);
-
-        private void PromptPresetName() {
-            ShowModal(new TextDialog(Labels.SavePreset, null, null, null, SaveMenuPreset, Labels));
-        }
-
-        private void SaveMenuPreset(string name) {
-            if (_store == null) {
-                return;
-            }
-            Dictionary<string, object?> selections = new Dictionary<string, object?>(StringComparer.Ordinal);
-            Collect(_root, string.Empty, selections);
-            Dictionary<string, object?> forms = new Dictionary<string, object?>(StringComparer.Ordinal);
-            CollectForms(_root, forms);
-            Dictionary<string, object?> values = new Dictionary<string, object?>(StringComparer.Ordinal) { ["selections"] = selections, ["forms"] = forms };
-            try {
-                _store.SavePreset(PresetKey, name, values);
-                ShowToast(new Toast(PromptLabels.Format(Labels.PresetSaved, name)));
-            } catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException) {
-                ShowToast(new Toast(ex.Message, StatusKind.Fail));
-            }
-        }
-
-        private static void CollectForms(Menu menu, Dictionary<string, object?> forms) {
-            foreach (MenuItem item in menu.Items) {
-                if (item.FormDefinition != null) {
-                    forms[item.FormDefinition.Key] = item.FormDefinition.ToStored();
-                }
-                if (item.SubmenuDefinition != null) {
-                    CollectForms(item.SubmenuDefinition, forms);
-                }
-            }
-        }
-
-        private void ApplyMenuPreset(string name) {
-            if (_store == null || !(_store.LoadPreset(PresetKey, name) is IDictionary<string, object?> values)) {
-                return;
-            }
-            if (values.TryGetValue("selections", out object? selections) && selections is IDictionary<string, object?> selectionMap) {
-                Restore(_root, string.Empty, selectionMap);
-                List<MenuItem> stale = new List<MenuItem>();
-                foreach (KeyValuePair<MenuItem, IPane> pair in _panes) {
-                    if (pair.Value is ChoiceItemPane) {
-                        stale.Add(pair.Key);
-                    }
-                }
-                foreach (MenuItem item in stale) {
-                    _panes.Remove(item);
-                }
-            }
-            if (values.TryGetValue("forms", out object? forms) && forms is IDictionary<string, object?> formMap) {
-                ApplyForms(_root, formMap);
-            }
-            ShowToast(new Toast(PromptLabels.Format(Labels.PresetApplied, name), StatusKind.Info));
-        }
-
-        private void ApplyForms(Menu menu, IDictionary<string, object?> forms) {
-            foreach (MenuItem item in menu.Items) {
-                if (item.FormDefinition != null && forms.TryGetValue(item.FormDefinition.Key, out object? stored) && stored is IDictionary<string, object?> map) {
-                    if (_panes.TryGetValue(item, out IPane? pane) && pane is FormView view) {
-                        view.ApplyValues(map);
-                    } else {
-                        item.FormDefinition.ApplyStored(map);
-                    }
-                }
-                if (item.SubmenuDefinition != null) {
-                    ApplyForms(item.SubmenuDefinition, forms);
-                }
-            }
-        }
-
-        private void DeleteMenuPreset(string name) {
-            ShowModal(new ConfirmDialog(Labels.Presets, name, () => {
-                if (_store != null && _store.DeletePreset(PresetKey, name)) {
-                    ShowToast(new Toast(name, StatusKind.Info));
-                }
-            }, Labels, true));
+            MenuPresets.Restore(_root, string.Empty, values);
         }
 
         // ---- palette ---------------------------------------------------------------------------------------------
@@ -539,10 +418,14 @@ namespace ConsoleMonster.Interactive {
                         commands.Add(new PaletteCommand(name, _ => {
                             Activate(item);
                             form.ApplyPreset(name);
-                        }) { Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Title });
+                        }) {
+                            Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Title,
+                            Description = form.IsBuiltInPreset(name) ? Labels.BuiltIn : null
+                        });
                     }
                 }
             }
+            AddUnopenedFormPresets(_root, commands);
             foreach (ICommandProvider provider in _root.CommandProviders) {
                 try {
                     foreach (PaletteCommand command in provider.GetCommands()) {

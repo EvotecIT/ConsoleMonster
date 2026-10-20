@@ -18,7 +18,7 @@ using SiteFrames.Vt;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Live dashboards: the TestimoX-style assessment replayed from its JSON-lines recording, and the build pipeline, the
+    /// Live dashboards: the parallel assessment replayed from its JSON-lines recording, and the build pipeline, the
     /// stress test and the CI narration recorded from real runs in a pseudo console.
     /// </summary>
     internal static class LivePage {
@@ -32,7 +32,7 @@ namespace SiteFrames.Pages {
             yield return ("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
             yield return ("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
             yield return ("stress", "ConsoleMonster.Examples stress 12", site => PseudoConsole.Run("\"" + Examples(site) + "\" stress 12", 120, 40, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(2)), 120, 40);
-            yield return ("testimox-stream", "ConsoleMonster.Examples testimox --speed 6", site => PseudoConsole.Run("\"" + Examples(site) + "\" testimox --speed 6", 100, 400, PowerShellRunner.Environment("dark", mode: "stream"), site.Repository, TimeSpan.FromMinutes(2)), 100, 400);
+            yield return ("assessment-stream", "ConsoleMonster.Examples assessment --speed 6", site => PseudoConsole.Run("\"" + Examples(site) + "\" assessment --speed 6", 100, 400, PowerShellRunner.Environment("dark", mode: "stream"), site.Repository, TimeSpan.FromMinutes(2)), 100, 400);
         }
 
         public static void Capture(Site site) {
@@ -42,7 +42,9 @@ namespace SiteFrames.Pages {
                 List<OutputChunk> chunks = recording.Run(site);
                 string path = CastPath(site, recording.Id);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                File.WriteAllText(path, Replays.ToCast(chunks, recording.Width, recording.Height, recording.Title), new System.Text.UTF8Encoding(false));
+                // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
+                string cast = Regex.Replace(Replays.ToCast(chunks, recording.Width, recording.Height, recording.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
+                File.WriteAllText(path, cast, new System.Text.UTF8Encoding(false));
                 Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
         }
@@ -66,10 +68,10 @@ namespace SiteFrames.Pages {
 
             // The assessment: synthetic events from the examples, written with LiveRecorder and read back with LiveRecordingReader.
             string jsonLines = Replays.Record(ParallelRunRecording.Generate());
-            site.Write(Path.Combine(downloads, "testimox-run.jsonl"), jsonLines);
+            site.Write(Path.Combine(downloads, "assessment-run.jsonl"), jsonLines);
             List<LiveEvent> events = Replays.Read(jsonLines);
-            live["testimox"] = Assessment(site, events, jsonLines, 120, 36, "testimox", 5, 2);
-            live["testimoxCompact"] = Assessment(site, events, jsonLines, 64, 30, "testimox-compact", 3, 2.5);
+            live["assessment"] = Assessment(site, events, jsonLines, 120, 36, "assessment", 5, 2);
+            live["assessmentCompact"] = Assessment(site, events, jsonLines, 64, 30, "assessment-compact", 3, 2.5);
 
             // Recorded runs.
             live["pipeline"] = new JsonObject {
@@ -81,9 +83,9 @@ namespace SiteFrames.Pages {
             stress["result"] = StressResult(site);
             live["stress"] = stress;
             live["stream"] = Stream(site);
-            live["query"] = Figures.Figure(site, "ConsoleMonster.Examples query", "DnsClientX and DomainDetective style query results printed once.", QueryResults.Build(), 100, rebuild: QueryResults.Build);
+            live["query"] = Figures.Figure(site, "ConsoleMonster.Examples query", "DNS and mail-security query results printed once.", QueryResults.Build(), 100, rebuild: QueryResults.Build);
 
-            live["testimoxSource"] = SourceSnippets.Method(Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "ParallelRun.cs"), "public static Dashboard Build(out Lanes lanes)");
+            live["assessmentSource"] = SourceSnippets.Method(Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "ParallelRun.cs"), "public static Dashboard Build(out Lanes lanes)");
             live["pipelineScript"] = Site.ReadText(Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"));
             site.WriteJson(site.Data("live"), live);
         }
@@ -100,7 +102,7 @@ namespace SiteFrames.Pages {
                 Glyphs = GlyphTier.Full,
                 Culture = Site.Culture,
                 HoldLastFrame = TimeSpan.FromSeconds(4),
-                Title = "ConsoleMonster.Examples testimox"
+                Title = "ConsoleMonster.Examples assessment"
             });
             site.Write(site.Static("replays/" + id + ".json"), data);
             (long duration, int count) = Summary(data);
@@ -214,7 +216,7 @@ namespace SiteFrames.Pages {
         }
 
         private static JsonObject Stream(Site site) {
-            string path = CastPath(site, "testimox-stream");
+            string path = CastPath(site, "assessment-stream");
             if (!File.Exists(path)) {
                 return new JsonObject();
             }

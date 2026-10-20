@@ -15,7 +15,7 @@
 <main id="main" class="cm-main">
 {{~ it = data.interactive; shell = null; for s in it.stories; if s.id == "shell"; shell = s; end; end ~}}
 {{~ capture art ~}}
-{{~ player_data = shell.player; player_title = "ConsoleMonster.Examples toolbox"; player_meta = [shell.player.w + "×" + shell.player.h, "24-bit", "Full"]; player_label = "The server toolbox menu in the Shell layout, driven by scripted keys"; player_autoplay = true; player_class = "cm-window--center" ~}}
+{{~ player_data = shell.player; player_title = "Server toolbox"; player_meta = [shell.player.w + "×" + shell.player.h, "24-bit", "Full"]; player_label = "The server toolbox menu in the Shell layout, driven by scripted keys"; player_autoplay = true; player_class = "cm-window--center" ~}}
 {{ include "player" }}
 {{~ end ~}}
 {{~ stage_title = page.title; stage_lede = page.description; stage_side = ""; stage_art = art; stage_wide = true ~}}

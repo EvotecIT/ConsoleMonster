@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -111,55 +112,190 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>
-        /// Wraps a command line for display, breaking between arguments (a parameter stays with its value) and only inside
-        /// an argument when it alone is wider than the line.
+        /// Wraps a command line for display, breaking between arguments (a parameter stays with its value), then between
+        /// the items of a list value, and only inside a token when it alone is wider than the line.
         /// </summary>
         /// <param name="command">The command line.</param>
         /// <param name="width">The line width.</param>
         /// <returns>The lines.</returns>
-        public static IReadOnlyList<string> Wrap(string command, int width) {
-            List<string> lines = new List<string>();
+        public static IReadOnlyList<string> Wrap(string command, int width) => Wrap(command, width, 0);
+
+        /// <summary>
+        /// Wraps a command line for display with continuation lines indented. Breaks fall between arguments first (a
+        /// parameter stays with its value: <c>-Name value</c>); an argument too wide for a line of its own breaks between
+        /// the items of its list value (after each comma, never inside quotes), with those lines indented twice as far; a
+        /// parameter and its value part only when they cannot share a line; and a token is cut only when it alone is wider
+        /// than a line. Widths are terminal cells.
+        /// </summary>
+        /// <param name="command">The command line.</param>
+        /// <param name="width">The line width (at least 8).</param>
+        /// <param name="indent">The cells continuation lines start with (at most half the width).</param>
+        /// <returns>The lines, continuation lines starting with the indent.</returns>
+        public static IReadOnlyList<string> Wrap(string command, int width, int indent) {
             if (string.IsNullOrEmpty(command)) {
-                return lines;
+                return new List<string>();
             }
             width = Math.Max(8, width);
+            indent = Math.Max(0, Math.Min(width / 2, indent));
+            int listIndent = Math.Min(width / 2, indent * 2);
+            WrapWriter writer = new WrapWriter(width, indent);
             List<string> tokens = Tokens(command);
-            List<string> groups = new List<string>();
             for (int i = 0; i < tokens.Count; i++) {
                 string token = tokens[i];
-                bool parameter = token.Length > 1 && (token[0] == '-' || token[0] == '/') && !char.IsDigit(token[1]);
-                if (parameter && i + 1 < tokens.Count && !(tokens[i + 1].Length > 1 && (tokens[i + 1][0] == '-' || tokens[i + 1][0] == '/') && !char.IsDigit(tokens[i + 1][1]))) {
-                    groups.Add(token + " " + tokens[i + 1]);
-                    i++;
+                string? value = IsParameter(token) && i + 1 < tokens.Count && !IsParameter(tokens[i + 1]) ? tokens[++i] : null;
+                string whole = value == null ? token : token + " " + value;
+                if (writer.Fits(whole) || writer.FitsAlone(whole)) {
+                    // The argument fits here or on a line of its own: never split it.
+                    writer.Place(whole, indent);
+                    continue;
+                }
+                // Too wide for any line: it starts a line of its own, the parameter first, then its value item by item; the
+                // next argument starts a new line too, so it never reads as one more item of the list.
+                List<string> items = ListItems(value ?? token);
+                writer.StartLine(indent);
+                if (value == null) {
+                    writer.PlaceItems(items, true, listIndent);
                 } else {
-                    groups.Add(token);
+                    writer.Place(token, indent);
+                    writer.PlaceItems(items, false, listIndent);
                 }
+                writer.BreakBeforeNext();
             }
-            StringBuilder line = new StringBuilder();
-            foreach (string group in groups) {
-                int needed = (line.Length > 0 ? 1 : 0) + group.Length;
-                if (line.Length > 0 && line.Length + needed > width) {
-                    lines.Add(line.ToString());
-                    line.Clear();
-                }
-                string rest = group;
-                while (rest.Length > width) {
-                    if (line.Length > 0) {
-                        lines.Add(line.ToString());
-                        line.Clear();
+            return writer.Finish();
+        }
+
+        // A parameter name: -Name, --name or /name (not a negative number).
+        private static bool IsParameter(string token) => token.Length > 1 && (token[0] == '-' || token[0] == '/') && !char.IsDigit(token[1]);
+
+        // The items of a list value, each but the last keeping its comma; commas inside quotes stay inside their item.
+        private static List<string> ListItems(string value) {
+            List<string> items = new List<string>();
+            StringBuilder current = new StringBuilder();
+            char quote = '\0';
+            foreach (char c in value) {
+                current.Append(c);
+                if (quote != '\0') {
+                    if (c == quote) {
+                        quote = '\0';
                     }
-                    lines.Add(rest.Substring(0, width));
-                    rest = rest.Substring(width);
+                    continue;
                 }
-                if (line.Length > 0) {
-                    line.Append(' ');
+                if (c == '\'' || c == '"') {
+                    quote = c;
+                } else if (c == ',') {
+                    items.Add(current.ToString());
+                    current.Clear();
                 }
-                line.Append(rest);
             }
-            if (line.Length > 0) {
-                lines.Add(line.ToString());
+            if (current.Length > 0) {
+                items.Add(current.ToString());
             }
-            return lines;
+            return items;
+        }
+
+        /// <summary>Builds wrapped lines: what is placed goes on the current line when it fits, else on a new indented one.</summary>
+        private sealed class WrapWriter {
+            private readonly List<string> _lines = new List<string>();
+            private readonly StringBuilder _line = new StringBuilder();
+            private readonly int _width;
+            private readonly int _indent;
+            private int _used;
+            private bool _content;
+            private bool _break;
+
+            public WrapWriter(int width, int indent) {
+                _width = width;
+                _indent = indent;
+            }
+
+            // Whether text fits after what the current line holds (with a space between).
+            public bool Fits(string text) => !_break && _used + (_content ? 1 : 0) + DisplayWidth.Measure(text) <= _width;
+
+            /// <summary>Makes the next word start a new line.</summary>
+            public void BreakBeforeNext() => _break = _content;
+
+            /// <summary>Starts a new line indented by <paramref name="pad"/> unless the current one is still empty.</summary>
+            public void StartLine(int pad) {
+                if (_content) {
+                    NewLine(pad);
+                }
+            }
+
+            // Whether text fits a continuation line of its own.
+            public bool FitsAlone(string text) => _indent + DisplayWidth.Measure(text) <= _width;
+
+            /// <summary>Places a word: after a space when it fits, else on a new line indented by <paramref name="pad"/>.</summary>
+            public void Place(string text, int pad) {
+                if (_content && !Fits(text)) {
+                    NewLine(pad);
+                }
+                if (_content) {
+                    Append(" ");
+                }
+                AppendCut(text, pad);
+            }
+
+            /// <summary>Places list items: the first after a space (unless it starts the argument), the rest straight after the previous comma.</summary>
+            public void PlaceItems(List<string> items, bool startsArgument, int pad) {
+                for (int i = 0; i < items.Count; i++) {
+                    string item = items[i];
+                    bool spaced = i == 0 && _content;
+                    int needed = (spaced ? 1 : 0) + DisplayWidth.Measure(item);
+                    if (_content && (_break || _used + needed > _width)) {
+                        NewLine(i == 0 && startsArgument ? _indent : pad);
+                        spaced = false;
+                    }
+                    if (spaced) {
+                        Append(" ");
+                    }
+                    AppendCut(item, pad);
+                }
+            }
+
+            public List<string> Finish() {
+                if (_content) {
+                    _lines.Add(_line.ToString());
+                }
+                return _lines;
+            }
+
+            private void NewLine(int pad) {
+                _lines.Add(_line.ToString());
+                _line.Clear();
+                _line.Append(' ', pad);
+                _used = pad;
+                _content = false;
+                _break = false;
+            }
+
+            private void Append(string text) {
+                _line.Append(text);
+                _used += DisplayWidth.Measure(text);
+                _content = true;
+            }
+
+            // Appends text, cutting it at the line end only when it is wider than the room left on a fresh line.
+            private void AppendCut(string text, int pad) {
+                if (_used + DisplayWidth.Measure(text) <= _width) {
+                    Append(text);
+                    return;
+                }
+                StringBuilder part = new StringBuilder();
+                int partWidth = 0;
+                foreach (TextCell cell in DisplayWidth.Cells(text)) {
+                    if (_used + partWidth + cell.Width > _width && (partWidth > 0 || _content)) {
+                        Append(part.ToString());
+                        NewLine(pad);
+                        part.Clear();
+                        partWidth = 0;
+                    }
+                    part.Append(cell.Glyph);
+                    partWidth += cell.Width;
+                }
+                if (part.Length > 0) {
+                    Append(part.ToString());
+                }
+            }
         }
 
         private static List<string> Tokens(string command) {

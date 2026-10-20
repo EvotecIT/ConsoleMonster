@@ -30,15 +30,20 @@ Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagF
 
 ### EXAMPLE 1
 ```powershell
-Invoke-ConsolePester -Path @('C:\Path')
+Invoke-ConsolePester
 ```
 
+The tests of the current folder
 
 ### EXAMPLE 2
 ```powershell
-Invoke-ConsolePester -Configuration 'Value'
+$c = New-PesterConfiguration
+$c.Run.Path = '.\Tests'
+$c.Filter.Tag = 'Unit'
+$r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru
 ```
 
+A configuration, on the full screen, with the final dashboard saved
 
 ## PARAMETERS
 

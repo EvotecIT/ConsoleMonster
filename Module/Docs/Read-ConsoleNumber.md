@@ -25,9 +25,10 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleNumber -Title 'Value'
+$port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
 ```
 
+A port number
 
 ## PARAMETERS
 

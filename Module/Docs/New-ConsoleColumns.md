@@ -8,28 +8,56 @@ schema: 2.0.0
 ## SYNOPSIS
 Places console widgets side by side.
 
-Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.
+Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleColumns [-Content] <scriptblock> [-Gap <int>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleColumns [-Content] <scriptblock> [-Gap <int>] [-FixedWidth <int[]>] [-CollapseBelow <int>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Places console widgets side by side.
 
-Children share the width equally unless they were created with -Weight. Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content.
+Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleColumns -Content { }
+New-ConsoleColumns { New-ConsolePanel -Title 'Steps' -Weight 2 { New-ConsoleStatusList -Name steps }; New-ConsolePanel -Title 'Info' { New-ConsoleKeyValue -Name info } }
 ```
 
+Two panels, the first twice as wide
+
+### EXAMPLE 2
+```powershell
+New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 {
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check' }
+    New-ConsolePanel -Title 'Slowest' { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Took' }
+    New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8 -Height 5 }
+}
+```
+
+Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells
 
 ## PARAMETERS
+
+### -CollapseBelow
+The width in cells below which the columns stack vertically (default: the sum of the children's minimum widths, counting 16 cells for each shared column).
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Content
 Scriptblock that emits the child widgets.
@@ -52,6 +80,22 @@ Take the remaining height of a live dashboard.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FixedWidth
+Fixed widths in cells, one per child in order; 0 (or no entry) keeps the child's share of the width (-Weight).
+
+```yaml
+Type: Int32[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

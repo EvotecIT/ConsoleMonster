@@ -25,9 +25,10 @@ Set -Status Running when a phase starts; its duration is measured until it gets 
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsolePhase -Key 'Value'
+Update-ConsolePhase -Key Build -Status Running; dotnet build; Update-ConsolePhase -Key Build -Status Pass
 ```
 
+Start and finish a phase
 
 ## PARAMETERS
 

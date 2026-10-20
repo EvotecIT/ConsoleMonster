@@ -2,7 +2,7 @@
 title: Coming from Spectre.Console
 description: Spectre.Console concepts and their ConsoleMonster counterparts, with the markup dialect the two share and where it differs.
 slug: spectre-console
-order: 2
+order: 3
 ---
 
 Spectre.Console is a widely used .NET library for rich console output, and its markup syntax is familiar to many .NET developers. ConsoleMonster is a separate library with its own parser and renderer. Its markup follows the same dialect, so a reader who knows one can read the other. This page maps the concepts from one to the other and notes where they behave differently.

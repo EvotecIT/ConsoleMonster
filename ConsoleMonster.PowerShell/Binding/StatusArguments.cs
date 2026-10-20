@@ -21,15 +21,32 @@ namespace ConsoleMonster.PowerShell.Binding {
                 return value;
             }
             if (value is string text) {
-                if (Enum.TryParse(text, true, out StatusKind named) && Enum.IsDefined(typeof(StatusKind), named) && !int.TryParse(text, out _)) {
-                    return named;
-                }
-                if (StatusKinds.TryParse(text, out StatusKind status)) {
+                if (StatusArguments.TryParse(text, out StatusKind status)) {
                     return status;
                 }
                 throw new ArgumentTransformationMetadataException("'" + text + "' is not a status. Use one of: " + string.Join(", ", StatusKinds.Words) + ".");
             }
             return value;
+        }
+    }
+
+    /// <summary>Reads a status given as a <see cref="StatusKind"/>, an enum name or one of PowerShell's status words.</summary>
+    internal static class StatusArguments {
+        /// <summary>Reads a status; numbers are refused, so a count is never taken for a status.</summary>
+        /// <param name="value">A <see cref="StatusKind"/> or its text.</param>
+        /// <param name="status">The status read.</param>
+        /// <returns>Whether the value is a status.</returns>
+        public static bool TryParse(object? value, out StatusKind status) {
+            object? unwrapped = value is PSObject wrapped ? wrapped.BaseObject : value;
+            if (unwrapped is StatusKind kind) {
+                status = kind;
+                return true;
+            }
+            string text = Convert.ToString(unwrapped, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+            if (Enum.TryParse(text, true, out status) && Enum.IsDefined(typeof(StatusKind), status) && !int.TryParse(text, out _)) {
+                return true;
+            }
+            return StatusKinds.TryParse(text, out status);
         }
     }
 

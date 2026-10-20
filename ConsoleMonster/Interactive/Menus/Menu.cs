@@ -37,6 +37,34 @@ namespace ConsoleMonster.Interactive {
         /// <summary>App-wide key bindings (shown in the key map and, by priority, in the footer).</summary>
         public IList<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
 
+        /// <summary>
+        /// The presets the app comes with (declared on the root menu): a <see cref="MenuItem.Presets"/> item lists them
+        /// before the presets people save, marked as built in; they cannot be overwritten or deleted. A saved preset whose
+        /// name matches a built-in one (ignoring case) is hidden.
+        /// </summary>
+        public IList<MenuPreset> Presets { get; } = new List<MenuPreset>();
+
+        /// <summary>Adds a built-in preset and configures it (see <see cref="Presets"/>).</summary>
+        /// <param name="name">The name; a saved preset cannot take it.</param>
+        /// <param name="configure">Sets what the preset selects and fills in.</param>
+        /// <returns>The menu.</returns>
+        public Menu Preset(string name, Action<MenuPreset> configure) {
+            MenuPreset preset = new MenuPreset(name);
+            configure?.Invoke(preset);
+            Presets.Add(preset);
+            return this;
+        }
+
+        /// <summary>The built-in preset with a name (ignoring case), or null.</summary>
+        internal MenuPreset? FindPreset(string name) {
+            foreach (MenuPreset preset in Presets) {
+                if (string.Equals(preset.Name, name, StringComparison.OrdinalIgnoreCase)) {
+                    return preset;
+                }
+            }
+            return null;
+        }
+
         /// <summary>Adds an item and configures it.</summary>
         /// <param name="title">The title.</param>
         /// <param name="configure">Configures the item.</param>

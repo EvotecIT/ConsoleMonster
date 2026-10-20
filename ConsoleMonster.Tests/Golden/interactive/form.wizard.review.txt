@@ -14,7 +14,7 @@
 │                                                                              │
 │  ╭─ Equivalent command ───────────────────────────────────────────────────╮  │
 │  │ Install-Agent -Edition pro -CustomAccount -UserName svc                │  │
-│  │ -Password <secret> -Site waw                                           │  │
+│  │   -Password <secret> -Site waw                                         │  │
 │  ╰────────────────────────────────────────────────────────────────────────╯  │
 │                                                                              │
 │                                                                              │

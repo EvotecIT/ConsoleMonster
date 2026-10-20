@@ -25,9 +25,10 @@ Adds the item when it does not exist. -Detail shows a right-aligned muted note s
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleStatus -Key 'Value'
+Update-ConsoleStatus -Key restore -Status Pass -Detail '1.6s'
 ```
 
+Mark a step as passed with its duration
 
 ## PARAMETERS
 

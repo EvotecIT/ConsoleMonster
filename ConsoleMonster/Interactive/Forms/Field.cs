@@ -65,7 +65,11 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Whether a value was set explicitly (rather than taken from the default).</summary>
         internal bool HasExplicitValue => _valueSet;
 
-        internal static object? CloneValue(object? value) {
+        /// <summary>Copies selection containers while preserving a single choice's value, even when it is enumerable.</summary>
+        internal object? CloneValue(object? value) {
+            if (this is ChoiceField choice && !choice.Multiple) {
+                return value;
+            }
             if (value is IEnumerable list && !(value is string)) {
                 List<object?> copy = new List<object?>();
                 foreach (object? item in list) {
@@ -159,7 +163,8 @@ namespace ConsoleMonster.Interactive {
             return Equals(Normalize(Default), Normalize(value));
         }
 
-        private static object? Normalize(object? value) {
+        /// <summary>Normalizes supported numeric values for default and number-field equality.</summary>
+        internal static object? Normalize(object? value) {
             if (value is int i) {
                 return (decimal)i;
             }

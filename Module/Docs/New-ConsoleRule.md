@@ -25,9 +25,10 @@ The line uses the border colour and the glyph tier's line character.
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleRule -Alignment 'Value'
+New-ConsoleRule -Title 'Results'
 ```
 
+A titled separator
 
 ## PARAMETERS
 

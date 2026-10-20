@@ -25,9 +25,10 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Start-C
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDashboard -Content { } -Title 'Value'
+$d = New-ConsoleDashboard -Title 'Deploy' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes -Name servers }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }
 ```
 
+A dashboard with lanes and a log that fills the rest of the screen
 
 ## PARAMETERS
 

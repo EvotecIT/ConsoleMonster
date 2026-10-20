@@ -55,6 +55,21 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether running cells spin (default true); false shows the still running symbol, when another part of the screen already spins.</summary>
         public bool SpinRunning { get; set; } = true;
 
+        /// <summary>
+        /// The cells per row (0 = as many as fit, the default). Set it to draw a grid, such as one row per server and one
+        /// column per check; cells past the width are cut off rather than moved to the next row.
+        /// </summary>
+        public int Columns { get; set; }
+
+        /// <summary>
+        /// Labels drawn muted before the rows, one per row in order (empty = none, the default); the cells start after the
+        /// widest label. Together with <see cref="Columns"/> they make a labelled grid with one legend below it.
+        /// </summary>
+        public IList<string> RowLabels { get; } = new List<string>();
+
+        /// <summary>The most lines the legend wraps onto when it is wider than the map (default 1: it is cut off instead).</summary>
+        public int LegendLines { get; set; } = 1;
+
         /// <summary>The state of an item.</summary>
         /// <param name="index">The item index.</param>
         /// <returns>The state.</returns>
@@ -162,7 +177,16 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private int PerRow(int width) => Math.Max(1, (width + Gap) / (1 + Gap));
+        private int PerRow(int width) => Columns > 0 ? Columns : Math.Max(1, (width + Gap) / (1 + Gap));
+
+        // The cells the row labels take: the widest label and a space, or nothing without labels.
+        private int LabelWidth() {
+            int widest = 0;
+            foreach (string label in RowLabels) {
+                widest = Math.Max(widest, DisplayWidth.Measure(label ?? string.Empty));
+            }
+            return widest == 0 ? 0 : widest + 1;
+        }
 
         private int CellRows(int width) {
             int rows = (_cells.Count + PerRow(width) - 1) / PerRow(width);
@@ -185,7 +209,7 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             int width = Math.Max(1, constraints.MaxWidth);
-            int rows = CellRows(width) + (ShowLegend && _cells.Count > 0 ? 1 : 0);
+            int rows = CellRows(Math.Max(1, width - LabelWidth())) + (ShowLegend && _cells.Count > 0 ? LegendRows(context, width).Count : 0);
             return new Size(width, Math.Min(rows, constraints.MaxHeight));
         }
 
@@ -194,10 +218,12 @@ namespace ConsoleMonster.Widgets {
             if (region.Width <= 0 || region.Height <= 0 || _cells.Count == 0) {
                 return;
             }
-            int perRow = PerRow(region.Width);
+            int labelWidth = LabelWidth();
+            int perRow = PerRow(Math.Max(1, region.Width - labelWidth));
             int totalRows = (_cells.Count + perRow - 1) / perRow;
             int rows = MaxRows > 0 && totalRows > MaxRows ? MaxRows : totalRows;
-            int legendRows = ShowLegend ? 1 : 0;
+            List<StyledLine> legend = ShowLegend ? LegendRows(context, region.Width) : new List<StyledLine>();
+            int legendRows = legend.Count;
             // The legend keeps its row; the "+N more" line takes one more only when cells are left out.
             int room = Math.Max(0, region.Height - legendRows);
             if (rows > room || rows < totalRows) {
@@ -215,24 +241,83 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             for (int row = first; row < first + rows; row++, y++) {
+                if (labelWidth > 0 && row < RowLabels.Count) {
+                    region.Write(0, y, TextWrapper.Truncate(RowLabels[row] ?? string.Empty, labelWidth - 1, context.Ellipsis), context.Style(ThemeToken.Muted));
+                }
                 for (int column = 0; column < perRow; column++) {
                     int index = row * perRow + column;
-                    if (index >= _cells.Count) {
+                    int x = labelWidth + column * (1 + Gap);
+                    if (index >= _cells.Count || x >= region.Width) {
                         break;
                     }
                     StatusKind state = _cells[index];
                     string symbol = state == StatusKind.Running && SpinRunning ? context.Spinner(index) : context.Glyphs.StatusSymbol(state);
                     Style style = state == StatusKind.Pending ? context.Style(ThemeToken.Muted) : context.Style(state);
-                    region.Put(column * (1 + Gap), y, symbol, style);
+                    region.Put(x, y, symbol, style);
                 }
             }
             int hidden = _cells.Count - Math.Min(_cells.Count, (first + rows) * perRow);
             if (hidden > 0 && y < region.Height - legendRows) {
                 region.Write(0, y++, Localization.WidgetLabels.Format(context.Labels.MoreCount, hidden.ToString("N0", context.Culture)), context.Style(ThemeToken.Muted));
             }
-            if (ShowLegend && y < region.Height) {
-                region.Write(0, y, TextWrapper.Truncate(Legend(context), region.Width, context.Ellipsis));
+            foreach (StyledLine line in legend) {
+                if (y >= region.Height) {
+                    break;
+                }
+                region.Write(0, y++, line);
             }
+        }
+
+        /// <summary>
+        /// The legend as lines for a width: the items of <see cref="Legend"/>, each staying whole and moving to the next
+        /// line when it does not fit, up to <see cref="LegendLines"/> lines; the last line is cut off with an ellipsis when
+        /// the rest still does not fit.
+        /// </summary>
+        private List<StyledLine> LegendRows(RenderContext context, int width) {
+            List<StyledLine> lines = new List<StyledLine>();
+            int limit = Math.Max(1, LegendLines);
+            List<TextSpan> spans = new List<TextSpan>();
+            int used = 0;
+            foreach (TextSpan[] item in LegendItems(context)) {
+                int itemWidth = 0;
+                foreach (TextSpan span in item) {
+                    itemWidth += DisplayWidth.Measure(span.Text);
+                }
+                if (spans.Count > 0 && used + LegendGap.Length + itemWidth > width && lines.Count < limit - 1) {
+                    lines.Add(new StyledLine(spans));
+                    spans = new List<TextSpan>();
+                    used = 0;
+                }
+                if (spans.Count > 0) {
+                    spans.Add(new TextSpan(LegendGap));
+                    used += LegendGap.Length;
+                }
+                spans.AddRange(item);
+                used += itemWidth;
+            }
+            if (spans.Count > 0) {
+                lines.Add(new StyledLine(spans));
+            }
+            for (int i = 0; i < lines.Count; i++) {
+                lines[i] = TextWrapper.Truncate(lines[i], width, context.Ellipsis);
+            }
+            return lines;
+        }
+
+        private const string LegendGap = "  ";
+
+        // Each state present, in legend order, as its symbol and its count ("✓ " and "12 passed"), in its colour.
+        private List<TextSpan[]> LegendItems(RenderContext context) {
+            List<TextSpan[]> items = new List<TextSpan[]>();
+            foreach (StatusKind state in LegendOrder) {
+                int count = CountOf(state);
+                if (count == 0) {
+                    continue;
+                }
+                Style style = state == StatusKind.Pending ? context.Style(ThemeToken.Muted) : context.Style(state);
+                items.Add(new[] { new TextSpan(context.Glyphs.StatusSymbol(state) + " ", style), new TextSpan(CountLabel(state, count, context), style) });
+            }
+            return items;
         }
 
         /// <summary>The legend: each state present with its symbol and count ("✓ 12 passed  ✗ 3 failed  ○ 45 queued").</summary>
@@ -240,17 +325,11 @@ namespace ConsoleMonster.Widgets {
         /// <returns>The legend line.</returns>
         public StyledLine Legend(RenderContext context) {
             List<TextSpan> spans = new List<TextSpan>();
-            foreach (StatusKind state in LegendOrder) {
-                int count = CountOf(state);
-                if (count == 0) {
-                    continue;
-                }
+            foreach (TextSpan[] item in LegendItems(context)) {
                 if (spans.Count > 0) {
-                    spans.Add(new TextSpan("  "));
+                    spans.Add(new TextSpan(LegendGap));
                 }
-                Style style = state == StatusKind.Pending ? context.Style(ThemeToken.Muted) : context.Style(state);
-                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(state) + " ", style));
-                spans.Add(new TextSpan(CountLabel(state, count, context), state == StatusKind.Pending ? context.Style(ThemeToken.Muted) : style));
+                spans.AddRange(item);
             }
             return new StyledLine(spans);
         }

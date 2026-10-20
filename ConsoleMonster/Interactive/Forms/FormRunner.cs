@@ -34,17 +34,18 @@ namespace ConsoleMonster.Interactive {
                     surface = PromptHost.Resolve(context) ?? (options.Inline ? (IPromptSurface)new InlineSurface(profile, null, interactive.MaxInlineHeight ?? 30) : new ScreenSurface(profile));
                     owns = true;
                 }
+                FormHostView? view = null;
                 try {
-                    FormHostView view = new FormHostView(form, labels, store, options.RememberLastChoices, options, surface, lease.Source, context, cancellationToken);
-                    if (!string.IsNullOrEmpty(options.Preset)) {
-                        view.Pane.ApplyPreset(options.Preset!);
-                    }
+                    // The view applies the remembered choices, then options.Preset, then values the app applied before.
+                    view = new FormHostView(form, labels, store, options.RememberLastChoices, options, surface, lease.Source, context, cancellationToken);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     FormResult result = view.Result ?? new FormResult(false, form.GetValues(), form.BuildCommand(), null);
                     result.RunResult = view.RunResult;
                     surface.Complete(Summary(form, result, context, labels));
                     return result;
                 } finally {
+                    // Values applied after the form closes go to the form itself, not to the closed view.
+                    view?.Pane.Detach();
                     if (owns) {
                         surface.Dispose();
                     }
@@ -100,8 +101,26 @@ namespace ConsoleMonster.Interactive {
         }
 
         private static FormResult Lines(Form form, LinePrompter lines, ChoiceStore? store, FormOptions options, CancellationToken token) {
+            Dictionary<string, object?> pending = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
             if (store != null && options.RememberLastChoices && store.LoadLast(form.Key) is IDictionary<string, object?> last) {
-                form.ApplyStored(last);
+                Keep(pending, form.Assign(last, true));
+            }
+            string? preset = null;
+            if (!string.IsNullOrEmpty(options.Preset)) {
+                FormPreset? builtIn = form.FindPreset(options.Preset!);
+                if (builtIn != null) {
+                    Keep(pending, form.Assign(builtIn.Values, false));
+                    preset = builtIn.Name;
+                } else if (store != null && store.LoadPreset(form.Key, options.Preset!) is IDictionary<string, object?> saved) {
+                    Keep(pending, form.Assign(saved, true));
+                    preset = options.Preset;
+                }
+            }
+            // Values the app applied before showing win over both (for options that load, the answer offered once they
+            // have loaded): those kept for options, then every batch again in order.
+            Keep(pending, form.TakePending());
+            foreach (KeyValuePair<Dictionary<string, object?>, bool> batch in form.TakeDetached()) {
+                Keep(pending, form.Assign(batch.Key, batch.Value));
             }
             lines.Say(form.Title);
             if (!string.IsNullOrEmpty(form.Description)) {
@@ -121,6 +140,9 @@ namespace ConsoleMonster.Interactive {
                         choice.Choices.Clear();
                         foreach (Choice c in choice.Loader(form.GetValues(), token).GetAwaiter().GetResult()) {
                             choice.Choices.Add(c);
+                        }
+                        if (pending.TryGetValue(choice.Name, out object? wanted) && Form.TryRestore(choice, wanted, out object? restored)) {
+                            choice.Value = restored;
                         }
                     }
                     field.Value = Ask(field, lines, form, token);
@@ -142,7 +164,13 @@ namespace ConsoleMonster.Interactive {
             if (run && store != null && options.RememberLastChoices) {
                 store.SaveLast(form.Key, form.ToStored());
             }
-            return new FormResult(run, form.GetValues(), command, null);
+            return new FormResult(run, form.GetValues(), command, preset);
+        }
+
+        private static void Keep(Dictionary<string, object?> pending, Dictionary<string, object?> values) {
+            foreach (KeyValuePair<string, object?> pair in values) {
+                pending[pair.Key] = pair.Value;
+            }
         }
 
         private static object? Ask(Field field, LinePrompter lines, Form form, CancellationToken token) {
@@ -218,7 +246,7 @@ namespace ConsoleMonster.Interactive {
             _input = input;
             _context = context;
             _token = token;
-            Pane = new FormView(form, this, store, remember);
+            Pane = new FormView(form, this, store, remember, null, options.Preset);
             Pane.Submitted = result => {
                 Result = result;
                 if (_options.AfterSubmit != null && _surface != null && _context != null && _input != null) {
@@ -243,8 +271,28 @@ namespace ConsoleMonster.Interactive {
 
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
+        // Calls from other threads (values applied to the form), run on the form's own thread at its next tick.
+        private readonly System.Collections.Concurrent.ConcurrentQueue<Action> _posted = new System.Collections.Concurrent.ConcurrentQueue<Action>();
+        private readonly int _ownerThread = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+        public bool TryPost(Action call) {
+            if (IsDone) {
+                return false;
+            }
+            if (System.Threading.Thread.CurrentThread.ManagedThreadId == _ownerThread) {
+                call();
+                return true;
+            }
+            _posted.Enqueue(call);
+            return true;
+        }
+
         public override bool Poll(TimeSpan now) {
             bool changed = base.Poll(now);
+            while (_posted.TryDequeue(out Action? call)) {
+                call();
+                changed = true;
+            }
             changed |= _override != null ? _override.Poll(now) : Pane.Poll(now);
             changed |= _modals.RemoveAll(m => m.IsClosed) > 0;
             return changed;
@@ -267,8 +315,13 @@ namespace ConsoleMonster.Interactive {
             } else {
                 IPane pane = Current;
                 HeaderBar header = new HeaderBar(Markup.Escape(_form.Title));
-                IReadOnlyList<string> crumbs = _override != null ? new[] { _override.Title } : Pane.Crumbs;
+                // A run after the form: the breadcrumb says it is running and the panel carries the dashboard's title.
+                IReadOnlyList<string> crumbs = _override != null ? new[] { Labels.Running } : Pane.Crumbs;
                 foreach (string crumb in crumbs) {
+                    // A first page named like the form is not said twice.
+                    if (header.Crumbs.Count == 0 && string.Equals(crumb, Markup.Strip(_form.Title), StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    }
                     header.Crumbs.Add(crumb);
                 }
                 string title = _override?.Title ?? (Pane.Crumbs.Count > 0 ? Pane.Crumbs[0] : Pane.Title);

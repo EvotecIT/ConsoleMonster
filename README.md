@@ -164,6 +164,28 @@ $servers | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./servers.h
 
 The [command reference](https://consolemonster.dev/powershell/commands/) has parameters and examples for every cmdlet.
 
+## Compose widgets in PowerShell
+
+Every widget is a `New-Console*` command. Containers take a script block of children, and widgets with items take item
+commands with the same `-Status`, `-Detail` and `-Tone` parameters everywhere, so no .NET code is needed:
+
+```powershell
+New-ConsoleTree '[bold]evotec.xyz[/]' {
+    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
+        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
+    }
+    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
+} | Write-ConsoleWidget
+
+New-ConsoleLog -Height 4 {
+    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
+    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
+} | Write-ConsoleWidget
+```
+
+[PowerShell conventions](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/PowerShell-Conventions.md) lists
+every widget with its cmdlet form, its live update command and its .NET method form.
+
 ## Choose your starting point
 
 | What you need | Start here |

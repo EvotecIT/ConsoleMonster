@@ -19,7 +19,7 @@ if ($Width -gt 0) {
     $common.Width = $Width
 }
 
-if ($Part -in 'All', 'Artifacts') { $artifacts | Format-ConsoleTable @common -Title '[bold]PSPublishModule[/] [muted]· artifacts[/]' -GroupBy Kind -Total -Property @(
+if ($Part -in 'All', 'Artifacts') { $artifacts | Format-ConsoleTable @common -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(
     @{ Name = 'Name'; Key = $true; Overflow = 'Never' }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6 }
@@ -34,7 +34,7 @@ $checks = @(
     [pscustomobject] @{ Check = 'MTA-STS'; Status = 'Fail'; Detail = 'policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt'; Took = [timespan]::FromSeconds(1.4) }
     [pscustomobject] @{ Check = 'DNSSEC'; Status = 'Warn'; Detail = 'zone is not signed'; Took = [timespan]::FromMilliseconds(95) }
 )
-if ($Part -in 'All', 'Checks') { $checks | Format-ConsoleTable @common -Title '[bold]evotec.xyz[/] [muted]· DomainDetective checks[/]' -Property Check, @{ Name = 'Status'; Presenter = 'Status'; Priority = 10 }, @{ Name = 'Detail'; MaxLines = 2; Priority = 5 }, @{ Name = 'Took'; Presenter = 'Duration'; Priority = 1; WarnAbove = 1 } }
+if ($Part -in 'All', 'Checks') { $checks | Format-ConsoleTable @common -Title '[bold]evotec.xyz[/] [muted]· mail security checks[/]' -Property Check, @{ Name = 'Status'; Presenter = 'Status'; Priority = 10 }, @{ Name = 'Detail'; MaxLines = 2; Priority = 5 }, @{ Name = 'Took'; Presenter = 'Duration'; Priority = 1; WarnAbove = 1 } }
 
 $certificate = [pscustomobject] @{
     Subject = 'CN=mail.evotec.xyz'

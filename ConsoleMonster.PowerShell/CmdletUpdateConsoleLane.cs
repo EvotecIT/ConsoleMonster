@@ -6,6 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Updates a lane of a running dashboard: progress, step results, status and detail.</para>
     /// <para type="description">With -Result, counts one completed step (or -Steps steps) as passed, failed, warning or skipped and advances the bar. With -Status, sets the lane state (Running, Pass, Fail, Warn, Skip). -Complete finishes the lane (Fail if any step failed, Warn if any warned, otherwise Pass). Safe to call from any runspace or thread.</para>
+    /// </summary>
     /// <example>
     ///   <para>Record a passed step and say what comes next</para>
     ///   <code>Update-ConsoleLane -Key DC01 -Result Pass -Detail 'Checking replication'</code>
@@ -14,7 +15,6 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Finish a lane</para>
     ///   <code>Update-ConsoleLane -Key DC01 -Complete</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsData.Update, "ConsoleLane")]
     public sealed class CmdletUpdateConsoleLane : LiveCmdlet {
         /// <summary><para type="description">The lane key (created on first use).</para></summary>

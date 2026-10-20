@@ -56,6 +56,9 @@ namespace ConsoleMonster.Interactive {
 
         public void ShowModal(Modal modal) => _modals.Add(modal);
 
+        // A grid hosts no panes that take values from other threads.
+        public bool TryPost(Action call) => false;
+
         /// <summary>The objects of the chosen rows.</summary>
         public List<object?> ChosenItems() {
             List<object?> items = new List<object?>();

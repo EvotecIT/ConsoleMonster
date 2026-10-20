@@ -6,33 +6,70 @@ schema: 2.0.0
 ---
 # New-ConsoleKeyValue
 ## SYNOPSIS
-Creates an aligned key/value list.
+Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.
 
-Keys come from a hashtable (use [ordered] to keep order) or from an object's properties. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Set-ConsoleValue.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of New-ConsoleKeyValueItem calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Set-ConsoleValue.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleKeyValue [[-Data] <Object>] [-Markup] [-Name <string>] [<CommonParameters>]
+New-ConsoleKeyValue [[-Data] <Object>] [[-Content] <scriptblock>] [-Markup] [-Name <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates an aligned key/value list.
+Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.
 
-Keys come from a hashtable (use [ordered] to keep order) or from an object's properties. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Set-ConsoleValue.
+Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of New-ConsoleKeyValueItem calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. To add pairs later, pipe the list to Add-ConsoleItem; in a live dashboard, update pairs with Set-ConsoleValue.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleKeyValue -Name 'Name'
+New-ConsoleKeyValue ([ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = 'not signed' }) | Write-ConsoleWidget
 ```
 
+A summary block
+
+### EXAMPLE 2
+```powershell
+New-ConsoleKeyValue {
+    New-ConsoleKeyValueItem 'Version' '0.0.4 [muted]→[/] [bold]2.0.0[/]' -Markup
+    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
+    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
+} | Write-ConsoleWidget
+```
+
+Pairs with status marks
+
+### EXAMPLE 3
+```powershell
+New-ConsoleKeyValue ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) {
+    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
+} | Write-ConsoleWidget
+```
+
+A hashtable and pairs together
 
 ## PARAMETERS
 
+### -Content
+A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -Data.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Data
-A hashtable or an object whose properties become the pairs.
+A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
 
 ```yaml
 Type: Object

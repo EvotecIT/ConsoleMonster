@@ -25,9 +25,25 @@ Updates a progress bar in a running dashboard.
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleProgress -Name 'Name'
+Update-ConsoleProgress -Increment 1
 ```
 
+Advance by one
+
+### EXAMPLE 2
+```powershell
+$files = Get-ChildItem C:\Reports -File
+$dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }
+Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {
+    param($Files)
+    foreach ($file in $Files) {
+        Copy-Item $file.FullName D:\Backup
+        Update-ConsoleProgress -Increment 1
+    }
+}
+```
+
+A dashboard whose bar follows a copy loop
 
 ## PARAMETERS
 

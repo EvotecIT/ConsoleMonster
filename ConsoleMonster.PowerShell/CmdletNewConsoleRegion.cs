@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a named region whose content can be replaced while a dashboard runs.</para>
     /// <para type="description">Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -Name with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.</para>
+    /// </summary>
     /// <example>
     ///   <para>A panel whose content switches from a spinner to a table</para>
     ///   <code>New-ConsolePanel -Title 'Result' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleRegion")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleRegion : PSCmdlet {

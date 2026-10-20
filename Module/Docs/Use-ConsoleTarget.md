@@ -40,21 +40,17 @@ Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleTarget -ScriptBlock { }
+Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }
 ```
 
+Save a report as plain text
 
 ### EXAMPLE 2
 ```powershell
-Use-ConsoleTarget -ScriptBlock { } -Path 'C:\Path'
+$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
 ```
 
-
-### EXAMPLE 3
-```powershell
-Use-ConsoleTarget -ScriptBlock { } -Target 'Value'
-```
-
+Capture a table as a string
 
 ## PARAMETERS
 

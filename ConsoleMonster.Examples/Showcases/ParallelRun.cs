@@ -10,7 +10,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Showcase 1: a TestimoX-style parallel assessment dashboard, replayed from a recorded JSON-lines event stream.
+    /// Showcase 1: a parallel assessment dashboard ("Nightly checks"), replayed from a recorded JSON-lines event stream.
     /// The layout knows nothing about the recording: every update arrives as a <see cref="LiveEvent"/> addressed by name.
     /// </summary>
     public static class ParallelRun {
@@ -87,8 +87,8 @@ namespace ConsoleMonster.Examples.Showcases {
                 findings.Add(category, 0);
             }
             Lanes targets = new Lanes { MaxLabelWidth = 28 };
-            Dashboard dashboard = new DashboardBuilder("[bold]TestimoX[/]")
-                .Subtitle("ad.evotec.xyz forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
+            Dashboard dashboard = new DashboardBuilder("[bold]Nightly checks[/]")
+                .Subtitle("ad.adatum.com forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
                 .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
                 .Columns(c => c
                     .Panel("Targets", new Prioritized(targets, 8, 4, 40), 2.3, ParallelRunRecording.Workers + " workers")

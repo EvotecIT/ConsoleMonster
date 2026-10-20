@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates banner text drawn with a pixel font and a colour gradient.</para>
     /// <para type="description">Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().</para>
+    /// </summary>
     /// <example>
     ///   <para>A banner with a tagline</para>
     ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -From '#22d3ee' -To '#a78bfa' | Write-ConsoleWidget</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleLogo")]
     [OutputType(typeof(Logo))]
     public sealed class CmdletNewConsoleLogo : PSCmdlet {

@@ -169,7 +169,8 @@ jobs:
     name: 'xUnit (macOS, ${{ matrix.framework }})'
     # Pull requests only: macOS runners cost more, and Ubuntu already covers Unix on every push.
     if: github.event_name == 'pull_request'
-    runs-on: macos-latest
+    # Keep macOS validation on an explicit supported ARM64 image.
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
@@ -288,7 +289,7 @@ jobs:
     name: 'Pester (macOS, PowerShell 7)'
     # Pull requests only, as for xUnit on macOS.
     if: github.event_name == 'pull_request'
-    runs-on: macos-latest
+    runs-on: macos-15
     defaults:
       run:
         shell: pwsh

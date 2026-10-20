@@ -25,9 +25,11 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleForm -Form 'Value'
+$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
+if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }
 ```
 
+Run a wizard and use the answers
 
 ## PARAMETERS
 
@@ -128,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Preset
-A saved preset to apply first.
+A preset to apply first: a built-in one (New-ConsoleFormPreset) or one saved under -AppName.
 
 ```yaml
 Type: String

@@ -6,7 +6,7 @@ using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Generates a deterministic, synthetic event stream for a TestimoX-style parallel assessment: 10 domain controllers
+    /// Generates a deterministic, synthetic event stream for a parallel assessment: 10 domain controllers
     /// and 2 domains processed by 6 workers, about 330 rules with realistic durations and pass/warn/fail/skip results.
     /// The stream is what a live session records; the showcase replays it.
     /// </summary>
@@ -70,11 +70,11 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <returns>Targets in processing order.</returns>
         public static IReadOnlyList<KeyValuePair<string, string>> Targets() {
             List<KeyValuePair<string, string>> targets = new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("dom-ad", "ad.evotec.xyz (domain)"),
-                new KeyValuePair<string, string>("dom-eu", "eu.ad.evotec.xyz (domain)")
+                new KeyValuePair<string, string>("dom-ad", "ad.adatum.com (domain)"),
+                new KeyValuePair<string, string>("dom-eu", "eu.ad.adatum.com (domain)")
             };
             for (int i = 1; i <= 10; i++) {
-                string dc = "DC" + i.ToString("00", CultureInfo.InvariantCulture) + (i <= 6 ? ".ad.evotec.xyz" : ".eu.ad.evotec.xyz");
+                string dc = "DC" + i.ToString("00", CultureInfo.InvariantCulture) + (i <= 6 ? ".ad.adatum.com" : ".eu.ad.adatum.com");
                 targets.Add(new KeyValuePair<string, string>("dc" + i.ToString(CultureInfo.InvariantCulture), dc));
             }
             return targets;
@@ -97,9 +97,9 @@ namespace ConsoleMonster.Examples.Showcases {
                 int rules = target.Key.StartsWith("dom", StringComparison.Ordinal) ? DomainRules.Length : DcRules.Length;
                 Add(events, 0, "lanes", "add", target.Key, target.Value, total: rules);
             }
-            Add(events, 400, "log", "write", text: "Connecting to ad.evotec.xyz via LDAP (DC01.ad.evotec.xyz)", state: "info");
-            Add(events, 1300, "log", "write", text: "Forest ad.evotec.xyz: 2 domains, 10 domain controllers, 4 sites", state: "info");
-            Add(events, 2100, "log", "write", text: "DC10.eu.ad.evotec.xyz responded slowly (812 ms LDAP bind)", state: "warn");
+            Add(events, 400, "log", "write", text: "Connecting to ad.adatum.com via LDAP (DC01.ad.adatum.com)", state: "info");
+            Add(events, 1300, "log", "write", text: "Forest ad.adatum.com: 2 domains, 10 domain controllers, 4 sites", state: "info");
+            Add(events, 2100, "log", "write", text: "DC10.eu.ad.adatum.com responded slowly (812 ms LDAP bind)", state: "warn");
             Add(events, 2800, "phases", "state", "Discover", state: "pass");
             Add(events, 2800, "phases", "state", "Collect", state: "running");
             Add(events, 2800, "dashboard", "status", text: "collecting rule inputs", state: "running");
@@ -188,7 +188,7 @@ namespace ConsoleMonster.Examples.Showcases {
             Add(events, evaluateEnd, "phases", "state", "Evaluate", state: failed > 0 ? "warn" : "pass");
             Add(events, evaluateEnd, "phases", "state", "Report", state: "running");
             Add(events, evaluateEnd, "dashboard", "status", text: "writing report", state: "running");
-            Add(events, evaluateEnd + 900, "log", "write", text: "Report written to Reports\\Assessment-ad.evotec.xyz.html (4.2 MB)", state: "pass");
+            Add(events, evaluateEnd + 900, "log", "write", text: "Report written to Reports\\Assessment-ad.adatum.com.html (4.2 MB)", state: "pass");
             Add(events, evaluateEnd + 1800, "phases", "state", "Report", state: "pass");
             string final = done.ToString(CultureInfo.InvariantCulture) + " rules · " + passed.ToString(CultureInfo.InvariantCulture) + " passed · "
                 + failed.ToString(CultureInfo.InvariantCulture) + " failed · " + warned.ToString(CultureInfo.InvariantCulture) + " warnings · " + skipped.ToString(CultureInfo.InvariantCulture) + " skipped";

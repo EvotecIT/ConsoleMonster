@@ -15,7 +15,9 @@ namespace SiteFrames {
         /// Splits example code into the short form a page shows first and the full program. Lines between
         /// <c>// &lt;more&gt;</c> and <c>// &lt;/more&gt;</c> (C#) or <c>#region more</c> and <c>#endregion</c> (PowerShell) are
         /// data the reader can take on trust: the short form keeps the first of them and says how many follow. The full form
-        /// is the code exactly as it ran, without the markers.
+        /// is the code exactly as it ran, without the markers. Lines between <c>#region hidden</c> and <c>#endregion</c> (or
+        /// <c>// &lt;hidden&gt;</c> and <c>// &lt;/hidden&gt;</c>) are presentation for the recording, such as an echoed prompt: the
+        /// short form leaves them out entirely and the full form keeps them.
         /// </summary>
         public static (string Short, string Full) Split(string code) {
             string[] lines = code.Replace("\r\n", "\n").Split('\n');
@@ -23,20 +25,21 @@ namespace SiteFrames {
             List<string> full = new List<string>();
             for (int i = 0; i < lines.Length; i++) {
                 string trimmed = lines[i].Trim();
-                bool csharp = trimmed == "// <more>";
-                bool powershell = trimmed == "#region more";
+                bool hidden = trimmed == "#region hidden" || trimmed == "// <hidden>";
+                bool csharp = trimmed == "// <more>" || trimmed == "// <hidden>";
+                bool powershell = trimmed == "#region more" || trimmed == "#region hidden";
                 if (!csharp && !powershell) {
                     shortForm.Add(lines[i]);
                     full.Add(lines[i]);
                     continue;
                 }
-                string end = csharp ? "// </more>" : "#endregion";
+                string end = csharp ? (hidden ? "// </hidden>" : "// </more>") : "#endregion";
                 List<string> block = new List<string>();
                 for (i++; i < lines.Length && lines[i].Trim() != end; i++) {
                     block.Add(lines[i]);
                 }
                 full.AddRange(block);
-                if (block.Count == 0) {
+                if (block.Count == 0 || hidden) {
                     continue;
                 }
                 shortForm.Add(block[0]);

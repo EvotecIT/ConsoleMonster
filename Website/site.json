@@ -140,7 +140,7 @@
           "Name": "consolemonster-site-assistant",
           "Type": "skill-md",
           "Description": "Use the ConsoleMonster documentation, widget gallery, PowerShell command reference, sitemap and llms files.",
-          "Content": "---\nname: consolemonster-site-assistant\ndescription: Use ConsoleMonster documentation, gallery, references, sitemap and llms resources.\n---\n\n# ConsoleMonster Site Assistant\n\nUse this skill when answering questions about ConsoleMonster, the zero-dependency console rendering library for .NET and PowerShell.\n\n- Prefer canonical pages from https://consolemonster.dev.\n- Use `/widgets/` for every widget with its C# and PowerShell source, `/tables/` for table width negotiation and `/live/` for live dashboards.\n- Use `/powershell/commands/` for cmdlet syntax and `/api/` for the .NET API.\n- Use `/guides/` for migrations from Write-Color, Spectre.Console and Format-Table, and for host behaviour in CI, jobs and remoting.\n- Check `/llms.txt` when present for an agent-readable summary.\n- Respect `/robots.txt` and Content-Signal preferences.\n"
+          "Content": "---\nname: consolemonster-site-assistant\ndescription: Use ConsoleMonster documentation, gallery, references, sitemap and llms resources.\n---\n\n# ConsoleMonster Site Assistant\n\nUse this skill when answering questions about ConsoleMonster, the zero-dependency console rendering library for .NET and PowerShell.\n\n- Prefer canonical pages from https://consolemonster.dev.\n- Use `/widgets/` for every widget with its C# and PowerShell source, `/tables/` for table width negotiation and `/live/` for live dashboards.\n- Use `/docs/live-runs/`, `/docs/help-and-defaults/`, `/docs/linux-and-ssh/`, `/docs/logging/`, `/docs/hosting/`, `/docs/template/` and `/guides/everyday-powershell/` for the recorded demos of each feature with the source that recorded them, and `/docs/powershell-conventions/` for how the widget cmdlets read.\n- Use `/powershell/commands/` for cmdlet syntax and `/api/` for the .NET API.\n- Use `/guides/` for migrations from Write-Color, Spectre.Console and Format-Table, and for host behaviour in CI, jobs and remoting.\n- Check `/llms.txt` when present for an agent-readable summary.\n- Respect `/robots.txt` and Content-Signal preferences.\n"
         }
       ]
     },
@@ -272,6 +272,7 @@
       {
         "Match": "/docs/**",
         "Bundles": [
+          "replays",
           "docs",
           "pages"
         ]
@@ -279,6 +280,7 @@
       {
         "Match": "/guides/**",
         "Bundles": [
+          "replays",
           "docs",
           "pages"
         ]
@@ -391,6 +393,13 @@
                 "Description": "Recorded runs, replayed frame by frame."
               },
               {
+                "Id": "runs",
+                "Title": "Live runs",
+                "Url": "/docs/live-runs/",
+                "Meta": { "key": 4 },
+                "Description": "Many items in parallel, watch views and Pester runs."
+              },
+              {
                 "Id": "interactive",
                 "Title": "Interactive",
                 "Url": "/interactive/",
@@ -456,6 +465,7 @@
           { "Title": "Widgets", "Url": "/widgets/" },
           { "Title": "Tables", "Url": "/tables/" },
           { "Title": "Live dashboards", "Url": "/live/" },
+          { "Title": "Live runs", "Url": "/docs/live-runs/" },
           { "Title": "Interactive", "Url": "/interactive/" },
           { "Title": "PowerShell", "Url": "/powershell/" }
         ]

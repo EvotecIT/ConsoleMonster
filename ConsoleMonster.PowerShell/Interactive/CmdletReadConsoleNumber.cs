@@ -7,11 +7,11 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks for a number.</para>
     /// <para type="description">Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).</para>
+    /// </summary>
     /// <example>
     ///   <para>A port number</para>
     ///   <code>$port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443</code>
     /// </example>
-    /// </summary>
     [Cmdlet(VerbsCommunications.Read, "ConsoleNumber")]
     [OutputType(typeof(int), typeof(decimal))]
     public sealed class CmdletReadConsoleNumber : PromptCmdlet {

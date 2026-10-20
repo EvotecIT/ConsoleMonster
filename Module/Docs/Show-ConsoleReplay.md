@@ -25,9 +25,17 @@ Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord)
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleReplay -Dashboard 'Value'
+Show-ConsoleReplay -Dashboard $dashboard
 ```
 
+Rewind the last automatically recorded run
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
+```
+
+Play a recording inline, paused at the start
 
 ## PARAMETERS
 
