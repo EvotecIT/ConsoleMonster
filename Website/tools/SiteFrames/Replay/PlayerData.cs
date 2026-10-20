@@ -17,7 +17,7 @@ namespace SiteFrames.Replay {
     internal static class PlayerData {
         private static readonly JsonSerializerOptions Json = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Default };
 
-        public static string Write(Site site, IReadOnlyList<TimedFrame> frames, string title, double fps, long hold, out long duration, out int count) {
+        public static string Write(Site site, IReadOnlyList<TimedFrame> frames, string title, double fps, long hold, out long duration, out int count, IReadOnlyList<(long Time, string Label)>? markers = null) {
             if (frames.Count == 0) {
                 throw new ArgumentException("Player data needs at least one frame.");
             }
@@ -72,7 +72,18 @@ namespace SiteFrames.Replay {
                 }
                 json.Append(JsonSerializer.Serialize(rows[i], Json));
             }
-            json.Append("],\"frames\":").Append(data).Append('}');
+            json.Append("],\"frames\":").Append(data);
+            if (markers != null && markers.Count > 0) {
+                json.Append(",\"markers\":[");
+                for (int i = 0; i < markers.Count; i++) {
+                    if (i > 0) {
+                        json.Append(',');
+                    }
+                    json.Append('[').Append(markers[i].Time.ToString(CultureInfo.InvariantCulture)).Append(',').Append(JsonSerializer.Serialize(markers[i].Label, Json)).Append(']');
+                }
+                json.Append(']');
+            }
+            json.Append('}');
             return json.ToString();
         }
 

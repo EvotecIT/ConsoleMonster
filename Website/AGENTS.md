@@ -77,8 +77,9 @@ The site is set in the medium it documents: a terminal cell grid.
   output beside or under the title. Docs and guides open with `partials/masthead.html`. No eyebrow labels above either.
 - **Screens.** Every frame uses `partials/screen.html`: a window bar with the real terminal profile as chips, then the
   frame. Static frames have a dark and a light rendering and follow the site theme; replays, stage art and captured
-  PowerShell output stay dark. A frame scales to fit its column down to 9 px and then scrolls inside its window, so the
-  page never scrolls sideways.
+  PowerShell output stay dark. A frame scales to fit its column down to 9 px (5.5 px on phones, so a 100-column frame
+  fits a 400 px screen) and then scrolls inside its window, which then shows a scroll hint in its bar, so the page never
+  scrolls sideways. Replays can carry chapter marks (`markers` in the player data) under the position bar.
 - **Players.** Replays play in ConsoleMonster's own player: `render` copies `ConsoleExporter.PlayerScript` and
   `PlayerStyles` to `static/assets/player/` (generated, never edit them) and writes `static/replays/*.json` in the engine's
   player-data format (`Recording.ExportPlayerData` for live-event recordings; `Replay/PlayerData.cs` writes the same

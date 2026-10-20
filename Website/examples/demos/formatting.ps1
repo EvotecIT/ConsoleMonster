@@ -3,9 +3,10 @@
 # The hidden lines only print the prompt before each command, as a terminal would.
 function Write-Prompt([string] $Command) { Start-Sleep -Milliseconds 700; Write-Host "PS> $Command" -ForegroundColor Yellow; Start-Sleep -Milliseconds 400 }
 Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')
-Write-ConsoleRule '[muted]before[/]'
+Write-Prompt "# PowerShell's own output"
 Write-Prompt 'Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8'
 #endregion
+# PowerShell's own output
 Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8 | Out-Default
 #region hidden
 Write-Prompt 'Get-ChildItem'
@@ -20,9 +21,10 @@ Write-Prompt 'Enable-ConsoleFormatting'
 #endregion
 Enable-ConsoleFormatting
 #region hidden
-Write-ConsoleRule '[muted]after[/]'
+Write-Prompt '# The same commands now'
 Write-Prompt 'Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8'
 #endregion
+# The same commands now
 Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8 | Out-Default
 #region hidden
 Write-Prompt 'Get-ChildItem'

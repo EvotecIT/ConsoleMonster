@@ -162,6 +162,8 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 @supports (font-size: round(down, 13px, 1px)) {
   .cm-screen { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
 }
+/* A frame that still does not fit at the smallest font scrolls inside its window, and the window says so (frames.js marks it). */
+.cm-window.is-scrollable .cm-window__meta::before { content: "scroll sideways"; display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 4px; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 11px/1 var(--cm-mono); white-space: nowrap; }
 .cm-screen--dark { --cm-term-fg: #cccccc; --cm-term-bg: #0c0c0c; }
 .cm-screen--light { --cm-term-fg: #24292f; --cm-term-bg: #ffffff; }
 .cm-screen span, .cm-screen a { display: inline-block; vertical-align: top; height: var(--cm-cell); }
@@ -334,5 +336,6 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-band--dark .cm-facts dd { color: #f8fafc; }
 @media (max-width: 560px) { .cm-band { margin-top: 64px; padding: 64px 0; } }
 
-/* On phones, frames keep a 10 px floor and scroll inside their window rather than shrinking further. */
-@media (max-width: 700px) { .cm-screen { --cm-min-font: 10px; } }
+/* On phones the whole grid scales to the window width down to 5.5 px, so a 100-column frame fits a 400 px screen and can be
+   zoomed; only a wider frame scrolls inside its window. */
+@media (max-width: 700px) { .cm-screen { --cm-min-font: 5.5px; --cm-pad: 6px; } }

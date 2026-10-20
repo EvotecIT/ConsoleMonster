@@ -63,6 +63,9 @@ namespace SiteFrames.Pages {
             /// <summary>Whether the demo shows errors on purpose (the run goes on and ends normally).</summary>
             public bool AllowErrors { get; set; }
 
+            /// <summary>Chapter marks: a label and the text on screen that starts its chapter (the first frame showing it).</summary>
+            public (string Label, string Text)[]? Chapters { get; set; }
+
             /// <summary>A static figure: the transcript after the run instead of a replay.</summary>
             public bool Static { get; set; }
         }
@@ -76,7 +79,12 @@ namespace SiteFrames.Pages {
             };
             yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { Script = "watch.ps1", PosterShare = 0.7 };
             yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { Script = "pester.ps1", PosterShare = 0.75, AllowErrors = true };
-            yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { Script = "formatting.ps1", PosterShare = 1, Fps = 5 };
+            yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) {
+                Script = "formatting.ps1",
+                PosterShare = 1,
+                Fps = 5,
+                Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
+            };
             yield return new Demo("shaping", "Format-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
@@ -126,6 +134,15 @@ namespace SiteFrames.Pages {
                 trimmed.Add(new TimedFrame(frame.Time, cut));
             }
             return trimmed;
+        }
+
+        private static bool Shows(CellBuffer frame, string text) {
+            for (int y = 0; y < frame.Height; y++) {
+                if (frame.GetRowText(y).Contains(text, StringComparison.Ordinal)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static string Script(Site site, string name) => Path.Combine(site.Website, "examples", "demos", name);
@@ -190,7 +207,20 @@ namespace SiteFrames.Pages {
                 if (demo.Static || frames.Count == 0) {
                     entry["frame"] = site.Frame(Site.Crop(scrollback), null);
                 } else {
-                    string data = PlayerData.Write(site, frames, demo.Title, demo.Fps, 3000, out long duration, out int count);
+                    List<(long Time, string Label)>? markers = null;
+                    if (demo.Chapters != null) {
+                        markers = new List<(long Time, string Label)>();
+                        foreach ((string label, string text) in demo.Chapters) {
+                            int at = frames.FindIndex(f => Shows(f.Frame, text));
+                            if (at < 0) {
+                                problems.Add("demo " + demo.Id + ": no frame shows the chapter text \"" + text + "\".");
+                                continue;
+                            }
+                            // The first chapter starts the recording.
+                            markers.Add((markers.Count == 0 ? 0 : frames[at].Time, label));
+                        }
+                    }
+                    string data = PlayerData.Write(site, frames, demo.Title, demo.Fps, 3000, out long duration, out int count, markers);
                     site.Write(site.Static("replays/demo-" + demo.Id + ".json"), data);
                     long posterTime = LivePage.Poster(site, frames, demo.PosterShare, out string poster);
                     entry["url"] = "/replays/demo-" + demo.Id + ".json";

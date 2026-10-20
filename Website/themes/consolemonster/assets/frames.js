@@ -178,6 +178,7 @@
         posters.forEach(function (p) { p.parentNode.removeChild(p); });
       }
       replay.classList.add('is-mounted');
+      markScrollable();
     }, function () { replay.cmMounting = false; });
   }
   var replays = Array.prototype.slice.call(document.querySelectorAll('[data-cm-replay]'));
@@ -207,4 +208,17 @@
   } else {
     replays.forEach(mountReplay);
   }
+  // A frame wider than its window at the smallest font scrolls inside the window; the window says so in its bar.
+  function markScrollable() {
+    document.querySelectorAll('.cm-window').forEach(function (win) {
+      var body = win.querySelector('.cm-window__body');
+      if (body) win.classList.toggle('is-scrollable', body.scrollWidth > body.clientWidth + 2);
+    });
+  }
+  var hintTimer = 0;
+  window.addEventListener('resize', function () { clearTimeout(hintTimer); hintTimer = setTimeout(markScrollable, 150); });
+  window.addEventListener('load', markScrollable);
+  document.addEventListener('cm:tab', markScrollable);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(markScrollable);
+  markScrollable();
 })();

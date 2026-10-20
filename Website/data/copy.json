@@ -13,7 +13,7 @@
           "line": "Better output for the commands you already run: one line turns it on for the session.",
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
-          "note": "Get-Process, Get-ChildItem and a hashtable as PowerShell shows them, then again after Enable-ConsoleFormatting with Get-Service grouped by status, recorded on PowerShell 7 from the script in the tab beside it.",
+          "note": "Shows PowerShell's own output, then the same commands after Enable-ConsoleFormatting and Get-Service grouped by status; it rests on the after view. Before and After under the player jump to each half. Recorded on PowerShell 7 from the script in the tab beside it.",
           "install": [
             {
               "lang": "powershell",
