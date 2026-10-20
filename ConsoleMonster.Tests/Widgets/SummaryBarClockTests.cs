@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Export;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Tests.Live;
@@ -26,6 +27,40 @@ namespace ConsoleMonster.Tests.Widgets {
 
         // A bar given the elapsed time directly: what the clocked bar must read like.
         private static string Expected(double done, double total, double seconds) => Text(new SummaryBar { Elapsed = TimeSpan.FromSeconds(seconds) }.SetProgress(done, total).SetCounter("passed", (int)done, StatusKind.Pass));
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void Recording_ProgressAtTimeZero_ExportsFullDuration(int framesPerSecond) {
+            SummaryBar bar = new SummaryBar();
+            LiveEvent[] events = {
+                new LiveEvent("summary", "progress", value: 0, total: 10, time: 0),
+                new LiveEvent("summary", "progress", value: 10, total: 10, time: 1000)
+            };
+            // Recording.Export uses RecordingFrames.Sample, whose first frame is tick 0 at time 0.
+            string cast = Recording.Export(bar, events, ExportFormat.Asciicast, new RecordingExportOptions {
+                Width = 100, Height = 1, FramesPerSecond = framesPerSecond
+            });
+            Assert.Contains("in 1.0s", cast);
+        }
+
+        [Fact]
+        public void Render_FirstFrameAtTickZero_StartsDirectProgress() {
+            SummaryBar bar = new SummaryBar().SetProgress(0, 10);
+            Draw(bar, 0, 0);
+            bar.Apply(new LiveEvent("summary", "progress", value: 5, total: 10, time: 1000));
+            Draw(bar, 1, 1);
+            Assert.Equal(TimeSpan.FromSeconds(1), bar.Remaining);
+        }
+
+        [Fact]
+        public void Apply_ProgressAtZero_FollowedByCompletionBeforeRender_PreservesStart() {
+            SummaryBar bar = new SummaryBar();
+            bar.Apply(new LiveEvent("summary", "progress", value: 0, total: 10, time: 0));
+            bar.Apply(new LiveEvent("summary", "progress", value: 10, total: 10, time: 1000));
+            Draw(bar, 0, 2);
+            Assert.Contains("in 1.0s", Text(bar));
+        }
 
         [Fact]
         public void Render_ClockedFrames_EstimateFromTheSessionClockAndFreezeTheDurationAtTheEnd() {

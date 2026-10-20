@@ -142,7 +142,7 @@ namespace ConsoleMonster.PowerShell {
                     return match.Value;
                 }
             }
-            return PSText.Unwrap(value);
+            return value == null ? null : Binding.PSObjectMemberSource.Identity(value);
         }
 
         /// <summary>Preview content from anything a cmdlet takes for one: a scriptblock (run now), widgets, text (markup) or objects (as a list); null for nothing.</summary>

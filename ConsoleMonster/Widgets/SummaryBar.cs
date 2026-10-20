@@ -94,9 +94,11 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Takes the pending start and finish marks at a session time.
-        private void Mark(TimeSpan now) {
+        private void Mark(TimeSpan now, bool fromEvent = false) {
             if (_startPending) {
-                _startedAt = now;
+                // A zero-time event can precede a later event before any frame is drawn. Keep that start when
+                // resolving from another event; a frame supplies the time for an otherwise unstamped update.
+                _startedAt = fromEvent ? _startedAt ?? now : now;
                 _startPending = false;
             }
             if (_finishPending) {
@@ -145,10 +147,12 @@ namespace ConsoleMonster.Widgets {
             }
             if (liveEvent.Operation == "progress") {
                 SetProgress(Kept(liveEvent.Value, Done), Kept(liveEvent.Total, Total));
-                // A live session stamps each event with its clock, so the run starts and ends at the event's time; an
-                // unstamped event (time 0, applied outside a session) leaves the mark to the next clocked frame.
+                // Zero is also a valid recording/session time. Remember it until a frame resolves an unstamped
+                // update, or a later timed event resolves the start before the first frame.
                 if (liveEvent.Time > 0) {
-                    Mark(TimeSpan.FromMilliseconds(liveEvent.Time));
+                    Mark(TimeSpan.FromMilliseconds(liveEvent.Time), fromEvent: true);
+                } else if (liveEvent.Time == 0 && _startPending) {
+                    _startedAt = TimeSpan.Zero;
                 }
             } else if (liveEvent.Operation == "counter" && !string.IsNullOrEmpty(liveEvent.Key)) {
                 StatusKind? status = StatusKinds.TryParse(liveEvent.State, out StatusKind parsed) ? parsed : (StatusKind?)null;
@@ -167,10 +171,10 @@ namespace ConsoleMonster.Widgets {
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
-            // A clocked frame (a live session, an interactive view, a recording) carries the session's time; a one-off
-            // render has neither a tick nor an elapsed time and keeps the real-time stopwatch.
+            // The first recording/session frame can have both tick and elapsed time zero. Resolve pending marks
+            // on that frame too; a one-off render still keeps the real-time stopwatch for its elapsed estimate.
+            Mark(context.Elapsed);
             if (context.Tick > 0 || context.Elapsed > TimeSpan.Zero) {
-                Mark(context.Elapsed);
                 TimeSpan end = _finishedAt ?? context.Elapsed;
                 TimeSpan start = _startedAt ?? TimeSpan.Zero;
                 _sessionElapsed = end > start ? end - start : TimeSpan.Zero;

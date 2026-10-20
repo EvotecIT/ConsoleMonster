@@ -46,7 +46,7 @@ namespace ConsoleMonster.Interactive {
             _form.SeedDefaults();
             foreach (Field field in _form.Fields) {
                 if (field.Value == null && field.Default != null) {
-                    field.Value = Clone(field.Default);
+                    field.Value = field.CloneValue(field.Default);
                 }
                 if (field is ChoiceField multi && multi.Multiple && field.Value == null) {
                     field.Value = new List<object?>();
@@ -71,16 +71,13 @@ namespace ConsoleMonster.Interactive {
             TakeSnapshot();
         }
 
-        /// <summary>Stops taking values applied to the form (it has closed); the form keeps later values itself.</summary>
-        public void Detach() => _form.Detach(this);
-
         private Dictionary<Field, object?> _saved = new Dictionary<Field, object?>();
 
         // The values as last opened or saved, so leaving with Discard puts them back.
         private void TakeSnapshot() {
             _saved = new Dictionary<Field, object?>();
             foreach (Field field in _form.Fields) {
-                _saved[field] = Clone(field.Value);
+                _saved[field] = field.CloneValue(field.Value);
             }
         }
 
@@ -90,7 +87,7 @@ namespace ConsoleMonster.Interactive {
         /// </summary>
         public void Revert() {
             foreach (KeyValuePair<Field, object?> pair in _saved) {
-                pair.Key.Value = Clone(pair.Value);
+                pair.Key.Value = pair.Key.CloneValue(pair.Value);
                 _states[pair.Key] = new FieldState(pair.Key);
             }
             _editor = null;
@@ -183,33 +180,35 @@ namespace ConsoleMonster.Interactive {
         /// <param name="stored">Whether the values are in stored form (a saved preset) rather than as the fields take them.</param>
         /// <param name="markDirty">Whether the form counts as changed afterwards.</param>
         public void ApplyValues(IDictionary<string, object?> values, bool stored, bool markDirty) {
-            Dictionary<Field, string> before = _form.Signatures();
+            Dictionary<Field, object?> before = _form.SnapshotValues();
             Pend(_form.Assign(values, stored));
             // Fields that depend on a changed field are reset as a user's change would reset them (see Changed), unless a
             // value is given for them; those whose options load from it load again.
-            foreach (Field dependent in _form.StaleDependents(before)) {
+            List<Field> stale = _form.StaleDependents(before);
+            foreach (Field dependent in stale) {
                 FieldState state = _states[dependent];
                 bool given = Form.TryGet(values, dependent.Name, out object? wanted);
                 if (dependent is ChoiceField choice && choice.Loader != null) {
                     state.CancelLoad();
+                    state.LoadAttempted = false;
                     state.LoadError = null;
                     choice.Choices.Clear();
                     choice.Value = Form.Reset(choice);
                     state.HasPendingStored = given;
-                    state.PendingStored = given ? Form.StoredForm(choice, wanted, stored) : null;
+                    state.PendingStored = given ? Form.RestorationValue(choice, wanted, stored) : null;
                 } else if (!given) {
                     dependent.Value = Form.Reset(dependent);
                 }
             }
-            Dictionary<Field, string> after = _form.Signatures();
+            Dictionary<Field, object?> after = _form.SnapshotValues();
             foreach (KeyValuePair<Field, FieldState> pair in _states) {
                 pair.Value.SyncEditor();
-                if (after[pair.Key] != before[pair.Key] || Form.TryGet(values, pair.Key.Name, out _)) {
+                if (!Form.SameValue(pair.Key, after[pair.Key], before[pair.Key]) || Form.TryGet(values, pair.Key.Name, out _)) {
                     pair.Value.Error = null;
                 }
             }
             // An open choice list holds its own copy of the selection; close it so it cannot write back an old one.
-            if (_editor != null && (Form.TryGet(values, _editor.Field.Name, out _) || after[_editor.Field] != before[_editor.Field])) {
+            if (_editor != null && (stale.Contains(_editor.Field) || Form.TryGet(values, _editor.Field.Name, out _) || !Form.SameValue(_editor.Field, after[_editor.Field], before[_editor.Field]))) {
                 _editor = null;
             }
             if (markDirty) {
@@ -218,30 +217,6 @@ namespace ConsoleMonster.Interactive {
                 TakeSnapshot();
             }
             StartPendingLoads();
-        }
-
-        /// <summary>
-        /// Applies values the app sets (<see cref="Form.Apply(IDictionary{string, object})"/>) as the form's saved state:
-        /// at once on the view's own thread; from another thread, queued through the host for its next tick.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">The call comes from another thread and the host cannot queue it.</exception>
-        public void ApplyFromApp(IDictionary<string, object?> values) {
-            Dictionary<string, object?> copy = Form.Copy(values);
-            if (Thread.CurrentThread.ManagedThreadId == _ownerThread) {
-                ApplyValues(copy, false, false);
-                return;
-            }
-            bool queued = _host.TryPost(() => {
-                // The form may have closed before the queued call ran: the values then go to the form itself.
-                if (ReferenceEquals(_form.View, this)) {
-                    ApplyValues(copy, false, false);
-                } else {
-                    _form.ApplyDetached(copy, false);
-                }
-            });
-            if (!queued) {
-                throw new InvalidOperationException("Form '" + _form.Title + "' is shown on another thread that cannot take values from this one; apply them from the thread that shows the form or from an action of the menu that shows it.");
-            }
         }
 
         /// <summary>The preset names: the built-in ones first (in the order declared), then the saved ones (sorted).</summary>
@@ -349,12 +324,15 @@ namespace ConsoleMonster.Interactive {
                     continue;
                 }
                 FieldState state = _states[other];
+                state.HasPendingStored = false;
+                state.PendingStored = null;
                 other.Value = other is ChoiceField c && c.Multiple ? new List<object?>() : null;
                 state.SyncEditor();
                 state.Error = null;
                 if (other is ChoiceField choice && choice.Loader != null) {
                     choice.Choices.Clear();
                     state.CancelLoad();
+                    state.LoadAttempted = false;
                     if (DependenciesSatisfied(other)) {
                         StartLoad(choice);
                     }
@@ -385,7 +363,7 @@ namespace ConsoleMonster.Interactive {
         private void StartPendingLoads() {
             foreach (Field field in _form.Fields) {
                 // A load that finished but is not taken up yet (Load still set) counts too, so it never starts twice.
-                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0 && _states[field].Load == null && DependenciesSatisfied(field)) {
+                if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0 && !_states[field].LoadAttempted && DependenciesSatisfied(field)) {
                     StartLoad(choice);
                 }
             }
@@ -398,6 +376,7 @@ namespace ConsoleMonster.Interactive {
             FormValues values = _form.GetValues();
             Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>> loader = field.Loader!;
             state.Cts = cts;
+            state.LoadAttempted = true;
             state.LoadError = null;
             // Loaders are asynchronous: they return a running task at once (or a finished one, which shows without a frame of spinner).
             try {
@@ -435,9 +414,10 @@ namespace ConsoleMonster.Interactive {
                 }
                 if (state.HasPendingStored) {
                     state.HasPendingStored = false;
-                    if (field.TryRestore(state.PendingStored, out object? value)) {
+                    if (Form.TryRestore(field, state.PendingStored, out object? value)) {
                         field.Value = value;
                     }
+                    state.PendingStored = null;
                 } else if (field.Multiple && field.Value is IList list && list.Count == 0) {
                     List<object?> preselected = new List<object?>();
                     foreach (Choice c in field.Choices) {
@@ -452,11 +432,14 @@ namespace ConsoleMonster.Interactive {
                 // Options that arrive while the form has no unsaved changes are part of its saved state, so Discard keeps
                 // the value they brought (a value applied by the app, a preselection, a default).
                 if (!_dirty) {
-                    _saved[field] = Clone(field.Value);
+                    _saved[field] = field.CloneValue(field.Value);
                 }
                 if (_editor != null && _editor.Field == field) {
                     _editor.Reload();
                 }
+            }
+            if (changed) {
+                StartPendingLoads();
             }
             return changed;
         }
@@ -575,17 +558,6 @@ namespace ConsoleMonster.Interactive {
                 return true;
             }
             return false;
-        }
-
-        private static object? Clone(object? value) {
-            if (value is IEnumerable list && !(value is string)) {
-                List<object?> copy = new List<object?>();
-                foreach (object? item in list) {
-                    copy.Add(item);
-                }
-                return copy;
-            }
-            return value;
         }
 
         // ---- input ----------------------------------------------------------------------------------------------
@@ -863,6 +835,8 @@ namespace ConsoleMonster.Interactive {
             public bool Revealed { get; set; }
 
             public Task<IEnumerable<Choice>>? Load { get; set; }
+
+            public bool LoadAttempted { get; set; }
 
             public CancellationTokenSource? Cts { get; set; }
 

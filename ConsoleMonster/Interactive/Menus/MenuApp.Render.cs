@@ -33,6 +33,9 @@ namespace ConsoleMonster.Interactive {
                 if (ReferenceEquals(_stack[i].Pane, _lists[_root])) {
                     continue;
                 }
+                if (_stack[i].Pane is RunPane && _stack[i].Item is MenuItem runItem) {
+                    AddCrumb(crumbs, runItem.Title);
+                }
                 AddCrumb(crumbs, _stack[i].Title);
             }
             if (CurrentPane != null) {
@@ -140,6 +143,9 @@ namespace ConsoleMonster.Interactive {
             string title = _root.Title;
             foreach (string crumb in crumbs) {
                 title += " " + g.Breadcrumb + " " + crumb;
+            }
+            if (Current?.PanelTitle is string panelTitle) {
+                title += " " + g.Separator + " " + panelTitle;
             }
             int width = Math.Min(frame.Width - 2, 80);
             if (pane is MenuListPane compactList) {

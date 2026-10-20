@@ -141,7 +141,7 @@ namespace ConsoleMonster.Interactive {
                         foreach (Choice c in choice.Loader(form.GetValues(), token).GetAwaiter().GetResult()) {
                             choice.Choices.Add(c);
                         }
-                        if (pending.TryGetValue(choice.Name, out object? wanted) && choice.TryRestore(wanted, out object? restored)) {
+                        if (pending.TryGetValue(choice.Name, out object? wanted) && Form.TryRestore(choice, wanted, out object? restored)) {
                             choice.Value = restored;
                         }
                     }

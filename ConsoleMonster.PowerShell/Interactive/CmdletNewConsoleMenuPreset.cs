@@ -82,7 +82,7 @@ namespace ConsoleMonster.PowerShell {
                 List<object?> selected = new List<object?>();
                 foreach (object? value in PSInteractive.Enumerate(Selection)) {
                     Choice? match = PSInteractive.Find(Item.Choices, value);
-                    selected.Add(match != null ? match.Value : PSText.Unwrap(value));
+                    selected.Add(match != null ? match.Value : value == null ? null : Binding.PSObjectMemberSource.Identity(value));
                 }
                 preset.Selection(Item, selected);
             }

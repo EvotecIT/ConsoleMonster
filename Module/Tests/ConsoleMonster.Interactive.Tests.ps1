@@ -363,6 +363,40 @@ Show-ConsoleMenu $menu -Layout Inline
             { New-ConsoleMenuPreset 'Broken' -Selection 'x' -ErrorAction Stop } | Should -Throw '*-Item*'
         }
 
+        It 'preserves original object answers and defaults instead of choosing the first custom object' {
+            $targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
+            $single = New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name -Default $targets[1]
+            $multiple = New-ConsoleField Targets 'Targets' -Type MultiSelect -Choices $targets -Display Name -Default @($targets[1])
+            $form = New-ConsoleForm 'Deployment' -Field $single, $multiple
+            $form.GetValues()['Target'].Name | Should -Be 'SRV02'
+            @($form.GetValues()['Targets']).Count | Should -Be 1
+            $form.GetValues()['Targets'][0].Name | Should -Be 'SRV02'
+            Set-ConsoleFormValue $form @{ Target = $targets[0] }
+            Set-ConsoleFormValue $form @{ Target = $targets[1] }
+            $form.GetValues()['Target'].Name | Should -Be 'SRV02'
+        }
+
+        It 'keeps original custom objects through form and menu presets' {
+            $text = Invoke-PromptChild -Script @'
+$targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
+$preset = New-ConsoleFormPreset 'Second' -Values @{ Target = $targets[1] }
+$form = New-ConsoleForm 'Deployment' -Preset $preset { New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name }
+Set-ConsoleFormValue $form $form.Presets[0].Values
+"form=$($form.GetValues()['Target'].Name)"
+$item = New-ConsoleMenuItem 'Targets' -MultiSelect $targets -Display Name
+$menuPreset = New-ConsoleMenuPreset 'Second' -Item $item -Selection $targets[1] -Form $form -Values @{ Target = $targets[1] }
+$menu = New-ConsoleMenu 'Deployment' -Item $item -Preset $menuPreset {
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
+    New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
+}
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('p Enter q')
+Show-ConsoleMenu $menu -Layout Inline
+"menu=$(@($item.Selection | ForEach-Object Name) -join ',') formAfter=$($form.GetValues()['Target'].Name)"
+'@
+            $text | Should -Match 'form=SRV02'
+            $text | Should -Match 'menu=SRV02 formAfter=SRV02'
+        }
+
         It 'colours run result figures by status and keeps a given elapsed time' {
             $result = New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; servers = 11 }) -FigureStatus @{ passed = 'Success'; Warnings = 'Warn' } -Elapsed 86s
             $result.Elapsed | Should -Be ([timespan]::FromSeconds(86))

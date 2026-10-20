@@ -38,7 +38,7 @@ namespace ConsoleMonster.Tests.Interactive {
 
         // A frame drawn while the run lasts: the footer offers ctrl+c and the caption shows the given text.
         private static CellBuffer RunFrame(ScreenCapture capture, string text) {
-            CellBuffer? frame = capture.Frames.FirstOrDefault(f => f.GetRowText(f.Height - 1).Contains("ctrl+c") && f.ToPlainText().Contains(text));
+            CellBuffer? frame = capture.Frames.FirstOrDefault(f => f.ToPlainText().Contains("ctrl+c") && f.ToPlainText().Contains(text));
             Assert.True(frame != null, "No run frame shows '" + text + "'. Last frame:\n" + capture.LastFrame?.ToPlainText());
             return frame!;
         }
@@ -84,6 +84,28 @@ namespace ConsoleMonster.Tests.Interactive {
             CellBuffer running = RunFrame(capture, "00:0");
             Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.DoesNotContain("·  00:0", running.ToPlainText());
+        }
+
+        [Theory]
+        [InlineData(MenuLayout.Shell)]
+        [InlineData(MenuLayout.Classic)]
+        public void MenuRun_DashboardTitle_FollowsTitleEventsAndKeepsTheRunningBreadcrumb(MenuLayout layout) {
+            Dashboard dashboard = new Dashboard("Initial check", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "title test" };
+            ScreenCapture capture = new ScreenCapture(Width, Height);
+            Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "title", text: "Updated check"))).Run(new MenuOptions {
+                Layout = layout,
+                Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"),
+                StorageRoot = Storage()
+            });
+
+            CellBuffer initial = RunFrame(capture, "Initial check");
+            CellBuffer updated = RunFrame(capture, "Updated check");
+            foreach (CellBuffer frame in new[] { initial, updated }) {
+                Assert.Contains("Toolbox › Patch › Running", frame.ToPlainText());
+                Assert.DoesNotContain("Patch › Patch", frame.ToPlainText());
+                Assert.DoesNotContain("Running › Running", frame.ToPlainText());
+            }
+            Assert.DoesNotContain("Initial check", updated.ToPlainText());
         }
 
         // A menu whose run moves a simulated clock 83 s and returns a result without a duration.

@@ -127,11 +127,11 @@ namespace ConsoleMonster.PowerShell {
             object? hotkey = selectors.Hotkey;
             object? disabled = PSText.Unwrap(selectors.Disabled);
             object? selected = selectors.Selected;
-            HashSet<string> preselected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<object?> preselected = new List<object?>();
             ScriptBlock? selectedScript = PSText.Unwrap(selected) as ScriptBlock;
             if (selected != null && selectedScript == null) {
                 foreach (object? s in Enumerate(selected)) {
-                    preselected.Add(Text(s));
+                    preselected.Add(s);
                 }
             }
             foreach (object? item in items) {
@@ -177,10 +177,16 @@ namespace ConsoleMonster.PowerShell {
                     choice.Selected = LanguagePrimitives.IsTrue(PSText.Unwrap(Select(item, selectors.SelectedBy)));
                 } else if (selectedScript != null) {
                     choice.Selected = LanguagePrimitives.IsTrue(Last(InvokeWith(selectedScript, item)));
-                } else if (preselected.Count > 0) {
-                    choice.Selected = preselected.Contains(choice.Title) || preselected.Contains(Text(item));
                 }
                 choices.Add(choice);
+            }
+            if (selectors.SelectedBy == null && selectedScript == null) {
+                foreach (object? value in preselected) {
+                    Choice? match = Find(choices, value);
+                    if (match != null) {
+                        match.Selected = true;
+                    }
+                }
             }
             return choices;
         }
@@ -243,14 +249,19 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Finds the choice for a default given as an object, a title or a value's text.</summary>
         public static Choice? Find(IList<Choice> choices, object? value) {
-            object? raw = PSText.Unwrap(value);
+            object? raw = value == null ? null : Binding.PSObjectMemberSource.Identity(value);
             if (raw == null) {
                 return null;
             }
             foreach (Choice c in choices) {
-                if (Equals(PSText.Unwrap(c.Value), raw)) {
+                object? candidate = c.Value == null ? null : Binding.PSObjectMemberSource.Identity(c.Value);
+                if (Equals(candidate, raw)) {
                     return c;
                 }
+            }
+            // A custom object's properties and identity live on its wrapper. Its unwrapped text cannot name a choice.
+            if (raw is PSObject) {
+                return null;
             }
             string text = Text(raw);
             foreach (Choice c in choices) {

@@ -35,7 +35,7 @@ namespace ConsoleMonster.Interactive {
         public static bool Apply(Menu root, ChoiceStore? store, string name) {
             MenuPreset? builtIn = root.FindPreset(name);
             if (builtIn != null) {
-                Restore(root, string.Empty, builtIn.SelectionMap(root));
+                builtIn.ApplySelections(root);
                 foreach (KeyValuePair<Form, IDictionary<string, object?>> pair in builtIn.FormValues) {
                     ApplyForm(pair.Key, pair.Value, false);
                 }

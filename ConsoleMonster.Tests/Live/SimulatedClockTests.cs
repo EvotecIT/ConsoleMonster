@@ -42,6 +42,39 @@ namespace ConsoleMonster.Tests.Live {
             Assert.InRange(real.Elapsed.TotalMilliseconds, 150, 2000);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Wait_AfterInstantAdvance_DoesNotSleepForTheAdvancedTime(bool afterWait) {
+            SimulatedClock clock = new SimulatedClock(1);
+            if (afterWait) {
+                clock.Wait(0.05);
+                clock.Hold(0.12);
+            }
+            clock.Advance(2);
+            using (CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(800))) {
+                Stopwatch real = Stopwatch.StartNew();
+                clock.Wait(0.08, timeout.Token);
+                Assert.False(timeout.IsCancellationRequested, "Instantly advanced time was charged as sleep: " + real.Elapsed);
+                Assert.True(real.Elapsed >= TimeSpan.FromMilliseconds(40), "The requested wait was not paced: " + real.Elapsed);
+                Assert.Equal(TimeSpan.FromMilliseconds(afterWait ? 2130 : 2080), clock.Elapsed);
+            }
+        }
+
+        [Fact]
+        public void Wait_RepeatedShortIntervals_UsesCumulativePacing() {
+            SimulatedClock clock = new SimulatedClock(1);
+            using (CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(1))) {
+                Stopwatch real = Stopwatch.StartNew();
+                for (int i = 0; i < 100; i++) {
+                    clock.Wait(0.001, timeout.Token);
+                }
+                Assert.False(timeout.IsCancellationRequested, "Coarse sleeps accumulated: " + real.Elapsed);
+                Assert.True(real.Elapsed >= TimeSpan.FromMilliseconds(70), "The waits skipped proportional pacing: " + real.Elapsed);
+                Assert.Equal(TimeSpan.FromMilliseconds(100), clock.Elapsed);
+            }
+        }
+
         [Fact]
         public void Wait_CancelledToken_MovesOnWithoutSleeping() {
             SimulatedClock clock = new SimulatedClock(0.01);

@@ -23,10 +23,12 @@ namespace ConsoleMonster.Live {
     /// </example>
     public sealed class SimulatedClock {
         private static readonly long Step = TimeSpan.FromMilliseconds(250).Ticks;
-        // Real time is measured from the first wait, so coarse sleeps never add up into a slower run.
+        // Real time and paced ticks are cumulative, so coarse sleeps never add up into a slower run;
+        // time added instantly by Advance is not charged to later waits.
         private readonly Stopwatch _real = new Stopwatch();
         private readonly object _gate = new object();
         private long _ticks;
+        private long _waited;
         private long _held;
         // The live session the clock runs in: the running session it first sees, kept after Ctrl+C (when the session no
         // longer counts as current) so a stopped run is noticed.
@@ -85,7 +87,7 @@ namespace ConsoleMonster.Live {
                 long now = Interlocked.Read(ref _ticks);
                 long step = Math.Min(Step, goal - now);
                 if (Speed > 0) {
-                    long due = (long)((now + step) / Speed) + Interlocked.Read(ref _held);
+                    long due = (long)(Interlocked.Add(ref _waited, step) / Speed) + Interlocked.Read(ref _held);
                     long wait = due - _real.Elapsed.Ticks;
                     if (wait > 0) {
                         Sleep(TimeSpan.FromTicks(wait), cancellationToken);

@@ -99,7 +99,7 @@ namespace ConsoleMonster.Interactive {
             Location? location = null;
             RunResult result = RunHost.Run(this, _surface, _screen, _input, _context, context, dashboard, work, options, pane => {
                 // The breadcrumb says the app is running; the dashboard's title names the panel, so it is not said twice.
-                location = new Location(Labels.Running, pane, null) { PanelTitle = pane.Title };
+                location = new Location(Labels.Running, pane, context.Item);
                 Push(location);
             }, () => {
                 if (location != null) {
@@ -134,7 +134,7 @@ namespace ConsoleMonster.Interactive {
             public string Title { get; }
 
             /// <summary>The content panel's title when it differs from the breadcrumb (a run: "Running" there, the dashboard here).</summary>
-            public string? PanelTitle { get; set; }
+            public string? PanelTitle => (Pane as RunPane)?.Title;
 
             public IPane Pane { get; }
 

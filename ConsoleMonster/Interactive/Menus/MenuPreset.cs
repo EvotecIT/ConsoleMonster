@@ -86,32 +86,25 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
-        /// <summary>
-        /// The selections in the form saved presets keep them: each item's path of titles from the root ("Item" or
-        /// "Submenu/Item") to its values as text.
-        /// </summary>
-        internal Dictionary<string, object?> SelectionMap(Menu root) {
-            Dictionary<string, object?> map = new Dictionary<string, object?>(StringComparer.Ordinal);
-            Collect(root, string.Empty, map);
-            return map;
-        }
-
-        private void Collect(Menu menu, string path, Dictionary<string, object?> map) {
+        /// <summary>Applies built-in choices by value equality, keeping persistence's text matching out of this path.</summary>
+        internal void ApplySelections(Menu menu) {
             foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
                 foreach (KeyValuePair<MenuItem, List<object?>> pair in _selections) {
                     if (ReferenceEquals(pair.Key, item)) {
-                        List<string> stored = new List<string>();
-                        foreach (object? value in pair.Value) {
-                            if (value != null) {
-                                stored.Add(CommandLine.Format(value));
+                        List<object?> selected = new List<object?>();
+                        foreach (Choice choice in item.Choices) {
+                            if (choice.IsEnabled && pair.Value.Contains(choice.Value)) {
+                                selected.Add(choice.Value);
+                                if (item.Kind == MenuItemKind.Select) {
+                                    break;
+                                }
                             }
                         }
-                        map[key] = stored;
+                        item.SetSelection(selected);
                     }
                 }
                 if (item.SubmenuDefinition != null) {
-                    Collect(item.SubmenuDefinition, key + "/", map);
+                    ApplySelections(item.SubmenuDefinition);
                 }
             }
         }
