@@ -92,7 +92,7 @@ body.pf-api-docs .type-header {
   padding: clamp(28px, 4vw, 48px) 0 clamp(20px, 3vw, 28px);
   border-bottom: 1px solid var(--cm-line-strong);
   /* The same faint cell grid as the site mastheads. */
-  background-image: var(--cm-dots);
+  background-image: radial-gradient(var(--cm-line) 1px, transparent 1.2px);
   background-size: 14px 24px;
   background-position: -1px -1px;
 }

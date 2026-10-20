@@ -23,10 +23,7 @@
 .cm-hero__take .cm-code__full summary { color: #c3cad6; }
 .cm-install__note { margin: 0; max-width: 62ch; color: #9aa4b5; font-size: 13.5px; line-height: 1.5; }
 .cm-hero__stage { margin-top: 40px; }
-.cm-hero__stage .cm-window__frame { box-shadow: 0 0 0 1px #273041, 0 20px 40px -24px rgba(0, 0, 0, .9); }
-/* The glow behind the hero window is a soft gradient painted behind it, not a 120 px blurred shadow redrawn with it. */
-.cm-hero__stage .cm-window { isolation: isolate; }
-.cm-hero__stage .cm-window::before { content: ""; position: absolute; inset: -48px -40px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(96, 165, 250, .12), transparent); }
+.cm-hero__stage .cm-window__frame { box-shadow: 0 0 0 1px #273041, 0 30px 80px -30px rgba(0, 0, 0, .9), 0 0 120px -40px rgba(96, 165, 250, .25); }
 .cm-hero__note { max-width: 90ch; margin: 14px 0 0; color: var(--cm-stage-muted); font-size: 14px; }
 .cm-hero__note a { color: #93c5fd; }
 

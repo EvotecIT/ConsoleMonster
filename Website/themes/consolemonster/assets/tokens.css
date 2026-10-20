@@ -47,10 +47,7 @@
   --cm-stage-ink: #e2e8f0;
   --cm-stage-muted: #8b93a3;
   --cm-stage-line: #273041;
-  /* Dot grids as one small image tile per theme: the browser draws an image once and repeats it, where a radial
-     gradient is evaluated again for every cell. Same dot as radial-gradient(--cm-line 1px, transparent 1.2px). */
-  --cm-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='24'%3E%3Cellipse cx='7' cy='12' rx='1.1' ry='1.9' fill='%23c3c9d3'/%3E%3C/svg%3E");
-  --cm-stage-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='24'%3E%3Cellipse cx='7' cy='12' rx='1.1' ry='1.9' fill='%2394a3b8' fill-opacity='.09'/%3E%3C/svg%3E");
+  --cm-stage-grid: rgba(148, 163, 184, .09);
 
   /* Terminal screens: ConsoleMonster's exporter defaults. */
   --cm-term-fg: #24292f;
@@ -69,7 +66,6 @@
   --cm-ink-2: #c3cad6;
   --cm-muted: #8b93a3;
   --cm-line: #2c3546;
-  --cm-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='24'%3E%3Cellipse cx='7' cy='12' rx='1.1' ry='1.9' fill='%232c3546'/%3E%3C/svg%3E");
   --cm-line-strong: #4b5060;
   --cm-accent: #60a5fa;
   --cm-accent-ink: #0b1220;
@@ -103,7 +99,6 @@
   --cm-ink-2: #c3cad6;
   --cm-muted: #8b93a3;
   --cm-line: #273041;
-  --cm-dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='24'%3E%3Cellipse cx='7' cy='12' rx='1.1' ry='1.9' fill='%23273041'/%3E%3C/svg%3E");
   --cm-line-strong: #4b5060;
   --cm-surface: #141b27;
   --cm-sunken: #0a0e15;

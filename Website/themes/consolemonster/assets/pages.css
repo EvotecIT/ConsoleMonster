@@ -7,7 +7,7 @@
 .cm-ribbon .cm-screen { --cm-max-font: 11.5px; }
 
 /* The sticky terminal-profile toolbar. */
-.cm-toolbar { position: sticky; top: 64px; z-index: 20; border-bottom: 1px solid var(--cm-line); background: var(--cm-page); }
+.cm-toolbar { position: sticky; top: 64px; z-index: 20; border-bottom: 1px solid var(--cm-line); background: color-mix(in srgb, var(--cm-page) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .cm-toolbar__inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 0; }
 .cm-toolbar__note { margin: 0 0 0 auto; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
 .cm-toolbar[aria-busy="true"] .cm-toolbar__note { opacity: .55; }
