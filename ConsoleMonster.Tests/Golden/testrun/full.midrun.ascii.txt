@@ -8,7 +8,7 @@
 | | Module.Tests.ps1  ############-------------------  40%  P2 F0 S0  has help for every cmdlet              |
 +------------------------------------------------------------------------------------------------------------+
  x + x x - + + + + * . .
- / Module › Help › has help for every cmdlet
+ / Module > Help > has help for every cmdlet
 +- Failures ------------------------------------------------ 3 -+ +- Slowest --------------------------------+
 |                                                               | |                                          |
 | x Broken                                                      | |   1.2s  slow 2  Sample.Tests.ps1         |

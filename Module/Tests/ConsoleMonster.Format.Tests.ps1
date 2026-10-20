@@ -215,4 +215,21 @@ $h | Format-ConsoleTree -Depth 3 -Width 80
         $text | Should -Match 'Self\s+\(cycle: \$\)'
         $text | Should -Not -Match 'SyncRoot'
     }
+
+    It 'keeps the title and caption when a single dictionary is shown as a record' {
+        $script = @'
+@{ a = 1 } | Format-ConsoleTable -Title 'Config' -Caption 'from defaults' -Width 60 -AsString
+'=====SPLIT====='
+@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | Format-ConsoleTable -Title 'Config' -Width 60 -AsString
+'@
+        $text = Invoke-FormatChild -Script $script
+        $parts = $text -split '=====SPLIT====='
+        # The record's heading line carries the title and, after it, the caption as its summary.
+        $parts[0] | Should -Match '(?m)^\s*Config\b.*from defaults'
+        $parts[0] | Should -Match 'a\s+1'
+        $parts[0] | Should -Not -Match 'Hashtable'
+        # The title heads only the first widget: the record, not the table after it.
+        ([regex]::Matches($parts[1], 'Config')).Count | Should -Be 1
+        $parts[1] | Should -Match 'svc'
+    }
 }

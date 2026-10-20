@@ -88,7 +88,7 @@ namespace ConsoleMonster.TestRuns {
                 if (mapRows > 0) {
                     body.Add(new Padding(map, 1, 0, 1, 0), LayoutSize.Fixed(mapRows));
                 }
-                body.Add(new Padding(Running(snapshot), 1, 0, 1, 0), LayoutSize.Fixed(1));
+                body.Add(new Padding(Running(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 if (snapshot.Failures.Count > 0) {
                     FailureList failures = new FailureList(snapshot.Failures, CompactFailures);
                     body.Add(FailuresPanel(snapshot, failures), LayoutSize.Fraction());
@@ -100,7 +100,7 @@ namespace ConsoleMonster.TestRuns {
                 if (mapRows > 0) {
                     body.Add(new Padding(map, 1, 0, 1, 0), LayoutSize.Fixed(Math.Min(mapRows, Math.Max(2, bodyHeight / 5))));
                 }
-                body.Add(new Padding(Running(snapshot), 1, 0, 1, 0), LayoutSize.Fixed(1));
+                body.Add(new Padding(Running(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 Rows side = new Rows();
                 side.Add(new Panel(new SlowestList(snapshot.Slowest), Text.Markup.Escape(context.Labels.TestsSlowest)) { PaddingTop = 1 }, LayoutSize.Fixed(Math.Max(1, _run.SlowestCount) + 3));
                 Histogram histogram = new Histogram(DurationEdges, "durations") { EdgeFormat = Milliseconds, Token = ThemeToken.Series1 };
@@ -179,13 +179,13 @@ namespace ConsoleMonster.TestRuns {
         }
 
         // The running test as an activity row with its own elapsed time; before and after the run, the status line.
-        private static IWidget Running(TestRunSnapshot snapshot) {
+        private static IWidget Running(TestRunSnapshot snapshot, RenderContext context) {
             if (snapshot.IsFinished || snapshot.CurrentName == null || !snapshot.CurrentStarted.HasValue) {
                 return new CurrentTestLine(snapshot);
             }
             ActivityList list = new ActivityList("running") { MaxVisible = 1 };
             List<string> parts = new List<string>(snapshot.CurrentBlocks) { snapshot.CurrentName };
-            list.Apply(new Live.LiveEvent(ActivityList.ProgressTarget, "update", key: "1", text: string.Join(" › ", parts.ToArray()), value: -1, total: -1, time: (long)snapshot.CurrentStarted.Value.TotalMilliseconds));
+            list.Apply(new Live.LiveEvent(ActivityList.ProgressTarget, "update", key: "1", text: string.Join(" " + Interactive.InteractiveGlyphs.For(context).Breadcrumb + " ", parts.ToArray()), value: -1, total: -1, time: (long)snapshot.CurrentStarted.Value.TotalMilliseconds));
             return new RunClock(list, snapshot.Elapsed);
         }
 

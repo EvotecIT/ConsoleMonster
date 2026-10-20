@@ -92,7 +92,16 @@ namespace ConsoleMonster.PowerShell {
             List<IWidget> widgets = new List<IWidget>();
             foreach (IReadOnlyList<PSObject> run in runs) {
                 if (run.Count == 1 && groupBy == null && (property == null || property.Length == 0) && ValueShaper.Prepare(run[0], shape) is System.Collections.IDictionary) {
-                    widgets.Add(BuildList(run, null, null, false, 1, null, options.Culture, options.Cmdlet));
+                    // The caller's table settings still apply: the configuration runs on a stand-in table (so a title meant
+                    // for the first widget stays first), then its title heads the record and its caption becomes the
+                    // record's summary line, as in card view. Borders, widths and row limits have no record equivalent.
+                    Table settings = new Table();
+                    configure?.Invoke(settings);
+                    IWidget record = BuildList(run, null, null, false, 1, settings.Title, options.Culture, options.Cmdlet);
+                    if (record is RecordView view && !string.IsNullOrEmpty(settings.Caption)) {
+                        view.Summary = Text.Markup.Strip(settings.Caption!);
+                    }
+                    widgets.Add(record);
                     continue;
                 }
                 Table table = BuildTable(run, property, groupBy, options, shape);
