@@ -99,7 +99,7 @@ namespace ConsoleMonster.PowerShell {
                 StackedBar stacked = new StackedBar(Name ?? "stacked");
                 if (dictionary != null) {
                     foreach (DictionaryEntry entry in dictionary) {
-                        stacked.Add(PSWidgets.ToText(entry.Key), LanguagePrimitives.ConvertTo<double>(entry.Value));
+                        stacked.Add(PSWidgets.ToText(entry.Key), Number(entry));
                     }
                 }
                 widget = stacked;
@@ -110,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 if (dictionary != null) {
                     foreach (DictionaryEntry entry in dictionary) {
-                        chart.Add(PSWidgets.ToText(entry.Key), LanguagePrimitives.ConvertTo<double>(entry.Value));
+                        chart.Add(PSWidgets.ToText(entry.Key), Number(entry));
                     }
                 }
                 widget = chart;
@@ -118,6 +118,16 @@ namespace ConsoleMonster.PowerShell {
             PSItems.AddAll(this, widget, PSItems.Items(content));
             PSItems.AddAll(this, widget, _piped);
             WriteObject(widget);
+        }
+
+        // A -Data value as a number, or a terminating error that names the bar.
+        private double Number(DictionaryEntry entry) {
+            try {
+                return LanguagePrimitives.ConvertTo<double>(entry.Value);
+            } catch (PSInvalidCastException) {
+                ThrowTerminatingError(new ErrorRecord(new PSArgumentException("The value of '" + PSWidgets.ToText(entry.Key) + "' is not a number: '" + PSWidgets.ToText(entry.Value) + "'."), "ConsoleMonsterBarValue", ErrorCategory.InvalidArgument, entry.Value));
+                return 0;
+            }
         }
     }
 }

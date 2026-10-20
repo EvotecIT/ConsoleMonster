@@ -157,7 +157,7 @@ foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
         $lines = @(Invoke-ExampleChild -Script $script -TimeoutSeconds $timeout)
         # Terminal control sequences (cursor show and hide, line clears) can share a line with the markers.
         $escape = [string][char]27
-        $report = ($lines | ForEach-Object { $_ -replace ($escape + '\[[0-9;?]*[ -/]*[@-~]'), '' } | Where-Object { $_ -match 'EXAMPLE-' }) -join "`n"
+        $report = ($lines | ForEach-Object { ($_ -replace ($escape + '\][^\a]*?(\a|' + $escape + '\\)'), '') -replace ($escape + '\[[0-9;?]*[ -/]*[@-~]'), '' } | Where-Object { $_ -match 'EXAMPLE-' }) -join "`n"
         $report | Should -Match 'EXAMPLE-DONE' -Because $report
         if (-not $case['ExpectErrors']) {
             $report | Should -Match 'EXAMPLE-ERRORS=0' -Because $report

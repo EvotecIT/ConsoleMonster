@@ -160,4 +160,23 @@ Describe 'One grammar for every widget' {
             { New-ConsoleTree 'x' | Add-ConsoleItem 42 } | Should -Throw '*New-ConsoleTreeNode*'
         }
     }
+    Context 'Validation and plain objects' {
+        It 'ends a large hierarchy at -MaxNodes with a note' {
+            $root = [pscustomobject] @{ Name = 'Root'; Kids = 1..10 | ForEach-Object { [pscustomobject] @{ Name = "child$_" } } }
+            ($root | New-ConsoleTree -ChildrenProperty Kids -MaxNodes 4 | Get-WidgetText) | Should -Match 'node limit'
+        }
+
+        It 'rejects unknown tones and statuses, and non-numeric -Data values' {
+            { @{ Label = 'DNS'; Value = 4; Tone = 'Pinkish' } | New-ConsoleBarChart } | Should -Throw '*not a tone*'
+            { New-ConsoleStatusList ([ordered] @{ Build = 'Passs' }) } | Should -Throw '*not a status*'
+            { New-ConsoleBarChart ([ordered] @{ DNS = 'four' }) } | Should -Throw '*not a number*'
+        }
+
+        It 'takes items from arrays emitted as one object and from plain objects' {
+            (New-ConsoleStatusList { , @((New-ConsoleStatusItem 'a'), (New-ConsoleStatusItem 'b')) }).Items.Count | Should -Be 2
+            ([pscustomobject] @{ Label = 'DNS'; Value = 4; Tone = 'Fail' } | New-ConsoleBarChart).Items[0].Token | Should -Be 'Fail'
+            $pairs = New-ConsoleKeyValue | Add-ConsoleItem ([pscustomobject] @{ Domain = 'evotec.xyz'; Records = 14 }) -PassThru
+            ($pairs | Get-WidgetText) | Should -Match 'Records\s+14'
+        }
+    }
 }

@@ -282,7 +282,7 @@ namespace ConsoleMonster.PowerShell {
             if (item is StatusItem statusItem) {
                 return statusItem;
             }
-            if (item is IDictionary || item is PSObject) {
+            if (IsRecord(item)) {
                 // @{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' } (or such an object) reads like the item cmdlet's parameters.
                 string label = PSWidgets.ToText(Field(item, "Label") ?? Field(item, "Name") ?? Field(item, "Key"));
                 if (label.Length == 0) {
@@ -308,7 +308,7 @@ namespace ConsoleMonster.PowerShell {
             if (item is ChartItem chartItem) {
                 return chartItem;
             }
-            if (item is IDictionary || item is PSObject) {
+            if (IsRecord(item)) {
                 object? label = Field(item, "Label") ?? Field(item, "Name");
                 object? value = Field(item, "Value");
                 if (label == null || value == null || !TryNumber(value, out double number)) {
@@ -319,7 +319,7 @@ namespace ConsoleMonster.PowerShell {
                 object? tone = Field(item, "Tone");
                 if (tone != null) {
                     string toneText = PSWidgets.ToText(tone);
-                    if (int.TryParse(toneText, out _) || !Enum.TryParse(toneText, true, out ThemeToken parsed)) {
+                    if (int.TryParse(toneText, out _) || !Enum.TryParse(toneText, true, out ThemeToken parsed) || !Enum.IsDefined(typeof(ThemeToken), parsed)) {
                         problem = "'" + toneText + "' is not a tone. Use a theme role such as Pass, Fail, Warn, Accent or Series1 to Series6.";
                         return null;
                     }
@@ -362,12 +362,16 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
+        // A hashtable or an object with properties (not a string, number or other plain value).
+        private static bool IsRecord(object item) => item is IDictionary || item is PSObject || !(item is string || item is IConvertible || item is Layout.IWidget);
+
         // A value from a hashtable key or an object property, case-insensitively.
         private static object? Field(object item, string name) {
             if (item is IDictionary dictionary) {
                 return Lookup(dictionary, name);
             }
-            return item is PSObject record ? Property(record, item, name) : null;
+            PSObject record = item as PSObject ?? PSObject.AsPSObject(item);
+            return Property(record, item, name);
         }
 
         private static object? Lookup(IDictionary dictionary, string name) {

@@ -81,7 +81,14 @@ namespace ConsoleMonster.PowerShell {
             } else if (data is IDictionary dictionary) {
                 foreach (DictionaryEntry entry in dictionary) {
                     string label = PSWidgets.ToText(entry.Key);
-                    StatusKinds.TryParse(PSWidgets.ToText(entry.Value), out StatusKind status);
+                    object? state = PSText.Unwrap(entry.Value);
+                    StatusKind status;
+                    if (state is StatusKind kind) {
+                        status = kind;
+                    } else if (!StatusKinds.TryParse(PSWidgets.ToText(state), out status)) {
+                        ThrowTerminatingError(new ErrorRecord(new PSArgumentException("'" + PSWidgets.ToText(state) + "' (for '" + label + "') is not a status. Use one of: " + string.Join(", ", StatusKinds.Words) + "."), "ConsoleMonsterStatusWord", ErrorCategory.InvalidArgument, state));
+                        return;
+                    }
                     list.Set(label, Markup.Escape(label), status);
                 }
             } else if (data != null) {
