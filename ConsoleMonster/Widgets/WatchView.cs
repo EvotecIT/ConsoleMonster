@@ -94,7 +94,7 @@ namespace ConsoleMonster.Widgets {
             _rendered = grid;
         }
 
-        // A value is a word, a number ("1 204 311") or a marked status ("▴ Warning"): when any of its cells
+        // A value is the text between table borders or wider gaps: a cell, a sentence, "1 204 311", "▴ Warning". When any of its cells
         // changed since the previous run, the whole value gets the change tone (bold on a soft surface, its own colours
         // kept), and only until the next run that leaves it unchanged. Without colour, a marker in the gap before it says
         // so: ↑ or ↓ for a number that went up or down, * otherwise.
@@ -104,6 +104,8 @@ namespace ConsoleMonster.Widgets {
                 // A border row ("+-----+", "──────") is layout, not a value, also when a column width changes.
                 return;
             }
+            System.Collections.Generic.List<(int Start, int TextEnd)> runs = new System.Collections.Generic.List<(int Start, int TextEnd)>();
+            bool anyText = false;
             int x = 0;
             while (x < width) {
                 if (IsGap(grid, x, y, width)) {
@@ -111,11 +113,12 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 int start = x;
+                anyText = true;
                 while (x < width && !IsGap(grid, x, y, width)) {
                     x++;
                 }
                 int end = x;
-                // A value that got shorter leaves changed blank cells right after it; they belong to it.
+                // A value that got shorter leaves changed blank cells right after it: they count as its change.
                 while (end < width && grid[end, y] == " " && Changed(previous, end, y, " ") && !IsBorder(At(previous, end, y))) {
                     end++;
                 }
@@ -124,13 +127,31 @@ namespace ConsoleMonster.Widgets {
                     changed = Changed(previous, i, y, grid[i, y]);
                 }
                 if (changed) {
-                    Mark(body, grid, previous, start, x, end, y, context);
+                    runs.Add((start, x));
                 }
                 x = Math.Max(x, end);
             }
+            foreach ((int Start, int TextEnd) run in runs) {
+                Mark(body, grid, previous, run.Start, run.TextEnd, y, context);
+            }
+            if (runs.Count == 0 && !anyText && width > 0) {
+                // A line that is now empty (a shorter table, a message that went away) is marked at its start.
+                bool vanished = false;
+                for (int i = 0; i < width && !vanished; i++) {
+                    vanished = Changed(previous, i, y, grid[i, y]);
+                }
+                if (vanished) {
+                    if (context.Profile.ColorDepth == Capabilities.ColorDepth.None) {
+                        body.Put(0, y, "*", context.Style(ThemeToken.Muted));
+                    } else {
+                        body.SetStyle(0, y, body.Get(0, y).Style.WithBackground(context.Style(ThemeToken.Surface).Background));
+                    }
+                }
+            }
         }
 
-        private static void Mark(Region body, string[,] grid, string[,] previous, int start, int textEnd, int end, int y, RenderContext context) {
+        // The tone covers the text of the run, not the padding after it.
+        private static void Mark(Region body, string[,] grid, string[,] previous, int start, int textEnd, int y, RenderContext context) {
             if (context.Profile.ColorDepth == Capabilities.ColorDepth.None) {
                 // In the gap before the value, or after it when the value starts the line.
                 int at = start > 0 && grid[start - 1, y] == " " ? start - 1 : textEnd < body.Width && grid[textEnd, y] == " " ? textEnd : -1;
@@ -140,7 +161,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             Color tone = context.Style(ThemeToken.Surface).Background;
-            for (int i = start; i < end; i++) {
+            for (int i = start; i < textEnd; i++) {
                 Cell cell = body.Get(i, y);
                 if (cell.IsContinuation) {
                     continue;
@@ -197,6 +218,18 @@ namespace ConsoleMonster.Widgets {
         // The number a value shows, read with the culture's separators ("1 204,5" in pl-PL, "1,204.5" in en-US; spaces and
         // a percent sign allowed). Anything else is not a number, so its change is marked with "*".
         private static bool TryNumber(string text, NumberFormatInfo numbers, out double value) {
+            // Space-separated parts are digit groups only when every part after the first has three digits ("1 204 311");
+            // "12.34 5678" is two values side by side, not one number.
+            string[] parts = text.Split(new[] { ' ', '\u00a0', '\u202f' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int p = 1; p < parts.Length; p++) {
+                string digitsOnly = parts[p].TrimEnd('%');
+                int decimalAt = digitsOnly.IndexOf(numbers.NumberDecimalSeparator, StringComparison.Ordinal);
+                string head = p == parts.Length - 1 && decimalAt >= 0 ? digitsOnly.Substring(0, decimalAt) : digitsOnly;
+                if (head.Length != 3 || !IsDigits(head) || (p < parts.Length - 1 && decimalAt >= 0) || parts[p - 1].IndexOf(numbers.NumberDecimalSeparator, StringComparison.Ordinal) >= 0) {
+                    value = 0;
+                    return false;
+                }
+            }
             string group = numbers.NumberGroupSeparator;
             string separator = numbers.NumberDecimalSeparator;
             System.Text.StringBuilder digits = new System.Text.StringBuilder();
@@ -217,7 +250,16 @@ namespace ConsoleMonster.Widgets {
             return double.TryParse(digits.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out value);
         }
 
-        // Value boundaries: table borders and spaces, except a single space inside a number or after a status marker.
+        private static bool IsDigits(string text) {
+            foreach (char c in text) {
+                if (!char.IsDigit(c)) {
+                    return false;
+                }
+            }
+            return text.Length > 0;
+        }
+
+        // Value boundaries: table borders, two or more spaces and the line edges.
         private static bool IsGap(string[,] grid, int x, int y, int width) {
             string glyph = grid[x, y];
             if (IsBorder(glyph)) {
@@ -231,15 +273,9 @@ namespace ConsoleMonster.Widgets {
             }
             string before = grid[x - 1, y] ?? " ";
             string after = grid[x + 1, y] ?? " ";
-            // An empty glyph is the second cell of a wide character (CJK, emoji): a space after it separates words.
-            if (before.Length == 0 || after.Length == 0 || before == " " || after == " " || IsBorder(before) || IsBorder(after)) {
-                return true;
-            }
-            // One space joins digit groups ("1 204 311") and a status marker to its word ("▴ Warning", "[WARN] Warning"); between words it
-            // separates values.
-            bool digits = char.IsDigit(before[0]) && char.IsDigit(after[0]);
-            bool marker = ((!char.IsLetterOrDigit(before[0]) && before[0] > '\u007f') || before[0] == ']') && char.IsLetter(after[0]);
-            return !(digits || marker);
+            // One space stays inside a value: a sentence, "1 204 311", "▴ Warning". Two spaces, a border or the edge
+            // separate values (table columns). The second cell of a wide character has an empty glyph and counts as text.
+            return before == " " || after == " " || IsBorder(before) || IsBorder(after);
         }
 
         private static bool IsBorder(string glyph) => glyph.Length == 1 && ((glyph[0] >= '\u2500' && glyph[0] <= '\u257f') || glyph[0] == '|');

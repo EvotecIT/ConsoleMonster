@@ -145,7 +145,9 @@ Watch-Console { $script:n++; if ($script:n -eq 2) { throw 'second run failed' };
 
     It 'Watch-Console shows the command''s own error for a stopped run, not the exception that carried it' {
         $text = Invoke-ViewChild -Script @'
-Watch-Console { Get-Item 'C:\nope\missing.txt' -ErrorAction Stop } -Count 1 -Title 'demo'
+# A path that cannot exist on any platform: a missing child of the temp folder.
+$missing = Join-Path ([System.IO.Path]::GetTempPath()) ('cm-missing-' + [guid]::NewGuid().ToString('N') + [System.IO.Path]::DirectorySeparatorChar + 'missing.txt')
+Watch-Console { Get-Item -LiteralPath $missing -ErrorAction Stop } -Count 1 -Title 'demo'
 '@
         $text | Should -Match 'ItemNotFoundException'
         $text | Should -Not -Match 'ActionPreferenceStopException'

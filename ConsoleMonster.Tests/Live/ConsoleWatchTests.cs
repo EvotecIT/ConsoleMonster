@@ -92,21 +92,27 @@ namespace ConsoleMonster.Tests.Live {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
             Color tone = context.Style(ThemeToken.Surface).Background;
             WatchView view = new WatchView { Differences = true };
-            CellBuffer second = RenderTwice(view, context, "count 41 of 99", "count 42 of 9");
-            // Row 1 holds the content: "count" and "of" are unchanged; "42" changed as a whole, not only its "2".
+            // Columns two spaces apart: "count" is unchanged; "42" changed as a whole, not only its "2".
+            CellBuffer second = RenderTwice(view, context, "count  41  of  99", "count  42  of  9");
             Assert.NotEqual(tone, second[0, 1].Style.Background);
-            Assert.Equal(tone, second[6, 1].Style.Background);
             Assert.Equal(tone, second[7, 1].Style.Background);
-            Assert.True((second[6, 1].Style.Decoration & TextDecoration.Bold) != 0);
-            Assert.NotEqual(tone, second[9, 1].Style.Background);
-            // "99" became "9": the value and the cell it left are toned.
-            Assert.Equal(tone, second[12, 1].Style.Background);
-            Assert.Equal(tone, second[13, 1].Style.Background);
+            Assert.Equal(tone, second[8, 1].Style.Background);
+            Assert.True((second[7, 1].Style.Decoration & TextDecoration.Bold) != 0);
+            Assert.NotEqual(tone, second[11, 1].Style.Background);
+            // "99" became "9": the value is toned, the padding it left is not.
+            Assert.Equal(tone, second[15, 1].Style.Background);
+            Assert.NotEqual(tone, second[16, 1].Style.Background);
+            // A changed line of text is one continuous span, spaces and unchanged words included, padding excluded.
+            CellBuffer line = RenderTwice(new WatchView { Differences = true }, context, "queue-c is slow", "queue-b is draining");
+            for (int x = 0; x < 19; x++) {
+                Assert.Equal(tone, line[x, 1].Style.Background);
+            }
+            Assert.NotEqual(tone, line[19, 1].Style.Background);
             // The next run with the same values clears the tone.
-            view.Update(new TextBlock("count 42 of 9"), 3);
+            view.Update(new TextBlock("count  42  of  9"), 3);
             CellBuffer third = new CellBuffer(30, 2);
             view.Render(new Region(third), context);
-            Assert.NotEqual(tone, third[6, 1].Style.Background);
+            Assert.NotEqual(tone, third[7, 1].Style.Background);
         }
 
         [Fact]
@@ -123,19 +129,28 @@ namespace ConsoleMonster.Tests.Live {
             CellBuffer decimals = RenderTwice(new WatchView { Differences = true }, plain, "load  1,5", "load  1,25");
             Assert.Contains("v1,25", decimals.GetRowText(1));
             // A value at the start of the line gets its marker after it.
-            CellBuffer first = RenderTwice(new WatchView { Differences = true }, plain, "41 waiting", "48 waiting");
-            Assert.StartsWith("48^waiting", first.GetRowText(1));
+            CellBuffer first = RenderTwice(new WatchView { Differences = true }, plain, "41  waiting", "48  waiting");
+            Assert.StartsWith("48^ waiting", first.GetRowText(1));
+            // A line that went away is marked at its start.
+            CellBuffer gone = RenderTwice(new WatchView { Differences = true }, plain, "queue-c is slow", string.Empty);
+            Assert.StartsWith("*", gone.GetRowText(1));
+            // Two numbers one space apart are not one number: no arrow.
+            CellBuffer merged = RenderTwice(new WatchView { Differences = true }, plain, "x  12,34 5678", "x  12,30 5679");
+            Assert.Contains("*12,30", merged.GetRowText(1));
+            // Digit groups are one number: 1 204 up to 1 305.
+            CellBuffer groups = RenderTwice(new WatchView { Differences = true }, plain, "x  1 204", "x  1 305");
+            Assert.Contains("^1 305", groups.GetRowText(1));
         }
 
         [Fact]
         public void WatchView_Differences_WithoutColour_MarksValuesBeforeThem() {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.None, GlyphTier.Full), Theme.Dark);
-            CellBuffer second = RenderTwice(new WatchView { Differences = true }, context, "left  41  queue a  40", "left  48  queue b   4");
+            CellBuffer second = RenderTwice(new WatchView { Differences = true }, context, "left  41  queue  a  40", "left  48  queue  b   4");
             string row = second.GetRowText(1);
             Assert.Contains("↑48", row);
             // "40" became "4": the whole previous value is compared, so it went down.
             Assert.Contains("↓4", row);
-            Assert.Contains("*b", row);
+            Assert.Contains("*b", row.Replace(" ", string.Empty));
             Assert.StartsWith("left", row);
         }
     }
