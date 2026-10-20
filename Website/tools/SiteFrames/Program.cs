@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -44,6 +45,36 @@ namespace SiteFrames {
             }
         }
 
+        // Pages fetch frame bundles, replays, recordings and Prism components by fixed URLs at run time, which asset
+        // hashing cannot rename. Their combined content hash goes into data/assets.json; the pages carry it and the scripts
+        // add it to those URLs (?v=), so a browser never pairs a new page with an old cached replay or frame bundle.
+        // Line endings are normalised so every checkout computes the same value.
+        private static void WriteRuntimeVersion(Site site) {
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                List<string> files = new List<string>();
+                foreach (string folder in new[] { "frames", "replays", "recordings", Path.Combine("assets", "prism") }) {
+                    string root = site.Static(folder.Replace(Path.DirectorySeparatorChar, '/'));
+                    if (Directory.Exists(root)) {
+                        files.AddRange(Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories));
+                    }
+                }
+                string staticRoot = site.Static(string.Empty);
+                files.Sort((x, y) => string.CompareOrdinal(Path.GetRelativePath(staticRoot, x).Replace('\\', '/'), Path.GetRelativePath(staticRoot, y).Replace('\\', '/')));
+                foreach (string file in files) {
+                    byte[] name = System.Text.Encoding.UTF8.GetBytes(Path.GetRelativePath(staticRoot, file).Replace('\\', '/') + "\n");
+                    sha.TransformBlock(name, 0, name.Length, null, 0);
+                    byte[] content = File.ReadAllBytes(file);
+                    string extension = Path.GetExtension(file).ToLowerInvariant();
+                    if (extension == ".json" || extension == ".jsonl" || extension == ".js" || extension == ".css" || extension == ".txt") {
+                        content = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(content).Replace("\r\n", "\n"));
+                    }
+                    sha.TransformBlock(content, 0, content.Length, null, 0);
+                }
+                sha.TransformFinalBlock(new byte[0], 0, 0);
+                string version = Convert.ToHexString(sha.Hash!).Substring(0, 12).ToLowerInvariant();
+                site.WriteJson(site.Data("assets"), new JsonObject { ["runtime"] = version });
+            }
+        }
         private static bool Wants(string? only, string area) => only == null || string.Equals(only, area, StringComparison.OrdinalIgnoreCase);
 
         private static int CaptureAll(Site site, string? only) {
@@ -96,6 +127,7 @@ namespace SiteFrames {
             site.Write(site.Static("assets/player/player.js"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerScript", "player.js") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerScript);
             site.Write(site.Static("assets/player/player.css"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerStyles", "player.css") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerStyles);
             SiteImages.Render(site);
+            WriteRuntimeVersion(site);
             string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
             site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");

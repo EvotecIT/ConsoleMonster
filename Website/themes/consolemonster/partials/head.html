@@ -1,5 +1,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {{~ ## The content version of what scripts fetch at run time (frame bundles, replays, Prism), from data/assets.json. ## ~}}
+  <meta name="cm-runtime" content="{{ data.assets.runtime }}" />
   <title>{{ title_html }}</title>
   {{ description_meta_html }}
   {{ canonical_html }}

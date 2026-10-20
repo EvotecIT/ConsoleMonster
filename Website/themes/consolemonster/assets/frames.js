@@ -4,10 +4,14 @@
 (function () {
   'use strict';
 
+  // Frame bundles and replays are fetched by fixed URLs, which asset hashing cannot rename: the page's content version
+  // (meta cm-runtime, from the site tool) goes on each request, so a new page never meets an old cached bundle.
+  var runtime = document.querySelector('meta[name="cm-runtime"]');
+  var version = runtime ? runtime.getAttribute('content') : '';
   var bundles = {};
   function load(url) {
     if (!bundles[url]) {
-      bundles[url] = fetch(url, { credentials: 'same-origin' }).then(function (response) {
+      bundles[url] = fetch(version ? url + (url.indexOf('?') < 0 ? '?' : '&') + 'v=' + version : url, { credentials: 'same-origin' }).then(function (response) {
         if (!response.ok) throw new Error(response.status + ' ' + url);
         return response.json();
       });
