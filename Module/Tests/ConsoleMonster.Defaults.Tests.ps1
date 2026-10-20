@@ -173,9 +173,17 @@ Write-Progress -Activity 'after removal' -Completed
         $text | Should -Match 'OK'
         $text = Invoke-DefaultsChild @'
 function global:Write-Progress { param($Activity) 'MINE' }
+$owner = (Get-Command Enable-ConsoleFormatting).Module
+$before = $owner.OnRemove
 Enable-ConsoleFormatting -Feature Progress -WarningVariable w -WarningAction SilentlyContinue
 "WARNED=$($w.Count) ALIAS=$([bool] (Get-Alias Write-Progress -ErrorAction Ignore)) CALL=$(Write-Progress -Activity x)"
+"SHIM=$([bool] (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) HOOK_UNCHANGED=$([object]::ReferenceEquals($before, $owner.OnRemove))"
+Enable-ConsoleFormatting -Feature Output, Progress -WarningAction SilentlyContinue
+"MIXED_OUTPUT=$((Get-Command Out-Default -CommandType Function).Definition -match 'ConsoleMonster') MIXED_ALIAS=$([bool] (Get-Alias Write-Progress -ErrorAction Ignore))"
+Disable-ConsoleFormatting
 '@
         $text | Should -Match 'WARNED=1 ALIAS=False CALL=MINE'
+        $text | Should -Match 'SHIM=False HOOK_UNCHANGED=True'
+        $text | Should -Match 'MIXED_OUTPUT=True MIXED_ALIAS=False'
     }
 }

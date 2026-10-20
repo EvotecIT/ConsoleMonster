@@ -59,6 +59,9 @@ namespace ConsoleMonster.PowerShell {
             }
             if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !InstallProgressAlias()) {
                 wanted &= ~ConsoleFormattingFeature.Progress;
+                if (wanted == ConsoleFormattingFeature.None) {
+                    return;
+                }
             }
             if ((wanted & ConsoleFormattingFeature.Output) != 0) {
                 ConsoleFormatting.TakeOverBuiltIns = !NoBuiltIn.IsPresent;
