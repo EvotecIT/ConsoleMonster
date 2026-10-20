@@ -16,43 +16,75 @@
 {{~ h = data.home; live = data.live; copy = data.copy.home; ribbon = data.figures["tier-ribbon"] ~}}
 <section class="cm-stage cm-tone-dark cm-hero" aria-labelledby="cm-hero-title">
   <div class="cm-wrap">
-    <div class="cm-hero__top">
-      <div>
-        <h1 id="cm-hero-title">{{ copy.title }}</h1>
-        <p class="cm-stage__lede">{{ copy.lede }}</p>
-        <div class="cm-hero__actions">
-          <a class="cm-btn" href="/widgets/">See every widget</a>
-          <a class="cm-btn cm-btn--ghost" href="/docs/install/">Install</a>
-        </div>
-      </div>
-      <div class="cm-install" data-cm-tabs>
-        <div class="cm-seg" role="tablist" aria-label="Install for">
-          <button type="button" role="tab" id="cm-install-ps-tab" aria-selected="true" aria-controls="cm-install-ps" style="--key: var(--cm-s3)">PowerShell</button>
-          <button type="button" role="tab" id="cm-install-net-tab" aria-selected="false" aria-controls="cm-install-net" tabindex="-1" style="--key: var(--cm-s5)">.NET</button>
-        </div>
-        <div id="cm-install-ps" role="tabpanel" aria-labelledby="cm-install-ps-tab">
-          {{~ code_lang = "powershell"; code_label = "ConsoleMonster 2.0 · 5.1 and 7"; code_text = copy.installPowerShell ~}}
-          {{ include "code" }}
-        </div>
-        <div id="cm-install-net" role="tabpanel" aria-labelledby="cm-install-net-tab" hidden>
-          {{~ code_lang = "bash"; code_label = "ConsoleMonster 2.0 · .NET"; code_text = copy.installDotnet ~}}
-          {{ include "code" }}
-        </div>
-        <p class="cm-install__note">{{ copy.installNote }}</p>
-        <p class="cm-install__note">ConsoleMonster 2.0.1 · <a href="https://www.nuget.org/packages/ConsoleMonster/2.0.1">NuGet 2.0.1</a> · <a href="https://www.powershellgallery.com/packages/ConsoleMonster/2.0.1">PowerShell Gallery 2.0.1</a> · <a href="https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.1">Release downloads</a></p>
-        <ul class="cm-hero__facts">
-          {{~ for f in copy.facts ~}}<li>{{ f }}</li>{{~ end ~}}
-        </ul>
-      </div>
+    <div class="cm-hero__intro">
+      <h1 id="cm-hero-title">{{ copy.title }}</h1>
+      <p class="cm-stage__lede">{{ copy.lede }}</p>
     </div>
-    <div class="cm-hero__stage">
-      {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = ["24-bit", "Full"]; player_label = "A live TestimoX-style assessment dashboard, replayed from a recording"; player_autoplay = true; player_max = 15; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster; player_class = "cm-window--center" ~}}
-      {{ include "player" }}
-      <p class="cm-hero__note">{{ copy.replayNote | string.replace "{events}" (live.testimox.events | math.format "N0") }} <a href="/recordings/testimox-run.jsonl" download>Download the recording</a> ({{ (live.testimox.bytes / 1024) | math.round }} KB of JSON lines).</p>
+    {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
+         (#everyday, #monster). Without JavaScript the Everyday panel shows and the Monster panel stays hidden. ## ~}}
+    <div class="cm-paths" data-cm-tabs data-cm-paths>
+      <div class="cm-seg cm-paths__switch" role="tablist" aria-label="{{ copy.paths.label }}">
+        {{~ for path in copy.paths.items ~}}
+        <button type="button" role="tab" id="cm-path-{{ path.id }}-tab" aria-controls="cm-path-{{ path.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} data-cm-path="{{ path.id }}" style="--key: var(--cm-s{{ path.key }})">{{ path.title }}</button>
+        {{~ end ~}}
+      </div>
+      {{~ for path in copy.paths.items; pd = data.demos[path.demo] ~}}
+      <div class="cm-paths__panel" id="cm-path-{{ path.id }}" role="tabpanel" aria-labelledby="cm-path-{{ path.id }}-tab"{{ if !for.first }} hidden{{ end }}>
+        <p class="cm-paths__line">{{ path.line }} <a href="{{ path.url }}">{{ path.linkText }}</a></p>
+        <div class="cm-hero__stage">
+          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = true; player_max = 14; player_class = "cm-window--center" ~}}
+          {{ include "player" }}
+          <p class="cm-hero__note">{{ path.note }}</p>
+        </div>
+        <div class="cm-hero__take">
+          <div class="cm-hero__install">
+            <h2 class="cm-hero__take-title">{{ copy.installTitle }}</h2>
+            {{~ for i in path.install ~}}
+            {{~ code_lang = i.lang; code_label = i.label; code_text = i.text ~}}
+            {{ include "code" }}
+            {{~ end ~}}
+            <p class="cm-install__note">ConsoleMonster 2.0.1 · <a href="https://www.nuget.org/packages/ConsoleMonster/2.0.1">NuGet 2.0.1</a> · <a href="https://www.powershellgallery.com/packages/ConsoleMonster/2.0.1">PowerShell Gallery 2.0.1</a> · <a href="https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.1">Release downloads</a></p>
+          </div>
+          <div class="cm-hero__code" data-cm-tabs>
+            <h2 class="cm-hero__take-title">{{ path.codeTitle }}</h2>
+            <div class="cm-seg" role="tablist" aria-label="{{ path.codeTitle }}">
+              {{~ for t in path.code ~}}
+              <button type="button" role="tab" id="cm-code-{{ path.id }}-{{ for.index }}-tab" aria-controls="cm-code-{{ path.id }}-{{ for.index }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ for.index + 3 }})">{{ t.tab }}</button>
+              {{~ end ~}}
+            </div>
+            {{~ for t in path.code ~}}
+            <div id="cm-code-{{ path.id }}-{{ for.index }}" role="tabpanel" aria-labelledby="cm-code-{{ path.id }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}>
+              {{~ if t.source == "csharp" ~}}
+              {{~ code_lang = "csharp"; code_label = "C#"; code_file = pd.csharpFile; code_text = pd.csharp; code_full = pd.csharpFull ~}}
+              {{~ else if t.source == "powershell" ~}}
+              {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = pd.powershellFile; code_text = pd.powershell; code_full = pd.powershellFull ~}}
+              {{~ else ~}}
+              {{~ code_lang = t.lang; code_label = t.label; code_text = t.text ~}}
+              {{~ end ~}}
+              {{ include "code" }}
+            </div>
+            {{~ end ~}}
+          </div>
+        </div>
+      </div>
+      {{~ end ~}}
     </div>
   </div>
 </section>
 
+{{~ for side in copy.sides ~}}
+<section class="cm-section cm-wrap cm-side" id="{{ side.id }}" aria-labelledby="{{ side.id }}-title">
+  <div class="cm-section__head">
+    <h2 id="{{ side.id }}-title">{{ side.title }}</h2>
+    <p>{{ side.body }}</p>
+  </div>
+  <ul class="cm-demos">
+    {{~ for l in side.links ~}}
+    <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong>{{ l.title }}</strong><span>{{ l.body }}</span><code>{{ l.command }}</code></a></li>
+    {{~ end ~}}
+  </ul>
+</section>
+{{~ end ~}}
 <section class="cm-section cm-wrap cm-twins" aria-labelledby="cm-twins-title">
   <div class="cm-twins__output">
     <div class="cm-section__head">

@@ -4,7 +4,7 @@ using ConsoleMonster.Examples.Showcases;
 namespace ConsoleMonster.Examples {
     /// <summary>
     /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
-    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>testimox</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>patch</c>, <c>testimox</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
     /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
     /// </summary>
     public static class Program {
@@ -57,6 +57,10 @@ namespace ConsoleMonster.Examples {
                     return 0;
                 case "pipeline":
                     BuildPipeline.Run();
+                    return 0;
+                case "patch":
+                    // Forty servers in parallel with failures and a timeout (the run's failures are part of the demo).
+                    ParallelPatch.RunAsync().GetAwaiter().GetResult();
                     return 0;
                 case "record":
                     string target = args.Length > 1 ? args[1] : "testimox-run.jsonl";

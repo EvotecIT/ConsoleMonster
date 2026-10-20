@@ -215,7 +215,7 @@
   "families": [
     {
       "verb": "Write",
-      "count": 10,
+      "count": 11,
       "commands": [
         {
           "name": "Write-ConsoleException",
@@ -236,6 +236,11 @@
           "name": "Write-ConsoleMarkup",
           "synopsis": "Writes Spectre-compatible markup as styled text.",
           "url": "/powershell/commands/write-consolemarkup/"
+        },
+        {
+          "name": "Write-ConsoleProgress",
+          "synopsis": "Writes a progress update, drawn by ConsoleMonster when Enable-ConsoleFormatting -Feature Progress is on.",
+          "url": "/powershell/commands/write-consoleprogress/"
         },
         {
           "name": "Write-ConsoleRule",
@@ -259,7 +264,7 @@
         },
         {
           "name": "Write-ConsoleTree",
-          "synopsis": "Writes nested hashtables as a console tree.",
+          "synopsis": "Writes a console tree from New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.",
           "url": "/powershell/commands/write-consoletree/"
         },
         {
@@ -285,7 +290,7 @@
         },
         {
           "name": "Format-ConsoleJson",
-          "synopsis": "Shows JSON with syntax highlighting: JSON text, or objects converted with ConvertTo-Json.",
+          "synopsis": "Shows JSON with syntax highlighting: JSON text re-indented, or objects written as JSON.",
           "url": "/powershell/commands/format-consolejson/"
         },
         {
@@ -307,7 +312,7 @@
     },
     {
       "verb": "New",
-      "count": 29,
+      "count": 40,
       "commands": [
         {
           "name": "New-ConsoleAlign",
@@ -318,6 +323,21 @@
           "name": "New-ConsoleBarChart",
           "synopsis": "Creates a horizontal bar chart, or a stacked bar with -Stacked.",
           "url": "/powershell/commands/new-consolebarchart/"
+        },
+        {
+          "name": "New-ConsoleBarItem",
+          "synopsis": "Creates one bar of a bar chart, or one segment of a stacked bar, with its own tone.",
+          "url": "/powershell/commands/new-consolebaritem/"
+        },
+        {
+          "name": "New-ConsoleCellMap",
+          "synopsis": "Creates a cell map: one status symbol per item of a run, with a legend of counts.",
+          "url": "/powershell/commands/new-consolecellmap/"
+        },
+        {
+          "name": "New-ConsoleChartSeries",
+          "synopsis": "Creates one series of a line or scatter chart: a name, values and an optional tone.",
+          "url": "/powershell/commands/new-consolechartseries/"
         },
         {
           "name": "New-ConsoleColumns",
@@ -351,8 +371,18 @@
         },
         {
           "name": "New-ConsoleKeyValue",
-          "synopsis": "Creates an aligned key/value list.",
+          "synopsis": "Creates an aligned key/value list from a hashtable, an object's properties or New-ConsoleKeyValueItem pairs.",
           "url": "/powershell/commands/new-consolekeyvalue/"
+        },
+        {
+          "name": "New-ConsoleKeyValueItem",
+          "synopsis": "Creates one key/value pair, with an optional status or presenter, for New-ConsoleKeyValue.",
+          "url": "/powershell/commands/new-consolekeyvalueitem/"
+        },
+        {
+          "name": "New-ConsoleLane",
+          "synopsis": "Creates one lane (a worker, server or item of a parallel workload) for New-ConsoleLanes.",
+          "url": "/powershell/commands/new-consolelane/"
         },
         {
           "name": "New-ConsoleLanes",
@@ -375,6 +405,11 @@
           "url": "/powershell/commands/new-consolelog/"
         },
         {
+          "name": "New-ConsoleLogEntry",
+          "synopsis": "Creates one log line with a level and a time, for New-ConsoleLog.",
+          "url": "/powershell/commands/new-consolelogentry/"
+        },
+        {
           "name": "New-ConsoleLogo",
           "synopsis": "Creates banner text drawn with a pixel font and a colour gradient.",
           "url": "/powershell/commands/new-consolelogo/"
@@ -388,6 +423,11 @@
           "name": "New-ConsoleMenuItem",
           "synopsis": "Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.",
           "url": "/powershell/commands/new-consolemenuitem/"
+        },
+        {
+          "name": "New-ConsolePadding",
+          "synopsis": "Adds empty space around console widgets.",
+          "url": "/powershell/commands/new-consolepadding/"
         },
         {
           "name": "New-ConsolePanel",
@@ -420,6 +460,11 @@
           "url": "/powershell/commands/new-consolerule/"
         },
         {
+          "name": "New-ConsoleRunResult",
+          "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
+          "url": "/powershell/commands/new-consolerunresult/"
+        },
+        {
           "name": "New-ConsoleSparkline",
           "synopsis": "Creates a sparkline: a compact trend of recent values.",
           "url": "/powershell/commands/new-consolesparkline/"
@@ -435,9 +480,19 @@
           "url": "/powershell/commands/new-consolestack/"
         },
         {
+          "name": "New-ConsoleStatusItem",
+          "synopsis": "Creates one status item, a step with a status and a detail, for New-ConsoleStatusList and New-ConsolePhases.",
+          "url": "/powershell/commands/new-consolestatusitem/"
+        },
+        {
           "name": "New-ConsoleStatusList",
           "synopsis": "Creates a checklist of items with status markers.",
           "url": "/powershell/commands/new-consolestatuslist/"
+        },
+        {
+          "name": "New-ConsoleSummaryBar",
+          "synopsis": "Creates a summary bar: one line with progress, done of total, the time left and result counters.",
+          "url": "/powershell/commands/new-consolesummarybar/"
         },
         {
           "name": "New-ConsoleTable",
@@ -451,8 +506,13 @@
         },
         {
           "name": "New-ConsoleTree",
-          "synopsis": "Creates a console tree from nested hashtables.",
+          "synopsis": "Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.",
           "url": "/powershell/commands/new-consoletree/"
+        },
+        {
+          "name": "New-ConsoleTreeNode",
+          "synopsis": "Creates a tree node with an optional status, a muted detail and child nodes, for New-ConsoleTree.",
+          "url": "/powershell/commands/new-consoletreenode/"
         }
       ]
     },
@@ -556,7 +616,7 @@
     },
     {
       "verb": "Show",
-      "count": 5,
+      "count": 6,
       "commands": [
         {
           "name": "Show-Console",
@@ -572,6 +632,11 @@
           "name": "Show-ConsoleGrid",
           "synopsis": "Shows pipeline objects in an interactive grid and returns the rows you choose.",
           "url": "/powershell/commands/show-consolegrid/"
+        },
+        {
+          "name": "Show-ConsoleHelp",
+          "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
+          "url": "/powershell/commands/show-consolehelp/"
         },
         {
           "name": "Show-ConsoleMenu",
@@ -603,19 +668,29 @@
     },
     {
       "verb": "Invoke",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Invoke-ConsolePester",
           "synopsis": "Runs Pester tests with a live ConsoleMonster dashboard and a summary table.",
           "url": "/powershell/commands/invoke-consolepester/"
+        },
+        {
+          "name": "Invoke-ConsoleRun",
+          "synopsis": "Runs a script block for every input item, optionally in parallel, with a live view of the run.",
+          "url": "/powershell/commands/invoke-consolerun/"
         }
       ]
     },
     {
       "verb": "Add",
-      "count": 1,
+      "count": 2,
       "commands": [
+        {
+          "name": "Add-ConsoleItem",
+          "synopsis": "Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.",
+          "url": "/powershell/commands/add-consoleitem/"
+        },
         {
           "name": "Add-ConsoleValue",
           "synopsis": "Adds a value to a chart in a running dashboard.",
@@ -662,7 +737,7 @@
       "commands": [
         {
           "name": "Disable-ConsoleFormatting",
-          "synopsis": "Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting).",
+          "synopsis": "Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.",
           "url": "/powershell/commands/disable-consoleformatting/"
         }
       ]
@@ -756,6 +831,17 @@
           "name": "Use-ConsoleTarget",
           "synopsis": "Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.",
           "url": "/powershell/commands/use-consoletarget/"
+        }
+      ]
+    },
+    {
+      "verb": "Watch",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Watch-Console",
+          "synopsis": "Runs a script block again and again and shows its latest output as a live view.",
+          "url": "/powershell/commands/watch-console/"
         }
       ]
     }

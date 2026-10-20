@@ -62,14 +62,14 @@ namespace SiteFrames.Capture {
             return env;
         }
 
-        /// <summary>Runs a script and returns the raw VT stream with its timing.</summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null) {
+        /// <summary>Runs a script and returns the raw VT stream with its timing. With <paramref name="allowErrors"/> errors are shown and the run goes on (demos that fail on purpose); <paramref name="showProgress"/> keeps progress records (the progress demo).</summary>
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string module = Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1");
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
             StringBuilder sb = new StringBuilder();
-            sb.Append("$ErrorActionPreference = 'Stop'\n");
-            sb.Append("$ProgressPreference = 'SilentlyContinue'\n");
+            sb.Append(allowErrors ? "$ErrorActionPreference = 'Continue'\n" : "$ErrorActionPreference = 'Stop'\n");
+            sb.Append(showProgress ? "$ProgressPreference = 'Continue'\n" : "$ProgressPreference = 'SilentlyContinue'\n");
             sb.Append("[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)\n");
             // Built-in formatting (Format-Table) follows the thread culture; pin it like CONSOLEMONSTER_CULTURE pins ConsoleMonster.
             sb.Append("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n");
@@ -77,6 +77,9 @@ namespace SiteFrames.Capture {
             sb.Append("Import-Module '").Append(module.Replace("'", "''")).Append("' -Force\n");
             sb.Append("Set-Location -LiteralPath '").Append(directory.Replace("'", "''")).Append("'\n");
             sb.Append(". '").Append(script.Replace("'", "''")).Append("'\n");
+            if (allowErrors) {
+                sb.Append("exit 0\n");
+            }
             File.WriteAllText(runner, sb.ToString(), new UTF8Encoding(true));
             try {
                 string command = host.Executable + " -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + runner + "\"";

@@ -70,6 +70,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "demos")) {
+                DemosPage.Capture(site);
+            }
             return 0;
         }
 
@@ -78,6 +81,7 @@ namespace SiteFrames {
             Figures.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
+            DemosPage.Render(site);
             TablesPage.Render(site);
             InteractivePage.Render(site);
             PowerShellPage.Render(site, hosts);

@@ -2,7 +2,7 @@
 title: Hosts, CI and transcripts
 description: What ConsoleMonster writes on a real console, in CI, in background jobs, remoting and SSH, the ISE, transcripts and redirected output, and with NO_COLOR.
 slug: hosts-and-ci
-order: 4
+order: 5
 ---
 
 ConsoleMonster draws directly only on a real local interactive console. Everywhere else the cmdlets write through the PowerShell host, line by line as `Write-Host` does, so jobs complete, transcripts record and redirection captures whole lines.

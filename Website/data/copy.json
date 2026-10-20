@@ -1,17 +1,176 @@
 {
   "home": {
-    "title": "Every cell accounted for.",
-    "lede": "ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell. It has no package dependencies, runs on Windows PowerShell 5.1 and PowerShell 7, and turns into plain lines when the output is a log.",
-    "installPowerShell": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster",
-    "installDotnet": "dotnet add package ConsoleMonster",
-    "installNote": "The .NET package and PowerShell module use the same rendering engine. See the installation guide for supported targets and a first table.",
-    "facts": [
-      "No package dependencies",
-      "netstandard2.0, net472, net8.0 and net10.0",
-      "Windows PowerShell 5.1 and PowerShell 7",
-      "MIT licence"
+    "title": "Everyday output in one line. The monster when you need it.",
+    "lede": "ConsoleMonster makes the output of the commands you already run readable, and draws tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for .NET and PowerShell 5.1 and 7, with no package dependencies and plain lines when the output is a log.",
+    "paths": {
+      "label": "Choose a path",
+      "items": [
+        {
+          "id": "everyday",
+          "title": "Everyday",
+          "key": 3,
+          "demo": "formatting",
+          "line": "Better output for the commands you already run: one line turns it on for the session.",
+          "url": "/guides/everyday-powershell/",
+          "linkText": "Everyday PowerShell output",
+          "note": "Get-Process, Get-ChildItem, a hashtable and Get-Service, first as PowerShell shows them and then after Enable-ConsoleFormatting, recorded on PowerShell 7 from the script in the tab beside it.",
+          "install": [
+            {
+              "lang": "powershell",
+              "label": "PowerShell 5.1 and 7",
+              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
+            }
+          ],
+          "codeTitle": "Two lines",
+          "code": [
+            {
+              "tab": "Your session",
+              "lang": "powershell",
+              "label": "PowerShell",
+              "text": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# Keep it on in every session: prints the lines for your profile.\nEnable-ConsoleFormatting -ProfileSnippet"
+            },
+            {
+              "tab": "The recorded script",
+              "source": "powershell"
+            }
+          ]
+        },
+        {
+          "id": "monster",
+          "title": "Monster",
+          "key": 5,
+          "demo": "parallel",
+          "line": "Live dashboards, parallel runs, menus and forms when you need the full monster.",
+          "url": "/docs/live-runs/",
+          "linkText": "Live runs",
+          "note": "Forty items through ForEach-ConsoleItem -Parallel, recorded on PowerShell 7 from the script beside it: three servers fail, one runs past the four-second limit, and the run goes on.",
+          "install": [
+            {
+              "lang": "powershell",
+              "label": "PowerShell 5.1 and 7",
+              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
+            },
+            {
+              "lang": "bash",
+              "label": ".NET",
+              "text": "dotnet add package ConsoleMonster"
+            }
+          ],
+          "codeTitle": "The code behind this run",
+          "code": [
+            {
+              "tab": "PowerShell",
+              "source": "powershell"
+            },
+            {
+              "tab": "The same run in C#",
+              "source": "csharp"
+            }
+          ]
+        }
+      ]
+    },
+    "installTitle": "Install",
+    "sides": [
+      {
+        "id": "everyday-features",
+        "title": "Everyday",
+        "body": "The output you already see, readable: tables, lists, trees, hashtables, arrays in cells, groups, errors, help and progress.",
+        "links": [
+          {
+            "title": "Everyday output",
+            "url": "/guides/everyday-powershell/",
+            "key": 3,
+            "body": "Files, processes, hashtables and services, before and after.",
+            "command": "Enable-ConsoleFormatting"
+          },
+          {
+            "title": "Tables",
+            "url": "/tables/",
+            "key": 6,
+            "body": "Priority columns, cards, presenters and totals.",
+            "command": "Format-ConsoleTable"
+          },
+          {
+            "title": "Arrays and groups",
+            "url": "/guides/everyday-powershell/#demo-shaping",
+            "key": 2,
+            "body": "Collections in cells and a heading per group.",
+            "command": "-GroupBy Site"
+          },
+          {
+            "title": "Lists and trees",
+            "url": "/guides/format-table/",
+            "key": 1,
+            "body": "Records, nested objects and hierarchies.",
+            "command": "Format-ConsoleTree"
+          },
+          {
+            "title": "Errors, help and progress",
+            "url": "/docs/help-and-defaults/",
+            "key": 4,
+            "body": "Readable errors, help pages and Write-Progress.",
+            "command": "Show-ConsoleHelp"
+          },
+          {
+            "title": "Every widget",
+            "url": "/widgets/",
+            "key": 5,
+            "body": "Panels, trees, charts and status lists, in one grammar.",
+            "command": "New-ConsoleTree"
+          }
+        ]
+      },
+      {
+        "id": "monster-features",
+        "title": "Monster",
+        "body": "When a script or an app needs more: live runs, watch views, dashboards, menus and forms, recorded and replayed.",
+        "links": [
+          {
+            "title": "Live runs",
+            "url": "/docs/live-runs/",
+            "key": 5,
+            "body": "Many items in parallel, with failures and a time limit.",
+            "command": "ForEach-ConsoleItem -Parallel"
+          },
+          {
+            "title": "Watch a command",
+            "url": "/docs/live-runs/#demo-watch",
+            "key": 2,
+            "body": "A command re-run as a live view, changes marked.",
+            "command": "Watch-Console"
+          },
+          {
+            "title": "Live dashboards",
+            "url": "/live/",
+            "key": 1,
+            "body": "Lanes, phases and logs updated from many threads.",
+            "command": "Start-ConsoleDashboard"
+          },
+          {
+            "title": "Hosting dashboard",
+            "url": "/docs/hosting/",
+            "key": 4,
+            "body": "A .NET generic host with each service's state and the log.",
+            "command": "AddConsoleDashboard()"
+          },
+          {
+            "title": "Menus and forms",
+            "url": "/interactive/",
+            "key": 6,
+            "body": "Prompts, menus, forms and the grid; the template app opens one.",
+            "command": "Show-ConsoleMenu"
+          },
+          {
+            "title": "Recording and replay",
+            "url": "/docs/recording/",
+            "key": 3,
+            "body": "Record a run, replay it, export it to HTML.",
+            "command": "Show-ConsoleReplay"
+          }
+        ]
+      }
     ],
-    "replayNote": "A TestimoX-style assessment from ConsoleMonster.Examples: {events} recorded events played back at twice their speed into the same dashboard definition; its clock shows the recorded time.",
     "twins": {
       "title": "One engine for C# and PowerShell",
       "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
@@ -252,6 +411,215 @@
       ]
     }
   },
+  "demos": {
+    "parallel": {
+      "title": "Forty servers, eight at a time",
+      "body": "ForEach-ConsoleItem runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
+      "label": "A parallel run of 40 items with a summary bar, a cell per item, the running items and the failures",
+      "use": {
+        "title": "Use it in your script",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
+        "links": [
+          {
+            "title": "Invoke-ConsoleRun",
+            "url": "/powershell/commands/invoke-consolerun/"
+          },
+          {
+            "title": "ConsoleRun (C#)",
+            "url": "/api/consolemonster-live-consolerun/"
+          }
+        ]
+      }
+    },
+    "watch": {
+      "title": "A command as a live view",
+      "body": "Watch-Console runs a script block every few seconds and shows its latest output; -Differences marks what changed since the last run.",
+      "label": "Mail queue counts refreshed six times, with changed cells marked",
+      "use": {
+        "title": "Use it in your script",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
+        "links": [
+          {
+            "title": "Watch-Console",
+            "url": "/powershell/commands/watch-console/"
+          }
+        ]
+      }
+    },
+    "pester": {
+      "title": "Pester tests as they run",
+      "body": "Invoke-ConsolePester takes Pester's parameters and shows the current test, a cell per test and each failure with its expected and actual values.",
+      "label": "A Pester run of 14 mail checks with two failures and one skipped test",
+      "use": {
+        "title": "Use it in your tests",
+        "label": "PowerShell 5.1 and 7, Pester 5 or 6",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nInstall-Module Pester -Scope CurrentUser -SkipPublisherCheck",
+        "links": [
+          {
+            "title": "Invoke-ConsolePester",
+            "url": "/powershell/commands/invoke-consolepester/"
+          }
+        ]
+      }
+    },
+    "formatting": {
+      "title": "Before and after Enable-ConsoleFormatting",
+      "body": "Four everyday commands: processes, files, a hashtable and services, first as PowerShell shows them, then with ConsoleMonster turned on for the session.",
+      "label": "Get-Process, Get-ChildItem and a hashtable before and after Enable-ConsoleFormatting, then Get-Service grouped by status",
+      "use": {
+        "title": "Use it in every session",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -ProfileSnippet",
+        "links": [
+          {
+            "title": "Enable-ConsoleFormatting",
+            "url": "/powershell/commands/enable-consoleformatting/"
+          }
+        ]
+      }
+    },
+    "shaping": {
+      "title": "Arrays in cells and groups",
+      "body": "Format-Table beside Format-ConsoleTable -GroupBy on the same objects: roles as a list, durations as durations, statuses with their symbol, one heading per site.",
+      "label": "Domain controllers in Format-Table and in Format-ConsoleTable grouped by site",
+      "use": {
+        "title": "Use it in your script",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
+        "links": [
+          {
+            "title": "Format-ConsoleTable",
+            "url": "/powershell/commands/format-consoletable/"
+          }
+        ]
+      }
+    },
+    "help": {
+      "title": "Help that reads like a page",
+      "body": "Show-ConsoleHelp renders the help PowerShell already has, here a function's comment-based help: syntax, a parameter table and highlighted examples.",
+      "label": "Show-ConsoleHelp for a function with comment-based help",
+      "use": {
+        "title": "Use it in your session",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
+        "links": [
+          {
+            "title": "Show-ConsoleHelp",
+            "url": "/powershell/commands/show-consolehelp/"
+          }
+        ]
+      }
+    },
+    "errors": {
+      "title": "Errors you can read",
+      "body": "The error view: the exception, the message, the category and the lines of the script around the failing statement.",
+      "label": "An item-not-found error in ConsoleMonster's error view",
+      "use": {
+        "title": "Use it in your session",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Enable-ConsoleFormatting -Feature ErrorView",
+        "links": [
+          {
+            "title": "Format-ConsoleError",
+            "url": "/powershell/commands/format-consoleerror/"
+          }
+        ]
+      }
+    },
+    "progress": {
+      "title": "Write-Progress, drawn below the cursor",
+      "body": "An unchanged Write-Progress loop with a nested activity. Output written in between scrolls above the progress area.",
+      "label": "Nested progress for three sites, with output lines above it",
+      "use": {
+        "title": "Use it in your session",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Enable-ConsoleFormatting -Feature Progress",
+        "links": [
+          {
+            "title": "Write-ConsoleProgress",
+            "url": "/powershell/commands/write-consoleprogress/"
+          }
+        ]
+      }
+    },
+    "login": {
+      "title": "A login overview over SSH",
+      "body": "Host facts, health and disk use printed once when someone logs in, with sample data so it runs anywhere.",
+      "label": "A server's login overview: system facts, health checks and disk use",
+      "use": {
+        "title": "Use it on your servers",
+        "label": "PowerShell 7 on Linux",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
+        "links": [
+          {
+            "title": "Example-LoginOverview.ps1",
+            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Examples/Example-LoginOverview.ps1"
+          }
+        ]
+      }
+    },
+    "hosting": {
+      "title": "A generic host with a live dashboard",
+      "body": "Three hosted services: a queue worker, a cache warmer that completes and a report builder that fails. Log lines go into the dashboard's log region.",
+      "label": "A hosting dashboard with a running, a completed and a failed service, and its log",
+      "use": {
+        "title": "Use it in your app",
+        "label": ".NET 8 and later",
+        "lang": "bash",
+        "install": "dotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging",
+        "links": [
+          {
+            "title": "Hosting dashboard",
+            "url": "/docs/hosting/"
+          },
+          {
+            "title": "Package README",
+            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
+          }
+        ]
+      }
+    },
+    "logging": {
+      "title": "Log entries the ConsoleMonster way",
+      "body": "Every level, a scope, a structured message and an exception, through the Microsoft.Extensions.Logging provider.",
+      "label": "Log entries at every level with a scope and an exception",
+      "use": {
+        "title": "Use it in your app",
+        "label": ".NET",
+        "lang": "bash",
+        "install": "dotnet add package ConsoleMonster.Extensions.Logging",
+        "links": [
+          {
+            "title": "Logging",
+            "url": "/docs/logging/"
+          },
+          {
+            "title": "Package README",
+            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Extensions.Logging/README.md"
+          }
+        ]
+      }
+    },
+    "template": {
+      "title": "dotnet new consolemonster",
+      "body": "The template's app: a menu with a status report and a page, then dotnet run -- serve with the hosting dashboard until Ctrl+C.",
+      "label": "The template app's menu, its status report, and the host's live dashboard",
+      "use": {
+        "title": "Start an app from it",
+        "label": ".NET 8 and later",
+        "lang": "bash",
+        "install": "dotnet new install ConsoleMonster.Templates\ndotnet new consolemonster -o MyTool",
+        "links": [
+          {
+            "title": "Template",
+            "url": "/docs/template/"
+          }
+        ]
+      }
+    }
+  },
   "docsIndex": [
     {
       "title": "Install",
@@ -282,9 +650,49 @@
       "title": "Recording and replay",
       "url": "/docs/recording/",
       "body": "JSON-lines recordings, replays, exports and test helpers."
+    },
+    {
+      "title": "Live runs",
+      "url": "/docs/live-runs/",
+      "body": "ForEach-ConsoleItem in parallel, Watch-Console and Pester runs, recorded."
+    },
+    {
+      "title": "Help, errors and progress",
+      "url": "/docs/help-and-defaults/",
+      "body": "Show-ConsoleHelp, the error view and the progress area, each opt-in."
+    },
+    {
+      "title": "Linux and SSH",
+      "url": "/docs/linux-and-ssh/",
+      "body": "Detection on Unix terminals and a login overview for your servers."
+    },
+    {
+      "title": "Logging",
+      "url": "/docs/logging/",
+      "body": "A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags."
+    },
+    {
+      "title": "Hosting dashboard",
+      "url": "/docs/hosting/",
+      "body": "A live dashboard for .NET generic host applications."
+    },
+    {
+      "title": "dotnet new template",
+      "url": "/docs/template/",
+      "body": "A console app with a menu, logging, the dashboard and native AOT."
+    },
+    {
+      "title": "PowerShell conventions",
+      "url": "/docs/powershell-conventions/",
+      "body": "One grammar for every widget, and each widget's .NET methods."
     }
   ],
   "guidesIndex": [
+    {
+      "title": "Everyday PowerShell output",
+      "url": "/guides/everyday-powershell/",
+      "body": "Enable-ConsoleFormatting before and after: files, processes, dictionaries, arrays in cells and groups."
+    },
     {
       "title": "Coming from Write-Color",
       "url": "/guides/write-color/",

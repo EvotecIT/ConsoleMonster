@@ -2,7 +2,7 @@
 title: Coming from Write-Color
 description: Write-ConsoleText takes the parameters and aliases of Write-Color from PSWriteColor. How they map, what it adds and where the two behave differently.
 slug: write-color
-order: 1
+order: 2
 ---
 
 `Write-ConsoleText` accepts the parameters and aliases of `Write-Color` from [PSWriteColor](https://github.com/EvotecIT/PSWriteColor). ConsoleMonster does not define a `Write-Color` or `wc` alias, so the two modules can be loaded in the same session.

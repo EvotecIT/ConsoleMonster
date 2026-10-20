@@ -1,0 +1,42 @@
+﻿# Everyday commands as PowerShell shows them, then the same commands after one line: Enable-ConsoleFormatting.
+# The hidden lines only print the prompt before each command, as a terminal would.
+#region hidden
+function Write-Prompt([string] $Command) { Start-Sleep -Milliseconds 700; Write-Host "PS> $Command" -ForegroundColor Yellow; Start-Sleep -Milliseconds 400 }
+Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')
+Write-ConsoleRule '[muted]before[/]'
+Write-Prompt 'Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8'
+#endregion
+Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8 | Out-Default
+#region hidden
+Write-Prompt 'Get-ChildItem'
+#endregion
+Get-ChildItem | Out-Default
+#region hidden
+Write-Prompt '@{ Domain = ''evotec.xyz''; Records = 14; DNSSEC = $false }'
+#endregion
+@{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false } | Out-Default
+#region hidden
+Write-Prompt 'Enable-ConsoleFormatting'
+#endregion
+Enable-ConsoleFormatting
+#region hidden
+Write-ConsoleRule '[muted]after[/]'
+Write-Prompt 'Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8'
+#endregion
+Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8 | Out-Default
+#region hidden
+Write-Prompt 'Get-ChildItem'
+#endregion
+Get-ChildItem | Out-Default
+#region hidden
+Write-Prompt '@{ Domain = ''evotec.xyz''; Records = 14; DNSSEC = $false }'
+#endregion
+@{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false } | Out-Default
+#region hidden
+Write-Prompt 'Get-Service W* | Format-ConsoleTable -GroupBy Status -Top 6'
+#endregion
+Get-Service W* | Format-ConsoleTable -GroupBy Status -Top 6
+#region hidden
+Start-Sleep -Milliseconds 600
+Disable-ConsoleFormatting
+#endregion

@@ -151,6 +151,7 @@
     copy.type = 'button';
     copy.className = 'cm-code__copy';
     copy.setAttribute('data-cm-copy', '');
+    copy.setAttribute('aria-live', 'polite');
     copy.textContent = 'Copy';
     bar.appendChild(label);
     bar.appendChild(copy);
@@ -169,16 +170,32 @@
     var code = full ? full.querySelector('pre') : figure.querySelector('pre');
     var text = code ? code.innerText.replace(/\n$/, '') : '';
     var done = function (label) { button.textContent = label; setTimeout(function () { button.textContent = 'Copy'; }, 1600); };
+    // Without clipboard access (an insecure origin, a refused permission, an older browser) the code is selected, so
+    // Ctrl+C or the context menu copies it; a shortened sample opens its full program first.
+    var fallback = function () {
+      if (full && !full.open) full.open = true;
+      var selection = window.getSelection && window.getSelection();
+      if (code && selection) {
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      var copied = false;
+      try { copied = document.execCommand && document.execCommand('copy'); } catch (e) { copied = false; }
+      done(copied ? 'Copied' : 'Selected: copy with your keyboard');
+    };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { done('Copied'); }, function () { done('Select and copy'); });
+      navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback);
     } else {
-      done('Select and copy');
+      fallback();
     }
   });
 
   // Tabs: [data-cm-tabs] holds a .cm-seg with role="tab" buttons (aria-controls) and the panels they show.
   document.querySelectorAll('[data-cm-tabs]').forEach(function (set) {
-    var tabs = Array.prototype.slice.call(set.querySelectorAll('[role="tab"]'));
+    // Only this set's own tabs: a tab set can hold another (the hero's paths hold code tabs).
+    var tabs = Array.prototype.slice.call(set.querySelectorAll('[role="tab"]')).filter(function (tab) { return tab.closest('[data-cm-tabs]') === set; });
     var select = function (tab, focus) {
       tabs.forEach(function (other) {
         var on = other === tab;
@@ -199,5 +216,47 @@
         else if (step) { event.preventDefault(); select(tabs[(index + step + tabs.length) % tabs.length], true); }
       });
     });
+  });
+
+  // The hero's two paths (Everyday and Monster) keep the choice in the URL hash, so a link can open either. The player
+  // of the chosen path plays; the other one pauses.
+  document.querySelectorAll('[data-cm-paths]').forEach(function (set) {
+    var tabs = Array.prototype.slice.call(set.querySelectorAll('[data-cm-path]')).filter(function (tab) { return tab.closest('[data-cm-paths]') === set; });
+    var replayOf = function (tab) {
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      return panel && panel.querySelector('[data-cm-replay]');
+    };
+    var player = function (tab) {
+      var replay = replayOf(tab);
+      return replay && replay.__cmPlayer;
+    };
+    // A path opened from the URL is not a click: its replay asks to autoplay, and the player decides (one per page, none
+    // with reduced motion). A click on the switch plays the chosen path.
+    var fromUrl = false;
+    var fromHash = function () {
+      var id = (location.hash || '').replace('#', '');
+      var tab = tabs.filter(function (t) { return t.getAttribute('data-cm-path') === id; })[0];
+      if (tab && tab.getAttribute('aria-selected') !== 'true') { fromUrl = true; tab.click(); fromUrl = false; }
+    };
+    set.addEventListener('cm:tab', function (event) {
+      var chosen = event.detail;
+      if (tabs.indexOf(chosen) < 0) return;
+      tabs.forEach(function (tab) {
+        var p = player(tab);
+        var replay = replayOf(tab);
+        // A replay that has not loaded yet (its panel was hidden) starts once it mounts.
+        if (!p) {
+          if (replay && tab === chosen) replay.setAttribute(fromUrl ? 'data-autoplay' : 'data-cm-play', '');
+          if (replay && tab !== chosen) replay.removeAttribute('data-autoplay');
+          return;
+        }
+        if (fromUrl) { if (tab !== chosen) p.pause(); return; }
+        if (tab === chosen) { p.play(); } else { p.pause(); }
+      });
+      var hash = '#' + chosen.getAttribute('data-cm-path');
+      if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);
+    });
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
   });
 })();

@@ -1,0 +1,60 @@
+{{~ ## One demo: the recording, played by ConsoleMonster's own player (a static frame for demos printed once), beside the
+     exact source that recorded it (PowerShell and C# tabs where both exist, each with Copy and the full program one click
+     away), and what to install to use it. The recording and the source come from data/demos.json, which the site tool
+     writes from the same files the capture ran; the words come from data/copy.json (demos). Set demo_id, and optionally
+     demo_autoplay = true (one per page) and demo_heading (h2 or h3, default h3). ## ~}}
+{{~ d = data.demos[demo_id]; c = data.copy.demos[demo_id]; dh = demo_heading ?? "h3" ~}}
+{{~ if d ~}}
+<section class="cm-demo" id="demo-{{ demo_id }}" aria-labelledby="demo-{{ demo_id }}-title">
+  <div class="cm-demo__head">
+    <{{ dh }} id="demo-{{ demo_id }}-title">{{ c.title }}</{{ dh }}>
+    {{~ if c.body ~}}<p>{{ c.body }}</p>{{~ end ~}}
+  </div>
+  <div class="cm-demo__body">
+    <div class="cm-demo__screen">
+      {{~ if d.url ~}}
+      {{~ player_data = d; player_title = d.title; player_meta = [d.w + "×" + d.h, "24-bit", "Full"]; player_label = c.label ?? c.title; player_autoplay = demo_autoplay; player_max = 14 ~}}
+      {{ include "player" }}
+      {{~ else ~}}
+      {{~ screen_frame = d.frame; screen_title = d.title; screen_meta = [d.frame.w + "×" + d.frame.h, "24-bit", "Full"]; screen_dark = true; screen_label = c.label ?? c.title; screen_max = 14 ~}}
+      {{ include "screen" }}
+      {{~ end ~}}
+    </div>
+    <div class="cm-demo__source">
+      {{~ if d.powershell && d.csharp ~}}
+      <div data-cm-tabs class="cm-tabset">
+        <div class="cm-seg" role="tablist" aria-label="Source of the {{ c.title }} demo">
+          <button type="button" role="tab" id="demo-{{ demo_id }}-ps-tab" aria-controls="demo-{{ demo_id }}-ps" aria-selected="true" style="--key: var(--cm-s3)">PowerShell</button>
+          <button type="button" role="tab" id="demo-{{ demo_id }}-cs-tab" aria-controls="demo-{{ demo_id }}-cs" aria-selected="false" tabindex="-1" style="--key: var(--cm-s5)">C#</button>
+        </div>
+        <div id="demo-{{ demo_id }}-ps" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-ps-tab">
+          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.powershellFile; code_text = d.powershell; code_full = d.powershellFull ~}}
+          {{ include "code" }}
+        </div>
+        <div id="demo-{{ demo_id }}-cs" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-cs-tab" hidden>
+          {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
+          {{ include "code" }}
+        </div>
+      </div>
+      {{~ else if d.powershell ~}}
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.powershellFile; code_text = d.powershell; code_full = d.powershellFull ~}}
+      {{ include "code" }}
+      {{~ else if d.csharp ~}}
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
+      {{ include "code" }}
+      {{~ end ~}}
+      {{~ if c.use ~}}
+      <div class="cm-demo__use">
+        <p class="cm-demo__use-title">{{ c.use.title }}</p>
+        {{~ code_lang = c.use.lang ?? "powershell"; code_label = c.use.label; code_text = c.use.install ~}}
+        {{ include "code" }}
+        {{~ if c.use.links ~}}
+        <p class="cm-demo__refs">Reference: {{~ for l in c.use.links ~}}{{ if !for.first }},{{ end }} <a href="{{ l.url }}">{{ l.title }}</a>{{~ end ~}}</p>
+        {{~ end ~}}
+      </div>
+      {{~ end ~}}
+    </div>
+  </div>
+</section>
+{{~ end ~}}
+{{~ demo_autoplay = false; demo_heading = null ~}}

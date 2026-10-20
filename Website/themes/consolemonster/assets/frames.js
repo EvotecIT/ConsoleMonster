@@ -164,9 +164,11 @@
     load(url).then(function (data) {
       if (replay.cmCancelled) return;
       if (replay.hasAttribute('data-autoplay')) replay.setAttribute('data-cm-autoplay', '');
+      if (replay.hasAttribute('data-loop')) replay.setAttribute('data-cm-loop', '');
       var player = window.ConsoleMonsterPlayer.mount(replay, data);
       if (!player) return;
       if (start) player.seek(start);
+      if (replay.hasAttribute('data-cm-play')) player.play();
       var screen = replay.querySelector('.cm-player > pre.cm-screen');
       if (screen && poster) {
         screen.className = poster.className.replace(/\s*cm-screen--(wide|narrow)\b/g, '');

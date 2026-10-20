@@ -1,0 +1,228 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Text.Json.Nodes;
+using ConsoleMonster.Canvas;
+using SiteFrames.Capture;
+using SiteFrames.Replay;
+using SiteFrames.Vt;
+
+namespace SiteFrames.Pages {
+    /// <summary>
+    /// The demos: one recording per feature, played by the engine's own player next to the exact source that recorded it.
+    /// <c>capture</c> runs each demo script or program once in a pseudo console of a fixed size and saves the VT stream
+    /// (asciicast) under <c>captures/demos/</c>; <c>render</c> turns the committed streams into player data, a poster frame
+    /// and <c>data/demos.json</c>, reading the sources from the same files the capture ran, so the code shown on the site is
+    /// the code that drew the recording. Every demo uses invented or generic data (svchost, the PowerShell install folder, W* services), fixed sizes and a pinned terminal profile.
+    /// </summary>
+    internal static class DemosPage {
+        private sealed class Demo {
+            public Demo(string id, string title, int width, int height) {
+                Id = id;
+                Title = title;
+                Width = width;
+                Height = height;
+            }
+
+            public string Id { get; }
+
+            /// <summary>The window title: the command a reader would type.</summary>
+            public string Title { get; }
+
+            public int Width { get; }
+
+            public int Height { get; }
+
+            /// <summary>A PowerShell script under Website/examples/demos (recorded on PowerShell 7), or null.</summary>
+            public string? Script { get; set; }
+
+            /// <summary>A script shown as the full program instead of the demo script (a wrapper that calls it), or null.</summary>
+            public string? FullScript { get; set; }
+
+            /// <summary>A program to run instead of a script: (executable relative to the repository, arguments).</summary>
+            public (string Executable, string Arguments)? Program { get; set; }
+
+            /// <summary>
+            /// The C# source shown beside the recording: the file relative to the repository, and either the method whose
+            /// <c>// &lt;example&gt;</c> lines are the snippet (Example) or the signature of a method shown whole (Signature).
+            /// The whole file is the full program.
+            /// </summary>
+            public (string File, string? Example, string? Signature)? CSharp { get; set; }
+
+            /// <summary>The share of the run the poster shows (default 0.6).</summary>
+            public double PosterShare { get; set; } = 0.6;
+
+            /// <summary>Frames per second sampled from the stream (default 6).</summary>
+            public double Fps { get; set; } = 6;
+
+            /// <summary>Whether progress records are kept (they are hidden for the other captures).</summary>
+            public bool ShowProgress { get; set; }
+
+            /// <summary>Whether the demo shows errors on purpose (the run goes on and ends normally).</summary>
+            public bool AllowErrors { get; set; }
+
+            /// <summary>A static figure: the transcript after the run instead of a replay.</summary>
+            public bool Static { get; set; }
+        }
+
+        private static IEnumerable<Demo> All() {
+            yield return new Demo("parallel", "ForEach-ConsoleItem -Parallel", 100, 24) {
+                Script = "parallel.ps1",
+                AllowErrors = true,
+                CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "ParallelPatch.cs"), "RunAsync", null),
+                PosterShare = 0.45
+            };
+            yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { Script = "watch.ps1", PosterShare = 0.7 };
+            yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { Script = "pester.ps1", PosterShare = 0.75, AllowErrors = true };
+            yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) { Script = "formatting.ps1", PosterShare = 1, Fps = 5 };
+            yield return new Demo("shaping", "Format-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
+            yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", PosterShare = 1 };
+            yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
+            yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
+            yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {
+                Script = "login.ps1",
+                FullScript = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
+                PosterShare = 1
+            };
+            yield return new Demo("hosting", "dotnet run (ConsoleMonster.Hosting)", 110, 30) {
+                Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "hosting 12"),
+                CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static async Task HostingAsync(int seconds)"),
+                PosterShare = 0.75
+            };
+            yield return new Demo("logging", "dotnet run (ConsoleMonster.Extensions.Logging)", 110, 30) {
+                Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "logging"),
+                CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static void Logging()"),
+                Static = true
+            };
+            yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
+                Program = (Path.Combine("Website", "tools", "TemplateDemo", "bin", "Release", "net8.0", "TemplateDemo.exe"), string.Empty),
+                CSharp = (Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs"), null, "public static async Task<int> Main(string[] args)"),
+                PosterShare = 0.3
+            };
+        }
+
+        // Inline views draw at the top of the pseudo console and leave the rows below empty: every frame is cut to the
+        // lowest row any frame uses, so the player is as tall as the run, not the console.
+        private static List<TimedFrame> TrimRows(List<TimedFrame> frames) {
+            int used = 1;
+            foreach (TimedFrame frame in frames) {
+                for (int y = frame.Frame.Height - 1; y >= used; y--) {
+                    if (frame.Frame.GetRowText(y).Trim().Length > 0) {
+                        used = y + 1;
+                        break;
+                    }
+                }
+            }
+            List<TimedFrame> trimmed = new List<TimedFrame>(frames.Count);
+            foreach (TimedFrame frame in frames) {
+                if (frame.Frame.Height <= used) {
+                    trimmed.Add(frame);
+                    continue;
+                }
+                CellBuffer cut = new CellBuffer(frame.Frame.Width, used);
+                cut.Blit(frame.Frame, 0, 0, frame.Frame.Width, used, 0, 0);
+                trimmed.Add(new TimedFrame(frame.Time, cut));
+            }
+            return trimmed;
+        }
+
+        private static string Script(Site site, string name) => Path.Combine(site.Website, "examples", "demos", name);
+
+        private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
+
+        public static void Capture(Site site) {
+            LivePage.Build(site);
+            Build(site, Path.Combine("ConsoleMonster.Examples.Extensions", "ConsoleMonster.Examples.Extensions.csproj"));
+            Build(site, Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"));
+            foreach (Demo demo in All()) {
+                Stopwatch watch = Stopwatch.StartNew();
+                List<OutputChunk> chunks;
+                if (demo.Script != null) {
+                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress);
+                } else {
+                    (string executable, string arguments) = demo.Program!.Value;
+                    string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
+                    // The drive root as the working directory: a host logs its content root, which should not be this checkout.
+                    chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2));
+                }
+                string path = CastPath(site, demo.Id);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
+                string cast = System.Text.RegularExpressions.Regex.Replace(Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
+                File.WriteAllText(path, cast, new System.Text.UTF8Encoding(false));
+                Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
+            }
+        }
+
+        private static void Build(Site site, string project) {
+            // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.
+            ProcessStartInfo info = new ProcessStartInfo("dotnet", "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true") { UseShellExecute = false };
+            using (Process process = Process.Start(info)!) {
+                process.WaitForExit();
+                if (process.ExitCode != 0) {
+                    throw new InvalidOperationException("Building " + project + " failed.");
+                }
+            }
+        }
+
+        public static void Render(Site site) {
+            List<string> problems = new List<string>();
+            JsonObject demos = new JsonObject();
+            foreach (Demo demo in All()) {
+                string path = CastPath(site, demo.Id);
+                if (!File.Exists(path)) {
+                    problems.Add("missing capture demos/" + demo.Id + "; run the capture command for the demos area.");
+                    continue;
+                }
+                string cast = File.ReadAllText(path);
+                List<TimedFrame> frames = TrimRows(Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height));
+                if (frames.Count > 0) {
+                    height = frames[0].Frame.Height;
+                }
+                JsonObject entry = new JsonObject {
+                    ["id"] = demo.Id,
+                    ["title"] = demo.Title,
+                    ["w"] = width,
+                    ["h"] = height
+                };
+                if (demo.Static || frames.Count == 0) {
+                    entry["frame"] = site.Frame(Site.Crop(scrollback), null);
+                } else {
+                    string data = PlayerData.Write(site, frames, demo.Title, demo.Fps, 3000, out long duration, out int count);
+                    site.Write(site.Static("replays/demo-" + demo.Id + ".json"), data);
+                    long posterTime = LivePage.Poster(site, frames, demo.PosterShare, out string poster);
+                    entry["url"] = "/replays/demo-" + demo.Id + ".json";
+                    entry["frames"] = count;
+                    entry["duration"] = duration;
+                    entry["fps"] = demo.Fps;
+                    entry["start"] = posterTime;
+                    entry["bytes"] = System.Text.Encoding.UTF8.GetByteCount(data);
+                    entry["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster };
+                }
+                if (demo.Script != null) {
+                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Script(site, demo.Script)));
+                    entry["powershell"] = shortForm;
+                    entry["powershellFile"] = "Website/examples/demos/" + demo.Script;
+                    if (demo.FullScript != null) {
+                        entry["powershellFull"] = Site.ReadText(Path.Combine(site.Repository, demo.FullScript));
+                        entry["powershellFullFile"] = demo.FullScript.Replace('\\', '/');
+                    } else {
+                        entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
+                    }
+                }
+                if (demo.CSharp != null) {
+                    (string file, string? example, string? signature) = demo.CSharp.Value;
+                    string source = Path.Combine(site.Repository, file);
+                    entry["csharp"] = SourceSnippets.Split(example != null ? SourceSnippets.Get(source, example) : SourceSnippets.Method(source, signature!)).Short;
+                    entry["csharpFull"] = SourceSnippets.Split(Site.ReadText(source)).Full.TrimEnd('\n');
+                    entry["csharpFile"] = file.Replace('\\', '/');
+                }
+                demos[demo.Id] = entry;
+            }
+            site.WriteJson(site.Data("demos"), demos);
+            WidgetsPage.Report(problems, "demos");
+        }
+    }
+}
