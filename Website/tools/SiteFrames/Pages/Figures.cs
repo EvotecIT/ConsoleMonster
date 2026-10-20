@@ -42,7 +42,7 @@ namespace SiteFrames.Pages {
                 .Add("Skipped", 14, ThemeToken.Skip);
             Sparkline rate = new Sparkline { Label = "rules/s", Unit = "/s" };
             rate.AddRange(new double[] { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57 });
-            return new Panel(new Rows(phases, results, rate), "[bold]TestimoX[/]") { Caption = "ad.evotec.xyz" };
+            return new Panel(new Rows(phases, results, rate), "[bold]Nightly checks[/]") { Caption = "lab01.contoso.com" };
         }
 
         public static void Render(Site site) {

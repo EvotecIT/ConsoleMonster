@@ -38,27 +38,27 @@
     {{ include "code" }}
   </section>
 
-  <section class="cm-showcase" aria-labelledby="testimox-title">
+  <section class="cm-showcase" aria-labelledby="assessment-title">
     <div class="cm-showcase__head">
-      <h2 id="testimox-title">{{ copy.testimox.title }}</h2>
-      <p>{{ copy.testimox.body | string.replace "{events}" (live.testimox.events | math.format "N0") }}</p>
+      <h2 id="assessment-title">{{ copy.assessment.title }}</h2>
+      <p>{{ copy.assessment.body | string.replace "{events}" (live.assessment.events | math.format "N0") }}</p>
     </div>
-    {{~ player_data = live.testimox; player_title = "ConsoleMonster.Examples testimox"; player_meta = ["24-bit", "Full"]; player_label = "The TestimoX-style assessment dashboard, replayed from its recording"; player_compact = live.testimoxCompact.url; player_alt = live.testimoxCompact.poster; player_autoplay = true ~}}
+    {{~ player_data = live.assessment; player_title = "ConsoleMonster.Examples assessment"; player_meta = ["24-bit", "Full"]; player_label = "The parallel assessment dashboard, replayed from its recording"; player_compact = live.assessmentCompact.url; player_alt = live.assessmentCompact.poster; player_autoplay = true ~}}
     {{ include "player" }}
     <div class="cm-steps">
       <div>
-        <h3>{{ copy.testimox.recordTitle }}</h3>
-        <p>{{ copy.testimox.recordBody }}</p>
-        {{~ code_lang = "json"; code_label = "JSON lines"; code_file = "testimox-run.jsonl, first lines"; code_text = live.testimox.excerpt ~}}
+        <h3>{{ copy.assessment.recordTitle }}</h3>
+        <p>{{ copy.assessment.recordBody }}</p>
+        {{~ code_lang = "json"; code_label = "JSON lines"; code_file = "assessment-run.jsonl, first lines"; code_text = live.assessment.excerpt ~}}
         {{ include "code" }}
-        <p><a href="/recordings/testimox-run.jsonl" download>Download the whole recording</a> ({{ live.testimox.events | math.format "N0" }} events).</p>
+        <p><a href="/recordings/assessment-run.jsonl" download>Download the whole recording</a> ({{ live.assessment.events | math.format "N0" }} events).</p>
       </div>
       <div>
-        <h3>{{ copy.testimox.layoutTitle }}</h3>
-        <p>{{ copy.testimox.layoutBody }}</p>
+        <h3>{{ copy.assessment.layoutTitle }}</h3>
+        <p>{{ copy.assessment.layoutBody }}</p>
         <details class="cm-source">
           <summary>C# source of the dashboard</summary>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_file = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.testimoxSource ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_file = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.assessmentSource ~}}
           {{ include "code" }}
         </details>
       </div>

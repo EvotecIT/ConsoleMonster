@@ -268,9 +268,9 @@
       "body": "32 workers post lane updates as fast as they can while four threads write to Console.Out and Console.Error at random. The workers never touch the console: the session coalesces everything into about 15 frames a second and captures the stray output into the log region.",
       "source": "Measured by the stress test itself during the recording above (.NET 8, Release build). The ConsoleMonster 2.0 pull request reports the same picture: 15.0 fps sustained at about 80,000 updates/s, 0 dropped, about 0.75 ms per frame."
     },
-    "testimox": {
+    "assessment": {
       "title": "Recorded once, replayed exactly",
-      "body": "The TestimoX-style showcase does not run any rules. It replays a JSON-lines event stream of {events} events into a dashboard definition that knows nothing about the recording: every update arrives as a LiveEvent addressed by name.",
+      "body": "The assessment showcase does not run any rules. It replays a JSON-lines event stream of {events} events into a dashboard definition that knows nothing about the recording: every update arrives as a LiveEvent addressed by name.",
       "recordTitle": "The recording",
       "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Start-ConsoleDashboard with -RecordPath.",
       "layoutTitle": "The dashboard",
@@ -278,18 +278,18 @@
     },
     "pipeline": {
       "title": "A build pipeline, from C# and PowerShell",
-      "body": "A PSPublishModule-style build: phases, steps with timings, module facts, overall progress and the tool output. The C# showcase writes to Console.Out like a real tool, and the PowerShell script calls Write-Host and Write-Warning from the dashboard's runspace; both land in the log region. Each run was recorded in a 110×32 pseudo console.",
+      "body": "A module build: phases, steps with timings, module facts, overall progress and the tool output. The C# showcase writes to Console.Out like a real tool, and the PowerShell script calls Write-Host and Write-Warning from the dashboard's runspace; both land in the log region. Each run was recorded in a 110×32 pseudo console.",
       "scriptTitle": "The PowerShell script",
       "afterTitle": "What stays in the scrollback",
       "afterBody": "When the session ends the screen is restored and a summary is printed to the scrollback, so a live dashboard always leaves a record behind. This is the C# run's summary."
     },
     "stream": {
       "title": "The same run in CI",
-      "body": "With CONSOLEMONSTER_MODE=stream, with redirected output or when a CI system is detected, a live dashboard narrates append-only lines instead of redrawing. This is the TestimoX replay at six times speed in stream mode."
+      "body": "With CONSOLEMONSTER_MODE=stream, with redirected output or when a CI system is detected, a live dashboard narrates append-only lines instead of redrawing. This is the assessment replay at six times speed in stream mode."
     },
     "query": {
       "title": "Printed once: query results",
-      "body": "Not every tool needs a live view. The DnsClientX and DomainDetective style showcase prints a summary, the records, a delegation tree, mail-security checks and resolver latency once, at the width of the console."
+      "body": "Not every tool needs a live view. The DNS and mail-security showcase prints a summary, the records, a delegation tree, mail-security checks and resolver latency once, at the width of the console."
     }
   },
   "powershell": {

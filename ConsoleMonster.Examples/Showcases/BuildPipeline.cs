@@ -10,7 +10,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Showcase 2: a PSPublishModule / PowerForge style build pipeline: phases, steps with timings, module facts, a
+    /// Showcase 2: a module build pipeline: phases, steps with timings, module facts, a
     /// progress bar and the tool output. The simulated build writes to <see cref="Console.Out"/> like a real tool; the live
     /// session captures those lines into the log region instead of letting them scribble over the screen.
     /// </summary>
@@ -76,7 +76,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Elapsed", "-");
             ProgressBar progress = new ProgressBar("Overall", "overall") { Total = Steps.Length, LabelWidth = 8 };
 
-            Dashboard dashboard = new DashboardBuilder("[bold]PSPublishModule[/]")
+            Dashboard dashboard = new DashboardBuilder("[bold]Module build[/]")
                 .Subtitle("Build-Module ConsoleMonster")
                 .Add(new Padding(phases, 1, 0, 1, 1))
                 .Columns(c => c
@@ -107,7 +107,7 @@ namespace ConsoleMonster.Examples.Showcases {
             Stopwatch phaseWatch = new Stopwatch();
             List<StatusKind> phaseResults = new List<StatusKind>();
             session.Post(new LiveEvent("dashboard", "status", text: "building", state: "running"));
-            Console.WriteLine("PSPublishModule 3.0.168 · PowerForge build engine");
+            Console.WriteLine("Build engine 3.0.168 · release pipeline");
             int index = 0;
             foreach (Step step in Steps) {
                 if (session.Cancellation.IsCancellationRequested) {

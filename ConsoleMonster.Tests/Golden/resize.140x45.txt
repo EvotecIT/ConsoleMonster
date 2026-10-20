@@ -1,4 +1,4 @@
- TestimoX · ad.evotec.xyz forest assessment · 12 targets · 332 rules                       ● evaluating 332 rules on 6 workers  ·  00:00:24
+ Nightly checks · ad.evotec.xyz forest assessment · 12 targets · 332 rules                 ● evaluating 332 rules on 6 workers  ·  00:00:24
 
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
 

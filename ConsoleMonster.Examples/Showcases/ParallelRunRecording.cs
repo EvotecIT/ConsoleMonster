@@ -6,7 +6,7 @@ using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Examples.Showcases {
     /// <summary>
-    /// Generates a deterministic, synthetic event stream for a TestimoX-style parallel assessment: 10 domain controllers
+    /// Generates a deterministic, synthetic event stream for a parallel assessment: 10 domain controllers
     /// and 2 domains processed by 6 workers, about 330 rules with realistic durations and pass/warn/fail/skip results.
     /// The stream is what a live session records; the showcase replays it.
     /// </summary>

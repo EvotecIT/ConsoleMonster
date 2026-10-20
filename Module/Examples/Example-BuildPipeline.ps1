@@ -1,6 +1,6 @@
 ﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
 
-# PSPublishModule / PowerForge style build pipeline: phases, steps with timings, module facts and the tool output.
+# A module build pipeline: phases, steps with timings, module facts and the tool output.
 # The script runs in a runspace ConsoleMonster owns: Write-Host, Write-Warning and Write-Verbose land in the log
 # region instead of writing over the live screen.
 
@@ -16,7 +16,7 @@ $steps = @(
     @{ Phase = 'Publish'; Key = 'publish'; Label = 'Publish to PowerShell Gallery'; Seconds = 0.3; Result = 'Skip' }
 )
 
-$dashboard = New-ConsoleDashboard -Title '[bold]PSPublishModule[/]' -Subtitle 'Build-Module ConsoleMonster' -Gap 1 {
+$dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Build-Module ConsoleMonster' -Gap 1 {
     New-ConsolePhases -Phase 'Prepare', 'Restore', 'Build', 'Test', 'Docs', 'Package', 'Publish'
     New-ConsoleColumns {
         New-ConsolePanel -Title 'Steps' -Weight 1.5 { New-ConsoleStatusList -Name steps -Item $steps.Label }

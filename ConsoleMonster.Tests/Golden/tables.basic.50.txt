@@ -5,16 +5,16 @@ evotec.xyz
   TTL         5 m 00 s
   Data        104.21.48.12
   Latency     12 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\A.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              A.json
 
 evotec.xyz
   Type        AAAA
   TTL         5 m 00 s
   Data        2606:4700:3036::6815:300c
   Latency     14 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\AAAA.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              AAAA.json
 
 evotec.xyz
   Type        MX
@@ -23,8 +23,8 @@ evotec.xyz
               evotec-xyz.mail.protection.outlook.
               com
   Latency     18 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\MX.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              MX.json
 
 evotec.xyz
   Type        TXT
@@ -36,8 +36,8 @@ evotec.xyz
               include:mailgun.org ip4:51.38.120.9
               ip4:51.38.120.10 -all
   Latency     21 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\TXT.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              TXT.json
 
 _dmarc.evotec.xyz
   Type        TXT
@@ -46,8 +46,8 @@ _dmarc.evotec.xyz
               rua=mailto:dmarc@evotec.xyz;
               ruf=mailto:forensic@evotec.xyz; fo=1
   Latency     ! 133 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\_dmarc.TXT.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              _dmarc.TXT.json
 
 selector1._domainkey.evotec.xyz
   Type        CNAME
@@ -55,8 +55,7 @@ selector1._domainkey.evotec.xyz
   Data        selector1-evotec-xyz._domainkey.
               evotecpl.onmicrosoft.com
   Latency     16 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
               selector1._domainkey.CNAME.json
 
 evotec.xyz
@@ -64,10 +63,10 @@ evotec.xyz
   TTL         1 h 00 m
   Data        0 issue "letsencrypt.org"
   Latency     15 ms
-  Cache file  C:\ProgramData\DnsClientX\cache\
-              evotec.xyz\CAA.json
+  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+              CAA.json
 
-evotec.xyz · DomainDetective checks  ·  7 records
+evotec.xyz · mail security checks  ·  7 records
 
 SPF
   Status  √ PASS
@@ -139,7 +138,7 @@ Certificate
     CN=R11, O=Let's Encrypt  in 4 mo    RSA 2048
     CN=ISRG Root X1          in 8 y     RSA 4096
 
-TestimoX · ad.evotec.xyz run summary  ·  7 records
+Nightly checks · run summary  ·  7 records
 
 Domains  2
   ad.evotec.xyz
@@ -201,7 +200,7 @@ Total
   Duration  2 m 04 s
   Score     80.14 %
 
-PSPublishModule · ConsoleMonster 2.0.0 artifacts …
+Build artifacts · ConsoleMonster 2.0.0  ·  Showin…
 
 ConsoleMonster.2.0.0.nupkg
   Kind      NuGet

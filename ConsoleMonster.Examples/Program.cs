@@ -4,7 +4,7 @@ using ConsoleMonster.Examples.Showcases;
 namespace ConsoleMonster.Examples {
     /// <summary>
     /// Entry point for the examples and showcases. Usage: <c>ConsoleMonster.Examples &lt;name&gt;</c> where name is
-    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>patch</c>, <c>testimox</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
+    /// <c>query</c>, <c>gallery</c>, <c>pipeline</c>, <c>patch</c>, <c>assessment</c>, <c>record</c>, <c>stress</c>, <c>widths</c>, <c>toolbox</c> (Shell app; add <c>classic</c> or <c>inline</c>), <c>installer</c> (wizard), <c>prompts</c> (every prompt type; add a name for one), <c>overlay</c> (a prompt over a live dashboard), <c>target</c> (a library writing to an injected target) or <c>export</c> (HTML, SVG and text exports of the showcases into a folder). Terminal detection can be
     /// overridden with CONSOLEMONSTER_COLOR, CONSOLEMONSTER_GLYPHS, CONSOLEMONSTER_MODE and NO_COLOR.
     /// </summary>
     public static class Program {
@@ -63,11 +63,11 @@ namespace ConsoleMonster.Examples {
                     ParallelPatch.RunAsync().GetAwaiter().GetResult();
                     return 0;
                 case "record":
-                    string target = args.Length > 1 ? args[1] : "testimox-run.jsonl";
+                    string target = args.Length > 1 ? args[1] : "assessment-run.jsonl";
                     int count = ParallelRun.Record(target);
                     Console.WriteLine("Wrote " + count + " events to " + System.IO.Path.GetFullPath(target));
                     return 0;
-                case "testimox":
+                case "assessment":
                     string? recording = null;
                     double speed = 1.5;
                     for (int i = 1; i < args.Length; i++) {
@@ -109,7 +109,7 @@ namespace ConsoleMonster.Examples {
                             .Add("Preference", Terminal.Profile.ThemePreference.ToString())
                             .Add("Background", Text.Markup.Escape(background.Decision)),
                         TableShowcases.DomainChecks(),
-                        TableShowcases.TestimoXSummary()) { Gap = 1 });
+                        TableShowcases.AssessmentSummary()) { Gap = 1 });
                     return 0;
                 case "profile":
                     Console.WriteLine(Terminal.Profile.ToString());
@@ -118,7 +118,7 @@ namespace ConsoleMonster.Examples {
                     }
                     return 0;
                 default:
-                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, testimox, record, stress or widths.");
+                    Console.Error.WriteLine("Unknown example '" + name + "'. Use query, gallery, pipeline, assessment, record, stress or widths.");
                     return 2;
             }
         }

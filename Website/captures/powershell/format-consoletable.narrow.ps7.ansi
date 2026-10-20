@@ -1,29 +1,29 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[1mPSPublishModule [38;2;139;143;154martifacts[22m  ·  4 records[m[1m[3;1HNuGet[22m
-  [1mConsoleMonster.2.0.0.nupkg[22m
-    [38;2;139;143;154mSize      [m1.41 [38;2;139;143;154mMB[m
-    [38;2;139;143;154mBuilt in  [m48 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [mC:\Support\GitHub\ConsoleMonster\
+[?9001h[?1004h[?25l[2J[m[1m[HBuild artifacts[38;2;139;143;154m[22m  ·  4 records[m[1m[3;1HModule[38;2;139;143;154m[22m  2[m
+[1m[2CConsoleMonster-2.0.0.zip[22m
+[38;2;139;143;154m[4CSize      [m2.77[38;2;139;143;154m[1CMB[m
+[38;2;139;143;154m[4CBuilt in  [m12 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [mC:\Support\GitHub\ConsoleMonster\
+              Artefacts\Packed\ConsoleMonster-2.0.0.zip
+[1m[2CDocs.zip[22m
+[38;2;139;143;154m[4CSize      [m50.1[38;2;139;143;154m[1CKB[m
+[38;2;139;143;154m[4CBuilt in  [m1.2 s
+[38;2;139;143;154m[4CSigned    – no[m
+[38;2;139;143;154m[4CPath      [mC:\Support\GitHub\ConsoleMonster\
+              Artefacts\Packed\Docs.zip[1m[17;1HNuGet[38;2;139;143;154m[22m  2[m
+[1m[2CConsoleMonster.2.0.0.nupkg[22m
+[38;2;139;143;154m[4CSize      [m1.41[38;2;139;143;154m[1CMB[m
+[38;2;139;143;154m[4CBuilt in  [m48 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [mC:\Support\GitHub\ConsoleMonster\
               Artefacts\Packed\
               ConsoleMonster.2.0.0.nupkg
-  [1mConsoleMonster.2.0.0.snupkg[22m
-    [38;2;139;143;154mSize      [m393 [38;2;139;143;154mKB[m
-    [38;2;139;143;154mBuilt in  [m3.1 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [mC:\Support\GitHub\ConsoleMonster\
+[1m[2CConsoleMonster.2.0.0.snupkg[22m
+[38;2;139;143;154m[4CSize      [m393[38;2;139;143;154m[1CKB[m
+[38;2;139;143;154m[4CBuilt in  [m3.1 s
+[38;2;139;143;154m[4CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[4CPath      [mC:\Support\GitHub\ConsoleMonster\
               Artefacts\Packed\
-              ConsoleMonster.2.0.0.snupkg[1m[19;1HModule[22m
-  [1mConsoleMonster-2.0.0.zip[22m
-    [38;2;139;143;154mSize      [m2.77 [38;2;139;143;154mMB[m
-    [38;2;139;143;154mBuilt in  [m12 s
-    [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-    [38;2;139;143;154mPath      [mC:\Support\GitHub\ConsoleMonster\
-              Artefacts\Packed\ConsoleMonster-2.0.0.zip
-  [1mDocs.zip[22m
-    [38;2;139;143;154mSize      [m50.1 [38;2;139;143;154mKB[m
-    [38;2;139;143;154mBuilt in  [m1.2 s
-    [38;2;139;143;154mSigned    – no[m
-    [38;2;139;143;154mPath      [mC:\Support\GitHub\ConsoleMonster\
-              Artefacts\Packed\Docs.zip[1m[33;1HTotal[22m
-  [38;2;139;143;154mSize      [m4.62 MB
-  [38;2;139;143;154mBuilt in  [m1 m 04 s[37;1H[?25h[?9001l[?1004l
+              ConsoleMonster.2.0.0.snupkg[1m[33;1HTotal[22m
+[38;2;139;143;154m[2CSize      [m4.62 MB
+[38;2;139;143;154m[2CBuilt in  [m1 m 04 s[37;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l

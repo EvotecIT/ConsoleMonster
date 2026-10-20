@@ -13,7 +13,7 @@ A live session can write every applied event to a JSON-lines file: `LiveSessionO
 {"t":1,"target":"phases","op":"state","key":"Discover","state":"running"}
 ```
 
-These are the first lines of the recording behind the [live dashboards page](/live/), which you can [download](/recordings/testimox-run.jsonl). `LiveRecorder` writes the format and `LiveRecordingReader` reads it, with no dependencies.
+These are the first lines of the recording behind the [live dashboards page](/live/), which you can [download](/recordings/assessment-run.jsonl). `LiveRecorder` writes the format and `LiveRecordingReader` reads it, with no dependencies.
 
 ## Replay
 

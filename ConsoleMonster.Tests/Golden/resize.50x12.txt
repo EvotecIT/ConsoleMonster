@@ -1,4 +1,4 @@
-TestimoX · 123/332 · ✗4 ▴14 · 00:00… · needs 60×20
+Nightly checks · 123/332 · ✗4 ▴14 ·… · needs 60×20
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate
  ○ Report
 

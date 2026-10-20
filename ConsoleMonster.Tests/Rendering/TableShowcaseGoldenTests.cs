@@ -7,7 +7,7 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Rendering {
     /// <summary>
-    /// Golden snapshots of the table showcases (DnsClientX, DomainDetective, TestimoX, PSPublishModule) per glyph tier at
+    /// Golden snapshots of the table showcases (DNS records, mail security checks, a run summary and build artifacts) per glyph tier at
     /// full width (120), about 80 (hidden columns with a footer) and 50 cells (record cards). The profile fixes the culture to
     /// en-US while the thread culture is pl-PL, so the goldens prove the explicit culture wins; one pl-PL golden proves the
     /// other way round.
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void TableShowcases_PolishCulture_UsesPolishSeparators() {
             TerminalProfile profile = TerminalProfile.Fixed(120, 60, ColorDepth.None, GlyphTier.Full).WithCulture(CultureInfo.GetCultureInfo("pl-PL"));
-            string text = WithThreadCulture("en-US", () => Terminal.RenderText(TableShowcases.Sections("testimox,artifacts"), profile, Theme.Dark));
+            string text = WithThreadCulture("en-US", () => Terminal.RenderText(TableShowcases.Sections("summary,artifacts"), profile, Theme.Dark));
             Assert.Contains("71,5 %", text);
             Assert.Contains("1,41 MB", text);
             Golden.Match("tables.pl-pl.120.txt", text);
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void TableShowcases_EnglishCulture_UsesEnglishSeparators() {
-            string text = WithThreadCulture("pl-PL", () => Terminal.RenderText(TableShowcases.Sections("testimox,artifacts"), TerminalProfile.Fixed(120, 60, ColorDepth.None, GlyphTier.Full).WithCulture(EnUs), Theme.Dark));
+            string text = WithThreadCulture("pl-PL", () => Terminal.RenderText(TableShowcases.Sections("summary,artifacts"), TerminalProfile.Fixed(120, 60, ColorDepth.None, GlyphTier.Full).WithCulture(EnUs), Theme.Dark));
             Assert.Contains("71.5 %", text);
             Assert.Contains("1.41 MB", text);
             Assert.Contains("Showing 5 of 1,234", text);

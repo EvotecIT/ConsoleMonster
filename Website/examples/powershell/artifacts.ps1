@@ -1,4 +1,4 @@
-﻿# Shared data for the PowerShell page: build artifacts as PSPublishModule reports them.
+﻿# Shared data for the PowerShell page: build artifacts as a module build reports them.
 $artifacts = @(
     [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg' }
     [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'C:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.snupkg' }

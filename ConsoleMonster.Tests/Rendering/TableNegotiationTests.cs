@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Overflow_TruncateModes_KeepTheExpectedEnd(ColumnOverflow overflow, string expected) {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0 };
             table.AddColumn(new TableColumn("Path") { Overflow = overflow, Width = 20 });
-            table.AddValues(@"C:\ProgramData\DnsClientX\cache\A.json");
+            table.AddValues(@"C:\ProgramData\DnsCache\A.json");
             string text = Render(table, 40);
             Assert.Contains(overflow == ColumnOverflow.Truncate ? expected : "A.json", text);
             Assert.Contains("…", text);

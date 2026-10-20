@@ -18,7 +18,7 @@ namespace SiteFrames.Pages {
             string css = File.ReadAllText(Path.Combine(theme, "tokens.css")).Replace("url(/fonts/jetbrains-mono-latin.woff2)", "url(" + fonts + ")")
                 + File.ReadAllText(Path.Combine(theme, "base.css")) + site.Styles.Css();
             JsonObject live = (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!;
-            string poster = live["testimox"]!["poster"]!["dark"]!.GetValue<string>();
+            string poster = live["assessment"]!["poster"]!["dark"]!.GetValue<string>();
             string logo = File.ReadAllText(Path.Combine(site.Website, "themes", "consolemonster", "partials", "logo.html"));
 
             StringBuilder card = new StringBuilder();
