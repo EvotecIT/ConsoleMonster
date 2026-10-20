@@ -14,7 +14,8 @@
  * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
  * frame rate at most, scaled by playback speed, and the clock, the position bar and its accessible text change at most once a second (and on
  * seeking). A player pauses while off-screen or while the tab is hidden and resumes on return. Only one player per page
- * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion.
+ * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion. With
+ * data-cm-loop a player starts again from the beginning when it reaches the end, until it is paused.
  */
 (function () {
     'use strict';
@@ -181,6 +182,15 @@
             var now = performance.now();
             advance(now);
             draw();
+            if (t >= total && self.loop && want) {
+                // Looping: back to the first frame, still playing.
+                t = 0;
+                shown = -1;
+                draw();
+                labels(now);
+                schedule(now);
+                return;
+            }
             if (t >= total) {
                 labels(now);
                 want = false;
@@ -303,6 +313,7 @@
 
         self.element = host;
         self.autoplay = host.hasAttribute('data-cm-autoplay') && host.getAttribute('data-cm-autoplay') !== 'false';
+        self.loop = host.hasAttribute('data-cm-loop') && host.getAttribute('data-cm-loop') !== 'false';
 
         play.addEventListener('click', function () {
             if (want) {
