@@ -1,4 +1,6 @@
-﻿$phases = New-ConsolePhases -Phase Discover, Collect, Evaluate, Report
-$phases.Set('Discover', 'Pass', 'Discover', '2.1s').
-    Set('Collect', 'Pass', 'Collect', '14s').
-    Set('Evaluate', 'Running', 'Evaluate', '64%') | Write-ConsoleWidget
+﻿New-ConsolePhases {
+    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
+    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
+    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
+    New-ConsoleStatusItem 'Report'
+} | Write-ConsoleWidget

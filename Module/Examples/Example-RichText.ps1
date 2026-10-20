@@ -15,7 +15,7 @@ if (Show 'Table') {
         [pscustomobject] @{ Server = 'DC02'; Site = 'Krakow'; Result = 'warn'; Failed = 0; Note = 'replication lag 42 min' }
         [pscustomobject] @{ Server = 'DC03'; Site = 'Berlin'; Result = 'fail'; Failed = 3; Note = 'no inbound replication for 4h' }
     )
-    $checks | Format-ConsoleTable -Title (New-ConsoleText 'TestimoX', ' · rich cells' -Color Accent, Muted -Style Bold) -Property @(
+    $checks | Format-ConsoleTable -Title (New-ConsoleText 'Forest health', ' · rich cells' -Color Accent, Muted -Style Bold) -Property @(
         @{ Name = 'Server'; Header = (New-ConsoleText 'Ser', 'ver' -Color Cyan, Magenta); Expression = { New-ConsoleText $_.Server.Substring(0, 2), $_.Server.Substring(2) -Color Cyan, Yellow } }
         @{ Name = 'Site'; Header = (New-ConsoleText 'Site' -Color Green) }
         @{ Name = 'Result'; Expression = {
@@ -34,11 +34,12 @@ if (Show 'Cards') {
         [pscustomobject] @{ Name = 'autodiscover.evotec.xyz'; Issuer = "Let's Encrypt R11"; Expires = (New-ConsoleText 'in 8 days' -Role Fail -Style Bold); Key = (New-ConsoleText 'RSA ', '2048' -Color Gray, Yellow) }
     )
     $certificate | Format-ConsoleTable -Width 44 -Title (New-ConsoleText 'Certificates' -Color Cyan -Style Bold)
-    $tree = [ConsoleMonster.Widgets.Tree]::new((New-ConsoleText 'ad.', 'evotec.xyz' -Color DarkGray, Cyan).ToMarkup())
-    $site = $tree.Add((New-ConsoleText 'Site ', 'Warsaw' -Color DarkGray, Green), 'Pass')
-    $null = $site.Add((New-ConsoleText 'DC', '01' -Color Cyan, Yellow), 'Pass', 'healthy')
-    $null = $site.Add((New-ConsoleText 'DC', '02' -Color Cyan, Yellow), 'Warn', 'lag 42 min')
-    $tree | Write-ConsoleWidget
+    New-ConsoleTree (New-ConsoleText 'ad.', 'evotec.xyz' -Color DarkGray, Cyan) {
+        New-ConsoleTreeNode (New-ConsoleText 'Site ', 'Warsaw' -Color DarkGray, Green) -Status Pass {
+            New-ConsoleTreeNode (New-ConsoleText 'DC', '01' -Color Cyan, Yellow) -Status Pass -Detail 'healthy'
+            New-ConsoleTreeNode (New-ConsoleText 'DC', '02' -Color Cyan, Yellow) -Status Warn -Detail 'lag 42 min'
+        }
+    } | Write-ConsoleWidget
 }
 
 if (Show 'Lanes') {

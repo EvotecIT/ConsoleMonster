@@ -1,7 +1,8 @@
-﻿$steps = New-ConsoleStatusList
-$steps.Add('Restore NuGet packages', 'Pass', '1.6 s').
-    Add('Compile ConsoleMonster', 'Pass', '4.7 s').
-    Add('Run Pester on PowerShell 7', 'Warn', '1 skipped').
-    Add('Sign module files', 'Skip', 'skipped').
-    Add('Pack ConsoleMonster.2.0.0.nupkg', 'Running').
-    Add('Publish to PowerShell Gallery', 'Pending') | Write-ConsoleWidget
+﻿New-ConsoleStatusList {
+    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
+    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'
+    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
+    New-ConsoleStatusItem 'Sign module files' -Status Skip -Detail 'skipped'
+    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running
+    New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending
+} | Write-ConsoleWidget
