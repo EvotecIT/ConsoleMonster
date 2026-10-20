@@ -214,6 +214,12 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
   /* On a narrow position bar the marks would overlap: they become a row of jump buttons under it. */
   .cm-replay .cm-controls.cm-has-marks { padding-bottom: 0; }
   .cm-replay .cm-controls .cm-track { flex-wrap: wrap; }
+  /* With chapters, the position bar and its jump buttons take a row of their own under Play, the time and the speed, so
+     four chapters fit beside each other instead of running under the time and the speed. */
+  .cm-replay .cm-controls.cm-has-marks { flex-wrap: wrap; row-gap: 10px; }
+  .cm-replay .cm-controls.cm-has-marks .cm-track { order: 1; flex-basis: 100%; }
+  .cm-replay .cm-controls.cm-has-marks .cm-time { margin-left: auto; }
+  .cm-replay.cm-export .cm-controls .cm-marks { flex-wrap: wrap; }
   .cm-replay.cm-export .cm-controls .cm-marks { position: static; display: flex; flex-basis: 100%; gap: 8px; height: auto; margin-top: 4px; }
   .cm-replay.cm-export .cm-controls .cm-mark, .cm-replay.cm-export .cm-controls .cm-mark.cm-mark--end { position: static; transform: none; min-height: 28px; padding: 4px 10px; border-right: 0; border-left: 2px solid var(--cm-accent); }
 }
