@@ -53,11 +53,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            if (Quiet()) {
+            ActionPreference preference = Preference();
+            if (preference == ActionPreference.SilentlyContinue || preference == ActionPreference.Ignore) {
                 return;
             }
             string? text = string.IsNullOrEmpty(CurrentOperation) ? Status : string.IsNullOrEmpty(Status) ? CurrentOperation : Status + " - " + CurrentOperation;
-            if (ConsoleFormatting.Displayed(this) && SessionProgress.Report(Id, ParentId, Activity, text, PercentComplete, SecondsRemaining, Completed.IsPresent)) {
+            if (preference == ActionPreference.Continue && ConsoleFormatting.Displayed(this) && SessionProgress.Report(Id, ParentId, Activity, text, PercentComplete, SecondsRemaining, Completed.IsPresent)) {
                 return;
             }
             // PowerShell's own progress: the same record Write-Progress writes.
@@ -71,17 +72,16 @@ namespace ConsoleMonster.PowerShell {
             WriteProgress(record);
         }
 
-        // $ProgressPreference (or -ProgressAction on PowerShell 7.4+) set to SilentlyContinue or Ignore.
-        private bool Quiet() {
+        // Delegate Stop, Inquire, Break and Suspend to PowerShell before any custom area can consume the record.
+        private ActionPreference Preference() {
             object? value = MyInvocation.BoundParameters.TryGetValue("ProgressAction", out object? action) ? action : GetVariableValue("ProgressPreference");
             if (value is PSObject wrapped) {
                 value = wrapped.BaseObject;
             }
             if (value is ActionPreference preference) {
-                return preference == ActionPreference.SilentlyContinue || preference == ActionPreference.Ignore;
+                return preference;
             }
-            string? name = value?.ToString();
-            return string.Equals(name, "SilentlyContinue", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "Ignore", StringComparison.OrdinalIgnoreCase);
+            return Enum.TryParse(value?.ToString(), true, out ActionPreference parsed) ? parsed : ActionPreference.Continue;
         }
     }
 }

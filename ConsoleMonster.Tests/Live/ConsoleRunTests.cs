@@ -8,6 +8,8 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Output;
+using ConsoleMonster.Rendering;
 using ConsoleMonster.Widgets;
 using Xunit;
 
@@ -80,6 +82,28 @@ namespace ConsoleMonster.Tests.Live {
                 }, new RunOptions { ThrottleLimit = 2, Interactive = false, Print = line => { } }, stop.Token);
                 Assert.True(results.Count < 50);
             }
+        }
+
+        [Fact]
+        public async Task ForEachAsync_LiveSessionCancellation_ReachesTheBodyAndStopsAdmission() {
+            TerminalProfile profile = TerminalProfile.Fixed(80, 20, ColorDepth.None, GlyphTier.Ascii);
+            IReadOnlyList<RunResult<int, bool>> results = await ConsoleRun.ForEachAsync(new[] { 1, 2 }, (item, token) => {
+                LiveSession session = Assert.IsType<LiveSession>(LiveSession.Current);
+                session.Stop();
+                Assert.True(token.IsCancellationRequested);
+                token.ThrowIfCancellationRequested();
+                return Task.FromResult(true);
+            }, new RunOptions {
+                Interactive = true,
+                ThrottleLimit = 1,
+                Session = new LiveSessionOptions {
+                    Profile = profile, Mode = LiveMode.Inline, HandleCancelKey = false, CaptureConsole = false,
+                    PrintFinalState = false, Output = new InlineOutput(new StringTerminalWriter(), profile, false)
+                }
+            });
+            RunResult<int, bool> cancelled = Assert.Single(results);
+            Assert.IsAssignableFrom<OperationCanceledException>(cancelled.Error);
+            Assert.False(cancelled.TimedOut);
         }
 
         [Fact]

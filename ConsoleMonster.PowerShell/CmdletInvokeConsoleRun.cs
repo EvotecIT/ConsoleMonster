@@ -150,12 +150,11 @@ namespace ConsoleMonster.PowerShell {
                 }
                 monitor.Started(i, labels[i]);
                 Stopwatch watch = Stopwatch.StartNew();
-                Collection<PSObject> merged;
+                Collection<PSObject> merged = new Collection<PSObject>();
                 Exception? failure = null;
                 try {
-                    merged = SessionState.InvokeCommand.InvokeScript(false, sequential, null, ScriptBlock, _items[i], quiet);
+                    SessionState.InvokeCommand.InvokeScript(false, sequential, null, ScriptBlock, _items[i], quiet, merged);
                 } catch (Exception ex) when (!(ex is PipelineStoppedException) && !_stopping) {
-                    merged = new Collection<PSObject>();
                     failure = ex;
                 }
                 if (_stopping) {
@@ -167,17 +166,17 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Dot-sourced into the caller's scope: it removes its own variables and restores the caller's $ProgressPreference.
-        private const string SequentialScript = "param($__cmBody, $__cmItem, $__cmQuiet)\n"
+        private const string SequentialScript = "param($__cmBody, $__cmItem, $__cmQuiet, $__cmOutput)\n"
             + "$__cmProgress = Get-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore\n"
             + "$__cmProgressValue = if ($__cmProgress) { $__cmProgress.Value } else { $null }\n"
             + "$__cmGlobalProgress = $global:ProgressPreference\n"
             // Script-module functions (Compress-Archive, Install-Module) read the global value, not the caller's scope.
             + "if ($__cmQuiet) { $ProgressPreference = 'SilentlyContinue'; $global:ProgressPreference = 'SilentlyContinue' }\n"
             // The dot-sourced block makes the redirection reach native programs inside the body (their stderr lines).
-            + "try { . { , $__cmItem | ForEach-Object -Process $__cmBody } *>&1 }\n"
+            + "try { . { , $__cmItem | ForEach-Object -Process $__cmBody } *>&1 | ForEach-Object { $__cmOutput.Add($_) } }\n"
             + "finally {\n"
             + "    if ($__cmQuiet) { $global:ProgressPreference = $__cmGlobalProgress; if ($__cmProgress) { $ProgressPreference = $__cmProgressValue } else { Remove-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore } }\n"
-            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmProgress, __cmProgressValue, __cmGlobalProgress -Scope 0 -ErrorAction Ignore\n"
+            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmOutput, __cmProgress, __cmProgressValue, __cmGlobalProgress -Scope 0 -ErrorAction Ignore\n"
             + "}";
 
         // Up to ThrottleLimit items at a time in a runspace pool; completions come back to the pipeline thread.
@@ -201,21 +200,30 @@ namespace ConsoleMonster.PowerShell {
                             _inFlight.Add(ps);
                         }
                         monitor.Started(index, labels[index]);
-                        flight.Result = ps.BeginInvoke<PSObject>(null, null, ar => done.Add(index), null);
+                        flight.Result = ps.BeginInvoke<PSObject, PSObject>(null, flight.Output, null, ar => {
+                            flight.Watch.Stop();
+                            done.Add(index);
+                        }, null);
                     }
                     if (flights.Count == 0) {
                         // Stopped before every item started: the rest count as skipped.
                         break;
                     }
-                    if (!done.TryTake(out int completed, 100)) {
-                        if (timeout.HasValue) {
-                            foreach (Flight flight in flights.Values) {
-                                if (!flight.TimedOut && flight.Watch.Elapsed > timeout.Value) {
-                                    flight.TimedOut = true;
-                                    flight.Shell.BeginStop(null, null);
+                    if (timeout.HasValue) {
+                        foreach (Flight flight in flights.Values) {
+                            if (!flight.TimedOut && flight.Watch.Elapsed > timeout.Value) {
+                                flight.TimedOut = true;
+                                if (!flight.Result!.IsCompleted) {
+                                    try {
+                                        flight.Shell.BeginStop(null, null);
+                                    } catch (InvalidOperationException) {
+                                        // It completed between the check and BeginStop; its recorded deadline still applies.
+                                    }
                                 }
                             }
                         }
+                    }
+                    if (!done.TryTake(out int completed, 100)) {
                         continue;
                     }
                     Flight current = flights[completed];
@@ -227,13 +235,14 @@ namespace ConsoleMonster.PowerShell {
                     Collection<PSObject> merged = new Collection<PSObject>();
                     Exception? failure = null;
                     try {
-                        foreach (PSObject item in current.Shell.EndInvoke(current.Result!)) {
-                            merged.Add(item);
-                        }
+                        current.Shell.EndInvoke(current.Result!);
                     } catch (Exception ex) {
                         // An item stopped for its timeout (or by Ctrl+C) ends with PipelineStoppedException: that is the
                         // timeout or the stop, not the item's own failure.
                         failure = ex;
+                    }
+                    foreach (PSObject item in current.Output) {
+                        merged.Add(item);
                     }
                     if (_stopping && !current.TimedOut) {
                         monitor.Finished(completed, StatusKind.Skip, labels[completed], current.Watch.Elapsed);
@@ -243,6 +252,7 @@ namespace ConsoleMonster.PowerShell {
                         Finish(monitor, writer, completed, labels[completed], merged, failure, false, current.Watch.Elapsed);
                     }
                     current.Shell.Dispose();
+                    current.Output.Dispose();
                     writer.Flush(false);
                 }
             }
@@ -330,6 +340,8 @@ namespace ConsoleMonster.PowerShell {
             internal System.Management.Automation.PowerShell Shell { get; }
 
             internal IAsyncResult? Result { get; set; }
+
+            internal PSDataCollection<PSObject> Output { get; } = new PSDataCollection<PSObject>();
 
             internal Stopwatch Watch { get; } = Stopwatch.StartNew();
 

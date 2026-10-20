@@ -195,9 +195,11 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        internal static void Register(ConsoleViewRegistration registration) {
+        internal static void Register(ConsoleViewRegistration registration, bool onlyIfMissing = false) {
             lock (Gate) {
-                Views[registration.TypeName] = registration;
+                if (!onlyIfMissing || !Views.ContainsKey(registration.TypeName)) {
+                    Views[registration.TypeName] = registration;
+                }
             }
         }
 

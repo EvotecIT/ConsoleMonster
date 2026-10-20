@@ -112,7 +112,9 @@ namespace ConsoleMonster.Live {
                         status = frame.Status;
                         content = frame.Content;
                     }
-                } catch (Exception ex) when (!(ex is OperationCanceledException) && !(ex is ThreadAbortException) && !token.IsCancellationRequested) {
+                } catch (OperationCanceledException) when (token.IsCancellationRequested) {
+                    break;
+                } catch (Exception ex) when (!(ex is ThreadAbortException) && !token.IsCancellationRequested) {
                     // A failed run shows its error; the next run may succeed.
                     content = new ExceptionView(ex) { ShowStack = false };
                     status = ex.GetType().Name;

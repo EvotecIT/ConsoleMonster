@@ -13,7 +13,10 @@ namespace ConsoleMonster.Values {
     /// depth limit <c>"…"</c>, secure strings masked and byte arrays as their size. Text that already is JSON is re-indented.
     /// </summary>
     public static class ValueJson {
-        /// <summary>A value as indented JSON.</summary>
+        /// <summary>
+        /// A value as indented JSON. Finite documents are written in full, without the display node/time limits;
+        /// collection enumeration must terminate. Record getters retain the shared stall protection.
+        /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="depth">How many levels of records and collections to write (default 4).</param>
         /// <param name="options">Shape options, or null.</param>
@@ -178,8 +181,7 @@ namespace ConsoleMonster.Values {
         }
 
         /// <summary>
-        /// Re-indents JSON text (one object or array, or a JSON scalar) with two spaces per level, or returns false when the
-        /// text is not JSON (unbalanced brackets, unterminated strings or text outside the value).
+        /// Re-indents a JSON object or array with two spaces per level, or returns false when the text is not valid JSON.
         /// </summary>
         /// <param name="text">The text.</param>
         /// <param name="indented">The indented JSON.</param>
@@ -189,8 +191,8 @@ namespace ConsoleMonster.Values {
             if (text == null) {
                 return false;
             }
-            string trimmed = text.Trim();
-            if (trimmed.Length == 0 || (trimmed[0] != '{' && trimmed[0] != '[')) {
+            string trimmed = text.Trim(' ', '\t', '\r', '\n');
+            if (!JsonText.IsContainer(trimmed)) {
                 return false;
             }
             StringBuilder builder = new StringBuilder(trimmed.Length * 2);

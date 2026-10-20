@@ -1,6 +1,6 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[38;2;139;143;154mModule      [m[1mConsoleMonster[38;2;139;143;154m[22m
-Version     [m0.0.4 [38;2;139;143;154m→ [m[1m2.0.0[38;2;139;143;154m[22m
+[?9001h[?1004h[?25l[2J[m[38;2;139;143;154m[HModule      [m[1mConsoleMonster[38;2;139;143;154m[22m
+Version     [m0.0.4[38;2;139;143;154m[1C→ [m[1m2.0.0[38;2;139;143;154m[22m
 Frameworks  [mnetstandard2.0, net472, net8.0[38;2;139;143;154m
 Signing     [38;2;161;161;170m– [mskipped[38;2;139;143;154m
-Tests       [38;2;251;191;36m▴     [m1 skipped on PowerShell 7
-[?9001l[?1004l
+Tests       [38;2;251;191;36m▴ [m1 skipped on PowerShell 7
+]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l

@@ -14,7 +14,7 @@ namespace ConsoleMonster.Data {
 #if NET8_0_OR_GREATER
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(
             "Trimming", "IL2075",
-            Justification = "This internal fallback is selected only when UseReflection is true. Public inspection and column inference entry points carry RequiresUnreferencedCode."
+            Justification = "This fallback is selected only when UseReflection is true. Values callers must preserve reflected members when trimming, or use explicit adapters with UseReflection=false; ObjectInspector entry points also carry RequiresUnreferencedCode."
         )]
 #endif
         public IEnumerable<InspectMember> GetMembers(object value) {

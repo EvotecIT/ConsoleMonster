@@ -68,7 +68,7 @@ Behaviour a user would see:
 - `dnscheck scan` on an interactive terminal, with the required `Domain` missing, opens the form. Its fields come from
   the options. The review shows `dnscheck scan example.org --depth 3`, and submitting runs the command.
 - When the output is redirected or in CI, the same call fails with a usage error instead of prompting.
-- `dnscheck completion pwsh|bash|zsh|fish` prints a completion script.
+- `dnscheck completion pwsh` prints a completion script. The shell can be `pwsh`, `bash`, `zsh`, or `fish`.
 
 ## Source generation for AOT
 
@@ -98,7 +98,7 @@ handling), the conversion helpers, error formatting and the completion script wr
 | `enum` | `ChoiceField` (single) | `--name Value` |
 | `T[]` of enum or string with known values | `ChoiceField` (multiple) | `--name a --name b` |
 | `FileInfo`, `DirectoryInfo` | `PathField` | `--name C:\path` |
-| `[Secret]` string | `SecretField` | left out of the shown command, shown as `--name ***` |
+| `[Secret]` string | `SecretField` | display-only placeholder `--name ***`; the actual secret is never included in generated command text or logs |
 
 Required arguments become required fields; validation attributes become field validation. The review step already
 formats the command through `CommandLine.Format`, so the form and the parser agree by construction: both come from one

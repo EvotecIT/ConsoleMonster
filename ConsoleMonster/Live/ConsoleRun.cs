@@ -219,18 +219,19 @@ namespace ConsoleMonster.Live {
             }
             RunResult<TItem, TResult>?[] results = new RunResult<TItem, TResult>?[list.Count];
             using (RunMonitor monitor = new RunMonitor(list.Count, o))
+            using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, monitor.Session?.Cancellation ?? CancellationToken.None))
             using (SemaphoreSlim gate = new SemaphoreSlim(o.ThrottleLimit)) {
                 List<Task> running = new List<Task>(list.Count);
                 for (int i = 0; i < list.Count; i++) {
                     try {
-                        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+                        await gate.WaitAsync(linked.Token).ConfigureAwait(false);
                     } catch (OperationCanceledException) {
                         break;
                     }
                     int index = i;
                     running.Add(Task.Run(async () => {
                         try {
-                            results[index] = await RunOne(list[index], index, body, o, monitor, cancellationToken).ConfigureAwait(false);
+                            results[index] = await RunOne(list[index], index, body, o, monitor, linked.Token).ConfigureAwait(false);
                         } finally {
                             gate.Release();
                         }

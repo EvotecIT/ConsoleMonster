@@ -194,9 +194,7 @@ namespace ConsoleMonster.PowerShell {
                 if (Shaper != null) {
                     Binding.PSShaping.RegisterShaper(type, Shaper);
                 }
-                if (Shaper == null || viewGiven) {
-                    ConsoleFormatting.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title));
-                }
+                ConsoleFormatting.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title), onlyIfMissing: Shaper != null && !viewGiven);
             }
         }
     }

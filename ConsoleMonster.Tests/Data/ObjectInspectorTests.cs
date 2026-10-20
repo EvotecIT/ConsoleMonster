@@ -114,11 +114,17 @@ namespace ConsoleMonster.Tests.Data {
             Assert.Equal("$", cycle.TargetPath);
         }
 
-        [Fact]
-        public void Inspect_SharedReferenceAcrossBranches_IsNotCycle() {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Inspect_SharedReferenceAcrossBranches_IsNotCycle(bool normalizedIdentity) {
             Child shared = new Child { Label = "shared" };
+            object identity = new object();
+            InspectorOptions options = new InspectorOptions {
+                Identity = value => normalizedIdentity && ReferenceEquals(value, shared) ? identity : value
+            };
             InspectObject result = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(new Pair { Left = shared, Right = shared })
+                ObjectInspector.Inspect(new Pair { Left = shared, Right = shared }, options)
             );
             Assert.IsType<InspectObject>(result.Members[0]);
             Assert.IsType<InspectObject>(result.Members[1]);

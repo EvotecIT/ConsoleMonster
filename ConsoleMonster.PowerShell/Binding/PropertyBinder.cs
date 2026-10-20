@@ -72,13 +72,14 @@ namespace ConsoleMonster.PowerShell.Binding {
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
             Values.ShapeOptions shape = options ?? PSShaping.Options();
+            StringComparison comparison = items.Any(item => Values.ValueShaper.Prepare(item, shape) is object prepared && Values.ValueShaper.IsStructural(prepared)) ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             List<BoundColumn> result = new List<BoundColumn>();
             bool literal = property == null || property.Length == 0;
             object[] specs = literal ? ColumnResolver.Resolve(items, cmdlet, shape, out _) : property!;
             {
                 foreach (object spec in specs) {
                     if (spec is string literalName && literal) {
-                        if (!result.Any(c => string.Equals(c.Name, literalName, StringComparison.OrdinalIgnoreCase)))
+                        if (!result.Any(c => string.Equals(c.Name, literalName, comparison)))
                             result.Add(Create(literalName, literalName, null));
                     }
                     else if (spec is string text) {
@@ -88,7 +89,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                                     string.Equals(
                                         c.Name,
                                         matched,
-                                        StringComparison.OrdinalIgnoreCase
+                                        comparison
                                     )
                                 )
                             )
@@ -415,11 +416,18 @@ namespace ConsoleMonster.PowerShell.Binding {
             List<string> names = new List<string>();
             foreach (PSObject item in items) {
                 object? prepared = Values.ValueShaper.Prepare(item, shape);
-                IEnumerable<string> candidates = prepared != null && !(prepared is PSObject) && Values.ValueShaper.IsStructural(prepared)
-                    ? Values.ValueShaper.Fields(prepared, shape).Select(field => field.Name)
-                    : item.Properties.Where(Usable).Select(member => member.Name);
+                bool structural = prepared != null && !(prepared is PSObject) && Values.ValueShaper.IsStructural(prepared);
+                List<string> candidates = (structural
+                    ? Values.ValueShaper.Fields(prepared!, shape).Select(field => field.Name)
+                    : item.Properties.Where(Usable).Select(member => member.Name)).ToList();
+                if (structural && pattern.IndexOfAny(new[] { '*', '?' }) < 0 && candidates.Contains(pattern, StringComparer.Ordinal)) {
+                    if (!names.Contains(pattern, StringComparer.Ordinal)) {
+                        names.Add(pattern);
+                    }
+                    continue;
+                }
                 foreach (string name in candidates)
-                    if (Wildcard(name, pattern) && !names.Contains(name, StringComparer.OrdinalIgnoreCase))
+                    if (Wildcard(name, pattern) && !names.Contains(name, structural ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase))
                         names.Add(name);
             }
             if (pattern.IndexOfAny(new[] { '*', '?' }) < 0 && names.Count == 0)

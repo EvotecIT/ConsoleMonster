@@ -36,7 +36,7 @@
 1..2 | ForEach-Object { [pscustomobject] @{ Name = "srv0$_"; Count = $_ } } | Show-Console -View Cards -Width 60
 '@
         # One object is a record: its title (Name) and its other fields.
-        $text | Should -Match 'srv01\s*\n\s+Up\s+.\s+yes'
+        $text | Should -Match 'srv01\s*\n\s+Up\s+(?:.\s+)?yes'
         $text | Should -Match 'Name\s+.\s+Count'
         $text | Should -Match 'root\s*\n\s+.+leaf'
         $text | Should -Match '9'
@@ -94,6 +94,76 @@ $servers | Out-ConsoleDefault -Force
         $text | Should -Match 'a plain string'
         # After -Remove the objects get PowerShell's default output again.
         $text | Should -Match 'Name\s+State\s*\n-+\s+-+'
+    }
+
+    It 'selects type-specific and default PowerShell table rows for every object' {
+        $text = Invoke-ViewChild -Script @'
+$path = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.format.ps1xml')
+$xml = '<Configuration><ViewDefinitions><View><Name>ReviewConditional</Name><ViewSelectedBy><TypeName>Review.Conditional</TypeName></ViewSelectedBy><TableControl><TableHeaders><TableColumnHeader><Label>Result</Label></TableColumnHeader></TableHeaders><TableRowEntries><TableRowEntry><EntrySelectedBy><TypeName>Review.Special</TypeName></EntrySelectedBy><TableColumnItems><TableColumnItem><PropertyName>Special</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry><TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>Default</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View></ViewDefinitions></Configuration>'
+try {
+    [IO.File]::WriteAllText($path, $xml)
+    Update-FormatData -PrependPath $path -ErrorAction Stop
+    $values = @(
+        [pscustomobject] @{ Kind = 'special'; Special = 'selected'; Conditional = 'wrong'; Default = 'wrong' }
+        [pscustomobject] @{ Kind = 'default'; Special = 'wrong'; Conditional = 'wrong'; Default = 'fallback' }
+    )
+    foreach ($value in $values) { $value.PSObject.TypeNames.Insert(0, 'Review.Conditional') }
+    $values[0].PSObject.TypeNames.Add('Review.Special')
+    '== native'
+    $values | Format-Table | Out-String
+    '== console'
+    $values | Format-ConsoleTable -AsString
+} finally {
+    Remove-Item -LiteralPath $path
+}
+'@
+        $sections = $text -split '== console'
+        $sections.Count | Should -Be 2
+        foreach ($section in $sections) {
+            $section | Should -Match 'selected'
+            $section | Should -Match 'fallback'
+            $section | Should -Not -Match 'wrong'
+        }
+    }
+
+    It 'keeps case-distinct dictionary columns and resolves an exact property name' {
+        $text = Invoke-ViewChild -Script @'
+$data = [System.Collections.Generic.Dictionary[string, object]]::new([StringComparer]::Ordinal)
+$data.Add('Name', 'first')
+$data.Add('name', 'second')
+'== both'
+Format-ConsoleTable -InputObject $data -Property Name, name -AsString
+'== lower'
+Format-ConsoleTable -InputObject $data -Property name -AsString
+'== grouped'
+$data.Add('Size', 7)
+Format-ConsoleTable -InputObject $data -Property Name, name, Size -GroupBy Name -AsString
+'@
+        $sections = $text -split '== lower'
+        $sections[0] | Should -Match 'Name.+name'
+        $sections[0] | Should -Match 'first.+second'
+        $grouped = $sections[1] -split '== grouped'
+        $grouped[0] | Should -Match 'second'
+        $grouped[0] | Should -Not -Match 'first'
+        $grouped[1] | Should -Match 'first'
+        $grouped[1] | Should -Match 'second'
+        $grouped[1] | Should -Match 'Size'
+    }
+
+    It 'takes over a shaper-only registration and keeps an existing explicit view' {
+        $text = Invoke-ViewChild -Script @'
+Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'replacement' } }
+$value = [pscustomobject] @{ Original = 'unshaped' }
+$value.PSObject.TypeNames.Insert(0, 'Review.Shape')
+$value | Out-ConsoleDefault -Force
+Register-ConsoleView -TypeName 'Review.Shape' -View Table -Property @{ Name = 'OnlyCustom'; Expression = { 'kept' } }
+Register-ConsoleView -TypeName 'Review.Shape' -Shaper { [ordered] @{ Shaped = 'updated' } }
+$value | Out-ConsoleDefault -Force
+'@
+        $text | Should -Match 'replacement'
+        $text | Should -Not -Match 'unshaped'
+        $text | Should -Match 'OnlyCustom'
+        $text | Should -Match 'kept'
     }
 
     It 'exports the fct and fcl aliases and prints a profile snippet without changing anything' {

@@ -37,17 +37,20 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Contains("value 3", printed[2]);
         }
 
-        [Fact]
-        public void Run_AFailedRun_ShowsItsErrorAndTheWatchGoesOn() {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Run_AFailedRun_ShowsItsErrorAndTheWatchGoesOn(bool refreshCancelled) {
             List<string> printed = new List<string>();
-            ConsoleWatch.Run(i => i == 1 ? throw new InvalidOperationException("not yet") : new TextBlock("ok now"), new WatchOptions {
+            Exception failure = refreshCancelled ? (Exception)new OperationCanceledException("not yet") : new InvalidOperationException("not yet");
+            ConsoleWatch.Run(i => i == 1 ? throw failure : new TextBlock("ok now"), new WatchOptions {
                 Count = 2,
                 Interactive = false,
                 Print = widget => printed.Add(Text(widget)),
                 Delay = (interval, token) => { }
             });
             Assert.Contains("not yet", printed[0]);
-            Assert.Contains("InvalidOperationException", printed[0]);
+            Assert.Contains(failure.GetType().Name, printed[0]);
             Assert.Contains("ok now", printed[1]);
         }
 

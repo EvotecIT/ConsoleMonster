@@ -419,7 +419,7 @@ namespace ConsoleMonster.Values {
             }
             bool data = FindStructuralAdapter(record) != null;
             List<InspectMember> fields = new List<InspectMember>();
-            HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> seen = new HashSet<string>(data ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
             try {
                 foreach (InspectMember member in adapter.GetMembers(record)) {
                     if ((!data && IsPlumbing(member.Name)) || !seen.Add(member.Name)) {
@@ -456,7 +456,7 @@ namespace ConsoleMonster.Values {
             }
         }
 
-        /// <summary>Reads a named field of a record (case-insensitive), or returns false when the record has no such field.</summary>
+        /// <summary>Reads a named field of a record, preferring exact spelling before a case-insensitive match, or returns false when absent.</summary>
         /// <param name="record">The record (prepared).</param>
         /// <param name="name">The field name.</param>
         /// <param name="value">The value or a marker (see <see cref="Read"/>).</param>
@@ -469,25 +469,38 @@ namespace ConsoleMonster.Values {
                 return false;
             }
             if (record is IDictionary dictionary) {
+                DictionaryEntry? match = null;
                 foreach (DictionaryEntry entry in dictionary) {
-                    if (string.Equals(Convert.ToString(entry.Key, CultureInfo.InvariantCulture), name, StringComparison.OrdinalIgnoreCase)) {
-                        if (budget != null && !budget.TryTake()) {
-                            value = BudgetExceeded.Instance;
-                        } else {
-                            value = entry.Value;
-                        }
-                        return true;
+                    string? key = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
+                    if (string.Equals(key, name, StringComparison.Ordinal)) {
+                        match = entry;
+                        break;
+                    }
+                    if (!match.HasValue && string.Equals(key, name, StringComparison.OrdinalIgnoreCase)) {
+                        match = entry;
                     }
                 }
-                return false;
+                if (!match.HasValue) {
+                    return false;
+                }
+                value = budget != null && !budget.TryTake() ? BudgetExceeded.Instance : match.Value.Value;
+                return true;
             }
+            InspectMember? selected = null;
             foreach (InspectMember member in Fields(record, options)) {
-                if (string.Equals(member.Name, name, StringComparison.OrdinalIgnoreCase)) {
-                    value = Read(member, budget);
-                    return true;
+                if (string.Equals(member.Name, name, StringComparison.Ordinal)) {
+                    selected = member;
+                    break;
+                }
+                if (selected == null && string.Equals(member.Name, name, StringComparison.OrdinalIgnoreCase)) {
+                    selected = member;
                 }
             }
-            return false;
+            if (selected == null) {
+                return false;
+            }
+            value = Read(selected, budget);
+            return true;
         }
 
         /// <summary>A short type name for a value: the adapter's name, an XML element's tag, or the .NET type name.</summary>

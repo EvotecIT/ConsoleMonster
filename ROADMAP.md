@@ -58,21 +58,22 @@ that product. Gaps are closed with general extension points, not per-product shi
 
 ## Next
 
-The agreed order. Each step is one outcome, delivered as one pull request here (step 5 in those repositories).
+The agreed order. Steps 1–4 are implemented together in the everyday-path PR. Product trials in step 5 happen in the
+referenced repositories.
 
 1. **The everyday path.** Ordinary PowerShell output that is excellent without configuration: one value-shaping layer
    for every command, capturable output, labelled group headings, one status vocabulary with PowerShell's own words,
    one date format, short values that never break, `Enable-ConsoleFormatting` with views for the common commands, and
-   Linux and macOS parity. (In progress.)
+   Linux and macOS parity. (Done.)
 2. **Live runs.** Generic widgets for running many items: an outcome grid (one cell per item, a shape per state), a
    summary bar, an activity list and lane options; the test-run view built from them; `Watch-Console` to re-run a
    script block as a live view; `ForEach-ConsoleItem -Parallel` with a live view and ordinary output objects
-   (`ConsoleRun.ForEachAsync` in C#).
+   (`ConsoleRun.ForEachAsync` in C#). (Done.)
 3. **Better defaults.** `Enable-ConsoleFormatting` can also install the error view for `$ErrorView` and `Write-Progress`
-   rendering, each opt-in; `Show-ConsoleHelp` renders PowerShell's own help objects.
+   rendering, each opt-in; `Show-ConsoleHelp` renders PowerShell's own help objects. (Done.)
 4. **.NET.** Hosting and logging packages (`ConsoleMonster.Hosting`, `ConsoleMonster.Extensions.Logging`) and a
    `dotnet new` template, outside the zero-dependency core; a decision paper on a command-line layer
-   (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step).
+   (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step). (Done.)
 5. **Trials in real products.** TestimoX.CLI and PSPublishModule adopt ConsoleMonster after the everyday path ships.
    The work happens in those repositories; gaps found there come back here as general extension points.
 6. **One definition, every output.** The same view definition rendered to the terminal here and, through bridges in

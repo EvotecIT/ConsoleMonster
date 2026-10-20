@@ -84,7 +84,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                     continue;
                 }
                 foreach (InspectMember field in ValueShaper.Fields(prepared, options)) {
-                    if (!names.Contains(field.Name, StringComparer.OrdinalIgnoreCase)) {
+                    if (!names.Contains(field.Name, ValueShaper.IsStructural(prepared) ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)) {
                         names.Add(field.Name);
                     }
                 }

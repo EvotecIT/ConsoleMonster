@@ -114,8 +114,9 @@ namespace ConsoleMonster.Extensions.Tests {
                 using (ILoggerFactory factory = LoggerFactory.Create(logging => logging.AddConsoleMonster(options => {
                     options.Writer = printed;
                     options.Profile = TerminalProfile.Fixed(80, 20, ColorDepth.None, GlyphTier.Ascii, OutputMode.Plain);
+                    options.IncludeEventId = true;
                 }))) {
-                    factory.CreateLogger("Shop.Orders").LogWarning("payment slow");
+                    factory.CreateLogger("Shop.Orders").LogWarning(new EventId(7), "payment slow");
                 }
                 for (int i = 0; i < 100 && region.Entries.Count == 0; i++) {
                     Thread.Sleep(20);
@@ -124,6 +125,7 @@ namespace ConsoleMonster.Extensions.Tests {
                 LogEntry entry = Assert.Single(region.Entries);
                 Assert.Equal("warn", entry.Level);
                 Assert.Contains("payment slow", entry.RichText != null ? entry.RichText.PlainText : entry.Text);
+                Assert.Contains("[7]", entry.RichText != null ? entry.RichText.PlainText : entry.Text);
                 session.Stop();
             }
         }

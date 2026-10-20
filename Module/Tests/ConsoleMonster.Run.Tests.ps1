@@ -30,10 +30,34 @@ $out = 1..12 | ForEach-ConsoleItem -Parallel -ThrottleLimit 4 { Start-Sleep -Mil
 
     It 'writes each output as it finishes with -Unordered' {
         $text = Invoke-RunChild @'
-$out = 1..4 | ForEach-ConsoleItem -Parallel -ThrottleLimit 4 -Unordered { Start-Sleep -Milliseconds ((5 - $_) * 120); $_ }
-"OUT=$($out -join ',')"
+$release = [System.Threading.ManualResetEventSlim]::new($false)
+try {
+    $out = @(1, 2 | ForEach-ConsoleItem -Parallel -ThrottleLimit 2 -Unordered {
+        $gate = $using:release
+        if ($_ -eq 1 -and -not $gate.Wait(10000)) { throw 'Item 2 was not delivered while item 1 was waiting.' }
+        $_
+    } -ErrorVariable failures -ErrorAction SilentlyContinue | ForEach-Object {
+        if ($_ -eq 2) { $release.Set() }
+        $_
+    })
+    "OUT=$($out -join ',') ERRORS=$($failures.Count)"
+} finally {
+    $release.Set()
+    $release.Dispose()
+}
 '@
-        $text | Should -Match 'OUT=4,3,2,1'
+        $text | Should -Match 'OUT=2,1 ERRORS=0'
+    }
+
+    It 'keeps output and warnings emitted before a terminating error in both modes' {
+        $text = Invoke-RunChild @'
+$out = 1 | ForEach-ConsoleItem { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+"SEQ=$out ERRORS=$($failures.Count) WARNINGS=$($warnings -join ',')"
+$out = 1 | ForEach-ConsoleItem -Parallel { 'before'; Write-Warning 'detail'; throw 'failed' } -ErrorVariable failures -WarningVariable warnings -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+"PAR=$out ERRORS=$($failures.Count) WARNINGS=$($warnings -join ',')"
+'@
+        $text | Should -Match 'SEQ=before ERRORS=1 WARNINGS=detail'
+        $text | Should -Match 'PAR=before ERRORS=1 WARNINGS=detail'
     }
 
     It 'runs one at a time in the caller''s scope without -Parallel, with labels from -Name' {
@@ -90,10 +114,10 @@ $par = 1 | ForEach-ConsoleItem -Parallel { & $using:exe -NoProfile -NonInteracti
 
     It 'stops an item past -TimeoutSeconds and counts it as failed' {
         $text = Invoke-RunChild @'
-$out = 1..2 | ForEach-ConsoleItem -Parallel -TimeoutSeconds 1 { if ($_ -eq 2) { Start-Sleep -Seconds 30 }; $_ } -ErrorVariable failures -ErrorAction SilentlyContinue
+$out = 1..2 | ForEach-ConsoleItem -Parallel -TimeoutSeconds 1 { if ($_ -eq 2) { 'partial'; Start-Sleep -Seconds 30 }; $_ } -ErrorVariable failures -ErrorAction SilentlyContinue
 "OUT=$($out -join ',') TIMEOUT=$($failures[0].FullyQualifiedErrorId -like 'ItemTimedOut*')"
 '@
-        $text | Should -Match 'OUT=1 TIMEOUT=True'
+        $text | Should -Match 'OUT=1,partial TIMEOUT=True'
         $text | Should -Match 'timed out after'
     }
 }

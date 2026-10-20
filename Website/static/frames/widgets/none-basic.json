@@ -44,8 +44,8 @@
   "keyvalue": {
     "w": 60,
     "h": 5,
-    "dark": "Module      ConsoleMonster\nVersion     0.0.4 <i class=n>→</i> 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     <i class=n>–</i> skipped\nTests       !     1 skipped on PowerShell 7",
-    "light": "Module      ConsoleMonster\nVersion     0.0.4 <i class=n>→</i> 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     <i class=n>–</i> skipped\nTests       !     1 skipped on PowerShell 7"
+    "dark": "Module      ConsoleMonster\nVersion     0.0.4 <i class=n>→</i> 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     <i class=n>–</i> skipped\nTests       ! 1 skipped on PowerShell 7",
+    "light": "Module      ConsoleMonster\nVersion     0.0.4 <i class=n>→</i> 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     <i class=n>–</i> skipped\nTests       ! 1 skipped on PowerShell 7"
   },
   "statuslist": {
     "w": 60,
@@ -80,8 +80,8 @@
   "log": {
     "w": 60,
     "h": 5,
-    "dark": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h a<i class=n>…</i>\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot",
-    "light": "00:02      Discovered 4 domain controllers in 2 domains\n00:31 WARN DC02: replication partner DC05 last success 3h a<i class=n>…</i>\n00:44 ERR  DC02: USN rollback check failed (event 2095)\n00:52      Collected 186 rule inputs from DC01\n00:53 VERB Using cached schema snapshot"
+    "dark": "00:02        Discovered 4 domain controllers in 2 domains\n00:31 ! WARN DC02: replication partner DC05 last success 3h<i class=n>…</i>\n00:44 <i class=n>×</i> ERR  DC02: USN rollback check failed (event 2095)\n00:52        Collected 186 rule inputs from DC01\n00:53 VERB   Using cached schema snapshot",
+    "light": "00:02        Discovered 4 domain controllers in 2 domains\n00:31 ! WARN DC02: replication partner DC05 last success 3h<i class=n>…</i>\n00:44 <i class=n>×</i> ERR  DC02: USN rollback check failed (event 2095)\n00:52        Collected 186 rule inputs from DC01\n00:53 VERB   Using cached schema snapshot"
   },
   "bar": {
     "w": 60,

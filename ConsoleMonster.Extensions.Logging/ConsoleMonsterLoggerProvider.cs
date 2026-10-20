@@ -135,7 +135,7 @@ namespace ConsoleMonster.Extensions.Logging {
                 markup.Append("[muted]");
                 markup.Append(Markup.Escape(category ?? string.Empty));
                 if (Options.IncludeEventId && eventId.Id != 0) {
-                    markup.Append('[').Append(eventId.Id.ToString(CultureInfo.InvariantCulture)).Append(']');
+                    markup.Append(Markup.Escape("[" + eventId.Id.ToString(CultureInfo.InvariantCulture) + "]"));
                 }
                 if (!string.IsNullOrEmpty(scopes)) {
                     markup.Append(category != null ? " " : string.Empty).Append('(').Append(Markup.Escape(scopes!)).Append(')');

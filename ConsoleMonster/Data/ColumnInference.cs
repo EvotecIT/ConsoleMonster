@@ -31,6 +31,7 @@ namespace ConsoleMonster.Data {
             List<string> names = new List<string>();
             IEnumerator iterator = items.GetEnumerator();
             int inspected = 0;
+            bool preserveCase = false;
             try {
                 while (inspected < Math.Max(0, options.MaxItems) && iterator.MoveNext()) {
                     inspected++;
@@ -42,12 +43,14 @@ namespace ConsoleMonster.Data {
                     IMemberSource? source = ObjectInspector.FindSource(item, options);
                     if (source == null)
                         return Array.Empty<string>();
+                    bool structural = Values.ValueShaper.IsStructural(item);
+                    preserveCase |= structural;
                     foreach (InspectMember member in source.GetMembers(item)) {
                         if (!ObjectInspector.MemberIncluded(member.Name, options))
                             continue;
                         if (
                             !names.Any(name =>
-                                string.Equals(name, member.Name, StringComparison.OrdinalIgnoreCase)
+                                string.Equals(name, member.Name, structural ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase)
                             )
                         )
                             names.Add(member.Name);
@@ -59,7 +62,7 @@ namespace ConsoleMonster.Data {
             }
             if (names.Count == 0)
                 return Array.Empty<string>();
-            ObjectInspector.ApplyOrder(names, options.Order);
+            ObjectInspector.ApplyOrder(names, options.Order, preserveCase);
             hiddenColumns = Math.Max(0, names.Count - Math.Max(0, options.MaxColumns));
             if (names.Count > options.MaxColumns)
                 names.RemoveRange(

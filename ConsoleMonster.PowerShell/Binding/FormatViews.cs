@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ConsoleMonster.PowerShell.Binding {
@@ -99,7 +101,7 @@ namespace ConsoleMonster.PowerShell.Binding {
         }
 
         private static ColumnSpec[] Specs(TableControl table) {
-            TableControlRow row = table.Rows[0];
+            TableControlRow row = table.Rows.FirstOrDefault(candidate => DefaultRow(candidate)) ?? table.Rows[0];
             List<ColumnSpec> specs = new List<ColumnSpec>();
             for (int i = 0; i < row.Columns.Count; i++) {
                 TableControlColumn column = row.Columns[i];
@@ -109,10 +111,49 @@ namespace ConsoleMonster.PowerShell.Binding {
                 string label = !string.IsNullOrEmpty(header?.Label) ? header!.Label : (script ? "Value" + (i + 1) : entry.Value);
                 string? alignment = AlignmentName(column.Alignment) ?? AlignmentName(header?.Alignment ?? Alignment.Undefined);
                 string? format = PSObject.AsPSObject(column).Properties["FormatString"]?.Value as string;
-                specs.Add(new ColumnSpec(label, entry.Value, script, alignment, format));
+                string expression = table.Rows.Count == 1 && DefaultRow(row) ? entry.Value : SelectedExpression(table, i);
+                specs.Add(new ColumnSpec(label, expression, script || table.Rows.Count != 1 || !DefaultRow(row), alignment, format));
             }
             return specs.ToArray();
         }
+
+        private static bool DefaultRow(TableControlRow row) => row.SelectedBy == null || ((row.SelectedBy.TypeNames?.Count ?? 0) == 0 && (row.SelectedBy.SelectionCondition?.Count ?? 0) == 0);
+
+        // Keep row selection inside each column expression: rows of the same type can choose different values.
+        private static string SelectedExpression(TableControl table, int column) {
+            StringBuilder expression = new StringBuilder();
+            TableControlRow? fallback = null;
+            foreach (TableControlRow row in table.Rows) {
+                if (DefaultRow(row)) {
+                    fallback = row;
+                    continue;
+                }
+                List<string> conditions = new List<string>();
+                foreach (string type in row.SelectedBy.TypeNames ?? new List<string>()) {
+                    conditions.Add("($_.PSTypeNames -contains '" + type.Replace("'", "''") + "')");
+                }
+                foreach (DisplayEntry condition in row.SelectedBy.SelectionCondition ?? new List<DisplayEntry>()) {
+                    conditions.Add("(& { " + EntryExpression(condition) + " })");
+                }
+                expression.Append(expression.Length == 0 ? "if (" : " elseif (").Append(string.Join(" -or ", conditions)).Append(") { ");
+                if (column < row.Columns.Count) {
+                    expression.Append(EntryExpression(row.Columns[column].DisplayEntry));
+                }
+                expression.Append(" }");
+            }
+            if (fallback != null && column < fallback.Columns.Count) {
+                string value = EntryExpression(fallback.Columns[column].DisplayEntry);
+                if (expression.Length == 0) {
+                    return value;
+                }
+                expression.Append(" else { ").Append(value).Append(" }");
+            }
+            return expression.ToString();
+        }
+
+        private static string EntryExpression(DisplayEntry entry) => entry.ValueType == DisplayEntryValueType.ScriptBlock
+            ? "& { " + entry.Value + " }"
+            : "$_.PSObject.Properties['" + entry.Value.Replace("'", "''") + "'].Value";
 
         private static string? AlignmentName(Alignment alignment) {
             switch (alignment) {

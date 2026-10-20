@@ -20,8 +20,10 @@ namespace ConsoleMonster.Extensions.Tests {
         }
 
         private sealed class BrokenWorker : BackgroundService {
+            public TaskCompletionSource<bool> Fail { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
             protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-                await Task.Yield();
+                await Fail.Task;
                 throw new InvalidOperationException("template folder missing");
             }
         }
@@ -59,13 +61,15 @@ namespace ConsoleMonster.Extensions.Tests {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { DisableDefaults = true });
             builder.Services.Configure<HostOptions>(options => options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore);
             builder.Services.AddHostedService<QuickWorker>();
-            builder.Services.AddHostedService<BrokenWorker>();
+            BrokenWorker brokenWorker = new BrokenWorker();
+            builder.Services.AddHostedService(_ => brokenWorker);
             builder.Services.AddHostedService<LoopService>();
             builder.Services.AddSingleton<IHostedService, PlainService>();
             builder.Services.AddConsoleDashboard(options => options.Mode = ConsoleDashboardMode.Never);
             using (IHost host = builder.Build()) {
                 IConsoleDashboard dashboard = host.Services.GetRequiredService<IConsoleDashboard>();
                 await host.StartAsync();
+                brokenWorker.Fail.SetResult(true);
                 Assert.Equal(ServiceState.Completed, (await WaitFor(dashboard, "Quick", ServiceState.Completed)).State);
                 ServiceStatus broken = await WaitFor(dashboard, "Broken", ServiceState.Failed);
                 Assert.Equal(ServiceState.Failed, broken.State);
@@ -108,7 +112,8 @@ namespace ConsoleMonster.Extensions.Tests {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { DisableDefaults = true });
             builder.Services.AddSingleton<IHostedService>(instance);
             builder.Services.AddHostedService(provider => new QuickWorker());
-            builder.Services.AddHostedService<BrokenWorker>();
+            BrokenWorker brokenWorker = new BrokenWorker();
+            builder.Services.AddHostedService(_ => brokenWorker);
             builder.Services.AddConsoleDashboard(options => options.Mode = ConsoleDashboardMode.Never);
             IHost host = builder.Build();
             IConsoleDashboard dashboard = host.Services.GetRequiredService<IConsoleDashboard>();
@@ -116,6 +121,7 @@ namespace ConsoleMonster.Extensions.Tests {
             List<IHostedService> hosted = host.Services.GetServices<IHostedService>().ToList();
             Assert.Contains(hosted, service => service is BackgroundService);
             await host.StartAsync();
+            brokenWorker.Fail.SetResult(true);
             IHostApplicationLifetime lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
             Task stopped = Task.Delay(Timeout.Infinite, lifetime.ApplicationStopping);
             Task first = await Task.WhenAny(stopped, Task.Delay(5000));

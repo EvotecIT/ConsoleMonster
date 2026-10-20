@@ -121,8 +121,9 @@ namespace ConsoleMonster.PowerShell {
                 // Aliases are resolved on the first item: a grouped table normally holds one type.
                 PSObject? sample = items.Count > 0 ? items[0] : null;
                 string? typed = groupBy as string;
-                Predicate<BoundColumn> repeatsKey = column => (typed != null && string.Equals(column.Name, typed, StringComparison.OrdinalIgnoreCase))
-                    || string.Equals(column.SourceProperty(sample), groupSource, StringComparison.OrdinalIgnoreCase);
+                StringComparison comparison = sample != null && ValueShaper.Prepare(sample, shape) is object prepared && ValueShaper.IsStructural(prepared) ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+                Predicate<BoundColumn> repeatsKey = column => (typed != null && string.Equals(column.Name, typed, comparison))
+                    || string.Equals(column.SourceProperty(sample), groupSource, comparison);
                 if (columns.Exists(column => !repeatsKey(column))) {
                     columns.RemoveAll(repeatsKey);
                 }

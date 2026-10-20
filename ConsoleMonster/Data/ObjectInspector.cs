@@ -102,17 +102,18 @@ namespace ConsoleMonster.Data {
             return !options.Exclude.Any(pattern => Wildcard(name, pattern));
         }
 
-        internal static void ApplyOrder(List<string> names, IList<string> order) {
+        internal static void ApplyOrder(List<string> names, IList<string> order, bool preserveCase = false) {
             List<string> sorted = new List<string>();
+            StringComparer comparer = preserveCase ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
             foreach (string preferred in order) {
-                string? match = names.FirstOrDefault(n =>
+                string? match = names.FirstOrDefault(n => string.Equals(n, preferred, StringComparison.Ordinal)) ?? names.FirstOrDefault(n =>
                     string.Equals(n, preferred, StringComparison.OrdinalIgnoreCase)
                 );
-                if (match != null && !sorted.Contains(match, StringComparer.OrdinalIgnoreCase))
+                if (match != null && !sorted.Contains(match, comparer))
                     sorted.Add(match);
             }
             foreach (string item in names)
-                if (!sorted.Contains(item, StringComparer.OrdinalIgnoreCase))
+                if (!sorted.Contains(item, comparer))
                     sorted.Add(item);
             names.Clear();
             names.AddRange(sorted);
@@ -278,11 +279,11 @@ namespace ConsoleMonster.Data {
                     }
                 }
                 List<string> memberNames = members.Select(m => m.Name ?? string.Empty).ToList();
-                ApplyOrder(memberNames, options.Order);
+                ApplyOrder(memberNames, options.Order, preserveCase: data);
                 members = memberNames
                     .Select(n =>
                         members.First(m =>
-                            string.Equals(m.Name, n, StringComparison.OrdinalIgnoreCase)
+                            string.Equals(m.Name, n, data ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase)
                         )
                     )
                     .ToList();
@@ -290,7 +291,7 @@ namespace ConsoleMonster.Data {
             }
             finally {
                 if (track)
-                    walk.Ancestors.Remove(current);
+                    walk.Ancestors.Remove(identity);
             }
         }
 

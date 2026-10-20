@@ -35,7 +35,7 @@ namespace ConsoleMonster.Hosting {
             HashSet<string> names = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < services.Count; i++) {
                 ServiceDescriptor descriptor = services[i];
-                if (descriptor.ServiceType != typeof(IHostedService) || IsKeyed(descriptor)) {
+                if (!track || descriptor.ServiceType != typeof(IHostedService) || IsKeyed(descriptor)) {
                     continue;
                 }
                 string name = NameOf(descriptor, options);
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Hosting {
                     unique = name + " " + n.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 }
                 name = unique;
-                services[i] = ServiceDescriptor.Singleton<IHostedService>(provider => Track(provider, descriptor, tracker, name, track));
+                services[i] = ServiceDescriptor.Singleton<IHostedService>(provider => Track(provider, descriptor, tracker, name));
             }
             services.AddSingleton(options);
             services.AddSingleton(tracker);
@@ -58,12 +58,9 @@ namespace ConsoleMonster.Hosting {
         private static bool IsKeyed(ServiceDescriptor descriptor) => descriptor.IsKeyedService;
 
         // The registered service, wrapped so its state is reported; a BackgroundService keeps its shape for the host.
-        private static IHostedService Track(IServiceProvider provider, ServiceDescriptor descriptor, ConsoleDashboardTracker tracker, string name, bool track) {
+        private static IHostedService Track(IServiceProvider provider, ServiceDescriptor descriptor, ConsoleDashboardTracker tracker, string name) {
             bool owned = descriptor.ImplementationInstance == null;
             IHostedService inner = Create(provider, descriptor);
-            if (!track) {
-                return inner;
-            }
             return inner is BackgroundService background
                 ? new TrackedBackgroundService(background, tracker, name, owned)
                 : new TrackedHostedService(inner, tracker, name, owned);

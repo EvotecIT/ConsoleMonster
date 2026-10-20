@@ -33,7 +33,11 @@ namespace ConsoleMonster.Values {
         /// <summary>The culture for numbers and dates, or null for the current culture.</summary>
         public CultureInfo? Culture { get; set; }
 
-        /// <summary>Whether plain .NET objects may be read through reflection (default true; false for trimmed or AOT callers).</summary>
+        /// <summary>
+        /// Whether plain .NET objects may be read through reflection (default true). Callers using trimming must preserve
+        /// those public members, or set this to false and supply explicit adapters or shapers. Adapter-only mode does not
+        /// make arbitrary caller delegates or adapters trim-safe.
+        /// </summary>
         public bool UseReflection { get; set; } = true;
 
         /// <summary>The most fields a record contributes as default columns (default 12).</summary>

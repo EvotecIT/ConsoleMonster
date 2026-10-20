@@ -206,11 +206,8 @@ namespace ConsoleMonster.Values {
                     if (jsonValue.TryGetValue(out bool flag)) {
                         return flag;
                     }
-                    if (jsonValue.TryGetValue(out long number)) {
-                        return number;
-                    }
-                    if (jsonValue.TryGetValue(out double real)) {
-                        return real;
+                    if (jsonValue.TryGetValue(out object? primitive) && primitive != null && ValueShaper.IsScalar(primitive)) {
+                        return primitive;
                     }
                     return jsonValue.ToJsonString();
                 default:

@@ -44,8 +44,8 @@
   "keyvalue": {
     "w": 60,
     "h": 5,
-    "dark": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN]     1 skipped on PowerShell 7",
-    "light": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN]     1 skipped on PowerShell 7"
+    "dark": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN] 1 skipped on PowerShell 7",
+    "light": "Module      ConsoleMonster\nVersion     0.0.4 -&gt; 2.0.0\nFrameworks  netstandard2.0, net472, net8.0\nSigning     [SKIP] skipped\nTests       [WARN] 1 skipped on PowerShell 7"
   },
   "statuslist": {
     "w": 60,
