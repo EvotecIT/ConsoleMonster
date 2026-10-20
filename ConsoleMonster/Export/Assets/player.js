@@ -8,7 +8,8 @@
  *   <script type="application/json" id="run-data">{...}</script>
  *
  * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
- * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}. Players found when the page loads are
+ * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
+ * hosts add (ExportPlayerData does not write them): chapter marks under the position bar, each a button that seeks to its moment. Players found when the page loads are
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data) and ConsoleMonsterPlayer.scan(root) mount others.
  *
  * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
@@ -103,13 +104,33 @@
         var play = el('button', 'cm-play', controls);
         play.type = 'button';
         play.textContent = 'Play';
-        var seek = el('input', 'cm-seek', controls);
+        var track = el('span', 'cm-track', controls);
+        var seek = el('input', 'cm-seek', track);
         seek.type = 'range';
         seek.min = '0';
         seek.max = String(total);
         seek.step = '10';
         seek.value = '0';
         seek.setAttribute('aria-label', 'Position');
+        // Chapter marks: a labelled button per marker under the position bar, placed at its share of the recording.
+        var marks = data.markers && data.markers.length ? el('span', 'cm-marks', track) : null;
+        if (marks) {
+            controls.classList.add('cm-has-marks');
+            data.markers.forEach(function (marker) {
+                var at = Math.max(0, Math.min(total, +marker[0] || 0));
+                var share = total > 0 ? at / total : 0;
+                var mark = el('button', 'cm-mark', marks);
+                mark.type = 'button';
+                mark.textContent = String(marker[1] || '');
+                mark.setAttribute('aria-label', 'Go to ' + mark.textContent);
+                mark.style.left = (share * 100).toFixed(2) + '%';
+                // The tick is the label's left edge, at the marker's moment; near the end the label hangs left of a right-hand tick.
+                if (share > 0.85) {
+                    mark.className += ' cm-mark--end';
+                }
+                mark.addEventListener('click', function () { self.seek(at); });
+            });
+        }
         var time = el('span', 'cm-time', controls);
         var rate = el('select', 'cm-speed', controls);
         rate.setAttribute('aria-label', 'Speed');
@@ -335,7 +356,7 @@
             }
         });
         function onKeyDown(e) {
-            if (e.target === seek || e.target === rate || e.target === play) {
+            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select'))) {
                 return;
             }
             if (e.key === ' ' || e.key === 'k') {
