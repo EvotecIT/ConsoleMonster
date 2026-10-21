@@ -2,7 +2,7 @@
     [int] $Seconds = 20,
     [string] $ResultPath
 )
-Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
+Import-Module ConsoleMonster
 
 # Stress test from PowerShell, all in runspaces the dashboard owns:
 # - 32 worker runspaces post lane updates as fast as the cmdlets allow (thousands per second in total);

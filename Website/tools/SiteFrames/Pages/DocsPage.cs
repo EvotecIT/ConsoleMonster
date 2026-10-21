@@ -110,10 +110,12 @@ namespace SiteFrames.Pages {
             }
             Figures.Add(id, new JsonObject {
                 ["title"] = example + ".ps1",
+                ["file"] = example + ".ps1",
                 ["label"] = example + " in " + node["host"]!.GetValue<string>(),
                 ["meta"] = new JsonArray(node["host"]!.GetValue<string>()),
                 ["frame"] = node["frame"]!.DeepClone(),
-                ["script"] = powershell["examples"]![example]!["script"]!.DeepClone()
+                ["script"] = powershell["examples"]![example]!["script"]!.DeepClone(),
+                ["scriptFull"] = powershell["examples"]![example]!["scriptFull"]?.DeepClone()
             });
         }
 

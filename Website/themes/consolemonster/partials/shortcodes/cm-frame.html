@@ -7,7 +7,7 @@
 {{~ screen_frame = fig.frame; screen_title = fig.title; screen_meta = fig.meta; screen_label = fig.label; screen_dark = !fig.frame.light ~}}
 {{ include "screen" }}
 {{~ if a.script == "true" && fig.script ~}}
-{{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = fig.title; code_text = fig.script ~}}
+{{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = fig.file; code_text = fig.script; code_full = fig.scriptFull ~}}
 {{ include "code" }}
 {{~ end ~}}
 {{~ end ~}}

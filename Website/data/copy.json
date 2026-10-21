@@ -559,14 +559,54 @@
       "label": "A server's login overview: system facts, health checks and disk use",
       "use": {
         "title": "Use it on your servers",
-        "label": "PowerShell 7 on Linux",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
-        "links": [
+        "steps": [
           {
-            "title": "Example-LoginOverview.ps1",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Examples/Example-LoginOverview.ps1"
+            "text": "Install PowerShell 7 on the server if it is not there yet (Microsoft publishes packages for each distribution; on Ubuntu the snap is the quickest), then start it with `pwsh`.",
+            "code": [
+              {
+                "lang": "bash",
+                "label": "Ubuntu",
+                "text": "sudo snap install powershell --classic\npwsh"
+              }
+            ]
+          },
+          {
+            "text": "In pwsh, install the module for your account.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "PowerShell 7 on Linux",
+                "text": "Install-Module ConsoleMonster -Scope CurrentUser"
+              }
+            ]
+          },
+          {
+            "text": "Download the script into `~/bin` (it is the full program above; Copy on its panel works too), and run it once with `-Sample` to see the layout.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "PowerShell 7",
+                "text": "$null = New-Item -ItemType Directory -Force ~/bin\n$url = 'https://consolemonster.dev/examples/Example-LoginOverview.ps1'\nInvoke-WebRequest $url -OutFile ~/bin/Example-LoginOverview.ps1\n~/bin/Example-LoginOverview.ps1 -Sample"
+              }
+            ]
+          },
+          {
+            "text": "Show it when someone logs in over SSH. With pwsh as the login shell, add this to `~/.config/powershell/Microsoft.PowerShell_profile.ps1`; with bash, add the second block to the end of `~/.profile`.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "~/.config/powershell/Microsoft.PowerShell_profile.ps1",
+                "text": "if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {\n    $env:CM_OVERVIEW_SHOWN = 1\n    & ~/bin/Example-LoginOverview.ps1\n}"
+              },
+              {
+                "lang": "bash",
+                "label": "~/.profile (bash)",
+                "text": "case $- in\n    *i*) if [ -n \"$SSH_TTY\" ] && command -v pwsh >/dev/null; then\n             pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1\n         fi ;;\nesac"
+              }
+            ]
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Examples/Example-LoginOverview.ps1"
       }
     },
     "hosting": {
@@ -582,12 +622,9 @@
           {
             "title": "Hosting dashboard",
             "url": "/docs/hosting/"
-          },
-          {
-            "title": "Package README",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
       }
     },
     "logging": {
@@ -603,12 +640,9 @@
           {
             "title": "Logging",
             "url": "/docs/logging/"
-          },
-          {
-            "title": "Package README",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Extensions.Logging/README.md"
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Extensions.Logging/README.md"
       }
     },
     "template": {

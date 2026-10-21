@@ -58,7 +58,7 @@
         <p>{{ copy.assessment.layoutBody }}</p>
         <details class="cm-source">
           <summary>C# source of the dashboard</summary>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_file = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.assessmentSource ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.assessmentSource ~}}
           {{ include "code" }}
         </details>
       </div>
@@ -86,7 +86,7 @@
     <div class="cm-steps">
       <div>
         <h3>{{ copy.pipeline.scriptTitle }}</h3>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "Module/Examples/Example-BuildPipeline.ps1"; code_text = live.pipelineScript ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = "Module/Examples/Example-BuildPipeline.ps1"; code_text = live.pipelineScript ~}}
         {{ include "code" }}
       </div>
       <div>

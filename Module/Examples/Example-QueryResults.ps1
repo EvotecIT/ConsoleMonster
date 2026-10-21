@@ -1,4 +1,4 @@
-﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
+﻿Import-Module ConsoleMonster
 
 # DNS and mail-security query results, printed once (no live view).
 # Works the same in Windows Terminal, conhost, redirected output and CONSOLEMONSTER_MODE=plain.

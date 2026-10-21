@@ -35,8 +35,17 @@ namespace SiteFrames.Pages {
 
             public int Height { get; }
 
-            /// <summary>A PowerShell script under Website/examples/demos (recorded on PowerShell 7), or null.</summary>
+            /// <summary>
+            /// The PowerShell script the demo records (on PowerShell 7) and shows: a file under Website/examples/demos, or a path
+            /// relative to the repository (a published example script). Null for program demos.
+            /// </summary>
             public string? Script { get; set; }
+
+            /// <summary>Arguments the recording passes to <see cref="Script"/>: only the script's own public parameters.</summary>
+            public string? Arguments { get; set; }
+
+            /// <summary>A command line the recording shows typed before the script runs; it is never part of the shown code.</summary>
+            public string? Prompt { get; set; }
 
             /// <summary>
             /// The PowerShell twin of a recorded program: a script relative to the repository, shown short (its <c>#region more</c>
@@ -44,8 +53,6 @@ namespace SiteFrames.Pages {
             /// </summary>
             public string? PowerShellTwin { get; set; }
 
-            /// <summary>A script shown as the full program instead of the demo script (a wrapper that calls it), or null.</summary>
-            public string? FullScript { get; set; }
 
             /// <summary>A program to run instead of a script: (executable relative to the repository, arguments).</summary>
             public (string Executable, string Arguments)? Program { get; set; }
@@ -118,8 +125,9 @@ namespace SiteFrames.Pages {
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
             yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {
-                Script = "login.ps1",
-                FullScript = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
+                Script = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
+                Arguments = "-Sample -Width 96",
+                Prompt = "ssh deploy@app-web-03",
                 PosterShare = 1
             };
             yield return new Demo("hosting", "dotnet run (ConsoleMonster.Hosting)", 110, 30) {
@@ -184,7 +192,10 @@ namespace SiteFrames.Pages {
             return true;
         }
 
-        private static string Script(Site site, string name) => Path.Combine(site.Website, "examples", "demos", name);
+                private static string Script(Site site, string name) => name.Contains(Path.DirectorySeparatorChar) || name.Contains('/') ? Path.Combine(site.Repository, name) : Path.Combine(site.Website, "examples", "demos", name);
+
+        // The path a code bar names and the site links to on GitHub: relative to the repository, with forward slashes.
+        private static string ScriptFile(Site site, string name) => Path.GetRelativePath(site.Repository, Script(site, name)).Replace('\\', '/');
 
         private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
 
@@ -208,7 +219,7 @@ namespace SiteFrames.Pages {
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
                 if (demo.Script != null) {
-                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress);
+                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt);
                 } else {
                     (string executable, string arguments) = demo.Program!.Value;
                     string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
@@ -308,18 +319,23 @@ namespace SiteFrames.Pages {
                 if (demo.Script != null) {
                     (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Script(site, demo.Script)));
                     entry["powershell"] = shortForm;
-                    entry["powershellFile"] = "Website/examples/demos/" + demo.Script;
-                    if (demo.FullScript != null) {
-                        entry["powershellFull"] = Site.ReadText(Path.Combine(site.Repository, demo.FullScript));
-                        entry["powershellFullFile"] = demo.FullScript.Replace('\\', '/');
-                    } else {
-                        entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
+                    entry["powershellRepo"] = ScriptFile(site, demo.Script);
+                    entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
+                    // A published example script is also served from the site, so a reader can download it from here.
+                    if (demo.Script.Contains(Path.DirectorySeparatorChar) || demo.Script.Contains('/')) {
+                        string name = Path.GetFileName(demo.Script);
+                        // Byte for byte, so the file keeps its UTF-8 byte order mark (Windows PowerShell 5.1 needs it).
+                        string target = site.Static("examples/" + name);
+                        Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                        File.Copy(Script(site, demo.Script), target, true);
+                        site.Written.Add(Path.GetRelativePath(site.Website, target).Replace('\\', '/'));
+                        entry["download"] = "/examples/" + name;
                     }
                 }
                 if (demo.Script == null && demo.PowerShellTwin != null) {
                     (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Path.Combine(site.Repository, demo.PowerShellTwin)));
                     entry["powershell"] = shortForm;
-                    entry["powershellFile"] = demo.PowerShellTwin.Replace('\\', '/');
+                    entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');
                 }
                 if (demo.CSharp != null) {
@@ -331,7 +347,7 @@ namespace SiteFrames.Pages {
                         fullProgram += "\n\n" + Site.ReadText(Path.Combine(site.Repository, companion));
                     }
                     entry["csharpFull"] = SourceSnippets.Split(fullProgram).Full.TrimEnd('\n');
-                    entry["csharpFile"] = file.Replace('\\', '/');
+                    entry["csharpRepo"] = file.Replace('\\', '/');
                 }
                 demos[demo.Id] = entry;
             }

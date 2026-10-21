@@ -20,28 +20,11 @@ The module runs on PowerShell 7 on Linux and macOS, and the .NET library on ever
 
 {{< cm-demo id="login" heading="h2" >}}
 
-`Example-LoginOverview.ps1` prints host facts, health checks and disk use once and exits, so login stays fast. Every collector is cheap and falls back quietly, so a missing tool never blocks a login, and `-Sample` uses invented data so the layout can be tried anywhere.
+The script prints host facts, health checks and disk use once and exits, so login stays fast. Every collector is cheap and falls back quietly, so a missing tool never blocks a login, and `-Sample` uses invented data so the layout can be tried anywhere.
 
-## Show it when you log in
+## Why the login guards look like that
 
-Run it only for interactive SSH sessions with a terminal. With pwsh as the login shell, add this to `~/.config/powershell/Microsoft.PowerShell_profile.ps1`. `ssh host command` also loads the profile there, so the guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`:
-
-```powershell
-if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {
-    $env:CM_OVERVIEW_SHOWN = 1
-    & ~/bin/Example-LoginOverview.ps1
-}
-```
-
-With bash as the login shell, add this to the end of `~/.profile` (or `~/.bash_profile` when you have one, because bash then skips `~/.profile`):
-
-```bash
-case $- in
-    *i*) if [ -n "$SSH_TTY" ] && command -v pwsh >/dev/null; then
-             pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1
-         fi ;;
-esac
-```
+Step 3 above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
 
 Output that is not a terminal (`scp`, `rsync`, `ssh host command`) is skipped by both guards: the pwsh guard needs a terminal and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output is redirected anyway.
 

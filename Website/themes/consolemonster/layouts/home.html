@@ -81,9 +81,9 @@
             {{~ for t in path.code ~}}
             <div id="cm-code-{{ path.id }}-{{ for.index }}" role="tabpanel" aria-labelledby="cm-code-{{ path.id }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}>
               {{~ if t.source == "csharp" ~}}
-              {{~ code_lang = "csharp"; code_label = "C#"; code_file = pd.csharpFile; code_text = pd.csharp; code_full = pd.csharpFull ~}}
+              {{~ code_lang = "csharp"; code_label = "C#"; code_repo = pd.csharpRepo; code_text = pd.csharp; code_full = pd.csharpFull ~}}
               {{~ else if t.source == "powershell" ~}}
-              {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = pd.powershellFile; code_text = pd.powershell; code_full = pd.powershellFull ~}}
+              {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = pd.powershellRepo; code_text = pd.powershell; code_full = pd.powershellFull ~}}
               {{~ else ~}}
               {{~ code_lang = t.lang; code_label = t.label; code_text = t.text ~}}
               {{~ end ~}}

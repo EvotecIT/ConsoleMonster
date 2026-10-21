@@ -36,6 +36,23 @@ BeforeAll {
     $script:ModulePath = Join-Path $script:RepositoryRoot 'Module\ConsoleMonster.psd1'
     $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
+    # Examples import the module by name (Import-Module ConsoleMonster), as a reader's copy would. A link named
+    # ConsoleMonster to this repository's Module folder, first on PSModulePath in each child, makes that name load the
+    # repository build instead of an installed version. ConsoleMonster.PowerShell is linked beside it because the module's
+    # development loader looks for the cmdlet binaries at $PSScriptRoot\..\ConsoleMonster.PowerShell\bin.
+    $script:ModuleLinkRoot = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-modules-' + $PID)
+    $script:ModuleLinks = @(
+        @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster'; Target = Join-Path $script:RepositoryRoot 'Module' }
+        @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster.PowerShell'; Target = Join-Path $script:RepositoryRoot 'ConsoleMonster.PowerShell' }
+    )
+    $null = New-Item -ItemType Directory -Force -Path $script:ModuleLinkRoot
+    $linkType = if ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) { 'Junction' } else { 'SymbolicLink' }
+    foreach ($link in $script:ModuleLinks) {
+        if (-not (Test-Path -LiteralPath $link.Path)) {
+            $null = New-Item -ItemType $linkType -Path $link.Path -Value $link.Target
+        }
+    }
+
     # Primary PowerShell examples are written in the cmdlet form. These patterns are the .NET form: type names, constructors,
     # discarded method results and the widgets' add/write/set methods.
     $script:ForbiddenPatterns = [ordered] @{
@@ -173,6 +190,13 @@ BeforeAll {
 }
 
 Describe 'Examples run headless' -Tag 'Examples' {
+    AfterAll {
+        # Directory.Delete without recursion removes the link itself and never the repository folder it points to.
+        foreach ($link in $script:ModuleLinks) {
+            if (Test-Path -LiteralPath $link.Path) { [IO.Directory]::Delete($link.Path, $false) }
+        }
+        if (Test-Path -LiteralPath $script:ModuleLinkRoot) { [IO.Directory]::Delete($script:ModuleLinkRoot, $false) }
+    }
     It '<Name> runs without errors' -ForEach $script:ExampleRuns {
         $case = $script:ExampleCases[$Name]
         if ($null -eq $case) { $case = @{} }
@@ -193,7 +217,9 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
-Import-Module '$script:ModulePath' -Force
+`$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
+Import-Module ConsoleMonster -Force
+if (@(Get-Module ConsoleMonster).Count -ne 1 -or (Get-Command Write-ConsoleWidget).DLL -notlike '*cm-example-modules-*') { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $keys
 $screen
 Set-Location -LiteralPath '$(Split-Path -Parent $Path)'

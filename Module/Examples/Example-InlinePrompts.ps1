@@ -8,7 +8,7 @@
 # scrollback as one line, and the chosen objects (not strings) come back. Pass the parameters to skip the prompts;
 # in CI or with -NonInteractive the defaults are used, or an error names the parameter to pass.
 # The data is invented.
-Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+Import-Module ConsoleMonster
 
 $components = @(
     [pscustomobject] @{ Name = 'Web front end'; Id = 'web'; Area = 'Applications'; Summary = 'IIS site and static files'; Size = '42 MB' }

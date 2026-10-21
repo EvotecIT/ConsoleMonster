@@ -1,4 +1,4 @@
-﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
+﻿Import-Module ConsoleMonster
 
 # A parallel assessment run, live: every server is processed in its own runspace (4 at a time).
 # Each runspace updates its lane, records rule results and writes to the log with Write-Host / Write-Warning.

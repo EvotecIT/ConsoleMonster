@@ -5,7 +5,7 @@
 # Rich text everywhere: multicolour cells and headers, cards and tree labels, coloured lane names in a live dashboard,
 # Write-ConsoleText next to Write-Color, padding, centring and gradients, an updating status line and log files.
 # The data is synthetic.
-Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+Import-Module ConsoleMonster
 
 function Show([string] $Name) { $Part -in 'All', $Name }
 

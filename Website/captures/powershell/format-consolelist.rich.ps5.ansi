@@ -1,6 +1,6 @@
-[?9001h[?1004h[?25l[2J[m[H]0;Administrator: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l[1mConsoleMonster.2.0.0.nupkg[22m
-  [38;2;139;143;154mKind      [mNuGet
-  [38;2;139;143;154mSize      [m1.41 [38;2;139;143;154mMB[m
-  [38;2;139;143;154mBuilt in  [m48 s
-  [38;2;139;143;154mSigned    [38;2;74;222;128m✓ yes[m
-  [38;2;139;143;154mPath      [mC:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg[8;1H[?25h[?9001l[?1004l
+[?9001h[?1004h[?25l[2J[m[1m[HConsoleMonster.2.0.0.nupkg[22m
+[38;2;139;143;154m[2CKind      [mNuGet
+[38;2;139;143;154m[2CSize      [m1.41[38;2;139;143;154m[1CMB[m
+[38;2;139;143;154m[2CBuilt in  [m48 s
+[38;2;139;143;154m[2CSigned    [38;2;74;222;128m✓ yes[m
+[38;2;139;143;154m[2CPath      [mC:\Support\GitHub\ConsoleMonster\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg[8;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l

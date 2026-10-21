@@ -49,20 +49,15 @@
     </div>
     <div class="cm-steps">
       <div>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-table.ps1"; code_text = ex["format-table"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-table.ps1"; code_text = ex["format-table"].script; code_full = ex["format-table"].scriptFull ~}}
         {{ include "code" }}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletable.ps1"; code_text = ex["format-consoletable"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletable.ps1"; code_text = ex["format-consoletable"].script; code_full = ex["format-consoletable"].scriptFull ~}}
         {{ include "code" }}
       </div>
       <div>
         <ul class="cm-points">
           {{~ for p in copy.format.points ~}}<li>{{ p }}</li>{{~ end ~}}
         </ul>
-        <details class="cm-source">
-          <summary>The data both scripts use</summary>
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "artifacts.ps1"; code_text = ex.artifacts.script ~}}
-          {{ include "code" }}
-        </details>
       </div>
     </div>
   </section>
@@ -77,12 +72,14 @@
         <h3>Format-List</h3>
         {{~ f = ex["format-list"].rich.ps7; screen_frame = f.frame; screen_title = "Format-List"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-List output" ~}}
         {{ include "screen" }}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-list.ps1"; code_text = ex["format-list"].script; code_full = ex["format-list"].scriptFull ~}}
+        {{ include "code" }}
       </div>
       <div>
         <h3>Format-ConsoleList</h3>
         {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Format-ConsoleList"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-ConsoleList output" ~}}
         {{ include "screen" }}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script; code_full = ex["format-consolelist"].scriptFull ~}}
         {{ include "code" }}
       </div>
     </div>
@@ -93,7 +90,7 @@
         {{ include "screen" }}
       </div>
       <div>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletree.ps1"; code_text = ex["format-consoletree"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletree.ps1"; code_text = ex["format-consoletree"].script; code_full = ex["format-consoletree"].scriptFull ~}}
         {{ include "code" }}
       </div>
     </div>

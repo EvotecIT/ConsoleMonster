@@ -67,7 +67,11 @@ namespace SiteFrames.Pages {
             JsonObject examples = new JsonObject();
             List<string> problems = new List<string>();
             foreach (Run run in Runs()) {
-                JsonObject example = examples[run.Id] as JsonObject ?? new JsonObject { ["script"] = Site.ReadText(Twins.Script(site, "powershell", run.Id)) };
+                JsonObject? example = examples[run.Id] as JsonObject;
+                if (example == null) {
+                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Twins.Script(site, "powershell", run.Id)));
+                    example = new JsonObject { ["script"] = shortForm, ["scriptFull"] = WidgetsPage.Longer((shortForm, full)) };
+                }
                 examples[run.Id] = example;
                 JsonObject variant = new JsonObject();
                 foreach (PowerShellHost host in run.Hosts) {
@@ -84,7 +88,6 @@ namespace SiteFrames.Pages {
                 }
                 example[run.Variant] = variant;
             }
-            examples["artifacts"] = new JsonObject { ["script"] = Site.ReadText(Twins.Script(site, "powershell", "artifacts")) };
             site.WriteJson(site.Data("powershell"), new JsonObject {
                 ["examples"] = examples,
                 ["families"] = Families(site)

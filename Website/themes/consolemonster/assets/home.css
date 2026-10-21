@@ -75,8 +75,14 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 .cm-ribbon--home .cm-window__frame { width: auto; }
 .cm-section__source { margin: var(--cm-space-4) 0 var(--cm-space-6); color: var(--cm-muted); font-size: 14px; }
 .cm-compare--live { margin-top: var(--cm-space-2); align-items: start; }
-.cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 12px; }
-.cm-compare--live .cm-stream { --cm-stream-height: 480px; }
+/* The live comparison: the dashboard, then the same run as stream output, one above the other at the full content
+   width, so each frame fits its columns (110 and 100) without scrolling, and the stream shows every line it wrote. */
+.cm-compare.cm-compare--live { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-7); justify-items: center; }
+.cm-compare--live > * { width: fit-content; max-width: 100%; min-width: 0; }
+.cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 14px; }
+/* The stream shows how the run ends (the summary table) at a fixed height; the earlier lines fade out at the top instead
+   of scrolling inside the frame. */
+.cm-compare--live .cm-stream .cm-window__body { max-height: 560px; overflow-x: auto; overflow-y: hidden; -webkit-mask-image: linear-gradient(transparent, #000 72px); mask-image: linear-gradient(transparent, #000 72px); }
 
 @media (max-width: 1080px) {
   .cm-hero__take, .cm-split, .cm-split--narrow, .cm-twins { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }

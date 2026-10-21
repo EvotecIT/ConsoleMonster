@@ -128,6 +128,33 @@ The site is set in the medium it documents: a terminal cell grid.
   `data/copy.json`. No all-caps labels, no numbered markers unless the content is a sequence, no arrows on links, and no
   numbers that are not in the repository or measured by the tool.
 
+## The site is self-sufficient
+
+Every page lets a visitor do the thing without leaving the site: paste this, do this, then this, and this is the code
+to run.
+
+- **The code is on the page.** Complete, runnable code for what the page shows, PowerShell first and C# second, with Copy
+  and the setup it needs (`Install-Module`/`Import-Module`, `using` and `dotnet add package`, the profile line, the
+  `dotnet new` command). Lead with the essential widget calls; the whole program is under "Full program".
+- **The shown code is the code that made the frame.** Every frame and recording comes from running the exact script or
+  program the page shows, complete: `Import-Module ConsoleMonster` (or the `using` lines), its data defined at the top,
+  no `. .\shared.ps1`. Anything only the recording needs (scripted keys, a fixed screen size, a typed `$ ssh` line before a
+  script, the repository build of the module) lives in the tool, never in the shown code: the capture runner puts a link
+  to this repository's `Module` folder first on PSModulePath, so `Import-Module ConsoleMonster` loads the repository build
+  (`Capture/PowerShellRunner.cs`; the module's example test does the same). A demo can run a published script with
+  arguments (`Script`, `Arguments`, `Prompt` in `Pages/DemosPage.cs`); a published script is also served from the site
+  under `/examples/` so steps can download it from here. `SourceSnippets` has no way to hide code from the full form.
+- **No repository paths in shown code.** Never an `&` call into the repository, a `../` path, a repository folder name or
+  `artifacts.ps1`. Code bars name the file only; `*Repo` keys (`powershellRepo`, `csharpRepo`) or `code_repo` in a
+  template add the quiet "View on GitHub" link. `tools/SiteFrames/CodeGuard.cs` fails the render when a string in
+  `data/*.json` (other than frames and links) or a fenced block in `content/**/*.md` reaches into the repository.
+- **Steps are steps.** Where a page describes doing something (install, enable in the profile, run at login, host in a
+  generic host or ASP.NET, record and replay), it gives numbered, copyable steps. Demos do this through
+  `copy.json` `demos.<id>.use.steps` (a sentence and the code for each step).
+- **The result is shown.** The frame or recording beside the code is what that code produces.
+- **No dead ends.** Every guide and docs page ends with what to try next, linked.
+- **GitHub is secondary.** A link to the repository is a "View on GitHub" extra (`use.github`), never the only way in.
+
 ## Pages
 
 - `content/pages/`: home, widgets, tables, live, interactive, powershell, benchmarks, 404 and the two chrome pages.

@@ -62,10 +62,16 @@ namespace SiteFrames.Capture {
             return env;
         }
 
-        /// <summary>Runs a script and returns the raw VT stream with its timing. With <paramref name="allowErrors"/> errors are shown and the run goes on (demos that fail on purpose); <paramref name="showProgress"/> keeps progress records (the progress demo).</summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false) {
+        /// <summary>
+        /// Runs a script and returns the raw VT stream with its timing. With <paramref name="allowErrors"/> errors are shown and
+        /// the run goes on (demos that fail on purpose); <paramref name="showProgress"/> keeps progress records (the progress
+        /// demo). <paramref name="arguments"/> are passed to the script as a reader would type them (only its public
+        /// parameters). <paramref name="prompt"/> is a command line the recording shows typed before the script runs (such as
+        /// <c>ssh deploy@app-web-03</c>); it belongs to the recording, so the shown script never contains it.
+        /// </summary>
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
-            string module = Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1");
+            string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
             StringBuilder sb = new StringBuilder();
             sb.Append(allowErrors ? "$ErrorActionPreference = 'Continue'\n" : "$ErrorActionPreference = 'Stop'\n");
@@ -74,9 +80,22 @@ namespace SiteFrames.Capture {
             // Built-in formatting (Format-Table) follows the thread culture; pin it like CONSOLEMONSTER_CULTURE pins ConsoleMonster.
             sb.Append("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n");
             sb.Append("[System.Threading.Thread]::CurrentThread.CurrentUICulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n");
-            sb.Append("Import-Module '").Append(module.Replace("'", "''")).Append("' -Force\n");
+            // Scripts import the module by name, as a reader's copy does; the link first on PSModulePath makes that name load
+            // this repository's build. The check stops a capture that would record an installed version instead.
+            sb.Append("$env:PSModulePath = '").Append(modules.Replace("'", "''")).Append("' + [IO.Path]::PathSeparator + $env:PSModulePath\n");
+            sb.Append("Import-Module ConsoleMonster -Force\n");
+            sb.Append("$cmdlets = (Get-Command Write-ConsoleWidget -ErrorAction SilentlyContinue).DLL\n");
+            sb.Append("if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not $cmdlets -or -not $cmdlets.StartsWith('").Append(modules.Replace("'", "''")).Append("', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }\n");
             sb.Append("Set-Location -LiteralPath '").Append(directory.Replace("'", "''")).Append("'\n");
-            sb.Append(". '").Append(script.Replace("'", "''")).Append("'\n");
+            if (prompt != null) {
+                sb.Append("Write-Host '$ ").Append(prompt.Replace("'", "''")).Append("' -ForegroundColor Yellow\n");
+                sb.Append("Start-Sleep -Milliseconds 900\n");
+            }
+            sb.Append(". '").Append(script.Replace("'", "''")).Append("'");
+            if (!string.IsNullOrEmpty(arguments)) {
+                sb.Append(' ').Append(arguments);
+            }
+            sb.Append('\n');
             if (allowErrors) {
                 sb.Append("exit 0\n");
             }
@@ -89,6 +108,52 @@ namespace SiteFrames.Capture {
             }
         }
 
+        /// <summary>
+        /// A folder of links into this repository (junctions on Windows): <c>ConsoleMonster</c> to the <c>Module</c> folder, so
+        /// <c>Import-Module ConsoleMonster</c> in a shown script loads the repository build when the folder is first on
+        /// PSModulePath, and <c>ConsoleMonster.PowerShell</c> beside it, because the module's development loader looks for the
+        /// cmdlet binaries at <c>$PSScriptRoot\..\ConsoleMonster.PowerShell\bin</c>. Created once under the temporary folder and
+        /// reused.
+        /// </summary>
+        public static string ModuleLinkRoot(Site site) {
+            string root = Path.Combine(Path.GetTempPath(), "cmsite-modules");
+            Directory.CreateDirectory(root);
+            Link(Path.Combine(root, "ConsoleMonster"), Path.Combine(site.Repository, "Module"));
+            Link(Path.Combine(root, "ConsoleMonster.PowerShell"), Path.Combine(site.Repository, "ConsoleMonster.PowerShell"));
+            return root;
+        }
+
+        private static void Link(string link, string target) {
+            if (Directory.Exists(link)) {
+                DirectoryInfo info = new DirectoryInfo(link);
+                if (info.LinkTarget != null && string.Equals(Path.GetFullPath(info.LinkTarget).TrimEnd('\\', '/'), Path.GetFullPath(target).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase)) {
+                    return;
+                }
+                if (info.LinkTarget == null) {
+                    throw new InvalidOperationException(link + " exists and is not a link; remove it.");
+                }
+                // A link left by another checkout: remove the link itself (never recursively, so the target is untouched).
+                Directory.Delete(link, false);
+            }
+            if (OperatingSystem.IsWindows()) {
+                System.Diagnostics.ProcessStartInfo mklink = new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c mklink /J \"" + link + "\" \"" + target + "\"") {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(mklink)!) {
+                    process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+                    if (process.ExitCode != 0) {
+                        throw new InvalidOperationException("Could not link " + link + " to " + target + ": " + error);
+                    }
+                }
+            } else {
+                Directory.CreateSymbolicLink(link, target);
+            }
+        }
         /// <summary>The VT bytes of a run, joined.</summary>
         public static byte[] Bytes(List<OutputChunk> chunks) {
             using (MemoryStream stream = new MemoryStream()) {

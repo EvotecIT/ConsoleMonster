@@ -196,6 +196,14 @@
 .cm-demo__use-title { margin: 0; font: 700 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-demo__use .cm-code pre { font-size: 12.5px; }
 .cm-demo__refs { margin: 0; font-size: 14px; color: var(--cm-ink-2); }
+.cm-demo__refs--quiet { font-size: 13px; color: var(--cm-muted); }
+.cm-demo__refs--quiet a { color: inherit; }
+/* Numbered steps: a sentence, then the code to paste for that step. */
+.cm-demo__steps { display: grid; gap: var(--cm-space-4); margin: 0; padding: 0; list-style: none; counter-reset: cm-step; }
+.cm-demo__steps > li { display: grid; gap: var(--cm-space-2); min-width: 0; counter-increment: cm-step; }
+.cm-demo__steps > li > p { position: relative; margin: 0; padding-left: 30px; color: var(--cm-ink-2); font-size: 14.5px; line-height: 1.5; }
+.cm-demo__steps > li > p code { padding: 1px 5px; border-radius: 4px; background: var(--cm-hover); color: var(--cm-ink); font: 500 13px/1.4 var(--cm-mono); overflow-wrap: anywhere; }
+.cm-demo__steps > li > p::before { content: counter(cm-step); position: absolute; left: 0; top: 0; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--cm-accent); color: var(--cm-accent-ink); font: 700 12px/1 var(--cm-mono); }
 .cm-prose .cm-demo { margin: var(--cm-space-6) 0 var(--cm-space-7); }
 /* Inside a demo the grid sets every gap: prose margins on its window, code blocks, tabs and paragraphs would stack on top. */
 .cm-prose .cm-demo figure, .cm-prose .cm-demo .cm-code, .cm-prose .cm-demo .cm-tabset, .cm-prose .cm-demo p { margin: 0; }

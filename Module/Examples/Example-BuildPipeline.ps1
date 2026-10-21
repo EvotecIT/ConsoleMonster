@@ -1,4 +1,4 @@
-﻿Import-Module "$PSScriptRoot\..\ConsoleMonster.psd1" -Force
+﻿Import-Module ConsoleMonster
 
 # A module build pipeline: phases, steps with timings, module facts and the tool output.
 # The script runs in a runspace ConsoleMonster owns: Write-Host, Write-Warning and Write-Verbose land in the log

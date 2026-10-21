@@ -128,6 +128,7 @@ namespace SiteFrames {
             site.Write(site.Static("assets/player/player.css"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerStyles", "player.css") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerStyles);
             SiteImages.Render(site);
             WriteRuntimeVersion(site);
+            CodeGuard.Check(site);
             string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
             site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");
