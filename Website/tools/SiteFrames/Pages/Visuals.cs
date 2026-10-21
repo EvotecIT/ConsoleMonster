@@ -30,7 +30,7 @@ namespace SiteFrames.Pages {
                 ["tables"] = theme => TablesPage.Run(site, "dns", 80, theme),
                 ["live"] = LiveFrame,
                 ["interactive"] = theme => InteractivePage.Thumbnail(site, theme),
-                ["powershell"] = theme => Site.Render(Catalog.Terminal.Capture(Catalog.PageExamples.Controllers), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
+                ["powershell"] = theme => HomePage.Run(site, 80, theme),
                 ["docs"] = theme => Site.Render(Profile(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
                 ["guides"] = theme => Site.Render(Migration(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
                 ["api"] = theme => Site.Render(Namespaces(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),

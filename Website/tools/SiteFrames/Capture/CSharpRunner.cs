@@ -73,11 +73,13 @@ namespace SiteFrames.Capture {
         /// ConsoleMonster.dll), so a recording can run it as a real process in a pseudo console: <c>dotnet &lt;name&gt;.dll</c>.
         /// Returns the path of the program's dll.
         /// </summary>
-        public static string Build(string path, string folder) {
+        public static string Build(string path, string folder, params string[] companions) => Build(path, folder, Path.GetFileNameWithoutExtension(path), companions);
+
+        /// <summary>Builds a program of several files (the first holds the top-level statements) under a chosen name.</summary>
+        public static string Build(string path, string folder, string name, params string[] companions) {
             Directory.CreateDirectory(folder);
-            string name = Path.GetFileNameWithoutExtension(path);
             string dll = Path.Combine(folder, name + ".dll");
-            File.WriteAllBytes(dll, Emit(path, Site.ReadText(path), name));
+            File.WriteAllBytes(dll, Emit(path, Site.ReadText(path), name, companions));
             string version = Environment.Version.Major + "." + Environment.Version.Minor + ".0";
             File.WriteAllText(Path.Combine(folder, name + ".runtimeconfig.json"),
                 "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net" + Environment.Version.Major + "." + Environment.Version.Minor + "\",\n    \"framework\": { \"name\": \"Microsoft.NETCore.App\", \"version\": \"" + version + "\" }\n  }\n}\n");
@@ -85,14 +87,18 @@ namespace SiteFrames.Capture {
             return dll;
         }
 
-        private static byte[] Emit(string path, string code, string? assemblyName = null) {
+        private static byte[] Emit(string path, string code, string? assemblyName = null, string[]? companions = null) {
             // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
             CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.CSharp12);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
             SyntaxTree implicitUsings = CSharpSyntaxTree.ParseText(ImplicitUsings, parse, "GlobalUsings.g.cs");
+            List<SyntaxTree> trees = new List<SyntaxTree> { tree, implicitUsings };
+            foreach (string companion in companions ?? Array.Empty<string>()) {
+                trees.Add(CSharpSyntaxTree.ParseText(Site.ReadText(companion), parse, companion));
+            }
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName ?? "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
-                new[] { tree, implicitUsings },
+                trees,
                 References,
                 new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
             using (MemoryStream stream = new MemoryStream()) {

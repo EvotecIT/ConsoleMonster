@@ -62,10 +62,10 @@ namespace SiteFrames.Pages {
 
             // One composition in the three built-in themes.
             foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark) }) {
-                CellBuffer frame = Site.Render(Figures.Assessment(), 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
+                CellBuffer frame = Figures.Summary(site, 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
-                Figures.Add(id, new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data });
+                Figures.Add(id, Figures.WithProgram(new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
             }
 
             // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.

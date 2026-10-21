@@ -21,7 +21,7 @@
               "tab": "Your session",
               "lang": "powershell",
               "label": "PowerShell",
-              "text": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# Keep it on in every session: prints the lines for your profile.\nEnable-ConsoleFormatting -ProfileSnippet"
+              "text": "# 1. Install once\nInstall-Module ConsoleMonster -Scope CurrentUser\n\n# 2. Turn it on for this session\nEnable-ConsoleFormatting\n\n# 3. Keep it on: paste the lines this prints into your profile (notepad $PROFILE), then open a new session\nEnable-ConsoleFormatting -ProfileSnippet"
             },
             {
               "tab": "The recorded script",
@@ -37,16 +37,16 @@
           "line": "Full console applications: menus, forms, live dashboards and results, from one library.",
           "url": "/interactive/",
           "linkText": "Menus, forms and apps",
-          "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
-          "codeTitle": "The app's main program",
+          "note": "A whole console application, recorded from its program in the C# tab with dotnet run -- --demo, pressing its own keys: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
+          "codeTitle": "The app's program",
           "code": [
-            {
-              "tab": "C#",
-              "source": "csharp"
-            },
             {
               "tab": "PowerShell",
               "source": "powershell"
+            },
+            {
+              "tab": "C#",
+              "source": "csharp"
             }
           ]
         }
@@ -176,7 +176,7 @@
     ],
     "twins": {
       "title": "One engine for C# and PowerShell",
-      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
+      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the script on Windows PowerShell 5.1 and PowerShell 7 and the C# program on .NET 8, each in a 92-column console, and every cell they drew was compared."
     },
     "tiers": {
       "title": "Readable on every console",
@@ -217,7 +217,7 @@
           "value": "0"
         }
       ],
-      "source": "The stress test in ConsoleMonster.Examples: 32 workers, with stray Console.WriteLine calls. Figures from the ConsoleMonster 2.0 pull request.",
+      "source": "Measured by the stress test program during its recording: 32 workers, with stray Console.WriteLine calls.",
       "richTitle": "On a console",
       "streamTitle": "In CI and redirected output"
     },

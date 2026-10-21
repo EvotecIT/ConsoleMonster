@@ -7,7 +7,8 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
-using ConsoleMonster.Examples.Showcases;
+using System.IO;
+using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>Single frames used across the site: the gallery's tier ribbon, the not-found page and figures in docs and guides.</summary>
@@ -29,20 +30,18 @@ namespace SiteFrames.Pages {
 
         public static string GlyphLabel(GlyphTier tier) => tier == GlyphTier.Full ? "Full" : tier == GlyphTier.Basic ? "Basic" : "ASCII";
 
-        /// <summary>One small assessment summary, the composition the gallery stage shows at four terminal profiles.</summary>
-        public static IWidget Assessment() {
-            Phases phases = new Phases()
-                .Set("Discover", StatusKind.Pass, null, "2.1s")
-                .Set("Collect", StatusKind.Pass, null, "14s")
-                .Set("Evaluate", StatusKind.Running, null, "64%");
-            StackedBar results = new StackedBar()
-                .Add("Passed", 412, ThemeToken.Pass)
-                .Add("Warnings", 51, ThemeToken.Warn)
-                .Add("Failed", 23, ThemeToken.Fail)
-                .Add("Skipped", 14, ThemeToken.Skip);
-            Sparkline rate = new Sparkline { Label = "rules/s", Unit = "/s" };
-            rate.AddRange(new double[] { 18, 21, 19, 24, 27, 26, 31, 29, 34, 38, 36, 41, 39, 44, 47, 45, 50, 48, 53, 57 });
-            return new Panel(new Rows(phases, results, rate), "[bold]Nightly checks[/]") { Caption = "lab01.contoso.com" };
+        /// <summary>The assessment summary program (examples/home/summary.cs), the composition shown at four terminal profiles and in each theme.</summary>
+        public static string SummaryProgram(Site site) => Path.Combine(site.Website, "examples", "home", "summary.cs");
+
+        /// <summary>What the summary program prints at a width, tier and theme.</summary>
+        public static CellBuffer Summary(Site site, int width, ColorDepth depth, GlyphTier glyphs, ITheme theme) => CSharpRunner.Run(SummaryProgram(site), width, depth, glyphs, theme);
+
+        /// <summary>Adds a program's code to a figure: the short form, the whole program and its file name.</summary>
+        public static JsonObject WithProgram(JsonObject figure, string path) {
+            (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(path));
+            figure["csharp"] = shortForm;
+            figure["csharpFull"] = full;
+            return figure;
         }
 
         public static void Render(Site site) {
@@ -54,7 +53,7 @@ namespace SiteFrames.Pages {
                 (ColorDepth.None, GlyphTier.Ascii)
             };
             foreach ((ColorDepth depth, GlyphTier glyphs) in profiles) {
-                CellBuffer dark = Site.Render(Assessment(), 40, depth, glyphs, Theme.Dark);
+                CellBuffer dark = Summary(site, 40, depth, glyphs, Theme.Dark);
                 JsonObject frame = site.Frame(dark, null, depth);
                 string label = TierLabel(depth) + (depth == ColorDepth.None ? "" : " colour") + ", " + GlyphLabel(glyphs) + " glyphs";
                 tiers.Add(new JsonObject {
@@ -64,16 +63,16 @@ namespace SiteFrames.Pages {
                     ["frame"] = frame
                 });
             }
-            Add("tier-ribbon", new JsonObject { ["tiers"] = tiers });
+            Add("tier-ribbon", WithProgram(new JsonObject { ["tiers"] = tiers }, SummaryProgram(site)));
 
-            Tree routes = new Tree("[bold]consolemonster.dev[/]");
-            routes.Add("/widgets/", StatusKind.Pass, "every widget, every tier");
-            routes.Add("/tables/", StatusKind.Pass, "width negotiation");
-            routes.Add("/live/", StatusKind.Pass, "recorded dashboards");
-            routes.Add("/powershell/", StatusKind.Pass, "cmdlets on 5.1 and 7");
-            routes.Add("/docs/", StatusKind.Pass, "install and configure");
-            routes.Add("this address", StatusKind.Fail, "no page here");
-            Add("not-found", Figure(site, "pwsh", "A tree of the site's main pages; this address is marked as failed.", routes, 56));
+            string notFound = Path.Combine(site.Website, "examples", "home", "not-found.cs");
+            JsonObject figure = new JsonObject {
+                ["title"] = "pwsh",
+                ["label"] = "A tree of the site's main pages; this address is marked as failed.",
+                ["meta"] = new JsonArray("56 columns", "24-bit", "Full"),
+                ["frame"] = site.Frame(CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light))
+            };
+            Add("not-found", WithProgram(figure, notFound));
         }
 
         public static void Write(Site site) => site.WriteJson(site.Data("figures"), All);

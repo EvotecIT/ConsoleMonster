@@ -128,9 +128,9 @@
     </p>
   </div>
   <div class="cm-twins__code">
-    {{~ code_lang = "csharp"; code_label = "C#"; code_text = c.csharp; code_full = c.csharpFull ~}}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = c.powershellFile; code_text = c.powershell; code_full = c.powershellFull ~}}
     {{ include "code" }}
-    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = c.powershell; code_full = c.powershellFull ~}}
+    {{~ code_lang = "csharp"; code_label = "C#"; code_file = c.csharpFile; code_text = c.csharp; code_full = c.csharpFull ~}}
     {{ include "code" }}
   </div>
 </section>
@@ -144,11 +144,18 @@
     </ul>
     <p><a href="/widgets/">Switch tiers on every widget</a></p>
   </div>
-  <div class="cm-ribbon cm-ribbon--home">
-    {{~ for t in ribbon.tiers ~}}
-    {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
-    {{ include "screen" }}
-    {{~ end ~}}
+  <div>
+    <div class="cm-ribbon cm-ribbon--home">
+      {{~ for t in ribbon.tiers ~}}
+      {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
+      {{ include "screen" }}
+      {{~ end ~}}
+    </div>
+    <details class="cm-source">
+      <summary>The program behind all four</summary>
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = "Program.cs"; code_text = ribbon.csharp; code_full = ribbon.csharpFull ~}}
+      {{ include "code" }}
+    </details>
   </div>
 </section>
 </div>
@@ -179,7 +186,7 @@
     <div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>
     {{~ end ~}}
   </dl>
-  <p class="cm-section__source">{{ copy.live.source }} <a href="/benchmarks/">See the benchmarks</a>.</p>
+  <p class="cm-section__source">{{ copy.live.source }} <a href="/live/">The programs and their run steps</a> · <a href="/benchmarks/">the benchmarks</a>.</p>
   <div class="cm-compare cm-compare--live">
     <div>
       <h3>{{ copy.live.richTitle }}</h3>

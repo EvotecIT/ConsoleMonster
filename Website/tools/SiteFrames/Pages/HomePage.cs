@@ -3,15 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using ConsoleMonster.Layout;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Styling;
 using SiteFrames.Capture;
-using SiteFrames.Catalog;
 
 namespace SiteFrames.Pages {
-    /// <summary>The home page: one table written from C# and from PowerShell, at two widths, and the module's facts.</summary>
+    /// <summary>
+    /// The home page: one table from a complete C# program (<c>Website/examples/home/controllers.cs</c>, run here) and from its
+    /// PowerShell twin (captured on both hosts and compared cell by cell), at two widths, and the module's facts.
+    /// </summary>
     internal static class HomePage {
         public const int Wide = 92;
         public const int Narrow = 44;
+
+        public static string ProgramPath(Site site) => Path.Combine(site.Website, "examples", "home", "controllers.cs");
+
+        /// <summary>What the controllers program prints at a width, in a theme.</summary>
+        public static CellBuffer Run(Site site, int width, ITheme theme) => CSharpRunner.Run(ProgramPath(site), width, ColorDepth.TrueColor, GlyphTier.Full, theme);
 
         public static void Capture(Site site) {
             Twins.Capture(site, "home", "controllers", Wide);
@@ -19,17 +28,20 @@ namespace SiteFrames.Pages {
 
         public static void Render(Site site, JsonObject hosts) {
             List<string> problems = new List<string>();
-            Func<IWidget> build = () => Catalog.Terminal.Capture(PageExamples.Controllers);
-            string source = Path.Combine(site.Tool, "Catalog", "PageExamples.cs");
+            string program = ProgramPath(site);
+            (string csharp, string csharpFull) = SourceSnippets.Program(Site.ReadText(program));
+            CellBuffer dark = Run(site, Wide, Theme.Dark);
             JsonObject controllers = new JsonObject {
                 ["width"] = Wide,
-                ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, "Controllers")).Short,
-                ["csharpFull"] = WidgetsPage.Longer(SourceSnippets.Split(SourceSnippets.Get(source, "Controllers"))),
+                ["csharp"] = csharp,
+                ["csharpFull"] = csharpFull,
+                ["csharpFile"] = "Program.cs",
                 ["powershell"] = SourceSnippets.Program(Site.ReadText(Twins.Script(site, "home", "controllers"))).Short,
                 ["powershellFull"] = WidgetsPage.Longer(SourceSnippets.Program(Site.ReadText(Twins.Script(site, "home", "controllers")))),
-                ["frame"] = site.Frame(build, Wide, crop: true),
-                ["narrow"] = site.Frame(build, Narrow),
-                ["parity"] = Twins.Check(site, "home", "controllers", Wide, build, hosts, problems)
+                ["powershellFile"] = "controllers.ps1",
+                ["frame"] = site.Frame(Site.Crop(dark), Site.Crop(Run(site, Wide, Theme.Light))),
+                ["narrow"] = site.Frame(Run(site, Narrow, Theme.Dark), Run(site, Narrow, Theme.Light)),
+                ["parity"] = Twins.Check(site, "home", "controllers", Wide, dark, hosts, problems)
             };
             string manifest = File.ReadAllText(Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1"));
             Match cmdlets = Regex.Match(manifest, @"CmdletsToExport\s*=\s*@\(([^)]*)\)");

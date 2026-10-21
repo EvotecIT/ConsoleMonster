@@ -79,6 +79,12 @@ namespace SiteFrames.Pages {
             /// </summary>
             public string? CSharpProgram { get; set; }
 
+            /// <summary>
+            /// Arguments for recording <see cref="CSharpProgram"/> itself (with no <see cref="Script"/>): the program and its
+            /// companions are built as a reader's project would build them and run with <c>dotnet</c>.
+            /// </summary>
+            public string? ProgramArguments { get; set; }
+
             /// <summary>Additional source files needed by the full C# program, relative to the repository.</summary>
             public string[] CSharpCompanions { get; set; } = Array.Empty<string>();
 
@@ -114,8 +120,9 @@ namespace SiteFrames.Pages {
             // recorded from the Release build driving itself with scripted keys on a fixed clock and seed. The demo goes on to
             // the history and quits, which clears the console; the replay ends on the results instead.
             yield return new Demo("app", "Fleet health check", 140, 40) {
-                Program = (Path.Combine("ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe"), "fleet --demo"),
-                CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), "Build", null),
+                CSharpProgram = "fleet.cs",
+                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetData.cs") },
+                ProgramArguments = "--demo",
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
                 Fps = 8,
                 Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") },
@@ -211,7 +218,9 @@ namespace SiteFrames.Pages {
             return true;
         }
 
-                private static string Script(Site site, string name) => name.Contains(Path.DirectorySeparatorChar) || name.Contains('/') ? Path.Combine(site.Repository, name) : Path.Combine(site.Website, "examples", "demos", name);
+                private static string[] Companions(Site site, Demo demo) => Array.ConvertAll(demo.CSharpCompanions, c => Path.Combine(site.Repository, c));
+
+        private static string Script(Site site, string name) => name.Contains(Path.DirectorySeparatorChar) || name.Contains('/') ? Path.Combine(site.Repository, name) : Path.Combine(site.Website, "examples", "demos", name);
 
         // The path a code bar names and the site links to on GitHub: relative to the repository, with forward slashes.
         private static string ScriptFile(Site site, string name) => Path.GetRelativePath(site.Repository, Script(site, name)).Replace('\\', '/');
@@ -239,6 +248,13 @@ namespace SiteFrames.Pages {
                 List<OutputChunk> chunks;
                 if (demo.Script != null) {
                     chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
+                } else if (demo.ProgramArguments != null) {
+                    string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id);
+                    if (Directory.Exists(work)) {
+                        Directory.Delete(work, true);
+                    }
+                    string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
+                    chunks = PseudoConsole.Run("dotnet \"" + dll + "\" " + demo.ProgramArguments, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
                 } else {
                     (string executable, string arguments) = demo.Program!.Value;
                     string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
@@ -370,11 +386,23 @@ namespace SiteFrames.Pages {
                 }
                 if (demo.CSharpProgram != null) {
                     string program = Script(site, demo.CSharpProgram);
-                    CSharpRunner.Compile(program);
+                    if (demo.CSharpCompanions.Length == 0) {
+                        CSharpRunner.Compile(program);
+                    } else {
+                        CSharpRunner.Build(program, Path.Combine(Path.GetTempPath(), "cmsite-check-" + demo.Id), demo.Id, Companions(site, demo));
+                    }
                     (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(program));
                     entry["csharp"] = shortForm;
                     entry["csharpFull"] = full;
                     entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
+                    // The other files of a multi-file program, each shown whole with its name.
+                    JsonArray files = new JsonArray();
+                    foreach (string companion in Companions(site, demo)) {
+                        files.Add(new JsonObject { ["file"] = Path.GetFileName(companion), ["code"] = Site.ReadText(companion), ["codeRepo"] = Path.GetRelativePath(site.Repository, companion).Replace('\\', '/') });
+                    }
+                    if (files.Count > 0) {
+                        entry["csharpFiles"] = files;
+                    }
                 }
                 if (demo.CSharp != null) {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
