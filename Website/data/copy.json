@@ -223,7 +223,7 @@
     },
     "start": {
       "title": "Where to go next",
-      "body": "The gallery has {widgets} widget examples with their C# and PowerShell source, the module has {cmdlets} cmdlets with full help, and the .NET API is documented type by type.",
+      "body": "The gallery has {widgets} widget examples with their PowerShell and C# source, the module has {cmdlets} cmdlets with full help, and the .NET API is documented type by type.",
       "links": [
         {
           "title": "Widgets",
@@ -265,7 +265,7 @@
           "url": "/docs/",
           "visual": "docs",
           "key": 5,
-          "body": "Detection, themes, overrides, live sessions and recording."
+          "body": "Install first, then detection, themes, live sessions and recording."
         }
       ]
     }
@@ -319,31 +319,35 @@
     },
     "consoles": {
       "title": "The same command on other consoles",
-      "body": "Format-ConsoleTable from above, run again with the terminal profile overridden. The script does not change.",
+      "body": "Format-ConsoleTable from above, run again in a new session with the terminal profile overridden. The script does not change.",
       "variants": [
         {
           "id": "16-ascii",
           "host": "ps5",
           "title": "16 colours and ASCII glyphs",
-          "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii"
+          "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii",
+      "run": "$env:CONSOLEMONSTER_COLOR = '16'\n$env:CONSOLEMONSTER_GLYPHS = 'ascii'\npowershell -NoProfile -File .\\format-consoletable.ps1"
         },
         {
           "id": "nocolor",
           "host": "ps7",
           "title": "NO_COLOR",
-          "command": "NO_COLOR=1"
+          "command": "NO_COLOR=1",
+      "run": "$env:NO_COLOR = '1'\npwsh -NoProfile -File ./format-consoletable.ps1"
         },
         {
           "id": "plain",
           "host": "ps7",
           "title": "Plain mode",
-          "command": "CONSOLEMONSTER_MODE=plain"
+          "command": "CONSOLEMONSTER_MODE=plain",
+      "run": "$env:CONSOLEMONSTER_MODE = 'plain'\npwsh -NoProfile -File ./format-consoletable.ps1"
         },
         {
           "id": "narrow",
           "host": "ps7",
           "title": "A 56-column console",
-          "command": "56 columns"
+          "command": "56 columns",
+      "run": "# In a window 56 columns wide:\npwsh -NoProfile -File ./format-consoletable.ps1"
         }
       ]
     },
@@ -719,8 +723,9 @@
   "docsCatalog": {
     "label": "Documentation by topic",
     "layersTitle": "How the library is layered",
+    "startHere": "New here? Start with {install}: the PowerShell module or the .NET package, and a first table in each, in a few steps.",
     "groups": [
-      { "id": "start", "title": "Get started", "body": "Install, what gets detected, and how to pin or theme it.", "key": 1 },
+      { "id": "start", "title": "Get started", "body": "Install, the three ways to write C#, what gets detected, and how to pin or theme it.", "key": 1 },
       { "id": "live", "title": "Live output", "body": "Dashboards, runs that redraw, and recordings you can replay.", "key": 2 },
       { "id": "apps", "title": "Applications", "body": "Help, errors, progress, logging and a template to start from.", "key": 5 },
       { "id": "hosts", "title": "Hosts and shells", "body": "Unix terminals over SSH, and the grammar of the PowerShell module.", "key": 3 }

@@ -14,13 +14,24 @@ These features change how PowerShell's own output looks for the session, never w
 
 > The default output of `Enable-ConsoleFormatting` changes only objects that reach the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own. For ConsoleMonster's views, use `Format-ConsoleTable` or `Format-ConsoleList`.
 
-```powershell
-Enable-ConsoleFormatting                     # default output for files, processes, services, dictionaries...
-Enable-ConsoleFormatting -Feature ErrorView  # errors that reach the console
-Enable-ConsoleFormatting -Feature Progress   # Write-Progress drawn by ConsoleMonster
-Enable-ConsoleFormatting -Feature All
-Enable-ConsoleFormatting -ProfileSnippet     # prints the lines to keep it on in every session
-```
+1. Turn it on for this session, choosing the features you want:
+
+   ```powershell
+   Import-Module ConsoleMonster
+   Enable-ConsoleFormatting                     # default output for files, processes, services, dictionaries...
+   Enable-ConsoleFormatting -Feature ErrorView  # errors that reach the console
+   Enable-ConsoleFormatting -Feature Progress   # Write-Progress drawn by ConsoleMonster
+   Enable-ConsoleFormatting -Feature All        # all three
+   ```
+
+2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
+
+   ```powershell
+   if (-not (Test-Path -Path $PROFILE)) { $null = New-Item -ItemType File -Path $PROFILE -Force }
+   Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
+   ```
+
+3. Open a new session. `Disable-ConsoleFormatting` turns it off again for a session; remove the lines from `$PROFILE` to stop it for good.
 
 {{< cm-demo id="help" heading="h2" >}}
 

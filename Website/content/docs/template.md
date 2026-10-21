@@ -10,18 +10,35 @@ chips: [Native AOT]
 summary: "A console app with a menu, logging, the dashboard and native AOT."
 ---
 
-```bash
-dotnet new install ConsoleMonster.Templates
-dotnet new consolemonster -o MyTool
-cd MyTool
-dotnet run                 # the menu: a status report and how to run the service
-dotnet run -- serve        # the generic host with the live console dashboard (Ctrl+C stops it)
-dotnet publish -c Release -r win-x64   # one native executable (native AOT)
-```
+1. Install the template (the .NET 8 SDK or later):
+
+   ```bash
+   dotnet new install ConsoleMonster.Templates
+   ```
+
+2. Create an app from it:
+
+   ```bash
+   dotnet new consolemonster -o MyTool
+   cd MyTool
+   ```
+
+3. Run it: the menu first, then the service with its dashboard (Ctrl+C stops it):
+
+   ```bash
+   dotnet run
+   dotnet run -- serve
+   ```
+
+4. Publish one native executable (native AOT):
+
+   ```bash
+   dotnet publish -c Release -r win-x64
+   ```
 
 {{< cm-demo id="template" heading="h2" >}}
 
-The recording runs the template's own `Program.cs` against this repository's packages: the menu opens the status report and the service page, Exit leaves it, and `dotnet run -- serve` starts the host with its dashboard until Ctrl+C. When the output is redirected, the app prints the report instead of opening the menu.
+The recording runs the template's own `Program.cs`, built against the ConsoleMonster projects of the same source as this site, with the keys pressed for it: the menu opens the status report and the service page, Exit leaves it, and `dotnet run -- serve` starts the host with its dashboard until Ctrl+C. When the output is redirected, the app prints the report instead of opening the menu.
 
 | Option | Default | Meaning |
 | --- | --- | --- |

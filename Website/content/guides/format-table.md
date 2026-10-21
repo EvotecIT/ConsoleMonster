@@ -16,6 +16,8 @@ The three Format cmdlets take pipeline input like the built-in `Format-Table`, `
 - Without `-Property`, an object's DefaultDisplayPropertySet is used.
 
 ```powershell
+Import-Module ConsoleMonster
+
 Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
@@ -39,6 +41,6 @@ Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Exte
 
 Columns hide by priority and a footer names them; below 60 cells, when the minimum widths still do not fit, rows turn into cards titled with the key value. A single object renders as a record view.
 
-{{< cm-frame id="narrow" caption="`Format-ConsoleTable` from above in a 56-column console." >}}
+{{< cm-frame id="narrow" script="false" caption="`format-consoletable.ps1`, the second script at the top of this page, in a 56-column console." >}}
 
 The [tables page](/tables/) shows each behaviour at six widths, and the [PowerShell page](/powershell/) compares Format-List with Format-ConsoleList.

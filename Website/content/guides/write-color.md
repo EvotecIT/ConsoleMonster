@@ -7,6 +7,12 @@ order: 2
 
 `Write-ConsoleText` accepts the parameters and aliases of `Write-Color` from [PSWriteColor](https://github.com/EvotecIT/PSWriteColor). ConsoleMonster does not define a `Write-Color` or `wc` alias, so the two modules can be loaded in the same session.
 
+```powershell
+Install-Module ConsoleMonster -Scope CurrentUser
+Import-Module ConsoleMonster
+Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow
+```
+
 {{< cm-frame id="write-consoletext" script="true" caption="`Write-ConsoleText` on Windows PowerShell 5.1: pieces with colours, markup, tabs, spaces, padding with a character and a gradient." >}}
 
 ## Parameters

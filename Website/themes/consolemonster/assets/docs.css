@@ -45,6 +45,7 @@
    and how many pages it holds), then each group's heading and its cards: a miniature of what the page shows, the
    title, one line, and chips for the APIs it covers (the cards are the shared .cm-card in base.css). */
 .cm-docs--index { grid-template-columns: 220px minmax(0, 1fr); }
+.cm-catalog__start { margin: 0 0 var(--cm-space-5); max-width: 72ch; font-size: 1.0625rem; color: var(--cm-ink-2); }
 .cm-catalog__rail { margin: 0 0 var(--cm-space-7); }
 .cm-catalog__rail ul { display: flex; flex-wrap: wrap; gap: var(--cm-space-2); margin: 0; padding: 0; list-style: none; }
 .cm-catalog__rail a { display: inline-flex; align-items: center; gap: var(--cm-space-2); height: 36px; padding: 0 12px; border: 1px solid var(--cm-line); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 13.5px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; }

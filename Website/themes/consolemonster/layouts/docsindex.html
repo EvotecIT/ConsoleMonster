@@ -23,6 +23,7 @@
   <div class="cm-wrap cm-docs cm-docs--index">
     {{ include "docs-sidebar" }}
     <article class="cm-docs__article cm-catalog">
+      {{~ if cat.startHere ~}}<p class="cm-catalog__start">{{ cat.startHere | html.escape | string.replace "{install}" "<a href=\"/docs/install/\">Install</a>" }}</p>{{~ end ~}}
       <nav class="cm-catalog__rail" aria-label="{{ cat.label }}">
         <ul>
           {{~ for g in cat.groups; n = 0; for i in items; if i.meta.group == g.id; n = n + 1; end; end ~}}
