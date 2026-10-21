@@ -108,6 +108,14 @@ $links | Export-ConsoleFrame -Format Html -Path (Join-Path $OutputDirectory '4-l
 
 All data is synthetic. Each before/after pair has a `.txt` console frame and a self-contained `.html` export with light/dark themes.
 
+| Review | Before | After | Actual Markdown |
+| :--- | :--- | :--- | :--- |
+| Typed table values | [HTML](1-values-table-before.html), [text](1-values-table-before.txt) | [HTML](1-values-table-after.html), [text](1-values-table-after.txt) | [Pipe table](1-values-table-after.md) |
+| Typed list values | [HTML](1-values-list-before.html), [text](1-values-list-before.txt) | [HTML](1-values-list-after.html), [text](1-values-list-after.txt) | [Property/value tables](1-values-list-after.md) |
+| Groups, alignment and totals | | | [GFM table](3-markdown-table.md) |
+| Nested tree | | | [Bullet list](3-markdown-tree.md) |
+| Exact console layout | | | [Fenced text](3-text-layout.md) |
+
 - Item 1: `1-table-*`, `1-list-*`, `1-wide-*`, `1-alignment-*`. `1-values-table-*` and `1-values-list-*` show statuses, bytes, dates, durations and collections. The after frames use captured native expression values and the same adapter as direct-host interception. The actual attached-console test separately compares the ordinary enabled Format-Table cells to Format-ConsoleTable.
 - Item 2: `2-module-views-*`. The example module has no ConsoleMonster dependency. These are plumbing examples, not the final ADX/Cx/CertNoob/TestimoX designs.
 - Item 3: `3-export-*`, plus the actual `3-export-result.md` and `3-export-result.html` documents. Open `3-markdown-table.md` (GFM alignment, groups and totals), `3-markdown-list.md`, `3-markdown-tree.md` and `3-text-layout.md` (the exact layout inside a text fence).

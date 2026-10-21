@@ -10,4 +10,8 @@
 <TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.ConditionalNative</TypeName><ScriptBlock>$global:RawSelections++; $_.UseAlternate</ScriptBlock></SelectionCondition></EntrySelectedBy><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.Alternate</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
 <TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.State</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
 </TableRowEntries></TableControl></View>
+<View><Name>RawHidden</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.HiddenNative</TypeName></ViewSelectedBy>
+<GroupBy><PropertyName>Group</PropertyName><Label>Native group</Label></GroupBy>
+<TableControl><HideTableHeaders/><TableHeaders><TableColumnHeader><Label>Hidden health</Label></TableColumnHeader></TableHeaders>
+<TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>State</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View>
 </ViewDefinitions></Configuration>

@@ -116,4 +116,53 @@
             $text | Should -Not -Match 'Wrong'
         } finally { Remove-Variable -Name RawSelections, RawCells -Scope Global }
     }
+
+    It 'expands wildcard calculated expressions into the native columns with their labels and raw values' {
+        $row = [pscustomobject]@{Name='first';Note='second'}
+        $native = Convert-TestNativeView -Rows @($row) -Arguments @{Property=@(@{Label='Names';Expression='N*'})}
+        ($native.Columns.Header -join ',') | Should -Be 'Names,Names'
+        $native.Rows[0][0].Value | Should -Be 'first'
+        $native.Rows[0][1].Value | Should -Be 'second'
+    }
+
+    It 'retains native scalar and dictionary shapes instead of substituting their implementation properties' {
+        foreach($value in @('literal-marker', @{Name='dictionary-marker';State='Pass'})) {
+            $native = Convert-TestNativeView -Rows @($value)
+            $actual = $native | Export-ConsoleFrame -Format Text -Width 100
+            $actual | Should -Match '(literal-marker|dictionary-marker)'
+            $actual | Should -Not -Match 'IsReadOnly|IsFixedSize|SyncRoot|Length'
+        }
+    }
+
+    It 'accepts native calculated-property key abbreviations and preserves unlabeled expressions' {
+        foreach ($kind in 'Table','List') {
+            $property = @{la='Amount';ex='Bytes';f='N1'}
+            if ($kind -eq 'Table') { $property.w=20; $property.a='Right' }
+            $native = Convert-TestNativeView -Rows @($script:NativeRows[0]) -Kind $kind -Arguments @{Property=@($property)}
+            $text = $native | Export-ConsoleFrame -Format Text -Width 100
+            $text | Should -Match 'Amount'
+            $text | Should -Match ([regex]::Escape((2048).ToString('N1', [cultureinfo]::CurrentCulture)))
+            foreach($expression in @('Bytes', { $_.Bytes })) {
+                $property = @{Expression=$expression}
+                $records = @($script:NativeRows[0] | & ('Microsoft.PowerShell.Utility\Format-'+$kind) -Property $property)
+                if($kind -eq 'Table') { $expected=$records[0].shapeInfo.tableColumnInfoList[0].propertyName }
+                else { $expected=$records[2].formatEntryInfo.listViewFieldList[0].propertyName }
+                $native = Convert-TestNativeView -Rows @($script:NativeRows[0]) -Kind $kind -Arguments @{Property=@($property)}
+                $text = $native | Export-ConsoleFrame -Format Text -Width 100
+                $text | Should -Match ([regex]::Escape($expected.Trim()))
+                $text | Should -Not -Match 'capture.Read'
+            }
+        }
+    }
+
+    It 'retains hidden headers and the label of a native view grouping expression' {
+        Update-FormatData -PrependPath (Join-Path $PSScriptRoot 'Fixtures/EverydayViews/RawValues.format.ps1xml')
+        $row = [pscustomobject]@{PSTypeName='ConsoleMonster.Tests.HiddenNative';State='Pass';Group='A'}
+        $native = Convert-TestNativeView -Rows @($row) -Arguments @{View='RawHidden'}
+        $native.ShowHeader | Should -BeFalse
+        $text = $native | Export-ConsoleFrame -Format Text -Width 100
+        $text | Should -Match 'Native group: A'
+        $text | Should -Match '✓ Pass'
+        $text | Should -Not -Match 'Hidden health'
+    }
 }

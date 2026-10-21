@@ -89,6 +89,47 @@ namespace ConsoleMonster.Tests.Export {
         }
 
         [Fact]
+        public void ContentBearingContainersKeepTitlesCaptionsStatusAndFooters() {
+            Panel panel = new Panel(new TextBlock("body"), "Deployment result") { Caption = "3 hosts", Footer = "2 failures" };
+            Dashboard dashboard = new Dashboard("Run result", panel) { Subtitle = "Production", Status = "Failed", StatusLevel = StatusKind.Fail, Footer = "Review failures" };
+            string markdown = ConsoleExporter.ToMarkdown(dashboard, new ExportOptions { Width = 100 });
+            foreach (string value in new[] { "Run result", "Production", "Failed", "Deployment result", "3 hosts", "2 failures", "body", "Review failures" }) {
+                Assert.Contains(value, markdown);
+            }
+        }
+
+        [Fact]
+        public void UnsupportedWidgetFallbackKeepsTheEffectiveScopedCulture() {
+            IWidget widget = new CultureScope(new KeyValueList().AddValue("Amount", 12.5), CultureInfo.GetCultureInfo("pl-PL"));
+            string markdown = ConsoleExporter.ToMarkdown(widget, new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            Assert.Contains("12,5", markdown);
+            Assert.DoesNotContain("12.5", markdown);
+        }
+
+        [Fact]
+        public void SemanticMarkdownSanitizesTerminalSequencesWithoutLosingLineBreaks() {
+            string input = "\u001b[31mred\u001b[0m\r\n\u001b]8;;https://example.com\u0007link\u001b]8;;\u001b\\\u0001";
+            Table table = new Table();
+            table.AddColumn("Value");
+            table.AddValues(input);
+            string markdown = ConsoleExporter.ToMarkdown(new Rows(table, new TextBlock(input) { IsMarkup = false }));
+            Assert.Contains("| red<br>link |", markdown);
+            Assert.EndsWith("red<br>link\n\n", markdown);
+            Assert.Equal(-1, markdown.IndexOf('\u001b'));
+            Assert.Equal(-1, markdown.IndexOf('\u0001'));
+            Assert.DoesNotContain("https://example.com", markdown);
+        }
+
+        [Fact]
+        public void LiteralProseAndTreeLabelsCannotBecomeMarkdownBlockSyntax() {
+            Tree tree = new Tree("# Service");
+            tree.Add("1. ordered").Add("---");
+            string markdown = ConsoleExporter.ToMarkdown(new Rows(new TextBlock("---") { IsMarkup = false }, tree));
+            Assert.StartsWith("\\-\\-\\-\n\n", markdown);
+            Assert.Contains("- \\# Service\n  - 1\\. ordered\n    - \\-\\-\\-\n", markdown);
+        }
+
+        [Fact]
         public void EmptyFrameIsAClosedCodeBlock() =>
             Assert.Equal("```text\n```\n", ConsoleExporter.ToMarkdown(new CellBuffer(0, 0)));
 

@@ -11,6 +11,8 @@ namespace ConsoleMonster.PowerShell {
         internal readonly List<IDictionary> Columns = new List<IDictionary>();
         internal object? GroupBy;
         internal bool Wrap;
+        internal bool HideTableHeaders;
+        internal bool AutoSize;
         private TableControl? _table;
         private string[]? _labels;
         private bool _firstSelected;
@@ -23,14 +25,30 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static NativeFormatDefinition? Resolve(PSCmdlet cmdlet, string kind, PSObject first, IDictionary parameters) {
-            if (first.BaseObject is IEnumerable && !(first.BaseObject is string) && !(first.BaseObject is IDictionary)) { return null; }
+            // Native formatters have special scalar/enumeration/dictionary routes; they are not ordinary property rows.
+            if (PSShaping.IsValueLike(first, PSShaping.Options()) || first.BaseObject is IDictionary) { return null; }
             NativeFormatDefinition result = new NativeFormatDefinition();
             if (parameters.Contains("Property")) {
                 foreach (object property in Sequence(parameters["Property"])) {
-                    if (property is IDictionary dictionary) { result.Columns.Add(dictionary); }
+                    if (property is IDictionary dictionary) {
+                        Hashtable? normalized = Normalize(dictionary);
+                        if (normalized == null) { return null; }
+                        object? expression = normalized["Expression"];
+                        if (expression is string pattern && WildcardPattern.ContainsWildcardCharacters(pattern)) {
+                            foreach (string name in Names(first, pattern)) {
+                                Hashtable expanded = new Hashtable(StringComparer.OrdinalIgnoreCase);
+                                foreach (DictionaryEntry entry in normalized) { expanded[entry.Key] = entry.Value; }
+                                expanded["Expression"] = name;
+                                result.Columns.Add(expanded);
+                            }
+                        } else { result.Columns.Add(normalized); }
+                    }
                     else if (property is string name) {
                         foreach (string resolved in Names(first, name)) { result.Columns.Add(Column(resolved, resolved)); }
                     } else { return null; }
+                }
+                foreach (IDictionary column in result.Columns) {
+                    if (!column.Contains("Name") && !column.Contains("Label")) { column["Label"] = column["Expression"]?.ToString() ?? string.Empty; }
                 }
                 return result.Columns.Count > 0 ? result : null;
             }
@@ -43,6 +61,7 @@ namespace ConsoleMonster.PowerShell {
                     if (!(item.BaseObject is ExtendedTypeDefinition definition)) { continue; }
                     foreach (FormatViewDefinition view in definition.FormatViewDefinition) {
                         if (requested != null && !string.Equals(requested, view.Name, StringComparison.OrdinalIgnoreCase)) { continue; }
+                        if (view.Control.OutOfBand) { return null; }
                         if (kind == "Table" && view.Control is TableControl table) {
                             TableControlRow? row = Select(table, first);
                             if (row == null) { return null; }
@@ -51,9 +70,11 @@ namespace ConsoleMonster.PowerShell {
                             result._labels = Enumerable.Range(0, row.Columns.Count).Select(c => c < table.Headers.Count && !string.IsNullOrEmpty(table.Headers[c].Label)
                                 ? table.Headers[c].Label : Label(row.Columns[c].DisplayEntry)).ToArray();
                             result.Wrap = row.Wrap;
+                            result.HideTableHeaders = table.HideTableHeaders;
+                            result.AutoSize = table.AutoSize;
                             result.Columns.AddRange(TableColumns(table, row, result._labels));
                             foreach (TableControlRow other in table.Rows) {
-                                if (other.Columns.Count != row.Columns.Count) { return null; }
+                                if (other.Columns.Count != row.Columns.Count || other.Wrap != row.Wrap) { return null; }
                                 var columns = TableColumns(table, other, result._labels);
                                 for (int c = 0; c < columns.Count; c++) {
                                     if (!Equals(columns[c]["FormatString"], result.Columns[c]["FormatString"])) { return null; }
@@ -68,7 +89,14 @@ namespace ConsoleMonster.PowerShell {
                                 result.Columns.Add(column);
                             }
                         } else { continue; }
-                        if (view.Control.GroupBy?.Expression != null) { result.GroupBy = Expression(view.Control.GroupBy.Expression); }
+                        if (view.Control.GroupBy != null) {
+                            // A custom group header cannot be represented by -GroupBy; retain the entire native view.
+                            if (view.Control.GroupBy.CustomControl != null && !parameters.Contains("GroupBy")) { return null; }
+                            if (view.Control.GroupBy.Expression != null) {
+                                object expression = Expression(view.Control.GroupBy.Expression);
+                                result.GroupBy = string.IsNullOrEmpty(view.Control.GroupBy.Label) ? expression : Column(view.Control.GroupBy.Label, expression);
+                            }
+                        }
                         return result.Columns.Count > 0 ? result : null;
                     }
                 }
@@ -86,6 +114,20 @@ namespace ConsoleMonster.PowerShell {
             return first.Properties.Where(p => p.IsGettable && match.IsMatch(p.Name)).Select(p => p.Name);
         }
         private static IDictionary Column(string label, object expression) => new Hashtable(StringComparer.OrdinalIgnoreCase) { ["Label"] = label, ["Expression"] = expression };
+        // PowerShell accepts any unambiguous prefix of its native calculated-property keys. Unknown/duplicate keys
+        // stay on the native route so PowerShell supplies its usual validation and error records.
+        private static Hashtable? Normalize(IDictionary source) {
+            string[] names = { "Name", "Label", "Expression", "FormatString", "Width", "Alignment" };
+            Hashtable result = new Hashtable(StringComparer.OrdinalIgnoreCase);
+            foreach (DictionaryEntry entry in source) {
+                if (!(entry.Key is string key) || key.Length == 0) { return null; }
+                string[] matches = names.Where(name => name.StartsWith(key, StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (matches.Length != 1 || result.ContainsKey(matches[0])) { return null; }
+                result[matches[0]] = entry.Value;
+            }
+            if (!result.ContainsKey("Expression")) { return null; }
+            return result;
+        }
         private static object Expression(DisplayEntry entry) => entry.ValueType == DisplayEntryValueType.ScriptBlock ? (object)ScriptBlock.Create(entry.Value) : entry.Value;
         private static string Label(DisplayEntry entry) => entry.Value;
         private static bool DefaultRow(EntrySelectedBy? selection) => selection == null || ((selection.TypeNames?.Count ?? 0) == 0 && (selection.SelectionCondition?.Count ?? 0) == 0);

@@ -33,13 +33,19 @@ namespace ConsoleMonster.Export {
                 else { foreach (TreeNode node in tree.Root.Children) { Node(output, node, 0, presenter); } }
                 output.Append('\n');
             } else if (widget is TextBlock text) {
-                output.Append(Escape(text.IsMarkup ? Plain(text.Content, context) : text.Content)).Append("\n\n");
-            } else if (widget is IContainer container) {
+                output.Append(Prose(text.IsMarkup ? Plain(text.Content, context) : text.Content)).Append("\n\n");
+            } else if (widget is IContainer container && Transparent(widget)) {
                 foreach (IWidget child in container.Children) { Append(output, child, context, options); }
             } else {
-                output.Append(MarkdownFrameWriter.Write(ConsoleExporter.ToText(widget, options))).Append('\n');
+                ExportOptions effective = options.Clone();
+                effective.Culture = context.Profile.Culture;
+                output.Append(MarkdownFrameWriter.Write(ConsoleExporter.ToText(widget, effective))).Append('\n');
             }
         }
+
+        // Only layout-only wrappers are transparent. Content-bearing or third-party containers retain their full frame.
+        private static bool Transparent(IWidget widget) => widget is Rows || widget is Columns || widget is Grid || widget is Stack
+            || widget is Align || widget is Padding || widget is Sized || widget is Prioritized || widget is Slot;
 
         private static void Table(StringBuilder output, Table table, RenderContext context) {
             TableLayout layout = table.SemanticLayout(context);
@@ -63,12 +69,12 @@ namespace ConsoleMonster.Export {
             if (!started) { Header(); }
             if (layout.Total?.Cells != null) { Row(output, layout.Total.Cells.Select(cell => Cell(cell)).Select(Escape), true); }
             output.Append('\n');
-            if (!string.IsNullOrEmpty(table.Caption)) { output.Append(Escape(Plain(table.Caption, context))).Append("\n\n"); }
+            if (!string.IsNullOrEmpty(table.Caption)) { output.Append(Prose(Plain(table.Caption, context))).Append("\n\n"); }
         }
 
         private static void Record(StringBuilder output, RecordView record, RenderContext context, ExportOptions options) {
             Heading(output, Plain(record.Title, context));
-            if (!string.IsNullOrEmpty(record.Summary)) { output.Append(Escape(record.Summary!)).Append("\n\n"); }
+            if (!string.IsNullOrEmpty(record.Summary)) { output.Append(Prose(record.Summary!)).Append("\n\n"); }
             bool started = false;
             PresenterContext presenter = record.Presentation.CreateContext(context);
             foreach (RecordItem item in record.Items) {
@@ -93,7 +99,7 @@ namespace ConsoleMonster.Export {
             if (node.Status.HasValue) { label = presenter.Render.Glyphs.StatusMarker(node.Status.Value) + " " + label; }
             if (node.Value != null) { label += ": " + Cell(CellRendering.Content(node.Value, node.Presenter, null, presenter)); }
             if (!string.IsNullOrEmpty(node.Note)) { label += " · " + node.Note; }
-            output.Append(' ', depth * 2).Append("- ").Append(Escape(label)).Append('\n');
+            output.Append(' ', depth * 2).Append("- ").Append(Prose(label)).Append('\n');
             foreach (TreeNode child in node.Children) { Node(output, child, depth + 1, presenter); }
         }
 
@@ -101,11 +107,13 @@ namespace ConsoleMonster.Export {
             source?.HasValue == true && source.Value is string raw && (presenter == null || presenter is TextPresenter || presenter is AutoPresenter)
                 ? raw : string.Join("\n", cell.Lines.Select(line => line.PlainText));
         private static string Plain(string? markup, RenderContext context) => markup == null ? string.Empty : string.Join("\n", context.Markup(markup).Lines.Select(line => line.PlainText));
-        private static void Heading(StringBuilder output, string text) { if (text.Length > 0) { output.Append("### ").Append(Escape(text)).Append("\n\n"); } }
+        private static void Heading(StringBuilder output, string text) { if (text.Length > 0) { output.Append("### ").Append(Prose(text)).Append("\n\n"); } }
         private static void Row(StringBuilder output, IEnumerable<string> cells, bool bold) => output.Append("| ").Append(string.Join(" | ", cells.Select(cell => bold && cell.Length > 0 ? "**" + cell + "**" : cell))).Append(" |\n");
         // Encode user HTML before adding our own line-break markup. Escape backslashes first for literal \| sequences.
-        private static string Escape(string value) => value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+        private static string Escape(string value) => Rendering.TextSanitizer.Clean(value, preserveLineBreaks: true).Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
             .Replace("\\", "\\\\").Replace("|", "\\|").Replace("*", "\\*").Replace("_", "\\_").Replace("`", "\\`")
             .Replace("[", "\\[").Replace("]", "\\]").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "<br>");
+        private static string Prose(string value) => Escape(value).Replace("#", "\\#").Replace("-", "\\-")
+            .Replace("+", "\\+").Replace("=", "\\=").Replace(".", "\\.").Replace("!", "\\!").Replace("~", "\\~");
     }
 }
