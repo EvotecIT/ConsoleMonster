@@ -45,8 +45,8 @@ namespace SiteFrames.Tests {
 
         [Theory]
         [InlineData("<!-- example: Website/examples/long.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\nWrite-ConsoleRule 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n```\n", "characters")]
-        [InlineData("<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/d.png\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture></a>\n", "share a line")]
-        [InlineData("<picture class=\"x\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture>\n", "share a line")]
+        [InlineData("<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/d.png\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture></a>\n", "bare <picture>")]
+        [InlineData("<picture class=\"x\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture>\n", "bare <picture>")]
         public void Find_LongLinesAndInlinePictures_AreReported(string readme, string message) {
             Assert.Contains(Readme.Find(_site, readme), problem => problem.Contains(message, StringComparison.Ordinal));
         }
@@ -67,6 +67,23 @@ namespace SiteFrames.Tests {
             string package = Readme.PackageReadme(readme);
             Assert.StartsWith("![Hero](https://x/hero-light.png)\n\n![Tree](https://x/t-light.png)\n\n```powershell\n", package, StringComparison.Ordinal);
             Assert.DoesNotContain("<", package.Replace("<!--", string.Empty), StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void ImageWidths_FromTheLastRender_AreCheckedAndSynced() {
+            string images = Path.Combine(_root, "Website", "_temp", "images");
+            string statics = Path.Combine(_root, "Website", "static", "readme");
+            Directory.CreateDirectory(images);
+            Directory.CreateDirectory(statics);
+            File.WriteAllText(Path.Combine(images, "readme.json"), "[{\"page\":\"readme-t-light.html\",\"out\":\"static/readme/t-light.png\",\"width\":532,\"height\":100}]");
+            File.WriteAllText(Path.Combine(statics, "t-light.png"), string.Empty);
+            string image = "<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"" + Readme.ImageBase + "t-dark.png\">\n  <img alt=\"T\" src=\"" + Readme.ImageBase + "t-light.png\">\n</picture>\n";
+            Assert.Contains(Readme.Find(_site, image), problem => problem.Contains("width=\"532\"", StringComparison.Ordinal));
+            File.WriteAllText(Path.Combine(_root, "README.md"), image);
+            Readme.Sync(_site);
+            string synced = File.ReadAllText(Path.Combine(_root, "README.md"));
+            Assert.Contains("<img alt=\"T\" width=\"532\" src=\"" + Readme.ImageBase + "t-light.png\">", synced, StringComparison.Ordinal);
+            Assert.DoesNotContain(Readme.Find(_site, synced), problem => problem.Contains("width=", StringComparison.Ordinal));
         }
 
         [Fact]

@@ -87,7 +87,11 @@ namespace SiteFrames {
                 images.Add(new ImageSpec(id, title, columns, height, dark, light));
             }
             // The hero: the live page's assessment dashboard, a full screen of signal.
-            Add("hero", live["assessment"]?["command"]?.GetValue<string>() ?? "dotnet run", live["assessment"]?["poster"]);
+            string? command = live["assessment"]?["command"]?.GetValue<string>();
+            if (command == null) {
+                WidgetsPage.Report(new List<string> { "README image hero has no command for its title in data/live.json." }, "readme");
+            }
+            Add("hero", command ?? "dotnet run", live["assessment"]?["poster"]);
             // Get-ChildItem and a hashtable after Enable-ConsoleFormatting: the top 25 rows of the recording's last screen, which
             // end with the hashtable; recheck the crop when the formatting recording changes.
             Demo("formatting", "formatting", "Enable-ConsoleFormatting", 25);
@@ -198,7 +202,7 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
             int pictures = Regex.Matches(readme, @"<picture[\s>]").Count;
             int alone = Regex.Matches(readme, @"(?m)^<picture>[ \t]*$").Count;
             if (pictures != alone) {
-                problems.Add("README.md: " + (pictures - alone) + " <picture> tag(s) share a line with other text; put <picture> on a line by itself.");
+                problems.Add("README.md: " + (pictures - alone) + " <picture> tag(s) are not a bare <picture> alone on its line; GitHub drops the dark <source> otherwise.");
             }
             Dictionary<string, int> widths = ImageWidths(site);
             foreach (Match tag in ImageTag.Matches(readme)) {
@@ -235,7 +239,8 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
         // An <img> of a README image, with or without a width: its alt and other attributes, then the src.
         private static readonly Regex ImageTag = new Regex(@"(?<before><img alt=""[^""]*"")(?:\s+width=""\d+"")?\s+src=""(?<src>" + Regex.Escape(ImageBase) + @"(?<name>[\w.-]+\.png))""", RegexOptions.CultureInvariant);
 
-        // The CSS width of each README image (the page it was drawn from), by file name, from the last render.
+        // The CSS width of each README image (the page it was drawn from), by file name, from the last render. Render
+        // writes the list (SiteImages) before it checks the README, so the check always has it there.
         private static Dictionary<string, int> ImageWidths(Site site) {
             Dictionary<string, int> widths = new Dictionary<string, int>(StringComparer.Ordinal);
             string list = Path.Combine(site.Website, "_temp", "images", "readme.json");
