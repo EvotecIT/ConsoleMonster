@@ -184,7 +184,10 @@ html[data-theme] body.pf-api-docs .api-sidebar .type-item.active { padding-left:
 /* ---- Page header: the kind and the name on one baseline, the edit link as quiet text beside them. ---- */
 html[data-theme] body.pf-api-docs .breadcrumb { margin: var(--cm-space-6) 0 0; color: var(--cm-muted); font: 400 12px/1.4 var(--cm-mono); }
 html[data-theme] body.pf-api-docs .breadcrumb a { color: var(--cm-ink-2); text-decoration: none; }
-html[data-theme] body.pf-api-docs .breadcrumb a:hover { color: var(--cm-accent); }
+html[data-theme] body.pf-api-docs .breadcrumb a:hover { color: var(--cm-link); }
+/* Links keep the link colour on hover: the engine default (api-base.css) recolours them to its accent. Same selector, so
+   only that default is replaced; every more specific hover above still wins. */
+body.pf-api-docs a:not(.cm-header a,.cm-footer a):hover { color: var(--cm-link); }
 html[data-theme] body.pf-api-docs .breadcrumb .sep { margin: 0 6px; color: var(--cm-line-strong); }
 html[data-theme] body.pf-api-docs :is(.type-header, .api-overview-header) {
   display: flex;
@@ -284,7 +287,7 @@ html[data-theme] body.pf-api-docs .member-section-header { display: flex; align-
 html[data-theme] body.pf-api-docs .member-section-header::before { display: none; }
 html[data-theme] body.pf-api-docs .member-section-header h2 { margin: 0; padding: 0; border: 0; }
 html[data-theme] body.pf-api-docs .member-section-toggle { width: 28px; height: 28px; padding: 4px; border: 0; border-radius: 6px; background: none; color: var(--cm-muted); }
-html[data-theme] body.pf-api-docs .member-section-toggle:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+html[data-theme] body.pf-api-docs .member-section-toggle:hover { background: var(--cm-hover); color: var(--cm-ink); }
 html[data-theme] body.pf-api-docs .api-content h3 { color: var(--cm-ink); font: 700 15px/1.4 var(--cm-mono); font-stretch: normal; }
 html[data-theme] body.pf-api-docs :is(.section-desc, .related-content-summary) { max-width: 72ch; margin: 0 0 var(--cm-space-4); color: var(--cm-ink-2); font-size: 15px; }
 
@@ -366,12 +369,12 @@ html[data-theme] body.pf-api-docs :is(.member-kind-filter button, .member-action
   white-space: nowrap;
   box-shadow: none;
 }
-html[data-theme] body.pf-api-docs .member-kind-filter button:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+html[data-theme] body.pf-api-docs .member-kind-filter button:hover { background: var(--cm-hover); color: var(--cm-ink); }
 html[data-theme] body.pf-api-docs .member-kind-filter button.active { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 700; }
 html[data-theme] body.pf-api-docs .member-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 0; color: var(--cm-ink-2); font-size: 13px; white-space: nowrap; }
 html[data-theme] body.pf-api-docs .member-actions { display: inline-flex; gap: 2px; margin-left: auto; }
 html[data-theme] body.pf-api-docs .member-actions button { color: var(--cm-muted); }
-html[data-theme] body.pf-api-docs .member-actions button:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+html[data-theme] body.pf-api-docs .member-actions button:hover { background: var(--cm-hover); color: var(--cm-ink); }
 
 /* ---- Members: light rows. Overloads sit under their name; each member is its signature in a bordered box, then its
    source, return type, summary and parameter rows, with a hairline between members. ---- */
@@ -415,7 +418,7 @@ html[data-theme] body.pf-api-docs .member-signature {
 }
 html[data-theme] body.pf-api-docs .member-signature a { color: var(--cm-link); }
 html[data-theme] body.pf-api-docs .member-anchor { flex: none; padding-top: var(--cm-space-3); color: var(--cm-muted); font: 500 13px/1.6 var(--cm-mono); text-decoration: none; opacity: .6; }
-html[data-theme] body.pf-api-docs .member-anchor:hover { color: var(--cm-accent); opacity: 1; }
+html[data-theme] body.pf-api-docs .member-anchor:hover { color: var(--cm-link); opacity: 1; }
 html[data-theme] body.pf-api-docs .member-card > :not(.member-header) { margin: 0; }html[data-theme] body.pf-api-docs .member-source { margin-top: var(--cm-space-1); font: 400 12px/1.4 var(--cm-mono); }
 html[data-theme] body.pf-api-docs :is(.member-source a, .source-link) { color: var(--cm-muted); text-decoration: none; }
 html[data-theme] body.pf-api-docs :is(.member-source a, .source-link):hover { color: var(--cm-link); text-decoration: underline; }

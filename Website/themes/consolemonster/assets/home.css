@@ -22,7 +22,7 @@
 .cm-paths__panel { display: grid; justify-items: center; gap: var(--cm-space-6); width: 100%; min-width: 0; }
 .cm-paths__lead { display: grid; justify-items: center; gap: var(--cm-space-2); max-width: 72ch; text-align: center; }
 .cm-paths__line { margin: 0; color: #c3cad6; font-size: 16px; text-wrap: balance; }
-.cm-paths__more { color: #93c5fd; font: 600 14px/1.4 var(--cm-mono); text-decoration: underline; text-decoration-color: color-mix(in srgb, #93c5fd 45%, transparent); text-underline-offset: 4px; }
+.cm-paths__more { color: var(--cm-link); font: 600 14px/1.4 var(--cm-mono); text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 4px; }
 .cm-paths__more:hover, .cm-paths__more:focus-visible { text-decoration-color: currentColor; }
 /* Both paths' players fill the same stage, and the terminal scales to it, so the window, its bar and its controls are
    one width and the page does not jump when the path changes. */
@@ -30,7 +30,7 @@
 .cm-hero__stage { display: grid; gap: var(--cm-space-4); }
 .cm-hero__stage .cm-window__frame { box-shadow: 0 0 0 1px #273041, 0 30px 80px -30px rgba(0, 0, 0, .9), 0 0 120px -40px rgba(96, 165, 250, .25); }
 .cm-hero__note { max-width: 88ch; margin: 0; color: var(--cm-stage-muted); font-size: 14px; line-height: 1.6; }
-.cm-hero__note a { color: #93c5fd; }
+.cm-hero__note a { color: var(--cm-link); }
 .cm-hero__take { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: var(--cm-space-6); align-items: start; margin-top: var(--cm-space-4); }
 .cm-hero__install, .cm-hero__code { display: grid; gap: var(--cm-space-3); align-content: start; min-width: 0; }
 .cm-hero__code .cm-seg { justify-self: start; }
@@ -78,14 +78,14 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 .cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 12px; }
 .cm-compare--live .cm-stream { --cm-stream-height: 480px; }
 
-.cm-start { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--cm-line); }
-.cm-start li { border-bottom: 1px solid var(--cm-line); }
-.cm-start li:not(:nth-child(3n)) { border-right: 1px solid var(--cm-line); }
-.cm-start a { display: block; height: 100%; padding: var(--cm-space-5) var(--cm-space-5) var(--cm-space-5) 0; color: var(--cm-ink); text-decoration: none; }
-.cm-start li:not(:nth-child(3n + 1)) a { padding-left: var(--cm-space-5); }
-.cm-start a:hover { background: var(--cm-focus-bg); }
-.cm-start strong { display: flex; align-items: center; gap: 10px; font: 700 17px/1.2 var(--cm-mono); }
-.cm-start span:not(.cm-key) { display: block; margin-top: var(--cm-space-2); color: var(--cm-muted); font-size: 15px; }
+/* Where to go next: a strip of six entry cards (the shared .cm-card), each with the navigation's miniature of that
+   destination. Three across up to the page's maximum width, six when there is room for their titles. */
+.cm-start { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; }
+.cm-start li { min-width: 0; }
+
+@media (max-width: 1260px) {
+  .cm-start { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 @media (max-width: 1080px) {
   .cm-hero__take, .cm-split, .cm-split--narrow, .cm-twins { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
@@ -102,9 +102,12 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
   .cm-paths__switch { justify-self: stretch; }
   .cm-paths__switch button { min-width: 0; flex: 1 1 0; }
   .cm-ribbon.cm-ribbon--home { grid-template-columns: minmax(0, 1fr); }
-  .cm-start { grid-template-columns: minmax(0, 1fr); }
-  .cm-start li { border-right: 0 !important; }
-  .cm-start a, .cm-start li:not(:nth-child(3n + 1)) a { padding: var(--cm-space-4) 0; }
+  .cm-start { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(220px, 72%, 300px); margin: 0 calc(var(--cm-gutter) * -1) -28px; padding: 4px var(--cm-gutter) 32px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--cm-gutter); scrollbar-width: none; }
+  .cm-start li { scroll-snap-align: start; }
+}
+
+@media (max-width: 760px) and (hover: hover) and (pointer: fine) {
+  .cm-start { scrollbar-width: thin; }
 }
 
 @media (max-width: 640px) {

@@ -16,7 +16,7 @@
 .cm-gallery { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: var(--cm-space-7); padding-top: var(--cm-space-7); }
 .cm-gallery__index { grid-row: 1 / span 99; position: sticky; top: 140px; align-self: start; display: grid; gap: 2px; }
 .cm-gallery__index a { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 5px; color: var(--cm-ink-2); font: 500 14px/1.2 var(--cm-mono); text-decoration: none; }
-.cm-gallery__index a:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-gallery__index a:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-gallery__intro { margin-bottom: 8px; }
 .cm-gallery__group { padding-top: var(--cm-space-6); scroll-margin-top: 140px; }
 .cm-gallery__heading { display: grid; gap: var(--cm-space-2); margin: 0 0 var(--cm-space-6); padding-bottom: var(--cm-space-4); border-bottom: 2px solid var(--cm-ink); }
@@ -67,7 +67,7 @@
 .cm-replay > .cm-player { min-width: 0; }
 .cm-replay .cm-controls { display: flex; align-items: center; gap: 12px; padding: 0; background: none; color: var(--cm-muted); font: 500 12.5px/1 var(--cm-mono); }
 .cm-replay .cm-controls button { flex: none; min-width: 72px; height: 32px; padding: 0 14px; border: 1px solid var(--cm-line-strong); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 12.5px/1 var(--cm-mono); cursor: pointer; }
-.cm-replay .cm-controls button:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls button:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-replay .cm-controls input[type=range] { flex: 1; min-width: 0; height: 24px; accent-color: var(--cm-accent); }
 .cm-replay .cm-controls select { height: 28px; padding: 0 6px; border: 1px solid var(--cm-line-strong); border-radius: 6px; background: var(--cm-surface); color: var(--cm-ink); font: 500 12px/1 var(--cm-mono); }
 .cm-replay .cm-controls option { color: initial; }
@@ -138,7 +138,7 @@
 .cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: var(--cm-space-6); align-items: start; }
 .cm-table-showcase__side { display: grid; gap: var(--cm-space-4); }
 .cm-source summary { cursor: pointer; font: 600 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
-.cm-source summary:hover { color: var(--cm-accent); }
+.cm-source summary:hover { color: var(--cm-ink); text-decoration: underline; }
 .cm-source[open] summary { margin-bottom: 12px; }
 .cm-source .cm-code pre { max-height: 420px; font-size: 12px; }
 .cm-source[open] { grid-column: 1 / -1; }
@@ -220,7 +220,7 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-replay .cm-controls.cm-has-marks { padding-bottom: 24px; }
 .cm-replay .cm-controls .cm-mark { min-width: 0; height: auto; padding: 1px 6px; border: 0; border-left: 2px solid var(--cm-accent); border-radius: 0; background: none; color: var(--cm-ink-2); font: 600 11.5px/1.2 var(--cm-mono); }
 .cm-replay .cm-controls .cm-mark.cm-mark--end { border-left: 0; border-right: 2px solid var(--cm-accent); }
-.cm-replay .cm-controls .cm-mark:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls .cm-mark:hover { background: var(--cm-hover); color: var(--cm-ink); }
 @media (max-width: 700px) {
   /* On a narrow position bar the marks would overlap: they become a row of jump buttons under it. */
   .cm-replay .cm-controls.cm-has-marks { padding-bottom: 0; }

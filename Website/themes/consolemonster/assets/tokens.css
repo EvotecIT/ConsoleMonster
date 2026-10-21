@@ -75,6 +75,8 @@
   --cm-s5: #7c3aed;
   --cm-s6: #0d9488;
   --cm-shadow: 0 1px 0 rgba(20, 26, 36, .04), 0 12px 32px -18px rgba(20, 26, 36, .28);
+  /* Neutral hover: a wash of the ink colour, visible on the page and on surfaces in both themes. */
+  --cm-hover: color-mix(in srgb, #141a24 9%, transparent);
 
   /* The stage band and replays stay dark in both themes. */
   --cm-stage: #0d121b;
@@ -118,6 +120,7 @@
   --cm-s5: #c084fc;
   --cm-s6: #2dd4bf;
   --cm-shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 18px 40px -22px rgba(0, 0, 0, .7);
+  --cm-hover: color-mix(in srgb, #e2e8f0 10%, transparent);
 
   --cm-term-fg: #cccccc;
   --cm-term-bg: #0c0c0c;
@@ -136,6 +139,7 @@
   --cm-line-strong: #4b5060;
   --cm-surface: #141b27;
   --cm-sunken: #0a0e15;
+  --cm-hover: color-mix(in srgb, #e2e8f0 10%, transparent);
   --cm-accent: #60a5fa;
   --cm-accent-ink: #0b1220;
   --cm-pass: #4ade80;

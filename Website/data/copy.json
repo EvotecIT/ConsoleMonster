@@ -228,36 +228,42 @@
         {
           "title": "Widgets",
           "url": "/widgets/",
+          "visual": "widgets",
           "key": 1,
           "body": "Every widget at every colour and glyph tier."
         },
         {
           "title": "Tables",
           "url": "/tables/",
+          "visual": "tables",
           "key": 6,
           "body": "Priority columns, cards, presenters and totals at six widths."
         },
         {
           "title": "Live dashboards",
           "url": "/live/",
+          "visual": "live",
           "key": 2,
           "body": "Recorded runs of the build pipeline and the stress test."
         },
         {
           "title": "PowerShell",
           "url": "/powershell/",
+          "visual": "powershell",
           "key": 3,
           "body": "Format-ConsoleTable beside Format-Table, on 5.1 and 7."
         },
         {
           "title": "Guides",
           "url": "/guides/",
+          "visual": "guides",
           "key": 4,
           "body": "Coming from Write-Color, Spectre.Console or Format-Table."
         },
         {
           "title": "Docs",
           "url": "/docs/",
+          "visual": "docs",
           "key": 5,
           "body": "Detection, themes, overrides, live sessions and recording."
         }

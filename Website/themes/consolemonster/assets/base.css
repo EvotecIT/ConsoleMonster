@@ -36,7 +36,7 @@ p { margin: 0 0 1em; }
 .cm-nav__groups { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; flex: 1; min-width: 0; }
 .cm-navgroup { position: relative; }
 .cm-navgroup__trigger { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--cm-ink-2); font: 500 14px/1 var(--cm-mono); cursor: pointer; }
-.cm-navgroup__trigger:hover, .cm-navgroup__trigger[aria-expanded="true"] { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-navgroup__trigger:hover, .cm-navgroup__trigger[aria-expanded="true"] { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-navgroup__mark { width: 8px; height: 8px; border-radius: 2px; background: var(--key, transparent); box-shadow: inset 0 0 0 1px var(--cm-line-strong); }
 .cm-navgroup.is-current .cm-navgroup__mark { box-shadow: none; }
 .cm-navgroup__chevron { transition: transform .15s ease; }
@@ -47,17 +47,28 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-navpanel__lede { margin: 0 0 12px; color: var(--cm-muted); font-size: 14px; }
 .cm-navpanel__items { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .cm-navitem { position: relative; display: grid; grid-template-columns: 96px 1fr; grid-template-rows: auto auto; column-gap: 12px; padding: 8px; border-radius: 8px; }
-.cm-navitem:hover, .cm-navitem:focus-within, .cm-navitem.is-current { background: var(--cm-focus-bg); }
+/* Hover is neutral; the current destination carries the accent bar, as the current item does in every list. */
+.cm-navitem:hover, .cm-navitem:focus-within { background: var(--cm-hover); }
+.cm-navitem.is-current { box-shadow: inset 2px 0 0 var(--cm-accent); border-radius: 0 8px 8px 0; }
 .cm-navitem__thumb { grid-row: 1 / span 2; width: 96px; height: 60px; border-radius: 6px; overflow: hidden; background: var(--cm-term-bg); box-shadow: inset 0 0 0 1px var(--cm-term-edge); }
 .cm-navitem__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
 .cm-navitem__link { align-self: end; display: inline-flex; align-items: center; gap: 8px; color: var(--cm-ink); font: 600 14px/1.3 var(--cm-mono); text-decoration: none; }
 .cm-navitem__link::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
 .cm-navitem__desc { color: var(--cm-muted); font-size: 13px; line-height: 1.4; }
 .cm-key { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--key, var(--cm-accent)); }
+/* Cards (the docs catalogue, the home page's entry strip): a miniature of real output on the terminal ground, a
+   key-coloured edge, the title and one line. Hover and focus show the key colour on the border. */
+.cm-card { display: grid; grid-template-rows: auto auto 1fr; height: 100%; border: 1px solid var(--cm-line); border-radius: var(--cm-radius); background: var(--cm-surface); color: var(--cm-ink); text-decoration: none; overflow: hidden; transition: border-color .15s ease, box-shadow .15s ease; }
+.cm-card:hover, .cm-card:focus-visible { border-color: var(--key, var(--cm-line-strong)); box-shadow: var(--cm-shadow); }
+.cm-card__thumb { position: relative; display: block; height: 128px; border-bottom: 1px solid var(--cm-line); background: var(--cm-term-bg); overflow: hidden; }
+.cm-card__thumb::after { content: ""; position: absolute; inset: auto 0 0; height: 3px; background: var(--key, var(--cm-accent)); }
+.cm-card__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+.cm-card__title { display: flex; align-items: center; gap: 8px; padding: 14px 16px 0; font: 700 15px/1.3 var(--cm-mono); }
+.cm-card__body { padding: 6px 16px 16px; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
 .cm-nav__here { display: inline-flex; align-items: center; gap: 8px; height: 28px; margin-left: 6px; padding: 0 10px; border-radius: 4px; background: var(--cm-focus-bg); color: var(--cm-focus-fg); font: 600 13px/1 var(--cm-mono); white-space: nowrap; }
 .cm-nav__actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .cm-icon-link, .cm-theme-toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--cm-ink-2); cursor: pointer; }
-.cm-icon-link:hover, .cm-theme-toggle:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-icon-link:hover, .cm-theme-toggle:hover { background: var(--cm-hover); color: var(--cm-ink); }
 :root[data-theme="dark"] .cm-theme-toggle__moon, :root:not([data-theme="dark"]) .cm-theme-toggle__sun { display: none; }
 .cm-nav-toggle { position: absolute; opacity: 0; pointer-events: none; }
 .cm-nav-toggle__label { display: none; }
@@ -66,7 +77,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 15px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; cursor: pointer; }
 .cm-btn:hover { text-decoration: none; filter: brightness(1.06); }
 .cm-btn--ghost { background: transparent; color: var(--cm-ink); border-color: var(--cm-line-strong); }
-.cm-btn--ghost:hover { background: var(--cm-sunken); filter: none; }
+.cm-btn--ghost:hover { background: var(--cm-hover); filter: none; }
 .cm-btn--small { height: 34px; padding: 0 14px; font-size: 13px; margin-left: 8px; }
 
 /* Footer. */
@@ -113,7 +124,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-seg__label { padding: 0 10px 0 8px; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
 .cm-seg button, .cm-seg a { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px 0 20px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-ink-2); font: 500 13px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; cursor: pointer; }
 .cm-seg button::before, .cm-seg a::before { content: ""; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 1px; background: var(--key, var(--cm-line-strong)); opacity: .55; }
-.cm-seg button:hover, .cm-seg a:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-seg button:hover, .cm-seg a:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-seg [aria-selected="true"], .cm-seg [aria-checked="true"], .cm-seg [aria-pressed="true"], .cm-seg [aria-current="true"] { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 700; }
 .cm-seg [aria-selected="true"]::before, .cm-seg [aria-checked="true"]::before, .cm-seg [aria-pressed="true"]::before, .cm-seg [aria-current="true"]::before { content: "›"; width: auto; height: auto; margin-top: 0; background: none; opacity: 1; transform: translateY(-50%); color: var(--key, var(--cm-accent)); font-weight: 800; left: 7px; }
 .cm-seg__count { color: var(--cm-muted); font-weight: 400; }
@@ -206,7 +217,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code__lang { color: var(--cm-ink); font-weight: 600; }
 .cm-code__file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-code__copy { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
-.cm-code__copy:hover { background: var(--cm-sunken); color: var(--cm-ink); }
+.cm-code__copy:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-code pre { margin: 0; padding: 14px 16px 16px; overflow: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre; overflow-wrap: normal; word-break: normal; }
 /* A block whose lines run past its width says so in its bar (frames.js marks it), in the words a terminal window uses. */
 .cm-code.is-wide .cm-code__bar::after { content: "scroll sideways" / ""; order: 1; margin-left: auto; color: var(--cm-muted); font: 500 11.5px/1 var(--cm-mono); white-space: nowrap; }
@@ -218,7 +229,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code__full summary::-webkit-details-marker { display: none; }
 .cm-code__full summary::before { content: "›"; color: var(--cm-accent); font-weight: 800; transition: transform .15s ease; }
 .cm-code__full[open] summary::before { transform: rotate(90deg); }
-.cm-code__full summary:hover { color: var(--cm-ink); background: var(--cm-sunken); }
+.cm-code__full summary:hover { color: var(--cm-ink); background: var(--cm-hover); }
 .cm-code--short:has(.cm-code__full[open]) > pre { display: none; }
 .cm-code__full[open] summary { border-bottom: 1px solid var(--cm-line); }
 
@@ -353,7 +364,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-band--dark { background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; }
 .cm-band--dark h2, .cm-band--dark h3 { color: #f8fafc; }
 .cm-band--dark .cm-section__head p, .cm-band--dark .cm-section__source { color: #c3cad6; }
-.cm-band--dark a { color: #93c5fd; }
+.cm-band--dark a { color: var(--cm-link); }
 .cm-band--dark .cm-facts { border-top-color: var(--cm-stage-line); }
 .cm-band--dark .cm-facts div { border-bottom-color: var(--cm-stage-line); }
 .cm-band--dark .cm-facts dd { color: #f8fafc; }

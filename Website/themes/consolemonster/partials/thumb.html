@@ -1,0 +1,12 @@
+{{~ ## A miniature of real output. Set `thumb` to an entry from data/visuals.json: `src` when one file serves both themes,
+     otherwise `light` and `dark` (the hidden one is display:none, so a lazy image is never fetched); `w`/`h` when known. ## ~}}
+{{~ if thumb ~}}
+{{~ thumb_size = thumb.w ? (" width=\"" + thumb.w + "\" height=\"" + thumb.h + "\"") : "" ~}}
+{{~ if thumb.src ~}}
+<img src="{{ thumb.src }}"{{ thumb_size }} alt="" loading="lazy" decoding="async" />
+{{~ else ~}}
+<img class="cm-only-light" src="{{ thumb.light }}"{{ thumb_size }} alt="" loading="lazy" decoding="async" />
+<img class="cm-only-dark" src="{{ thumb.dark }}"{{ thumb_size }} alt="" loading="lazy" decoding="async" />
+{{~ end ~}}
+{{~ end ~}}
+{{~ thumb = null; thumb_size = null ~}}

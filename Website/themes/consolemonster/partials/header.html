@@ -25,12 +25,10 @@
             <ul class="cm-navpanel__items">
               {{~ for item in g.items ~}}
               {{~ t = thumbs[item.id]; here = item.is_active || item.is_ancestor ~}}
-              <li class="cm-navitem" style="--key: var(--cm-s{{ item.meta.key }})">
+              <li class="cm-navitem{{ if here }} is-current{{ end }}" style="--key: var(--cm-s{{ item.meta.key }})">
                 <span class="cm-navitem__thumb" aria-hidden="true">
-                  {{~ if t ~}}
-                  <img class="cm-only-light" src="{{ t.light }}" width="{{ t.w }}" height="{{ t.h }}" loading="lazy" decoding="async" alt="" />
-                  <img class="cm-only-dark" src="{{ t.dark }}" width="{{ t.w }}" height="{{ t.h }}" loading="lazy" decoding="async" alt="" />
-                  {{~ end ~}}
+                  {{~ thumb = t ~}}
+                  {{ include "thumb" }}
                 </span>
                 <a class="cm-navitem__link" href="{{ item.url }}" aria-describedby="cm-nav-{{ item.id }}-desc"{{ if here }} aria-current="{{ if item.is_active }}page{{ else }}true{{ end }}"{{ end }}><span class="cm-key" aria-hidden="true"></span>{{ item.title }}</a>
                 <span class="cm-navitem__desc" id="cm-nav-{{ item.id }}-desc">{{ item.description }}</span>

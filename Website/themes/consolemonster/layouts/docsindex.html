@@ -39,17 +39,13 @@
         <ul class="cm-catalog__cards">
           {{~ for i in items; if i.meta.group == g.id; t = null; if cards && i.meta.card; t = cards[i.meta.card]; end ~}}
           <li>
-            <a href="{{ i.output_path }}">
-              <span class="cm-catalog__thumb" aria-hidden="true">
-                {{~ if t && t.src ~}}
-                <img src="{{ t.src }}" alt="" loading="lazy" decoding="async" />
-                {{~ else if t ~}}
-                <img class="cm-only-light" src="{{ t.light }}" alt="" loading="lazy" decoding="async" />
-                <img class="cm-only-dark" src="{{ t.dark }}" alt="" loading="lazy" decoding="async" />
-                {{~ end ~}}
+            <a class="cm-card" href="{{ i.output_path }}">
+              <span class="cm-card__thumb" aria-hidden="true">
+                {{~ thumb = t ~}}
+                {{ include "thumb" }}
               </span>
-              <strong class="cm-catalog__title">{{ i.title | html.escape }}</strong>
-              <span class="cm-catalog__summary">{{ i.meta.summary | html.escape }}</span>
+              <strong class="cm-card__title">{{ i.title | html.escape }}</strong>
+              <span class="cm-card__body">{{ i.meta.summary | html.escape }}</span>
               {{~ if i.meta.apis || i.meta.chips ~}}
               <span class="cm-catalog__chips">{{ for c in i.meta.apis }}<code>{{ c | html.escape }}</code>{{ end }}{{ for c in i.meta.chips }}<span>{{ c | html.escape }}</span>{{ end }}</span>
               {{~ end ~}}

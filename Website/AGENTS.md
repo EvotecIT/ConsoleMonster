@@ -80,6 +80,11 @@ The site is set in the medium it documents: a terminal cell grid.
   (`ConsoleMonster/Styling/Theme.BuiltIn.cs`). Pass, warn and fail keep their status meaning; navigation and tab keys use
   the six chart series colours (`--cm-s1` to `--cm-s6`). Dark pages sit on slate (`--cm-page`); terminal screens use the
   exporter's Campbell defaults (`#0c0c0c` / `#cccccc`) and `#ffffff` / `#24292f` for light frames.
+- **One accent.** `--cm-accent` fills actions (buttons), `--cm-link` colours links, the current item in a list (docs
+  contents, menu destinations, the API type tree) has a 2 px accent bar on its left, and the chosen option in a switch or
+  filter has the accent tint (`--cm-focus-bg`), as does the header chip naming the section you are in. Hover is neutral
+  (`--cm-hover`, a wash of the ink colour, or `--cm-line-strong` on borders), so it never looks like the current item. Key
+  colours (`--cm-s1`-`--cm-s6`) mark categories, never state; a card echoes its own key colour on its border when hovered.
 - **Type.** Space Grotesk 700 (self-hosted Latin subset from @fontsource, OFL, `--cm-display`) for h1/h2 page and
   section titles, with a metric-matched Arial Bold fallback face so the swap does not reflow; JetBrains Mono (self-hosted,
   OFL) for small headings, navigation, controls, code and frames; the system sans for prose. Only 700 ships, so title
