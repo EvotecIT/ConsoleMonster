@@ -41,6 +41,9 @@ namespace SiteFrames {
         /// <summary>One README image: a frame the site shows, with its light rendering when the frame has one.</summary>
         internal sealed record ImageSpec(string Id, string Title, int Columns, int Rows, string Dark, string? Light);
 
+        /// <summary>The longest line a README code block may have, so no block scrolls sideways on GitHub.</summary>
+        internal const int MaxLine = 90;
+
         private static string ReadmePath(Site site) => Path.Combine(site.Repository, "README.md");
 
         /// <summary>The images the README uses, each from data the render just wrote.</summary>
@@ -48,18 +51,19 @@ namespace SiteFrames {
             JsonObject demos = Load(site, "demos");
             JsonObject figures = Load(site, "figures");
             JsonObject widgets = Load(site, "widgets");
-            JsonObject home = Load(site, "home");
+            JsonObject live = Load(site, "live");
             List<ImageSpec> images = new List<ImageSpec>();
-            void Demo(string id, string demo, string title) {
+            void Demo(string id, string demo, string title, int rows = 0) {
                 JsonNode? still = demos[demo]?["poster"] ?? demos[demo]?["frame"];
-                Add(id, title, still);
+                Add(id, title, still, rows);
             }
             void Figure(string id, string figure, string title) => Add(id, title, figures[figure]?["frame"]);
             void Widget(string id, string widget, string title) {
                 JsonNode? example = widgets["examples"]?.AsArray().FirstOrDefault(e => e?["id"]?.GetValue<string>() == widget);
                 Add(id, title, example?["frame"]);
             }
-            void Add(string id, string title, JsonNode? frame) {
+            // rows > 0 keeps the top of the frame: the first part of a longer screen, as it was drawn.
+            void Add(string id, string title, JsonNode? frame, int rows = 0) {
                 string? dark = frame?["dark"]?.GetValue<string>() ?? frame?["darkOnly"]?.GetValue<string>();
                 if (frame == null || dark == null) {
                     WidgetsPage.Report(new List<string> { "README image " + id + " has no frame to draw from." }, "readme");
@@ -67,19 +71,37 @@ namespace SiteFrames {
                 }
                 string? light = frame["light"]?.GetValue<string>() ?? frame["lightOnly"]?.GetValue<string>();
                 int columns = frame["w"]!.GetValue<int>();
-                int rows = frame["h"]?.GetValue<int>() ?? dark.Split('\n').Length;
-                images.Add(new ImageSpec(id, title, columns, rows, dark, light));
+                int height = frame["h"]?.GetValue<int>() ?? dark.Split('\n').Length;
+                // Blank rows at the bottom of a screen (a run that ended above the last row) are not drawn.
+                string[] darkRows = dark.Split('\n');
+                string[]? lightRows = light?.Split('\n');
+                int keep = rows > 0 ? Math.Min(rows, height) : height;
+                while (keep > 1 && Blank(darkRows, keep - 1) && (lightRows == null || Blank(lightRows, keep - 1))) {
+                    keep--;
+                }
+                if (keep < height) {
+                    dark = string.Join("\n", darkRows.Take(keep));
+                    light = lightRows == null ? null : string.Join("\n", lightRows.Take(keep));
+                    height = keep;
+                }
+                images.Add(new ImageSpec(id, title, columns, height, dark, light));
             }
-            Demo("hero", "app", "Fleet health check");
-            Demo("formatting", "formatting", "Enable-ConsoleFormatting");
-            Figure("format-consoletable", "format-consoletable", "Format-ConsoleTable");
-            Widget("tree", "tree", "New-ConsoleTree");
+            // The hero: the live page's assessment dashboard, a full screen of signal.
+            Add("hero", live["assessment"]?["command"]?.GetValue<string>() ?? "dotnet run", live["assessment"]?["poster"]);
+            // Get-ChildItem and a hashtable after Enable-ConsoleFormatting: the top 25 rows of the recording's last screen, which
+            // end with the hashtable; recheck the crop when the formatting recording changes.
+            Demo("formatting", "formatting", "Enable-ConsoleFormatting", 25);
+            Figure("files", "files", "Get-ChildItem | Format-ConsoleTable");
+            Widget("widgets", "bar", "New-ConsoleBarChart");
             Demo("parallel", "parallel", "ForEach-ConsoleItem -Parallel");
-            Add("csharp", "dotnet run", home["controllers"]?["frame"]);
-            Demo("record", "record", "record.ps1");
-            Demo("threads", "threads-live", "Start-ConsoleDashboard -Parallel");
+            Widget("csharp", "statuslist", "dotnet run");
+            Figure("markdown", "export-markdown", "Format-ConsoleTable -As Markdown");
             return images;
         }
+
+        // A row with no visible text: past the end of the frame, or only markup and spaces.
+        internal static bool Blank(string[] rows, int index) =>
+            index >= rows.Length || string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(Regex.Replace(rows[index], "<[^>]*>", string.Empty)));
 
         private static JsonObject Load(Site site, string name) => JsonNode.Parse(File.ReadAllText(site.Data(name)))!.AsObject();
 
@@ -145,6 +167,12 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
                 string source = match.Groups["source"].Value;
                 try {
                     (string code, string language) = Expected(site, source);
+                    // A README block never scrolls sideways on GitHub: lines of 90 characters at most, fixed at the source.
+                    foreach (string line in code.Split('\n')) {
+                        if (line.Length > MaxLine) {
+                            problems.Add("README.md: a line in " + source + " is " + line.Length + " characters; shorten it at the source to " + MaxLine + " or fewer: " + line.Trim());
+                        }
+                    }
                     if (match.Groups["code"].Value.TrimEnd('\n') != code) {
                         problems.Add("README.md: the block from " + source + " differs from its source; run SiteFrames readme.");
                     } else if (match.Groups["lang"].Value != language) {
@@ -165,6 +193,19 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
             if (markers != marked.Count) {
                 problems.Add("README.md: " + (markers - marked.Count) + " <!-- example: --> marker(s) are not followed directly by a code block.");
             }
+            // GitHub keeps a <picture> whole only as an HTML block: the tag alone on its line. Anything before it on the
+            // line (a link, say) makes a paragraph, the <source> falls out and dark mode shows the light image.
+            int pictures = Regex.Matches(readme, @"<picture[\s>]").Count;
+            int alone = Regex.Matches(readme, @"(?m)^<picture>[ \t]*$").Count;
+            if (pictures != alone) {
+                problems.Add("README.md: " + (pictures - alone) + " <picture> tag(s) share a line with other text; put <picture> on a line by itself.");
+            }
+            Dictionary<string, int> widths = ImageWidths(site);
+            foreach (Match tag in ImageTag.Matches(readme)) {
+                if (widths.TryGetValue(tag.Groups["name"].Value, out int width) && !tag.Value.Contains("width=\"" + width + "\"", StringComparison.Ordinal)) {
+                    problems.Add("README.md: image " + tag.Groups["name"].Value + " should show at width=\"" + width + "\"; run SiteFrames readme.");
+                }
+            }
             foreach (Match image in Image.Matches(readme)) {
                 if (!File.Exists(site.Static("readme/" + image.Groups["name"].Value))) {
                     problems.Add("README.md: image " + image.Groups["name"].Value + " is not in Website/static/readme; run build/Render-SiteImages.ps1.");
@@ -179,20 +220,31 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
         // An opening fence: a line that starts with ``` and names a language, or a bare ``` that opens (outside a block).
         private static readonly Regex OpeningFence = new Regex(@"(?m)^```(?<lang>[\w-]+)[ \t]*$", RegexOptions.CultureInvariant);
 
-        // A README image: <picture> with the dark source and the light <img>, optionally inside a link.
-        private static readonly Regex Picture = new Regex(@"(?:<a href=""(?<href>[^""]+)"">)?<picture>\s*<source[^>]*>\s*<img alt=""(?<alt>[^""]*)""(?:\s+width=""\d+"")?\s+src=""(?<src>[^""]+)"">\s*</picture>(?:</a>)?", RegexOptions.CultureInvariant);
+        // A README image: <picture> with the dark source and the light <img>.
+        private static readonly Regex Picture = new Regex(@"<picture>\s*<source[^>]*>\s*<img alt=""(?<alt>[^""]*)""(?:\s+width=""\d+"")?\s+src=""(?<src>[^""]+)"">\s*</picture>", RegexOptions.CultureInvariant);
 
         /// <summary>
         /// The README as the NuGet package shows it. nuget.org renders Markdown without HTML, so each &lt;picture&gt; becomes a
-        /// Markdown image of its light rendering (linked when the picture was), and the marker comments go (nuget.org would
-        /// drop them too).
+        /// Markdown image of its light rendering, and the marker comments go (nuget.org would drop them too).
         /// </summary>
         internal static string PackageReadme(string readme) {
-            string text = Picture.Replace(readme.Replace("\r\n", "\n"), m => {
-                string image = "![" + m.Groups["alt"].Value + "](" + m.Groups["src"].Value + ")";
-                return m.Groups["href"].Success ? "[" + image + "](" + m.Groups["href"].Value + ")" : image;
-            });
+            string text = Picture.Replace(readme.Replace("\r\n", "\n"), m => "![" + m.Groups["alt"].Value + "](" + m.Groups["src"].Value + ")");
             return Regex.Replace(text, @"<!--\s*example:[^>]*-->\n", string.Empty);
+        }
+
+        // An <img> of a README image, with or without a width: its alt and other attributes, then the src.
+        private static readonly Regex ImageTag = new Regex(@"(?<before><img alt=""[^""]*"")(?:\s+width=""\d+"")?\s+src=""(?<src>" + Regex.Escape(ImageBase) + @"(?<name>[\w.-]+\.png))""", RegexOptions.CultureInvariant);
+
+        // The CSS width of each README image (the page it was drawn from), by file name, from the last render.
+        private static Dictionary<string, int> ImageWidths(Site site) {
+            Dictionary<string, int> widths = new Dictionary<string, int>(StringComparer.Ordinal);
+            string list = Path.Combine(site.Website, "_temp", "images", "readme.json");
+            if (File.Exists(list)) {
+                foreach (JsonNode? image in JsonNode.Parse(File.ReadAllText(list))!.AsArray()) {
+                    widths[Path.GetFileName(image!["out"]!.GetValue<string>())] = image["width"]!.GetValue<int>();
+                }
+            }
+            return widths;
         }
 
         private static string PackageReadmePath(Site site) => Path.Combine(site.Repository, "ConsoleMonster", "README.nuget.md");
@@ -229,6 +281,15 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
                 Console.WriteLine("Updated README.md from its example sources.");
             } else {
                 Console.WriteLine("README.md matches its example sources.");
+            }
+            // Each image shows at its own CSS size (the PNGs are drawn at twice that), never stretched to the page.
+            Dictionary<string, int> widths = ImageWidths(site);
+            string sized = ImageTag.Replace(updated, m => widths.TryGetValue(m.Groups["name"].Value, out int width)
+                ? m.Groups["before"].Value + " width=\"" + width + "\" src=\"" + m.Groups["src"].Value + "\""
+                : m.Value);
+            if (sized != updated) {
+                updated = sized;
+                File.WriteAllText(path, updated, new UTF8Encoding(false));
             }
             string package = PackageReadmePath(site);
             if (Directory.Exists(Path.GetDirectoryName(package))) {

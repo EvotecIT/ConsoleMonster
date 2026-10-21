@@ -14,6 +14,7 @@ namespace SiteFrames.Tests {
             Directory.CreateDirectory(Path.Combine(_root, "Website", "content"));
             File.WriteAllText(Path.Combine(_root, "ConsoleMonster.sln"), string.Empty);
             File.WriteAllText(Path.Combine(_root, "Website", "examples", "rule.ps1"), "Import-Module ConsoleMonster\n\n#region more\n$title = 'Hello'\n#endregion\nWrite-ConsoleRule $title\n");
+            File.WriteAllText(Path.Combine(_root, "Website", "examples", "long.ps1"), "Import-Module ConsoleMonster\n\nWrite-ConsoleRule '" + new string('x', 80) + "'\n");
             File.WriteAllText(Path.Combine(_root, "Website", "content", "page.md"), "Text\n\n```powershell\nInstall-Module ConsoleMonster\n```\n\n```bash\ndotnet run\n```\n");
             _site = new Site(Path.Combine(_root, "Website"));
         }
@@ -42,11 +43,29 @@ namespace SiteFrames.Tests {
             Assert.NotEmpty(Readme.Find(_site, readme));
         }
 
+        [Theory]
+        [InlineData("<!-- example: Website/examples/long.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\nWrite-ConsoleRule 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n```\n", "characters")]
+        [InlineData("<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/d.png\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture></a>\n", "share a line")]
+        [InlineData("<picture class=\"x\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture>\n", "share a line")]
+        public void Find_LongLinesAndInlinePictures_AreReported(string readme, string message) {
+            Assert.Contains(Readme.Find(_site, readme), problem => problem.Contains(message, StringComparison.Ordinal));
+        }
+
+        [Theory]
+        [InlineData("", true)]
+        [InlineData("   ", true)]
+        [InlineData("<span class=\"x\"> </span>&nbsp;", true)]
+        [InlineData("<span class=\"x\">Ctrl+C stop</span>", false)]
+        public void Blank_RowsWithoutVisibleText_AreBlank(string row, bool blank) {
+            Assert.Equal(blank, Readme.Blank(new[] { row }, 0));
+            Assert.True(Readme.Blank(new[] { row }, 1));
+        }
+
         [Fact]
         public void PackageReadme_TurnsPicturesIntoMarkdownImagesAndDropsMarkers() {
-            string readme = "<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/hero-dark.png\">\n  <img alt=\"Hero\" src=\"https://x/hero-light.png\">\n</picture></a>\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/t-dark.png\">\n  <img alt=\"Tree\" width=\"532\" src=\"https://x/t-light.png\">\n</picture>\n\n" + FromFile;
+            string readme = "<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/hero-dark.png\">\n  <img alt=\"Hero\" src=\"https://x/hero-light.png\">\n</picture>\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/t-dark.png\">\n  <img alt=\"Tree\" width=\"532\" src=\"https://x/t-light.png\">\n</picture>\n\n" + FromFile;
             string package = Readme.PackageReadme(readme);
-            Assert.StartsWith("[![Hero](https://x/hero-light.png)](https://consolemonster.dev/)\n\n![Tree](https://x/t-light.png)\n\n```powershell\n", package, StringComparison.Ordinal);
+            Assert.StartsWith("![Hero](https://x/hero-light.png)\n\n![Tree](https://x/t-light.png)\n\n```powershell\n", package, StringComparison.Ordinal);
             Assert.DoesNotContain("<", package.Replace("<!--", string.Empty), StringComparison.Ordinal);
         }
 
