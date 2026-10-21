@@ -107,5 +107,28 @@ namespace ConsoleMonster.Tests.Progress {
             Assert.Contains("SRV01 gestartet", target.Text);
             Assert.Contains("SRV01 OK", target.Text);
         }
+
+        [Fact]
+        public void LiveSessionScopedStatusWordsWinOverTheAmbientProfileDuringShutdown() {
+            RecordingTarget ambient = TestTerminal.Target(70, culture: CultureInfo.GetCultureInfo("en-US"));
+            RecordingTarget sessionTarget = TestTerminal.Target(70, culture: CultureInfo.GetCultureInfo("de-DE"));
+            using (Terminal.Use(ambient)) {
+                Assert.Equal("PASS", StatusKind.Pass.ToWord());
+                Lanes lanes = new Lanes();
+                using (ConsoleMonster.Live.LiveSession session = new ConsoleMonster.Live.LiveSession(lanes,
+                    new ConsoleMonster.Live.LiveSessionOptions { Target = sessionTarget, CaptureConsole = false, HandleCancelKey = false, StreamTimestamps = false })) {
+                    session.Start();
+                    LanesHandle handle = lanes.Handle(session);
+                    handle.Add("srv01", "SRV01", 1);
+                    handle.Start("srv01");
+                    handle.Complete("srv01", StatusKind.Pass);
+                    // Dispose drains the queued narration using the session's own language scope.
+                }
+                Assert.Contains("SRV01 gestartet", sessionTarget.Text);
+                Assert.Contains("SRV01 OK", sessionTarget.Text);
+                Assert.DoesNotContain("SRV01 PASS", sessionTarget.Text);
+                Assert.Equal("PASS", StatusKind.Pass.ToWord());
+            }
+        }
     }
 }

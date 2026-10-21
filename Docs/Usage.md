@@ -1106,8 +1106,8 @@ German, Spanish, French and Italian are built in; other languages fall back to E
 
 Inspector summaries, collection counts and hierarchy limit/cycle notes follow the render profile's language too,
 including when the same inspected data is rendered under another profile. `StatusKind.ToWord(context)` and
-`StatusKind.ToWord(profile)` use that language; the parameterless form uses the active terminal target's profile,
-with `WidgetLabels.Current` as the fallback when the profile has no language.
+`StatusKind.ToWord(profile)` use that language; the parameterless form preserves a live session's scoped labels,
+then uses the active terminal target's profile, with `WidgetLabels.Current` as the fallback when the profile has no language.
 
 ## Pin relative dates for recordings
 

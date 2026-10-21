@@ -95,10 +95,11 @@ namespace ConsoleMonster.Styling {
             "Success", "Ok", "Passed", "Error", "Failed", "Failure", "Warning", "Skipped", "Information", "Verbose", "Debug"
         };
 
-        /// <summary>A short upper-case status word in the active profile's language, falling back to <see cref="Localization.WidgetLabels.Current"/>.</summary>
+        /// <summary>A short upper-case status word using session-scoped labels, then the active profile's language, then <see cref="Localization.WidgetLabels.Current"/>.</summary>
         /// <param name="status">The status.</param>
         /// <returns>The word.</returns>
-        public static string ToWord(this StatusKind status) => status.ToWord(Terminal.GetCurrentProfile());
+        public static string ToWord(this StatusKind status) => Localization.WidgetLabels.Scoped is Localization.WidgetLabels scoped
+            ? scoped.StatusWord(status) : status.ToWord(Terminal.GetCurrentProfile());
 
         /// <summary>A status word in the render context's language.</summary>
         /// <param name="status">The status.</param><param name="context">The rendering context.</param><returns>The localized word.</returns>
