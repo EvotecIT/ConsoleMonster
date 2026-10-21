@@ -39,6 +39,10 @@
       {{~ else if d.powershell ~}}
       {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
       {{ include "code" }}
+      {{~ for k in d.companions ~}}
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code ~}}
+      {{ include "code" }}
+      {{~ end ~}}
       {{~ else if d.csharp ~}}
       {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_text = d.csharp; code_full = d.csharpFull ~}}
       {{ include "code" }}

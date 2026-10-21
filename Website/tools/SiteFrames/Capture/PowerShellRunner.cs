@@ -68,8 +68,12 @@ namespace SiteFrames.Capture {
         /// demo). <paramref name="arguments"/> are passed to the script as a reader would type them (only its public
         /// parameters). <paramref name="prompt"/> is a command line the recording shows typed before the script runs (such as
         /// <c>ssh deploy@app-web-03</c>); it belongs to the recording, so the shown script never contains it.
+        /// <paramref name="session"/> plays the script as typed at a prompt: each top-level command is shown after a
+        /// <c>PS&gt;</c> prompt (with the comment lines just above it) and then run, its output formatted on its own, so the
+        /// shown script is only the commands. Definitions such as functions run without a prompt. <paramref name="setup"/>
+        /// is PowerShell the recording runs first (such as the folder to start in); it is never shown either.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false, bool session = false, string? setup = null) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -91,11 +95,18 @@ namespace SiteFrames.Capture {
                 sb.Append("Write-Host '$ ").Append(prompt.Replace("'", "''")).Append("' -ForegroundColor Yellow\n");
                 sb.Append("Start-Sleep -Milliseconds 900\n");
             }
-            sb.Append(". '").Append(script.Replace("'", "''")).Append("'");
-            if (!string.IsNullOrEmpty(arguments)) {
-                sb.Append(' ').Append(arguments);
+            if (setup != null) {
+                sb.Append(setup).Append('\n');
             }
-            sb.Append('\n');
+            if (session) {
+                sb.Append(SessionDriver.Replace("{script}", script.Replace("'", "''")));
+            } else {
+                sb.Append(". '").Append(script.Replace("'", "''")).Append("'");
+                if (!string.IsNullOrEmpty(arguments)) {
+                    sb.Append(' ').Append(arguments);
+                }
+                sb.Append('\n');
+            }
             if (allowErrors) {
                 sb.Append("exit 0\n");
             }
@@ -160,6 +171,26 @@ namespace SiteFrames.Capture {
                 Directory.CreateSymbolicLink(link, target);
             }
         }
+        // Plays a script as a typed session: a prompt and the command, then its output, for each top-level statement.
+        private const string SessionDriver =
+            "$cmTokens = $null\n$cmErrors = $null\n" +
+            "$cmAst = [System.Management.Automation.Language.Parser]::ParseFile('{script}', [ref] $cmTokens, [ref] $cmErrors)\n" +
+            "$cmComments = @($cmTokens | Where-Object { $_.Kind -eq 'Comment' -and $_.Text -notmatch '^#(end)?region' })\n" +
+            "$cmPrevious = 0\n" +
+            "foreach ($cmStatement in $cmAst.EndBlock.Statements) {\n" +
+            "    $cmTyped = -not ($cmStatement -is [System.Management.Automation.Language.FunctionDefinitionAst])\n" +
+            "    if ($cmTyped) {\n" +
+            "        foreach ($cmComment in $cmComments) {\n" +
+            "            if ($cmComment.Extent.StartOffset -ge $cmPrevious -and $cmComment.Extent.EndOffset -le $cmStatement.Extent.StartOffset) {\n" +
+            "                Start-Sleep -Milliseconds 600\n                Write-Host \"PS> $($cmComment.Text)\" -ForegroundColor Yellow\n" +
+            "            }\n" +
+            "        }\n" +
+            "        Start-Sleep -Milliseconds 700\n        Write-Host \"PS> $($cmStatement.Extent.Text)\" -ForegroundColor Yellow\n        Start-Sleep -Milliseconds 400\n" +
+            "    }\n" +
+            "    $cmPrevious = $cmStatement.Extent.EndOffset\n" +
+            "    . ([scriptblock]::Create($cmStatement.Extent.Text)) | Out-Default\n" +
+            "}\n";
+
         /// <summary>The VT bytes of a run, joined.</summary>
         public static byte[] Bytes(List<OutputChunk> chunks) {
             using (MemoryStream stream = new MemoryStream()) {

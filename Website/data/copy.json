@@ -480,7 +480,7 @@
       "use": {
         "title": "Use it in every session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -ProfileSnippet",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\n# Prints the lines that turn it on in every session; paste them into $PROFILE (notepad $PROFILE)\nEnable-ConsoleFormatting -ProfileSnippet",
         "links": [
           {
             "title": "Enable-ConsoleFormatting",
@@ -528,7 +528,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Enable-ConsoleFormatting -Feature ErrorView",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
         "links": [
           {
             "title": "Format-ConsoleError",
@@ -544,7 +544,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Enable-ConsoleFormatting -Feature Progress",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Progress",
         "links": [
           {
             "title": "Write-ConsoleProgress",

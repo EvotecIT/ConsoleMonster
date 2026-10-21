@@ -173,6 +173,8 @@ BeforeAll {
         'Website/examples/interactive/typed.ps1'     = @{ Input = '"FS0" Enter "1" Enter'; Screen = '90x10'; Expect = @('Type FS01 to confirm') }
         'Website/examples/interactive/grid.ps1'      = @{ Input = '"sql" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter'; RealTime = $true; Screen = '110x22'; Expect = @('Services on FS01') }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
+        # The everyday demo types Windows commands (svchost, Get-Service), as its recording does; elsewhere they report errors.
+        'Website/examples/demos/formatting.ps1'      = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }

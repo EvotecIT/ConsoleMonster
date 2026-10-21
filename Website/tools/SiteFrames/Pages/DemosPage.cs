@@ -47,6 +47,15 @@ namespace SiteFrames.Pages {
             /// <summary>A command line the recording shows typed before the script runs; it is never part of the shown code.</summary>
             public string? Prompt { get; set; }
 
+            /// <summary>Files the script reads, shown under it so a reader can save them beside it (relative to its folder).</summary>
+            public string[] Companions { get; set; } = Array.Empty<string>();
+
+            /// <summary>Whether the recording plays the script as typed commands, each after a prompt (see PowerShellRunner).</summary>
+            public bool Session { get; set; }
+
+            /// <summary>PowerShell the recording runs before the script (for example the folder to start in); never shown.</summary>
+            public string? Setup { get; set; }
+
             /// <summary>
             /// The PowerShell twin of a recorded program: a script relative to the repository, shown short (its <c>#region more</c>
             /// and <c>#region hidden</c> parts folded) with the whole file as the full program. Null for script demos.
@@ -113,15 +122,17 @@ namespace SiteFrames.Pages {
                 PosterShare = 0.45
             };
             yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { Script = "watch.ps1", PosterShare = 0.7 };
-            yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { Script = "pester.ps1", PosterShare = 0.75, AllowErrors = true };
+            yield return new Demo("pester", "Invoke-ConsolePester", 96, 24) { Script = "pester.ps1", Companions = new[] { "fixtures/MailDomain.Tests.ps1" }, PosterShare = 0.75, AllowErrors = true };
             yield return new Demo("formatting", "Enable-ConsoleFormatting", 100, 40) {
                 Script = "formatting.ps1",
+                Session = true,
+                Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
                 PosterShare = 1,
                 Fps = 5,
                 Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
             };
             yield return new Demo("shaping", "Format-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
-            yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", PosterShare = 1 };
+            yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
             yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {
@@ -219,7 +230,7 @@ namespace SiteFrames.Pages {
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
                 if (demo.Script != null) {
-                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt);
+                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
                 } else {
                     (string executable, string arguments) = demo.Program!.Value;
                     string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
@@ -321,6 +332,14 @@ namespace SiteFrames.Pages {
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = ScriptFile(site, demo.Script);
                     entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
+                    if (demo.Companions.Length > 0) {
+                        JsonArray companions = new JsonArray();
+                        foreach (string companion in demo.Companions) {
+                            string file = Path.Combine(Path.GetDirectoryName(Script(site, demo.Script))!, companion.Replace('/', Path.DirectorySeparatorChar));
+                            companions.Add(new JsonObject { ["file"] = companion, ["code"] = Site.ReadText(file) });
+                        }
+                        entry["companions"] = companions;
+                    }
                     // A published example script is also served from the site under /examples/, so the "Use it" steps download it from
                     // here (copy.json demos.<id>.use).
                     if (demo.Script.Contains(Path.DirectorySeparatorChar) || demo.Script.Contains('/')) {
