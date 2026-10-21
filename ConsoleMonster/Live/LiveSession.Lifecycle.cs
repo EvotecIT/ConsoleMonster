@@ -181,8 +181,7 @@ namespace ConsoleMonster.Live {
 
         private void CaptureLine(string line, string level) {
             // Capture owns its own admission during shutdown, until both partial buffers have been flushed.
-            if (Volatile.Read(ref _logTarget) == null) { _unroutedLines.Enqueue(line); }
-            else { Enqueue(new LiveEvent("$log", "write", text: line, state: level)); }
+            Enqueue(new LiveEvent("$log", "write", text: line, state: level));
         }
 
         private void RestoreCapture() {
@@ -233,7 +232,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => _recorder?.Dispose());
                 if (drawn && _output != null && _context != null) {
                     Attempt(() => {
-                        while (_unroutedLines.TryDequeue(out object? line)) { WriteUnrouted(line, _context); }
+                        FlushUnrouted();
                         IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
                         if (summary != null) {
                             _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));

@@ -164,18 +164,6 @@ namespace ConsoleMonster {
         /// <param name="session">The session.</param>
         internal static void ReleaseConsole(Live.LiveSession session) => Interlocked.CompareExchange(ref _consoleOwner, null, session);
 
-        private static bool TryWriteAbove(IReadOnlyList<StyledLine> lines) {
-            Live.LiveSession? owner = ConsoleOwner;
-            if (owner == null) {
-                return false;
-            }
-            foreach (StyledLine line in lines) {
-                if (!owner.TryWriteAbove(line)) {
-                    return false;
-                }
-            }
-            return true;
-        }
         /// <summary>Writes a widget once, as wide as the terminal.</summary>
         /// <param name="widget">The widget.</param>
         public static void Write(IWidget widget) => Write(widget, null);
@@ -200,19 +188,20 @@ namespace ConsoleMonster {
             writer = writer ?? Target.Writer;
             RenderContext context = CreateContext(p);
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
+            Live.ConsoleWriteBlock? prepared = null;
             if (owner != null) {
-                bool taken = true;
-                foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
-                    taken &= owner.TryWriteAbove(block);
-                }
-                if (taken) {
+                prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));
+                if (owner.TryWriteAbove(prepared)) {
                     return;
                 }
             }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
-                        output.WriteBlock(block);
+                    if (prepared != null) { prepared.Write(output); }
+                    else {
+                        foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
+                            output.WriteBlock(block);
+                        }
                     }
                 }
                 writer?.Flush();
@@ -314,16 +303,19 @@ namespace ConsoleMonster {
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             writer = writer ?? Target.Writer;
-            if (writer == null && TryWriteAbove(lines)) {
-                return;
+            Live.ConsoleWriteBlock? prepared = null;
+            Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
+            if (owner != null) {
+                prepared = new Live.ConsoleWriteBlock(lines, newLine);
+                if (owner.TryWriteAbove(prepared)) { return; }
             }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    for (int i = 0; i < lines.Count; i++) {
-                        if (i < lines.Count - 1 || newLine) {
-                            output.WriteLine(lines[i]);
-                        } else {
-                            output.WriteInline(lines[i]);
+                    if (prepared != null) { prepared.Write(output); }
+                    else {
+                        for (int i = 0; i < lines.Count; i++) {
+                            if (i < lines.Count - 1 || newLine) { output.WriteLine(lines[i]); }
+                            else { output.WriteInline(lines[i]); }
                         }
                     }
                 }

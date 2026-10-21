@@ -71,15 +71,20 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.Payload is ConsoleWriteBlock write) {
+                RouteConsoleWrite(write);
+                Interlocked.Increment(ref _eventsApplied);
+                return;
+            }
             if (liveEvent.Target == MarkerTarget) {
                 Interlocked.Increment(ref _eventsApplied);
                 Record(liveEvent);
                 return;
             }
             if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
-                if (liveEvent.Target == "$log" && liveEvent.Text != null && _options.Mode == LiveMode.Inline) {
-                    // An inline area without a log region prints log lines above itself.
-                    _unroutedLines.Enqueue(liveEvent.IsMarkup ? MarkupLine + liveEvent.Text : liveEvent.Text);
+                if (liveEvent.Target == "$log" && liveEvent.Text != null) {
+                    RouteUnclaimedLog(liveEvent);
+                    Interlocked.Increment(ref _eventsApplied);
                     Record(liveEvent);
                     return;
                 }
@@ -168,15 +173,13 @@ namespace ConsoleMonster.Live {
                 RenderContext context = _context.WithClock(FramesRendered, Elapsed);
                 if (_output is InlineOutput) {
                     // Inline: output captured during the run goes above the area, and the area is as tall as its content.
-                    while (_unroutedLines.TryDequeue(out object? line)) {
-                        WriteUnrouted(line, context);
-                    }
+                    FlushUnrouted();
                     // One column narrower than the window: the last column would make the terminal wrap the row.
                     width = Math.Max(1, width - 1);
                     height = Math.Max(1, Math.Min(height - 1, InlineHeight(width, context)));
                 }
                 try {
-                    _frame = FrameComposer.Compose(_root, width, height, context, _frame);
+                    _frame = FrameComposer.Compose(RootForFrame(height), width, height, context, _frame);
                 } catch (Exception ex) {
                     // A widget that cannot cope with this size must not end the session: show a one-line note instead.
                     Interlocked.Increment(ref _renderErrors);
@@ -211,29 +214,6 @@ namespace ConsoleMonster.Live {
                     CollectTaskbar(child, sources, depth + 1);
                 }
             }
-        }
-
-        // Lines for the output (not a log region) may carry styles, for example Write-Host colours: those are markup,
-        // marked by a leading control character that never occurs in captured text.
-        internal const string MarkupLine = "\u0001";
-
-        private void WriteUnrouted(object item, RenderContext context) {
-            if (item is CellBuffer block) {
-                _output!.WriteBlock(block);
-                return;
-            }
-            if (item is StyledLine styledLine) {
-                _output!.WriteLine(styledLine);
-                return;
-            }
-            string line = (string)item;
-            if (line.StartsWith(MarkupLine, StringComparison.Ordinal)) {
-                foreach (StyledLine styled in context.Markup(line.Substring(1)).Lines) {
-                    _output!.WriteLine(styled);
-                }
-                return;
-            }
-            _output!.WriteLine(StyledLine.From(line));
         }
 
         private int InlineHeight(int width, RenderContext context) {

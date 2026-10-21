@@ -23,9 +23,8 @@ namespace ConsoleMonster.Live {
         private readonly ConcurrentDictionary<string, ILiveTarget> _targets = new ConcurrentDictionary<string, ILiveTarget>(StringComparer.Ordinal);
         private readonly List<ILiveTarget> _logTargets = new List<ILiveTarget>();
         private readonly ConcurrentQueue<LiveEvent> _queue = new ConcurrentQueue<LiveEvent>();
-        // Output for above the area (inline) or after the screen (full screen): captured or log text (string), styled lines
-        // and blocks written by Terminal while the session owns the console.
-        private readonly ConcurrentQueue<object> _unroutedLines = new ConcurrentQueue<object>();
+        // Whole writes applied by the dispatcher, then printed above an inline area or after a full-screen session.
+        private readonly ConcurrentQueue<ConsoleWriteBlock> _unroutedLines = new ConcurrentQueue<ConsoleWriteBlock>();
         private readonly object _lifecycle = new object();
         private readonly object _finishGate = new object();
         private readonly object _outputGate = new object();
@@ -242,14 +241,20 @@ namespace ConsoleMonster.Live {
         /// <param name="liveEvent">Event; zero timestamps are stamped relative to Start.</param>
         public void Post(LiveEvent liveEvent) {
             if (liveEvent == null) { throw new ArgumentNullException(nameof(liveEvent)); }
+            if (!TryPost(liveEvent)) { Interlocked.Increment(ref _eventsDropped); }
+        }
+
+        // The console-write caller can fall back when admission closes, without counting that write as a dropped update.
+        private bool TryPost(LiveEvent liveEvent) {
             while (true) {
                 int admission = Volatile.Read(ref _admission);
-                if (admission < 0) { Interlocked.Increment(ref _eventsDropped); return; }
+                if (admission < 0) { return false; }
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
             try {
                 Enqueue(liveEvent);
             } finally { Interlocked.Decrement(ref _admission); }
+            return true;
         }
 
         /// <summary>Enqueues a line for the session log target.</summary>
