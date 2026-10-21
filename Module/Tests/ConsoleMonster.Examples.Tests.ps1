@@ -177,6 +177,9 @@ BeforeAll {
         # The everyday demo types Windows commands (svchost, Get-Service), as its recording does; elsewhere they report errors.
         'Website/examples/demos/formatting.ps1'      = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
+        # Get-Service is Windows-only; ForEach-Object -Parallel needs PowerShell 7 (the demo says so).
+        'Website/examples/demos/format-commands.ps1' = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
+        'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
     }
@@ -219,6 +222,10 @@ Describe 'Examples run headless' -Tag 'Examples' {
     It '<Name> runs without errors' -ForEach $script:ExampleRuns {
         $case = $script:ExampleCases[$Name]
         if ($null -eq $case) { $case = @{} }
+        if ($case['RequiresCore'] -and $PSVersionTable.PSEdition -eq 'Desktop') {
+            Set-ItResult -Skipped -Because 'the example uses PowerShell 7 syntax and says so'
+            return
+        }
         # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
         $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
         # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
