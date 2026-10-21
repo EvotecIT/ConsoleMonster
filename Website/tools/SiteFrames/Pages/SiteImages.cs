@@ -5,9 +5,10 @@ using System.Text.Json.Nodes;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Pages for the raster images the site needs (the social card and the touch icon), written to <c>Website/_temp/images/</c>.
-    /// <c>build/Render-SiteImages.ps1</c> screenshots them with headless Edge into <c>static/</c>. The card shows the last
-    /// frame of the home page's replay, rendered by the same converter as every other frame.
+    /// Pages for the raster images the site needs (the social card, the touch icon and the 512 px app icon), written to
+    /// <c>Website/_temp/images/</c>. <c>build/Render-SiteImages.ps1</c> screenshots them with headless Edge into
+    /// <c>static/</c> and scales the smaller icons from the app icon. The card shows the last frame of the home page's
+    /// replay, rendered by the same converter as every other frame.
     /// </summary>
     internal static class SiteImages {
         public static void Render(Site site) {
@@ -37,9 +38,13 @@ p{margin:26px 0 0;font:400 23px/1.45 var(--cm-font);color:#c3cad6}
 <div class=""shot""><pre class=""cm-screen cm-screen--dark"" style=""--cols:120"">").Append(poster).Append("</pre></div></div></body></html>");
             File.WriteAllText(Path.Combine(folder, "social-card.html"), card.ToString(), new UTF8Encoding(false));
 
-            string icon = "<!doctype html><html><head><meta charset=\"utf-8\"><style>html,body{margin:0;width:180px;height:180px;overflow:hidden;background:#0d121b}svg{display:block;width:180px;height:180px}</style></head><body>"
-                + logo.Replace("rx=\"8\"", "rx=\"0\"") + "</body></html>";
-            File.WriteAllText(Path.Combine(folder, "touch-icon.html"), icon, new UTF8Encoding(false));
+            // The logo on a square, at a fixed size per page (a headless window has a minimum width, so the page cannot
+            // follow the window): 180 px for the touch icon, 512 px for the app icons the smaller ones are scaled from.
+            foreach ((string name, int size) in new[] { ("touch-icon.html", 180), ("app-icon.html", 512) }) {
+                string icon = "<!doctype html><html><head><meta charset=\"utf-8\"><style>html,body{margin:0;width:" + size + "px;height:" + size + "px;overflow:hidden;background:#0d121b}svg{display:block;width:" + size + "px;height:" + size + "px}</style></head><body>"
+                    + logo.Replace("rx=\"8\"", "rx=\"0\"") + "</body></html>";
+                File.WriteAllText(Path.Combine(folder, name), icon, new UTF8Encoding(false));
+            }
         }
     }
 }

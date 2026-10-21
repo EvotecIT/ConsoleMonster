@@ -72,8 +72,17 @@
     "Links": [
       {
         "Rel": "icon",
+        "Href": "/favicon.ico",
+        "Sizes": "48x48"
+      },
+      {
+        "Rel": "icon",
         "Href": "/favicon.svg",
         "Type": "image/svg+xml"
+      },
+      {
+        "Rel": "manifest",
+        "Href": "/site.webmanifest"
       },
       {
         "Rel": "apple-touch-icon",
@@ -123,6 +132,8 @@
     "Enabled": true,
     "SiteName": "ConsoleMonster",
     "Image": "/site/social-card.png",
+    "ImageWidth": 1200,
+    "ImageHeight": 630,
     "TwitterCard": "summary_large_image"
   },
   "AgentReadiness": {

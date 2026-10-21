@@ -234,3 +234,22 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
   .cm-replay.cm-export .cm-controls .cm-marks { position: static; display: flex; flex-basis: 100%; gap: 8px; height: auto; margin-top: 4px; }
   .cm-replay.cm-export .cm-controls .cm-mark, .cm-replay.cm-export .cm-controls .cm-mark.cm-mark--end { position: static; transform: none; min-height: 28px; padding: 4px 10px; border-right: 0; border-left: 2px solid var(--cm-accent); }
 }
+
+/* The entry strip (home "Where to go next" and the 404 page, partials/start-cards.html): entry cards (the shared .cm-card),
+   each with the navigation's miniature of that destination. Six across when their titles fit, three below that, and a
+   snapping strip on phones. */
+.cm-start { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; }
+.cm-start li { min-width: 0; }
+
+@media (max-width: 1260px) {
+  .cm-start { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .cm-start { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(220px, 72%, 300px); margin: 0 calc(var(--cm-gutter) * -1) -28px; padding: 4px var(--cm-gutter) 32px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--cm-gutter); scrollbar-width: none; }
+  .cm-start li { scroll-snap-align: start; }
+}
+
+@media (max-width: 760px) and (hover: hover) and (pointer: fine) {
+  .cm-start { scrollbar-width: thin; }
+}

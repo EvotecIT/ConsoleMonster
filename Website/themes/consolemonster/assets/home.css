@@ -78,15 +78,6 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 .cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 12px; }
 .cm-compare--live .cm-stream { --cm-stream-height: 480px; }
 
-/* Where to go next: a strip of six entry cards (the shared .cm-card), each with the navigation's miniature of that
-   destination. Three across up to the page's maximum width, six when there is room for their titles. */
-.cm-start { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; }
-.cm-start li { min-width: 0; }
-
-@media (max-width: 1260px) {
-  .cm-start { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
 @media (max-width: 1080px) {
   .cm-hero__take, .cm-split, .cm-split--narrow, .cm-twins { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
   .cm-side .cm-demos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -102,12 +93,6 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
   .cm-paths__switch { justify-self: stretch; }
   .cm-paths__switch button { min-width: 0; flex: 1 1 0; }
   .cm-ribbon.cm-ribbon--home { grid-template-columns: minmax(0, 1fr); }
-  .cm-start { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(220px, 72%, 300px); margin: 0 calc(var(--cm-gutter) * -1) -28px; padding: 4px var(--cm-gutter) 32px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--cm-gutter); scrollbar-width: none; }
-  .cm-start li { scroll-snap-align: start; }
-}
-
-@media (max-width: 760px) and (hover: hover) and (pointer: fine) {
-  .cm-start { scrollbar-width: thin; }
 }
 
 @media (max-width: 640px) {

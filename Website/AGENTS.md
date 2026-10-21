@@ -39,7 +39,7 @@ Every terminal frame on the site is ConsoleMonster output. Nothing is a screensh
 dotnet build ConsoleMonster.PowerShell -c Release                              # the module the PowerShell captures load
 dotnet run --project Website/tools/SiteFrames -c Release -- capture Website    # Windows only; optional area: widgets, home, live, powershell, benchmarks, docs, demos
 dotnet run --project Website/tools/SiteFrames -c Release -- render Website     # deterministic: frames, replays, data
-pwsh Website/build/Render-SiteImages.ps1                                       # social card and touch icon (needs Edge)
+pwsh Website/build/Render-SiteImages.ps1                                       # social card, touch icon, app icons, favicon.ico (needs Edge)
 ```
 
 - `render` is deterministic: it renders in-process with fixed widths, tiers, themes and the en-US culture, replays the
@@ -69,8 +69,12 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   install line come from `data/copy.json` (`demos`).
 - Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`, `demos.json`,
   `figures.json`, `home.json`, `benchmarks.json`, `visuals.json`; `static/frames/**`, `static/replays/**`,
-  `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/assets/player/**`, `static/apple-touch-icon.png`, and
-  `tools/SiteFrames/glyphs.txt` (every glyph the frames use).
+  `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/assets/player/**`, `static/apple-touch-icon.png`,
+  `static/favicon.ico`, and
+  `tools/SiteFrames/glyphs.txt` (every glyph the frames use). `static/site.webmanifest` and `static/favicon.svg` are
+  hand-written.
+- `partials/start-cards.html` is the entry strip of cards that closes the home page and the 404 page; its CSS is in
+  `assets/pages.css`, which both load.
 
 ## Design system
 
