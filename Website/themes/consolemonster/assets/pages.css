@@ -137,6 +137,7 @@
 .cm-page__intro { margin-bottom: var(--cm-space-7); }
 .cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: var(--cm-space-6); align-items: start; }
 .cm-table-showcase__side { display: grid; gap: var(--cm-space-4); }
+.cm-table-showcase__code { display: grid; gap: var(--cm-space-4); margin-top: var(--cm-space-5); max-width: 980px; }
 .cm-source summary { cursor: pointer; font: 600 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-source summary:hover { color: var(--cm-ink); text-decoration: underline; }
 .cm-source[open] summary { margin-bottom: 12px; }

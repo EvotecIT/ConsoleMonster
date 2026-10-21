@@ -324,6 +324,10 @@ Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security
 checks, an assessment run summary and build artifacts at any width.
+The scripts in `Module/Examples` import the module by name (`Import-Module ConsoleMonster`), as a copy on your machine
+would. To run them against a build of this repository, put a folder holding a link named `ConsoleMonster` to `Module` (and
+one named `ConsoleMonster.PowerShell` to `ConsoleMonster.PowerShell`) first on `PSModulePath`, as
+`Module/Tests/ConsoleMonster.Examples.Tests.ps1` does.
 
 ## Rich text
 

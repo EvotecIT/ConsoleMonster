@@ -317,7 +317,7 @@ namespace SiteFrames.Pages {
                     entry["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster };
                 }
                 if (demo.Script != null) {
-                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Script(site, demo.Script)));
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Script(site, demo.Script)));
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = ScriptFile(site, demo.Script);
                     entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
@@ -329,11 +329,10 @@ namespace SiteFrames.Pages {
                         Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                         File.Copy(Script(site, demo.Script), target, true);
                         site.Written.Add(Path.GetRelativePath(site.Website, target).Replace('\\', '/'));
-                        entry["download"] = "/examples/" + name;
                     }
                 }
                 if (demo.Script == null && demo.PowerShellTwin != null) {
-                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Path.Combine(site.Repository, demo.PowerShellTwin)));
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Path.Combine(site.Repository, demo.PowerShellTwin)));
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');

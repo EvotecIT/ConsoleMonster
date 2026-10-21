@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using ConsoleMonster;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Input;
+using ConsoleMonster.Interactive;
+using ConsoleMonster.Output;
+using ConsoleMonster.Styling;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace SiteFrames.Capture {
+    /// <summary>
+    /// Runs the C# programs the site shows. Each is a complete <c>Program.cs</c> (its <c>using</c> lines and top-level
+    /// statements) under <c>Website/examples/</c>, compiled here exactly as written against this repository's ConsoleMonster
+    /// and run inside a <see cref="RecordingTarget"/> of a fixed size, colour depth, glyph tier and theme. What it wrote is
+    /// replayed into a screen, so the frame on the page is what that program printed.
+    /// <para>
+    /// Only the driver lives here: the terminal it writes to and, for prompts, the scripted keys (through
+    /// <see cref="InteractiveOptions.Default"/>). Neither is ever part of the shown code. A program that does not compile, has
+    /// a warning or an unused <c>using</c>, fails the render.
+    /// </para>
+    /// </summary>
+    internal static class CSharpRunner {
+        private static readonly Dictionary<string, Assembly> Compiled = new Dictionary<string, Assembly>(StringComparer.Ordinal);
+
+        // The global usings a `dotnet new console` project gets from ImplicitUsings, so a shown program compiles here exactly
+        // as it would in the reader's project.
+        private const string ImplicitUsings = "global using global::System;\nglobal using global::System.Collections.Generic;\nglobal using global::System.IO;\nglobal using global::System.Linq;\nglobal using global::System.Net.Http;\nglobal using global::System.Threading;\nglobal using global::System.Threading.Tasks;\n";
+        private static List<MetadataReference>? _references;
+
+        /// <summary>The assemblies a shown program may use: the framework and the ConsoleMonster packages.</summary>
+        private static List<MetadataReference> References {
+            get {
+                if (_references == null) {
+                    _references = new List<MetadataReference>();
+                    string tpa = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
+                    foreach (string path in tpa.Split(Path.PathSeparator)) {
+                        _references.Add(MetadataReference.CreateFromFile(path));
+                    }
+                    _references.Add(MetadataReference.CreateFromFile(typeof(Terminal).Assembly.Location));
+                }
+                return _references;
+            }
+        }
+
+        /// <summary>Compiles a program once per render; throws with the compiler's messages when it is not clean.</summary>
+        public static Assembly Compile(string path) {
+            string code = Site.ReadText(path);
+            if (Compiled.TryGetValue(path + "\n" + code, out Assembly? cached)) {
+                return cached;
+            }
+            CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.Latest);
+            SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
+            SyntaxTree implicitUsings = CSharpSyntaxTree.ParseText(ImplicitUsings, parse, "GlobalUsings.g.cs");
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
+                new[] { tree, implicitUsings },
+                References,
+                new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release));
+            using (MemoryStream stream = new MemoryStream()) {
+                Microsoft.CodeAnalysis.Emit.EmitResult result = compilation.Emit(stream);
+                // An unused using (CS8019) is reported by the compilation, not the emit; a reader should not copy dead lines.
+                List<Diagnostic> problems = result.Diagnostics.Where(d => d.Severity >= DiagnosticSeverity.Warning)
+                    .Concat(compilation.GetDiagnostics().Where(d => d.Id == "CS8019" && d.Location.SourceTree == tree))
+                    .ToList();
+                if (!result.Success || problems.Count > 0) {
+                    throw new InvalidOperationException(Path.GetFileName(path) + " is not a clean program:\n" + string.Join("\n", problems.Select(Describe)));
+                }
+                Assembly assembly = Assembly.Load(stream.ToArray());
+                Compiled[path + "\n" + code] = assembly;
+                return assembly;
+            }
+        }
+
+        private static string Describe(Diagnostic d) {
+            int line = d.Location.GetLineSpan().StartLinePosition.Line + 1;
+            return "  line " + line.ToString(CultureInfo.InvariantCulture) + ": " + d.Id + " " + d.GetMessage(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>Runs a program on a fixed terminal and returns the rows it printed.</summary>
+        public static CellBuffer Run(string path, int width, ColorDepth depth, GlyphTier glyphs, ITheme theme, int height = 80) {
+            RecordingTarget target = Execute(path, Profile(width, height, depth, glyphs), theme, null);
+            return Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(target.Output), width, height);
+        }
+
+        public static TerminalProfile Profile(int width, int height, ColorDepth depth, GlyphTier glyphs) =>
+            TerminalProfile.Fixed(width, height, depth, glyphs).WithCulture(Site.Culture).WithLanguage(Site.Culture);
+
+        /// <summary>Runs a program against a recording target and returns it; <paramref name="interactive"/> drives prompts.</summary>
+        public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive) {
+            Assembly assembly = Compile(path);
+            MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
+            RecordingTarget target = new RecordingTarget(profile) { Theme = theme };
+            InteractiveOptions previous = InteractiveOptions.Default;
+            try {
+                if (interactive != null) {
+                    InteractiveOptions.Default = interactive;
+                }
+                using (Terminal.Use(target)) {
+                    object? result = entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { Array.Empty<string>() });
+                    if (result is Task task) {
+                        task.GetAwaiter().GetResult();
+                    }
+                }
+            } catch (TargetInvocationException ex) when (ex.InnerException != null && !(ex.InnerException is InputClosedException || ex.InnerException is PromptCancelledException || ex.InnerException is OperationCanceledException)) {
+                throw new InvalidOperationException(Path.GetFileName(path) + " failed: " + ex.InnerException.Message, ex.InnerException);
+            } catch (TargetInvocationException) {
+                // The scripted keys ended the program (the last key closes a prompt); what it drew is kept.
+            } finally {
+                InteractiveOptions.Default = previous;
+            }
+            return target;
+        }
+    }
+}

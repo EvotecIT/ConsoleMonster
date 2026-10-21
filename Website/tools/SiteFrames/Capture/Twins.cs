@@ -28,9 +28,12 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>The parity record for page data, reporting any difference as a problem.</summary>
-        public static JsonObject Check(Site site, string area, string id, int width, Func<IWidget> build, JsonObject hosts, List<string> problems) {
+        public static JsonObject Check(Site site, string area, string id, int width, Func<IWidget> build, JsonObject hosts, List<string> problems) =>
+            Check(site, area, id, width, Site.Render(build(), width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), hosts, problems);
+
+        /// <summary>The parity record against a frame the C# twin printed (24-bit colour, full glyphs, dark theme).</summary>
+        public static JsonObject Check(Site site, string area, string id, int width, CellBuffer expected, JsonObject hosts, List<string> problems) {
             JsonObject parity = new JsonObject();
-            CellBuffer expected = Site.Render(build(), width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
             foreach (PowerShellHost host in PowerShellHost.All) {
                 string path = CapturePath(site, area, id, host);
                 if (!File.Exists(path)) {

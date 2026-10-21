@@ -1,1 +1,3 @@
-﻿New-ConsoleLogo 'Monster' -Tagline '[muted]zero-dependency console rendering[/]' | Write-ConsoleWidget
+﻿Import-Module ConsoleMonster
+
+New-ConsoleLogo 'Monster' -Tagline '[muted]zero-dependency console rendering[/]' | Write-ConsoleWidget

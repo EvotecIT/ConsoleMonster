@@ -24,7 +24,7 @@ The script prints host facts, health checks and disk use once and exits, so logi
 
 ## Why the login guards look like that
 
-Step 3 above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
+Step 4 above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
 
 Output that is not a terminal (`scp`, `rsync`, `ssh host command`) is skipped by both guards: the pwsh guard needs a terminal and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output is redirected anyway.
 

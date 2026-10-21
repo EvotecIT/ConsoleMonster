@@ -1,4 +1,6 @@
-﻿# Forty servers patched eight at a time. Three fail and one hangs past the four-second limit;
+﻿Import-Module ConsoleMonster
+
+# Forty servers patched eight at a time. Three fail and one hangs past the four-second limit;
 # the view lists the failures and -ErrorVariable keeps them for the rest of the script.
 $servers = 1..40 | ForEach-Object { 'web{0:d2}' -f $_ }
 $results = $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 8 -TimeoutSeconds 4 -Title 'Patching the web farm' -ErrorVariable failed -ErrorAction SilentlyContinue {

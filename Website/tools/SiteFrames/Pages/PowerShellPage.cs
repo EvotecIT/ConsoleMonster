@@ -69,7 +69,7 @@ namespace SiteFrames.Pages {
             foreach (Run run in Runs()) {
                 JsonObject? example = examples[run.Id] as JsonObject;
                 if (example == null) {
-                    (string shortForm, string full) = SourceSnippets.Split(Site.ReadText(Twins.Script(site, "powershell", run.Id)));
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Twins.Script(site, "powershell", run.Id)));
                     example = new JsonObject { ["script"] = shortForm, ["scriptFull"] = WidgetsPage.Longer((shortForm, full)) };
                 }
                 examples[run.Id] = example;

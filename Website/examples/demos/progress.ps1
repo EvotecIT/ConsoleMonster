@@ -1,4 +1,6 @@
-﻿# An ordinary Write-Progress loop, drawn by ConsoleMonster once the Progress feature is on.
+﻿Import-Module ConsoleMonster
+
+# An ordinary Write-Progress loop, drawn by ConsoleMonster once the Progress feature is on.
 Enable-ConsoleFormatting -Feature Progress
 $sites = 'Warsaw', 'Dublin', 'Berlin'
 for ($i = 0; $i -lt $sites.Count; $i++) {

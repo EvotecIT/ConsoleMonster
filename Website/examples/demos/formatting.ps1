@@ -1,4 +1,6 @@
-﻿# Everyday commands as PowerShell shows them, then the same commands after one line: Enable-ConsoleFormatting.
+﻿Import-Module ConsoleMonster
+
+# Everyday commands as PowerShell shows them, then the same commands after one line: Enable-ConsoleFormatting.
 $windows = $env:OS -eq 'Windows_NT'
 $process = if ($windows) { @{ Name = 'svchost' } } else { @{ Id = $PID } }
 #region hidden

@@ -1,4 +1,6 @@
-﻿New-ConsoleTree '[bold]evotec.xyz[/]' {
+﻿Import-Module ConsoleMonster
+
+New-ConsoleTree '[bold]evotec.xyz[/]' {
     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
     }

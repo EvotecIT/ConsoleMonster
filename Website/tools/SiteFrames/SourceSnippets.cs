@@ -29,7 +29,7 @@ namespace SiteFrames {
             List<string> shortForm = new List<string>();
             List<string> full = new List<string>();
             for (int i = 0; i < lines.Length; i++) {
-                string trimmed = lines[i].Trim();
+                string trimmed = Normalise(lines[i].Trim());
                 if (trimmed == "#region harness" || trimmed == "// <harness>") {
                     throw new InvalidOperationException("Line " + (i + 1) + ": harness regions are not allowed; the shown code must be the code that ran.");
                 }
@@ -47,7 +47,7 @@ namespace SiteFrames {
                 int depth = 0;
                 bool closed = false;
                 for (i++; i < lines.Length; i++) {
-                    string inner = lines[i].Trim();
+                    string inner = Normalise(lines[i].Trim());
                     if (powershell && inner.StartsWith("#region", StringComparison.Ordinal)) {
                         depth++;
                     } else if (powershell && IsEndRegion(inner)) {
@@ -81,6 +81,24 @@ namespace SiteFrames {
             }
             return (string.Join("\n", shortForm), string.Join("\n", full));
         }
+
+        /// <summary>
+        /// The short and full forms of a complete program (a C# Program.cs or a PowerShell script): the short form leads with the
+        /// program's own statements, without its <c>using</c> lines or <c>Import-Module ConsoleMonster</c>, and folds its data
+        /// (<c>// &lt;more&gt;</c>, <c>#region more</c>); the full form is the whole file, exactly as it runs.
+        /// </summary>
+        public static (string Short, string Full) Program(string code) {
+            (string shortForm, string full) = Split(code);
+            string[] lines = shortForm.Split('\n');
+            int first = 0;
+            while (first < lines.Length && (lines[first].StartsWith("using ", StringComparison.Ordinal) || lines[first].Trim() == "Import-Module ConsoleMonster" || lines[first].Trim().Length == 0)) {
+                first++;
+            }
+            return (string.Join("\n", lines, first, lines.Length - first), full);
+        }
+
+        // PowerShell accepts #Region and #EndRegion in any case; markers compare in lower case.
+        private static string Normalise(string trimmed) => trimmed.StartsWith("#", StringComparison.Ordinal) ? trimmed.ToLowerInvariant() : trimmed;
 
         private static bool IsEndRegion(string trimmed) => trimmed == "#endregion" || trimmed.StartsWith("#endregion ", StringComparison.Ordinal);
         /// <summary>A whole method (signature and body, without its documentation comment) from a source file, dedented.</summary>

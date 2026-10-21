@@ -23,12 +23,17 @@ namespace SiteFrames {
             "dark", "light", "lightOnly", "darkOnly", "poster", "scrollback", "url", "href", "github", "image", "thumb", "download"
         };
 
+        // Rendered HTML (frames, posters) starts with a tag; a script that opens with a <# help block is still checked.
+        private static readonly Regex Markup = new Regex(@"^\s*<[A-Za-z!/]", RegexOptions.CultureInvariant);
+
         internal static readonly (Regex Pattern, string Why)[] Rules = {
             (new Regex(@"(?m)^\s*[&.]\s*['""]?\.\.[\\/]", RegexOptions.CultureInvariant), "runs a script by a path into the repository"),
-            (new Regex(@"\$PSScriptRoot\b[^\n]*?\.\.(?=[\\/'""\s)]|$)", RegexOptions.CultureInvariant | RegexOptions.Multiline), "builds a path from $PSScriptRoot and .."),
+            (new Regex(@"\$PSScriptRoot\b[^\n]*?(?<![.\w])\.\.(?![.\w])", RegexOptions.CultureInvariant), "builds a path from $PSScriptRoot and .."),
+            (new Regex(@"Split-Path\s+\$PSScriptRoot\b|Join-Path\s+\S+\s+['""]\.\.['""]|(?m)^\s*(Push-|Set-)Location\s+\.\.", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "climbs out of the script's folder"),
             (new Regex(@"(?<![\w.])\.\.[\\/]\w", RegexOptions.CultureInvariant), "contains a ../ path"),
             (new Regex(@"\bartifacts\.ps1\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "depends on artifacts.ps1 instead of defining its data"),
-            (new Regex(@"(?<![\w/.-])(Module[\\/](Examples|Docs|Build|Tests|en-US)|Website[\\/]|ConsoleMonster\.Examples(\.Extensions)?[\\/]|tools[\\/]SiteFrames)", RegexOptions.CultureInvariant), "names a folder of this repository")
+            (new Regex(@"(?<![\w.-])(?<!\w/)(Module[\\/](Examples|Docs|Build|Tests|en-US|ConsoleMonster\.psd1)|Website[\\/]|ConsoleMonster\.Examples(\.Extensions)?[\\/]|ConsoleMonster\.PowerShell[\\/]|tools[\\/]SiteFrames)", RegexOptions.CultureInvariant), "names a folder of this repository"),
+            (new Regex(@"\\Support\\GitHub\\", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "shows a developer checkout path")
         };
 
         public static void Check(Site site) {
@@ -78,8 +83,8 @@ namespace SiteFrames {
                         }
                         string path = where + "." + property.Key;
                         if (property.Value is JsonValue value && value.TryGetValue(out string? text)) {
-                            // Rendered HTML (frames, posters) starts with markup; everything else is checked.
-                            if (!text.TrimStart().StartsWith("<", StringComparison.Ordinal)) {
+                
+                            if (!Markup.IsMatch(text)) {
                                 Inspect(text, path, problems);
                             }
                         } else {

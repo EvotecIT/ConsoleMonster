@@ -16,7 +16,7 @@
 {{~ tb = data.tables; first = tb.sections[0] ~}}
 {{~ capture art ~}}
 <div data-cm-frame="{{ first.id }}">
-{{~ screen_frame = first.frame; screen_title = "TableShowcases.DnsRecords()"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title; screen_dark = true ~}}
+{{~ screen_frame = first.frame; screen_title = "dotnet run"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title; screen_dark = true ~}}
 {{ include "screen" }}
 </div>
 {{~ end ~}}
@@ -39,6 +39,20 @@
   <div class="cm-prose cm-page__intro">
 {{ content }}
   </div>
+  {{~ ## The program that printed the table at the top, then the same for every section: each frame is what its program
+       printed at the chosen width. ## ~}}
+  <section class="cm-showcase cm-table-showcase" aria-labelledby="{{ first.id }}-code-title">
+    <div class="cm-showcase__head">
+      <h2 id="{{ first.id }}-code-title">The program behind the DNS table</h2>
+      <p>A new console project with the package, and this as its Program.cs. Change the width of your terminal (or the width above) and run it again.</p>
+    </div>
+    <div class="cm-table-showcase__code">
+      {{~ code_lang = "bash"; code_label = ".NET 8 and later"; code_text = "dotnet new console -n Tables\ncd Tables\ndotnet add package ConsoleMonster\ndotnet run" ~}}
+      {{ include "code" }}
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = first.csharpFile; code_text = first.csharp; code_full = first.csharpFull ~}}
+      {{ include "code" }}
+    </div>
+  </section>
   {{~ for s in tb.sections offset:1 ~}}
   <section class="cm-showcase cm-table-showcase" id="{{ s.id }}" aria-labelledby="{{ s.id }}-title">
     <div class="cm-showcase__head">
@@ -56,11 +70,10 @@
         </ul>
       </div>
     </div>
-    <details class="cm-source">
-      <summary>C# source</summary>
-      {{~ code_lang = "csharp"; code_label = "C#"; code_repo = (s.id == "inspector" ? "Website/tools/SiteFrames/Catalog/PageExamples.cs" : "ConsoleMonster.Examples/Showcases/TableShowcases.cs"); code_text = s.csharp ~}}
+    <div class="cm-table-showcase__code">
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = s.csharpFile; code_text = s.csharp; code_full = s.csharpFull ~}}
       {{ include "code" }}
-    </details>
+    </div>
   </section>
   {{~ end ~}}
 </div>

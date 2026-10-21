@@ -1,4 +1,6 @@
-﻿New-ConsoleStatusList {
+﻿Import-Module ConsoleMonster
+
+New-ConsoleStatusList {
     New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
     New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'
     New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'

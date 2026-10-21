@@ -25,8 +25,8 @@ namespace SiteFrames.Pages {
                 ["width"] = Wide,
                 ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, "Controllers")).Short,
                 ["csharpFull"] = WidgetsPage.Longer(SourceSnippets.Split(SourceSnippets.Get(source, "Controllers"))),
-                ["powershell"] = SourceSnippets.Split(Site.ReadText(Twins.Script(site, "home", "controllers"))).Short,
-                ["powershellFull"] = WidgetsPage.Longer(SourceSnippets.Split(Site.ReadText(Twins.Script(site, "home", "controllers")))),
+                ["powershell"] = SourceSnippets.Program(Site.ReadText(Twins.Script(site, "home", "controllers"))).Short,
+                ["powershellFull"] = WidgetsPage.Longer(SourceSnippets.Program(Site.ReadText(Twins.Script(site, "home", "controllers")))),
                 ["frame"] = site.Frame(build, Wide, crop: true),
                 ["narrow"] = site.Frame(build, Narrow),
                 ["parity"] = Twins.Check(site, "home", "controllers", Wide, build, hosts, problems)
@@ -37,7 +37,7 @@ namespace SiteFrames.Pages {
             site.WriteJson(site.Data("home"), new JsonObject {
                 ["controllers"] = controllers,
                 ["cmdlets"] = count,
-                ["widgets"] = WidgetExamples.All().Count
+                ["widgets"] = WidgetsPage.Examples.Length
             });
             WidgetsPage.Report(problems, "home");
         }

@@ -71,7 +71,7 @@ namespace SiteFrames.Pages {
             }
 
             // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.
-            DocCards.Offer("overrides-plain", Site.Render(TableShowcases.DnsRecords(), 80, ColorDepth.None, GlyphTier.Ascii, Theme.Dark), Frames.Screen.Dark);
+            DocCards.Offer("overrides-plain", TablesPage.Run(site, "dns", 80, Theme.Dark, ColorDepth.None, GlyphTier.Ascii), Frames.Screen.Dark);
 
             // The too-small fallback: the assessment dashboard mid-run at three window sizes.
             foreach ((int w, int h) in new[] { (100, 30), (64, 20), (50, 12) }) {

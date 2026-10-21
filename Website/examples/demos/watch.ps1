@@ -1,4 +1,6 @@
-﻿# The mail queues every 1.5 seconds; -Differences marks the cells that changed since the last run.
+﻿Import-Module ConsoleMonster
+
+# The mail queues every 1.5 seconds; -Differences marks the cells that changed since the last run.
 $script:tick = 0
 Watch-Console -Title 'Mail queues' -Interval 1.5 -Count 6 -Differences {
     $script:tick++

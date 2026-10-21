@@ -27,7 +27,7 @@ namespace SiteFrames.Pages {
             JsonObject nav = new JsonObject();
             Dictionary<string, Func<ITheme, CellBuffer?>> items = new Dictionary<string, Func<ITheme, CellBuffer?>> {
                 ["widgets"] = theme => Site.Render(WidgetGallery.Build(), 70, ColorDepth.TrueColor, GlyphTier.Full, theme),
-                ["tables"] = theme => Site.Render(TableShowcases.DnsRecords(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
+                ["tables"] = theme => TablesPage.Run(site, "dns", 80, theme),
                 ["live"] = LiveFrame,
                 ["interactive"] = theme => InteractivePage.Thumbnail(site, theme),
                 ["powershell"] = theme => Site.Render(Catalog.Terminal.Capture(Catalog.PageExamples.Controllers), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),

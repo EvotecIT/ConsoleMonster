@@ -109,14 +109,19 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>
-        /// A folder of links into this repository (junctions on Windows): <c>ConsoleMonster</c> to the <c>Module</c> folder, so
+        /// A folder of links into this repository (junctions on Windows, one folder per checkout): <c>ConsoleMonster</c> to the <c>Module</c> folder, so
         /// <c>Import-Module ConsoleMonster</c> in a shown script loads the repository build when the folder is first on
         /// PSModulePath, and <c>ConsoleMonster.PowerShell</c> beside it, because the module's development loader looks for the
         /// cmdlet binaries at <c>$PSScriptRoot\..\ConsoleMonster.PowerShell\bin</c>. Created once under the temporary folder and
         /// reused.
         /// </summary>
         public static string ModuleLinkRoot(Site site) {
-            string root = Path.Combine(Path.GetTempPath(), "cmsite-modules");
+            // One folder per checkout, so two worktrees rendering at once never point each other's links at themselves.
+            string id;
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                id = Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(site.Repository).TrimEnd('\\', '/').ToUpperInvariant()))).Substring(0, 12).ToLowerInvariant();
+            }
+            string root = Path.Combine(Path.GetTempPath(), "cmsite-modules-" + id);
             Directory.CreateDirectory(root);
             Link(Path.Combine(root, "ConsoleMonster"), Path.Combine(site.Repository, "Module"));
             Link(Path.Combine(root, "ConsoleMonster.PowerShell"), Path.Combine(site.Repository, "ConsoleMonster.PowerShell"));

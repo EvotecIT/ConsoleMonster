@@ -1,4 +1,6 @@
-﻿# Show-ConsoleHelp reads the help PowerShell already has: here a function's comment-based help.
+﻿Import-Module ConsoleMonster
+
+# Show-ConsoleHelp reads the help PowerShell already has: here a function's comment-based help.
 #region more
 function Test-MailDomain {
     <#

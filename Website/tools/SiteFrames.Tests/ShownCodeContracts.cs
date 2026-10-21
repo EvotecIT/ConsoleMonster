@@ -14,6 +14,12 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void Split_RegionMarkers_IgnoreCase() {
+            (string _, string full) = SourceSnippets.Split("#Region more\n$x = 1\n#EndRegion\n$z = 3");
+            Assert.Equal("$x = 1\n$z = 3", full);
+        }
+
+        [Fact]
         public void Split_NestedRegion_IsKeptAsWritten() {
             (string _, string full) = SourceSnippets.Split("#region more\n#region inner\n$x = 1\n#endregion\n$y = 2\n#endregion\n$z = 3");
             Assert.Equal("#region inner\n$x = 1\n#endregion\n$y = 2\n$z = 3", full);
@@ -51,6 +57,11 @@ namespace SiteFrames.Tests {
         [InlineData("// Website/tools/SiteFrames/Catalog/PageExamples.cs")]
         [InlineData("dotnet run --project ConsoleMonster.Examples/ConsoleMonster.Examples.csproj")]
         [InlineData("Get-Content Module/Examples/Example-Tables.ps1")]
+        [InlineData("& ./Module/Examples/X.ps1")]
+        [InlineData("Import-Module .\\Module\\ConsoleMonster.psd1")]
+        [InlineData("Split-Path $PSScriptRoot -Parent")]
+        [InlineData("Push-Location ..")]
+        [InlineData("Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\a.zip'")]
         public void Guard_RepositoryReferences_AreFound(string code) {
             Assert.NotEmpty(CodeGuard.Find(code));
         }
@@ -63,6 +74,8 @@ namespace SiteFrames.Tests {
         [InlineData("$here = $PSScriptRoot")]
         [InlineData("dotnet add package ConsoleMonster")]
         [InlineData("using ConsoleMonster.Widgets;")]
+        [InlineData("Write-Host \"$PSScriptRoot...\"")]
+        [InlineData("<# .SYNOPSIS #>")]
         public void Guard_ReaderCode_Passes(string code) {
             Assert.Empty(CodeGuard.Find(code));
         }
