@@ -22,7 +22,6 @@ namespace ConsoleMonster.PowerShell {
             List<IWidget> widgets = new List<IWidget>();
             object? shape = null;
             Table? table = null;
-            List<string> wide = new List<string>();
             string? title = null;
             int rowIndex = 0;
             ShapeOptions shapeOptions = PSShaping.Options();
@@ -33,7 +32,6 @@ namespace ConsoleMonster.PowerShell {
             }
             void Flush() {
                 if (table != null && table.Rows.Count > 0) { widgets.Add(table); }
-                if (wide.Count > 0) { widgets.Add(Wide(wide, shape, title)); wide.Clear(); }
                 table = null;
             }
             result = null;
@@ -44,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
                         Flush();
                         shape = Get(record, "shapeInfo");
                         string shapeType = Raw(shape)?.GetType().Name ?? string.Empty;
-                        if (shapeType != "TableHeaderInfo" && shapeType != "ListViewHeaderInfo" && shapeType != "WideViewHeaderInfo") { return false; }
+                        if (shapeType != "TableHeaderInfo" && shapeType != "ListViewHeaderInfo") { return false; }
                         // Page decorations and custom controls are deliberately left to the native renderer.
                         if (Get(record, "pageHeaderEntry") != null || Get(record, "pageFooterEntry") != null) { return false; }
                         title = null;
@@ -110,8 +108,6 @@ namespace ConsoleMonster.PowerShell {
                                 index++;
                             }
                             widgets.Add(view);
-                        } else if (entryType == "WideViewEntry") {
-                            wide.Add(String(Get(Get(entry, "formatPropertyField"), "propertyValue")));
                         } else { return false; }
                         break;
                     default:
@@ -138,24 +134,6 @@ namespace ConsoleMonster.PowerShell {
                     Width = width > 0 ? width : (int?)null,
                     Overflow = wrap ? ColumnOverflow.Wrap : ColumnOverflow.Truncate
                 });
-            }
-            return table;
-        }
-
-        private static IWidget Wide(List<string> values, object? shape, string? title) {
-            int columns = Number(Get(shape, "columns"));
-            if (columns <= 0) {
-                int longest = 1;
-                foreach (string value in values) { longest = Math.Max(longest, DisplayWidth.Measure(value)); }
-                columns = Math.Max(1, Math.Min(values.Count, (Terminal.GetCurrentProfile().Width - 4) / (longest + 3)));
-            }
-            columns = Math.Min(columns, Math.Max(1, values.Count));
-            Table table = new Table { Title = Markup.Escape(title ?? string.Empty), ShowHeader = false, Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0, WrapLines = 1 };
-            for (int i = 0; i < columns; i++) { table.AddColumn(new TableColumn(string.Empty) { Overflow = ColumnOverflow.Truncate }); }
-            for (int i = 0; i < values.Count; i += columns) {
-                TableCell[] cells = new TableCell[columns];
-                for (int c = 0; c < columns; c++) { cells[c] = new TableCell(i + c < values.Count ? Markup.Escape(values[i + c]) : string.Empty); }
-                table.AddRow(cells);
             }
             return table;
         }
