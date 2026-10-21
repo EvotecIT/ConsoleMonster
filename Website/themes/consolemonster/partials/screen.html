@@ -6,6 +6,8 @@
      largest font size in px). Each screen is one image to assistive technology:
      a frame is hundreds of styled cells, and exposing every cell made each frame swap rebuild a huge accessibility tree
      (with a screen reader, password manager or other UI Automation client running, that alone kept the browser busy). ## ~}}
+{{~ ## Row breaks are written as &#10;: inside a docs page the frame passes through Markdown, which would turn an empty
+     row (a blank line) into a paragraph break and collapse the frame. ## ~}}
 {{~ f = screen_frame ~}}
 {{~ ## The accessible name: the title and the first sentence of the description, or "terminal output" when there is none. ## ~}}
 {{~ screen_name = screen_title + ", terminal output"
@@ -25,15 +27,15 @@
   </figcaption>
   <div class="cm-window__body" tabindex="0" role="group" aria-label="Scrollable terminal output">
     {{~ if f.lightOnly ~}}
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.lightOnly }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.lightOnly | string.replace "\n" "&#10;" }}</pre>
     {{~ else if screen_alt ~}}
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--wide" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--narrow" style="--cols:{{ screen_alt.w }}">{{ screen_alt.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--wide" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark | string.replace "\n" "&#10;" }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-screen--narrow" style="--cols:{{ screen_alt.w }}">{{ screen_alt.dark | string.replace "\n" "&#10;" }}</pre>
     {{~ else if screen_dark || !f.light ~}}
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark | string.replace "\n" "&#10;" }}</pre>
     {{~ else ~}}
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light cm-only-light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.light }}</pre>
-    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-only-dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--light cm-only-light" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.light | string.replace "\n" "&#10;" }}</pre>
+    <pre role="img" aria-label="{{ screen_name | html.escape }}" class="cm-screen cm-screen--dark cm-only-dark" style="--cols:{{ f.w }}{{ if screen_max }};--cm-max-font:{{ screen_max }}px{{ end }}">{{ f.dark | string.replace "\n" "&#10;" }}</pre>
     {{~ end ~}}
   </div>
   </div>

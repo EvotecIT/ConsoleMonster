@@ -284,7 +284,7 @@
     "scriptFull": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-Table -AutoSize"
   },
   "job-ps5": {
-    "title": "Windows PowerShell 5.1",
+    "title": "PowerShell 5.1",
     "file": "job.ps1",
     "label": "job in Windows PowerShell 5.1",
     "meta": [],

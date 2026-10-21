@@ -147,10 +147,11 @@ main > .cm-section { contain-intrinsic-size: auto 560px; }
 main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-window--center .cm-window__frame { margin-inline: auto; }
 .cm-window--fill .cm-window__frame { width: auto; }
-.cm-window__bar { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 10px 0 12px; background: var(--cm-term-bar); color: var(--cm-term-bar-ink); font: 500 12px/1 var(--cm-mono); border-bottom: 1px solid var(--cm-term-edge); }
-.cm-window__tab { display: inline-flex; align-items: center; gap: 8px; color: var(--cm-ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* A title never truncates: when the title and the chips do not fit on one line, the chips wrap below it. */
+.cm-window__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 34px; padding: 6px 10px 6px 12px; background: var(--cm-term-bar); color: var(--cm-term-bar-ink); font: 500 12px/1 var(--cm-mono); border-bottom: 1px solid var(--cm-term-edge); }
+.cm-window__tab { display: inline-flex; align-items: center; gap: 8px; color: var(--cm-ink); font-weight: 600; white-space: nowrap; min-width: 0; }
 .cm-window__tab svg { flex: none; color: var(--cm-muted); }
-.cm-window__tab span { overflow: hidden; text-overflow: ellipsis; }
+.cm-window__tab span { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; }
 .cm-window__meta { display: flex; gap: 6px; margin-left: auto; flex: none; }
 .cm-chip { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 4px; background: color-mix(in srgb, var(--cm-term-bg) 55%, transparent); box-shadow: inset 0 0 0 1px var(--cm-term-edge); color: var(--cm-term-bar-ink); font: 500 11px/1 var(--cm-mono); white-space: nowrap; }
 .cm-window__body { position: relative; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }
@@ -310,7 +311,9 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-prose td:has(> code.cm-ident) { min-width: 24ch; }
 /* Side-by-side frames sit next to each other only when both fit at a readable size (12 px cells: the widest frame's
    columns × 7.2 px plus its chrome, set by the shortcode as --cm-strip-cols); otherwise they stack. */
-.cm-figure--strip .cm-figure__frames { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--cm-strip-cols, 40) * 7.2px + 34px)), 1fr)); }
+/* Side-by-side frames stack by default; frames.js puts them all in one row (is-row) when every one fits beside the others at
+   a readable size (12 px cells: the widest frame's columns × 7.2 px plus its chrome, --cm-strip-cols). Never two and one. */
+.cm-figure--strip .cm-figure__frames.is-row { grid-template-columns: repeat(var(--cm-strip-count, 2), minmax(0, 1fr)); }
 .cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap { margin: 1.4em 0 1.6em; }
 .cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
 .cm-tablewrap { max-width: 100%; overflow-x: auto; }
