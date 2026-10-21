@@ -3,7 +3,7 @@
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
-        $script:PesterVersion = (Get-Module Pester).Version.ToString()
+        $script:PesterPath = Join-Path (Get-Module Pester).ModuleBase 'Pester.psd1'
         $script:Fixtures = Join-Path $TestDrive 'fixtures'
         New-Item -ItemType Directory -Path $script:Fixtures -Force | Out-Null
         Set-Content -LiteralPath (Join-Path $script:Fixtures 'Sample.Tests.ps1') -Encoding UTF8 -Value @'
@@ -26,7 +26,9 @@ Describe 'Math' {
                 if ($WithoutPester) {
                     "`$env:PSModulePath = Join-Path `$PSHOME 'Modules'"
                 } else {
-                    "Import-Module Pester -RequiredVersion $($script:PesterVersion) -Force"
+                    # PS 5.1 and PS 7 search different user-module folders. Use the running Pester's path so a child
+                    # cannot silently miss this version and let the adapter discover a different installation.
+                    "Import-Module '$($script:PesterPath.Replace("'", "''"))' -Force -ErrorAction Stop"
                 }
                 "Import-Module '$($script:ModulePath)' -Force"
                 "`$fixtures = '$($script:Fixtures)'"
