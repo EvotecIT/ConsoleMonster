@@ -17,16 +17,18 @@ pwsh Website/build.ps1 -CI               # CI-mode pipeline (engine lock, verify
 ```
 
 `build.ps1` locates PowerForge.Web.Cli from `-PowerForgeRoot`, `POWERFORGE_ROOT`, a sibling `PSPublishModule` checkout or
-the global `powerforge-web` tool. The engine is pinned in `.powerforge/engine-lock.json` (PSPublishModule `77a10b3d`, which
-has the PowerShell command reference mode); CI builds that ref. A local CLI older than the lock can fail the API steps:
+the global `powerforge-web` tool. The engine is pinned in `.powerforge/engine-lock.json`; CI builds that ref.
+A local CLI older than the lock can fail the API steps:
 build the pinned ref from a `git archive` of PSPublishModule instead.
 
 Caching: the CI pipeline's optimize step hashes every CSS and JS file into a content-addressed name (`hashAssets` in
 `pipeline.json`) and rewrites the references, so a deploy never pairs new HTML with old styles or scripts. Prism's own
-scripts keep fixed names because its autoloader and `site.js` build their URLs. What scripts fetch by a fixed URL at run
-time (frame bundles, replays, recordings, Prism) carries the page's content version instead: `render` writes a hash of
-those folders to `data/assets.json`, `partials/head.html` puts it in `<meta name="cm-runtime">`, and `frames.js` and
-`site.js` add it as `?v=`.
+scripts keep fixed names because `site.js` builds their URLs. What scripts fetch by a fixed URL at run
+time (frame bundles, replays, recordings, Prism) carries the page's content version instead. Automatic Prism injection is
+off; `site.js` loads its core and components with that version on every page type. Token colours already live in the
+shared, hashed `base.css`.
+`render` writes a hash of those folders to `data/assets.json`, `partials/head.html` puts it in `<meta name="cm-runtime">`, and `frames.js` and
+`site.js` add it as `?v=`. `build/Export-ApiChrome.ps1` carries the same meta tag into both reference families.
 
 ## Real output only
 
