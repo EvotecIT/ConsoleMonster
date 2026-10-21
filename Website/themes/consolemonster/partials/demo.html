@@ -82,7 +82,7 @@
         <p class="cm-demo__refs">See also: {{~ for l in c.use.links ~}}{{ if !for.first }},{{ end }} <a href="{{ l.url }}">{{ l.title }}</a>{{~ end ~}}</p>
         {{~ end ~}}
         {{~ if c.use.github ~}}
-        <p class="cm-demo__refs cm-demo__refs--quiet"><a href="{{ c.use.github }}" aria-label="View {{ c.use.github | string.replace "https://github.com/EvotecIT/ConsoleMonster/blob/master/" "" }} on GitHub">View on GitHub</a></p>
+        <p class="cm-demo__refs cm-demo__refs--quiet"><a href="{{ c.use.github }}" aria-label="View on GitHub: {{ c.use.github | string.replace "https://github.com/EvotecIT/ConsoleMonster/blob/master/" "" }}">View on GitHub</a></p>
         {{~ end ~}}
       </div>
       {{~ end ~}}

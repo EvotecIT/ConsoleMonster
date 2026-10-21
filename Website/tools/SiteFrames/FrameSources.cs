@@ -50,6 +50,9 @@ namespace SiteFrames {
             // The file's own top level is a collection of entries (or page text), never the code for all of them.
             if (root is JsonObject top) {
                 foreach (KeyValuePair<string, JsonNode?> property in top) {
+                    if ((property.Key == "frame" || property.Key == "poster") && IsFrame(property.Value)) {
+                        problems.Add(name + "." + property.Key + " is a frame at the top of its file, with no entry to carry its code.");
+                    }
                     Walk(property.Value, top, name + "." + property.Key, false, repository, problems);
                 }
             } else {
@@ -88,10 +91,14 @@ namespace SiteFrames {
             }
             if (node is JsonObject obj) {
                 foreach (KeyValuePair<string, JsonNode?> property in obj) {
-                    if (SourceKeys.Contains(property.Key) && IsCode(property.Value)) {
+                    if ((SourceKeys.Contains(property.Key) || property.Key == "text") && IsCode(property.Value)) {
                         return true;
                     }
                 }
+            }
+            // A list of code blocks (steps with their code).
+            if (node is JsonArray list) {
+                return list.Any(IsCode);
             }
             return false;
         }

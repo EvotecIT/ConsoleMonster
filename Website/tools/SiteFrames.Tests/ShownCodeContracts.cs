@@ -113,6 +113,8 @@ namespace SiteFrames.Tests {
         [InlineData("{\"a\":{\"csharp\":{\"url\":\"/r.json\"},\"frame\":{\"dark\":\"x\"}}}", 1)]
         [InlineData("{\"a\":{\"source\":{\"csharp\":\"x\"},\"frame\":{\"dark\":\"x\"}}}", 0)]
         [InlineData("{\"a\":{\"frame\":{\"title\":\"Text\",\"body\":\"not a frame\"}}}", 0)]
+        [InlineData("{\"a\":{\"code\":[{\"lang\":\"bash\",\"text\":\"dotnet run\"}],\"frame\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"frame\":{\"dark\":\"x\"}}", 1)]
         public void FrameSources_FrameWithoutCode_IsReported(string json, int expected) {
             Assert.Equal(expected, FrameSources.Find(System.Text.Json.Nodes.JsonNode.Parse(json), "data").Count());
         }
