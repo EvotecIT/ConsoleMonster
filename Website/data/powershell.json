@@ -691,7 +691,7 @@
       "commands": [
         {
           "name": "Export-ConsoleFrame",
-          "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.",
+          "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.",
           "url": "/powershell/commands/export-consoleframe/"
         },
         {
@@ -767,6 +767,17 @@
       ]
     },
     {
+      "verb": "Copy",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Copy-ConsoleOutput",
+          "synopsis": "Copies widgets, frames, text or pipeline objects to the operating-system clipboard.",
+          "url": "/powershell/commands/copy-consoleoutput/"
+        }
+      ]
+    },
+    {
       "verb": "Disable",
       "count": 1,
       "commands": [
@@ -801,12 +812,17 @@
     },
     {
       "verb": "Out",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Out-ConsoleDefault",
           "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",
           "url": "/powershell/commands/out-consoledefault/"
+        },
+        {
+          "name": "Out-ConsoleFormatCommand",
+          "synopsis": "Renders native PowerShell formatting records through ConsoleMonster.",
+          "url": "/powershell/commands/out-consoleformatcommand/"
         }
       ]
     },
