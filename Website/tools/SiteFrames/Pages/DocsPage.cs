@@ -88,13 +88,13 @@ namespace SiteFrames.Pages {
             // PowerShell output used in the guides.
             Copy(site, powershell, "write-consoletext", "rich", "ps5", "write-consoletext");
             Copy(site, powershell, "markup", "rich", "ps7", "markup");
-            Copy(site, powershell, "format-consoletable", "plain", "ps7", "plain");
-            Copy(site, powershell, "format-consoletable", "nocolor", "ps7", "nocolor");
-            Copy(site, powershell, "format-consoletable", "narrow", "ps7", "narrow");
+            Copy(site, powershell, "format-consoletable", "plain", "ps7", "plain", "CONSOLEMONSTER_MODE=plain");
+            Copy(site, powershell, "format-consoletable", "nocolor", "ps7", "nocolor", "NO_COLOR=1");
+            Copy(site, powershell, "format-consoletable", "narrow", "ps7", "narrow", "56 columns");
             Copy(site, powershell, "format-consoletable", "rich", "ps7", "format-consoletable");
             Copy(site, powershell, "format-table", "rich", "ps7", "format-table");
-            Copy(site, powershell, "job", "rich", "ps5", "job-ps5");
-            Copy(site, powershell, "job", "rich", "ps7", "job-ps7");
+            Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "Windows PowerShell 5.1");
+            Copy(site, powershell, "job", "rich", "ps7", "job-ps7", "PowerShell 7");
         }
 
         private static JsonObject LightOnly(Site site, CellBuffer frame) {
@@ -103,16 +103,17 @@ namespace SiteFrames.Pages {
             return new JsonObject { ["w"] = frame.Width, ["h"] = Site.Lines(rows), ["lightOnly"] = Frames.FrameHtml.Body(rows) };
         }
 
-        private static void Copy(Site site, JsonObject powershell, string example, string variant, string host, string id) {
+        private static void Copy(Site site, JsonObject powershell, string example, string variant, string host, string id, string? title = null) {
             JsonNode? node = powershell["examples"]?[example]?[variant]?[host];
             if (node == null) {
                 return;
             }
             Figures.Add(id, new JsonObject {
-                ["title"] = example + ".ps1",
+                ["title"] = title ?? example + ".ps1",
                 ["file"] = example + ".ps1",
                 ["label"] = example + " in " + node["host"]!.GetValue<string>(),
-                ["meta"] = new JsonArray(node["host"]!.GetValue<string>()),
+                // A title that already names the host (Windows PowerShell 5.1) needs no host chip beside it.
+                ["meta"] = title != null && title.Contains("PowerShell", StringComparison.Ordinal) ? new JsonArray() : new JsonArray(node["host"]!.GetValue<string>()),
                 ["frame"] = node["frame"]!.DeepClone(),
                 ["script"] = powershell["examples"]![example]!["script"]!.DeepClone(),
                 ["scriptFull"] = powershell["examples"]![example]!["scriptFull"]?.DeepClone()

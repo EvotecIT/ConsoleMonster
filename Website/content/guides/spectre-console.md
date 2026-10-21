@@ -7,7 +7,7 @@ order: 3
 
 Spectre.Console is a widely used .NET library for rich console output, and its markup syntax is familiar to many .NET developers. ConsoleMonster is a separate library with its own parser and renderer. Its markup follows the same dialect, so a reader who knows one can read the other. This page maps the concepts from one to the other and notes where they behave differently.
 
-{{< cm-frame id="markup" script="true" caption="Write-ConsoleMarkup in PowerShell 7: palette names, hex and rgb() colours, theme roles as backgrounds, escaped brackets, an unknown tag and a link." >}}
+{{< cm-frame id="markup" script="true" caption="`Write-ConsoleMarkup` in PowerShell 7: palette names, hex and `rgb()` colours, theme roles as backgrounds, escaped brackets, an unknown tag and a link." >}}
 
 ## Markup
 

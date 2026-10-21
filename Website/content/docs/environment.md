@@ -30,9 +30,21 @@ Detection also reads `CI` and the variables of common CI systems (GitHub Actions
 
 ## The same table under overrides
 
-The script is the PowerShell page's `Format-ConsoleTable` example; only the environment changes.
+The script below is the same for both frames; only the environment changes. Set a variable for the session, run the script, then clear it:
 
-{{< cm-frame ids="nocolor,plain" caption="NO_COLOR=1 keeps the layout and the status words; CONSOLEMONSTER_MODE=plain also switches to ASCII." >}}
+```powershell
+$env:NO_COLOR = 1
+./format-consoletable.ps1
+Remove-Item Env:NO_COLOR
+
+$env:CONSOLEMONSTER_MODE = 'plain'
+./format-consoletable.ps1
+Remove-Item Env:CONSOLEMONSTER_MODE
+```
+
+In bash, set it for one command: `NO_COLOR=1 pwsh -File ./format-consoletable.ps1`.
+
+{{< cm-frame ids="nocolor,plain" caption="`NO_COLOR=1` keeps the layout and the status words; `CONSOLEMONSTER_MODE=plain` also switches to ASCII." >}}
 
 ## In code
 

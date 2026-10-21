@@ -22,13 +22,13 @@ Detection runs once and produces a `TerminalProfile`: the output mode, the colou
 - **Widths.** Display widths come from Unicode 17 tables, with emoji and ambiguous widths that can be overridden. A width probe reads the console screen buffer and never reads input.
 - **Background.** In conhost, `auto` reads the console background colour to choose the light or dark theme. Windows Terminal does not expose its colour scheme to console programs, so there `CONSOLEMONSTER_THEME=light` selects the light theme.
 
-{{< cm-frame id="profile-ci" caption="With CI=true and NO_COLOR=1: stream mode, no colour, Basic glyphs and no width probing." >}}
+{{< cm-frame id="profile-ci" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}
 
 ## Overriding detection
 
 Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)) or in code: `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it.
 
-{{< cm-frame id="profile" caption="The profile the site uses for its captures: CONSOLEMONSTER_COLOR, _GLYPHS, _THEME and _CULTURE pinned." >}}
+{{< cm-frame id="profile" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
 
 ## Fonts and resizing during a session
 

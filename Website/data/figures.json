@@ -209,7 +209,7 @@
     "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleMarkup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleMarkup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleMarkup '[[brackets]] are literal, [nosuchcolour]unknown tags[/] keep their text, and [link=https://consolemonster.dev]links[/] use OSC 8'"
   },
   "plain": {
-    "title": "format-consoletable.ps1",
+    "title": "CONSOLEMONSTER_MODE=plain",
     "file": "format-consoletable.ps1",
     "label": "format-consoletable in PowerShell 7.6",
     "meta": [
@@ -224,7 +224,7 @@
     "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)"
   },
   "nocolor": {
-    "title": "format-consoletable.ps1",
+    "title": "NO_COLOR=1",
     "file": "format-consoletable.ps1",
     "label": "format-consoletable in PowerShell 7.6",
     "meta": [
@@ -239,7 +239,7 @@
     "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Total -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n)"
   },
   "narrow": {
-    "title": "format-consoletable.ps1",
+    "title": "56 columns",
     "file": "format-consoletable.ps1",
     "label": "format-consoletable in PowerShell 7.6",
     "meta": [
@@ -284,12 +284,10 @@
     "scriptFull": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113; Time = [timespan]::FromSeconds(48.2); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331; Time = [timespan]::FromSeconds(3.1); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576; Time = [timespan]::FromSeconds(11.7); Signed = $true; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302; Time = [timespan]::FromSeconds(1.2); Signed = $false; Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-Table -AutoSize"
   },
   "job-ps5": {
-    "title": "job.ps1",
+    "title": "Windows PowerShell 5.1",
     "file": "job.ps1",
     "label": "job in Windows PowerShell 5.1",
-    "meta": [
-      "Windows PowerShell 5.1"
-    ],
+    "meta": [],
     "frame": {
       "w": 22,
       "h": 7,
@@ -299,12 +297,10 @@
     "scriptFull": "Import-Module ConsoleMonster\n\n$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'; Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Write-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob"
   },
   "job-ps7": {
-    "title": "job.ps1",
+    "title": "PowerShell 7",
     "file": "job.ps1",
     "label": "job in PowerShell 7.6",
-    "meta": [
-      "PowerShell 7.6"
-    ],
+    "meta": [],
     "frame": {
       "w": 22,
       "h": 7,

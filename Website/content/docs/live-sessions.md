@@ -88,7 +88,7 @@ A recording keeps the text form of row values; region swaps carry in-process wid
 
 A size change clears the screen and redraws it; while a window is dragged, redraws are coalesced to at most one every 100 ms. Narrower panels drop optional parts first, table columns hide by priority and tables turn into cards. When the window is smaller than the dashboard's `MinimumSize`, it keeps its highest-priority panels, and when even those do not fit, it shows one status line.
 
-{{< cm-frame ids="size-100x30,size-64x20,size-50x12" caption="The assessment dashboard halfway through its recording, composed at 100×30, 64×20 and 50×12. Its MinimumSize is 60×20." >}}
+{{< cm-frame ids="size-100x30,size-64x20,size-50x12" caption="The assessment dashboard halfway through its recording, composed at 100×30, 64×20 and 50×12. Its `MinimumSize` is 60×20." >}}
 
 ## Without a console
 

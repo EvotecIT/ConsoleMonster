@@ -304,6 +304,13 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-prose li { margin: .3em 0; }
 .cm-prose li > ul { margin: .3em 0 0; }
 .cm-prose :not(pre) > code { padding: .1em .35em; border-radius: 4px; background: var(--cm-sunken); font-size: .88em; color: var(--cm-ink); overflow-wrap: anywhere; }
+/* An identifier marked by site.js breaks only at the <wbr> after each underscore; its column is wide enough for most names
+   on one or two lines. */
+.cm-prose code.cm-ident { overflow-wrap: normal; }
+.cm-prose td:has(> code.cm-ident) { min-width: 24ch; }
+/* Side-by-side frames sit next to each other only when both fit at a readable size (12 px cells: the widest frame's
+   columns × 7.2 px plus its chrome, set by the shortcode as --cm-strip-cols); otherwise they stack. */
+.cm-figure--strip .cm-figure__frames { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--cm-strip-cols, 40) * 7.2px + 34px)), 1fr)); }
 .cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap { margin: 1.4em 0 1.6em; }
 .cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
 .cm-tablewrap { max-width: 100%; overflow-x: auto; }
@@ -357,7 +364,8 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 .cm-figure__frames { display: grid; gap: 14px; }
-.cm-figure--strip .cm-figure__frames { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+.cm-figure__code { display: grid; gap: 14px; margin-top: 14px; }
+.cm-figure--strip .cm-figure__frames { align-items: start; }
 .cm-screen--narrow { display: none; }
 @media (max-width: 700px) {
   .cm-screen--wide { display: none; }

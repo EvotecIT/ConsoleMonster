@@ -11,7 +11,7 @@ summary: "Dark, light and high contrast, and how colours are reduced per tier."
 
 Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Accent`, `Pass`, `Warn`, `Fail`, `Info`, `Skip`, `Running`, `Pending`, `Border`, `Title`, `Header`, `Surface`, `Focus` and six chart series. A theme maps each role to a 24-bit colour with its 256 and 16-colour fallbacks, so a role stays distinguishable on every tier.
 
-{{< cm-frame ids="theme-dark,theme-light,theme-contrast" caption="One summary in Theme.Dark, Theme.Light and Theme.HighContrast." >}}
+{{< cm-frame ids="theme-dark,theme-light,theme-contrast" caption="One summary in `Theme.Dark`, `Theme.Light` and `Theme.HighContrast`." >}}
 
 ## Choosing the theme
 

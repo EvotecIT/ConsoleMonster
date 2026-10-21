@@ -26,7 +26,7 @@ Colours on the host routes map to the 16 console colours by role: pass green, fa
 
 When a CI system is detected (`CI`, GitHub Actions, Azure Pipelines, Jenkins, GitLab or TeamCity) or output is redirected, live sessions switch to stream mode: one line per meaningful change, a heartbeat summary every ten seconds and `[mm:ss]` prefixes in CI, where log viewers often lack their own timestamps.
 
-{{< cm-frame id="plain" caption="Format-ConsoleTable with CONSOLEMONSTER_MODE=plain: ASCII and no escape sequences, for logs that keep every byte." >}}
+{{< cm-frame id="plain" caption="`Format-ConsoleTable` with `CONSOLEMONSTER_MODE=plain`: ASCII and no escape sequences, for logs that keep every byte." >}}
 
 Text that reaches stream and plain output is sanitised: escape sequences and control characters in log messages, captured lines or data are removed, so plain mode never emits an escape sequence.
 
