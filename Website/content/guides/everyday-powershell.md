@@ -1,9 +1,8 @@
 ---
 title: Everyday PowerShell output
 description: "Enable-ConsoleFormatting makes everyday output readable: files, processes and hashtables, Format-Table on request, module views and stream colours."
-social_card_image: /site/cards/formatting.svg
-meta.social_title: "Everyday PowerShell output"
 slug: everyday-powershell
+card: formatting
 order: 1
 ---
 

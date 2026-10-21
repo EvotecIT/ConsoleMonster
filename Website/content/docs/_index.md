@@ -1,9 +1,8 @@
 ---
 title: Documentation
 description: Install ConsoleMonster, see how it detects the console, choose a theme, override detection, and run, record and replay live sessions.
-social_card_image: /site/nav/tables-dark.svg
-meta.social_title: "Documentation"
 slug: index
+card: size-100x30
 order: 0
 layout: docsindex
 ---

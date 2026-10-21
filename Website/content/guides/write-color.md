@@ -2,6 +2,7 @@
 title: Coming from Write-Color
 description: Write-ConsoleText takes the parameters and aliases of Write-Color from PSWriteColor. How they map, what it adds and where the two behave differently.
 slug: write-color
+card: write-consoletext
 order: 2
 ---
 

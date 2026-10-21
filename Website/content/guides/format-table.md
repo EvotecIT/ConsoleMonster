@@ -2,6 +2,7 @@
 title: Coming from Format-Table
 description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
 slug: format-table
+card: format-consoletable
 order: 4
 ---
 

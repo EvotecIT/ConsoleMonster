@@ -62,6 +62,9 @@
     }
   },
   "cards": {
+    "size-100x30": {
+      "src": "/site/cards/size-100x30.svg"
+    },
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
@@ -86,9 +89,6 @@
     "parallel": {
       "src": "/site/cards/parallel.svg"
     },
-    "size-100x30": {
-      "src": "/site/cards/size-100x30.svg"
-    },
     "logging": {
       "src": "/site/cards/logging.svg"
     },
@@ -106,6 +106,18 @@
     },
     "threads-live": {
       "src": "/site/cards/threads-live.svg"
+    },
+    "format-consoletable": {
+      "src": "/site/cards/format-consoletable.svg"
+    },
+    "job-ps7": {
+      "src": "/site/cards/job-ps7.svg"
+    },
+    "markup": {
+      "src": "/site/cards/markup.svg"
+    },
+    "write-consoletext": {
+      "src": "/site/cards/write-consoletext.svg"
     }
   }
 }

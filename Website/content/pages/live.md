@@ -1,8 +1,6 @@
 ---
 title: Live dashboards
 description: Recorded runs of ConsoleMonster's live showcases, replayed frame by frame. Threads post updates; the session draws about 15 frames a second.
-social_card_image: /site/nav/live-dark.svg
-meta.social_title: "Live console dashboards"
 slug: live
 layout: live
 meta.seo_title: Live console dashboards | ConsoleMonster

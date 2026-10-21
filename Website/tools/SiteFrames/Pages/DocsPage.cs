@@ -172,6 +172,12 @@ namespace SiteFrames.Pages {
             if (node == null) {
                 return;
             }
+            // The capture itself, so a page can use the figure as its social card artwork (front matter card: <id>).
+            PowerShellHost runHost = host == PowerShellHost.Desktop.Id ? PowerShellHost.Desktop : PowerShellHost.Core;
+            CellBuffer? captured = PowerShellPage.CaptureFrame(site, example, variant, runHost, variant == "narrow" ? 56 : PowerShellPage.Width);
+            if (captured != null) {
+                DocCards.Offer(id, captured, Frames.Screen.Dark);
+            }
             Figures.Add(id, new JsonObject {
                 ["title"] = title ?? example + ".ps1",
                 ["file"] = example + ".ps1",

@@ -2,6 +2,7 @@
 title: Coming from Spectre.Console
 description: Spectre.Console concepts and their ConsoleMonster counterparts, with the markup dialect the two share and where it differs.
 slug: spectre-console
+card: markup
 order: 3
 ---
 

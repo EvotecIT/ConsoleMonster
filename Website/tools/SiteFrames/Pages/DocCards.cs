@@ -31,20 +31,29 @@ namespace SiteFrames.Pages {
             List<string> problems = new List<string>();
             HashSet<string> groups = Groups(site);
             HashSet<string> reported = new HashSet<string>(StringComparer.Ordinal);
-            string[] files = Directory.GetFiles(Path.Combine(site.Website, "content", "docs"), "*.md");
-            Array.Sort(files, StringComparer.Ordinal);
-            foreach (string file in files) {
-                string page = Path.GetFileName(file);
-                if (page.StartsWith("_", StringComparison.Ordinal)) {
-                    continue;
+            // Docs pages need a group and a card; guides and section indexes may name a card, which is then their social
+            // card artwork (site.json Social.GeneratedCardImages: /site/cards/{meta.card}.svg) and must exist too.
+            List<(string File, bool Catalogue)> files = new List<(string, bool)>();
+            foreach (string section in new[] { "docs", "guides" }) {
+                string[] found = Directory.GetFiles(Path.Combine(site.Website, "content", section), "*.md");
+                Array.Sort(found, StringComparer.Ordinal);
+                foreach (string file in found) {
+                    files.Add((file, section == "docs" && !Path.GetFileName(file).StartsWith("_", StringComparison.Ordinal)));
                 }
-                string? group = FrontMatter(file, "group");
-                if (group == null || !groups.Contains(group)) {
-                    problems.Add(page + ": group \"" + (group ?? string.Empty) + "\" is not one of docsCatalog.groups in data/copy.json, so the page is missing from the catalogue.");
-                }
+            }
+            foreach ((string file, bool catalogue) in files) {
+                string page = Path.GetRelativePath(Path.Combine(site.Website, "content"), file).Replace('\\', '/');
                 string? id = FrontMatter(file, "card");
-                if (id == null) {
-                    problems.Add(page + ": no card in the front matter; name a figure or demo the page shows.");
+                if (catalogue) {
+                    string? group = FrontMatter(file, "group");
+                    if (group == null || !groups.Contains(group)) {
+                        problems.Add(page + ": group \"" + (group ?? string.Empty) + "\" is not one of docsCatalog.groups in data/copy.json, so the page is missing from the catalogue.");
+                    }
+                    if (id == null) {
+                        problems.Add(page + ": no card in the front matter; name a figure or demo the page shows.");
+                        continue;
+                    }
+                } else if (id == null) {
                     continue;
                 }
                 if (cards.ContainsKey(id) || reported.Contains(id)) {

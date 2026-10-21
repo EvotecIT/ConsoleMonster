@@ -1,8 +1,6 @@
 ---
 title: Live runs
 description: Run a script block for many items in parallel with a live view, re-run a command with Watch-Console, and watch Pester tests as they run.
-social_card_image: /site/cards/size-100x30.svg
-meta.social_title: "Live runs: parallel, watch and Pester"
 slug: live-runs
 order: 9
 group: live
