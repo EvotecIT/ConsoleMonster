@@ -53,9 +53,12 @@ namespace SiteFrames.Pages {
             /// <summary>
             /// The C# source shown beside the recording: the file relative to the repository, and either the method whose
             /// <c>// &lt;example&gt;</c> lines are the snippet (Example) or the signature of a method shown whole (Signature).
-            /// The whole file is the full program.
+            /// The whole file and any <see cref="CSharpCompanions"/> form the full program.
             /// </summary>
             public (string File, string? Example, string? Signature)? CSharp { get; set; }
+
+            /// <summary>Additional source files needed by the full C# program, relative to the repository.</summary>
+            public string[] CSharpCompanions { get; set; } = Array.Empty<string>();
 
             /// <summary>The share of the run the poster shows (default 0.6).</summary>
             public double PosterShare { get; set; } = 0.6;
@@ -74,18 +77,27 @@ namespace SiteFrames.Pages {
 
             /// <summary>A static figure: the transcript after the run instead of a replay.</summary>
             public bool Static { get; set; }
+
+            /// <summary>
+            /// Text on the screen the replay ends on, or null for the whole run. Frames after the last one showing it (an app's
+            /// later screens and its exit, which leaves an empty console) are left out, so the replay stops on that screen and
+            /// the player holds it. The poster and the player's opening position are that last frame: a reader sees the result,
+            /// and Play runs the replay from the beginning.
+            /// </summary>
+            public string? EndsOn { get; set; }
         }
 
         private static IEnumerable<Demo> All() {
             // The home page's Monster hero: a whole application (a Shell menu, a form, a live dashboard and the results),
-            // recorded from the Release build driving itself with scripted keys on a fixed clock and seed.
+            // recorded from the Release build driving itself with scripted keys on a fixed clock and seed. The demo goes on to
+            // the history and quits, which clears the console; the replay ends on the results instead.
             yield return new Demo("app", "Fleet health check", 140, 40) {
                 Program = (Path.Combine("ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe"), "fleet --demo"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "FleetHealth.cs"), "Build", null),
                 PowerShellTwin = Path.Combine("Module", "Examples", "Example-FleetHealth.ps1"),
-                PosterShare = 0.62,
                 Fps = 8,
-                Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") }
+                Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") },
+                EndsOn = "Fleet check finished"
             };
             yield return new Demo("parallel", "ForEach-ConsoleItem -Parallel", 100, 24) {
                 Script = "parallel.ps1",
@@ -113,11 +125,13 @@ namespace SiteFrames.Pages {
             yield return new Demo("hosting", "dotnet run (ConsoleMonster.Hosting)", 110, 30) {
                 Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "hosting 12"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static async Task HostingAsync(int seconds)"),
+                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
                 PosterShare = 0.75
             };
             yield return new Demo("logging", "dotnet run (ConsoleMonster.Extensions.Logging)", 110, 30) {
                 Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "logging"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static void Logging()"),
+                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
                 Static = true
             };
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
@@ -159,6 +173,15 @@ namespace SiteFrames.Pages {
                 }
             }
             return false;
+        }
+
+        private static bool Blank(CellBuffer frame) {
+            for (int y = 0; y < frame.Height; y++) {
+                if (frame.GetRowText(y).Trim().Length > 0) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static string Script(Site site, string name) => Path.Combine(site.Website, "examples", "demos", name);
@@ -223,8 +246,23 @@ namespace SiteFrames.Pages {
                 }
                 string cast = File.ReadAllText(path);
                 List<TimedFrame> frames = TrimRows(Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height));
+                if (!demo.Static && frames.Count == 0) {
+                    problems.Add("demo " + demo.Id + ": the capture has no replay frames; record a non-empty run.");
+                }
+                if (demo.EndsOn != null) {
+                    int last = frames.FindLastIndex(f => Shows(f.Frame, demo.EndsOn));
+                    if (last < 0) {
+                        problems.Add("demo " + demo.Id + ": no frame shows the closing text \"" + demo.EndsOn + "\".");
+                    } else {
+                        frames.RemoveRange(last + 1, frames.Count - last - 1);
+                    }
+                }
                 if (frames.Count > 0) {
                     height = frames[0].Frame.Height;
+                    // A replay that ends on an empty console stops on nothing: a reader who lets it play sees a blank window.
+                    if (!demo.Static && Blank(frames[frames.Count - 1].Frame) && frames.Exists(f => !Blank(f.Frame))) {
+                        problems.Add("demo " + demo.Id + ": the replay ends on an empty screen; set EndsOn to the screen it should stop on.");
+                    }
                 }
                 JsonObject entry = new JsonObject {
                     ["id"] = demo.Id,
@@ -250,7 +288,12 @@ namespace SiteFrames.Pages {
                     }
                     string data = PlayerData.Write(site, frames, demo.Title, demo.Fps, 3000, out long duration, out int count, markers);
                     site.Write(site.Static("replays/demo-" + demo.Id + ".json"), data);
-                    long posterTime = LivePage.Poster(site, frames, demo.PosterShare, out string poster);
+                    long posterTime = LivePage.Poster(site, frames, demo.EndsOn != null ? 1 : demo.PosterShare, out string poster);
+                    // A replay that ends on its result opens there, at its end, so the player shows that screen and Play
+                    // starts again from the beginning.
+                    if (demo.EndsOn != null) {
+                        posterTime = duration;
+                    }
                     entry["url"] = "/replays/demo-" + demo.Id + ".json";
                     entry["frames"] = count;
                     entry["duration"] = duration;
@@ -280,7 +323,11 @@ namespace SiteFrames.Pages {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
                     string source = Path.Combine(site.Repository, file);
                     entry["csharp"] = SourceSnippets.Split(example != null ? SourceSnippets.Get(source, example) : SourceSnippets.Method(source, signature!)).Short;
-                    entry["csharpFull"] = SourceSnippets.Split(Site.ReadText(source)).Full.TrimEnd('\n');
+                    string fullProgram = Site.ReadText(source);
+                    foreach (string companion in demo.CSharpCompanions) {
+                        fullProgram += "\n\n" + Site.ReadText(Path.Combine(site.Repository, companion));
+                    }
+                    entry["csharpFull"] = SourceSnippets.Split(fullProgram).Full.TrimEnd('\n');
                     entry["csharpFile"] = file.Replace('\\', '/');
                 }
                 demos[demo.Id] = entry;

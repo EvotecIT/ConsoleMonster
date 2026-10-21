@@ -12,7 +12,8 @@
  * hosts add (ExportPlayerData does not write them): chapter marks under the position bar, each a button that seeks to its moment. Players found when the page loads are
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
  * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
- * applies (data-cm-start, a deep link, opens there too but does not autoplay). player.state() reports the position, the
+ * applies, from the beginning when the player opened at its end (data-cm-start, a deep link, opens there too but does not
+ * autoplay). player.state() reports the position, the
  * duration and whether it is playing.
  *
  * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
@@ -300,6 +301,11 @@
                 autoplayOwner = self;
                 autoplayed = true;
                 want = true;
+                // A player opened at its end (a host showing the final frame first) autoplays from the beginning, as Play does.
+                if (t >= total) {
+                    t = 0;
+                    draw();
+                }
             }
             resume();
         };

@@ -136,7 +136,8 @@
 
   // Markdown fences become the shared code block: a caption with the language and a copy action.
   var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', text: 'Text', xml: 'XML', yaml: 'YAML' };
-  document.querySelectorAll('.cm-prose pre > code').forEach(function (code) {
+  // Prose code and the examples on the reference pages are set in the shared code block (language, copy).
+  document.querySelectorAll('.cm-prose pre > code, .pf-api-docs .type-examples pre > code').forEach(function (code) {
     var pre = code.parentElement;
     if (pre.closest('.cm-code') || pre.classList.contains('cm-screen')) return;
     var match = /language-([\w-]+)/.exec(code.className || pre.className || '');

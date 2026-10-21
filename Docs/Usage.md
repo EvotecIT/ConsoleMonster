@@ -970,6 +970,53 @@ Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable
 $text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
 ```
 
+## Command-line tools with System.CommandLine
+
+ConsoleMonster does not parse command lines. Pair it with [System.CommandLine](https://learn.microsoft.com/dotnet/standard/commandline/):
+System.CommandLine parses the arguments, validates them and prints help and errors; the command's action writes its
+output with ConsoleMonster. A redirected or CI run gets plain lines, as everywhere else.
+`ConsoleMonster.Examples.Extensions cli --servers 4` runs this example (`CommandLineExample.cs`):
+
+```csharp
+Option<int> servers = new Option<int>("--servers") {
+    Description = "How many servers to check (1–100).",
+    DefaultValueFactory = _ => 3
+};
+servers.Validators.Add(result => {
+    int count = result.GetValueOrDefault<int>();
+    if (count < 1 || count > 100) { result.AddError("The server count must be between 1 and 100."); }
+});
+RootCommand root = new RootCommand("Checks a few servers and prints what it found.");
+root.Options.Add(servers);
+root.SetAction(parseResult => {
+    int count = parseResult.GetValue(servers);
+    string[] names = new string[count];
+    for (int i = 0; i < count; i++) { names[i] = "SRV" + (i + 1); }
+
+    StatusList checks = new StatusList("checks");                 // a live status list while it works
+    foreach (string name in names) { checks.Set(name, name, StatusKind.Pending); }
+    using (LiveSession session = new LiveSession(checks, new LiveSessionOptions { Mode = LiveMode.Inline })) {
+        session.Run(s => {
+            StatusListHandle handle = checks.Handle(s);
+            foreach (string name in names) { handle.Set(name, StatusKind.Running); /* ... */ handle.Set(name, StatusKind.Pass); }
+        });
+    }
+
+    Table table = new Table();                                    // then the result as a table
+    table.AddColumn(new TableColumn("Server") { IsKey = true });
+    table.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
+    foreach (string name in names) { table.AddValues(name, StatusKind.Pass); }
+    Terminal.Write(table);
+    return 0;
+});
+return root.Parse(args).Invoke();
+```
+
+An optional option uses its configured default, or the value type's default when none is configured. Here, omitting
+`--servers` uses `3` and does not prompt. To ask for missing input, use an option without a configured default, check
+whether it was supplied, and open a ConsoleMonster prompt or form; on a target that cannot answer, the prompt uses its default (see
+[When nobody can answer](#when-nobody-can-answer)).
+
 ## Culture
 
 Numbers and dates follow the current culture by default, as PowerShell's own formatting does, so on a Polish system a

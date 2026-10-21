@@ -8,10 +8,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ConsoleMonster.Examples.Extensions {
-    /// <summary>Examples for the logging provider and the hosting dashboard: <c>logging</c> or <c>hosting [seconds]</c>.</summary>
+    /// <summary>Examples for logging, hosting and command-line tools: <c>logging</c>, <c>hosting [seconds]</c> or <c>cli [--servers N]</c>.</summary>
     public static class Program {
         /// <summary>Runs an example.</summary>
-        /// <param name="args"><c>logging</c> or <c>hosting [seconds]</c>.</param>
+        /// <param name="args"><c>logging</c>, <c>hosting [seconds]</c> or <c>cli [--servers N]</c>.</param>
         /// <returns>The exit code.</returns>
         public static async Task<int> Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "logging";
@@ -23,8 +23,12 @@ namespace ConsoleMonster.Examples.Extensions {
                     int seconds = args.Length > 1 && int.TryParse(args[1], out int value) ? value : 12;
                     await HostingAsync(seconds).ConfigureAwait(false);
                     return 0;
+                case "cli":
+                    string[] rest = new string[Math.Max(0, args.Length - 1)];
+                    Array.Copy(args, 1, rest, 0, rest.Length);
+                    return CommandLineExample.Run(rest);
                 default:
-                    Console.Error.WriteLine("Use: logging | hosting [seconds]");
+                    Console.Error.WriteLine("Use: logging | hosting [seconds] | cli [--servers N]");
                     return 1;
             }
         }

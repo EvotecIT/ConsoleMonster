@@ -52,7 +52,7 @@
       }
       clock=until;
     }
-    let fast;
+    let fast, autoplay, deepLink;
     try {
       fast=api.mount(host,{...data,fps:0.385,duration:7800,rows:['first','middle','last'],frames:[[0,[0]],[2600,[1]],[7800,[2]]]});
       fast.setVisible(true);
@@ -61,8 +61,26 @@
       assert(host.querySelector('.cm-screen').textContent==='middle','4x playback displays the intermediate sparse frame on time');
       tick(2000);
       assert(host.querySelector('.cm-screen').textContent==='last' && host.querySelector('.cm-play').textContent==='Play','4x playback reaches the final frame and stops at the scaled duration');
+      fast.destroy();
+      host.setAttribute('data-cm-autoplay','');
+      autoplay=api.mount(host,data,{start:data.duration});autoplay.setVisible(true);
+      assert(autoplay.state().playing && autoplay.state().time===0 && host.querySelector('.cm-screen').textContent==='first','autoplay from the final poster rewinds and starts with the first frame');
+      tick(2600);
+      assert(autoplay.state().playing && autoplay.state().time>0 && host.querySelector('.cm-screen').textContent==='second','rewound autoplay progresses through the recording');
+      tick(3100);
+      autoplay.setVisible(false);autoplay.setVisible(true);
+      assert(!autoplay.state().playing && !autoplay.state().wanted && autoplay.state().time===data.duration && host.querySelector('.cm-screen').textContent==='second','completed autoplay holds the result after a visibility cycle');
+      autoplay.destroy();
+      host.setAttribute('data-cm-start',String(data.duration));
+      deepLink=api.mount(host,data);deepLink.setVisible(true);
+      assert(!deepLink.state().playing && deepLink.state().time===data.duration,'an explicit end-position deep link still suppresses autoplay');
+      deepLink.play();
+      assert(deepLink.state().playing && deepLink.state().time===0 && host.querySelector('.cm-screen').textContent==='first','Play from an end-position deep link rewinds');
     } finally {
       if(fast) fast.destroy();
+      if(autoplay) autoplay.destroy();
+      if(deepLink) deepLink.destroy();
+      host.removeAttribute('data-cm-autoplay');host.removeAttribute('data-cm-start');
       window.setTimeout=realTimeout;window.clearTimeout=realClearTimeout;performance.now=realNow;
     }
     document.title='PASS: Player lifecycle regression checks';

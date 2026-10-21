@@ -106,6 +106,10 @@ The site is set in the medium it documents: a terminal cell grid.
   focus row. Tabs follow the ARIA tab pattern, switches the radio group pattern (arrow keys move and select).
 - **Panels.** `.cm-panel` is ConsoleMonster's `Panel` widget in CSS (the title set into the top border); the gallery uses
   it for specimens. Do not nest panels.
+- **Reference pages.** `/api/` and `/powershell/commands/` come from PowerForge's apidocs template; `api-base.css` is its
+  fallback stylesheet and `api.css` sets that markup in this design system (calm header, light facts line, page-coloured
+  sidebar tree, member cards, compact toolbar). Its rules are scoped to `html[data-theme] body.pf-api-docs` to out-rank the
+  fallback's per-theme rules. Problems in the template's own markup go to PowerForge, not into more overrides here.
 - **Header and footer.** One partial each, on every page including the API and command references (`layout: chrome`
   pages and `build/Export-ApiChrome.ps1`). The current page is a chip after the groups; no header slot changes size
   between pages. Do not style the header or footer per page.
