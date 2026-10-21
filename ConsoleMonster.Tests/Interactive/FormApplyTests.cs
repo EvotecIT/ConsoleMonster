@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
@@ -135,17 +137,20 @@ namespace ConsoleMonster.Tests.Interactive {
             Form form = Scope(loads, threads);
             int menuThread = Environment.CurrentManagedThreadId;
             int actionThread = 0;
+            TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             Menu menu = new Menu("Toolbox");
             menu.Item("Scope", i => i.Hotkey('s').Form(form));
             menu.Item("Night", i => i.Hotkey('n').ActionAsync(async (ctx, token) => {
-                await Task.Delay(20, token).ConfigureAwait(false);
+                await release.Task.ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
                 actionThread = Environment.CurrentManagedThreadId;
                 form.Apply(West());
             }));
             menu.Exit("Quit");
             RecordingSurface surface = new RecordingSurface(100, 26, false);
-            InteractiveOptions options = PromptHarness.Options("s Escape n wait:500 Up wait:200 Ctrl+Q", surface);
-            ((ScriptedInput)options.Input!).RealTime = true;
+            InteractiveOptions options = PromptHarness.Options(string.Empty, surface);
+            options.Input = new ApplyBarrierInput(() => release.TrySetResult(true), () =>
+                threads.Count == 1 && form.GetValues().GetList<string>("Servers").SequenceEqual(new[] { "W2" }));
             PromptHarness.Guard(surface, () => {
                 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = options, StorageRoot = Path.Combine(Path.GetTempPath(), "cm-apply-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
                 return 0;
@@ -155,6 +160,34 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal(new[] { menuThread }, threads.ToArray());
             Assert.Equal(new object?[] { "W2" }, ((IEnumerable<object?>)form.Find("Servers")!.Value!).ToArray());
             Assert.Contains("night run", surface.Frames.Select(f => f.ToPlainText()).Last(f => f.Contains("Run name")));
+        }
+
+        // Keep the menu polling until the queued apply has really run, rather than navigating after a fixed delay.
+        private sealed class ApplyBarrierInput : IInputSource {
+            private readonly ScriptedInput _before = new ScriptedInput("s Escape n") { Paced = true };
+            private readonly ScriptedInput _after = new ScriptedInput("Up Ctrl+Q") { Paced = true };
+            private readonly Action _release;
+            private readonly Func<bool> _applied;
+            private readonly Stopwatch _watchdog = new Stopwatch();
+
+            public ApplyBarrierInput(Action release, Func<bool> applied) { _release = release; _applied = applied; }
+            public string Name => "form apply barrier";
+
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (timeout == TimeSpan.Zero) { return null; }
+                if (_before.Remaining > 0) { return _before.Read(timeout, cancellationToken); }
+                if (!_watchdog.IsRunning) { _watchdog.Start(); _release(); }
+                if (_applied()) { return _after.Read(timeout, cancellationToken); }
+                if (_watchdog.Elapsed > TimeSpan.FromSeconds(30)) {
+                    throw new TimeoutException("The menu never applied the worker's values and reloaded the selected servers.");
+                }
+                cancellationToken.WaitHandle.WaitOne(timeout);
+                cancellationToken.ThrowIfCancellationRequested();
+                return null;
+            }
+
+            public void Dispose() { _before.Dispose(); _after.Dispose(); }
         }
 
         // A host that cannot take calls from other threads.
