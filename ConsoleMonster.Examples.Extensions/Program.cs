@@ -23,8 +23,12 @@ namespace ConsoleMonster.Examples.Extensions {
                     int seconds = args.Length > 1 && int.TryParse(args[1], out int value) ? value : 12;
                     await HostingAsync(seconds).ConfigureAwait(false);
                     return 0;
+                case "cli":
+                    string[] rest = new string[Math.Max(0, args.Length - 1)];
+                    Array.Copy(args, 1, rest, 0, rest.Length);
+                    return CommandLineExample.Run(rest);
                 default:
-                    Console.Error.WriteLine("Use: logging | hosting [seconds]");
+                    Console.Error.WriteLine("Use: logging | hosting [seconds] | cli [--servers N]");
                     return 1;
             }
         }

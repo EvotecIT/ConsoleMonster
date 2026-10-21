@@ -1,5 +1,10 @@
 # Proposal: a command-line layer for ConsoleMonster
 
+**Declined (October 2026).** Our command-line tools parse with System.CommandLine and write their output with
+ConsoleMonster; ConsoleMonster does not build its own command-line layer while Microsoft maintains System.CommandLine.
+See `ROADMAP.md` and the "Command-line tools with System.CommandLine" section of `Docs/Usage.md`. The paper is kept for
+the record.
+
 Status: decision paper. Nothing in this document is built. It describes what a command-line layer would look like,
 how much of it ConsoleMonster already has, what it would cost to own, and what products would gain, so the decision
 can be made on facts.

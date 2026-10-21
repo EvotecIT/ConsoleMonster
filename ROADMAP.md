@@ -95,16 +95,12 @@ ConsoleMonster renders terminals. HTML belongs to HtmlForgeX, and Markdown, Word
 means bridges outside the core: ConsoleMonster never emits semantic HTML or Markdown itself. Its HTML and SVG frame
 export stays, because it is a picture of the terminal, not a document.
 
-## Decision pending: command-line parsing
+## Decided: command-line parsing
 
-Our own source-generated, AOT-safe command-line layer that integrates with ConsoleMonster:
-
-- help rendered with the design system;
-- when arguments are missing, open the matching interactive form, which already produces the equivalent command line;
-- one definition drives parsing, help, completion and forms.
-
-To weigh: the maintenance cost of owning a parser against the value of one definition for all four. Several product
-executables use a command-line parser today. The decision paper written in step 4 lays out the options.
+Our command-line tools parse with System.CommandLine and write their output with ConsoleMonster. ConsoleMonster does not
+build its own command-line layer while Microsoft maintains System.CommandLine. The decision paper
+(`Docs/Proposals/Command-Line-Layer.md`) is kept, marked declined; `Docs/Usage.md` (Command-line tools with
+System.CommandLine) and `ConsoleMonster.Examples.Extensions cli` show the pairing.
 
 ## Backlog
 
@@ -127,3 +123,5 @@ Grouped under the step they would join; the rest stays unscheduled.
 ## Not planned
 
 - A full windowing framework.
+- Our own command-line parser: System.CommandLine is maintained by Microsoft and covers parsing, help and completion;
+  ConsoleMonster pairs with it for output.
