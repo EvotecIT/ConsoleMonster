@@ -17,6 +17,9 @@ namespace ConsoleMonster {
     /// </summary>
     public static partial class Terminal {
         private static readonly object Gate = new object();
+        // Rendering and writer callbacks must not hold the profile/theme state lock: session callbacks can resolve
+        // their profile while another print-once renderer requests the session's thread-safe Snapshot().
+        private static readonly object WriteGate = new object();
         private static TerminalProfile? _profile;
         private static ITheme? _theme;
         private static ICapabilityProvider _provider = new CapabilityDetector();
@@ -193,7 +196,7 @@ namespace ConsoleMonster {
                 if (!owner.TryWriteAbove(prepared) && !owner.TryWriteFallback(prepared)) { WritePrepared(prepared, p, writer); }
                 return;
             }
-            lock (Gate) {
+            lock (WriteGate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
                         output.WriteBlock(block);
@@ -304,7 +307,7 @@ namespace ConsoleMonster {
                 if (!owner.TryWriteAbove(prepared) && !owner.TryWriteFallback(prepared)) { WritePrepared(prepared, p, writer); }
                 return;
             }
-            lock (Gate) {
+            lock (WriteGate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
                     for (int i = 0; i < lines.Count; i++) {
                         if (i < lines.Count - 1 || newLine) { output.WriteLine(lines[i]); }
@@ -316,7 +319,7 @@ namespace ConsoleMonster {
         }
 
         private static void WritePrepared(Live.ConsoleWriteBlock prepared, TerminalProfile profile, ITerminalWriter? writer) {
-            lock (Gate) {
+            lock (WriteGate) {
                 using (ITerminalOutput output = CreateOutput(profile, writer)) { prepared.Write(output); }
                 writer?.Flush();
             }

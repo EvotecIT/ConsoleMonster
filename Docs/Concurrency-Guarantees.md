@@ -55,9 +55,10 @@ actual apply order. There is no latest-wins coalescing: every accepted event ret
 Many applied updates can share one rendered frame without dropping updates.
 
 The first Ctrl+C closes admission and requests graceful cancellation. Later posts are rejected and counted in `EventsDropped`;
-accepted work drains during shutdown. Console writers, native Windows output mode, and cursor visibility are restored.
-A callback that does not return can exceed `StopTimeout`; terminal/capture restoration proceeds and final cleanup is deferred
-until the applying callback returns. Workers should observe cancellation. Use `GetCounters()` to inspect accepted, applied,
+accepted work drains during shutdown. Graceful shutdown restores console writers, native Windows output mode, and cursor visibility.
+Native VT processing stays enabled through final scrollback and summary output, then the original output mode is restored.
+A callback that prevents the render thread from joining can exceed `StopTimeout`. Console capture is restored, while the final
+drain and screen cleanup are deferred until that callback returns. Workers should observe cancellation. Use `GetCounters()` to inspect accepted, applied,
 dropped, and failed updates. Zero drops is the normal-run contract; a late post after cancellation is an expected rejection.
 
 ## .NET alternative
@@ -105,6 +106,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | One admission per block and preserved final inline line | `SessionWrites_AdmitWholeMultilineBlocksBeforeAnotherProducer`, `SessionWrite_PreservesTheFinalInlineLine` in the same file |
 | Exactly-once shutdown fallback to actual OS stdout | [`StopDuringWritePreparation_PrintsTheWholeFallbackExactlyOnceToNativeStdout`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs) |
 | Shutdown fallback cannot split draining blocks; restoration/summary writes flush once | [`ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining`, `ShutdownFallback_FromRestorationAndSummaryIsFlushedExactlyOnce`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
+| Default output from a frame/summary callback cannot deadlock with a concurrent Snapshot request | [`RenderCallback_DefaultOutputAndConcurrentSnapshotCannotDeadlock`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs), forced frame and summary schedules in isolated processes |
 | Whole stream lines in apply order, many producers | [`Stream_ManyProducersWriteWholeLinesInExactApplyOrder`](../ConsoleMonster.Tests/Live/DispatcherConcurrencyTests.cs) |
 | Posting proceeds with blocked Apply; every accepted flood event drains | `Flood_PostingFinishesWhileApplyIsBlocked_ThenEveryAcceptedUpdateDrains` in the same file |
 | Producer order and serialized normal application under stress | [`ConcurrentProducersPreserveEveryEventAndProducerOrderOnTheRenderThread`](../ConsoleMonster.Tests/Live/LiveSessionTests.cs) |

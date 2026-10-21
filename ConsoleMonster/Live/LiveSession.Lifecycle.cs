@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
@@ -230,21 +231,28 @@ namespace ConsoleMonster.Live {
                     Attempt(TaskbarProgress.Bell);
                 }
                 _guardRegistration.Dispose();
-                Attempt(() => _guard?.Dispose());
                 Attempt(() => _recorder?.Dispose());
+                CellBuffer? summaryFrame = null;
+                if (drawn && _output != null && _context != null) {
+                    IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
+                    // User rendering can resolve a profile, write a late block or request Snapshot. Keep it outside the
+                    // physical output lock; ownership and the closing queue remain in place until the final flush ends.
+                    if (summary != null) {
+                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
+                    }
+                }
                 lock (_outputGate) {
                     if (drawn && _output != null && _context != null) {
                         Attempt(() => {
                             FlushUnrouted();
-                            IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
-                            if (summary != null) {
-                                _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
-                            }
+                            if (summaryFrame != null) { _output.WriteBlock(summaryFrame); }
                             // A summary widget or an output callback can itself emit a one-shot write during cleanup.
                             FlushUnrouted();
                         });
                     }
                     if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                    // Final scrollback still needs VT processing. Restore the original native mode after its last write.
+                    Attempt(() => _guard?.Dispose());
                     _outputFinished = true;
                     // A new normal writer may start only after accepted blocks, scrollback and restoration are done.
                     Terminal.ReleaseConsole(this);

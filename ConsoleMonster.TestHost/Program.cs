@@ -7,9 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Live;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Output;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
@@ -23,6 +28,8 @@ namespace ConsoleMonster.TestHost {
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;
                     case "host": return LaunchHidden(args.Skip(1));
+                    case "summary-locks": RenderLockOrder(true); break;
+                    case "frame-locks": RenderLockOrder(false); break;
                     default: throw new ArgumentException("Unknown process contract.");
                 }
                 return 0;
@@ -30,6 +37,50 @@ namespace ConsoleMonster.TestHost {
                 if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
+            }
+        }
+
+        private static void RenderLockOrder(bool summary) {
+            TerminalProfile profile = TerminalProfile.Fixed(60, 12, ColorDepth.None, mode: summary ? OutputMode.Stream : OutputMode.Interactive);
+            Terminal.Profile = profile;
+            using (ManualResetEventSlim entered = new ManualResetEventSlim())
+            using (ManualResetEventSlim writerRendering = new ManualResetEventSlim()) {
+                CallbackWidget callback = new CallbackWidget(() => {
+                    entered.Set();
+                    if (!writerRendering.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("The concurrent renderer did not enter."); }
+                    // Deliberately use the default overload: profile lookup must remain safe during a render callback.
+                    Terminal.WriteLines(new[] { StyledLine.From("lock-note") });
+                });
+                using (LiveSession session = new LiveSession(summary ? (IWidget)TextBlock.Plain("work") : callback, new LiveSessionOptions {
+                    Profile = profile, CaptureConsole = false, HandleCancelKey = false, PrintFinalState = false,
+                    TaskbarProgress = false, Summary = summary ? callback : null, StopTimeout = TimeSpan.FromSeconds(30)
+                })) {
+                    session.Start();
+                    Task? stop = summary ? Task.Run(() => session.Stop()) : null;
+                    if (!entered.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("The session renderer did not enter."); }
+                    Task writer = Task.Run(() => Terminal.Write(new CallbackWidget(() => {
+                        writerRendering.Set();
+                        session.Snapshot();
+                    }), profile, new StringTerminalWriter()));
+                    Task[] work = stop == null ? new[] { writer } : new[] { writer, stop };
+                    if (!Task.WaitAll(work, TimeSpan.FromSeconds(30))) {
+                        Console.Error.WriteLine("DEADLOCK: default Terminal output versus concurrent Snapshot during " + (summary ? "summary" : "frame"));
+                        // The executable is an owned test child. A hard exit avoids running guard callbacks on deadlocked locks.
+                        Process.GetCurrentProcess().Kill();
+                    }
+                    session.Stop();
+                }
+            }
+            Console.WriteLine("LOCK_ORDER_OK");
+        }
+
+        private sealed class CallbackWidget : IWidget {
+            private readonly Action _render;
+            private int _called;
+            internal CallbackWidget(Action render) { _render = render; }
+            public Size Measure(Constraints constraints, RenderContext context) => new Size(1, 1);
+            public void Render(Region region, RenderContext context) {
+                if (Interlocked.Exchange(ref _called, 1) == 0) { _render(); }
             }
         }
 
@@ -51,10 +102,12 @@ namespace ConsoleMonster.TestHost {
             var originalOut = Console.Out;
             var originalError = Console.Error;
             LogRegion log = new LogRegion();
+            bool summaryHadVirtualTerminal = false;
             TerminalProfile profile = new TerminalProfile(ColorDepth.None, GlyphTier.Ascii, OutputMode.Interactive,
                 60, 12, supportsVirtualTerminal: true, isConsoleHandle: true);
             using (LiveSession session = new LiveSession(log, new LiveSessionOptions {
-                Profile = profile, PrintFinalState = false, TaskbarProgress = false, StopTimeout = TimeSpan.FromSeconds(30)
+                Profile = profile, PrintFinalState = false, TaskbarProgress = false, StopTimeout = TimeSpan.FromSeconds(30),
+                Summary = new CallbackWidget(() => summaryHadVirtualTerminal = GetConsoleMode(stdout, out uint mode) && (mode & 4) != 0)
             })) {
                 session.Start();
                 session.Write("before Ctrl+C");
@@ -62,6 +115,7 @@ namespace ConsoleMonster.TestHost {
                 if (!session.Cancellation.WaitHandle.WaitOne(TimeSpan.FromSeconds(30))) { throw new TimeoutException("First Ctrl+C did not cancel the session."); }
                 session.Write("after Ctrl+C");
                 session.Stop();
+                if (!summaryHadVirtualTerminal) { throw new InvalidOperationException("Native VT mode was restored before final summary rendering."); }
                 if (session.EventsDropped != 1 || session.EventsPosted != session.EventsApplied || session.ApplyErrors != 0) {
                     throw new InvalidOperationException("Cancellation did not close admission and drain accepted work.");
                 }

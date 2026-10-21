@@ -2,12 +2,24 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ConsoleMonster.Interactive;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
     public sealed class SessionProcessTests {
+        [Theory]
+        [InlineData("summary-locks")]
+        [InlineData("frame-locks")]
+        public async Task RenderCallback_DefaultOutputAndConcurrentSnapshotCannotDeadlock(string scenario) {
+            var result = await Run(scenario);
+            Assert.True(result.Exit == 0, result.Error + result.Output);
+            Assert.Equal(string.Empty, result.Error);
+            Assert.Contains("LOCK_ORDER_OK", result.Output);
+            Assert.Single(Regex.Matches(result.Output, "lock-note"));
+        }
+
         [Fact]
         public async Task StopDuringWritePreparation_PrintsTheWholeFallbackExactlyOnceToNativeStdout() {
             var result = await Run("fallback");
