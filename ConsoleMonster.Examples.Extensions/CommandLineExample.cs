@@ -17,9 +17,15 @@ namespace ConsoleMonster.Examples.Extensions {
         public static int Run(string[] args) {
             // <example>
             Option<int> servers = new Option<int>("--servers") {
-                Description = "How many servers to check.",
+                Description = "How many servers to check (1–100).",
                 DefaultValueFactory = _ => 3
             };
+            servers.Validators.Add(result => {
+                int count = result.GetValueOrDefault<int>();
+                if (count < 1 || count > 100) {
+                    result.AddError("The server count must be between 1 and 100.");
+                }
+            });
             RootCommand root = new RootCommand("Checks a few servers and prints what it found.");
             root.Options.Add(servers);
             root.SetAction(parseResult => {

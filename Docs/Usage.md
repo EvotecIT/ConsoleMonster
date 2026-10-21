@@ -979,13 +979,19 @@ output with ConsoleMonster. A redirected or CI run gets plain lines, as everywhe
 
 ```csharp
 Option<int> servers = new Option<int>("--servers") {
-    Description = "How many servers to check.",
+    Description = "How many servers to check (1–100).",
     DefaultValueFactory = _ => 3
 };
+servers.Validators.Add(result => {
+    int count = result.GetValueOrDefault<int>();
+    if (count < 1 || count > 100) { result.AddError("The server count must be between 1 and 100."); }
+});
 RootCommand root = new RootCommand("Checks a few servers and prints what it found.");
 root.Options.Add(servers);
 root.SetAction(parseResult => {
-    string[] names = /* parseResult.GetValue(servers) server names */;
+    int count = parseResult.GetValue(servers);
+    string[] names = new string[count];
+    for (int i = 0; i < count; i++) { names[i] = "SRV" + (i + 1); }
 
     StatusList checks = new StatusList("checks");                 // a live status list while it works
     foreach (string name in names) { checks.Set(name, name, StatusKind.Pending); }
@@ -1006,8 +1012,9 @@ root.SetAction(parseResult => {
 return root.Parse(args).Invoke();
 ```
 
-An option that is not marked required arrives empty when it is left out, so the action can ask for it with a
-ConsoleMonster prompt or form; on a target that cannot answer, the prompt uses its default (see
+An optional option uses its configured default, or the value type's default when none is configured. Here, omitting
+`--servers` uses `3` and does not prompt. To ask for missing input, use an option without a configured default, check
+whether it was supplied, and open a ConsoleMonster prompt or form; on a target that cannot answer, the prompt uses its default (see
 [When nobody can answer](#when-nobody-can-answer)).
 
 ## Culture

@@ -241,6 +241,9 @@ namespace SiteFrames.Pages {
                 }
                 string cast = File.ReadAllText(path);
                 List<TimedFrame> frames = TrimRows(Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height));
+                if (!demo.Static && frames.Count == 0) {
+                    problems.Add("demo " + demo.Id + ": the capture has no replay frames; record a non-empty run.");
+                }
                 if (demo.EndsOn != null) {
                     int last = frames.FindLastIndex(f => Shows(f.Frame, demo.EndsOn));
                     if (last < 0) {
