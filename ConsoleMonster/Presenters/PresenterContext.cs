@@ -43,11 +43,10 @@ namespace ConsoleMonster.Presenters {
         public bool HasColor => Render.HasColor;
 
         /// <summary>
-        /// Whether OSC 8 hyperlinks can be emitted: interactive VT output on a terminal known to support them (Windows
-        /// Terminal, VS Code). Elsewhere links are shown as text, with the address when it differs from the text.
+        /// Whether the terminal profile permits OSC 8 hyperlinks. Elsewhere links are shown as text,
+        /// with the address when it differs from the text.
         /// </summary>
-        public bool Hyperlinks => Render.Profile.Mode == OutputMode.Interactive
-            && (Render.Profile.Kind == TerminalKind.WindowsTerminal || Render.Profile.Kind == TerminalKind.VisualStudioCode);
+        public bool Hyperlinks => Render.Profile.SupportsHyperlinks;
 
         /// <summary>Returns a copy with a column maximum.</summary>
         /// <param name="maximum">The maximum.</param>
