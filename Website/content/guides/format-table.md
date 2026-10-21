@@ -1,6 +1,6 @@
 ---
 title: Coming from Format-Table
-description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: pipeline input, -Property and their column options."
+description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: pipeline input, -Property, column options and Markdown, HTML or text exports."
 slug: format-table
 order: 4
 ---
@@ -36,6 +36,25 @@ Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Exte
 | `-Width` | Lays the table out for a given width instead of the console's. |
 | `-Culture` | Numbers and dates in a given culture; by default the current culture, as Format-Table does. |
 | `-Title`, `-Caption`, `-Border` | The table's frame. |
+
+## Export as Markdown, HTML or text
+
+`-As Markdown` returns the table as a GitHub-flavoured Markdown document instead of drawing it, with the same presenters (sizes, durations, status words) and totals as bold rows; groups become headings. `-As Html` returns a self-contained page and `-As Text` the console layout in a fenced block. It works inside scripts and on Windows PowerShell 5.1, and `Format-ConsoleList`, `Format-ConsoleTree`, `Format-ConsoleCode`, `Format-ConsoleJson` and `Format-ConsoleError` take it too.
+
+{{< cm-frame id="export-markdown" caption="`export-markdown.ps1` writes its table as Markdown; this is the text it printed." >}}
+
+`Copy-ConsoleOutput -As Markdown` puts the same document on the clipboard (Windows, macOS with `pbcopy`, Linux with `wl-copy` or `xclip`), and `Export-ConsoleFrame -Path report.md` writes it to a file:
+
+```powershell
+Import-Module ConsoleMonster
+
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Copy-ConsoleOutput -As Markdown
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./services.md
+```
+
+## Format-Table itself
+
+`Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `Enable-ConsoleFormatting -Feature FormatCommands`. Then the commands you already type draw ConsoleMonster views when their output goes straight to the console, and keep PowerShell's records everywhere else; [Everyday PowerShell output](/guides/everyday-powershell/#format-table-format-list-and-format-wide) shows it before and after.
 
 ## When the console is narrow
 

@@ -20,6 +20,7 @@ Detection runs once and produces a `TerminalProfile`: the output mode, the colou
 - **Glyph tier.** Full, Basic or ASCII. On conhost the console font is read to choose; in stream and CI output the tier is Basic.
 - **Size.** The visible window, not the screen buffer, so nothing is written past the window or into its bottom-right cell.
 - **Widths.** Display widths come from Unicode 17 tables, with emoji and ambiguous widths that can be overridden. A width probe reads the console screen buffer and never reads input.
+- **Links.** Clickable OSC 8 links for URLs and file paths in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; never in redirected, CI, stream or plain output. `CONSOLEMONSTER_HYPERLINKS` overrides it (see [Environment overrides](/docs/environment/#clickable-links)).
 - **Background.** In conhost, `auto` reads the console background colour to choose the light or dark theme. Windows Terminal does not expose its colour scheme to console programs, so there `CONSOLEMONSTER_THEME=light` selects the light theme.
 
 {{< cm-frame id="profile-ci" script="false" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}

@@ -135,6 +135,8 @@ namespace SiteFrames.Pages {
             Copy(site, powershell, "format-consoletable", "narrow", "ps7", "narrow", "56 columns");
             Copy(site, powershell, "format-consoletable", "rich", "ps7", "format-consoletable");
             Copy(site, powershell, "format-table", "rich", "ps7", "format-table");
+            Copy(site, powershell, "export-markdown", "rich", "ps7", "export-markdown", "Format-ConsoleTable -As Markdown");
+            Copy(site, powershell, "relative-dates", "rich", "ps7", "relative-dates", "CONSOLEMONSTER_NOW=2026-10-21T12:00:00Z");
             Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "PowerShell 5.1");
             Copy(site, powershell, "job", "rich", "ps7", "job-ps7", "PowerShell 7");
         }

@@ -493,6 +493,38 @@
         ]
       }
     },
+    "format-commands": {
+      "title": "Before and after -Feature FormatCommands",
+      "body": "The same three commands before and after Enable-ConsoleFormatting -Feature FormatCommands. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
+      "label": "Format-Table, Format-List and Format-Wide as PowerShell draws them, then as ConsoleMonster draws them",
+      "use": {
+        "title": "Turn it on",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Not part of -Feature All: it is a separate opt-in, because scripts call these commands too.\nEnable-ConsoleFormatting -Feature FormatCommands",
+        "links": [
+          {
+            "title": "Enable-ConsoleFormatting",
+            "url": "/powershell/commands/enable-consoleformatting/"
+          }
+        ]
+      }
+    },
+    "module-views": {
+      "title": "Get-ContosoServer before and after its view",
+      "body": "A module puts Contoso.Servers.consoleviews.psd1 beside its manifest: plain data naming the columns, their presenters and the grouping. The module never imports ConsoleMonster; its users get the view when they turn formatting on.",
+      "label": "Get-ContosoServer as a plain PowerShell table, then with the module's own ConsoleMonster view",
+      "use": {
+        "title": "Ship views with your module",
+        "label": "PowerShell 5.1 and 7",
+        "install": "# Beside YourModule.psd1:\n# YourModule.consoleviews.psd1 with SchemaVersion = 1 and a Views list, as above.\n# Your users:\nImport-Module YourModule\nImport-Module ConsoleMonster\nEnable-ConsoleFormatting",
+        "links": [
+          {
+            "title": "Register-ConsoleView",
+            "url": "/powershell/commands/register-consoleview/"
+          }
+        ]
+      }
+    },
     "shaping": {
       "title": "Arrays in cells and groups",
       "body": "Format-Table beside Format-ConsoleTable -GroupBy on the same objects: roles as a list, durations as durations, statuses with their symbol, one heading per site.",

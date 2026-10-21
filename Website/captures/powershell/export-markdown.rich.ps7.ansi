@@ -1,0 +1,7 @@
+[?9001h[?1004h[?25l[2J[m[H| Name | Kind | Size | Built in | Signed |
+| :--- | :--- | ---: | ---: | :--- |
+| ConsoleMonster.2.0.0.nupkg | NuGet | 1.41 MB | 48 s | ✓ yes |
+| ConsoleMonster.2.0.0.snupkg | NuGet | 393 KB | 3.1 s | ✓ yes |
+| ConsoleMonster-2.0.0.zip | Module | 2.77 MB | 12 s | ✓ yes |
+| Docs.zip | Module | 50.1 KB | 1.2 s | – no |
+| **Total** |  | **4.62 MB** | **1 m 04 s** |  |[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l

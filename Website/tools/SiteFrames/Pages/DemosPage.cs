@@ -158,6 +158,22 @@ namespace SiteFrames.Pages {
                 Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
             };
             yield return new Demo("shaping", "Format-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
+            // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
+            yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) {
+                Script = "format-commands.ps1",
+                Session = true,
+                Setup = "Set-Location -LiteralPath (Join-Path $PSHOME 'Modules')",
+                PosterShare = 1,
+                Fps = 5,
+                Chapters = new[] { ("Before", "# Format-Table, Format-List and Format-Wide as PowerShell draws them"), ("After", "# The same commands, drawn by ConsoleMonster") }
+            };
+            // A module that ships its own views as data, without depending on ConsoleMonster.
+            yield return new Demo("module-views", "Contoso.Servers.consoleviews.psd1", 100, 40) {
+                Script = "module-views.ps1",
+                Companions = new[] { "Contoso.Servers/Contoso.Servers.consoleviews.psd1", "Contoso.Servers/Contoso.Servers.psm1", "Contoso.Servers/Contoso.Servers.psd1" },
+                Session = true,
+                Static = true
+            };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
             yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };

@@ -1,4 +1,4 @@
-[?9001h[?1004h[?25l[2J[m[91m[1m[HMarkup[m in the[3m[1CSpectre.Console[23m dialect:[38;5;72m[1Ccadetblue[m,[38;5;244m[1Cgrey50[m,[38;5;31m[1Cdeepskyblue3[38;2;255;136;0m
-#ff8800[m,[38;2;120;200;90m[1Crgb(120,200,90)[m,[38;5;208m[1Ccolor(208) [mand[97m[48;2;248;113;113m[1C theme roles [m
+[?9001h[?1004h[?25l[2J[m[91m[1m[HMarkup[m in the[3m[1CSpectre.Console[23m dialect:[38;5;72m[1Ccadetblue[m,[38;5;244m[1Cgrey50[m,[38;5;31m[1Cdeepskyblue3
+]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[m[38;2;255;136;0m#ff8800[m, [38;2;120;200;90mrgb(120,200,90)[m, [38;5;208mcolor(208) [mand [97m[48;2;248;113;113m theme roles [m
 [brackets] are literal, unknown tags keep their text, and links use OSC 8
-]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l
+[?9001l[?1004l

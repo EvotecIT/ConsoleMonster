@@ -5,7 +5,8 @@ Glyphs           [mBasic[38;2;139;143;154m
 Width            [m100[38;2;139;143;154m
 Height           [m40[38;2;139;143;154m
 ThemePreference  [mAuto[38;2;139;143;154m
-FontFace         [mConsolas[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h  mode: Interactive (VT terminal)
+FontFace         [mConsolas[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
+  mode: Interactive (VT terminal)
   colour: TrueColor (Windows build >=14931)
   glyphs: Basic (conhost font 'Consolas')
   VT: supported

@@ -1,4 +1,4 @@
-source 8838e412d74041379d4c59b2d000c8e0
+source 0f93f803e195c2ee9d4c59b2d000c8e0
 ▴ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm

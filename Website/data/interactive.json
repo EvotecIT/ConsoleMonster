@@ -83,8 +83,8 @@
       "title": "Typed confirmation",
       "summary": "For destructive actions the name has to be typed; anything else keeps the prompt open.",
       "keys": "\"FS0\" Enter \"1\" Enter",
-      "csharp": "bool remove = new TypedConfirmPrompt(\"Remove FS01 from the inventory?\", \"FS01\") {\n    Description = \"Its history and reports are deleted too. This cannot be undone.\"\n}.Show();\nif (remove) {\n    Terminal.WriteMarkupLine(\"[warn]FS01 removed[/]\");\n}",
-      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Interactive;\n\nbool remove = new TypedConfirmPrompt(\"Remove FS01 from the inventory?\", \"FS01\") {\n    Description = \"Its history and reports are deleted too. This cannot be undone.\"\n}.Show();\nif (remove) {\n    Terminal.WriteMarkupLine(\"[warn]FS01 removed[/]\");\n}",
+      "csharp": "bool remove = new TypedConfirmPrompt(\"Remove FS01 from the inventory?\", \"FS01\") {\n    Warning = \"Its history and reports are deleted too. This cannot be undone.\"\n}.Show();\nif (remove) {\n    Terminal.WriteMarkupLine(\"[warn]FS01 removed[/]\");\n}",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Interactive;\n\nbool remove = new TypedConfirmPrompt(\"Remove FS01 from the inventory?\", \"FS01\") {\n    Warning = \"Its history and reports are deleted too. This cannot be undone.\"\n}.Show();\nif (remove) {\n    Terminal.WriteMarkupLine(\"[warn]FS01 removed[/]\");\n}",
       "csharpFile": "Program.cs",
       "player": {
         "url": "/replays/interactive-typed.json",
@@ -99,8 +99,8 @@
           "dark": "<span class=\"ffbbf24 B c2\"><i class=n>▴</i> </span><span class=B>Remove FS01 from the inventory?</span>\n<span class=c2>  </span><span class=ffbbf24>Its history and reports are deleted too. This cannot be undone.</span>\n<span class=c2>  </span><span class=\"f8b8f9a c5\">Type </span><span class=\"B c4\">FS01</span><span class=f8b8f9a> to confirm</span>\n<span class=c2>  </span><i class=\"n f60a5fa\">›</i> FS0\n<span class=c2>  </span><span class=ff87171><i class=n>✗</i> That doesn't match FS01.</span>\n<span class=c2>  </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c10\"> confirm  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> cancel</span>"
         }
       },
-      "powershell": "if (Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation 'FS01' -Description 'Its history and reports are deleted too. This cannot be undone.') {\n    Write-ConsoleMarkup '[warn]FS01 removed[/]'\n}",
-      "powershellFull": "Import-Module ConsoleMonster\n\nif (Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation 'FS01' -Description 'Its history and reports are deleted too. This cannot be undone.') {\n    Write-ConsoleMarkup '[warn]FS01 removed[/]'\n}",
+      "powershell": "if (Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation 'FS01' -Warning 'Its history and reports are deleted too. This cannot be undone.') {\n    Write-ConsoleMarkup '[warn]FS01 removed[/]'\n}",
+      "powershellFull": "Import-Module ConsoleMonster\n\nif (Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation 'FS01' -Warning 'Its history and reports are deleted too. This cannot be undone.') {\n    Write-ConsoleMarkup '[warn]FS01 removed[/]'\n}",
       "powershellFile": "typed.ps1",
       "parity": true
     },
