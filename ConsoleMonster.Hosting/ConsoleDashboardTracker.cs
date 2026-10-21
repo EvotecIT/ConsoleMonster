@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
@@ -30,12 +31,13 @@ namespace ConsoleMonster.Hosting {
 
     /// <summary>One line of the dashboard: a hosted service or an entry the application reports.</summary>
     public sealed class ServiceStatus {
-        internal ServiceStatus(string name, ServiceState state, string? detail, DateTimeOffset since, bool hosted) {
+        internal ServiceStatus(string name, ServiceState state, string? detail, DateTimeOffset since, bool hosted, TimeSpan? hostedElapsed = null) {
             Name = name;
             State = state;
             Detail = detail;
             Since = since;
             IsHostedService = hosted;
+            HostedElapsed = hostedElapsed;
         }
 
         /// <summary>The name.</summary>
@@ -52,6 +54,9 @@ namespace ConsoleMonster.Hosting {
 
         /// <summary>Whether it is a hosted service (tracked by the dashboard) rather than an entry the application reports.</summary>
         public bool IsHostedService { get; }
+
+        /// <summary>The hosted service's lifetime at snapshot time; application entries keep their state-age display.</summary>
+        internal TimeSpan? HostedElapsed { get; }
 
         /// <summary>The status kind the state is drawn with.</summary>
         public StatusKind Kind => ConsoleDashboardTracker.KindOf(State);
@@ -88,9 +93,12 @@ namespace ConsoleMonster.Hosting {
         private readonly object _gate = new object();
         private readonly List<ServiceStatus> _items = new List<ServiceStatus>();
         private readonly Func<DateTimeOffset> _clock;
+        private readonly Func<long> _timestamp;
+        private readonly Dictionary<string, HostedLifetime> _lifetimes = new Dictionary<string, HostedLifetime>(StringComparer.Ordinal);
 
-        internal ConsoleDashboardTracker(Func<DateTimeOffset>? clock = null) {
+        internal ConsoleDashboardTracker(Func<DateTimeOffset>? clock = null, Func<long>? timestamp = null) {
             _clock = clock ?? (() => DateTimeOffset.Now);
+            _timestamp = timestamp ?? Stopwatch.GetTimestamp;
         }
 
         /// <summary>Raised after any change (the dashboard redraws).</summary>
@@ -128,7 +136,16 @@ namespace ConsoleMonster.Hosting {
 
         public IReadOnlyList<ServiceStatus> Snapshot() {
             lock (_gate) {
-                return _items.ToArray();
+                long now = _timestamp();
+                ServiceStatus[] snapshot = new ServiceStatus[_items.Count];
+                for (int index = 0; index < _items.Count; index++) {
+                    ServiceStatus item = _items[index];
+                    snapshot[index] = item.IsHostedService
+                        ? new ServiceStatus(item.Name, item.State, item.Detail, item.Since, true,
+                            _lifetimes.TryGetValue(item.Name, out HostedLifetime? lifetime) ? lifetime.Elapsed(now) : TimeSpan.Zero)
+                        : item;
+                }
+                return snapshot;
             }
         }
 
@@ -142,6 +159,16 @@ namespace ConsoleMonster.Hosting {
             lock (_gate) {
                 int index = _items.FindIndex(item => string.Equals(item.Name, name, StringComparison.Ordinal));
                 ServiceStatus? old = index >= 0 ? _items[index] : null;
+                if (hosted) {
+                    if (state == ServiceState.Starting && old?.State != ServiceState.Starting) {
+                        // ServiceReporter calls this before invoking the service's StartAsync, including startup time.
+                        _lifetimes[name] = new HostedLifetime(_timestamp());
+                    } else if ((state == ServiceState.Stopped || state == ServiceState.Completed || state == ServiceState.Failed)
+                        && _lifetimes.TryGetValue(name, out HostedLifetime? lifetime) && !lifetime.End.HasValue) {
+                        // Freeze the first outcome, not the later host shutdown or its repeated fault observation.
+                        lifetime.End = _timestamp();
+                    }
+                }
                 DateTimeOffset since = old != null && old.State == state ? old.Since : _clock();
                 ServiceStatus updated = new ServiceStatus(name, state, replaceDetail ? detail : old?.Detail, since, hosted || (old?.IsHostedService ?? false));
                 if (index >= 0) {
@@ -151,6 +178,16 @@ namespace ConsoleMonster.Hosting {
                 }
             }
             Changed?.Invoke();
+        }
+
+        private sealed class HostedLifetime {
+            private readonly long _start;
+
+            internal HostedLifetime(long start) { _start = start; }
+
+            internal long? End { get; set; }
+
+            internal TimeSpan Elapsed(long now) => TimeSpan.FromSeconds((double)Math.Max(0, (End ?? now) - _start) / Stopwatch.Frequency);
         }
 
         internal static StatusKind KindOf(ServiceState state) {

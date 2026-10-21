@@ -9,8 +9,9 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Hosting {
     /// <summary>
-    /// The dashboard's list of hosted services and reported entries: a status symbol, the name, the state, how long it has
-    /// been in it, and the detail. Each frame reads a fresh snapshot, so the list can change from any thread.
+    /// The dashboard's list of hosted services and reported entries: a status symbol, the name, the state, elapsed time
+    /// and the detail. Hosted services show their monotonic lifetime, frozen at their own terminal outcome; reported
+    /// entries show time in their current state. Each frame reads a fresh snapshot, so the list can change from any thread.
     /// </summary>
     public sealed class ServicesView : IWidget {
         private readonly IConsoleDashboard _dashboard;
@@ -54,7 +55,8 @@ namespace ConsoleMonster.Hosting {
             for (int y = 0; y < shown; y++) {
                 ServiceStatus item = items[y];
                 Style kind = context.Style(item.Kind);
-                string elapsed = NumberFormat.Duration(now - item.Since > TimeSpan.Zero ? now - item.Since : TimeSpan.Zero);
+                TimeSpan age = item.HostedElapsed ?? (now - item.Since > TimeSpan.Zero ? now - item.Since : TimeSpan.Zero);
+                string elapsed = NumberFormat.Duration(age);
                 List<TextSpan> spans = new List<TextSpan> {
                     new TextSpan(context.Glyphs.StatusSymbol(item.Kind) + " ", kind),
                     new TextSpan(Pad(TextWrapper.Truncate(item.Name, nameWidth, context.Ellipsis), nameWidth) + "  ", context.Style(ThemeToken.Text)),

@@ -29,7 +29,7 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        /// <summary>Quotes a value when the style needs it.</summary>
+        /// <summary>Quotes a value when the style needs it. Windows uses CommandLineToArgvW-compatible argument encoding.</summary>
         /// <param name="value">The value.</param>
         /// <param name="style">The style.</param>
         /// <returns>The value as written on the command line.</returns>
@@ -45,13 +45,33 @@ namespace ConsoleMonster.Interactive {
                     if (value.Length > 0 && IsPlain(value, "-_./:\\=@%+,")) {
                         return value;
                     }
-                    return "\"" + value.Replace("\"", "\\\"") + "\"";
+                    return QuoteWindows(value);
                 default:
                     if (value.Length > 0 && IsPlain(value, "-_./:\\=+%")) {
                         return value;
                     }
                     return "'" + value.Replace("'", "''") + "'";
             }
+        }
+
+        private static string QuoteWindows(string value) {
+            StringBuilder quoted = new StringBuilder();
+            quoted.Append('"');
+            int backslashes = 0;
+            foreach (char c in value) {
+                if (c == '\\') {
+                    backslashes++;
+                    continue;
+                }
+                // A literal quote needs 2n+1 backslashes; other characters leave the run unchanged.
+                quoted.Append('\\', c == '"' ? backslashes * 2 + 1 : backslashes);
+                quoted.Append(c);
+                backslashes = 0;
+            }
+            // Double trailing backslashes so the closing quote remains a delimiter.
+            quoted.Append('\\', backslashes * 2);
+            quoted.Append('"');
+            return quoted.ToString();
         }
 
         /// <summary>Formats one argument: <c>-Name value</c>, a list, or a switch.</summary>
