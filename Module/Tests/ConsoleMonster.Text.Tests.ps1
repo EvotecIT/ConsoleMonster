@@ -23,7 +23,7 @@
             param([Parameter(Mandatory)][scriptblock] $ScriptBlock)
             $job = Start-Job -ArgumentList $script:ModulePath, $ScriptBlock.ToString() -ScriptBlock {
                 param($ModulePath, $Body)
-                foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+                foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'TERM') { [Environment]::SetEnvironmentVariable($name, $null) }
                 Import-Module $ModulePath -Force
                 & ([scriptblock]::Create($Body))
             }

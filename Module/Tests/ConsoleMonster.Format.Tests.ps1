@@ -146,11 +146,14 @@ $p = Get-Process -Id $PID
     }
 
     It 'opens one level of a wide object in Format-ConsoleTree unless -Depth is given' {
-        $text = Invoke-FormatChild -Script @'
-"DEFAULT=$((Get-Process -Id $PID | Format-ConsoleTree -AsString).Split("`n").Count)"
-"DEEP=$((Get-Process -Id $PID | Format-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
+        $fixture = (Join-Path $PSScriptRoot 'Support/WideTreeFixture.cs').Replace("'", "''")
+        $text = Invoke-FormatChild -Script (@'
+Add-Type -Path '__FIXTURE__'
+$wide = [ConsoleMonsterWideTreeFixture]::new()
+"DEFAULT=$(($wide | Format-ConsoleTree -AsString).Split("`n").Count)"
+"DEEP=$(($wide | Format-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
 "SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Format-ConsoleTree -AsString).Split("`n").Count)"
-'@
+'@.Replace('__FIXTURE__', $fixture))
         [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
         [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
         [int] ($text -replace '(?s).*SMALL=(\d+).*', '$1') | Should -Be 5

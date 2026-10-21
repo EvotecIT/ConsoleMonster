@@ -14,11 +14,12 @@ namespace ConsoleMonster.Rendering {
         /// <summary>Appends <paramref name="text"/> without control characters or escape sequences.</summary>
         /// <param name="sb">The target.</param>
         /// <param name="text">The untrusted text.</param>
-        public static void Append(StringBuilder sb, string? text) {
+        /// <param name="preserveLineBreaks">Keep CR/LF for structured exports; escape sequences remain removed in full.</param>
+        public static void Append(StringBuilder sb, string? text, bool preserveLineBreaks = false) {
             if (string.IsNullOrEmpty(text)) {
                 return;
             }
-            if (IsClean(text!)) {
+            if (IsClean(text!, preserveLineBreaks)) {
                 sb.Append(text);
                 return;
             }
@@ -31,7 +32,7 @@ namespace ConsoleMonster.Rendering {
                 }
                 if (c == '\t') {
                     sb.Append("    ");
-                } else if (!IsControl(c)) {
+                } else if (!IsControl(c) || (preserveLineBreaks && (c == '\r' || c == '\n'))) {
                     sb.Append(c);
                 }
                 i++;
@@ -40,19 +41,20 @@ namespace ConsoleMonster.Rendering {
 
         /// <summary>Returns <paramref name="text"/> without control characters or escape sequences.</summary>
         /// <param name="text">The untrusted text.</param>
+        /// <param name="preserveLineBreaks">Keep CR/LF for structured exports; escape sequences remain removed in full.</param>
         /// <returns>The safe text.</returns>
-        public static string Clean(string? text) {
-            if (string.IsNullOrEmpty(text) || IsClean(text!)) {
+        public static string Clean(string? text, bool preserveLineBreaks = false) {
+            if (string.IsNullOrEmpty(text) || IsClean(text!, preserveLineBreaks)) {
                 return text ?? string.Empty;
             }
             StringBuilder sb = new StringBuilder(text!.Length);
-            Append(sb, text);
+            Append(sb, text, preserveLineBreaks);
             return sb.ToString();
         }
 
-        private static bool IsClean(string text) {
+        private static bool IsClean(string text, bool preserveLineBreaks) {
             foreach (char c in text) {
-                if (IsControl(c) || c == '\t') {
+                if ((IsControl(c) && !(preserveLineBreaks && (c == '\r' || c == '\n'))) || c == '\t') {
                     return false;
                 }
             }

@@ -8,7 +8,7 @@ namespace ConsoleMonster.Capabilities {
     /// <summary>
     /// An immutable description of what the current terminal can do. Produced by an
     /// <see cref="ICapabilityProvider"/>, overridable by code, environment variables
-    /// (<c>CONSOLEMONSTER_COLOR</c>, <c>CONSOLEMONSTER_GLYPHS</c>, <c>CONSOLEMONSTER_MODE</c>, <c>CONSOLEMONSTER_THEME</c>, <c>NO_COLOR</c>) and configuration.
+    /// (<c>CONSOLEMONSTER_COLOR</c>, <c>CONSOLEMONSTER_GLYPHS</c>, <c>CONSOLEMONSTER_MODE</c>, <c>CONSOLEMONSTER_THEME</c>, <c>CONSOLEMONSTER_HYPERLINKS</c>, <c>NO_COLOR</c>) and configuration.
     /// Rendering is a pure function of the widget, its state, this profile and the theme.
     /// </summary>
     public sealed class TerminalProfile {
@@ -20,6 +20,32 @@ namespace ConsoleMonster.Capabilities {
         public const int DefaultHeight = 40;
 
         private static readonly IReadOnlyList<string> NoDecisions = new string[0];
+        private readonly bool _supportsHyperlinks;
+
+        /// <summary>Creates a profile through the original constructor signature, retained for compiled consumers.</summary>
+        /// <param name="colorDepth">Colour fidelity.</param>
+        /// <param name="glyphs">Glyph tier.</param>
+        /// <param name="mode">Output mode.</param>
+        /// <param name="width">Width in cells.</param>
+        /// <param name="height">Height in cells.</param>
+        /// <param name="kind">Detected terminal kind.</param>
+        /// <param name="supportsVirtualTerminal">Whether VT sequences are understood.</param>
+        /// <param name="isOutputRedirected">Whether standard output is redirected.</param>
+        /// <param name="isConsoleHandle">Whether output goes to a real Windows console handle.</param>
+        /// <param name="isContinuousIntegration">Whether a CI environment was detected.</param>
+        /// <param name="fontFace">The console font face, when known.</param>
+        /// <param name="decisions">Notes explaining the capability decisions.</param>
+        /// <param name="widthProfile">Display width assumptions.</param>
+        /// <param name="probeWidths">Whether a live width probe is permitted.</param>
+        /// <param name="themePreference">Requested terminal theme preference.</param>
+        /// <param name="culture">Culture for numbers and dates, or null for the current culture.</param>
+        public TerminalProfile(ColorDepth colorDepth, GlyphTier glyphs, OutputMode mode, int width, int height,
+            TerminalKind kind, bool supportsVirtualTerminal, bool isOutputRedirected, bool isConsoleHandle,
+            bool isContinuousIntegration, string? fontFace, IReadOnlyList<string>? decisions,
+            TerminalWidthProfile? widthProfile, bool probeWidths, ThemePreference themePreference, CultureInfo? culture)
+            : this(colorDepth, glyphs, mode, width, height, kind, supportsVirtualTerminal, isOutputRedirected,
+                isConsoleHandle, isContinuousIntegration, fontFace, decisions, widthProfile, probeWidths, themePreference, culture, null) {
+        }
 
         /// <summary>
         /// Creates a profile with explicit values. Tests and fixed-output scenarios use this directly.
@@ -40,6 +66,7 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="probeWidths">Whether a live width probe is permitted.</param>
         /// <param name="themePreference">Requested terminal theme preference.</param>
         /// <param name="culture">The culture for numbers and dates in rendered output, or null for the current culture.</param>
+        /// <param name="supportsHyperlinks">OSC 8 support, or null to infer it from the terminal kind. Redirected, CI, noninteractive and non-VT output always disable links.</param>
         public TerminalProfile(
             ColorDepth colorDepth,
             GlyphTier glyphs,
@@ -56,7 +83,8 @@ namespace ConsoleMonster.Capabilities {
             TerminalWidthProfile? widthProfile = null,
             bool probeWidths = false,
             ThemePreference themePreference = ThemePreference.Auto,
-            CultureInfo? culture = null) {
+            CultureInfo? culture = null,
+            bool? supportsHyperlinks = null) {
             ColorDepth = colorDepth;
             Glyphs = glyphs;
             Mode = mode;
@@ -73,6 +101,8 @@ namespace ConsoleMonster.Capabilities {
             ProbeWidths = probeWidths;
             ThemePreference = themePreference;
             Culture = culture;
+            _supportsHyperlinks = supportsHyperlinks ?? (kind == TerminalKind.WindowsTerminal || kind == TerminalKind.VisualStudioCode
+                || kind == TerminalKind.ITerm2 || kind == TerminalKind.WezTerm);
         }
 
         /// <summary>Colour fidelity.</summary>
@@ -95,6 +125,16 @@ namespace ConsoleMonster.Capabilities {
 
         /// <summary>Whether VT escape sequences are understood.</summary>
         public bool SupportsVirtualTerminal { get; }
+
+        /// <summary>
+        /// Whether this output may emit OSC 8 hyperlinks. Requires interactive VT output and detected or explicitly
+        /// enabled support; redirected output and CI always return false, including when support was overridden.
+        /// </summary>
+        public bool SupportsHyperlinks => _supportsHyperlinks && SupportsVirtualTerminal && Mode == OutputMode.Interactive
+            && !IsOutputRedirected && !IsContinuousIntegration;
+
+        /// <summary>The detected or explicitly configured support, preserved when copying a profile into another mode.</summary>
+        internal bool HyperlinkSupport => _supportsHyperlinks;
 
         /// <summary>Whether standard output is redirected to a file, pipe or log.</summary>
         public bool IsOutputRedirected { get; }
@@ -176,7 +216,7 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>The copy.</returns>
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
-                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture) { Language = Language };
+                IsConsoleHandle, IsContinuousIntegration, FontFace, Decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) { Language = Language };
         }
 
         /// <summary>Returns a copy whose built-in labels use the given language (see <see cref="Language"/>).</summary>
@@ -208,12 +248,17 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Returns a copy with a different terminal width profile.</summary>
         public TerminalProfile WithWidthProfile(TerminalWidthProfile profile) => Copy(widthProfile: profile ?? throw new ArgumentNullException(nameof(profile)));
 
+        /// <summary>Returns a copy with OSC 8 support enabled or disabled. Output, CI, mode and VT guards still apply.</summary>
+        /// <param name="supportsHyperlinks">Whether the terminal supports hyperlinks.</param>
+        /// <returns>A new profile.</returns>
+        public TerminalProfile WithHyperlinks(bool supportsHyperlinks) => Copy(supportsHyperlinks: supportsHyperlinks);
+
         /// <inheritdoc />
         public override string ToString() {
             return Kind + " " + Width + "x" + Height + " " + Mode + " " + ColorDepth + " " + Glyphs;
         }
 
-        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null, ThemePreference? themePreference = null) {
+        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null, ThemePreference? themePreference = null, bool? supportsHyperlinks = null) {
             return new TerminalProfile(
                 colorDepth ?? ColorDepth,
                 glyphs ?? Glyphs,
@@ -230,7 +275,7 @@ namespace ConsoleMonster.Capabilities {
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
                 themePreference ?? ThemePreference,
-                Culture) { Language = Language };
+                Culture, supportsHyperlinks ?? _supportsHyperlinks) { Language = Language };
         }
     }
 }

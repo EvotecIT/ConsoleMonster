@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     internal sealed class TableBuildOptions {
         public bool Total { get; set; }
 
-        public bool AutoPresenters { get; set; }
+        public bool AutoPresenters { get; set; } = true;
 
         public PSCmdlet? Cmdlet { get; set; }
 
@@ -86,6 +86,8 @@ namespace ConsoleMonster.PowerShell {
         /// dictionary as a key/value record. Every widget gets the same configuration through <paramref name="configure"/>.
         /// </summary>
         internal static List<IWidget> BuildTables(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, Action<Table>? configure = null) {
+            // Module groups must be installed before Runs partitions objects by their registered group identity.
+            if (options.Cmdlet != null) { ConsoleModuleViews.Discover(options.Cmdlet); }
             ShapeOptions shape = PSShaping.Options(options.Culture);
             IReadOnlyList<PSObject> expanded = Expand(items, shape);
             List<IReadOnlyList<PSObject>> runs = property != null && property.Length > 0 ? new List<IReadOnlyList<PSObject>> { expanded } : Runs(expanded, shape);
@@ -243,7 +245,7 @@ namespace ConsoleMonster.PowerShell {
         // Identifier numbers (Id, PID, Port, Index, Year...) never get thousands separators; with autoPresenters, presenters
         // by member name and type too (bytes for Length, dates, durations, status-like enums). Columns with a presenter only
         // receive values the presenter can format.
-        private static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters) {
+        internal static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters) {
             for (int c = 0; c < columns.Count; c++) {
                 TableColumn column = columns[c].Column;
                 object? sample = null;
@@ -268,6 +270,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static IWidget BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title, CultureInfo? culture = null, PSCmdlet? cmdlet = null) {
+            if (cmdlet != null) { ConsoleModuleViews.Discover(cmdlet); }
             CultureInfo resolved = ResolveCulture(culture);
             ShapeOptions shape = PSShaping.Options(culture);
             ShapeBudget budget = ShapeBudget.For(shape);
@@ -369,6 +372,11 @@ namespace ConsoleMonster.PowerShell {
         /// -PassThru together are refused, as one stream would mix text and objects.
         /// </summary>
         internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false) {
+            if (cmdlet.MyInvocation.BoundParameters.TryGetValue("As", out object? requested) && requested is string format) {
+                PSOutputExport.Validate(cmdlet);
+                cmdlet.WriteObject(Export(widget, PSOutputExport.Format(format), width, culture));
+                return;
+            }
             if (asString && passThru) {
                 cmdlet.ThrowTerminatingError(new ErrorRecord(
                     new ArgumentException("-AsString and -PassThru cannot be used together: -AsString writes the view as text, -PassThru writes the input objects."),
@@ -395,6 +403,10 @@ namespace ConsoleMonster.PowerShell {
             }
             Write(cmdlet, widget, width, culture);
         }
+
+        /// <summary>Exports an already-built view for Format-Console*, registered views or native-format adapters. No host output or ANSI rendering is involved.</summary>
+        internal static string Export(IWidget widget, ConsoleMonster.Export.ExportFormat format, int width = 0, CultureInfo? culture = null) =>
+            ConsoleMonster.Export.ConsoleExporter.Export(widget, format, new ConsoleMonster.Export.ExportOptions { Width = width > 0 ? width : 100, Culture = culture });
 
         // Text for a capturing consumer: plain unless $PSStyle.OutputRendering is Ansi.
         private static string CaptureText(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture) =>
@@ -534,7 +546,8 @@ namespace ConsoleMonster.PowerShell {
                 }
                 object? cell = column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, column, shape, record);
                 // Status fields get their marker in records too, as status columns do in tables.
-                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared));
+                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared)
+                    ?? (prepared == null ? null : CellPresenters.ForMember(columns[c].Name, prepared.GetType())));
             }
             if (shown == 0) {
                 view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
@@ -573,11 +586,18 @@ namespace ConsoleMonster.PowerShell {
 
         private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget) {
             object?[] values = new object?[columns.Count];
+            for (int c = 0; c < columns.Count; c++) { values[c] = Read(columns[c], item, budget); }
+            return ShapeValues(columns, values, shape);
+        }
+
+        // Values already evaluated by native Format-* expressions enter the same shaping pass without reading again.
+        internal static object?[] ShapeValues(IReadOnlyList<BoundColumn> columns, IReadOnlyList<object?> raw, ShapeOptions shape) {
+            object?[] values = new object?[columns.Count];
             // Cell text (joined collections, titles) gets an allowance per row, so a large table is never cut short; slow
             // getters are guarded across the whole table.
             ShapeBudget row = ShapeBudget.For(shape);
             for (int c = 0; c < columns.Count; c++) {
-                object? value = Read(columns[c], item, budget);
+                object? value = raw[c];
                 object? prepared = value is FieldError || value is BudgetExceeded ? value : ValueShaper.Prepare(value, shape);
                 values[c] = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, row);
             }
@@ -585,7 +605,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>One column of one item, guarded: a column whose getter keeps stalling (a remote object) stops being read once the stalls use up the budget.</summary>
-        internal static object? Read(BoundColumn column, PSObject item, ShapeBudget budget) => budget.Guard(column, () => column.GetValue(item));
+        internal static object? Read(BoundColumn column, PSObject item, ShapeBudget budget, BoundColumn? budgetColumn = null) => budget.Guard(budgetColumn ?? column, () => column.GetValue(item));
 
 
         // The title every object shares, or null when they differ.

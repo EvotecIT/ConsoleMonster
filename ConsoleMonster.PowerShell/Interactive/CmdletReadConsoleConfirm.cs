@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A typed confirmation before deleting</para>
-    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Description 'This cannot be undone.') { ... }</code>
+    ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
     [OutputType(typeof(bool))]
@@ -31,6 +31,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? TypedConfirmation { get; set; }
 
+        /// <summary><para type="description">Warning shown for a typed confirmation. Overrides -Description as the warning text; without -Warning the existing description remains the warning.</para></summary>
+        [Parameter]
+        public string? Warning { get; set; }
+
         /// <summary><para type="description">The caption of the positive answer.</para></summary>
         [Parameter]
         public string? YesText { get; set; }
@@ -42,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (!string.IsNullOrEmpty(TypedConfirmation)) {
-                TypedConfirmPrompt typed = new TypedConfirmPrompt(Title, TypedConfirmation!) { Warning = Description };
+                TypedConfirmPrompt typed = new TypedConfirmPrompt(Title, TypedConfirmation!) { Warning = Warning ?? Description };
                 typed.ParameterName = ParameterName;
                 if (Default.HasValue) {
                     typed.Default = Default.Value;

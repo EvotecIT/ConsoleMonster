@@ -2,15 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
-using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
-using ConsoleMonster.Layout;
-using ConsoleMonster.Live;
-using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.</para>
+    /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.</para>
     /// <para type="description">Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
     /// </summary>
     /// <example>
@@ -31,9 +27,9 @@ namespace ConsoleMonster.PowerShell {
         [AllowNull]
         public object? InputObject { get; set; }
 
-        /// <summary><para type="description">The format: Html, Svg or Text (default: from the -Path extension, else Html).</para></summary>
+        /// <summary><para type="description">The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Text")]
+        [ValidateSet("Html", "Svg", "Text", "Markdown")]
         public string? Format { get; set; }
 
         /// <summary><para type="description">The file to write (UTF-8 without a byte order mark). Without it the document goes to the pipeline.</para></summary>
@@ -97,13 +93,7 @@ namespace ConsoleMonster.PowerShell {
                 WindowChrome = WindowChrome.IsPresent,
                 FontSize = FontSize
             };
-            string document;
-            CellBuffer? frame = Frame();
-            if (frame != null) {
-                document = ConsoleExporter.Export(frame, format, options);
-            } else {
-                document = ConsoleExporter.Export(Widget(), format, options);
-            }
+            string document = PSOutputExport.Document(_items, format, options, this);
             if (Path == null) {
                 WriteObject(document);
                 return;
@@ -115,47 +105,5 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        // A single frame or live session is exported as it is; everything else becomes a widget.
-        private CellBuffer? Frame() {
-            if (_items.Count != 1) {
-                return null;
-            }
-            object item = PSObject.AsPSObject(_items[0]).BaseObject;
-            if (item is CellBuffer buffer) {
-                return buffer;
-            }
-            if (item is LiveSession session) {
-                return session.Snapshot() ?? throw new PSInvalidOperationException("The session has not drawn a frame yet.");
-            }
-            return null;
-        }
-
-        private IWidget Widget() {
-            List<IWidget> widgets = new List<IWidget>();
-            List<PSObject> rows = new List<PSObject>();
-            foreach (object item in _items) {
-                object raw = PSObject.AsPSObject(item).BaseObject;
-                IWidget? widget = raw is string ? null : PSWidgets.AsWidget(item);
-                if (widget != null) {
-                    FlushRows(rows, widgets);
-                    widgets.Add(widget);
-                } else if (raw is string text) {
-                    FlushRows(rows, widgets);
-                    widgets.Add(new TextBlock(text) { IsMarkup = false });
-                } else {
-                    rows.Add(PSObject.AsPSObject(item));
-                }
-            }
-            FlushRows(rows, widgets);
-            return widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
-        }
-
-        private static void FlushRows(List<PSObject> rows, List<IWidget> widgets) {
-            if (rows.Count == 0) {
-                return;
-            }
-            widgets.Add(PSFormatting.BuildTable(new List<PSObject>(rows), null, null, false));
-            rows.Clear();
-        }
     }
 }

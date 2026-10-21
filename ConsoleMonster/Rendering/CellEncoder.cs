@@ -1,13 +1,37 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Rendering {
     /// <summary>Shared encoding of cell runs into text with SGR changes, used by every output.</summary>
     internal static class CellEncoder {
+        /// <summary>Encodes a direct styled line with the same link policy as widget frames and live redraws.</summary>
+        internal static void AppendStyled(StringBuilder sb, StyledLine line, ColorDepth depth, bool hyperlinks) {
+            if (!hyperlinks) {
+                foreach (TextSpan span in line) {
+                    SgrEncoder.Append(sb, span.Style, depth);
+                    TextSanitizer.Append(sb, span.Text);
+                }
+                return;
+            }
+            List<TextSpan> spans = new List<TextSpan>(line.Count);
+            for (int i = 0; i < line.Count; i++) {
+                spans.Add(new TextSpan(TextSanitizer.Clean(line[i].Text), line[i].Style));
+            }
+            StyledLine clean = new StyledLine(spans);
+            int width = clean.Width;
+            CellBuffer buffer = new CellBuffer(width, 1);
+            // Region owns segmentation across styled spans (combining marks, surrogate pairs and ZWJ sequences).
+            new Region(buffer).Write(0, 0, clean);
+            Style? current = null;
+            AppendRun(sb, buffer, 0, 0, width, depth, ref current, hyperlinks: true);
+        }
+
         /// <summary>
         /// Appends cells <paramref name="start"/>..<paramref name="endExclusive"/> of a row, emitting SGR only when the
         /// style changes. <paramref name="current"/> tracks the active style across calls; <c>null</c> means unknown.
@@ -23,15 +47,17 @@ namespace ConsoleMonster.Rendering {
             string? link = null;
             string? raw = null;
             string? target = null;
+            string?[]? detected = hyperlinks ? HyperlinkText.Find(buffer, y) : null;
             for (int x = start; x < endExclusive; x++) {
                 Cell cell = buffer[x, y];
                 if (cell.IsContinuation) {
                     continue;
                 }
-                // Only absolute http, https, mailto and ftp targets become links (the exporters' filter); others stay text.
-                if (hyperlinks && !ReferenceEquals(raw, cell.Style.Link)) {
-                    raw = cell.Style.Link;
-                    target = raw != null && Export.ExportText.IsSafeLink(raw) ? raw : null;
+                // Terminal file links are allowed; document exporters keep their separate web/mail scheme policy.
+                string? address = cell.Style.Link ?? detected?[x];
+                if (hyperlinks && !ReferenceEquals(raw, address)) {
+                    raw = address;
+                    target = HyperlinkTarget.IsSafe(raw) ? raw : HyperlinkTarget.From(raw);
                 }
                 if (hyperlinks && !string.Equals(link, target, StringComparison.Ordinal)) {
                     // OSC 8: open (or close, with an empty target) a hyperlink around the following cells.

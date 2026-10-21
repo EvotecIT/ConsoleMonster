@@ -78,6 +78,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
 
+        /// <summary><para type="description">Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</para></summary>
+        [Parameter]
+        [ValidateSet("Text", "Markdown", "Html")]
+        public string? As { get; set; }
+
+        /// <inheritdoc />
+        protected override void BeginProcessing() => PSOutputExport.Validate(this);
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (ParameterSetName != "Text" || InputObject == null) {
@@ -176,6 +184,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Returns the view instead of writing it.</para></summary>
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
+
+        /// <summary><para type="description">Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</para></summary>
+        [Parameter]
+        [ValidateSet("Text", "Markdown", "Html")]
+        public string? As { get; set; }
+
+        /// <inheritdoc />
+        protected override void BeginProcessing() => PSOutputExport.Validate(this);
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

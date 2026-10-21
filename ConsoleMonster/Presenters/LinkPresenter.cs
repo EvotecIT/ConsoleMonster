@@ -4,7 +4,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Presenters {
     /// <summary>
-    /// A hyperlink: clickable (OSC 8) in Windows Terminal and VS Code, plain text elsewhere. When the shown text differs from
+    /// A URL or filesystem path: clickable (OSC 8) where the terminal profile permits it, plain text elsewhere. When the shown text differs from
     /// the address and the terminal cannot link, the address follows in brackets so nothing is lost in logs.
     /// </summary>
     public sealed class LinkPresenter : ICellPresenter {
@@ -27,11 +27,13 @@ namespace ConsoleMonster.Presenters {
             if (PresenterValues.IsEmpty(value)) {
                 return new PresentedValue(StyledLine.Empty) { IsEmpty = true };
             }
-            string address = Clean(AddressSelector?.Invoke(value) ?? PresenterValues.ToText(value, context.Culture));
+            string raw = AddressSelector?.Invoke(value) ?? (value is System.IO.FileSystemInfo file ? file.FullName : PresenterValues.ToText(value, context.Culture));
+            string address = Clean(raw);
             string text = TextSelector?.Invoke(value) ?? address;
+            string? target = Rendering.HyperlinkTarget.From(raw);
             Style style = context.Render.Style(ThemeToken.Accent).With(TextDecoration.Underline);
-            if (context.Hyperlinks) {
-                return new PresentedValue(StyledLine.From(text, style.WithLink(address)));
+            if (context.Hyperlinks && target != null) {
+                return new PresentedValue(StyledLine.From(text, style.WithLink(target)));
             }
             if (string.Equals(text, address, StringComparison.Ordinal)) {
                 return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Accent)));

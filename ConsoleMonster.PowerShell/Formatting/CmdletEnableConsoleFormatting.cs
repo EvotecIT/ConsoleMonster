@@ -5,7 +5,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
-    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), commands (Get-Command), modules (Get-Module), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
+    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), commands (Get-Command), modules (Get-Module), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
     /// </summary>
     /// <example>
     ///   <para>Turn it on for the session</para>
@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All (Output, ErrorView and Progress). FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
@@ -52,17 +52,24 @@ namespace ConsoleMonster.PowerShell {
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
             }
-            FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
-            bool ours = existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
+            ConsoleModuleViews.Discover(this);
+            ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");
+            bool ours = existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0;
             if (existing != null && !ours) {
                 if (!Force.IsPresent) {
                     WriteWarning("An Out-Default function already exists in this session; it was kept. Use -Force to replace it.");
                     return;
                 }
-                ConsoleFormatting.SavedOutDefault = existing.ScriptBlock;
+                ConsoleFormatting.SavedOutDefault = existing;
             }
             if ((wanted & ConsoleFormattingFeature.Progress) != 0 && !InstallProgressAlias()) {
                 wanted &= ~ConsoleFormattingFeature.Progress;
+                if (wanted == ConsoleFormattingFeature.None) {
+                    return;
+                }
+            }
+            if ((wanted & ConsoleFormattingFeature.FormatCommands) != 0 && !FormatCommandInstallation.Install(this, Force.IsPresent)) {
+                wanted &= ~ConsoleFormattingFeature.FormatCommands;
                 if (wanted == ConsoleFormattingFeature.None) {
                     return;
                 }
@@ -113,29 +120,32 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress or All (the default).</para></summary>
+        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, FormatCommands or All (Output, ErrorView and Progress). Without -Feature every enabled feature is removed, including FormatCommands.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
             ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All }) {
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.FormatCommands }) {
                 off |= feature;
             }
             if ((off & ConsoleFormattingFeature.Progress) != 0) {
                 ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
             }
+            if ((off & ConsoleFormattingFeature.FormatCommands) != 0) {
+                FormatCommandInstallation.Remove(FormattingSessionState.Current);
+            }
             ConsoleFormatting.Features &= ~off;
-            if ((ConsoleFormatting.Features & ConsoleFormattingFeature.All) != 0) {
+            if (ConsoleFormatting.Features != ConsoleFormattingFeature.None) {
                 return;
             }
-            FunctionInfo? existing = InvokeCommand.GetCommand("Out-Default", CommandTypes.Function) as FunctionInfo;
-            if (existing != null && existing.Definition.IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
+            ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");
+            if (existing != null && existing.ToString().IndexOf(ConsoleFormatting.Marker, StringComparison.OrdinalIgnoreCase) >= 0) {
                 if (ConsoleFormatting.SavedOutDefault != null) {
                     SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ConsoleFormatting.SavedOutDefault);
                 } else {
-                    InvokeCommand.InvokeScript("Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force");
+                    FormatCommandInstallation.RemoveGlobalFunction(MyInvocation.MyCommand.Module, "Out-Default");
                 }
             }
             ConsoleFormatting.SavedOutDefault = null;
@@ -144,7 +154,7 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.</para>
-    /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.</para>
+    /// <para type="description">Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para>
     /// </summary>
     /// <example>
     ///   <para>Show a module's result objects as a table</para>
@@ -153,8 +163,13 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsLifecycle.Register, "ConsoleView", DefaultParameterSetName = "Register")]
     public sealed class CmdletRegisterConsoleView : PSCmdlet {
         /// <summary><para type="description">The type names (as in PSObject.TypeNames).</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Register")]
+        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Remove")]
         public string[] TypeName { get; set; } = Array.Empty<string>();
+
+        /// <summary><para type="description">Imports a data-only .consoleviews.psd1 file. Modules can ship a same-named file beside their manifest without depending on ConsoleMonster.</para></summary>
+        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "File")]
+        public string[] Path { get; set; } = Array.Empty<string>();
 
         /// <summary><para type="description">The view: Table (default), Cards, Tree, Inspector or Chart.</para></summary>
         [Parameter(ParameterSetName = "Register")]
@@ -191,6 +206,10 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (Path.Length > 0) {
+                foreach (string path in Path) { ConsoleModuleViews.Import(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path), false); }
+                return;
+            }
             bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null;
             foreach (string type in TypeName) {
                 if (Remove.IsPresent) {

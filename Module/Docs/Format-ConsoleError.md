@@ -13,7 +13,7 @@ Takes ErrorRecords (from $Error, $_ in a catch block, -ErrorVariable) and .NET e
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleError [[-InputObject] <Object>] [-AsWidget] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-AsString] [-Width <int>] [<CommonParameters>]
+Format-ConsoleError [[-InputObject] <Object>] [-AsWidget] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,6 +38,22 @@ try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Format-ConsoleError -
 In a catch block, with the framework frames
 
 ## PARAMETERS
+
+### -As
+Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Markdown, Html
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AsString
 Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.

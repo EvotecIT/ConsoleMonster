@@ -40,19 +40,19 @@ namespace ConsoleMonster.Widgets {
                 case InspectCollection collection:
                     int index = 0;
                     foreach (InspectNode item in collection.Items) {
-                        AddNode(parent, item, "[" + index.ToString(CultureInfo.InvariantCulture) + "]");
+                        AddNode(parent, item, "[" + index.ToString(CultureInfo.InvariantCulture) + "]", true);
                         index++;
                     }
                     if (collection.Omitted > 0) {
-                        parent.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.MoreCount, collection.Omitted.ToString("N0", CultureInfo.InvariantCulture))) + "[/]");
+                        parent.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(labels.MoreCount, collection.Omitted.ToString("N0", CultureInfo.InvariantCulture))) + "[/]";
                     } else if (collection.Omitted < 0) {
-                        parent.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Current.MoreUnknown) + "[/]");
+                        parent.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(labels.MoreUnknown) + "[/]";
                     }
                     break;
             }
         }
 
-        private static void AddNode(TreeNode parent, InspectNode node, string name) {
+        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false) {
             string label = Markup.Escape(name);
             switch (node) {
                 case InspectObject obj:
@@ -60,10 +60,12 @@ namespace ConsoleMonster.Widgets {
                     break;
                 case InspectCollection collection:
                     int count = collection.Count ?? collection.Items.Count;
-                    Fill(parent.Add(label, null, Localization.WidgetLabels.Format(count == 1 ? Localization.WidgetLabels.Current.OneItem : Localization.WidgetLabels.Current.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture))), collection);
+                    TreeNode branch = parent.Add(label);
+                    branch.LocalizedNote = labels => Localization.WidgetLabels.Format(count == 1 ? labels.OneItem : labels.ManyItems, count.ToString("N0", CultureInfo.InvariantCulture));
+                    Fill(branch, collection);
                     break;
                 case InspectScalar scalar:
-                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value), Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value) });
+                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value), Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value), IsScalarCollectionItem = collectionItem });
                     break;
                 case InspectCycle cycle:
                     parent.Add(label, null, "(cycle: " + cycle.TargetPath + ")");

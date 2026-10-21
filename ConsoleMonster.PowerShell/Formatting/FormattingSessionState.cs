@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,11 @@ namespace ConsoleMonster.PowerShell {
         internal RunspaceProgressState Progress { get; }
         internal ScriptBlock? ProgressCleanupHook { get; set; }
         internal ScriptBlock? PreviousModuleOnRemove { get; set; }
+
+        internal FormatCommandInstallation? FormatCommands { get; set; }
+
+        internal Dictionary<string, ConsoleViewRegistration> Views { get; } = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
+        internal HashSet<string> ViewModules { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Ends this installation without changing any other runspace's saved commands.</summary>
         internal void Reset() {

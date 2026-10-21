@@ -80,7 +80,7 @@ namespace ConsoleMonster.PowerShell {
             ExportFormat format = playerData ? ExportFormat.Html : Format != null
                 ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
                 : Destination != null ? ConsoleExporter.FormatFor(Destination) : ExportFormat.Html;
-            if (format == ExportFormat.Text) {
+            if (format == ExportFormat.Text || format == ExportFormat.Markdown) {
                 format = ExportFormat.Html;
             }
             RecordingExportOptions options = new RecordingExportOptions {

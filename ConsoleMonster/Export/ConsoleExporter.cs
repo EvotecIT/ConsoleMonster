@@ -13,7 +13,7 @@ namespace ConsoleMonster.Export {
     /// <summary>
     /// Exports a widget, a rendered frame or a live-session snapshot to self-contained HTML (inline CSS, selectable text, a
     /// light and a dark rendering that follow <c>prefers-color-scheme</c>), SVG (crisp shapes for box, block and braille
-    /// characters, selectable text, no external assets) or plain text. Cell geometry is kept exactly: every glyph sits on
+    /// characters, selectable text, no external assets), semantic Markdown or plain/fenced text. HTML, SVG and text keep cell geometry: every glyph sits on
     /// the grid, colours and styles are kept, and OSC 8 links become links (web and mail links only).
     /// </summary>
     public static class ConsoleExporter {
@@ -113,9 +113,27 @@ namespace ConsoleMonster.Export {
         /// <returns>The text.</returns>
         public static string ToText(LiveSession session, ExportOptions? options = null) => ToText(SnapshotOf(session), options);
 
+        /// <summary>Exports tables as GFM pipe tables, records as property/value tables and trees as nested lists, using their shared presenters.</summary>
+        /// <param name="widget">The widget to render.</param>
+        /// <param name="options">Size, culture and glyph tier.</param>
+        /// <returns>Semantic Markdown without terminal escape sequences; widgets without structured data use a fenced fallback.</returns>
+        public static string ToMarkdown(IWidget widget, ExportOptions? options = null) => MarkdownWidgetWriter.Write(widget, Ready(options));
+
+        /// <summary>Exports a frame as fenced preformatted Markdown.</summary>
+        /// <param name="frame">The rendered frame.</param>
+        /// <param name="options">Unused; the frame keeps its size.</param>
+        /// <returns>A Markdown code block with a fence longer than any backtick run in the content.</returns>
+        public static string ToMarkdown(CellBuffer frame, ExportOptions? options = null) => MarkdownFrameWriter.Write(ToText(frame, options));
+
+        /// <summary>Exports the current live-session snapshot as fenced preformatted Markdown.</summary>
+        /// <param name="session">A session that has drawn a frame.</param>
+        /// <param name="options">Unused; the snapshot keeps its size.</param>
+        /// <returns>A Markdown code block.</returns>
+        public static string ToMarkdown(LiveSession session, ExportOptions? options = null) => ToMarkdown(SnapshotOf(session), options);
+
         /// <summary>Exports a widget in a format.</summary>
         /// <param name="widget">The widget.</param>
-        /// <param name="format">Html, Svg or Text.</param>
+        /// <param name="format">Html, Svg, Text or Markdown.</param>
         /// <param name="options">The options.</param>
         /// <returns>The exported document.</returns>
         public static string Export(IWidget widget, ExportFormat format, ExportOptions? options = null) {
@@ -126,14 +144,18 @@ namespace ConsoleMonster.Export {
                     return ToSvg(widget, options);
                 case ExportFormat.Text:
                     return ToText(widget, options);
+                case ExportFormat.FencedText:
+                    return MarkdownFrameWriter.Write(ToText(widget, options));
+                case ExportFormat.Markdown:
+                    return ToMarkdown(widget, options);
                 default:
-                    throw new ArgumentException("Frames export to Html, Svg or Text; Asciicast is for recordings.", nameof(format));
+                    throw new ArgumentException("Frames export to Html, Svg, Text or Markdown; Asciicast is for recordings.", nameof(format));
             }
         }
 
         /// <summary>Exports a frame in a format.</summary>
         /// <param name="frame">The frame.</param>
-        /// <param name="format">Html, Svg or Text.</param>
+        /// <param name="format">Html, Svg, Text or Markdown.</param>
         /// <param name="options">The options.</param>
         /// <returns>The exported document.</returns>
         public static string Export(CellBuffer frame, ExportFormat format, ExportOptions? options = null) {
@@ -144,15 +166,19 @@ namespace ConsoleMonster.Export {
                     return ToSvg(frame, options);
                 case ExportFormat.Text:
                     return ToText(frame, options);
+                case ExportFormat.FencedText:
+                    return MarkdownFrameWriter.Write(ToText(frame, options));
+                case ExportFormat.Markdown:
+                    return ToMarkdown(frame, options);
                 default:
-                    throw new ArgumentException("Frames export to Html, Svg or Text; Asciicast is for recordings.", nameof(format));
+                    throw new ArgumentException("Frames export to Html, Svg, Text or Markdown; Asciicast is for recordings.", nameof(format));
             }
         }
 
         /// <summary>Writes an export to a file as UTF-8 without a byte order mark.</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="path">The file.</param>
-        /// <param name="format">The format; null picks it from the extension (.html/.htm, .svg, anything else text).</param>
+        /// <param name="format">The format; null picks it from the extension (.html/.htm, .svg, .md/.markdown, anything else text).</param>
         /// <param name="options">The options.</param>
         public static void Save(IWidget widget, string path, ExportFormat? format = null, ExportOptions? options = null) {
             File.WriteAllText(path ?? throw new ArgumentNullException(nameof(path)), Export(widget, format ?? FormatFor(path), options), new UTF8Encoding(false));
@@ -160,7 +186,7 @@ namespace ConsoleMonster.Export {
 
         /// <summary>The format a file extension implies.</summary>
         /// <param name="path">The path.</param>
-        /// <returns>Html for .html/.htm, Svg for .svg, Asciicast for .cast, Text otherwise.</returns>
+        /// <returns>Html for .html/.htm, Svg for .svg, Markdown for .md/.markdown, Asciicast for .cast, Text otherwise.</returns>
         public static ExportFormat FormatFor(string path) {
             string extension = Path.GetExtension(path ?? string.Empty).ToLowerInvariant();
             switch (extension) {
@@ -171,6 +197,9 @@ namespace ConsoleMonster.Export {
                     return ExportFormat.Svg;
                 case ".cast":
                     return ExportFormat.Asciicast;
+                case ".md":
+                case ".markdown":
+                    return ExportFormat.Markdown;
                 default:
                     return ExportFormat.Text;
             }

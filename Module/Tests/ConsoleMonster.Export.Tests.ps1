@@ -65,6 +65,13 @@ Describe 'ConsoleMonster exports' {
         $html | Should -Match 'ConsoleMonsterPlayer'
         $html | Should -Not -Match 'src="http'
 
+        # Markdown is a frame format. Recording destinations keep their existing HTML fallback for other extensions.
+        foreach ($extension in 'txt', 'md', 'markdown') {
+            $fallbackPath = Join-Path $TestDrive ('run.' + $extension)
+            Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $fallbackPath -Width 60 -Height 8
+            Get-Content -LiteralPath $fallbackPath -Raw -Encoding UTF8 | Should -Match 'ConsoleMonsterPlayer'
+        }
+
         $dataPath = Join-Path $TestDrive 'run.json'
         Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
         $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json

@@ -13,7 +13,7 @@ Works for any object: PSCustomObjects, .NET objects, hashtables and dictionaries
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <Object>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-PassThru] [<CommonParameters>]
+Format-ConsoleTree [-InputObject <psobject>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Title <Object>] [-AsInspector] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-PassThru] [-As <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,6 +38,22 @@ Get-ChildItem Cert:\CurrentUser\My | Select-Object -First 1 | Format-ConsoleTree
 A certificate as an inspector
 
 ## PARAMETERS
+
+### -As
+Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Markdown, Html
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AsInspector
 Shows a record view (sections and nested tables) instead of a tree.
