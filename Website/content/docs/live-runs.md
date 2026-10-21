@@ -4,7 +4,7 @@ description: Run a script block for many items in parallel with a live view, re-
 social_card_image: /site/cards/size-100x30.svg
 meta.social_title: "Live runs: parallel, watch and Pester"
 slug: live-runs
-order: 8
+order: 9
 group: live
 card: parallel
 apis: [ForEach-ConsoleItem, Watch-Console]

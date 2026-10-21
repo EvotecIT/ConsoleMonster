@@ -177,6 +177,11 @@ namespace SiteFrames.Pages {
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
             yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
+            // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
+            // through the same dashboard when CI is detected.
+            yield return new Demo("threads-naive", "ForEach-Object -Parallel", 100, 24) { Script = "threads-naive.ps1", CSharpProgram = "threads-naive.cs", PosterShare = 0.6, Fps = 8 };
+            yield return new Demo("threads-live", "Start-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
+            yield return new Demo("threads-ci", "CI=true", 100, 30) { Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
             yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
             yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {

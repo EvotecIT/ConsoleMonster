@@ -2,7 +2,7 @@
 title: PowerShell conventions
 description: "One grammar for every widget: containers take script blocks, items are commands with shared parameters, and .NET methods still work."
 slug: powershell-conventions
-order: 14
+order: 15
 group: hosts
 card: shaping
 chips: [Cmdlets, Script blocks]

@@ -24,6 +24,8 @@
 .cm-paths__line { margin: 0; color: #c3cad6; font-size: 16px; text-wrap: balance; }
 .cm-paths__more { color: var(--cm-link); font: 600 14px/1.4 var(--cm-mono); text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 4px; }
 .cm-paths__more:hover, .cm-paths__more:focus-visible { text-decoration-color: currentColor; }
+.cm-paths__threads { margin: 4px 0 0; color: var(--cm-ink-2); font-size: 15px; }
+.cm-paths__threads a { color: var(--cm-link); }
 /* Both paths' players fill the same stage, and the terminal scales to it, so the window, its bar and its controls are
    one width and the page does not jump when the path changes. */
 .cm-hero__stage, .cm-hero__take { width: min(100%, var(--cm-stage-w)); min-width: 0; }

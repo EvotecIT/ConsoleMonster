@@ -55,6 +55,10 @@
         <div class="cm-paths__lead">
           <p class="cm-paths__line">{{ path.line }}</p>
           <a class="cm-paths__more" href="{{ path.url }}">{{ path.linkText }}</a>
+          {{~ ## One measured line about threads (the stress run in data/benchmarks.json), linking the page that explains it. ## ~}}
+          {{~ if path.threads; ts = data.benchmarks.stress ~}}
+          <p class="cm-paths__threads">{{ path.threads | string.replace "{workers}" ts.workers | string.replace "{rate}" (ts.facts[1].value | string.replace "/s" "") }} <a href="/docs/threads/">{{ path.threadsLink }}</a></p>
+          {{~ end ~}}
         </div>
         <div class="cm-hero__stage">
           {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 18; player_class = "cm-window--fill" ~}}

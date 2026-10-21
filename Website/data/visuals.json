@@ -103,6 +103,9 @@
     },
     "theme-dark": {
       "src": "/site/cards/theme-dark.svg"
+    },
+    "threads-live": {
+      "src": "/site/cards/threads-live.svg"
     }
   }
 }

@@ -1,0 +1,25 @@
+{{~ ## A live recording from data/live.json in docs and guides, by id: the player, the measured result when the run printed
+     one (facts and the result line) and the C# program that recorded it. Written as one line, with its newlines as
+     character references, so the Markdown around it passes it through whole (see cm-demo). ## ~}}
+{{~ a = shortcode.attrs; r = data.live[a.id] ~}}
+{{~ capture live_html ~}}
+{{~ if r ~}}
+<figure class="cm-figure cm-live-figure">
+{{~ player_data = r; player_title = r.command; player_meta = [r.w + "×" + r.h, "24-bit", "Full"]; player_label = a.label ?? r.label; player_max = 13 ~}}
+{{ include "player" }}
+{{~ if r.result ~}}
+<dl class="cm-facts">
+{{~ for f in r.result.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
+</dl>
+{{~ code_lang = "text"; code_label = "Result line"; code_text = r.result.line ~}}
+{{ include "code" }}
+{{~ end ~}}
+{{~ if r.csharp ~}}
+{{~ code_lang = "csharp"; code_label = "C#"; code_file = r.csharpFile; code_repo = r.csharpRepo; code_text = r.csharp; code_full = r.csharpFull ~}}
+{{ include "code" }}
+{{~ end ~}}
+{{~ if a.caption ~}}<figcaption>{{ a.caption | html.escape | regex.replace "`([^`]+)`" "<code>$1</code>" }}</figcaption>{{~ end ~}}
+</figure>
+{{~ end ~}}
+{{~ end ~}}
+{{ live_html | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

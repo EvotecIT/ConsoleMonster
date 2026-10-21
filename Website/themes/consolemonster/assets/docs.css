@@ -95,3 +95,11 @@
 @media (max-width: 560px) {
   .cm-catalog__cards { grid-template-columns: minmax(0, 1fr); }
 }
+/* Diagrams drawn as inline SVG on docs pages: boxes, labels and arrows in the theme's own colours. */
+.cm-diagram { margin: var(--cm-space-5) 0; }
+.cm-diagram svg { display: block; width: 100%; max-width: 720px; height: auto; }
+.cm-diagram__box rect { fill: var(--cm-surface); stroke: var(--cm-line-strong); stroke-width: 1.5; }
+.cm-diagram__text text { fill: var(--cm-ink); font: 500 13px var(--cm-mono); text-anchor: middle; }
+.cm-diagram__note text { fill: var(--cm-muted); font: 12px var(--cm-font); text-anchor: middle; }
+.cm-diagram__arrow path { fill: none; stroke: var(--cm-link); stroke-width: 1.75; marker-end: url(#cm-arrow); }
+.cm-diagram__head { fill: var(--cm-link); }
