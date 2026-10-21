@@ -56,7 +56,7 @@
           <p class="cm-paths__line">{{ path.line }}</p>
           <a class="cm-paths__more" href="{{ path.url }}">{{ path.linkText }}</a>
           {{~ ## One measured line about threads (the stress run in data/benchmarks.json), linking the page that explains it. ## ~}}
-          {{~ ts = data.benchmarks.stress; if path.threads && ts && ts.avgRate ~}}
+          {{~ ts = data.benchmarks.stress; if path.threads && ts && ts.avgRate && ts.dropped == "0" ~}}
           <p class="cm-paths__threads">{{ path.threads | string.replace "{workers}" ts.workers | string.replace "{rate}" (ts.avgRate | string.replace "/s" "" | string.to_int | math.format "N0") }} <a href="/docs/threads/">{{ path.threadsLink }}</a></p>
           {{~ end ~}}
         </div>

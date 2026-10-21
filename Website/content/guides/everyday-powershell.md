@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: "Enable-ConsoleFormatting makes ordinary output readable for the session: files, processes, hashtables, arrays and groups, the Format commands on request, module views and Markdown reports, before and after."
+description: "Enable-ConsoleFormatting makes everyday output readable: files, processes and hashtables, Format-Table on request, module views and stream colours."
 social_card_image: /site/cards/formatting.svg
 meta.social_title: "Everyday PowerShell output"
 slug: everyday-powershell

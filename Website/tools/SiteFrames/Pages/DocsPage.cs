@@ -142,11 +142,11 @@ namespace SiteFrames.Pages {
                 CellBuffer? dark = PowerShellPage.CaptureFrame(site, "streams", "rich", host);
                 CellBuffer? light = PowerShellPage.CaptureFrame(site, "streams", "light", host);
                 JsonNode? example = powershell["examples"]?["streams"];
-                if (dark == null || light == null || example == null) {
+                string? version = example?["rich"]?[host.Id]?["host"]?.GetValue<string>();
+                if (dark == null || light == null || example == null || version == null) {
                     WidgetsPage.Report(new List<string> { "missing capture streams on " + host.Label + "; run the capture command for the powershell area." }, "docs");
                     continue;
                 }
-                string version = powershell["examples"]!["streams"]!["rich"]![host.Id]!["host"]!.GetValue<string>();
                 Figures.Add("streams-" + host.Id, new JsonObject {
                     ["title"] = version,
                     ["file"] = "streams.ps1",

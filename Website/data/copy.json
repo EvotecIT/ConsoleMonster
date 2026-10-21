@@ -532,7 +532,7 @@
     },
     "threads-ci": {
       "title": "The same script in CI",
-      "body": "With CI detected, the same dashboard writes a whole line for each start, finish and log entry instead of redrawing, in the order the updates were applied, then prints its final state.",
+      "body": "With CI detected, the same dashboard writes a whole line for each lane start and finish and each log entry instead of redrawing, in the order the updates were applied, then prints its final state.",
       "label": "The dashboard script's output when CI=true: ordered, whole lines"
     },
     "shaping": {

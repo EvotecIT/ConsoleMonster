@@ -1,6 +1,6 @@
 ---
 title: Coming from Format-Table
-description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: pipeline input, -Property, column options and Markdown, HTML or text exports."
+description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
 slug: format-table
 order: 4
 ---
