@@ -212,7 +212,6 @@ namespace ConsoleMonster.Live {
             lock (_finishGate) {
                 if (Volatile.Read(ref _state) == 3 || _finishing) { return; }
                 _finishing = true;
-                Terminal.ReleaseConsole(this);
                 CancelWork();
                 // A producer admitted just before Stop must finish publishing before the final drain.
                 SpinWait producers = new SpinWait();
@@ -233,16 +232,20 @@ namespace ConsoleMonster.Live {
                 _guardRegistration.Dispose();
                 Attempt(() => _guard?.Dispose());
                 Attempt(() => _recorder?.Dispose());
-                if (drawn && _output != null && _context != null) {
-                    Attempt(() => {
-                        FlushUnrouted();
-                        IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
-                        if (summary != null) {
-                            _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
-                        }
-                    });
+                lock (_outputGate) {
+                    if (drawn && _output != null && _context != null) {
+                        Attempt(() => {
+                            FlushUnrouted();
+                            IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
+                            if (summary != null) {
+                                _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
+                            }
+                        });
+                    }
+                    if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                    // A new normal writer may start only after accepted blocks, scrollback and restoration are done.
+                    Terminal.ReleaseConsole(this);
                 }
-                if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
                 Attempt(() => _stoppedElapsed = Scale(ReadElapsed()));
                 _watch.Stop();
                 lock (CurrentGate) { Running.Remove(this); }

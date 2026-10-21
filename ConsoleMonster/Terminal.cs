@@ -188,20 +188,15 @@ namespace ConsoleMonster {
             writer = writer ?? Target.Writer;
             RenderContext context = CreateContext(p);
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
-            Live.ConsoleWriteBlock? prepared = null;
             if (owner != null) {
-                prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));
-                if (owner.TryWriteAbove(prepared)) {
-                    return;
-                }
+                Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));
+                if (!owner.TryWriteAbove(prepared)) { owner.WriteFallback(prepared, () => WritePrepared(prepared, p, writer)); }
+                return;
             }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    if (prepared != null) { prepared.Write(output); }
-                    else {
-                        foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
-                            output.WriteBlock(block);
-                        }
+                    foreach (CellBuffer block in RenderChunks(widget, p.Width, context)) {
+                        output.WriteBlock(block);
                     }
                 }
                 writer?.Flush();
@@ -303,22 +298,26 @@ namespace ConsoleMonster {
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             writer = writer ?? Target.Writer;
-            Live.ConsoleWriteBlock? prepared = null;
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
-                prepared = new Live.ConsoleWriteBlock(lines, newLine);
-                if (owner.TryWriteAbove(prepared)) { return; }
+                Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(lines, newLine);
+                if (!owner.TryWriteAbove(prepared)) { owner.WriteFallback(prepared, () => WritePrepared(prepared, p, writer)); }
+                return;
             }
             lock (Gate) {
                 using (ITerminalOutput output = CreateOutput(p, writer)) {
-                    if (prepared != null) { prepared.Write(output); }
-                    else {
-                        for (int i = 0; i < lines.Count; i++) {
-                            if (i < lines.Count - 1 || newLine) { output.WriteLine(lines[i]); }
-                            else { output.WriteInline(lines[i]); }
-                        }
+                    for (int i = 0; i < lines.Count; i++) {
+                        if (i < lines.Count - 1 || newLine) { output.WriteLine(lines[i]); }
+                        else { output.WriteInline(lines[i]); }
                     }
                 }
+                writer?.Flush();
+            }
+        }
+
+        private static void WritePrepared(Live.ConsoleWriteBlock prepared, TerminalProfile profile, ITerminalWriter? writer) {
+            lock (Gate) {
+                using (ITerminalOutput output = CreateOutput(profile, writer)) { prepared.Write(output); }
                 writer?.Flush();
             }
         }

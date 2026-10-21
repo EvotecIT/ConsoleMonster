@@ -1,3 +1,4 @@
+using System;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
@@ -17,6 +18,16 @@ namespace ConsoleMonster.Live {
             }
         }
 
+        // Rejected one-shot writes still share the session's physical output lock until its final output is complete.
+        // Before restoration, stream writes use that output and live writes wait for scrollback; afterwards the normal
+        // writer runs under the same lock. This is separate from dispatcher admission and does not count as a posted event.
+        internal void WriteFallback(ConsoleWriteBlock write, Action normalWrite) {
+            lock (_outputGate) {
+                if (!_restored && _output != null) { RouteConsoleWrite(write); }
+                else { normalWrite(); }
+            }
+        }
+
         private void RouteUnclaimedLog(LiveEvent liveEvent) {
             if (_output != null && _output.SupportsLiveFrames && _options.Mode == LiveMode.FullScreen) {
                 if (_captureLog == null) {
@@ -24,7 +35,7 @@ namespace ConsoleMonster.Live {
                 }
                 _captureLog.Apply(liveEvent);
             }
-            var lines = liveEvent.IsMarkup ? _context!.Markup(liveEvent.Text!).Lines : new[] { StyledLine.From(liveEvent.Text!) };
+            var lines = liveEvent.IsMarkup ? _context!.Markup(liveEvent.Text!).Lines : StyledText.FromPlain(liveEvent.Text).Lines;
             RouteConsoleWrite(new ConsoleWriteBlock(lines, true));
         }
 

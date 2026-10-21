@@ -75,6 +75,65 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public async Task ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining() {
+            FakeOutput output = new FakeOutput(false);
+            TaskCompletionSource<bool> firstLine = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> afterBlock = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> fallbackReady = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (ManualResetEventSlim releaseLine = new ManualResetEventSlim())
+            using (ManualResetEventSlim releaseStop = new ManualResetEventSlim())
+            using (Terminal.Use(ConsoleTarget.Instance)) {
+                output.WritingLine = line => {
+                    if (line.PlainText == "accepted-first") {
+                        firstLine.TrySetResult(true);
+                        if (!releaseLine.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("Accepted line was not released."); }
+                    }
+                };
+                FakeTarget fence = new FakeTarget { Applying = _ => {
+                    afterBlock.TrySetResult(true);
+                    if (!releaseStop.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("Final drain was not released."); }
+                } };
+                LiveSessionOptions options = LiveSessionTests.Options(output);
+                options.StopTimeout = TimeSpan.FromSeconds(30);
+                using (LiveSession session = new LiveSession(fence, options)) {
+                    session.Start();
+                    Terminal.ClaimConsole(session);
+                    Terminal.WriteLines(new[] { StyledLine.From("accepted-first"), StyledLine.From("accepted-last") }, profile: Profile);
+                    session.Post(new LiveEvent("work", "hold-stop"));
+                    Task? stop = null;
+                    Task? fallback = null;
+                    try {
+                        await Observed(firstLine.Task);
+                        stop = Task.Run(() => session.Stop());
+                        Assert.True(session.Cancellation.WaitHandle.WaitOne(TimeSpan.FromSeconds(30)));
+                        fallback = Task.Run(() => {
+                            fallbackReady.TrySetResult(true);
+                            Terminal.WriteLines(new[] { StyledLine.From("fallback-first"), StyledLine.From("fallback-last") }, profile: Profile);
+                        });
+                        await Observed(fallbackReady.Task);
+                        releaseLine.Set();
+                        await Observed(afterBlock.Task);
+                        await Observed(fallback);
+                        Assert.False(stop.IsCompleted);
+                        Assert.Equal(new[] { "accepted-first", "accepted-last", "fallback-first", "fallback-last" }, output.Lines);
+                    } finally {
+                        releaseLine.Set();
+                        releaseStop.Set();
+                        if (fallback != null) { await Observed(fallback); }
+                        if (stop != null) { await Observed(stop); }
+                    }
+                    Assert.Equal(0, session.EventsDropped);
+                    Assert.Equal(session.EventsPosted, session.EventsApplied);
+                }
+            }
+        }
+
+        private static async Task Observed(Task task) {
+            Assert.Same(task, await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))));
+            await task;
+        }
+
+        [Fact]
         public void SessionWrite_PreservesTheFinalInlineLine() {
             FakeOutput output = new FakeOutput();
             using (Terminal.Use(ConsoleTarget.Instance))

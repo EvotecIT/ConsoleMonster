@@ -6,6 +6,43 @@ Describe 'Parallel live stream routing' {
         $script:ConcurrencyProbe = Join-Path $PSScriptRoot 'Support/ParallelStreamProbe.cs'
     }
 
+    It 'preserves multiline host and warning messages without a log in <Mode> with <LineEnding>' -ForEach @(
+        @{ Mode = 'Stream'; LineEnding = 'LF' }
+        @{ Mode = 'Stream'; LineEnding = 'CRLF' }
+        @{ Mode = 'Interactive'; LineEnding = 'LF' }
+        @{ Mode = 'Interactive'; LineEnding = 'CRLF' }
+    ) {
+        $body = @'
+$target = [ConsoleMonster.Output.RecordingTarget]::new([ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 20, 'None', 'Full', '__MODE__'))
+$scope = [ConsoleMonster.Terminal]::Use($target)
+try {
+    $newline = if ('__LINE_ENDING__' -eq 'CRLF') { "`r`n" } else { "`n" }
+    $dashboard = New-ConsoleDashboard -Title 'No log' { New-ConsoleText 'working' }
+    1..2 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 2 -ArgumentList $newline {
+        param($item, $newline)
+        Write-Host "host-$item-first${newline}host-$item-second"
+        Write-Warning "warning-$item-first${newline}warning-$item-second"
+        Write-Host "colour-$item-first${newline}colour-$item-second" -ForegroundColor Cyan
+    } | Out-Null
+    $text = $target.Text
+    foreach ($item in 1..2) {
+        foreach ($prefix in 'host', 'warning', 'colour') {
+            $expected = "$prefix-$item-first`n$prefix-$item-second`n"
+            if ([regex]::Matches($text, [regex]::Escape($expected)).Count -ne 1) { throw "The $prefix message lost its lines or was duplicated: $text" }
+        }
+    }
+} finally {
+    $scope.Dispose()
+}
+'MULTILINE_NO_LOG_OK'
+'@.Replace('__MODE__', $Mode).Replace('__LINE_ENDING__', $LineEnding)
+        $setup = "Import-Module '$($script:ConcurrencyModule.Replace("'", "''"))' -Force`n$body"
+        $setup = "`$ErrorActionPreference = 'Stop'; try {`n$setup`n} catch { [Console]::Out.WriteLine((`$_ | Out-String)); exit 1 }"
+        $lines = @(Invoke-TestChild -Runtime $script:ConcurrencyRuntime -Script $setup -TimeoutSeconds 180)
+        if ($LASTEXITCODE -ne 0) { throw ($lines -join "`n") }
+        $lines -join "`n" | Should -Match 'MULTILINE_NO_LOG_OK'
+    }
+
     It 'routes host, warning and nested progress from <CommandName> without changing result records' -ForEach @(
         @{ CommandName = 'Start-ConsoleDashboard' }
         @{ CommandName = 'ForEach-ConsoleItem' }

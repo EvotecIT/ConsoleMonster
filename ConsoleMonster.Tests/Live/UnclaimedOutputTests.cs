@@ -36,6 +36,41 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         [Fact]
+        public async Task NoLog_MultilinePlainAndColouredMessagesKeepTheirLines() {
+            foreach (bool live in new[] { false, true }) {
+                foreach (string newline in new[] { "\n", "\r\n" }) {
+                    FakeOutput output = new FakeOutput(live);
+                    TaskCompletionSource<bool> applied = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    TaskCompletionSource<bool> visible = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    FakeTarget fence = new FakeTarget { Applying = _ => applied.TrySetResult(true) };
+                    LiveSessionOptions options = LiveSessionTests.Options(output);
+                    options.Profile = TerminalProfile.Fixed(60, 18, ColorDepth.None);
+                    options.WindowSource = () => new[] { 0, 0, 60, 18 };
+                    string[] expected = { "host-first", "host-second", "warning-first", "warning-second", "colour-first", "colour-second" };
+                    using (LiveSession session = new LiveSession(fence, options)) {
+                        output.Frame = () => {
+                            string frame = session.Snapshot()!.ToPlainText();
+                            if (expected.All(frame.Contains)) { visible.TrySetResult(true); }
+                        };
+                        session.Start();
+                        session.Post(new LiveEvent("$log", "write", text: "host-first" + newline + "host-second", state: "host"));
+                        session.Post(new LiveEvent("$log", "write", text: "warning-first" + newline + "warning-second", state: "warn"));
+                        // HostColors emits a balanced styled segment per physical line.
+                        session.Post(new LiveEvent("$log", "write", text: "[pass]colour-first[/]" + newline + "[pass]colour-second[/]", isMarkup: true));
+                        session.Post(new LiveEvent("work", "fence"));
+                        await Observed(applied.Task);
+                        if (live) { await Observed(visible.Task); }
+                        else { Assert.Equal(expected, output.Lines); }
+                        session.Stop();
+                        Assert.Equal(expected, output.Lines);
+                        Assert.Equal(0, session.EventsDropped);
+                        Assert.Equal(session.EventsPosted, session.EventsApplied);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public async Task FullScreenWithoutLog_ShowsABoundedCaptureTailAndRetainsScrollback() {
             FakeOutput output = new FakeOutput();
             TaskCompletionSource<string> visible = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);

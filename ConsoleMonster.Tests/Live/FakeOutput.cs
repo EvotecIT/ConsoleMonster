@@ -13,6 +13,7 @@ namespace ConsoleMonster.Tests.Live {
         internal Action? Frame;
         internal Action? Ending;
         internal Action? Beginning;
+        internal Action<StyledLine>? WritingLine;
         internal int Frames;
         internal int Invalidations;
 
@@ -24,7 +25,7 @@ namespace ConsoleMonster.Tests.Live {
 
         public void WriteBlock(CellBuffer buffer) { Calls.Enqueue("block"); }
 
-        public void WriteLine(StyledLine line) { Lines.Enqueue(line.PlainText); Calls.Enqueue("line"); }
+        public void WriteLine(StyledLine line) { Lines.Enqueue(line.PlainText); Calls.Enqueue("line"); WritingLine?.Invoke(line); }
 
         public void WriteInline(StyledLine line) { Lines.Enqueue(line.PlainText); Calls.Enqueue("inline"); }
 

@@ -37,7 +37,8 @@ dropped dispatcher updates. The finite stress example retains its captured datas
 
 One `Terminal.Write` or `Terminal.WriteLines` call is a complete block. Concurrent calls sharing an output cannot interleave its
 lines. During a session, the prepared block has one queue admission decision. If shutdown wins before admission, the caller
-writes the whole block once through normal output. Accepted blocks appear above an inline area or after a full screen ends.
+writes the whole block once, serialized with the session's remaining output and restoration. Until restoration, stream fallback
+uses the session's output and full-screen fallback waits for scrollback. Accepted blocks appear above an inline area or after a full screen ends.
 
 `Console.Write` fragments and CR/LF state are buffered per managed thread until newline. Stopping flushes each unfinished tail
 once. A logical message that continues on a different thread should use one `WriteLine` or `Terminal.Write` call.
@@ -102,6 +103,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Complete concurrent one-shot blocks | [`TerminalWrite_ManyProducersKeepEveryMultilineBlockWhole`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
 | One admission per block and preserved final inline line | `SessionWrites_AdmitWholeMultilineBlocksBeforeAnotherProducer`, `SessionWrite_PreservesTheFinalInlineLine` in the same file |
 | Exactly-once shutdown fallback to actual OS stdout | [`StopDuringWritePreparation_PrintsTheWholeFallbackExactlyOnceToNativeStdout`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs) |
+| Shutdown fallback cannot split an accepted block still draining | [`ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
 | Whole stream lines in apply order, many producers | [`Stream_ManyProducersWriteWholeLinesInExactApplyOrder`](../ConsoleMonster.Tests/Live/DispatcherConcurrencyTests.cs) |
 | Posting proceeds with blocked Apply; every accepted flood event drains | `Flood_PostingFinishesWhileApplyIsBlocked_ThenEveryAcceptedUpdateDrains` in the same file |
 | Producer order and serialized normal application under stress | [`ConcurrentProducersPreserveEveryEventAndProducerOrderOnTheRenderThread`](../ConsoleMonster.Tests/Live/LiveSessionTests.cs) |
@@ -109,6 +111,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Concurrent handles, SummaryBar partial updates, and queued Slot swaps | [`HandlesAndSlotSet_KeepEveryUpdateAndEachProducersLastValue`](../ConsoleMonster.Tests/Live/HandleConcurrencyTests.cs) |
 | Per-thread fragments, CR/LF, and exactly-once tail flushing | [`ConcurrentFragments_StayWithTheirProducerUntilNewline`, `CarriageReturnState_BelongsToTheProducer`, `Complete_FlushesEveryProducerTailExactlyOnce`](../ConsoleMonster.Tests/Live/CaptureWriterConcurrencyTests.cs) |
 | Progressive no-log output and bounded full-screen tail with scrollback | [`StreamWithoutLog_WritesCapturedAndPostedLinesBeforeStopInApplyOrder`, `FullScreenWithoutLog_ShowsABoundedCaptureTailAndRetainsScrollback`](../ConsoleMonster.Tests/Live/UnclaimedOutputTests.cs) |
+| LF/CRLF host, warning, and colored messages retain lines without a log | `NoLog_MultilinePlainAndColouredMessagesKeepTheirLines` in the same file; [`preserves multiline host and warning messages without a log in <Mode> with <LineEnding>`](../Module/Tests/ConsoleMonster.Concurrency.Tests.ps1) |
 | Concurrent log entries retain exception details and scopes | [`ConcurrentExceptionEntries_KeepMessagesDetailsAndScopesTogether`](../ConsoleMonster.Extensions.Tests/LoggingConcurrencyTests.cs) |
 | All session log entries arrive; exceptions reach the configured explicit sink | `ConcurrentSessionLogging_DeliversEveryEntryAndAnExceptionToItsExplicitSink` in the same file |
 | Parallel dashboard/run host, warning, nested progress, and native results | [`routes host, warning and nested progress from <CommandName> without changing result records`](../Module/Tests/ConsoleMonster.Concurrency.Tests.ps1), all three command names |
