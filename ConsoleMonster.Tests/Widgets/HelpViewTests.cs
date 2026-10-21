@@ -34,6 +34,23 @@ namespace ConsoleMonster.Tests.HelpViews {
         }
 
         [Fact]
+        public void Syntax_CommandLineArguments_RenderWithoutInventedOptionNames() {
+            HelpTopic topic = new HelpTopic("tool export");
+            HelpSyntax syntax = new HelpSyntax("tool export");
+            syntax.Parameters.Add(new HelpSyntaxParameter("path") { Named = false, Required = true });
+            syntax.Parameters.Add(new HelpSyntaxParameter("command") { Named = false });
+            syntax.Parameters.Add(new HelpSyntaxParameter("-format") { Type = "string" });
+            topic.Syntax.Add(syntax);
+            topic.Parameters.Add(new HelpParameter("path") { Named = false, Required = true, Type = "string", Position = "0" });
+
+            string text = Text(new HelpView(topic), 120);
+
+            Assert.Contains("tool export <path> [<command>] [--format <string>]", text);
+            Assert.DoesNotContain("-path", text);
+            Assert.DoesNotContain("-command", text);
+        }
+
+        [Fact]
         public void Syntax_MarksRequiredOptionalAndPositionalParts() {
             string text = Text(new HelpView(Sample()), 120);
             Assert.Contains("Copy-Thing [-Path] <string[]> [[-Destination] <string>] [-Filter <string>] [-Force] [<CommonParameters>]", text);

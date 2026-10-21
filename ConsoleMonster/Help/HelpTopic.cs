@@ -89,6 +89,9 @@ namespace ConsoleMonster.Help {
 
         /// <summary>Whether its name may be left out (a position is given).</summary>
         public bool Positional { get; set; }
+
+        /// <summary>Whether the syntax includes a parameter name (default true). False renders only the value placeholder, as used by command-line positional arguments.</summary>
+        public bool Named { get; set; } = true;
     }
 
     /// <summary>A parameter's details for the parameter table.</summary>
@@ -101,6 +104,9 @@ namespace ConsoleMonster.Help {
 
         /// <summary>The name without the dash.</summary>
         public string Name { get; }
+
+        /// <summary>Whether the name has a parameter dash (default true); false for command-line positional arguments.</summary>
+        public bool Named { get; set; } = true;
 
         /// <summary>The type, or null.</summary>
         public string? Type { get; set; }

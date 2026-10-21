@@ -201,14 +201,16 @@ namespace ConsoleMonster.Widgets {
                 if (optional) {
                     unit.Add(new TextSpan("[", bracket));
                 }
-                if (parameter.Positional && hasValue) {
+                if (!parameter.Named) {
+                    unit.Add(new TextSpan("<" + parameter.Name + ">", type));
+                } else if (parameter.Positional && hasValue) {
                     unit.Add(new TextSpan("[", bracket));
                     unit.Add(new TextSpan("-" + parameter.Name, name));
                     unit.Add(new TextSpan("]", bracket));
                 } else {
                     unit.Add(new TextSpan("-" + parameter.Name, name));
                 }
-                if (hasValue) {
+                if (hasValue && parameter.Named) {
                     unit.Add(new TextSpan(" <" + parameter.Type + ">", type));
                 }
                 if (optional) {
@@ -244,7 +246,7 @@ namespace ConsoleMonster.Widgets {
                 table.AddColumn(new TableColumn("Description") { MaxLines = TableColumn.Unlimited });
             }
             foreach (HelpParameter parameter in Topic.Parameters) {
-                string label = "[accent2]-" + Text.Markup.Escape(parameter.Name) + "[/]";
+                string label = "[accent2]" + (parameter.Named ? "-" : string.Empty) + Text.Markup.Escape(parameter.Name) + "[/]";
                 if (parameter.Aliases.Count > 0) {
                     label += "\n[muted]" + (parameter.Aliases.Count == 1 ? "alias " : "aliases ") + Text.Markup.Escape(string.Join(", ", parameter.Aliases)) + "[/]";
                 }
