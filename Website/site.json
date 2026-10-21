@@ -147,7 +147,7 @@
       { "Family": "Space Grotesk", "Weight": 400, "Path": "build/social-fonts/SpaceGrotesk-Regular.ttf" },
       { "Family": "JetBrains Mono", "Weight": "100 800", "Path": "build/social-fonts/jetbrains-mono-latin.ttf" }
     ],
-    "GeneratedCardBadges": { "/widgets/": "WIDGETS", "/live/": "LIVE", "/docs/": "DOCS", "/guides/": "GUIDE", "/": "HOME" },
+    "GeneratedCardBadges": { "/widgets/": "WIDGETS", "/tables/": "TABLES", "/live/": "LIVE", "/interactive/": "INTERACTIVE", "/powershell/": "POWERSHELL", "/benchmarks/": "BENCHMARKS", "/docs/": "DOCS", "/guides/": "GUIDE" },
     "GeneratedCardImages": {
       "pages": { "Pattern": "/site/nav/{slug}-dark.svg", "Fallback": "/site/nav/live-dark.svg" },
       "docs": { "Pattern": "/site/cards/{meta.card}.svg", "Fallback": "/site/nav/docs-dark.svg" },

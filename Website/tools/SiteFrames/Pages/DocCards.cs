@@ -12,7 +12,8 @@ namespace SiteFrames.Pages {
     /// offer their frames by id; a docs page names one in its <c>card</c> front matter, and the miniature is written to
     /// <c>static/site/cards/</c> and listed in <c>data/visuals.json</c> under <c>cards</c>, keyed by that id. Every docs page
     /// must name a known <c>group</c> (from <c>docsCatalog</c> in <c>data/copy.json</c>) and a card, or the render fails, so no
-    /// page drops out of the catalogue unnoticed.
+    /// page drops out of the catalogue unnoticed. Guides and section indexes may name a card too; it is then their social card
+    /// artwork (site.json <c>Social.GeneratedCardImages</c>, <c>/site/cards/{meta.card}.svg</c>) and must exist like any other.
     /// </summary>
     internal static class DocCards {
         private const int Columns = 72;

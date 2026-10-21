@@ -17,6 +17,12 @@ namespace SiteFrames.Pages {
     internal static class PowerShellPage {
         public const int Width = 100;
 
+        /// <summary>The width of the narrow variant, a console too small for the table.</summary>
+        public const int NarrowWidth = 56;
+
+        /// <summary>The console width a capture variant ran at.</summary>
+        public static int RunWidth(string variant) => variant == "narrow" ? NarrowWidth : Width;
+
         /// <summary>A capture: the script, a variant name, the environment and the hosts it runs on.</summary>
         private sealed class Run {
             public Run(string id, string variant, Dictionary<string, string?> environment, PowerShellHost[] hosts, int width = Width) {
@@ -46,7 +52,7 @@ namespace SiteFrames.Pages {
             yield return new Run("format-consoletable", "nocolor", noColor, new[] { PowerShellHost.Core });
             Dictionary<string, string?> ascii = PowerShellRunner.Environment("dark", "16", "ascii");
             yield return new Run("format-consoletable", "16-ascii", ascii, new[] { PowerShellHost.Desktop });
-            yield return new Run("format-consoletable", "narrow", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }, 56);
+            yield return new Run("format-consoletable", "narrow", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }, NarrowWidth);
             // -As Markdown returns a document instead of drawing; the console shows that text as it is.
             yield return new Run("export-markdown", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             yield return new Run("relative-dates", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });

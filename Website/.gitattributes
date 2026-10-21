@@ -7,3 +7,6 @@ static/recordings/** -text
 # Copied from the engine (ConsoleExporter.PlayerScript / PlayerStyles) by the site tool's render step.
 static/assets/player/** linguist-generated=true
 static/replays/** linguist-generated=true
+
+# Card fonts (site.json Social.GeneratedCardFonts).
+*.ttf binary
