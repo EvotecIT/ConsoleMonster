@@ -35,8 +35,19 @@ namespace SiteFrames.Tests {
         [InlineData("<!-- example: Website/content/page.md#3 -->\n```bash\ndotnet run\n```\n")]
         [InlineData("<!-- example: Website/examples/missing.ps1 -->\n```powershell\nx\n```\n")]
         [InlineData("<img src=\"https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/none-dark.png\">")]
+        [InlineData("Text\n\n```powershell\nGet-Thing\n```\n")]
+        [InlineData("<!-- example: Website/examples/rule.ps1 -->\n\n```powershell\nImport-Module ConsoleMonster\n```\n")]
+        [InlineData("<!-- example: Website/content/page.md#x -->\n```powershell\nInstall-Module ConsoleMonster\n```\n")]
         public void Find_DriftedBlocksAndMissingImages_AreReported(string readme) {
-            Assert.Single(Readme.Find(_site, readme));
+            Assert.NotEmpty(Readme.Find(_site, readme));
+        }
+
+        [Fact]
+        public void PackageReadme_TurnsPicturesIntoMarkdownImagesAndDropsMarkers() {
+            string readme = "<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/hero-dark.png\">\n  <img alt=\"Hero\" src=\"https://x/hero-light.png\">\n</picture></a>\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/t-dark.png\">\n  <img alt=\"Tree\" width=\"532\" src=\"https://x/t-light.png\">\n</picture>\n\n" + FromFile;
+            string package = Readme.PackageReadme(readme);
+            Assert.StartsWith("[![Hero](https://x/hero-light.png)](https://consolemonster.dev/)\n\n![Tree](https://x/t-light.png)\n\n```powershell\n", package, StringComparison.Ordinal);
+            Assert.DoesNotContain("<", package.Replace("<!--", string.Empty), StringComparison.Ordinal);
         }
 
         [Fact]

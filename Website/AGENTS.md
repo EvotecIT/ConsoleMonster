@@ -138,7 +138,10 @@ The site is set in the medium it documents: a terminal cell grid.
 block); `dotnet run --project tools/SiteFrames -c Release -- readme .` writes them, and the render fails when one has
 drifted (`tools/SiteFrames/Readme.cs`). Its images are frames the site shows, written as pages by the render and
 screenshotted by `build/Render-SiteImages.ps1` into `static/readme/`; the README links them with absolute
-raw.githubusercontent.com URLs, which NuGet also renders. Website CI runs on README changes for this check.
+raw.githubusercontent.com URLs. Website CI runs on README changes for this check. The same command writes
+`ConsoleMonster/README.nuget.md`, the README as nuget.org shows it (Markdown images instead of HTML), which the package
+packs.
+
 ## The site is self-sufficient
 
 Every page lets a visitor do the thing without leaving the site: paste this, do this, then this, and this is the code

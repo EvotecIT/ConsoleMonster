@@ -26,7 +26,8 @@ namespace SiteFrames {
         /// <summary>Where the README's images are served from: absolute, so the NuGet package readme can show them.</summary>
         public const string ImageBase = "https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/";
 
-        private static readonly Regex Marker = new Regex(@"<!--\s*example:\s*(?<source>[^\s>]+)\s*-->\r?\n```(?<lang>[\w-]*)\r?\n(?<code>[\s\S]*?)\r?\n```", RegexOptions.CultureInvariant);
+        // The closing fence is a line of exactly ``` (a block that shows a fence inside, indented or longer, stays whole).
+        private static readonly Regex Marker = new Regex(@"<!--\s*example:\s*(?<source>[^\s>]+)\s*-->\n```(?<lang>[\w-]*)\n(?<code>[\s\S]*?)\n```[ \t]*(?=\n|$)", RegexOptions.CultureInvariant);
 
         private static readonly Regex Image = new Regex(Regex.Escape(ImageBase) + @"(?<name>[\w.-]+\.png)", RegexOptions.CultureInvariant);
 
@@ -118,7 +119,9 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
                 throw new InvalidOperationException("README example source " + source + " does not exist.");
             }
             if (hash >= 0) {
-                int index = int.Parse(source.Substring(hash + 1), System.Globalization.CultureInfo.InvariantCulture);
+                if (!int.TryParse(source.Substring(hash + 1), System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int index)) {
+                    throw new InvalidOperationException("README example source " + source + " does not name a code block by number (#1, #2, ...).");
+                }
                 List<(int Line, string Language, string Code)> blocks = CodeGuard.Blocks(Site.ReadText(path)).ToList();
                 if (index < 1 || index > blocks.Count) {
                     throw new InvalidOperationException("README example source " + source + " names code block " + index + " of " + blocks.Count + ".");
@@ -129,10 +132,16 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
             return (SourceSnippets.Program(Site.ReadText(path)).Full.TrimEnd('\n'), language);
         }
 
-        /// <summary>The README's problems: blocks that differ from their source, and images that were never rendered.</summary>
-        internal static List<string> Find(Site site, string readme) {
+        /// <summary>
+        /// The README's problems: blocks that differ from their source, code blocks with no source, markers with no block,
+        /// images that were never rendered, and a package readme that no longer matches the README.
+        /// </summary>
+        internal static List<string> Find(Site site, string readme, string? packageReadme = null) {
+            readme = readme.Replace("\r\n", "\n");
             List<string> problems = new List<string>();
-            foreach (Match match in Marker.Matches(readme.Replace("\r\n", "\n"))) {
+            HashSet<int> marked = new HashSet<int>();
+            foreach (Match match in Marker.Matches(readme)) {
+                marked.Add(match.Groups["lang"].Index);
                 string source = match.Groups["source"].Value;
                 try {
                     (string code, string language) = Expected(site, source);
@@ -145,35 +154,85 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
                     problems.Add("README.md: " + ex.Message);
                 }
             }
+            // Every code block is the code that ran somewhere on the site; one without a marker has no source to match.
+            foreach (Match fence in OpeningFence.Matches(readme)) {
+                if (!marked.Contains(fence.Groups["lang"].Index)) {
+                    int line = readme.Take(fence.Index).Count(c => c == '\n') + 1;
+                    problems.Add("README.md:" + line + ": a code block without an <!-- example: --> marker naming its source.");
+                }
+            }
+            int markers = Regex.Matches(readme, @"<!--\s*example:").Count;
+            if (markers != marked.Count) {
+                problems.Add("README.md: " + (markers - marked.Count) + " <!-- example: --> marker(s) are not followed directly by a code block.");
+            }
             foreach (Match image in Image.Matches(readme)) {
                 if (!File.Exists(site.Static("readme/" + image.Groups["name"].Value))) {
                     problems.Add("README.md: image " + image.Groups["name"].Value + " is not in Website/static/readme; run build/Render-SiteImages.ps1.");
                 }
             }
+            if (packageReadme != null && packageReadme.Replace("\r\n", "\n") != PackageReadme(readme)) {
+                problems.Add(Path.GetFileName(PackageReadmePath(site)) + " differs from README.md; run SiteFrames readme.");
+            }
             return problems;
         }
 
-        /// <summary>Fails the render when the README has drifted from the site.</summary>
+        // An opening fence: a line that starts with ``` and names a language, or a bare ``` that opens (outside a block).
+        private static readonly Regex OpeningFence = new Regex(@"(?m)^```(?<lang>[\w-]+)[ \t]*$", RegexOptions.CultureInvariant);
+
+        // A README image: <picture> with the dark source and the light <img>, optionally inside a link.
+        private static readonly Regex Picture = new Regex(@"(?:<a href=""(?<href>[^""]+)"">)?<picture>\s*<source[^>]*>\s*<img alt=""(?<alt>[^""]*)""(?:\s+width=""\d+"")?\s+src=""(?<src>[^""]+)"">\s*</picture>(?:</a>)?", RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// The README as the NuGet package shows it. nuget.org renders Markdown without HTML, so each &lt;picture&gt; becomes a
+        /// Markdown image of its light rendering (linked when the picture was), and the marker comments go (nuget.org would
+        /// drop them too).
+        /// </summary>
+        internal static string PackageReadme(string readme) {
+            string text = Picture.Replace(readme.Replace("\r\n", "\n"), m => {
+                string image = "![" + m.Groups["alt"].Value + "](" + m.Groups["src"].Value + ")";
+                return m.Groups["href"].Success ? "[" + image + "](" + m.Groups["href"].Value + ")" : image;
+            });
+            return Regex.Replace(text, @"<!--\s*example:[^>]*-->\n", string.Empty);
+        }
+
+        private static string PackageReadmePath(Site site) => Path.Combine(site.Repository, "ConsoleMonster", "README.nuget.md");
+
+        /// <summary>Fails the render when the README or the package readme has drifted from the site.</summary>
         public static void Check(Site site) {
             string path = ReadmePath(site);
             if (File.Exists(path)) {
-                WidgetsPage.Report(Find(site, File.ReadAllText(path)), "readme");
+                string package = PackageReadmePath(site);
+                WidgetsPage.Report(Find(site, File.ReadAllText(path), File.Exists(package) ? File.ReadAllText(package) : string.Empty), "readme");
             }
         }
 
-        /// <summary>Writes every marked block from its source (the SiteFrames readme command).</summary>
+        /// <summary>Writes every marked block from its source, then the package readme (the SiteFrames readme command).</summary>
         public static int Sync(Site site) {
             string path = ReadmePath(site);
             string readme = File.ReadAllText(path).Replace("\r\n", "\n");
+            List<string> refused = new List<string>();
             string updated = Marker.Replace(readme, match => {
                 (string code, string language) = Expected(site, match.Groups["source"].Value);
+                // A docs page's numbered block that changed language is probably a different block now: say so.
+                if (match.Groups["lang"].Value.Length > 0 && match.Groups["lang"].Value != language) {
+                    refused.Add(match.Groups["source"].Value + " is now a " + language + " block, not " + match.Groups["lang"].Value + "; check the number.");
+                    return match.Value;
+                }
                 return "<!-- example: " + match.Groups["source"].Value + " -->\n```" + language + "\n" + code + "\n```";
             });
+            if (refused.Count > 0) {
+                Console.Error.WriteLine(string.Join("\n", refused));
+                return 1;
+            }
             if (updated != readme) {
                 File.WriteAllText(path, updated, new UTF8Encoding(false));
                 Console.WriteLine("Updated README.md from its example sources.");
             } else {
                 Console.WriteLine("README.md matches its example sources.");
+            }
+            string package = PackageReadmePath(site);
+            if (Directory.Exists(Path.GetDirectoryName(package))) {
+                File.WriteAllText(package, PackageReadme(updated), new UTF8Encoding(false));
             }
             return 0;
         }

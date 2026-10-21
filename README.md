@@ -10,8 +10,8 @@ engine for PowerShell 5.1 and 7 and .NET, with no package dependencies and plain
 </picture></a>
 
 [Website](https://consolemonster.dev/) · [Documentation](https://consolemonster.dev/docs/) ·
-[Widgets](https://consolemonster.dev/widgets/) · [.NET API](https://consolemonster.dev/api/) ·
-[PowerShell commands](https://consolemonster.dev/powershell/commands/)
+[Widgets](https://consolemonster.dev/widgets/) · [Prompts, menus and forms](https://consolemonster.dev/interactive/) ·
+[.NET API](https://consolemonster.dev/api/) · [PowerShell commands](https://consolemonster.dev/powershell/commands/)
 
 ## Install
 
@@ -59,9 +59,9 @@ themed warning and verbose colours and views that modules ship themselves.
 
 ## Format-Console, and Format-Table when you ask for it
 
-`Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` take pipeline input and `-Property` like the
-built-in commands, plus column options: priorities, presenters, totals and groups. `-As Markdown` returns the same table
-as a document. `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on
+`Format-ConsoleTable` and `Format-ConsoleList` take pipeline input and `-Property` like the built-in commands, plus
+column options: priorities, presenters, totals and groups, and `Format-ConsoleTree` shows an object's structure.
+`-As Markdown` returns the same view as a document. `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on
 `Enable-ConsoleFormatting -Feature FormatCommands`.
 
 <!-- example: Website/examples/powershell/format-consoletable.ps1 -->
@@ -197,7 +197,8 @@ record DomainController(string Name, string Site, StatusKind Status, int Latency
 ## Save, replay and test
 
 Record a run, play it back into the same dashboard, and save it as a page with a player. Widgets and frames export to
-HTML, SVG, Markdown and text, and `Assert-ConsoleOutput` checks output in tests.
+HTML, SVG, Markdown and text, and `Assert-ConsoleOutput` checks output in tests
+([testing your output](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Usage.md#testing-your-output)).
 
 <!-- example: Website/examples/demos/record.ps1 -->
 ```powershell
@@ -280,18 +281,21 @@ stress test.
 ## Compatibility
 
 - **PowerShell:** Windows PowerShell 5.1 and PowerShell 7 (`Install-Module ConsoleMonster`). Windows PowerShell 5.1
-  loads one version of an assembly per session, so modules that use ConsoleMonster there need the same version.
+  loads one version of an assembly per session, so modules that use ConsoleMonster there need the same version;
+  restart the session after an upgrade.
 - **.NET:** netstandard2.0, net472, net8.0 and net10.0, with no package dependencies (`dotnet add package
-  ConsoleMonster`). The net8.0 and net10.0 targets are AOT compatible.
+  ConsoleMonster`). The net8.0 and net10.0 targets are AOT compatible ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles:** colour depth, glyphs, size, CI and redirection are detected; `NO_COLOR` and `CONSOLEMONSTER_*`
-  variables override them. See [capability detection](https://consolemonster.dev/docs/capabilities/).
+  variables override them. See [capability detection](https://consolemonster.dev/docs/capabilities/),
+  [environment overrides](https://consolemonster.dev/docs/environment/) and
+  [hosts, CI and transcripts](https://consolemonster.dev/guides/hosts-and-ci/).
 - **Upgrading from 0.0.x:** version 2 replaces the Spectre.Console and Terminal.Gui wrappers; the `New-Spectre*` and
   `New-Terminal*` commands are removed. See [the guides](https://consolemonster.dev/guides/).
 
 ## Links
 
 [Website](https://consolemonster.dev/) · [.NET API reference](https://consolemonster.dev/api/) ·
-[PowerShell commands](https://consolemonster.dev/powershell/commands/) ·
+[PowerShell commands](https://consolemonster.dev/powershell/commands/) · [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·
 [Contributing](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md) ·
 [MIT license](https://github.com/EvotecIT/ConsoleMonster/blob/master/LICENSE)
