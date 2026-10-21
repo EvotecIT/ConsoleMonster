@@ -300,7 +300,7 @@
     ]
   },
   "Prism": {
-    "Mode": "auto",
+    "Mode": "off",
     "Source": "local",
     "DefaultLanguage": "csharp",
     "Local": {

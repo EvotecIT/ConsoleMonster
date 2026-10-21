@@ -23,6 +23,9 @@ foreach ($route in @(@{ Path = 'api'; Name = 'api' }, @{ Path = 'powershell/comm
         Where-Object { ($_.Groups[1].Value | ConvertFrom-Json).'@type' -in @('WebSite', 'Organization') } |
         ForEach-Object { $_.Value })
     if ($identity.Count -ne 2) { throw "Expected website and publisher structured data in $page." }
-    [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-head.html"), ($identity -join "`n") + "`n")
+    # The shared site script versions its runtime requests from this page metadata, including on reference pages.
+    $runtime = [regex]::Match($html, '<meta\b[^>]*name="cm-runtime"[^>]*>')
+    if (-not $runtime.Success) { throw "No runtime asset version in $page." }
+    [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-head.html"), $runtime.Value + "`n" + ($identity -join "`n") + "`n")
 }
 Write-Output "API chrome written to $Out"

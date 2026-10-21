@@ -88,10 +88,13 @@
   };
   var prismReady = null;
   var grammars = {};
+  // Prism components load by fixed URLs, so they carry the page's content version (meta cm-runtime) like frame bundles.
+  var runtime = document.querySelector('meta[name="cm-runtime"]');
+  var runtimeVersion = runtime ? runtime.getAttribute('content') : '';
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
       var script = document.createElement('script');
-      script.src = src;
+      script.src = runtimeVersion ? src + (src.indexOf('?') < 0 ? '?' : '&') + 'v=' + runtimeVersion : src;
       script.onload = resolve;
       script.onerror = reject;
       document.head.appendChild(script);

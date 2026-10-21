@@ -1,5 +1,5 @@
 /* Docs and guides: a contents column, the article and an outline. */
-.cm-docs { display: grid; grid-template-columns: 220px minmax(0, 1fr) 200px; gap: 48px; padding-top: 48px; align-items: start; }
+.cm-docs { display: grid; grid-template-columns: 220px minmax(0, 1fr) 200px; gap: var(--cm-space-7); padding-top: var(--cm-space-7); align-items: start; }
 .cm-docs__nav { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; font-size: 14px; }
 .cm-docs__menu summary { display: none; }
 .cm-docs__nav h2 { margin: 22px 0 8px; font: 600 12.5px/1 var(--cm-mono); color: var(--cm-muted); letter-spacing: 0; }
@@ -11,7 +11,7 @@
 .cm-docs__nav a[aria-current="page"], .cm-docs__nav .is-active > a, .cm-docs__nav a.is-active { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 600; }
 .cm-docs__article { min-width: 0; }
 .cm-docs__article .cm-prose { max-width: 76ch; }
-.cm-docs__edit { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--cm-line); font-size: 14px; }
+.cm-docs__edit { margin-top: var(--cm-space-8); padding-top: var(--cm-space-4); border-top: 1px solid var(--cm-line); font-size: 14px; }
 .cm-docs__toc { position: sticky; top: 88px; font-size: 13.5px; }
 .cm-docs__toc .pf-toc-title { margin: 0 0 10px; font: 600 12.5px/1 var(--cm-mono); color: var(--cm-muted); }
 .cm-docs__toc ul { margin: 0; padding: 0; list-style: none; }
@@ -21,7 +21,7 @@
 .cm-docs__toc a:hover { color: var(--cm-ink); border-left-color: var(--cm-accent); }
 
 /* Index cards for the docs and guides landing pages. */
-.cm-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 1.6em 0; padding: 0; list-style: none; }
+.cm-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--cm-space-3); margin: 1.6em 0; padding: 0; list-style: none; }
 .cm-index li { margin: 0; }
 .cm-index a { display: block; height: 100%; padding: 16px 18px; border: 1px solid var(--cm-line); border-radius: 10px; background: var(--cm-surface); color: var(--cm-ink); text-decoration: none; }
 .cm-index a:hover { border-color: var(--cm-line-strong); background: var(--cm-focus-bg); }
@@ -34,7 +34,7 @@
 }
 
 @media (max-width: 860px) {
-  .cm-docs { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .cm-docs { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-5); }
   .cm-docs__nav { position: static; max-height: none; }
   .cm-docs__menu { border: 1px solid var(--cm-line); border-radius: 10px; background: var(--cm-surface); }
   .cm-docs__menu summary { display: block; padding: 12px 16px; font: 600 14px/1 var(--cm-mono); cursor: pointer; }

@@ -1,9 +1,9 @@
 /* Landing and product pages: the tier toolbar, the widget gallery, specimens, pairs of source and output, width
    controls, players and the page-specific bands. */
-.cm-page { padding: 56px 0 0; }
+.cm-page { padding: var(--cm-space-8) 0 0; }
 
 /* Tier ribbon on the gallery stage: one composition at four terminal profiles. */
-.cm-ribbon { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.cm-ribbon { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--cm-space-3); }
 .cm-ribbon .cm-screen { --cm-max-font: 11.5px; }
 
 /* The sticky terminal-profile toolbar. */
@@ -13,27 +13,27 @@
 .cm-toolbar[aria-busy="true"] .cm-toolbar__note { opacity: .55; }
 
 /* Gallery. */
-.cm-gallery { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: 40px; padding-top: 48px; }
+.cm-gallery { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: var(--cm-space-7); padding-top: var(--cm-space-7); }
 .cm-gallery__index { grid-row: 1 / span 99; position: sticky; top: 140px; align-self: start; display: grid; gap: 2px; }
 .cm-gallery__index a { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 5px; color: var(--cm-ink-2); font: 500 14px/1.2 var(--cm-mono); text-decoration: none; }
 .cm-gallery__index a:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
 .cm-gallery__intro { margin-bottom: 8px; }
-.cm-gallery__group { padding-top: 40px; scroll-margin-top: 140px; }
-.cm-gallery__heading { display: grid; gap: 8px; margin: 0 0 36px; padding-bottom: 18px; border-bottom: 2px solid var(--cm-ink); }
+.cm-gallery__group { padding-top: var(--cm-space-6); scroll-margin-top: 140px; }
+.cm-gallery__heading { display: grid; gap: var(--cm-space-2); margin: 0 0 var(--cm-space-6); padding-bottom: var(--cm-space-4); border-bottom: 2px solid var(--cm-ink); }
 .cm-gallery__heading h2 { font-size: 30px; font-weight: 800; }
 .cm-gallery__heading p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
 /* A specimen opens with a rule like ConsoleMonster's Rule widget: the title set into the line, the size on the right. */
-.cm-specimen { margin: 0 0 64px; scroll-margin-top: 150px; }
+.cm-specimen { margin: 0 0 var(--cm-space-8); scroll-margin-top: 150px; }
 .cm-specimen__head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
 .cm-specimen__head::before { content: ""; flex: none; width: 18px; height: 1px; background: var(--cm-line-strong); }
 .cm-specimen__head h3 { flex: none; font-size: 19px; font-weight: 700; }
 .cm-specimen__head::after { content: ""; flex: 1; height: 1px; background: var(--cm-line-strong); order: 2; }
 .cm-specimen__size { order: 3; flex: none; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
-.cm-specimen__summary { margin: 0 0 18px 30px; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-specimen__summary { margin: 0 0 var(--cm-space-4) 30px; max-width: 70ch; color: var(--cm-ink-2); }
 .cm-specimen__body { margin-left: 30px; }
-.cm-specimen__body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-specimen__body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--cm-space-5); align-items: start; }
 .cm-specimen__output { display: grid; gap: 10px; min-width: 0; max-width: 520px; }
-.cm-specimen__code { display: grid; gap: 14px; min-width: 0; }
+.cm-specimen__code { display: grid; gap: var(--cm-space-3); min-width: 0; }
 .cm-specimen__code .cm-code pre { font-size: 12.5px; max-height: 380px; }
 
 .cm-parity { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0; color: var(--cm-muted); font: 500 12.5px/1.4 var(--cm-mono); }
@@ -43,18 +43,25 @@
 .cm-parity__host.is-different > span { color: var(--cm-fail); }
 
 /* Source beside output, used on product pages: the output first, the source as wide as it needs. */
-.cm-pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--cm-space-5); align-items: start; }
 .cm-pair--stack { grid-template-columns: minmax(0, 1fr); }
-.cm-pair__code { display: grid; gap: 14px; min-width: 0; }
+.cm-pair__code { display: grid; gap: var(--cm-space-3); min-width: 0; }
 
 /* Width controls on the tables page. */
-.cm-widths { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 22px; }
+.cm-widths { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cm-space-2) var(--cm-space-4); margin: 0 0 var(--cm-space-5); }
 .cm-toolbar .cm-widths { margin: 0; }
 @media (max-width: 560px) { .cm-widths .cm-seg__label { display: none; } .cm-widths .cm-seg button { padding: 0 9px 0 17px; } .cm-widths .cm-seg button::before { left: 6px; } }
 .cm-widths__note { margin: 0; color: var(--cm-muted); font: 500 13px/1.4 var(--cm-mono); }
 
 /* Replays: ConsoleMonster's own player (player.css) mounted on .cm-replay; the site gives its controls the site's look. */
-.cm-replay { --cm-chrome-fg: var(--cm-line-strong); display: grid; gap: 12px; min-width: 0; }
+.cm-replay { --cm-chrome-fg: var(--cm-line-strong); --cm-replay-pad: 14px; display: grid; gap: var(--cm-space-3); min-width: 0; }
+/* A player is as wide as its terminal at the largest font, or as the space it has when that is smaller (the same sum the
+   screen's font size inverts: columns x 0.6em at the largest font, plus the padding), and its window fills it, so the
+   window and the controls under it are always one width; a centred window centres the whole player. */
+.cm-replay { width: min(100%, calc(var(--cols, 80) * .6 * var(--cm-max-font, 13.5px) + 2 * var(--cm-replay-pad) + 2px)); }
+.cm-replay .cm-window__frame { width: auto; }
+.cm-replay:has(.cm-window--center) { margin-inline: auto; }
+@media (max-width: 700px) { .cm-replay { --cm-replay-pad: 6px; } }
 .cm-export.cm-player-host.cm-replay { display: grid; max-width: none; }
 .cm-replay:focus-visible { box-shadow: none; outline: 2px solid var(--cm-accent); outline-offset: 6px; }
 .cm-replay > .cm-player { min-width: 0; }
@@ -77,7 +84,7 @@
 .cm-replay.cm-export[data-cm-player] .cm-window__body .cm-screen.cm-screen--dark span { height: var(--cm-cell); }.cm-player__note { margin: 0; color: var(--cm-muted); font-size: 14px; }
 
 /* Showcase blocks on product pages. */
-.cm-showcase { display: grid; gap: 22px; margin: 0 0 72px; }
+.cm-showcase { display: grid; gap: var(--cm-space-5); margin: 0 0 var(--cm-space-8); }
 .cm-showcase__head { display: grid; gap: 10px; max-width: 72ch; }
 .cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 800; }
 .cm-showcase__head p { margin: 0; color: var(--cm-ink-2); }
@@ -88,7 +95,7 @@
 .cm-facts dd small { font-size: 14px; font-weight: 500; color: var(--cm-muted); }
 
 /* Two frames compared, such as Format-Table beside Format-ConsoleTable. */
-.cm-compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--cm-space-5); align-items: start; }
 .cm-compare > * { min-width: 0; }
 .cm-compare h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
 
@@ -98,8 +105,8 @@
 .cm-points li::before { content: "›"; position: absolute; left: 4px; top: 0; color: var(--key, var(--cm-accent)); font: 800 16px/1.6 var(--cm-mono); }
 
 /* Not found. */
-.cm-notfound { padding: 64px 0; }
-.cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 48px; align-items: center; }
+.cm-notfound { padding: var(--cm-space-8) 0; }
+.cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--cm-space-7); align-items: center; }
 .cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 800; }
 
 @media (max-width: 1180px) {
@@ -127,9 +134,9 @@
 .cm-stage__subhead { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #f8fafc; }
 .cm-stage__small { max-width: 52ch; margin: 0 0 14px; color: #c3cad6; font-size: 15px; }
 .cm-stage .cm-points li { color: #c3cad6; font-size: 15px; }
-.cm-page__intro { margin-bottom: 48px; }
-.cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 28px; align-items: start; }
-.cm-table-showcase__side { display: grid; gap: 18px; }
+.cm-page__intro { margin-bottom: var(--cm-space-7); }
+.cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: var(--cm-space-6); align-items: start; }
+.cm-table-showcase__side { display: grid; gap: var(--cm-space-4); }
 .cm-source summary { cursor: pointer; font: 600 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-source summary:hover { color: var(--cm-accent); }
 .cm-source[open] summary { margin-bottom: 12px; }
@@ -139,19 +146,19 @@
 
 /* Live page. */
 .cm-stage__note { max-width: 90ch; margin: 14px auto 0; color: var(--cm-stage-muted); font-size: 14px; text-align: center; }
-.cm-steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; margin-top: 8px; }
+.cm-steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--cm-space-6); align-items: start; margin-top: var(--cm-space-2); }
 .cm-steps > div { display: grid; gap: 12px; min-width: 0; }
 .cm-steps h3 { font-size: 17px; font-weight: 700; }
 .cm-steps p { margin: 0; color: var(--cm-ink-2); }
 .cm-steps .cm-code pre { max-height: 420px; font-size: 12.5px; }
-.cm-tabset { display: grid; gap: 14px; }
+.cm-tabset { display: grid; gap: var(--cm-space-3); }
 .cm-tabset > .cm-seg { justify-self: start; }
 @media (max-width: 980px) { .cm-steps { grid-template-columns: minmax(0, 1fr); } }
 
 /* Interactive page. */
-.cm-story__body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.cm-story__body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--cm-space-5); align-items: start; }
 .cm-story__screen { display: grid; gap: 10px; min-width: 0; }
-.cm-story__code { display: grid; gap: 14px; min-width: 0; }
+.cm-story__code { display: grid; gap: var(--cm-space-3); min-width: 0; }
 .cm-story__code .cm-code pre { font-size: 12.5px; max-height: 420px; }
 .cm-story__keys { margin: 0; color: var(--cm-muted); font-size: 13px; overflow-wrap: anywhere; }
 .cm-story__keys span { font-family: var(--cm-mono); font-weight: 600; color: var(--cm-ink-2); margin-right: 6px; }
@@ -159,12 +166,12 @@
 @media (max-width: 1080px) { .cm-story__body { grid-template-columns: minmax(0, 1fr); } }
 
 /* PowerShell page. */
-.cm-quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 20px; }
+.cm-quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cm-space-5); }
 .cm-quad h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
-.cm-compare--tree { margin-top: 24px; }
+.cm-compare--tree { margin-top: var(--cm-space-5); }
 .cm-compare > div { display: grid; gap: 12px; align-content: start; }
-.cm-families { columns: 3 300px; column-gap: 32px; }
-.cm-family { break-inside: avoid; margin: 0 0 28px; }
+.cm-families { columns: 3 300px; column-gap: var(--cm-space-6); }
+.cm-family { break-inside: avoid; margin: 0 0 var(--cm-space-6); }
 .cm-family h3 { margin: 0 0 10px; font-size: 16px; font-weight: 800; }
 .cm-family ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .cm-family a { font: 600 14px/1.3 var(--cm-mono); }
@@ -175,33 +182,37 @@
 @media (max-width: 760px) { .cm-specimen__summary, .cm-specimen__body { margin-left: 0; } }
 
 /* Demos: a recording beside the exact source that made it, and what to install (partials/demo.html). */
-.cm-demo { display: grid; gap: 16px; margin: 40px 0 56px; min-width: 0; }
-.cm-demo__head { display: grid; gap: 8px; max-width: 72ch; }
+.cm-demo { display: grid; gap: var(--cm-space-4); margin: var(--cm-space-6) 0 var(--cm-space-7); min-width: 0; }
+.cm-demo__head { display: grid; gap: var(--cm-space-2); max-width: 72ch; }
 .cm-demo__head h2, .cm-demo__head h3 { margin: 0; }
 .cm-demo__head p { margin: 0; color: var(--cm-ink-2); }
-.cm-demo__body { display: grid; gap: 16px; min-width: 0; }
+.cm-demo__body { display: grid; gap: var(--cm-space-4); min-width: 0; }
 .cm-demo__screen { min-width: 0; }
-.cm-demo__source { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; min-width: 0; }
+.cm-demo__source { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-3); align-items: start; min-width: 0; }
 .cm-demo__source > .cm-tabset, .cm-demo__source > .cm-code, .cm-demo [role="tabpanel"] { min-width: 0; }
 .cm-demo__source .cm-code pre { max-height: 360px; font-size: 12.5px; }
-.cm-demo__use { display: grid; gap: 10px; padding: 14px 16px; border-radius: 10px; background: var(--cm-sunken); min-width: 0; }
+.cm-demo__use { display: grid; gap: var(--cm-space-3); padding: var(--cm-space-4); border-radius: 10px; background: var(--cm-sunken); min-width: 0; }
 .cm-demo__use .cm-code { background: var(--cm-surface); }
 .cm-demo__use-title { margin: 0; font: 700 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-demo__use .cm-code pre { font-size: 12.5px; }
 .cm-demo__refs { margin: 0; font-size: 14px; color: var(--cm-ink-2); }
-.cm-prose .cm-demo { margin: 32px 0 48px; }
+.cm-prose .cm-demo { margin: var(--cm-space-6) 0 var(--cm-space-7); }
+/* Inside a demo the grid sets every gap: prose margins on its window, code blocks, tabs and paragraphs would stack on top. */
+.cm-prose .cm-demo figure, .cm-prose .cm-demo .cm-code, .cm-prose .cm-demo .cm-tabset, .cm-prose .cm-demo p { margin: 0; }
 
 /* The demo strip on the home page: one card per recorded demo. */
-.cm-demos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
-.cm-demos a { display: grid; align-content: start; gap: 6px; height: 100%; padding: 16px 18px; border-radius: 10px; background: var(--cm-surface); box-shadow: inset 0 0 0 1px var(--cm-line); color: var(--cm-ink); text-decoration: none; }
+/* Cards: the title, what it shows and the command, each on its own line; the command keeps to the bottom edge, so cards in
+   a row line up whatever the length of their text. */
+.cm-demos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: var(--cm-space-4); margin: 0; padding: 0; list-style: none; }
+.cm-demos a { display: grid; grid-template-rows: auto 1fr auto; gap: var(--cm-space-2); height: 100%; padding: var(--cm-space-5); border-radius: 10px; background: var(--cm-surface); box-shadow: inset 0 0 0 1px var(--cm-line); color: var(--cm-ink); text-decoration: none; }
 .cm-demos a:hover, .cm-demos a:focus-visible { box-shadow: inset 0 0 0 2px var(--key, var(--cm-accent)); }
-.cm-demos strong { display: flex; align-items: center; gap: 8px; font: 700 15px/1.3 var(--cm-mono); }
+.cm-demos strong { display: flex; align-items: center; gap: var(--cm-space-2); font: 700 15px/1.3 var(--cm-mono); }
 .cm-demos strong::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--key, var(--cm-accent)); }
-.cm-demos span { color: var(--cm-ink-2); font-size: 14px; }
-.cm-demos code { font-size: 12.5px; color: var(--cm-muted); }
+.cm-demos__body { margin: 0; color: var(--cm-ink-2); font-size: 14px; line-height: 1.55; }
+.cm-demos code { display: block; padding-top: var(--cm-space-2); border-top: 1px solid var(--cm-line); font-size: 12.5px; color: var(--cm-muted); overflow-wrap: anywhere; }
 
 /* Without JavaScript the switch cannot work: every path and source panel shows, one under the other. */
-html:not(.cm-js) .cm-paths [role="tabpanel"][hidden], html:not(.cm-js) .cm-demo [role="tabpanel"][hidden] { display: grid !important; gap: 14px; margin-top: 28px; }
+html:not(.cm-js) .cm-paths [role="tabpanel"][hidden], html:not(.cm-js) .cm-demo [role="tabpanel"][hidden] { display: grid !important; gap: var(--cm-space-3); margin-top: var(--cm-space-6); }
 html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="tablist"] { display: none; }
 
 /* Chapter marks under a replay's position bar (player.js markers). */

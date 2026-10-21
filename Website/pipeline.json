@@ -217,7 +217,10 @@
       "criticalCss": "./themes/consolemonster/critical.css",
       "minifyHtml": true,
       "minifyCss": true,
-      "minifyJs": true
+      "minifyJs": true,
+      "hashAssets": true,
+      "hashExtensions": [".css", ".js"],
+      "hashExclude": ["assets/prism/*.js", "assets/prism/components/**"]
     },
     {
       "task": "verify",
