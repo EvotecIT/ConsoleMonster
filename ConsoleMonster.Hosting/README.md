@@ -33,7 +33,7 @@ await builder.Build().RunAsync();
 - A header with the title (default: the application name), the environment and the elapsed time.
 - One line per hosted service registered before `AddConsoleDashboard`:
   - its state: waiting, starting, running, stopping, stopped, completed or failed;
-  - how long it has been in that state;
+  - elapsed time from the beginning of its `StartAsync` to its own stop, completion or failure;
   - the failure message when it fails.
   For a `BackgroundService`, the line also follows its `ExecuteAsync`: it shows completed when the method returns and
   failed when it throws.
@@ -45,6 +45,11 @@ await builder.Build().RunAsync();
 - A log region. `ConsoleMonster.Extensions.Logging` writes into it while the dashboard shows, so log lines never print
   over the view. Remove the default console logger (`builder.Logging.ClearProviders()`) before adding it. Entries with an
   exception print above the dashboard instead, with their details, so they stay in the scrollback.
+
+Hosted-service elapsed time uses a monotonic clock and includes startup and shutdown work. It freezes at that
+service's first terminal outcome, so later host shutdown and wall-clock adjustments do not change the final duration.
+Application-reported entries continue to show time in their current state; `ServiceStatus.Since` remains the timestamp
+of the latest state change.
 
 Only the hosted services the dashboard draws are wrapped, and the wrappers forward every call. A `BackgroundService`
 stays a `BackgroundService` for the host, which logs a failure and applies `BackgroundServiceExceptionBehavior` as
