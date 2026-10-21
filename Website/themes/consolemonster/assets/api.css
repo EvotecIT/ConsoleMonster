@@ -507,3 +507,8 @@ html[data-theme] body.pf-api-docs .type-toc a:hover { color: var(--cm-link); }
   html[data-theme] body.pf-api-docs .member-actions { margin-left: 0; }
   html[data-theme] body.pf-api-docs .member-signature { padding: var(--cm-space-2) var(--cm-space-3); }
 }
+/* Phones: each fact's label sits above its value, so long type names get the full width instead of breaking mid-word. */
+@media (max-width: 600px) {
+  html[data-theme] body.pf-api-docs .type-meta-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  html[data-theme] body.pf-api-docs .type-meta-row > :not(.type-meta-label) { overflow-wrap: anywhere; }
+}
