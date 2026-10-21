@@ -8,10 +8,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ConsoleMonster.Examples.Extensions {
-    /// <summary>Examples for the logging provider and the hosting dashboard: <c>logging</c> or <c>hosting [seconds]</c>.</summary>
+    /// <summary>Examples for logging, hosting and command-line tools: <c>logging</c>, <c>hosting [seconds]</c> or <c>cli [--servers N]</c>.</summary>
     public static class Program {
         /// <summary>Runs an example.</summary>
-        /// <param name="args"><c>logging</c> or <c>hosting [seconds]</c>.</param>
+        /// <param name="args"><c>logging</c>, <c>hosting [seconds]</c> or <c>cli [--servers N]</c>.</param>
         /// <returns>The exit code.</returns>
         public static async Task<int> Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "logging";

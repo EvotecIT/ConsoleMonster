@@ -574,10 +574,10 @@
       "body": "Three hosted services: a queue worker, a cache warmer that completes and a report builder that fails. Log lines go into the dashboard's log region.",
       "label": "A hosting dashboard with a running, a completed and a failed service, and its log",
       "use": {
-        "title": "Use it in your app",
+        "title": "Run the full program",
         "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging",
+        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- hosting 12",
         "links": [
           {
             "title": "Hosting dashboard",
@@ -595,10 +595,10 @@
       "body": "Every level, a scope, a structured message and an exception, through the Microsoft.Extensions.Logging provider.",
       "label": "Log entries at every level with a scope and an exception",
       "use": {
-        "title": "Use it in your app",
-        "label": ".NET",
+        "title": "Run the full program",
+        "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet add package ConsoleMonster.Extensions.Logging",
+        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- logging",
         "links": [
           {
             "title": "Logging",

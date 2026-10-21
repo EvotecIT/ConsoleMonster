@@ -1,11 +1,11 @@
-using System.CommandLine;
-using System.Threading;
-using ConsoleMonster.Live;
-using ConsoleMonster.Presenters;
-using ConsoleMonster.Styling;
-using ConsoleMonster.Widgets;
-
 namespace ConsoleMonster.Examples.Extensions {
+    using System.CommandLine;
+    using System.Threading;
+    using ConsoleMonster.Live;
+    using ConsoleMonster.Presenters;
+    using ConsoleMonster.Styling;
+    using ConsoleMonster.Widgets;
+
     /// <summary>
     /// A command-line tool that parses with System.CommandLine and writes its output with ConsoleMonster: a live status
     /// list while it works, then a table. Run it as <c>cli --servers 4</c>; <c>cli --help</c> prints System.CommandLine's help.
@@ -17,9 +17,15 @@ namespace ConsoleMonster.Examples.Extensions {
         public static int Run(string[] args) {
             // <example>
             Option<int> servers = new Option<int>("--servers") {
-                Description = "How many servers to check.",
+                Description = "How many servers to check (1–100).",
                 DefaultValueFactory = _ => 3
             };
+            servers.Validators.Add(result => {
+                int count = result.GetValueOrDefault<int>();
+                if (count < 1 || count > 100) {
+                    result.AddError("The server count must be between 1 and 100.");
+                }
+            });
             RootCommand root = new RootCommand("Checks a few servers and prints what it found.");
             root.Options.Add(servers);
             root.SetAction(parseResult => {
