@@ -85,7 +85,7 @@ namespace SiteFrames {
         /// <summary>
         /// The short and full forms of a complete program (a C# Program.cs or a PowerShell script): the short form leads with the
         /// program's own statements, without its <c>using</c> lines or <c>Import-Module ConsoleMonster</c>, and folds its data
-        /// (<c>// &lt;more&gt;</c>, <c>#region more</c>); the full form is the whole file, exactly as it runs.
+        /// (<c>// &lt;more&gt;</c>, <c>#region more</c>); the full form is the whole file as it runs, without the region marker lines.
         /// </summary>
         public static (string Short, string Full) Program(string code) {
             (string shortForm, string full) = Split(code);

@@ -1,0 +1,60 @@
+using System;
+using System.IO;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Styling;
+using SiteFrames;
+using SiteFrames.Capture;
+using Xunit;
+
+namespace SiteFrames.Tests {
+    /// <summary>The shown C# programs compile as a reader's project would, and only clean programs make frames.</summary>
+    public sealed class ProgramRunnerContracts : IDisposable {
+        private readonly string _folder = Path.Combine(Path.GetTempPath(), "siteframes-programs-" + Guid.NewGuid().ToString("N"));
+
+        public ProgramRunnerContracts() => Directory.CreateDirectory(_folder);
+
+        public void Dispose() => Directory.Delete(_folder, true);
+
+        private string Program(string name, string code) {
+            string path = Path.Combine(_folder, name + ".cs");
+            File.WriteAllText(path, code);
+            return path;
+        }
+
+        [Fact]
+        public void Run_CleanProgram_PrintsItsWidget() {
+            string path = Program("rule", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule(\"Hello\"));\n");
+            string text = CSharpRunner.Run(path, 30, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark).GetRowText(0);
+            Assert.Contains("Hello", text, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Run_ImplicitUsings_AreAvailableAsInDotnetNewConsole() {
+            string path = Program("implicit", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nList<string> names = new() { \"a\" };\nTerminal.Write(new Rule(names.First()));\n");
+            Assert.Contains("a", CSharpRunner.Run(path, 20, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark).GetRowText(0), StringComparison.Ordinal);
+        }
+
+        [Theory]
+        [InlineData("unused", "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule());\n")]
+        [InlineData("warning", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nint unused;\nTerminal.Write(new Rule());\n")]
+        [InlineData("examples", "using ConsoleMonster;\n\nTerminal.Write(ConsoleMonster.Examples.Showcases.ToolboxData.TaskPreview(null!));\n")]
+        public void Compile_ProgramAReaderCouldNotBuildCleanly_Throws(string name, string code) {
+            Assert.Throws<InvalidOperationException>(() => CSharpRunner.Compile(Program(name, code)));
+        }
+
+        [Theory]
+        [InlineData("throws", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule());\nthrow new InvalidOperationException(\"boom\");\n")]
+        [InlineData("console", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new Rule());\nConsole.WriteLine(\"stray\");\n")]
+        public void Run_ProgramThatFailsOrBypassesTheTerminal_Throws(string name, string code) {
+            Assert.Throws<InvalidOperationException>(() => CSharpRunner.Run(Program(name, code), 30, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark));
+        }
+
+        [Fact]
+        public void Program_ShortForm_LeadsWithStatements() {
+            (string shortForm, string full) = SourceSnippets.Program("using ConsoleMonster;\n\nTerminal.Write(x);");
+            Assert.Equal("Terminal.Write(x);", shortForm);
+            Assert.Equal("using ConsoleMonster;\n\nTerminal.Write(x);", full);
+            Assert.Equal("Write-ConsoleRule", SourceSnippets.Program("Import-Module ConsoleMonster\n\nWrite-ConsoleRule").Short);
+        }
+    }
+}

@@ -321,7 +321,8 @@ namespace SiteFrames.Pages {
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = ScriptFile(site, demo.Script);
                     entry["powershellFull"] = WidgetsPage.Longer((shortForm, full));
-                    // A published example script is also served from the site, so a reader can download it from here.
+                    // A published example script is also served from the site under /examples/, so the "Use it" steps download it from
+                    // here (copy.json demos.<id>.use).
                     if (demo.Script.Contains(Path.DirectorySeparatorChar) || demo.Script.Contains('/')) {
                         string name = Path.GetFileName(demo.Script);
                         // Byte for byte, so the file keeps its UTF-8 byte order mark (Windows PowerShell 5.1 needs it).

@@ -29,11 +29,11 @@ namespace SiteFrames {
         internal static readonly (Regex Pattern, string Why)[] Rules = {
             (new Regex(@"(?m)^\s*[&.]\s*['""]?\.\.[\\/]", RegexOptions.CultureInvariant), "runs a script by a path into the repository"),
             (new Regex(@"\$PSScriptRoot\b[^\n]*?(?<![.\w])\.\.(?![.\w])", RegexOptions.CultureInvariant), "builds a path from $PSScriptRoot and .."),
-            (new Regex(@"Split-Path\s+\$PSScriptRoot\b|Join-Path\s+\S+\s+['""]\.\.['""]|(?m)^\s*(Push-|Set-)Location\s+\.\.", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "climbs out of the script's folder"),
+            (new Regex(@"Split-Path\b[^\n]*\$PSScriptRoot[^\n]*-Parent|Split-Path\b[^\n]*-Parent[^\n]*\$PSScriptRoot|Join-Path\b[^\n]*[\s'""]\.\.(?=['""\s]|$)|(?m)^\s*(cd|sl|chdir|Set-Location|Push-Location)\b[^\n]*\s\.\.(?![.\w])", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline), "climbs out of the script's folder"),
             (new Regex(@"(?<![\w.])\.\.[\\/]\w", RegexOptions.CultureInvariant), "contains a ../ path"),
             (new Regex(@"\bartifacts\.ps1\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "depends on artifacts.ps1 instead of defining its data"),
             (new Regex(@"(?<![\w.-])(?<!\w/)(Module[\\/](Examples|Docs|Build|Tests|en-US|ConsoleMonster\.psd1)|Website[\\/]|ConsoleMonster\.Examples(\.Extensions)?[\\/]|ConsoleMonster\.PowerShell[\\/]|tools[\\/]SiteFrames)", RegexOptions.CultureInvariant), "names a folder of this repository"),
-            (new Regex(@"\\Support\\GitHub\\", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "shows a developer checkout path")
+            (new Regex(@"[\\/]Support[\\/]GitHub[\\/]|[\\/]_worktrees[\\/]", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase), "shows a developer checkout path")
         };
 
         public static void Check(Site site) {

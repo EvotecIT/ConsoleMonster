@@ -35,14 +35,21 @@ namespace SiteFrames.Capture {
         private const string ImplicitUsings = "global using global::System;\nglobal using global::System.Collections.Generic;\nglobal using global::System.IO;\nglobal using global::System.Linq;\nglobal using global::System.Net.Http;\nglobal using global::System.Threading;\nglobal using global::System.Threading.Tasks;\n";
         private static List<MetadataReference>? _references;
 
-        /// <summary>The assemblies a shown program may use: the framework and the ConsoleMonster packages.</summary>
+        /// <summary>
+        /// The assemblies a shown program may use: the shared .NET framework and ConsoleMonster, the same as a reader's project
+        /// with the package. The tool's own dependencies (ConsoleMonster.Examples, Roslyn, SiteFrames) are left out, so a
+        /// program can never lean on something a reader does not have.
+        /// </summary>
         private static List<MetadataReference> References {
             get {
                 if (_references == null) {
                     _references = new List<MetadataReference>();
+                    string framework = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
                     string tpa = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
                     foreach (string path in tpa.Split(Path.PathSeparator)) {
-                        _references.Add(MetadataReference.CreateFromFile(path));
+                        if (string.Equals(Path.GetDirectoryName(path), framework, StringComparison.OrdinalIgnoreCase)) {
+                            _references.Add(MetadataReference.CreateFromFile(path));
+                        }
                     }
                     _references.Add(MetadataReference.CreateFromFile(typeof(Terminal).Assembly.Location));
                 }
@@ -56,14 +63,15 @@ namespace SiteFrames.Capture {
             if (Compiled.TryGetValue(path + "\n" + code, out Assembly? cached)) {
                 return cached;
             }
-            CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.Latest);
+            // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
+            CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.CSharp12);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
             SyntaxTree implicitUsings = CSharpSyntaxTree.ParseText(ImplicitUsings, parse, "GlobalUsings.g.cs");
             CSharpCompilation compilation = CSharpCompilation.Create(
                 "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
                 new[] { tree, implicitUsings },
                 References,
-                new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release));
+                new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
             using (MemoryStream stream = new MemoryStream()) {
                 Microsoft.CodeAnalysis.Emit.EmitResult result = compilation.Emit(stream);
                 // An unused using (CS8019) is reported by the compilation, not the emit; a reader should not copy dead lines.
@@ -99,22 +107,35 @@ namespace SiteFrames.Capture {
             MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
             RecordingTarget target = new RecordingTarget(profile) { Theme = theme };
             InteractiveOptions previous = InteractiveOptions.Default;
+            // The program writes through ConsoleMonster only; anything it sends to the real console (Console.Write) would be
+            // missing from the frame, and it must never read the build's input.
+            TextWriter stdout = Console.Out;
+            TextWriter stderr = Console.Error;
+            TextReader stdin = Console.In;
+            StringWriter stray = new StringWriter(CultureInfo.InvariantCulture);
             try {
                 if (interactive != null) {
                     InteractiveOptions.Default = interactive;
                 }
+                Console.SetOut(stray);
+                Console.SetError(stray);
+                Console.SetIn(TextReader.Null);
                 using (Terminal.Use(target)) {
-                    object? result = entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { Array.Empty<string>() });
-                    if (result is Task task) {
-                        task.GetAwaiter().GetResult();
-                    }
+                    // A program with top-level await still has a synchronous entry point that waits for it.
+                    entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { Array.Empty<string>() });
                 }
-            } catch (TargetInvocationException ex) when (ex.InnerException != null && !(ex.InnerException is InputClosedException || ex.InnerException is PromptCancelledException || ex.InnerException is OperationCanceledException)) {
-                throw new InvalidOperationException(Path.GetFileName(path) + " failed: " + ex.InnerException.Message, ex.InnerException);
-            } catch (TargetInvocationException) {
+            } catch (TargetInvocationException ex) when (interactive != null && (ex.InnerException is InputClosedException || ex.InnerException is PromptCancelledException || ex.InnerException is OperationCanceledException)) {
                 // The scripted keys ended the program (the last key closes a prompt); what it drew is kept.
+            } catch (TargetInvocationException ex) when (ex.InnerException != null) {
+                throw new InvalidOperationException(Path.GetFileName(path) + " failed: " + ex.InnerException.Message, ex.InnerException);
             } finally {
+                Console.SetOut(stdout);
+                Console.SetError(stderr);
+                Console.SetIn(stdin);
                 InteractiveOptions.Default = previous;
+            }
+            if (stray.GetStringBuilder().Length > 0) {
+                throw new InvalidOperationException(Path.GetFileName(path) + " wrote to the console directly instead of through ConsoleMonster: " + stray);
             }
             return target;
         }

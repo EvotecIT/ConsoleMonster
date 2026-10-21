@@ -61,6 +61,10 @@ namespace SiteFrames.Tests {
         [InlineData("Import-Module .\\Module\\ConsoleMonster.psd1")]
         [InlineData("Split-Path $PSScriptRoot -Parent")]
         [InlineData("Push-Location ..")]
+        [InlineData("Split-Path -Parent $PSScriptRoot")]
+        [InlineData("Join-Path -Path $r -ChildPath '..'")]
+        [InlineData("cd ..")]
+        [InlineData("Get-Item C:/Support/GitHub/ConsoleMonster/x")]
         [InlineData("Path = 'C:\\Support\\GitHub\\ConsoleMonster\\Artefacts\\a.zip'")]
         public void Guard_RepositoryReferences_AreFound(string code) {
             Assert.NotEmpty(CodeGuard.Find(code));
@@ -76,6 +80,7 @@ namespace SiteFrames.Tests {
         [InlineData("using ConsoleMonster.Widgets;")]
         [InlineData("Write-Host \"$PSScriptRoot...\"")]
         [InlineData("<# .SYNOPSIS #>")]
+        [InlineData("Split-Path $PSScriptRoot -Leaf")]
         public void Guard_ReaderCode_Passes(string code) {
             Assert.Empty(CodeGuard.Find(code));
         }

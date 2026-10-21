@@ -27,6 +27,16 @@ namespace SiteFrames {
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
+            // Frames must not depend on the build machine: the variables ConsoleMonster reads are cleared and the label
+            // language is pinned (some widgets read it from the process, not from the profile).
+            foreach (System.Collections.DictionaryEntry variable in Environment.GetEnvironmentVariables()) {
+                string name = (string)variable.Key;
+                if (name.StartsWith("CONSOLEMONSTER_", StringComparison.OrdinalIgnoreCase) || name == "NO_COLOR" || name == "COLORFGBG") {
+                    Environment.SetEnvironmentVariable(name, null);
+                }
+            }
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", "en");
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_CULTURE", "en-US");
             string command = args.Length > 0 ? args[0] : "render";
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;

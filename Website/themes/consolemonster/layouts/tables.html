@@ -16,7 +16,7 @@
 {{~ tb = data.tables; first = tb.sections[0] ~}}
 {{~ capture art ~}}
 <div data-cm-frame="{{ first.id }}">
-{{~ screen_frame = first.frame; screen_title = "dotnet run"; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title; screen_dark = true ~}}
+{{~ screen_frame = first.frame; screen_title = first.title; screen_meta = [first.frame.w + "×" + first.frame.h, "24-bit", "Full"]; screen_label = first.title; screen_dark = true ~}}
 {{ include "screen" }}
 </div>
 {{~ end ~}}
@@ -26,6 +26,7 @@
 <ul class="cm-points">
   {{~ for p in first.points ~}}<li>{{ p }}</li>{{~ end ~}}
 </ul>
+<p class="cm-stage__small"><a href="#dns-program">The program that printed it</a></p>
 {{~ end ~}}
 {{~ stage_title = page.title; stage_lede = page.description; stage_side = side; stage_art = art; stage_wide = false ~}}
 {{ include "stage" }}
@@ -41,7 +42,7 @@
   </div>
   {{~ ## The program that printed the table at the top, then the same for every section: each frame is what its program
        printed at the chosen width. ## ~}}
-  <section class="cm-showcase cm-table-showcase" aria-labelledby="{{ first.id }}-code-title">
+  <section class="cm-showcase cm-table-showcase" id="dns-program" aria-labelledby="{{ first.id }}-code-title">
     <div class="cm-showcase__head">
       <h2 id="{{ first.id }}-code-title">The program behind the DNS table</h2>
       <p>A new console project with the package, and this as its Program.cs. Change the width of your terminal (or the width above) and run it again.</p>
