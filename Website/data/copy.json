@@ -176,7 +176,7 @@
     ],
     "twins": {
       "title": "One engine for C# and PowerShell",
-      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the script on Windows PowerShell 5.1 and PowerShell 7 and the C# program on .NET 8, each in a 92-column console, and every cell they drew was compared."
+      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the script on Windows PowerShell 5.1 and PowerShell 7 and the C# program on .NET 8, each 92 columns wide, and every cell they drew was compared."
     },
     "tiers": {
       "title": "Readable on every console",

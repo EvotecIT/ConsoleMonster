@@ -67,7 +67,7 @@ namespace SiteFrames.Pages {
 
             string notFound = Path.Combine(site.Website, "examples", "home", "not-found.cs");
             JsonObject figure = new JsonObject {
-                ["title"] = "pwsh",
+                ["title"] = "dotnet run",
                 ["label"] = "A tree of the site's main pages; this address is marked as failed.",
                 ["meta"] = new JsonArray("56 columns", "24-bit", "Full"),
                 ["frame"] = site.Frame(CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), CSharpRunner.Run(notFound, 56, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light))

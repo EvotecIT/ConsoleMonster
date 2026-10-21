@@ -129,7 +129,8 @@ namespace SiteFrames.Pages {
 
         private static IEnumerable<Demo> All() {
             // The home page's Monster hero: a whole application (a Shell menu, a form, a live dashboard and the results),
-            // recorded from the Release build driving itself with scripted keys on a fixed clock and seed. The demo goes on to
+            // recorded from fleet.cs and its two files, built as a reader's project and run with --demo, which drives it with
+            // scripted keys on a fixed clock and seed. The demo goes on to
             // the history and quits, which clears the console; the replay ends on the results instead.
             yield return new Demo("app", "Fleet health check", 140, 40) {
                 CSharpProgram = "fleet.cs",
@@ -143,7 +144,7 @@ namespace SiteFrames.Pages {
             yield return new Demo("parallel", "ForEach-ConsoleItem -Parallel", 100, 24) {
                 Script = "parallel.ps1",
                 AllowErrors = true,
-                CSharp = (Path.Combine("ConsoleMonster.Examples", "Showcases", "ParallelPatch.cs"), "RunAsync", null),
+                CSharpProgram = "parallel.cs",
                 PosterShare = 0.45
             };
             yield return new Demo("watch", "Watch-Console -Differences", 96, 14) { Script = "watch.ps1", PosterShare = 0.7 };
@@ -239,6 +240,8 @@ namespace SiteFrames.Pages {
                     text.Append(Site.ReadText(Path.Combine(Path.GetDirectoryName(Script(site, demo.Script))!, companion))).Append('\n');
                 }
                 text.Append(demo.Arguments).Append('\n').Append(demo.Prompt).Append('\n').Append(demo.Session).Append('\n').Append(demo.Setup);
+                // Progress records and allowed errors change what the run prints.
+                text.Append(demo.ShowProgress ? "\nprogress" : string.Empty).Append(demo.AllowErrors ? "\nerrors" : string.Empty);
             } else if (demo.ProgramArguments != null) {
                 text.Append(Site.ReadText(Script(site, demo.CSharpProgram!))).Append('\n');
                 foreach (string companion in Companions(site, demo)) {
@@ -298,7 +301,6 @@ namespace SiteFrames.Pages {
         private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
 
         public static void Capture(Site site) {
-            BuildExamples(site);
             foreach (Demo demo in All()) {
                 if (demo.Project != null) {
                     Build(site, demo.Project);
@@ -329,18 +331,15 @@ namespace SiteFrames.Pages {
                     try {
                         chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
                     } finally {
-                        Directory.Delete(temp, true);
+                        Site.RemoveTemporary(temp);
                     }
                 } else if (demo.ProgramArguments != null) {
                     string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
-                    if (Directory.Exists(work)) {
-                        Directory.Delete(work, true);
-                    }
-                    string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
                     try {
+                        string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
                         chunks = PseudoConsole.Run("\"" + LivePage.DotnetHost + "\" \"" + dll + "\" " + demo.ProgramArguments, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
                     } finally {
-                        Directory.Delete(work, true);
+                        Site.RemoveTemporary(work);
                     }
                 } else {
                     string command = "\"" + LivePage.DotnetHost + "\" \"" + ProjectProgram(site, demo) + "\"" + (demo.ProjectArguments.Length > 0 ? " " + demo.ProjectArguments : string.Empty);
@@ -357,8 +356,6 @@ namespace SiteFrames.Pages {
             }
         }
 
-        /// <summary>Builds ConsoleMonster.Examples (the fleet app the Monster demo records, and the profile command).</summary>
-        internal static void BuildExamples(Site site) => Build(site, Path.Combine("ConsoleMonster.Examples", "ConsoleMonster.Examples.csproj"));
 
         private static void Build(Site site, string project) {
             // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.
@@ -474,6 +471,7 @@ namespace SiteFrames.Pages {
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');
+                    entry["powershellNote"] = "The recording ran the C# program. This script does the same with the module's commands.";
                 }
                 if (demo.CSharpProgram != null) {
                     string program = Script(site, demo.CSharpProgram);
@@ -484,7 +482,7 @@ namespace SiteFrames.Pages {
                         try {
                             CSharpRunner.Build(program, check, demo.Id, Companions(site, demo));
                         } finally {
-                            Directory.Delete(check, true);
+                            Site.RemoveTemporary(check);
                         }
                     }
                     (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(program));
@@ -492,6 +490,10 @@ namespace SiteFrames.Pages {
                     entry["csharpFull"] = full;
                     entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
                     entry["csharpFile"] = "Program.cs";
+                    // The recording ran the script; say so on the C# tab, whose program compiles here but did not draw it.
+                    if (demo.Script != null) {
+                        entry["csharpNote"] = "The recording ran the PowerShell script. This C# program does the same with the library and compiles as shown; its timings are its own.";
+                    }
                     // The other files of a multi-file program, each shown whole with its name.
                     JsonArray files = new JsonArray();
                     foreach (string companion in Companions(site, demo)) {

@@ -51,6 +51,8 @@ namespace SiteFrames.Pages {
 
         private static string Path_(Site site, Run run, PowerShellHost host) => Path.Combine(site.Captures, "powershell", run.Id + "." + run.Variant + "." + host.Id + ".ansi");
 
+        private static string Stamp(Site site, Run run, PowerShellHost host) => Stamps.Of(Twins.Script(site, "powershell", run.Id), run.Environment, host.Id, run.RunWidth.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
                 foreach (PowerShellHost host in run.Hosts) {
@@ -58,6 +60,7 @@ namespace SiteFrames.Pages {
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
+                    Stamps.Write(site, path, Stamp(site, run, host));
                     Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                 }
             }
@@ -79,6 +82,10 @@ namespace SiteFrames.Pages {
                     if (!File.Exists(path)) {
                         problems.Add("missing capture " + Path.GetFileName(path) + "; run the capture command.");
                         continue;
+                    }
+                    string? stale = Stamps.Check(site, path, Stamp(site, run, host), "powershell");
+                    if (stale != null) {
+                        problems.Add(stale);
                     }
                     CellBuffer frame = Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), run.RunWidth, 120)));
                     variant[host.Id] = new JsonObject {

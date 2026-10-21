@@ -1,8 +1,8 @@
 [?9001h[?1004h[?25l[2J[m[H From a background job
 ]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[38;5;8m╭───────┬────────╮
-[m[38;5;8m│ [mCheck [38;5;8m│ [mStatus [38;5;8m│
+│ [mCheck [38;5;8m│ [mStatus [38;5;8m│
 ├───────┼────────┤
-[m[38;5;8m│ [mSPF   [38;5;8m│ [38;5;10m✓ Pass [38;5;8m│
+│ [mSPF   [38;5;8m│ [38;5;10m✓ Pass [38;5;8m│
 │ [mDMARC [38;5;8m│ [38;5;9m✗ Fail [38;5;8m│
 ╰───────┴────────╯
 [?9001l[?1004l[m

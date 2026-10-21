@@ -30,10 +30,12 @@
         <div id="demo-{{ demo_id }}-ps" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-ps-tab">
           {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
           {{ include "code" }}
+          {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
         </div>
         <div id="demo-{{ demo_id }}-cs" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-cs-tab" hidden>
           {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
           {{ include "code" }}
+          {{~ if d.csharpNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpNote }}</p>{{~ end ~}}
           {{~ for k in d.csharpFiles ~}}
           <details class="cm-source">
             <summary>{{ k.file }}</summary>
@@ -51,7 +53,7 @@
       {{ include "code" }}
       {{~ end ~}}
       {{~ else if d.csharp ~}}
-      {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_text = d.csharp; code_full = d.csharpFull ~}}
+      {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
       {{ include "code" }}
       {{~ end ~}}
       {{~ ## How to use it yourself: either one install block, or numbered steps (copy.json demos.<id>.use.steps), each a

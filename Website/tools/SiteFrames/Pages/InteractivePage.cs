@@ -98,7 +98,7 @@ namespace SiteFrames.Pages {
                 Environment.SetEnvironmentVariable("TMP", tmp);
                 Environment.SetEnvironmentVariable("TEMP", temp);
                 Environment.SetEnvironmentVariable("TMPDIR", null);
-                Directory.Delete(fresh, true);
+                Site.RemoveTemporary(fresh);
             }
             if (keys.Remaining > 0) {
                 throw new InvalidOperationException(story.Id + ".cs ended with " + keys.Remaining + " scripted keys unused.");

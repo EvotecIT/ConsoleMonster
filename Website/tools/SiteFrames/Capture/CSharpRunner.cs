@@ -111,7 +111,8 @@ namespace SiteFrames.Capture {
                     .Concat(compilation.GetDiagnostics().Where(d => d.Id == "CS8019" && d.Location.SourceTree == tree))
                     .ToList();
                 if (!result.Success || problems.Count > 0) {
-                    throw new InvalidOperationException(Path.GetFileName(path) + " is not a clean program:\n" + string.Join("\n", problems.Select(Describe)));
+                    // A file by its name; a code block on a page by the page path and line it was given.
+                    throw new InvalidOperationException((File.Exists(path) ? Path.GetFileName(path) : path) + " is not a clean program:\n" + string.Join("\n", problems.Select(Describe)));
                 }
                 return stream.ToArray();
             }

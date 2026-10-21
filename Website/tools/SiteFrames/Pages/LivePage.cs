@@ -128,9 +128,7 @@ namespace SiteFrames.Pages {
                     Console.WriteLine("recorded " + recording.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
                 }
             } finally {
-                if (Directory.Exists(Work)) {
-                    Directory.Delete(Work, true);
-                }
+                Site.RemoveTemporary(Work);
                 _work = null;
             }
         }

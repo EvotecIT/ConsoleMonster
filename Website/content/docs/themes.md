@@ -2,7 +2,7 @@
 title: Themes
 description: The dark, light and high-contrast themes, the roles they define and how their colours are reduced for 256 and 16-colour consoles.
 slug: themes
-order: 3
+order: 4
 group: start
 card: theme-dark
 chips: [Dark, Light, High contrast]
@@ -19,15 +19,20 @@ Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Acc
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
 
-In PowerShell, for the session or for one run of a command:
+In PowerShell, for this session:
 
 ```powershell
 Import-Module ConsoleMonster
 
 Set-ConsoleTheme Light
 Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
+```
 
-$env:CONSOLEMONSTER_THEME = 'dark'      # what detection uses from now on, in this session
+For every new session, set the variable in your profile (`$PROFILE`) before the module loads; detection reads it once, when ConsoleMonster first draws:
+
+```powershell
+$env:CONSOLEMONSTER_THEME = 'light'
+Import-Module ConsoleMonster
 ```
 
 In C#, for every write that follows:

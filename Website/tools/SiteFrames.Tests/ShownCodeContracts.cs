@@ -87,6 +87,19 @@ namespace SiteFrames.Tests {
             Assert.Empty(CodeGuard.Find(code));
         }
 
+        [Theory]
+        [InlineData("using ConsoleMonster;\n\nTerminal.Write(x);", true)]
+        [InlineData("// A comment first.\n\nusing ConsoleMonster;\nTerminal.Write(x);", true)]
+        [InlineData("global using ConsoleMonster;\nTerminal.Write(x);", true)]
+        [InlineData("using Cm = ConsoleMonster.Terminal;\nCm.Write(x);", true)]
+        [InlineData("using static ConsoleMonster.Ui;\nWrite(x);", true)]
+        [InlineData("Terminal.Write(x);", false)]
+        [InlineData("using (logger.BeginScope(\"x\")) {\n}", false)]
+        [InlineData("using ILoggerFactory factory = LoggerFactory.Create(b => b.AddConsoleMonster());", false)]
+        public void Guard_IsProgram_KnowsCompleteProgramsFromSnippets(string code, bool program) {
+            Assert.Equal(program, CodeGuard.IsProgram(code));
+        }
+
         [Fact]
         public void Guard_Fences_ReadEveryCodeBlock() {
             (int Line, string Code)[] fences = CodeGuard.Fences("text\n```powershell\nGet-Thing\n```\nmore\n```\nx\ny\n```").ToArray();

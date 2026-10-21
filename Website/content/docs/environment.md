@@ -2,7 +2,7 @@
 title: Environment overrides
 description: NO_COLOR and the CONSOLEMONSTER_* variables pin what detection would otherwise decide, for CI, tests, screenshots and accessibility.
 slug: environment
-order: 4
+order: 5
 group: start
 card: overrides-plain
 apis: [NO_COLOR, CONSOLEMONSTER_*]
@@ -51,15 +51,14 @@ In bash, set it for one command: `NO_COLOR=1 pwsh -File ./format-consoletable.ps
 The same choices are available without the environment: `TerminalProfile.Fixed(width, height, colors, glyphs)` for a profile with no detection, and `WithCulture`, `WithThemePreference`, `WithSize`, `WithColorDepth` and `WithMode` to change one value. Live sessions take `LiveSessionOptions.Profile`, `Theme` and `Culture`.
 
 ```csharp
-using System.Globalization;
 using ConsoleMonster;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Widgets;
 
-KeyValueList facts = new KeyValueList().Add("Updated", "2026-10-21").Add("Size", "1482113");
-// What NO_COLOR=1 and CONSOLEMONSTER_MODE=plain would decide, for these writes only:
+KeyValueList facts = new KeyValueList().Add("Status", "passed").Add("Duration", "4.2 s");
+// No colour, then plain output, for these two writes only:
 Terminal.Write(facts, Terminal.Profile.WithColorDepth(ColorDepth.None));
-Terminal.Write(facts, Terminal.Profile.WithMode(OutputMode.Plain).WithCulture(CultureInfo.GetCultureInfo("de-DE")));
+Terminal.Write(facts, Terminal.Profile.WithMode(OutputMode.Plain));
 ```
 
 In PowerShell, `Get-ConsoleCapability` shows the profile these variables produced, with the reason for each value.

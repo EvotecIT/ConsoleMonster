@@ -16,7 +16,6 @@ namespace SiteFrames.Pages {
     internal static class DocsPage {
         private static string ProfileScript(Site site) => Path.Combine(site.Website, "examples", "docs", "profile.ps1");
 
-        private static string ProfileProgram(Site site) => Path.Combine(site.Website, "examples", "docs", "profile.cs");
 
         private static string ProfilePath(Site site, string id) => Path.Combine(site.Captures, "docs", id + ".ansi");
 
@@ -40,21 +39,25 @@ namespace SiteFrames.Pages {
                 List<OutputChunk> chunks = PowerShellRunner.Run(site, PowerShellHost.Core, ProfileScript(site), 100, 40, environment);
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);
                 File.WriteAllBytes(ProfilePath(site, id), PowerShellRunner.Bytes(chunks));
+                Stamps.Write(site, ProfilePath(site, id), Stamps.Of(ProfileScript(site), environment, "100x40"));
                 Console.WriteLine("captured " + id);
             }
         }
 
         public static void Render(Site site, JsonObject powershell) {
-            foreach ((string id, _) in Profiles()) {
+            foreach ((string id, Dictionary<string, string?> environment) in Profiles()) {
                 string path = ProfilePath(site, id);
                 if (!File.Exists(path)) {
                     WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "docs");
                     continue;
                 }
+                string? stale = Stamps.Check(site, path, Stamps.Of(ProfileScript(site), environment, "100x40"), "docs");
+                if (stale != null) {
+                    WidgetsPage.Report(new List<string> { stale }, "docs");
+                }
                 CellBuffer frame = Site.Crop(Parity.Transcript(File.ReadAllBytes(path), 100, 40));
                 DocCards.Offer(id, frame, Frames.Screen.Dark);
                 (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(ProfileScript(site)));
-                CSharpRunner.Compile(ProfileProgram(site));
                 JsonObject figure = new JsonObject {
                     ["title"] = id == "profile-ci" ? "CI=true, NO_COLOR=1" : id == "profile" ? "pinned with CONSOLEMONSTER_*" : "nothing overridden",
                     ["file"] = "profile.ps1",
@@ -64,7 +67,7 @@ namespace SiteFrames.Pages {
                     ["script"] = script,
                     ["scriptFull"] = scriptFull
                 };
-                Figures.Add(id, Figures.WithProgram(figure, ProfileProgram(site)));
+                Figures.Add(id, figure);
             }
 
             // One composition in the three built-in themes.

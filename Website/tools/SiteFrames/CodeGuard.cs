@@ -26,8 +26,9 @@ namespace SiteFrames {
         // Rendered HTML (frames, posters) starts with a tag; a script that opens with a <# help block is still checked.
         private static readonly Regex Markup = new Regex(@"^\s*<[A-Za-z!/]", RegexOptions.CultureInvariant);
 
-        // A using directive (not a using statement or declaration) on the first line.
-        private static readonly Regex UsingDirective = new Regex(@"^using\s+(static\s+)?[\w.]+\s*;", RegexOptions.CultureInvariant);
+        // A using directive (not a using statement or declaration) as the first code line, after any comments and blank
+        // lines: plain, static, global or an alias.
+        private static readonly Regex UsingDirective = new Regex(@"^(?:[ \t]*(?://[^\n]*)?\n)*[ \t]*(global\s+)?using\s+(static\s+)?(\w+\s*=\s*)?[\w.<>, ]+\s*;", RegexOptions.CultureInvariant);
 
         internal static readonly (Regex Pattern, string Why)[] Rules = {
             (new Regex(@"(?m)^\s*[&.]\s*['""]?\.\.[\\/]", RegexOptions.CultureInvariant), "runs a script by a path into the repository"),
@@ -55,7 +56,7 @@ namespace SiteFrames {
                 foreach ((int line, string language, string code) in Blocks(Site.ReadText(page))) {
                     Inspect(code, name + ":" + line, problems);
                     // A C# block that starts with its using directives is a complete program: it must compile as a reader's would.
-                    if ((language == "csharp" || language == "cs") && UsingDirective.IsMatch(code)) {
+                    if ((language == "csharp" || language == "cs") && IsProgram(code)) {
                         try {
                             Capture.CSharpRunner.Check(name + ":" + line, code);
                         } catch (InvalidOperationException ex) {
@@ -66,6 +67,9 @@ namespace SiteFrames {
             }
             WidgetsPage.Report(problems, "code");
         }
+
+        /// <summary>Whether a C# block is a complete program: its first code line is a using directive.</summary>
+        internal static bool IsProgram(string code) => UsingDirective.IsMatch(code.Replace("\r\n", "\n"));
 
         /// <summary>The fenced code blocks of a Markdown page, with the line each starts on.</summary>
         internal static IEnumerable<(int Line, string Code)> Fences(string markdown) {

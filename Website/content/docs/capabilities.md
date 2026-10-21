@@ -2,7 +2,7 @@
 title: Capability detection
 description: ConsoleMonster detects VT support, colour depth, the glyphs the font can draw, size, redirection, CI and the background, and records why.
 slug: capabilities
-order: 2
+order: 3
 group: start
 card: profile-detected
 apis: [TerminalProfile, Get-ConsoleCapability]
@@ -24,9 +24,33 @@ Detection runs once and produces a `TerminalProfile`: the output mode, the colou
 
 {{< cm-frame id="profile-ci" script="false" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}
 
+In C#, `Terminal.Profile` holds the same values and `Decisions` the same reasons. This program prints a shorter list than the script above:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Widgets;
+
+// What ConsoleMonster detected about this console, and why.
+TerminalProfile profile = Terminal.Profile;
+KeyValueList facts = new KeyValueList()
+    .Add("Mode", profile.Mode.ToString())
+    .Add("ColorDepth", profile.ColorDepth.ToString())
+    .Add("Glyphs", profile.Glyphs.ToString())
+    .Add("Size", profile.Width + " × " + profile.Height);
+Terminal.Write(facts);
+foreach (string decision in profile.Decisions) {
+    Terminal.WriteMarkupLine("  " + ConsoleMonster.Text.Markup.Escape(decision));
+}
+```
+
 ## Overriding detection
 
-Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)) or in code: `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
+Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)). The site pins four for its captures, and the same script then reports each of them as pinned:
+
+{{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
+
+In code, `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
 
 ```csharp
 using ConsoleMonster;
@@ -38,8 +62,6 @@ Terminal.Write(rule);                                                          /
 Terminal.Write(rule, Terminal.Profile.WithColorDepth(ColorDepth.None));       // the same console, no colour
 Terminal.Write(rule, TerminalProfile.Fixed(40, 10, ColorDepth.Ansi16, GlyphTier.Ascii));  // a fixed profile
 ```
-
-{{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
 
 ## Fonts and resizing during a session
 
