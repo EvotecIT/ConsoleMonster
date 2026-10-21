@@ -9,7 +9,7 @@ apis: [NO_COLOR, CONSOLEMONSTER_*]
 summary: "NO_COLOR and the CONSOLEMONSTER_* variables."
 ---
 
-Variables are read when the profile is detected (`CONSOLEMONSTER_NOW` each time a date is shown). An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect.
+Variables are read when the profile is detected. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect. `CONSOLEMONSTER_NOW` is the exception: it is read each time a date is shown, and an invalid value falls back to the clock without a note.
 
 | Variable | Values | Effect |
 |---|---|---|
@@ -32,7 +32,7 @@ Detection also reads `CI` and the variables of common CI systems (GitHub Actions
 
 ## The same table under overrides
 
-The script below is the same for both frames; only the environment changes. Detection reads the variables once per session, so run the script in a new one, then clear the variable:
+The script below is the same for both frames; only the environment changes. Detection reads the variables once per session, so run the script in a new one (`powershell -NoProfile -File .\format-consoletable.ps1` on Windows PowerShell 5.1), then clear the variable:
 
 ```powershell
 $env:NO_COLOR = 1

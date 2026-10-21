@@ -54,7 +54,7 @@ A module can describe how its objects look without depending on ConsoleMonster: 
 ```powershell
 Import-Module ConsoleMonster
 
-Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -As Markdown | Set-Content -Path ./services.md
+Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -As Markdown | Set-Content -Path ./services.md -Encoding UTF8
 Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutput -As Markdown
 ```
 

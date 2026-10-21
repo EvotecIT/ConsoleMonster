@@ -140,6 +140,15 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void PowerShellSyntax_SyntaxOnlyPowerShell7Knows_IsReportedForWindowsPowerShell() {
+            if (!System.IO.File.Exists(System.IO.Path.Combine(Environment.SystemDirectory, "WindowsPowerShell", "v1.0", "powershell.exe"))) {
+                return;
+            }
+            string problem = Assert.Single(SiteFrames.Capture.PowerShellSyntax.Check(new[] { ("seven.md", 1, "$name = $env:NAME ?? 'world'") }));
+            Assert.Contains("Windows PowerShell 5.1 does not parse", problem, StringComparison.Ordinal);
+            Assert.DoesNotContain("PowerShell 7 and", problem, StringComparison.Ordinal);
+        }
+        [Fact]
         public void CopySnippets_FindsPowerShellInstallStepsAndRunLines() {
             System.Collections.Generic.List<(string, int, string)> found = new System.Collections.Generic.List<(string, int, string)>();
             CodeGuard.CopySnippets(System.Text.Json.Nodes.JsonNode.Parse(
