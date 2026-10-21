@@ -11,6 +11,31 @@ namespace ConsoleMonster.Tests.HelpViews {
     /// <summary>A command's help: syntax wrapping, the parameter table's columns, synopsis and examples.</summary>
     public sealed class HelpViewTests {
         [Theory]
+        [InlineData(45, false)]
+        [InlineData(120, false)]
+        [InlineData(45, true)]
+        [InlineData(120, true)]
+        public void CommandLine_EveryLaterGroup_HasOneBlankSeparatorIncludingInputOnlyGroups(int width, bool values) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report [options]" } };
+            string[] groups = { "Directory", "Group Policy", "Group membership", "File SID", "SID history" };
+            for (int i = 0; i < groups.Length; i++) {
+                string name = "type-" + i;
+                if (values) topic.CommandLine.Values.Add(new HelpValue(name, "Authored evidence", groups[i]) { Note = i >= 2 ? "(needs --input)" : null });
+                else topic.CommandLine.Commands.Add(new HelpCommand(name, "Inspect evidence", groups[i]));
+            }
+            string[] lines = Text(new HelpView(topic), width).Replace("\r", "").Split('\n');
+            int first = Array.FindIndex(lines, line => line.Trim() == groups[0]);
+            Assert.True(first > 0);
+            Assert.Equal(values ? "Values" : "Commands", lines[first - 1].Trim());
+            for (int i = 1; i < groups.Length; i++) {
+                int heading = Array.FindIndex(lines, line => line.Trim() == groups[i]);
+                Assert.True(heading >= 2);
+                Assert.True(string.IsNullOrWhiteSpace(lines[heading - 1]), groups[i]);
+                Assert.False(string.IsNullOrWhiteSpace(lines[heading - 2]), groups[i]);
+            }
+        }
+
+        [Theory]
         [InlineData(45)]
         [InlineData(120)]
         public void CommandLine_ValueNotes_AlignAfterDescriptionsAndWrapSeparately(int width) {

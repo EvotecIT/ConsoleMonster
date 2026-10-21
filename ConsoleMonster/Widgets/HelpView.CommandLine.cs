@@ -22,7 +22,7 @@ namespace ConsoleMonster.Widgets {
                 int commandNameWidth = Topic.CommandLine.Commands.Max(command => DisplayWidth.Measure(command.Name));
                 bool firstCommandGroup = true;
                 foreach (IGrouping<string, HelpCommand> group in Topic.CommandLine.Commands.GroupBy(c => c.Group ?? string.Empty)) {
-                    if (!firstCommandGroup) rows.Add(Blank());
+                    if (!firstCommandGroup) rows.Add(Blank(), LayoutSize.Fixed(1));
                     firstCommandGroup = false;
                     if (group.Key.Length > 0) {
                         rows.Add(new LineBlock(new[] { StyledLine.From(group.Key, context.Style(ThemeToken.Accent).With(TextDecoration.Bold)) }, 2, 2));
@@ -35,7 +35,7 @@ namespace ConsoleMonster.Widgets {
                 int valueNameWidth = Topic.CommandLine.Values.Max(value => DisplayWidth.Measure(value.Name));
                 bool firstValueGroup = true;
                 foreach (IGrouping<string, HelpValue> group in Topic.CommandLine.Values.GroupBy(value => value.Group ?? string.Empty)) {
-                    if (!firstValueGroup) rows.Add(Blank());
+                    if (!firstValueGroup) rows.Add(Blank(), LayoutSize.Fixed(1));
                     firstValueGroup = false;
                     if (group.Key.Length > 0) rows.Add(new LineBlock(new[] { StyledLine.From(group.Key, context.Style(ThemeToken.Accent).With(TextDecoration.Bold)) }, 2, 2));
                     rows.Add(new HelpColumns(group.Select(value => (value.Name, value.Description, (string?)null, value.Note)).ToList(), valueNameWidth));
