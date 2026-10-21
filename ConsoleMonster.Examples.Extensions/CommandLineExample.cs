@@ -1,11 +1,11 @@
-using System.CommandLine;
-using System.Threading;
-using ConsoleMonster.Live;
-using ConsoleMonster.Presenters;
-using ConsoleMonster.Styling;
-using ConsoleMonster.Widgets;
-
 namespace ConsoleMonster.Examples.Extensions {
+    using System.CommandLine;
+    using System.Threading;
+    using ConsoleMonster.Live;
+    using ConsoleMonster.Presenters;
+    using ConsoleMonster.Styling;
+    using ConsoleMonster.Widgets;
+
     /// <summary>
     /// A command-line tool that parses with System.CommandLine and writes its output with ConsoleMonster: a live status
     /// list while it works, then a table. Run it as <c>cli --servers 4</c>; <c>cli --help</c> prints System.CommandLine's help.

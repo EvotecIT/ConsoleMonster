@@ -53,9 +53,12 @@ namespace SiteFrames.Pages {
             /// <summary>
             /// The C# source shown beside the recording: the file relative to the repository, and either the method whose
             /// <c>// &lt;example&gt;</c> lines are the snippet (Example) or the signature of a method shown whole (Signature).
-            /// The whole file is the full program.
+            /// The whole file and any <see cref="CSharpCompanions"/> form the full program.
             /// </summary>
             public (string File, string? Example, string? Signature)? CSharp { get; set; }
+
+            /// <summary>Additional source files needed by the full C# program, relative to the repository.</summary>
+            public string[] CSharpCompanions { get; set; } = Array.Empty<string>();
 
             /// <summary>The share of the run the poster shows (default 0.6).</summary>
             public double PosterShare { get; set; } = 0.6;
@@ -122,11 +125,13 @@ namespace SiteFrames.Pages {
             yield return new Demo("hosting", "dotnet run (ConsoleMonster.Hosting)", 110, 30) {
                 Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "hosting 12"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static async Task HostingAsync(int seconds)"),
+                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
                 PosterShare = 0.75
             };
             yield return new Demo("logging", "dotnet run (ConsoleMonster.Extensions.Logging)", 110, 30) {
                 Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "logging"),
                 CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static void Logging()"),
+                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
                 Static = true
             };
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
@@ -318,7 +323,11 @@ namespace SiteFrames.Pages {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
                     string source = Path.Combine(site.Repository, file);
                     entry["csharp"] = SourceSnippets.Split(example != null ? SourceSnippets.Get(source, example) : SourceSnippets.Method(source, signature!)).Short;
-                    entry["csharpFull"] = SourceSnippets.Split(Site.ReadText(source)).Full.TrimEnd('\n');
+                    string fullProgram = Site.ReadText(source);
+                    foreach (string companion in demo.CSharpCompanions) {
+                        fullProgram += "\n\n" + Site.ReadText(Path.Combine(site.Repository, companion));
+                    }
+                    entry["csharpFull"] = SourceSnippets.Split(fullProgram).Full.TrimEnd('\n');
                     entry["csharpFile"] = file.Replace('\\', '/');
                 }
                 demos[demo.Id] = entry;
