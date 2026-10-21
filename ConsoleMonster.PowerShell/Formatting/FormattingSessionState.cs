@@ -27,12 +27,14 @@ namespace ConsoleMonster.PowerShell {
         internal ScriptBlock? PreviousModuleOnRemove { get; set; }
 
         internal FormatCommandInstallation? FormatCommands { get; set; }
+        internal StreamFormattingInstallation Streams { get; } = new StreamFormattingInstallation();
 
         internal Dictionary<string, ConsoleViewRegistration> Views { get; } = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> ViewModules { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Ends this installation without changing any other runspace's saved commands.</summary>
         internal void Reset() {
+            Streams.Restore();
             SessionProgress.Reset(Progress);
             Features = ConsoleFormattingFeature.None;
             ProgressEnabled = false;

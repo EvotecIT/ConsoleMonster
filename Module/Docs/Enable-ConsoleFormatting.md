@@ -42,18 +42,25 @@ The lines to keep it on in every session (printed, never written to the profile)
 Enable-ConsoleFormatting -Feature All
 ```
 
-Everything: default output, the error view and the progress area
+Default output, the error view, progress and native stream colours
+
+### EXAMPLE 4
+```powershell
+Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose
+```
+
+Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour
 
 ## PARAMETERS
 
 ### -Feature
-What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All (Output, ErrorView and Progress). FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.
+What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, All, FormatCommands
+Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All
 
 Required: False
 Position: named

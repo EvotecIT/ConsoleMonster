@@ -23,9 +23,43 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-`-Feature All` enables default object views, errors and progress. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains the separate `FormatCommands` opt-in.
+`-Feature All` enables default object views, errors, progress and native stream colors. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains the separate `FormatCommands` opt-in.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
+
+## Native stream colors
+
+Use `Streams` to give PowerShell's own messages the active theme's warning, information, muted and failure tones. Choose the theme before enabling it, or re-enable `Streams` to apply a new theme.
+
+```powershell
+Set-ConsoleTheme -Name Light
+Enable-ConsoleFormatting -Feature Streams
+Write-Warning 'Disk space is low'
+Write-Verbose 'Checking backup' -Verbose
+Write-Debug 'Using the local cache' -Debug
+
+# Prints the corresponding profile lines; does not change the profile or settings.
+Enable-ConsoleFormatting -Feature Streams -ProfileSnippet
+Disable-ConsoleFormatting -Feature Streams
+```
+
+PowerShell 7.2 and later use `$PSStyle.Formatting.Warning`, `.Verbose`, `.Debug` and `.Error`. Windows PowerShell 5.1 uses the host's available `$Host.PrivateData` warning, verbose and debug foreground/background colors. Theme tones with a transparent background use the host's current background. Hosts with missing or unwritable properties are left alone; this includes headless and remoting hosts. PowerShell controls when colors appear, including its own redirected-output and transcript rules.
+
+`Write-Warning`, `Write-Verbose`, `Write-Debug` and `Write-Information` remain native cmdlets. Their records, preferences, `3>`, `-WarningVariable`, compiled-cmdlet warnings and transcripts retain PowerShell's behavior. The `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes remain. Use `Write-ConsoleStatus` or `Write-ConsoleLog` for rich messages in your own scripts.
+
+The original values are saved once per enabled interval. Disable or module removal restores exactly the properties ConsoleMonster successfully set, even if you edited those properties while Streams was enabled. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in `-Feature All`.
+
+For a .NET host, theme colors come from the same shared theme and encoder. Installing native PowerShell stream preferences belongs to its PowerShell runspace.
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Rendering;
+using ConsoleMonster.Styling;
+
+var warning = Terminal.Theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor);
+string warningSgr = SgrEncoder.Encode(warning, ColorDepth.TrueColor);
+```
 
 ## Parameter mapping
 

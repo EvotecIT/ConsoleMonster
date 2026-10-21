@@ -65,6 +65,11 @@ namespace ConsoleMonster.Rendering {
             if (!Uri.TryCreate(target, UriKind.Absolute, out Uri? uri)) {
                 return false;
             }
+            // On Unix, Uri accepts /tmp/report.txt as an absolute file URI. The raw path is not the URI we emit:
+            // send it through From so it acquires file:// and escaping, just as Windows and UNC paths do.
+            if (!target.StartsWith(uri.Scheme + ":", StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
             return uri.Scheme == "http" || uri.Scheme == "https" || uri.Scheme == "mailto" || uri.Scheme == "ftp" || uri.Scheme == "file";
         }
 

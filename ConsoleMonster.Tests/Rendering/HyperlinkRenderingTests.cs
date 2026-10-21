@@ -16,6 +16,25 @@ namespace ConsoleMonster.Tests.Rendering {
         private static TerminalProfile Profile => TerminalProfile.Fixed(100, 20).WithHyperlinks(true);
 
         [Theory]
+        [InlineData("/tmp/report.txt", "file:///tmp/report.txt")]
+        [InlineData("/tmp/daily #1.txt", "file:///tmp/daily%20%231.txt")]
+        [InlineData("C:\\Reports\\daily #1.txt", "file:///C:/Reports/daily%20%231.txt")]
+        [InlineData("\\\\server\\share\\daily #1.txt", "file://server/share/daily%20%231.txt")]
+        public void ExplicitPaths_NormalizeInDirectLinesAndFrames(string path, string expected) {
+            CellBuffer buffer = new CellBuffer(6, 1);
+            buffer.Write(0, 0, "report", Style.Plain.WithLink(path));
+            foreach (bool inline in new[] { false, true }) {
+                Assert.Contains(Osc + expected + St + "report" + Osc + St, Encode(buffer, Profile.WithColorDepth(ColorDepth.None), inline));
+                StringTerminalWriter writer = new StringTerminalWriter();
+                using (ITerminalOutput output = inline ? (ITerminalOutput)new InlineOutput(writer, Profile.WithColorDepth(ColorDepth.None), false)
+                    : new VtOutput(writer, Profile.WithColorDepth(ColorDepth.None), false)) {
+                    output.WriteLine(new StyledLine(new[] { new TextSpan("report", Style.Plain.WithLink(path)) }));
+                }
+                Assert.Contains(Osc + expected + St + "report" + Osc + St, writer.ToString());
+            }
+        }
+
+        [Theory]
         [InlineData("https://example.com/docs", "https://example.com/docs")]
         [InlineData("mailto:admin@example.com", "mailto:admin@example.com")]
         [InlineData("C:\\Reports\\daily #1.txt", "file:///C:/Reports/daily%20%231.txt")]

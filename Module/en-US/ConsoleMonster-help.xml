@@ -1095,12 +1095,12 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:noun>ConsoleFormatting</command:noun>
       <maml:description>
         <maml:para>Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</maml:para>
-        <maml:para>Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off; the Out-Default function stays while any feature is on. Registrations stay for the next Enable-ConsoleFormatting.</maml:para>
+        <maml:para>Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off. Streams restores the saved native colour settings, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams alone needs no function. Registrations stay for the next Enable-ConsoleFormatting.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.</maml:para>
-      <maml:para>Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off; the Out-Default function stays while any feature is on. Registrations stay for the next Enable-ConsoleFormatting.</maml:para>
+      <maml:para>Without -Feature everything Enable-ConsoleFormatting turned on is turned off and the session is as it was: the Out-Default function goes (or the user's own function replaced with -Force comes back), the Write-Progress alias goes (or the user's own alias comes back), and $ErrorView was never changed. With -Feature only those parts are turned off. Streams restores the saved native colour settings, including subsequent edits to owned properties. The Out-Default function stays while any feature that uses it is on; Streams alone needs no function. Registrations stay for the next Enable-ConsoleFormatting.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -1108,7 +1108,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Feature</maml:name>
           <maml:description>
-            <maml:para>What to turn off: Output, ErrorView, Progress, FormatCommands or All (Output, ErrorView and Progress). Without -Feature every enabled feature is removed, including FormatCommands.</maml:para>
+            <maml:para>What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
@@ -1116,8 +1116,9 @@ $tree | Write-ConsoleWidget</dev:code>
             <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ConsoleFormattingFeature[]</maml:name>
@@ -1131,7 +1132,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Feature</maml:name>
         <maml:description>
-          <maml:para>What to turn off: Output, ErrorView, Progress, FormatCommands or All (Output, ErrorView and Progress). Without -Feature every enabled feature is removed, including FormatCommands.</maml:para>
+          <maml:para>What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
@@ -1139,8 +1140,9 @@ $tree | Write-ConsoleWidget</dev:code>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ConsoleFormattingFeature[]</maml:name>
@@ -1200,7 +1202,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Feature</maml:name>
           <maml:description>
-            <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All (Output, ErrorView and Progress). FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
+            <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
           <command:parameterValueGroup>
@@ -1208,8 +1210,9 @@ $tree | Write-ConsoleWidget</dev:code>
             <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ConsoleFormattingFeature[]</maml:name>
@@ -1259,7 +1262,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Feature</maml:name>
         <maml:description>
-          <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), or All (Output, ErrorView and Progress). FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
+          <maml:para>What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleFormattingFeature[]</command:parameterValue>
         <command:parameterValueGroup>
@@ -1267,8 +1270,9 @@ $tree | Write-ConsoleWidget</dev:code>
           <command:parameterValue required="false" variableLength="false">Output</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ErrorView</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Progress</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">FormatCommands</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Streams</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">All</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ConsoleFormattingFeature[]</maml:name>
@@ -1345,7 +1349,14 @@ $tree | Write-ConsoleWidget</dev:code>
         <maml:title>EXAMPLE 3</maml:title>
         <dev:code>Enable-ConsoleFormatting -Feature All</dev:code>
         <dev:remarks>
-          <maml:para>Everything: default output, the error view and the progress area</maml:para>
+          <maml:para>Default output, the error view, progress and native stream colours</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
+        <dev:remarks>
+          <maml:para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
