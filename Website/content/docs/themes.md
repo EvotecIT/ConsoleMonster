@@ -3,6 +3,10 @@ title: Themes
 description: The dark, light and high-contrast themes, the roles they define and how their colours are reduced for 256 and 16-colour consoles.
 slug: themes
 order: 3
+group: start
+card: theme-dark
+chips: [Dark, Light, High contrast]
+summary: "Dark, light and high contrast, and how colours are reduced per tier."
 ---
 
 Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Accent`, `Pass`, `Warn`, `Fail`, `Info`, `Skip`, `Running`, `Pending`, `Border`, `Title`, `Header`, `Surface`, `Focus` and six chart series. A theme maps each role to a 24-bit colour with its 256 and 16-colour fallbacks, so a role stays distinguishable on every tier.

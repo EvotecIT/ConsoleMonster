@@ -3,6 +3,10 @@ title: Environment overrides
 description: NO_COLOR and the CONSOLEMONSTER_* variables pin what detection would otherwise decide, for CI, tests, screenshots and accessibility.
 slug: environment
 order: 4
+group: start
+card: overrides-plain
+apis: [NO_COLOR, CONSOLEMONSTER_*]
+summary: "NO_COLOR and the CONSOLEMONSTER_* variables."
 ---
 
 Variables are read when the profile is detected. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect.

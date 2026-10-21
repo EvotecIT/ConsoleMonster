@@ -146,10 +146,14 @@ namespace SiteFrames.Pages {
         }
 
         /// <summary>The frame shown before a replay plays: the last frame at a share of the run, and its time.</summary>
-        internal static long Poster(Site site, List<TimedFrame> frames, double share, out string html) {
+        internal static long Poster(Site site, List<TimedFrame> frames, double share, out string html) => Poster(site, frames, share, out html, out _);
+
+        /// <summary>The poster: the frame at a share of the run, as HTML and as the frame itself.</summary>
+        internal static long Poster(Site site, List<TimedFrame> frames, double share, out string html, out CellBuffer frame) {
             long at = (long)Math.Round(frames[frames.Count - 1].Time * share);
             TimedFrame moment = frames.FindLast(f => f.Time <= at);
             html = Frames.FrameHtml.Body(Frames.FrameHtml.Rows(moment.Frame, ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
+            frame = moment.Frame;
             return moment.Time;
         }
 

@@ -1,8 +1,13 @@
 ---
 title: dotnet new template
-description: dotnet new consolemonster: a console app with a menu, a status report, logging, the hosting dashboard and native AOT.
+description: "dotnet new consolemonster: a console app with a menu, a status report, logging, the hosting dashboard and native AOT."
 slug: template
 order: 12
+group: apps
+card: template
+apis: [dotnet new]
+chips: [Native AOT]
+summary: "A console app with a menu, logging, the dashboard and native AOT."
 ---
 
 ```bash

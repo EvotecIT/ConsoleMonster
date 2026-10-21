@@ -28,8 +28,41 @@
 .cm-index strong { display: block; font: 700 15px/1.3 var(--cm-mono); }
 .cm-index span { display: block; margin-top: 6px; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
 
+/* The docs catalogue: no outline column, so the cards take the width. A rail of the groups (each with its key colour
+   and how many pages it holds), then each group's heading and its cards: a miniature of what the page shows, the
+   title, one line, and chips for the APIs it covers. Miniatures are terminal screens, dark in both themes. */
+.cm-docs--index { grid-template-columns: 220px minmax(0, 1fr); }
+.cm-catalog__rail { margin: 0 0 var(--cm-space-7); }
+.cm-catalog__rail ul { display: flex; flex-wrap: wrap; gap: var(--cm-space-2); margin: 0; padding: 0; list-style: none; }
+.cm-catalog__rail a { display: inline-flex; align-items: center; gap: var(--cm-space-2); height: 36px; padding: 0 12px; border: 1px solid var(--cm-line); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 13.5px/1 var(--cm-mono); text-decoration: none; white-space: nowrap; }
+.cm-catalog__rail a:hover, .cm-catalog__rail a:focus-visible { border-color: var(--key); }
+.cm-catalog__count { min-width: 20px; padding: 2px 6px; border-radius: 999px; background: var(--cm-sunken); color: var(--cm-muted); font-weight: 500; font-size: 12px; text-align: center; }
+.cm-catalog__group { scroll-margin-top: 88px; }
+.cm-catalog__group + .cm-catalog__group { margin-top: var(--cm-space-7); }
+.cm-catalog__head { display: grid; gap: var(--cm-space-2); margin-bottom: var(--cm-space-4); }
+.cm-catalog__head h2 { display: flex; align-items: center; gap: 10px; font-size: 24px; }
+.cm-catalog__head h2 .cm-key { width: 10px; height: 10px; }
+.cm-catalog__head p { margin: 0; color: var(--cm-muted); font-size: 15px; }
+.cm-catalog__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: var(--cm-space-4); margin: 0; padding: 0; list-style: none; }
+.cm-catalog__cards a { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; border: 1px solid var(--cm-line); border-radius: var(--cm-radius); background: var(--cm-surface); color: var(--cm-ink); text-decoration: none; overflow: hidden; transition: border-color .15s ease, box-shadow .15s ease; }
+.cm-catalog__cards a:hover, .cm-catalog__cards a:focus-visible { border-color: var(--key); box-shadow: var(--cm-shadow); }
+.cm-catalog__thumb { position: relative; display: block; height: 120px; background: #0c0c0c; border-bottom: 1px solid var(--cm-line); overflow: hidden; }
+.cm-catalog__thumb::after { content: ""; position: absolute; inset: auto 0 0; height: 3px; background: var(--key); opacity: .9; }
+.cm-catalog__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+.cm-catalog__title { padding: 14px 16px 0; font: 700 15px/1.3 var(--cm-mono); }
+.cm-catalog__summary { padding: 6px 16px 0; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
+.cm-catalog__chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px 16px; }
+/* API names are code; topics are plain labels with an outline. */
+.cm-catalog__chips code, .cm-catalog__chips span { padding: 1px 7px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; line-height: 1.5; }
+.cm-catalog__chips code { background: var(--cm-sunken); color: var(--cm-ink-2); }
+.cm-catalog__chips span { border-color: var(--cm-line); color: var(--cm-muted); font-family: var(--cm-font); }
+.cm-catalog__layers { margin-top: var(--cm-space-8); padding-top: var(--cm-space-6); border-top: 1px solid var(--cm-line); }
+.cm-catalog__layers h2 { margin-bottom: var(--cm-space-4); font-size: 24px; }
+.cm-catalog__layers .cm-prose { max-width: 76ch; }
+
 @media (max-width: 1180px) {
   .cm-docs { grid-template-columns: 200px minmax(0, 1fr); }
+  .cm-catalog__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cm-docs__toc { display: none; }
 }
 
@@ -40,4 +73,12 @@
   .cm-docs__menu summary { display: block; padding: 12px 16px; font: 600 14px/1 var(--cm-mono); cursor: pointer; }
   .cm-docs__menu[open] { padding-bottom: 12px; }
   .cm-docs__menu > :not(summary) { margin-inline: 8px; }
+  /* On the catalogue the contents menu would repeat every card above them; the rail takes its place. */
+  .cm-docs--index .cm-docs__nav { display: none; }
+  .cm-catalog__rail { margin: 0 calc(var(--cm-gutter) * -1) var(--cm-space-6); padding: 4px var(--cm-gutter); overflow-x: auto; scrollbar-width: none; }
+  .cm-catalog__rail ul { flex-wrap: nowrap; }
+}
+
+@media (max-width: 560px) {
+  .cm-catalog__cards { grid-template-columns: minmax(0, 1fr); }
 }

@@ -3,6 +3,11 @@ title: Help, errors and progress
 description: Show-ConsoleHelp renders PowerShell's own help; Enable-ConsoleFormatting adds an error view and a progress area, each opt-in.
 slug: help-and-defaults
 order: 8
+group: apps
+card: help
+apis: [Show-ConsoleHelp]
+chips: [Errors, Progress]
+summary: "Show-ConsoleHelp, the error view and the progress area, each opt-in."
 ---
 
 These features change how PowerShell's own output looks for the session, never what commands return. Each is opt-in and undone by `Disable-ConsoleFormatting`.

@@ -643,73 +643,16 @@
       }
     }
   },
-  "docsIndex": [
-    {
-      "title": "Install",
-      "url": "/docs/install/",
-      "body": "The NuGet package, the PowerShell module and a first program in each."
-    },
-    {
-      "title": "Capability detection",
-      "url": "/docs/capabilities/",
-      "body": "What ConsoleMonster detects about the console, and the decisions it records."
-    },
-    {
-      "title": "Themes",
-      "url": "/docs/themes/",
-      "body": "Dark, light and high contrast, and how colours are reduced per tier."
-    },
-    {
-      "title": "Environment overrides",
-      "url": "/docs/environment/",
-      "body": "NO_COLOR and the CONSOLEMONSTER_* variables."
-    },
-    {
-      "title": "Live sessions",
-      "url": "/docs/live-sessions/",
-      "body": "Dashboards updated from any thread, inline areas and windows that are too small."
-    },
-    {
-      "title": "Recording and replay",
-      "url": "/docs/recording/",
-      "body": "JSON-lines recordings, replays, exports and test helpers."
-    },
-    {
-      "title": "Live runs",
-      "url": "/docs/live-runs/",
-      "body": "ForEach-ConsoleItem in parallel, Watch-Console and Pester runs, recorded."
-    },
-    {
-      "title": "Help, errors and progress",
-      "url": "/docs/help-and-defaults/",
-      "body": "Show-ConsoleHelp, the error view and the progress area, each opt-in."
-    },
-    {
-      "title": "Linux and SSH",
-      "url": "/docs/linux-and-ssh/",
-      "body": "Detection on Unix terminals and a login overview for your servers."
-    },
-    {
-      "title": "Logging",
-      "url": "/docs/logging/",
-      "body": "A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags."
-    },
-    {
-      "title": "Hosting dashboard",
-      "url": "/docs/hosting/",
-      "body": "A live dashboard for .NET generic host applications."
-    },
-    {
-      "title": "dotnet new template",
-      "url": "/docs/template/",
-      "body": "A console app with a menu, logging, the dashboard and native AOT."
-    },
-    {
-      "title": "PowerShell conventions",
-      "url": "/docs/powershell-conventions/",
-      "body": "One grammar for every widget, and each widget's .NET methods."
-    }
-  ],
+  "docsCatalog": {
+    "label": "Documentation by topic",
+    "layersTitle": "How the library is layered",
+    "groups": [
+      { "id": "start", "title": "Get started", "body": "Install, what gets detected, and how to pin or theme it.", "key": 1 },
+      { "id": "live", "title": "Live output", "body": "Dashboards, runs that redraw, and recordings you can replay.", "key": 2 },
+      { "id": "apps", "title": "Applications", "body": "Help, errors, progress, logging and a template to start from.", "key": 5 },
+      { "id": "hosts", "title": "Hosts and shells", "body": "Unix terminals over SSH, and the grammar of the PowerShell module.", "key": 3 }
+    ]
+  },
   "guidesIndex": [
     {
       "title": "Everyday PowerShell output",

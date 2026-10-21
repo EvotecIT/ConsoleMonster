@@ -3,6 +3,10 @@ title: Capability detection
 description: ConsoleMonster detects VT support, colour depth, the glyphs the font can draw, size, redirection, CI and the background, and records why.
 slug: capabilities
 order: 2
+group: start
+card: profile-detected
+apis: [TerminalProfile, Get-ConsoleCapability]
+summary: "What ConsoleMonster detects about the console, and the decisions it records."
 ---
 
 Detection runs once and produces a `TerminalProfile`: the output mode, the colour depth, the glyph tier, the window size, the theme preference and the culture. Every value carries the reason it was chosen, which `Terminal.Profile.Decisions` (and `Get-ConsoleCapability` in PowerShell) lists. The frames below are `ConsoleMonster.Examples profile`, run by the site tool in a Windows pseudo console.

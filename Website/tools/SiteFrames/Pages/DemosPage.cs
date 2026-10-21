@@ -263,7 +263,9 @@ namespace SiteFrames.Pages {
                     ["h"] = height
                 };
                 if (demo.Static || frames.Count == 0) {
-                    entry["frame"] = site.Frame(Site.Crop(scrollback), null);
+                    CellBuffer still = Site.Crop(scrollback);
+                    DocCards.Offer(demo.Id, still, Frames.Screen.Dark);
+                    entry["frame"] = site.Frame(still, null);
                 } else {
                     List<(long Time, string Label)>? markers = null;
                     if (demo.Chapters != null) {
@@ -280,7 +282,8 @@ namespace SiteFrames.Pages {
                     }
                     string data = PlayerData.Write(site, frames, demo.Title, demo.Fps, 3000, out long duration, out int count, markers);
                     site.Write(site.Static("replays/demo-" + demo.Id + ".json"), data);
-                    long posterTime = LivePage.Poster(site, frames, demo.EndsOn != null ? 1 : demo.PosterShare, out string poster);
+                    long posterTime = LivePage.Poster(site, frames, demo.EndsOn != null ? 1 : demo.PosterShare, out string poster, out CellBuffer posterFrame);
+                    DocCards.Offer(demo.Id, posterFrame, Frames.Screen.Dark);
                     // A replay that ends on its result opens there, at its end, so the player shows that screen and Play
                     // starts again from the beginning.
                     if (demo.EndsOn != null) {

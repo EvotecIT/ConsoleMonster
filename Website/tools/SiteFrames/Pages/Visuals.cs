@@ -56,7 +56,7 @@ namespace SiteFrames.Pages {
                 }
                 nav[item.Key] = entry;
             }
-            site.WriteJson(site.Data("visuals"), new JsonObject { ["nav"] = nav });
+            site.WriteJson(site.Data("visuals"), new JsonObject { ["nav"] = nav, ["cards"] = DocCards.Render(site) });
         }
 
         // The last live frame of the recorded stress test.

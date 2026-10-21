@@ -3,6 +3,10 @@ title: Live sessions
 description: A live session redraws about 15 times a second while any thread posts updates, captures console output and handles resizes and small windows.
 slug: live-sessions
 order: 5
+group: live
+card: size-100x30
+apis: [LiveSession, MinimumSize]
+summary: "Dashboards updated from any thread, inline areas and windows that are too small."
 ---
 
 `LiveSession` owns the screen while work runs. Updates are `LiveEvent`s addressed to widgets by name; they go into a lock-free queue and are applied on the render thread, which composes the tree, diffs it against the previous frame and writes only the cells that changed, about 15 times a second.

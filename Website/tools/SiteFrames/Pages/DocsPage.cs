@@ -53,6 +53,7 @@ namespace SiteFrames.Pages {
                     continue;
                 }
                 CellBuffer frame = Site.Crop(Parity.Transcript(File.ReadAllBytes(path), 100, 40));
+                DocCards.Offer(id, frame, Frames.Screen.Dark);
                 Figures.Add(id, new JsonObject {
                     ["title"] = "ConsoleMonster.Examples profile",
                     ["label"] = "The terminal profile ConsoleMonster detected, with the decisions behind it",
@@ -64,17 +65,23 @@ namespace SiteFrames.Pages {
             // One composition in the three built-in themes.
             foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark) }) {
                 CellBuffer frame = Site.Render(Figures.Assessment(), 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
+                DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
                 Figures.Add(id, new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data });
             }
 
+            // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.
+            DocCards.Offer("overrides-plain", Site.Render(TableShowcases.DnsRecords(), 80, ColorDepth.None, GlyphTier.Ascii, Theme.Dark), Frames.Screen.Dark);
+
             // The too-small fallback: the assessment dashboard mid-run at three window sizes.
             foreach ((int w, int h) in new[] { (100, 30), (64, 20), (50, 12) }) {
+                CellBuffer midRun = MidRun(w, h);
+                DocCards.Offer("size-" + w + "x" + h, midRun, Frames.Screen.Dark);
                 Figures.Add("size-" + w + "x" + h, new JsonObject {
                     ["title"] = w + "×" + h,
                     ["label"] = "The assessment dashboard in a " + w + " by " + h + " window",
                     ["meta"] = new JsonArray(w + "×" + h),
-                    ["frame"] = site.Frame(MidRun(w, h), null)
+                    ["frame"] = site.Frame(midRun, null)
                 });
             }
 

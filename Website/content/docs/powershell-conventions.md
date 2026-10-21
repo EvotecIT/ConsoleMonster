@@ -1,8 +1,12 @@
 ---
 title: PowerShell conventions
-description: One grammar for every widget: containers take script blocks, items are commands with shared parameters, and .NET methods still work.
+description: "One grammar for every widget: containers take script blocks, items are commands with shared parameters, and .NET methods still work."
 slug: powershell-conventions
 order: 13
+group: hosts
+card: shaping
+chips: [Cmdlets, Script blocks]
+summary: "One grammar for every widget, and each widget's .NET methods."
 ---
 
 Every widget is a `New-Console*` command, and they read the same way, so a widget you have not used yet works like the last one.

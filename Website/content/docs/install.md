@@ -3,6 +3,10 @@ title: Install
 description: Add the ConsoleMonster package to a .NET project or install the PowerShell module, then print a first table.
 slug: install
 order: 1
+group: start
+card: formatting
+chips: [NuGet, PowerShell Gallery]
+summary: "The NuGet package, the PowerShell module and a first program in each."
 ---
 
 Install the .NET package for C# applications or the PowerShell module for scripts. Both use the same rendering engine.

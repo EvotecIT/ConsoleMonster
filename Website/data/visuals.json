@@ -60,5 +60,46 @@
       "dark": "/site/nav/benchmarks-dark.svg",
       "light": "/site/nav/benchmarks-light.svg"
     }
+  },
+  "cards": {
+    "profile-detected": {
+      "src": "/site/cards/profile-detected.svg"
+    },
+    "overrides-plain": {
+      "src": "/site/cards/overrides-plain.svg"
+    },
+    "help": {
+      "src": "/site/cards/help.svg"
+    },
+    "hosting": {
+      "src": "/site/cards/hosting.svg"
+    },
+    "formatting": {
+      "src": "/site/cards/formatting.svg"
+    },
+    "login": {
+      "src": "/site/cards/login.svg"
+    },
+    "parallel": {
+      "src": "/site/cards/parallel.svg"
+    },
+    "size-100x30": {
+      "src": "/site/cards/size-100x30.svg"
+    },
+    "logging": {
+      "src": "/site/cards/logging.svg"
+    },
+    "shaping": {
+      "src": "/site/cards/shaping.svg"
+    },
+    "app": {
+      "src": "/site/cards/app.svg"
+    },
+    "template": {
+      "src": "/site/cards/template.svg"
+    },
+    "theme-dark": {
+      "src": "/site/cards/theme-dark.svg"
+    }
   }
 }

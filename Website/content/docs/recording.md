@@ -3,6 +3,10 @@ title: Recording and replay
 description: Record a live session as JSON lines, replay it into the same dashboard, and export widgets, frames and recordings to HTML, SVG, text and asciicast.
 slug: recording
 order: 6
+group: live
+card: app
+chips: [JSON lines, Replay, Export]
+summary: "JSON-lines recordings, replays, exports and test helpers."
 ---
 
 A live session can write every applied event to a JSON-lines file: `LiveSessionOptions.RecordPath` or `RecordWriter` in C#, `Start-ConsoleDashboard -RecordPath` in PowerShell. A recording holds updates, not pictures, so it is played back into the widget tree it was recorded with.

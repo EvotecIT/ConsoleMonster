@@ -3,6 +3,10 @@ title: Linux and SSH
 description: What ConsoleMonster detects on Linux and macOS terminals and over SSH, and a login overview for your servers.
 slug: linux-and-ssh
 order: 9
+group: hosts
+card: login
+chips: [Linux, SSH]
+summary: "Detection on Unix terminals and a login overview for your servers."
 ---
 
 The module runs on PowerShell 7 on Linux and macOS, and the .NET library on every platform .NET runs on. Detection follows the terminal, not the operating system:

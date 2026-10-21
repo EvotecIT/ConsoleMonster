@@ -122,9 +122,15 @@ The site is set in the medium it documents: a terminal cell grid.
 ## Pages
 
 - `content/pages/`: home, widgets, tables, live, interactive, powershell, benchmarks, 404 and the two chrome pages.
-- `content/docs/` and `content/guides/`: reference topics and migration guides (index pages use the `docsindex` and
-  `guidesindex` layouts, whose cards come from `data/copy.json`). Frames go in with the `cm-frame` shortcode, which reads
-  `data/figures.json` (`id`, `ids` for several, `script="true"` to add the PowerShell that produced it).
+- `content/docs/` and `content/guides/`: reference topics and migration guides. Frames go in with the `cm-frame`
+  shortcode, which reads `data/figures.json` (`id`, `ids` for several, `script="true"` to add the PowerShell that
+  produced it).
+- The docs catalogue (`layouts/docsindex.html`) is built from the docs pages: `content/docs/_index.md` is a section, so
+  the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in
+  `data/copy.json`), a `summary`, `apis` (shown as code) and `chips` (topics), and a `card`: a figure or demo id whose
+  miniature `tools/SiteFrames` (`Pages/DocCards.cs`) writes to `static/site/cards/` and lists in `data/visuals.json`. A
+  page without a known group or card fails the render. The guides index still takes its cards from `data/copy.json`.
+  Quote a front matter value that contains `: `.
 
 ## Validation
 

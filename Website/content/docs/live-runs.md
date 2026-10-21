@@ -3,6 +3,11 @@ title: Live runs
 description: Run a script block for many items in parallel with a live view, re-run a command with Watch-Console, and watch Pester tests as they run.
 slug: live-runs
 order: 7
+group: live
+card: parallel
+apis: [ForEach-ConsoleItem, Watch-Console]
+chips: [Pester]
+summary: "ForEach-ConsoleItem in parallel, Watch-Console and Pester runs, recorded."
 ---
 
 Three commands turn long-running work into a live view on an interactive console and into plain lines everywhere else: `ForEach-ConsoleItem` (`Invoke-ConsoleRun`) for many items, `Watch-Console` for a command you want to see change, and `Invoke-ConsolePester` for tests. Each writes ordinary PowerShell output when it ends, so it fits into a script like the commands it replaces.
