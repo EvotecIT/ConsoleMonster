@@ -130,6 +130,26 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void PowerShellSyntax_ParseErrors_AreReportedWithTheirPageLine() {
+            System.Collections.Generic.List<string> problems = SiteFrames.Capture.PowerShellSyntax.Check(new[] {
+                ("ok.md", 3, "Import-Module ConsoleMonster\nGet-Service | Format-ConsoleTable"),
+                ("broken.md", 10, "Import-Module ConsoleMonster\nif ($x { 'missing paren' }")
+            });
+            Assert.NotEmpty(problems);
+            Assert.All(problems, problem => Assert.StartsWith("broken.md:11:", problem, StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void CopySnippets_FindsPowerShellInstallStepsAndRunLines() {
+            System.Collections.Generic.List<(string, int, string)> found = new System.Collections.Generic.List<(string, int, string)>();
+            CodeGuard.CopySnippets(System.Text.Json.Nodes.JsonNode.Parse(
+                "{\"a\":{\"use\":{\"install\":\"Install-Module X\"}},\"b\":{\"use\":{\"lang\":\"bash\",\"install\":\"dotnet run\"}}," +
+                "\"c\":{\"steps\":[{\"text\":\"Prose, not code.\",\"code\":[{\"lang\":\"powershell\",\"text\":\"./x.ps1\"},{\"lang\":\"bash\",\"text\":\"ls\"}]}]}," +
+                "\"d\":{\"run\":\"pwsh -File ./x.ps1\"}}"), "copy.json", found);
+            Assert.Equal(new[] { "Install-Module X", "./x.ps1", "pwsh -File ./x.ps1" }, found.Select(f => f.Item3).ToArray());
+        }
+
+        [Fact]
         public void Guard_Fences_ReadEveryCodeBlock() {
             (int Line, string Code)[] fences = CodeGuard.Fences("text\n```powershell\nGet-Thing\n```\nmore\n```\nx\ny\n```").ToArray();
             Assert.Equal(2, fences.Length);

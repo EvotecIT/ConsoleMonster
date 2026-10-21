@@ -48,6 +48,9 @@ namespace SiteFrames {
                 JsonNode? root = JsonNode.Parse(File.ReadAllText(file));
                 Walk(root, Path.GetFileName(file), problems);
             }
+            // PowerShell a reader copies: code blocks on the pages and the steps in copy.json, parsed by PowerShell itself.
+            List<(string Where, int Line, string Code)> powershell = new List<(string, int, string)>();
+            CopySnippets(JsonNode.Parse(File.ReadAllText(site.Data("copy"))), "data/copy.json", powershell);
             string content = Path.Combine(site.Website, "content");
             string[] pages = Directory.GetFiles(content, "*.md", SearchOption.AllDirectories);
             Array.Sort(pages, StringComparer.Ordinal);
@@ -55,6 +58,9 @@ namespace SiteFrames {
                 string name = Path.GetRelativePath(site.Website, page).Replace('\\', '/');
                 foreach ((int line, string language, string code) in Blocks(Site.ReadText(page))) {
                     Inspect(code, name + ":" + line, problems);
+                    if (PowerShellLanguages.Contains(language)) {
+                        powershell.Add((name, line, code));
+                    }
                     // A C# block that starts with its using directives is a complete program: it must compile as a reader's would.
                     if ((language == "csharp" || language == "cs") && IsProgram(code)) {
                         try {
@@ -65,7 +71,38 @@ namespace SiteFrames {
                     }
                 }
             }
+            problems.AddRange(Capture.PowerShellSyntax.Check(powershell));
             WidgetsPage.Report(problems, "code");
+        }
+
+        private static readonly HashSet<string> PowerShellLanguages = new HashSet<string>(StringComparer.Ordinal) { "powershell", "pwsh", "ps1", "ps" };
+
+        /// <summary>
+        /// The PowerShell in copy.json that pages show as code: install blocks and step code whose language is PowerShell (the
+        /// default when none is named), and the console variants' run lines.
+        /// </summary>
+        internal static void CopySnippets(JsonNode? node, string where, List<(string Where, int Line, string Code)> found) {
+            switch (node) {
+                case JsonObject obj:
+                    string? language = obj["lang"] is JsonValue lang && lang.TryGetValue(out string? named) ? named : null;
+                    bool isPowerShell = language == null || PowerShellLanguages.Contains(language);
+                    foreach (KeyValuePair<string, JsonNode?> property in obj) {
+                        string path = where + "." + property.Key;
+                        if (property.Value is JsonValue value && value.TryGetValue(out string? text)) {
+                            if ((property.Key == "install" || property.Key == "text" && obj.ContainsKey("lang") || property.Key == "run") && isPowerShell) {
+                                found.Add((path, 1, text!));
+                            }
+                        } else {
+                            CopySnippets(property.Value, path, found);
+                        }
+                    }
+                    break;
+                case JsonArray array:
+                    for (int i = 0; i < array.Count; i++) {
+                        CopySnippets(array[i], where + "[" + i + "]", found);
+                    }
+                    break;
+            }
         }
 
         /// <summary>Whether a C# block is a complete program: its first code line is a using directive.</summary>
