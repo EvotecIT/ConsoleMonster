@@ -1,8 +1,8 @@
 [?9001h[?1004h[?25l[2J[m[38;2;75;80;96m[H── [m[1mPowerShell's own colours[22m[38;2;75;80;96m[1C────────────────────────────────────────────────────────────────────────
 ]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[33m[1mWARNING: Certificate for mail.evotec.xyz expires in 12 days
 VERBOSE: Queried 4 domain controllers in 2 domains
-DEBUG: Cache hit for evotec.xyz
-[m[38;2;75;80;96m── [m[1mWith -Feature Streams: the theme's colours[22m [38;2;75;80;96m──────────────────────────────────────────────────────[38;2;251;191;36m
+DEBUG: Cache hit for evotec.xyz[38;2;75;80;96m[22m
+── [m[1mWith -Feature Streams: the theme's colours[22m [38;2;75;80;96m──────────────────────────────────────────────────────[38;2;251;191;36m
 WARNING: Certificate for mail.evotec.xyz expires in 12 days[38;2;56;189;248m
 VERBOSE: Queried 4 domain controllers in 2 domains[38;2;139;143;154m
 DEBUG: Cache hit for evotec.xyz

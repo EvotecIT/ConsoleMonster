@@ -1,4 +1,4 @@
 [?9001h[?1004h[?25l[2J[m[38;2;75;80;96m[H╭─ [m[1mForest[22m[38;2;75;80;96m[1C───────────────────────────────── [38;2;139;143;154mad.adatum.com [38;2;75;80;96m─╮
 │ [mFour controllers answered.[38;2;251;191;36m[1CDC02 [mlags by 42 minutes.[38;2;75;80;96m[6C│
 ╰────────────────────────────────────────── [38;2;139;143;154mchecked 14:30 [38;2;75;80;96m─╯
-]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m[?9001l[?1004l
+]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l[m
