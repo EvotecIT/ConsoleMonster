@@ -1056,6 +1056,11 @@ transcripts keep native output. See [everyday formatting](Everyday-Formatting.md
 [module-owned views](Module-Views.md) for dependency-free registration, [exports and clipboard](Output-Exports.md), and
 [terminal links](Hyperlinks.md).
 
+`Enable-ConsoleFormatting -Feature Streams` applies the active theme to native warning, verbose and debug colors,
+and to error colors on PowerShell 7.2+. It is included in `All`. PowerShell keeps its own message prefixes,
+stream commands, preferences and capture behavior. Disable restores the saved color settings. See
+[native stream colors](Everyday-Formatting.md#native-stream-colors) for the runtime differences and profile snippet.
+
 ```powershell
 Enable-ConsoleFormatting
 Get-ChildItem; Get-Process | Select-Object -First 10
