@@ -100,6 +100,25 @@ namespace SiteFrames.Tests {
             Assert.Equal(program, CodeGuard.IsProgram(code));
         }
 
+        [Theory]
+        [InlineData("{\"a\":{\"frame\":{\"dark\":\"x\"}}}", 1)]
+        [InlineData("{\"a\":{\"script\":\"Write-ConsoleRule\",\"frame\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"a\":{\"csharp\":\"x\",\"hosts\":[{\"frame\":{\"dark\":\"x\"}}]}}", 0)]
+        [InlineData("{\"a\":{\"programRepo\":\"P/Program.cs\",\"frame\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"a\":{\"source\":\"x\"},\"b\":{\"sourceOf\":\"a\",\"poster\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"a\":{},\"b\":{\"sourceOf\":\"a\",\"poster\":{\"dark\":\"x\"}}}", 1)]
+        public void FrameSources_FrameWithoutCode_IsReported(string json, int expected) {
+            Assert.Equal(expected, FrameSources.Find(System.Text.Json.Nodes.JsonNode.Parse(json), "data").Count());
+        }
+
+        [Fact]
+        public void FrameSources_HiddenScript_MustBeShownElsewhereOnThePage() {
+            System.Text.Json.Nodes.JsonObject figures = System.Text.Json.Nodes.JsonNode.Parse("{\"a\":{\"script\":\"Get-A\"},\"b\":{\"script\":\"Get-A\"},\"c\":{\"script\":\"Get-C\"}}")!.AsObject();
+            Assert.Empty(FrameSources.FindOnPage("{{< cm-frame id=\"a\" >}}\n{{< cm-frame id=\"b\" script=\"false\" >}}", figures, "p.md"));
+            Assert.Empty(FrameSources.FindOnPage("```powershell\nGet-C\n```\n{{< cm-frame id=\"c\" script=\"false\" >}}", figures, "p.md"));
+            Assert.Single(FrameSources.FindOnPage("{{< cm-frame id=\"c\" script=\"false\" >}}", figures, "p.md"));
+        }
+
         [Fact]
         public void Guard_Fences_ReadEveryCodeBlock() {
             (int Line, string Code)[] fences = CodeGuard.Fences("text\n```powershell\nGet-Thing\n```\nmore\n```\nx\ny\n```").ToArray();

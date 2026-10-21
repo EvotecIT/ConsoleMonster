@@ -142,6 +142,7 @@ namespace SiteFrames {
             SiteImages.Render(site);
             WriteRuntimeVersion(site);
             CodeGuard.Check(site);
+            FrameSources.Check(site);
             string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
             site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");

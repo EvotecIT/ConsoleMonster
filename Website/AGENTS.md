@@ -150,7 +150,10 @@ to run.
 - **No repository paths in shown code.** Never an `&` call into the repository, a `../` path, a repository folder name or
   `artifacts.ps1`. Code bars name the file only; `*Repo` keys (`powershellRepo`, `csharpRepo`) or `code_repo` in a
   template add the quiet "View on GitHub" link. `tools/SiteFrames/CodeGuard.cs` fails the render when a string in
-  `data/*.json` (other than frames and links) or a fenced block in `content/**/*.md` reaches into the repository.
+  `data/*.json` (other than frames and links) or a fenced block in `content/**/*.md` reaches into the repository, and
+  compiles every C# block that is a complete program. `tools/SiteFrames/FrameSources.cs` fails it when a frame has no
+  code linked to it (in its data entry, through a `*Repo` link to a program the page tells the reader to run, or
+  `sourceOf` a sibling entry), or when a docs figure hides its script (`script="false"`) that the page shows nowhere else.
 - **Steps are steps.** Where a page describes doing something (install, enable in the profile, run at login, host in a
   generic host or ASP.NET, record and replay), it gives numbered, copyable steps. Demos do this through
   `copy.json` `demos.<id>.use.steps` (a sentence and the code for each step).

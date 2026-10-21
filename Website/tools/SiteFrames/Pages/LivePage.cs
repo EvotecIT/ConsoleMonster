@@ -158,7 +158,10 @@ namespace SiteFrames.Pages {
             assessment["excerpt"] = string.Join("\n", lines.Take(9));
             Source(assessment, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
             live["assessment"] = assessment;
-            live["assessmentCompact"] = FromCast(site, "assessment-compact", "C#", "dotnet run -- assessment-run.jsonl 2", 3, 0.55);
+            JsonObject compact = FromCast(site, "assessment-compact", "C#", "dotnet run -- assessment-run.jsonl 2", 3, 0.55);
+            // The same program as the assessment, in a narrower window: its code is the assessment's.
+            compact["sourceOf"] = "assessment";
+            live["assessmentCompact"] = compact;
 
             // Recorded runs.
             JsonObject pipeline = new JsonObject {

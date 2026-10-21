@@ -13,7 +13,8 @@
       "h": 7,
       "dark": "ConsoleMonster benchmark (.NET 8.0.32, 140x45, 32 lanes)\n  event apply:        9,949,665 events/s on one thread\n  compose per frame:  0.680 ms\n  diff+VT per frame:  0.125 ms\n  chars per frame:    3,312 (diffed, 5,000 updates between frames)\n  alloc per frame:    206,593 bytes\n  render CPU at 15 fps: 1.2% of one core (+ apply cost 0.8% at 80k updates/s)"
     },
-    "w": 110
+    "w": 110,
+    "programRepo": "ConsoleMonster.Benchmarks/Program.cs"
   },
   "table": {
     "w": 73,
