@@ -56,13 +56,16 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
 - Cell geometry: a cell is 0.6em by 1.2em (JetBrains Mono). Every run except a row's last is a box exactly as wide as its
   cells (`.cN` classes in `static/css/frames.css`), and the frame font size is snapped so cells are whole layout units, so
   bars and borders line up from row to row.
-- C# examples live in `tools/SiteFrames/Catalog/*.cs` and `tools/SiteFrames/Pages/InteractivePage.cs` between
-  `// <example>` markers; the site shows exactly those lines. Table showcases show their method from
-  `ConsoleMonster.Examples`. PowerShell examples live in `examples/**/*.ps1` (UTF-8 with a BOM for Windows PowerShell 5.1)
-  and are shown verbatim.
+- C# examples are complete programs under `examples/**/*.cs` (a `Program.cs` with its `using` lines and top-level
+  statements). `Capture/CSharpRunner.cs` compiles each exactly as a `dotnet new console` project would (C# 12, implicit
+  usings, warnings and unused `using` lines fail) against this repository's ConsoleMonster only, and runs it to make the
+  frame. Programs that need other packages (the hosting and logging demos) are projects of their own under
+  `examples/demos/<name>/`, built with `dotnet build`. PowerShell examples live in `examples/**/*.ps1` (UTF-8 with a BOM
+  for Windows PowerShell 5.1) and are shown verbatim.
 - Demos (`Pages/DemosPage.cs`): one recording per feature, captured from `examples/demos/*.ps1` on PowerShell 7 or from
-  programs (`ConsoleMonster.Examples.Extensions`, and `tools/TemplateDemo`, which compiles the template's own `Program.cs`
-  with scripted keys). `render` writes `static/replays/demo-*.json` and `data/demos.json` with the sources read from those
+  programs (the example projects, and `tools/TemplateDemo`, which compiles the template's own `Program.cs` with scripted
+  keys). Each recording is stamped with a fingerprint of everything that made it, and `render` reports a stale one.
+  `render` writes `static/replays/demo-*.json` and `data/demos.json` with the sources read from those
   same files; `#region more` folds setup into the full program and `#region hidden` hides presentation lines (an echoed
   prompt) from the short form. Captures strip window titles and build with `ContinuousIntegrationBuild` so no local path
   is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`, `autoplay`); its words and the

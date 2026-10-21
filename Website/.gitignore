@@ -4,3 +4,5 @@ _reports/
 .powerforge/pipeline-cache.json
 tools/**/bin/
 tools/**/obj/
+examples/**/bin/
+examples/**/obj/

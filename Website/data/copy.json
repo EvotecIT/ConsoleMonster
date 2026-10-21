@@ -650,7 +650,7 @@
         "title": "Run the full program",
         "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- hosting 12",
+        "install": "dotnet new console -n Orders\ncd Orders\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\n# Replace Program.cs with the full program above.\ndotnet run\n# Ctrl+C stops the host.",
         "links": [
           {
             "title": "Hosting dashboard",
@@ -668,7 +668,7 @@
         "title": "Run the full program",
         "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- logging",
+        "install": "dotnet new console -n Shop\ncd Shop\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Logging\n# Replace Program.cs with the full program above.\ndotnet run",
         "links": [
           {
             "title": "Logging",

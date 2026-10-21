@@ -63,8 +63,20 @@ namespace SiteFrames.Pages {
             public string? PowerShellTwin { get; set; }
 
 
-            /// <summary>A program to run instead of a script: (executable relative to the repository, arguments).</summary>
-            public (string Executable, string Arguments)? Program { get; set; }
+            /// <summary>
+            /// A project to build (Release) and record instead of a script, relative to the repository: its program runs with
+            /// <c>dotnet</c> and <see cref="ProjectArguments"/>. Every file in its folder and <see cref="Sources"/> make the recording.
+            /// </summary>
+            public string? Project { get; set; }
+
+            /// <summary>Arguments the recording passes to <see cref="Project"/>'s program.</summary>
+            public string ProjectArguments { get; set; } = string.Empty;
+
+            /// <summary>Files outside the project's folder that it compiles (relative to the repository).</summary>
+            public string[] Sources { get; set; } = Array.Empty<string>();
+
+            /// <summary>When the recording presses Ctrl+C, for a program that runs until it is stopped.</summary>
+            public TimeSpan? Interrupt { get; set; }
 
             /// <summary>
             /// The C# source shown beside the recording: the file relative to the repository, and either the method whose
@@ -156,20 +168,20 @@ namespace SiteFrames.Pages {
                 Prompt = "ssh deploy@app-web-03",
                 PosterShare = 1
             };
-            yield return new Demo("hosting", "dotnet run (ConsoleMonster.Hosting)", 110, 30) {
-                Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "hosting 12"),
-                CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static async Task HostingAsync(int seconds)"),
-                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
+            // The host runs until Ctrl+C, which the recording presses after twelve seconds, as a reader would.
+            yield return new Demo("hosting", "dotnet run", 110, 30) {
+                Project = Path.Combine("Website", "examples", "demos", "hosting", "Orders.csproj"),
+                Interrupt = TimeSpan.FromSeconds(12),
                 PosterShare = 0.75
             };
-            yield return new Demo("logging", "dotnet run (ConsoleMonster.Extensions.Logging)", 110, 30) {
-                Program = (Path.Combine("ConsoleMonster.Examples.Extensions", "bin", "Release", "net8.0", "ConsoleMonster.Examples.Extensions.exe"), "logging"),
-                CSharp = (Path.Combine("ConsoleMonster.Examples.Extensions", "Program.cs"), null, "private static void Logging()"),
-                CSharpCompanions = new[] { Path.Combine("ConsoleMonster.Examples.Extensions", "CommandLineExample.cs") },
+            yield return new Demo("logging", "dotnet run", 110, 30) {
+                Project = Path.Combine("Website", "examples", "demos", "logging", "Shop.csproj"),
                 Static = true
             };
+            // TemplateDemo compiles the template's own Program.cs and drives its menu with scripted keys.
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
-                Program = (Path.Combine("Website", "tools", "TemplateDemo", "bin", "Release", "net8.0", "TemplateDemo.exe"), string.Empty),
+                Project = Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"),
+                Sources = new[] { Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs") },
                 CSharp = (Path.Combine("Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", "Program.cs"), null, "public static async Task<int> Main(string[] args)"),
                 PosterShare = 0.3
             };
@@ -218,7 +230,7 @@ namespace SiteFrames.Pages {
             return true;
         }
 
-                // Everything a demo's recording is made from, as text, or null for demos recorded from a prebuilt program.
+        // Everything a demo's recording is made from, as text: its script or program, the files beside it, its arguments and size.
         private static string? Source(Site site, Demo demo) {
             System.Text.StringBuilder text = new System.Text.StringBuilder();
             if (demo.Script != null) {
@@ -233,10 +245,47 @@ namespace SiteFrames.Pages {
                     text.Append(Site.ReadText(companion)).Append('\n');
                 }
                 text.Append(demo.ProgramArguments);
+            } else if (demo.Project != null) {
+                foreach (string file in ProjectSources(site, demo)) {
+                    text.Append(Path.GetFileName(file)).Append('\n').Append(Site.ReadText(file)).Append('\n');
+                }
+                text.Append(demo.ProjectArguments).Append('\n').Append(demo.Interrupt?.TotalMilliseconds);
             } else {
                 return null;
             }
             return text.Append('\n').Append(demo.Width).Append('x').Append(demo.Height).ToString();
+        }
+
+        // Everything a project demo compiles: the project file and sources in its folder, then the files it includes.
+        private static List<string> ProjectSources(Site site, Demo demo) {
+            string folder = Path.GetDirectoryName(Path.Combine(site.Repository, demo.Project!))!;
+            List<string> files = new List<string>(Directory.GetFiles(folder, "*.csproj"));
+            files.AddRange(Directory.GetFiles(folder, "*.cs"));
+            files.Sort(StringComparer.Ordinal);
+            foreach (string source in demo.Sources) {
+                files.Add(Path.Combine(site.Repository, source));
+            }
+            return files;
+        }
+
+        // The program a project demo builds: bin/Release/<framework>/<project name>.dll beside the project.
+        private static string ProjectProgram(Site site, Demo demo) {
+            string project = Path.Combine(site.Repository, demo.Project!);
+            string name = Path.GetFileNameWithoutExtension(project);
+            string[] built = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(project)!, "bin", "Release"), name + ".dll", SearchOption.AllDirectories);
+            if (built.Length != 1) {
+                throw new InvalidOperationException("Expected one build of " + demo.Project + ", found " + built.Length + ".");
+            }
+            return built[0];
+        }
+
+        // The shown program of a project demo that has no other C# to show: the Program.cs in its folder.
+        private static string? ProjectProgramSource(Site site, Demo demo) {
+            if (demo.Project == null || demo.CSharp != null) {
+                return null;
+            }
+            string program = Path.Combine(Path.GetDirectoryName(Path.Combine(site.Repository, demo.Project))!, "Program.cs");
+            return File.Exists(program) ? program : null;
         }
 
         private static string[] Companions(Site site, Demo demo) => Array.ConvertAll(demo.CSharpCompanions, c => Path.Combine(site.Repository, c));
@@ -250,8 +299,11 @@ namespace SiteFrames.Pages {
 
         public static void Capture(Site site) {
             BuildExamples(site);
-            Build(site, Path.Combine("ConsoleMonster.Examples.Extensions", "ConsoleMonster.Examples.Extensions.csproj"));
-            Build(site, Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"));
+            foreach (Demo demo in All()) {
+                if (demo.Project != null) {
+                    Build(site, demo.Project);
+                }
+            }
             // SITEFRAMES_DEMOS (comma-separated ids) records only those demos, leaving the other recordings as they are.
             HashSet<string>? wanted = null;
             string? filter = Environment.GetEnvironmentVariable("SITEFRAMES_DEMOS");
@@ -291,10 +343,9 @@ namespace SiteFrames.Pages {
                         Directory.Delete(work, true);
                     }
                 } else {
-                    (string executable, string arguments) = demo.Program!.Value;
-                    string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
+                    string command = "\"" + LivePage.DotnetHost + "\" \"" + ProjectProgram(site, demo) + "\"" + (demo.ProjectArguments.Length > 0 ? " " + demo.ProjectArguments : string.Empty);
                     // The drive root as the working directory: a host logs its content root, which should not be this checkout.
-                    chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2));
+                    chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt);
                 }
                 string path = CastPath(site, demo.Id);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -449,6 +500,16 @@ namespace SiteFrames.Pages {
                     if (files.Count > 0) {
                         entry["csharpFiles"] = files;
                     }
+                }
+                // A project demo shows its whole Program.cs: the capture built it (warnings are errors) and recorded that
+                // build, and the fingerprint above proves the recording came from this text.
+                string? projectProgram = ProjectProgramSource(site, demo);
+                if (projectProgram != null) {
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(projectProgram));
+                    entry["csharp"] = shortForm;
+                    entry["csharpFull"] = full;
+                    entry["csharpRepo"] = Path.GetRelativePath(site.Repository, projectProgram).Replace('\\', '/');
+                    entry["csharpFile"] = "Program.cs";
                 }
                 if (demo.CSharp != null) {
                     (string file, string? example, string? signature) = demo.CSharp.Value;
