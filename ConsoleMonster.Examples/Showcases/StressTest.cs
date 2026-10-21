@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using ConsoleMonster.Building;
 using ConsoleMonster.Layout;
@@ -33,30 +35,42 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Frame rate", "-")
                 .Add("CPU", "-")
                 .Add("CPU share", "-")
-                .Add("Captured lines", "0")
+                .Add("Stray writes", "0")
                 .Add("Dropped / errors", "0 / 0");
             Sparkline rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
             LineChart cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
             cpu.AddSeries("cpu", ThemeToken.Accent2);
 
+            // Keep the finite stress run's complete log so delivery is verified by identity, not attempted-write counts.
+            LogRegion capturedOutput = new LogRegion { PreferredHeight = 6, Capacity = int.MaxValue };
+            ConcurrentQueue<string> expectedLines = new ConcurrentQueue<string>();
             Dashboard dashboard = new DashboardBuilder("[bold]Stress test[/]")
                 .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
                 .Columns(c => c
                     .Panel("Workers", lanes, 2.2)
                     .Panel("Session", new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), 1))
-                .Panel("Captured output", new LogRegion { PreferredHeight = 6 }, fill: true)
+                .Panel("Captured output", capturedOutput, fill: true)
                 .BuildDashboard();
 
             string result = string.Empty;
             LiveSessionOptions options = new LiveSessionOptions();
             using (LiveSession session = new LiveSession(dashboard, options)) {
-                session.Run(s => result = Drive(s, lanes, stats, rate, cpu, seconds));
+                session.Run(s => result = Drive(s, lanes, stats, rate, cpu, seconds, expectedLines));
+                string[] expected = expectedLines.OrderBy(line => line, StringComparer.Ordinal).ToArray();
+                string[] actual = capturedOutput.Entries.Select(entry => entry.Text).OrderBy(line => line, StringComparer.Ordinal).ToArray();
+                if (session.EventsDropped != 0 || session.ApplyErrors != 0 || session.EventsPosted != session.EventsApplied) {
+                    throw new InvalidOperationException("The stress run lost updates or failed to apply accepted work.");
+                }
+                if (!expected.SequenceEqual(actual) || capturedOutput.TotalLines != expected.Length) {
+                    throw new InvalidOperationException("The stress run's captured log does not contain exactly the stray lines that were written.");
+                }
+                result += " verifiedCaptured=" + actual.Length.ToString(CultureInfo.InvariantCulture) + " missing=0 applied=" + session.EventsApplied.ToString(CultureInfo.InvariantCulture);
             }
             Console.WriteLine(result);
             return result;
         }
 
-        private static string Drive(LiveSession session, Lanes lanesWidget, KeyValueList statsWidget, Sparkline rateWidget, LineChart cpuWidget, int seconds) {
+        private static string Drive(LiveSession session, Lanes lanesWidget, KeyValueList statsWidget, Sparkline rateWidget, LineChart cpuWidget, int seconds, ConcurrentQueue<string> expectedLines) {
             LanesHandle lanes = lanesWidget.Handle(session);
             KeyValueHandle stats = statsWidget.Handle(session);
             SparklineHandle rate = rateWidget.Handle(session);
@@ -72,7 +86,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 Thread[] noisy = new Thread[4];
                 for (int i = 0; i < noisy.Length; i++) {
                     int id = i;
-                    noisy[i] = new Thread(() => FakeLibrary(id, stop.Token, ref captured)) { IsBackground = true };
+                    noisy[i] = new Thread(() => FakeLibrary(id, stop.Token, ref captured, expectedLines)) { IsBackground = true };
                     noisy[i].Start();
                 }
 
@@ -105,7 +119,7 @@ namespace ConsoleMonster.Examples.Showcases {
                     stats.Set("Frame rate", (session.FramesRendered / now).ToString("0.0", CultureInfo.InvariantCulture) + " fps");
                     stats.Set("CPU", core.ToString("0", CultureInfo.InvariantCulture) + "% (" + (core / 100).ToString("0.0", CultureInfo.InvariantCulture) + " cores)");
                     stats.Set("CPU share", (core / Environment.ProcessorCount).ToString("0.0", CultureInfo.InvariantCulture) + "% of " + Environment.ProcessorCount + " cores");
-                    stats.Set("Captured lines", NumberFormat.Grouped(Interlocked.Read(ref captured)));
+                    stats.Set("Stray writes", NumberFormat.Grouped(Interlocked.Read(ref captured)));
                     stats.Set("Dropped / errors", session.EventsDropped + " / " + session.ApplyErrors);
                 }
                 stop.Cancel();
@@ -118,7 +132,6 @@ namespace ConsoleMonster.Examples.Showcases {
                 for (int i = 0; i < Workers; i++) {
                     lanes.Complete("w" + i.ToString(CultureInfo.InvariantCulture), StatusKind.Pass);
                 }
-                Thread.Sleep(300);
                 process.Refresh();
                 double elapsed = wall.Elapsed.TotalSeconds;
                 double avgCore = (process.TotalProcessorTime - cpuStart).TotalMilliseconds / (elapsed * 1000) * 100;
@@ -146,20 +159,24 @@ namespace ConsoleMonster.Examples.Showcases {
             }
         }
 
-        private static void FakeLibrary(int id, CancellationToken token, ref long captured) {
+        private static void FakeLibrary(int id, CancellationToken token, ref long captured, ConcurrentQueue<string> expectedLines) {
             Random random = new Random(1000 + id);
             string[] messages = {
                 "FakeLib: cache miss for key {0}", "FakeLib: retrying request {0} (attempt 2)", "FakeLib: connection pool at {0}% capacity",
                 "FakeLib: GC pause {0} ms", "FakeLib: flushed {0} records"
             };
+            int sequence = 0;
             while (!token.IsCancellationRequested) {
                 Thread.Sleep(random.Next(40, 400));
-                string text = string.Format(CultureInfo.InvariantCulture, messages[random.Next(messages.Length)], random.Next(1, 999));
+                string text = "stray-" + id.ToString(CultureInfo.InvariantCulture) + "-" + (sequence++).ToString(CultureInfo.InvariantCulture) + ": "
+                    + string.Format(CultureInfo.InvariantCulture, messages[random.Next(messages.Length)], random.Next(1, 999));
                 if (random.NextDouble() < 0.15) {
-                    Console.Error.WriteLine("ERROR " + text);
+                    text = "ERROR " + text;
+                    Console.Error.WriteLine(text);
                 } else {
                     Console.WriteLine(text);
                 }
+                expectedLines.Enqueue(text);
                 Interlocked.Increment(ref captured);
             }
         }
