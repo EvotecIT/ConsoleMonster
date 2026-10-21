@@ -19,11 +19,26 @@ namespace ConsoleMonster.Widgets {
             rows.Add(Paragraph(Topic.CommandLine!.Usage, context, 2));
             if (Topic.CommandLine.Commands.Count > 0) {
                 Section(rows, "Commands", context);
+                int commandNameWidth = Topic.CommandLine.Commands.Max(command => DisplayWidth.Measure(command.Name));
+                bool firstCommandGroup = true;
                 foreach (IGrouping<string, HelpCommand> group in Topic.CommandLine.Commands.GroupBy(c => c.Group ?? string.Empty)) {
+                    if (!firstCommandGroup) rows.Add(Blank());
+                    firstCommandGroup = false;
                     if (group.Key.Length > 0) {
-                        rows.Add(new LineBlock(new[] { StyledLine.From(group.Key, context.Style(ThemeToken.Accent)) }, 2, 2));
+                        rows.Add(new LineBlock(new[] { StyledLine.From(group.Key, context.Style(ThemeToken.Accent).With(TextDecoration.Bold)) }, 2, 2));
                     }
-                    rows.Add(new HelpColumns(group.Select(c => (c.Name, c.Description, (string?)null)).ToList()));
+                    rows.Add(new HelpColumns(group.Select(c => (c.Name, c.Description, (string?)null)).ToList(), commandNameWidth));
+                }
+            }
+            if (Topic.CommandLine.Values.Count > 0) {
+                Section(rows, Topic.CommandLine.ValuesHeading, context);
+                int valueNameWidth = Topic.CommandLine.Values.Max(value => DisplayWidth.Measure(value.Name));
+                bool firstValueGroup = true;
+                foreach (IGrouping<string, HelpValue> group in Topic.CommandLine.Values.GroupBy(value => value.Group ?? string.Empty)) {
+                    if (!firstValueGroup) rows.Add(Blank());
+                    firstValueGroup = false;
+                    if (group.Key.Length > 0) rows.Add(new LineBlock(new[] { StyledLine.From(group.Key, context.Style(ThemeToken.Accent).With(TextDecoration.Bold)) }, 2, 2));
+                    rows.Add(new HelpColumns(group.Select(value => (value.Name, value.Description, (string?)null)).ToList(), valueNameWidth));
                 }
             }
             if (ShowParameters && Topic.Parameters.Count > 0) {
@@ -37,7 +52,7 @@ namespace ConsoleMonster.Widgets {
                     if (parameter.Named && !string.IsNullOrEmpty(parameter.Type)) {
                         syntax += " <" + parameter.Type + ">";
                     }
-                    entries.Add((syntax, (parameter.Required ? "Required. " : string.Empty) + parameter.Description, parameter.Default));
+                    entries.Add((syntax, (parameter.Required ? "Required. " : string.Empty) + parameter.Description, parameter.Named && string.IsNullOrEmpty(parameter.Type) ? null : parameter.Default));
                 }
                 rows.Add(new HelpColumns(entries));
             }
@@ -57,12 +72,14 @@ namespace ConsoleMonster.Widgets {
         private sealed class HelpColumns : IWidget {
             private readonly List<(string Name, string Description, string? Default)> _entries;
 
-            public HelpColumns(List<(string, string, string?)> entries) { _entries = entries; }
+            private readonly int? _nameWidth;
+
+            public HelpColumns(List<(string, string, string?)> entries, int? nameWidth = null) { _entries = entries; _nameWidth = nameWidth; }
 
             private List<(int X, int Y, StyledLine Line)> Layout(int width, RenderContext context, out int height) {
                 List<(int, int, StyledLine)> result = new List<(int, int, StyledLine)>();
                 int available = Math.Max(1, width - 2);
-                int nameWidth = Math.Min(_entries.Max(e => DisplayWidth.Measure(e.Name)), Math.Max(12, available / 2));
+                int nameWidth = Math.Min(_nameWidth ?? _entries.Max(e => DisplayWidth.Measure(e.Name)), Math.Max(12, available / 2));
                 int descriptionX = Math.Min(width - 1, nameWidth + 4);
                 int y = 0;
                 foreach (var entry in _entries) {

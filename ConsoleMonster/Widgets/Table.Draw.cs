@@ -156,8 +156,9 @@ namespace ConsoleMonster.Widgets {
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             bool section = GroupHeadersAsRows && firstRow < layout.Rows.Count && layout.Rows[firstRow].Kind == TableRowKind.Group;
             if (!string.IsNullOrEmpty(Title)) {
-                StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
-                region.Write(boxed ? 1 : 0, y++, title);
+                int indent = Math.Max(0, Math.Min(region.Width - 1, TitleIndent ?? (boxed ? 1 : 0)));
+                StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), Math.Max(0, region.Width - indent), context.Ellipsis);
+                region.Write(indent, y++, title);
             }
             if (boxed && !(mergeFirstGroup && !ShowHeader)) {
                 DrawRule(region, y++, layout, box.TopLeft, section && !ShowHeader ? box.Horizontal : box.TopJoint, box.TopRight, box.Horizontal, border);

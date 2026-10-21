@@ -48,6 +48,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A title shown above the table (markup).</summary>
         public string? Title { get; set; }
 
+        /// <summary>Optional grid-title indentation in cells; null retains the border-aligned default. Record and card views retain their own title layout.</summary>
+        public int? TitleIndent { get; set; }
+
         /// <summary>A caption shown below the table (markup, muted).</summary>
         public string? Caption { get; set; }
 

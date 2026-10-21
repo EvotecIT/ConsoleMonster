@@ -8,6 +8,12 @@ namespace ConsoleMonster.Help {
 
         /// <summary>Commands in display order, optionally grouped or collapsed by the host.</summary>
         public IList<HelpCommand> Commands { get; } = new List<HelpCommand>();
+
+        /// <summary>Heading for a host-provided catalog of positional values.</summary>
+        public string ValuesHeading { get; set; } = "Values";
+
+        /// <summary>Named positional values described independently of subcommands.</summary>
+        public IList<HelpValue> Values { get; } = new List<HelpValue>();
     }
 
     /// <summary>A command or command family shown in a command-line help table.</summary>

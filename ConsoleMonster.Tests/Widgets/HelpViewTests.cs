@@ -13,6 +13,28 @@ namespace ConsoleMonster.Tests.HelpViews {
         [Theory]
         [InlineData(45)]
         [InlineData(120)]
+        public void CommandLine_ValueCatalog_KeepsLiteralIdsAndOwnDescriptionColumns(int width) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp {
+                Usage = "tool report [<type>...] [options]", ValuesHeading = "Report types"
+            } };
+            topic.CommandLine.Values.Add(new HelpValue("group-policy", "Policy consistency and permissions with a sufficiently long description to wrap at narrow widths.", "Directory"));
+            topic.CommandLine.Values.Add(new HelpValue("group-members", "Saved membership evidence [offline].", "Directory"));
+            string text = Text(new HelpView(topic), width);
+            Assert.Contains("Report types", text);
+            Assert.Contains("group-policy", text);
+            Assert.Contains("group-members", text);
+            Assert.Contains("[offline]", text);
+            Assert.DoesNotContain("Commands", text);
+            if (width == 45) {
+                string[] lines = text.Replace("\r", "").Split('\n');
+                int row = Array.FindIndex(lines, line => line.Contains("group-policy"));
+                Assert.StartsWith(new string(' ', 17), lines[row + 1]);
+            }
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
         public void CommandLine_ColumnsPreserveSyntaxAndWrapDescriptionsIndependently(int width) {
             HelpTopic topic = new HelpTopic("tool") {
                 Synopsis = "Inspect saved findings.",
@@ -36,6 +58,41 @@ namespace ConsoleMonster.Tests.HelpViews {
             int command = Array.FindIndex(lines, l => l.Contains("inspect") && l.Contains("Inspect findings"));
             Assert.True(command >= 0);
             if (width == 45) Assert.StartsWith(new string(' ', 11), lines[command + 1]);
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_GroupsShareDescriptionColumnAndSeparateHeadings(int width) {
+            HelpTopic topic = new HelpTopic("tool") { CommandLine = new CommandLineHelp { Usage = "tool [command] [options]" } };
+            topic.CommandLine.Commands.Add(new HelpCommand("long-command", "First description", "First group"));
+            topic.CommandLine.Commands.Add(new HelpCommand("short", "Second description", "Second group"));
+            topic.Parameters.Add(new HelpParameter("-quiet") { Description = "Hide details", Default = "no" });
+            topic.Parameters.Add(new HelpParameter("-output") { Description = "Write output", Type = "path", Default = "report.html" });
+            string text = Text(new HelpView(topic), width);
+            string[] lines = text.Replace("\r", "").Split('\n');
+            string first = Array.Find(lines, line => line.Contains("First description"))!;
+            string second = Array.Find(lines, line => line.Contains("Second description"))!;
+            Assert.Equal(first.IndexOf("First description", StringComparison.Ordinal), second.IndexOf("Second description", StringComparison.Ordinal));
+            int group = Array.FindIndex(lines, line => line.Contains("Second group"));
+            Assert.True(string.IsNullOrWhiteSpace(lines[group - 1]));
+            Assert.DoesNotContain("[default: no]", text);
+            Assert.Contains("[default: report.html]", System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " "));
+        }
+
+        [Fact]
+        public void Table_ExplicitTitleIndent_AlignsSectionTitleWithoutChangingDefault() {
+            Table table = new Table { Title = "Per-CA", TitleIndent = 0 };
+            table.AddColumn("CA");
+            table.AddValues("Issuing CA");
+            Assert.StartsWith("Per-CA", Text(table, 45));
+            table.TitleIndent = null;
+            Assert.StartsWith(" Per-CA", Text(table, 45));
+            table.Title = "01234567890123456789";
+            table.TitleIndent = 4;
+            string firstLine = Text(table, 20).Replace("\r", "").Split('\n')[0].TrimEnd();
+            Assert.StartsWith("    0123456789", firstLine);
+            Assert.EndsWith("\u2026", firstLine);
         }
 
         private static string Text(IWidget widget, int width) {
