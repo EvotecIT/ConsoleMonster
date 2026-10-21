@@ -110,14 +110,8 @@
     "format-consoletable": {
       "src": "/site/cards/format-consoletable.svg"
     },
-    "job-ps7": {
-      "src": "/site/cards/job-ps7.svg"
-    },
-    "markup": {
-      "src": "/site/cards/markup.svg"
-    },
-    "write-consoletext": {
-      "src": "/site/cards/write-consoletext.svg"
+    "threads-ci": {
+      "src": "/site/cards/threads-ci.svg"
     }
   }
 }

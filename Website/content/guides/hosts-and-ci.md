@@ -2,7 +2,7 @@
 title: Hosts, CI and transcripts
 description: What ConsoleMonster writes on a real console, in CI, in background jobs, remoting and SSH, the ISE, transcripts and redirected output, and with NO_COLOR.
 slug: hosts-and-ci
-card: job-ps7
+card: threads-ci
 order: 5
 ---
 
