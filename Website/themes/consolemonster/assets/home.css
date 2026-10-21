@@ -77,10 +77,11 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 .cm-compare--live { margin-top: var(--cm-space-2); align-items: start; }
 /* The live comparison: the dashboard, then the same run as stream output, one above the other at the full content
    width, so each frame fits its columns (110 and 100) without scrolling, and the stream shows every line it wrote. */
-.cm-compare.cm-compare--live { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-7); justify-items: center; }
-/* Each column is as wide as its frame at the largest font (110 columns), centred; the windows size themselves inside. */
-.cm-compare--live > * { width: 100%; max-width: 960px; min-width: 0; }
-.cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 14px; }
+.cm-compare.cm-compare--live { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-7); }
+/* The frames use the page's content width and scale their cells between the legible minimum and 15 px, so a 110-column
+   dashboard reads well on a large screen; each window starts at the column's left edge, under its heading. */
+.cm-compare--live > * { min-width: 0; }
+.cm-compare--live .cm-screen, .cm-compare--live .cm-replay { --cm-max-font: 15px; }
 /* The stream shows how the run ends (the summary table) at a fixed height; the earlier lines fade out at the top instead
    of scrolling inside the frame. */
 .cm-compare--live .cm-stream .cm-window__body { max-height: 560px; overflow-x: auto; overflow-y: hidden; -webkit-mask-image: linear-gradient(transparent, #000 72px); mask-image: linear-gradient(transparent, #000 72px); }
