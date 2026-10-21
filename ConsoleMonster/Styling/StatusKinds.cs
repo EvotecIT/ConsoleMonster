@@ -95,10 +95,19 @@ namespace ConsoleMonster.Styling {
             "Success", "Ok", "Passed", "Error", "Failed", "Failure", "Warning", "Skipped", "Information", "Verbose", "Debug"
         };
 
-        /// <summary>A short upper-case word for a status (PASS, FAIL, WARN, SKIP, RUN, WAIT, INFO in English), in the language of <see cref="Localization.WidgetLabels.Current"/>.</summary>
+        /// <summary>A short upper-case status word in the active profile's language, falling back to <see cref="Localization.WidgetLabels.Current"/>.</summary>
         /// <param name="status">The status.</param>
         /// <returns>The word.</returns>
-        public static string ToWord(this StatusKind status) => Localization.WidgetLabels.Current.StatusWord(status);
+        public static string ToWord(this StatusKind status) => status.ToWord(Terminal.GetCurrentProfile());
+
+        /// <summary>A status word in the render context's language.</summary>
+        /// <param name="status">The status.</param><param name="context">The rendering context.</param><returns>The localized word.</returns>
+        public static string ToWord(this StatusKind status, Canvas.RenderContext context) => context.Labels.StatusWord(status);
+
+        /// <summary>A status word in the profile's language, or the current fallback labels when no language is set.</summary>
+        /// <param name="status">The status.</param><param name="profile">The rendering profile.</param><returns>The localized word.</returns>
+        public static string ToWord(this StatusKind status, Capabilities.TerminalProfile profile) =>
+            (profile.Language == null ? Localization.WidgetLabels.Current : Localization.WidgetLabels.For(profile.Language)).StatusWord(status);
 
         /// <summary>The English status word (PASS, FAIL...), for logs and machine-read output.</summary>
         /// <param name="status">The status.</param>

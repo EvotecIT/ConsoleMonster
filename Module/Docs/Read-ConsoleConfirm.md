@@ -13,7 +13,7 @@ Shows the question with the answers inline (the default focused); Y and N answer
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleConfirm [-Title] <string> [-Default <Boolean>] [-Destructive] [-TypedConfirmation <string>] [-YesText <string>] [-NoText <string>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleConfirm [-Title] <string> [-Default <Boolean>] [-Destructive] [-TypedConfirmation <string>] [-Warning <string>] [-YesText <string>] [-NoText <string>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,7 +32,7 @@ A question with a default
 
 ### EXAMPLE 2
 ```powershell
-if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Description 'This cannot be undone.') { ... }
+if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }
 ```
 
 A typed confirmation before deleting
@@ -153,6 +153,22 @@ Accept wildcard characters: False
 
 ### -TypedConfirmation
 The text the user must type to confirm.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Warning
+Warning shown for a typed confirmation. Overrides -Description as the warning text; without -Warning the existing description remains the warning.
 
 ```yaml
 Type: String

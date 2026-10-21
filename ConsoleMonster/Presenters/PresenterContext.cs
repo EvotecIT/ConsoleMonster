@@ -14,7 +14,7 @@ namespace ConsoleMonster.Presenters {
         public PresenterContext(RenderContext render, CultureInfo? culture = null, DateTimeOffset? now = null, TimeZoneInfo? timeZone = null) {
             Render = render ?? throw new ArgumentNullException(nameof(render));
             Culture = culture ?? render.Culture;
-            Now = now ?? DateTimeOffset.Now;
+            Now = now ?? PresentationOptions.ReferenceNow();
             TimeZone = timeZone ?? TimeZoneInfo.Local;
         }
 

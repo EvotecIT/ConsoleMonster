@@ -497,7 +497,7 @@ $name = Read-ConsoleText 'Share name' -Pattern '[a-z][a-z0-9-]+' -PatternMessage
 $port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
 $token = Read-ConsoleSecret 'Token'
 $file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
-if (Read-ConsoleConfirm 'Remove FS01?' -TypedConfirmation 'FS01') { ... }
+if (Read-ConsoleConfirm 'Remove FS01?' -TypedConfirmation 'FS01' -Warning 'This cannot be undone.') { ... }
 ```
 
 ```csharp
@@ -1103,6 +1103,43 @@ German, Spanish, French and Italian are built in; other languages fall back to E
   `PromptLabels.Default` or `WidgetLabels.Override`, or pass `InteractiveOptions.Labels` for one prompt.
 - The translations live in `ConsoleMonster/Localization/Labels.<language>.txt`; a test checks that every language has
   every label with the same placeholders.
+
+Inspector summaries, collection counts and hierarchy limit/cycle notes follow the render profile's language too,
+including when the same inspected data is rendered under another profile. `StatusKind.ToWord(context)` and
+`StatusKind.ToWord(profile)` use that language; the parameterless form uses the active terminal target's profile,
+with `WidgetLabels.Current` as the fallback when the profile has no language.
+
+## Pin relative dates for recordings
+
+For recordings and deterministic examples, set `CONSOLEMONSTER_NOW` once before rendering. Use an ISO 8601
+timestamp with `Z` or an explicit offset. All value presenters use this reference time unless a widget sets
+`PresentationOptions.Now` explicitly.
+
+```powershell
+Import-Module ConsoleMonster
+$previousNow = $env:CONSOLEMONSTER_NOW
+try {
+    $env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'
+    [pscustomobject]@{ Name = 'Report'; Changed = [datetimeoffset]'2026-10-21T09:00:00Z' } |
+        Format-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }
+} finally {
+    $env:CONSOLEMONSTER_NOW = $previousNow
+}
+```
+
+The override is read when values are presented, so it also reaches existing widgets. Unset or invalid values use
+the current clock. Leave it unset for ordinary production output; remove it after a recording. Absolute dates and
+elapsed-session clocks are unchanged.
+
+```csharp
+string? previousNow = Environment.GetEnvironmentVariable("CONSOLEMONSTER_NOW");
+Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", "2026-10-21T12:00:00Z");
+try {
+    Terminal.Write(table);
+} finally {
+    Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", previousNow);
+}
+```
 
 ## Window size, fonts and themes
 

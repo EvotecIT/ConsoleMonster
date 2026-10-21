@@ -95,10 +95,11 @@ namespace ConsoleMonster.Export {
         }
 
         private static void Node(StringBuilder output, TreeNode node, int depth, PresenterContext presenter) {
-            string label = Plain(node.Label, presenter.Render);
+            string label = Plain(node.LabelFor(presenter.Render), presenter.Render);
             if (node.Status.HasValue) { label = presenter.Render.Glyphs.StatusMarker(node.Status.Value) + " " + label; }
             if (node.Value != null) { label += ": " + Cell(CellRendering.Content(node.Value, node.Presenter, null, presenter)); }
-            if (!string.IsNullOrEmpty(node.Note)) { label += " · " + node.Note; }
+            string? note = node.NoteFor(presenter.Render);
+            if (!string.IsNullOrEmpty(note)) { label += " · " + note; }
             output.Append(' ', depth * 2).Append("- ").Append(Prose(label)).Append('\n');
             foreach (TreeNode child in node.Children) { Node(output, child, depth + 1, presenter); }
         }

@@ -17078,6 +17078,18 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Warning</maml:name>
+          <maml:description>
+            <maml:para>Warning shown for a typed confirmation. Overrides -Description as the warning text; without -Warning the existing description remains the warning.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>YesText</maml:name>
           <maml:description>
             <maml:para>The caption of the positive answer.</maml:para>
@@ -17195,6 +17207,18 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Warning</maml:name>
+        <maml:description>
+          <maml:para>Warning shown for a typed confirmation. Overrides -Description as the warning text; without -Warning the existing description remains the warning.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>YesText</maml:name>
         <maml:description>
           <maml:para>The caption of the positive answer.</maml:para>
@@ -17236,7 +17260,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Description 'This cannot be undone.') { ... }</dev:code>
+        <dev:code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { ... }</dev:code>
         <dev:remarks>
           <maml:para>A typed confirmation before deleting</maml:para>
         </dev:remarks>
