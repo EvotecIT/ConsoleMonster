@@ -166,6 +166,12 @@ BeforeAll {
             )
         }
         'Module/Examples/Example-Stress.ps1'         = @{ Arguments = '-Seconds 2' }
+        # The site's prompt stories answer with the keys the site records them with, on a captured screen.
+        'Website/examples/interactive/select.ps1'    = @{ Input = 'Down Down "we" Down Enter'; Screen = '100x16'; Expect = @('Target server') }
+        'Website/examples/interactive/multi.ps1'     = @{ Input = 'Down Space Down Down Space Down Down Down Space Enter'; Screen = '110x20'; Expect = @('Disk cleanup') }
+        'Website/examples/interactive/text.ps1'      = @{ Input = '"9reports" Enter Home Delete Enter'; Screen = '90x10'; Expect = @('Share name') }
+        'Website/examples/interactive/typed.ps1'     = @{ Input = '"FS0" Enter "1" Enter'; Screen = '90x10'; Expect = @('Type FS01 to confirm') }
+        'Website/examples/interactive/grid.ps1'      = @{ Input = '"sql" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter'; RealTime = $true; Screen = '110x22'; Expect = @('Services on FS01') }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }

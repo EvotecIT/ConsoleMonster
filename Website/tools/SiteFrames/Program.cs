@@ -101,6 +101,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "interactive")) {
+                InteractivePage.Capture(site);
+            }
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }

@@ -1,0 +1,39 @@
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  ›
+  enter confirm  tab edit  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9r
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9re
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9rep
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9repo
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9repor
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9report
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  ✗ Start with a letter; letters, digits, - and _ only
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  ✗ Start with a letter; letters, digits, - and _ only
+  enter confirm  esc cancel? Share name  default: Reports
+  Shown to users when they browse the server.
+  › reports
+  enter confirm  esc cancel

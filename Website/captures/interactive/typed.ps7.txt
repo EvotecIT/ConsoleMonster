@@ -1,0 +1,26 @@
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  ›
+  enter confirm  esc cancel▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › F
+  enter confirm  esc cancel▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS
+  enter confirm  esc cancel▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS0
+  enter confirm  esc cancel▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS0
+  ✗ That doesn't match FS01.
+  enter confirm  esc cancel▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS01
+  enter confirm  esc cancel

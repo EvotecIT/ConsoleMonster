@@ -69,7 +69,7 @@ namespace SiteFrames.Capture {
         /// parameters). <paramref name="prompt"/> is a command line the recording shows typed before the script runs (such as
         /// <c>ssh deploy@app-web-03</c>); it belongs to the recording, so the shown script never contains it.
         /// </summary>
-        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null) {
+        public static List<OutputChunk> Run(Site site, PowerShellHost host, string script, int width, int height, Dictionary<string, string?> environment, string? workingDirectory = null, TimeSpan? timeout = null, bool allowErrors = false, bool showProgress = false, string? arguments = null, string? prompt = null, bool interactive = false) {
             string runner = Path.Combine(Path.GetTempPath(), "cmsite-runner-" + Path.GetFileNameWithoutExtension(script) + "-" + host.Id + ".ps1");
             string modules = ModuleLinkRoot(site);
             string directory = workingDirectory ?? Path.GetDirectoryName(script)!;
@@ -101,7 +101,8 @@ namespace SiteFrames.Capture {
             }
             File.WriteAllText(runner, sb.ToString(), new UTF8Encoding(true));
             try {
-                string command = host.Executable + " -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + runner + "\"";
+                // Prompts refuse to ask in a -NonInteractive session; runs that answer them with scripted keys leave it out.
+                string command = host.Executable + " -NoLogo -NoProfile" + (interactive ? string.Empty : " -NonInteractive") + " -ExecutionPolicy Bypass -File \"" + runner + "\"";
                 return PseudoConsole.Run(command, width, height, environment, directory, timeout ?? TimeSpan.FromMinutes(3));
             } finally {
                 File.Delete(runner);
