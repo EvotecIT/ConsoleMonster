@@ -25,7 +25,9 @@ namespace ConsoleMonster.Widgets {
                 if (sections) {
                     view.AddSection(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
                 }
-                AddFields(view, row, key, contexts);
+                // Without a row heading, the table title does not represent the key's value.
+                // Keep that field so titled single-record tables do not lose their identity or first metric.
+                AddFields(view, row, sections ? key : -1, contexts);
             }
             if (!string.IsNullOrEmpty(Caption)) {
                 view.Summary = Markup.Strip(Caption!);

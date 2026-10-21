@@ -81,6 +81,21 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Fact]
+        public void Render_TitledSingleRecord_PreservesKeyFieldAndValue() {
+            Table table = new Table { Title = "Per-CA" };
+            table.AddColumn("CA");
+            table.AddColumn("Issued");
+            table.AddValues("CA[1]", 42);
+
+            string text = Render(table, 100);
+
+            Assert.Contains("Per-CA", text);
+            Assert.Contains("CA[1]", text);
+            Assert.Contains("Issued", text);
+            Assert.Contains("42", text);
+        }
+
+        [Fact]
         public void NumericColumnsAndTheirHeadersAreRightAligned() {
             Table table = new Table { Border = TableBorder.None };
             table.AddColumn("Name");
