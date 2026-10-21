@@ -1,6 +1,6 @@
 ---
 title: Widgets
-description: Every ConsoleMonster widget with its C# and PowerShell source. Switch the colour and glyph tier to see each one exactly as a console of that kind draws it.
+description: Every ConsoleMonster widget with its PowerShell and C# source. Switch the colour and glyph tier to see each one exactly as a console of that kind draws it.
 slug: widgets
 layout: widgets
 meta.seo_title: Console widgets for .NET and PowerShell | ConsoleMonster
