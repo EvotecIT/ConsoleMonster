@@ -205,7 +205,7 @@ namespace ConsoleMonster.Interactive {
                     return result;
                 }
                 case NumberField number: {
-                    string text = lines.Text(number.Label, number.Help, number.Value is decimal d ? number.Format(d) : null, t => {
+                    string text = lines.Text(number.Label, number.Help, Field.Normalize(number.Value) is decimal d ? number.Format(d) : null, t => {
                         string? problem = number.Parse(t, labels, out decimal? parsed);
                         return problem ?? number.Check(parsed, values, labels);
                     }, false, token);

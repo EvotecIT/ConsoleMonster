@@ -723,7 +723,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void StepNumber(NumberField field, int direction) {
-            decimal current = field.Value is decimal d ? d : field.Minimum ?? 0;
+            decimal current = Field.Normalize(field.Value) is decimal d ? d : field.Minimum ?? 0;
             decimal next = current + direction * field.Step;
             if (field.Minimum.HasValue && next < field.Minimum.Value) {
                 next = field.Minimum.Value;
@@ -865,7 +865,7 @@ namespace ConsoleMonster.Interactive {
                     return;
                 }
                 if (Field is NumberField number) {
-                    Editor.Text = Field.Value is decimal d ? number.Format(d) : string.Empty;
+                    Editor.Text = ConsoleMonster.Interactive.Field.Normalize(Field.Value) is decimal d ? number.Format(d) : string.Empty;
                 } else {
                     Editor.Text = Field.Value as string ?? string.Empty;
                 }

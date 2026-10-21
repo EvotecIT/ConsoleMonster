@@ -125,7 +125,7 @@ namespace ConsoleMonster {
         /// <remarks>With a non-console <see cref="Target"/> in effect, this is that target's profile.</remarks>
         public static TerminalProfile GetCurrentProfile() {
             ITerminalTarget target = Target;
-            return target is ConsoleTarget ? GetConsoleProfile() : target.Profile;
+            return GetTargetProfile(target);
         }
 
         // The console's cached profile with the current window size (see GetCurrentProfile).

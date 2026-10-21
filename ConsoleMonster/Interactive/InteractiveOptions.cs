@@ -74,7 +74,9 @@ namespace ConsoleMonster.Interactive {
 
         internal ILineConsole ResolveLineConsole() => LineConsole ?? ConsoleLineConsole.Instance;
 
-        internal TerminalProfile ResolveProfile() => Profile ?? (Capture != null ? TerminalProfile.Fixed(Capture.Width, Capture.Height) : ResolveTarget() is ConsoleTarget ? Terminal.GetCurrentProfile() : ResolveTarget().Profile);
+        internal TerminalProfile ResolveProfile() => Profile != null ? Terminal.ApplyProfilePolicy(Profile)
+            : Capture != null ? Terminal.ApplyProfilePolicy(TerminalProfile.Fixed(Capture.Width, Capture.Height))
+            : Terminal.GetTargetProfile(ResolveTarget());
 
         /// <summary>
         /// Where the prompt runs (see <see cref="ITerminalTarget"/>), or null for <see cref="Terminal.Target"/>. A target

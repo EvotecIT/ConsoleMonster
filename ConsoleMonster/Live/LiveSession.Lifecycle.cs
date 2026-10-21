@@ -35,7 +35,7 @@ namespace ConsoleMonster.Live {
                         ITerminalWriter? targetWriter = console ? null : target.Writer;
                         _onConsole = _options.Output == null && targetWriter == null;
                         _theme = _options.Theme ?? target.Theme;
-                        TerminalProfile profile = _options.Profile ?? (console ? Terminal.Profile : target.Profile);
+                        TerminalProfile profile = _options.Profile != null ? Terminal.ApplyProfilePolicy(_options.Profile) : Terminal.GetTargetProfile(target);
                         if (_options.Culture != null) {
                             profile = profile.WithCulture(_options.Culture);
                         }

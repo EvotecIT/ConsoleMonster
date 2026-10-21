@@ -33,7 +33,7 @@ namespace ConsoleMonster.Interactive {
         internal string Format(decimal value) => value.ToString(WholeNumber ? "0" : "0.############", CultureInfo.CurrentCulture);
 
         /// <inheritdoc />
-        public override string Display(object? value, PromptLabels labels) => value is decimal d ? Format(d) : base.Display(value, labels);
+        public override string Display(object? value, PromptLabels labels) => Normalize(value) is decimal d ? Format(d) : base.Display(value, labels);
 
         internal string? Parse(string text, PromptLabels labels, out decimal? value) {
             value = null;
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal override string? Check(object? value, FormValues values, PromptLabels labels) {
-            if (value is decimal d) {
+            if (Normalize(value) is decimal d) {
                 if (Minimum.HasValue && d < Minimum.Value) {
                     return PromptLabels.Format(labels.Minimum, Format(Minimum.Value));
                 }
