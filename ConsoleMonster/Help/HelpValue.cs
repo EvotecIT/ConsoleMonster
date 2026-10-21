@@ -16,5 +16,7 @@ namespace ConsoleMonster.Help {
         public string Description { get; }
         /// <summary>The optional group heading.</summary>
         public string? Group { get; }
+        /// <summary>An optional dim note displayed separately after the description.</summary>
+        public string? Note { get; set; }
     }
 }

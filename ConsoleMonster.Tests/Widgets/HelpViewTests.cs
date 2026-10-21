@@ -13,6 +13,46 @@ namespace ConsoleMonster.Tests.HelpViews {
         [Theory]
         [InlineData(45)]
         [InlineData(120)]
+        public void CommandLine_ValueNotes_AlignAfterDescriptionsAndWrapSeparately(int width) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report [options]" } };
+            topic.CommandLine.Values.Add(new HelpValue("first", "Authored evidence.", "Reports") { Note = "(needs --input)" });
+            topic.CommandLine.Values.Add(new HelpValue("second", "Different authored evidence that wraps within its own column.", "Reports") { Note = "(needs --input)" });
+            string[] lines = Text(new HelpView(topic), width).Replace("\r", "").Split('\n');
+            int first = Array.FindIndex(lines, line => line.Contains("Authored evidence."));
+            int second = Array.FindIndex(lines, line => line.Contains("Different authored"));
+            int firstNote = Array.FindIndex(lines, line => line.Contains("(needs --input)"));
+            int secondNote = Array.FindIndex(lines, firstNote + 1, line => line.Contains("(needs --input)"));
+            Assert.True(first >= 0 && second > first && firstNote >= first && secondNote >= second);
+            if (width == 120) {
+                Assert.Equal(first, firstNote);
+                Assert.Equal(second, secondNote);
+                Assert.Equal(lines[firstNote].IndexOf("(needs --input)", StringComparison.Ordinal), lines[secondNote].IndexOf("(needs --input)", StringComparison.Ordinal));
+            } else {
+                Assert.True(firstNote > first && secondNote > second);
+                Assert.StartsWith(new string(' ', 10), lines[firstNote]);
+            }
+            Assert.All(lines, line => Assert.True(line.Length <= width));
+        }
+
+        [Fact]
+        public void CommandLine_ValueNote_UsesMutedToneWithoutChangingDescriptionTone() {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report" } };
+            topic.CommandLine.Values.Add(new HelpValue("saved", "Authored description.") { Note = "(needs --input)" });
+            HelpView widget = new HelpView(topic);
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 100, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            Size size = widget.Measure(new Constraints(120, 100), context);
+            CellBuffer buffer = new CellBuffer(120, size.Height);
+            widget.Render(new Region(buffer), context);
+            string[] lines = buffer.ToPlainText().Replace("\r", "").Split('\n');
+            int y = Array.FindIndex(lines, line => line.Contains("Authored description."));
+            Assert.True(y >= 0);
+            Assert.Equal(context.Style(ThemeToken.Text), buffer[lines[y].IndexOf("Authored", StringComparison.Ordinal), y].Style);
+            Assert.Equal(context.Style(ThemeToken.Muted), buffer[lines[y].IndexOf("(needs", StringComparison.Ordinal), y].Style);
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
         public void CommandLine_ValueCatalog_KeepsLiteralIdsAndOwnDescriptionColumns(int width) {
             HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp {
                 Usage = "tool report [<type>...] [options]", ValuesHeading = "Report types"
