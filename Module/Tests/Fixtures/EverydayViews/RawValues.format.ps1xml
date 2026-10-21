@@ -1,0 +1,13 @@
+<Configuration><ViewDefinitions>
+<View><Name>RawTable</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.RawNative</TypeName></ViewSelectedBy>
+<TableControl><TableHeaders><TableColumnHeader><Label>Health</Label></TableColumnHeader><TableColumnHeader><Label>Exact bytes</Label></TableColumnHeader></TableHeaders>
+<TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawViewEvaluations++; $_.State</ScriptBlock></TableColumnItem><TableColumnItem><PropertyName>Bytes</PropertyName><FormatString>N1</FormatString></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View>
+<View><Name>RawList</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.RawNative</TypeName></ViewSelectedBy><ListControl><ListEntries><ListEntry><ListItems>
+<ListItem><Label>Health</Label><PropertyName>State</PropertyName></ListItem><ListItem><Label>Exact bytes</Label><PropertyName>Bytes</PropertyName><FormatString>N1</FormatString></ListItem>
+</ListItems></ListEntry></ListEntries></ListControl></View>
+<View><Name>RawConditional</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.ConditionalNative</TypeName></ViewSelectedBy>
+<TableControl><TableHeaders><TableColumnHeader><Label>Health</Label></TableColumnHeader></TableHeaders><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.ConditionalNative</TypeName><ScriptBlock>$global:RawSelections++; $_.UseAlternate</ScriptBlock></SelectionCondition></EntrySelectedBy><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.Alternate</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.State</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+</ViewDefinitions></Configuration>

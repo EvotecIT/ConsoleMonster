@@ -10,7 +10,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Pipeline adaptation shared by frame export and clipboard copying; ConsoleExporter owns all serialization.</summary>
     internal static class PSOutputExport {
-        internal static ExportFormat Format(string name) => (ExportFormat)Enum.Parse(typeof(ExportFormat), name, true);
+        internal static ExportFormat Format(string name) => string.Equals(name, "Text", StringComparison.OrdinalIgnoreCase)
+            ? ExportFormat.FencedText : (ExportFormat)Enum.Parse(typeof(ExportFormat), name, true);
 
         /// <summary>Reject competing output modes before input is rendered, including an empty pipeline.</summary>
         internal static void Validate(PSCmdlet cmdlet) {

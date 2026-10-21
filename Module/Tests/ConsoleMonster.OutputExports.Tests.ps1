@@ -13,16 +13,21 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
             @{ Name = 'Format-ConsoleError'; Input = [InvalidOperationException]::new('export-marker') }
         )
         foreach ($command in $commands) {
-            foreach ($format in 'Markdown', 'Html') {
+            foreach ($format in 'Text', 'Markdown', 'Html') {
                 $result = @($command.Input | & $command.Name -As $format -Width 70)
                 $result.Count | Should -Be 1 -Because $command.Name
                 $result[0] | Should -BeOfType string
                 $result[0] | Should -Match 'export-marker'
-                if ($format -eq 'Markdown') {
+                if ($format -eq 'Text') {
                     $result[0] | Should -Match '^```text\n'
                     $result[0] | Should -Match '\n```\n$'
-                } else {
+                } elseif ($format -eq 'Html') {
                     $result[0] | Should -Match '^<!DOCTYPE html>'
+                } elseif ($command.Name -in @('Format-ConsoleTable','Format-ConsoleList')) {
+                    $result[0] | Should -Match '(?m)^\|.*\|$'
+                    $result[0] | Should -Match '(?m)^\| :---'
+                } elseif ($command.Name -eq 'Format-ConsoleTree') {
+                    $result[0] | Should -Match '(?m)^\s*- '
                 }
                 $result[0] | Should -Not -Match ([char] 27)
             }
@@ -53,12 +58,12 @@ Describe 'ConsoleMonster Markdown, HTML and clipboard output' {
         ($row | Format-ConsoleTable -AsWidget:$false -As Markdown) | Should -Match 'source-marker'
     }
 
-    It 'infers Markdown paths and safely fences embedded backticks and literal markup' {
+    It 'infers semantic Markdown paths and escapes literal markup and embedded backticks' {
         $path = Join-Path $TestDrive 'literal.md'
         '````' | Export-ConsoleFrame -Path $path
         $document = Get-Content -LiteralPath $path -Raw -Encoding UTF8
-        $document | Should -Be ('`````text' + "`n" + '````' + "`n" + '`````' + "`n")
-        '[pass]literal[/] <tag>' | Export-ConsoleFrame -Format Markdown | Should -Match '\[pass\]literal\[/\] <tag>'
+        $document | Should -Be ('\`\`\`\`' + "`n`n")
+        '[pass]literal[/] <tag>' | Export-ConsoleFrame -Format Markdown | Should -Match ([regex]::Escape('\[pass\]literal\[/\] &lt;tag&gt;'))
     }
 
     It 'exports mixed frames widgets and objects in pipeline order' {

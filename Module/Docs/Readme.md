@@ -38,7 +38,7 @@ Like Compare-Object, with a much better display: objects are matched by -Propert
 ### [Copy-ConsoleOutput](Copy-ConsoleOutput.md)
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
 
-Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Objects become tables, widgets retain their layout, and a single frame or live-session snapshot keeps its size. Markdown is a fenced preformatted block. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
+Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text preserves the console layout inside a text fence. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.
 
 ### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
 Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.

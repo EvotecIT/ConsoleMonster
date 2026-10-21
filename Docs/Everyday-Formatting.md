@@ -29,11 +29,13 @@ Custom functions are preserved unless `-Force` is supplied, then restored on dis
 
 ## Parameter mapping
 
-The proxies use the parameter metadata of the current PowerShell runtime and execute its native formatter. PowerShell resolves expressions, native `.format.ps1xml` views and formatted values; ConsoleMonster arranges the evaluated values in its existing widgets without evaluating expressions again.
+The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Format-ConsoleTable` and `Format-ConsoleList`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.
+
+An explicit `FormatString` keeps the native cell text. Known status values still receive their status glyph and tone. Native views with custom controls or unsupported conditional list layouts keep native text and status tones rather than approximating their controls.
 
 | Parameter | Console host rendering |
 | --- | --- |
-| `-Property` | Names, wildcards and calculated properties become the native formatter's selected columns, list fields or wide values. Labels, format strings, alignment and declared widths come from its evaluated records. |
+| `-Property` | Names, wildcards and calculated properties select columns, list fields or wide values. Labels, format strings, alignment and declared widths retain native semantics. Table/list cells use raw evaluated values through the shared presenters. |
 | `-GroupBy` | PowerShell's group labels head each group, in native order. |
 | `-AutoSize` | Native values and width hints feed ConsoleMonster's measured layout; wide output calculates how many values fit. |
 | `-Wrap` | Table cells show all wrapped lines; without it they truncate to one line. |
@@ -49,6 +51,7 @@ The direct-host routing check supports PowerShell 5.1 and 7. It reads the engine
 ## Export a native view explicitly
 
 Use the same adapter independently of session formatting when you need a widget for export or composition.
+Already-created native format records contain strings, so this explicit record-only route retains their cell text and status tones. Use `Format-ConsoleTable -As Markdown` or `-AsWidget` when exporting raw objects with their full value presenters.
 
 ```powershell
 Get-Process |

@@ -23,9 +23,9 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<IWidget> _exportWidgets = new List<IWidget>();
         private readonly List<object> _exportObjects = new List<object>();
 
-        /// <summary><para type="description">Returns registered views as one Markdown document (fenced rendered text) or Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</para></summary>
+        /// <summary><para type="description">Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</para></summary>
         [Parameter]
-        [ValidateSet("Markdown", "Html")]
+        [ValidateSet("Text", "Markdown", "Html")]
         public string? As { get; set; }
 
         /// <summary><para type="description">Width in cells for an exported document (default 100).</para></summary>

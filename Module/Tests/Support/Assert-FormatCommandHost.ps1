@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Checks FormatCommands from an actual terminal, including destinations that remain native inside a console host.
 .DESCRIPTION
@@ -82,10 +82,27 @@ try {
     Get-EverydayValue | Format-Table Name, State -AutoSize
     Get-EverydayValue | Format-List Name, State
     Get-EverydayValue | Format-Wide Name -Column 2
+    # Read the actual console cells after the ordinary proxy command: no following pipeline consumer or capture switch.
+    if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+        . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
+        $values = @(
+            [pscustomobject]@{Name='one';State='Pass';Bytes=2048L;Date=[datetime]'2026-10-21';Duration=[timespan]::FromMinutes(2);Tags=@('a','b')}
+            [pscustomobject]@{Name='two';State='Fail';Bytes=4096L;Date=[datetime]'2026-10-22';Duration=[timespan]::FromMinutes(3);Tags=@('x','y')}
+        )
+        $columns = @('Name','State','Bytes','Date','Duration','Tags')
+        $wanted = $values | Format-ConsoleTable -Property $columns -AsString -Width ([Console]::BufferWidth)
+        $wanted = ($wanted -replace "`r", '').TrimEnd("`n") + "`n"
+        $lineCount = @($wanted.TrimEnd("`n") -split "`n").Count
+        $frameWidth = @($wanted.TrimEnd("`n") -split "`n" | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
+        $values | Format-Table -Property $columns
+        $actual = [ConsoleMonsterTestConsoleFrame]::LastFrame($lineCount, $frameWidth)
+        if ($actual -cne $wanted) { throw "Direct-host Format-Table cells differ from Format-ConsoleTable.`nExpected:`n$wanted`nActual:`n$actual" }
+        'DIRECT_HOST_CELL_PARITY_OK'
+    }
     Disable-ConsoleFormatting
     if ((Get-Command Format-Table).CommandType -ne 'Cmdlet') { throw 'Format-Table was not restored' }
     if ($ResultPath) {
-        [pscustomobject]@{ Runtime = $PSVersionTable.PSVersion.ToString(); Host = $Host.Name; Redirected = [Console]::IsOutputRedirected; NativeCaptureMatrix = 'Passed'; DirectHostRoute = 'Passed'; TranscriptRoute = 'Passed'; Restoration = 'Passed' } |
+        [pscustomobject]@{ Runtime = $PSVersionTable.PSVersion.ToString(); Host = $Host.Name; Redirected = [Console]::IsOutputRedirected; NativeCaptureMatrix = 'Passed'; DirectHostRoute = 'Passed'; TranscriptRoute = 'Passed'; Restoration = 'Passed'; CellParity = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { 'Passed' } else { 'Not observed' } } |
             ConvertTo-Json | Set-Content -LiteralPath $ResultPath -Encoding UTF8
     }
     'HOST_CONTRACTS_OK'

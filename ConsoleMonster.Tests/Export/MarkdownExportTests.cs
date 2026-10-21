@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Export {
         [Theory]
         [InlineData(GlyphTier.Full)]
         [InlineData(GlyphTier.Ascii)]
-        public void MarkdownPreservesTheSameRenderedTableAndCultureAsText(GlyphTier glyphs) {
+        public void MarkdownUsesPipeTablesAndPreservesPresentedCulture(GlyphTier glyphs) {
             Table table = new Table();
             table.AddColumn("Host");
             table.AddColumn("Status");
@@ -25,7 +25,9 @@ namespace ConsoleMonster.Tests.Export {
             ExportOptions options = new ExportOptions { Width = 35, Glyphs = glyphs, Culture = CultureInfo.GetCultureInfo("pl-PL") };
             string text = ConsoleExporter.ToText(widget, options);
             string markdown = ConsoleExporter.Export(widget, ExportFormat.Markdown, options);
-            Assert.Equal("`````text\n" + text + "`````\n", markdown);
+            Assert.Contains("| Host | Status | Amount |\n| :--- | :--- | ---: |", markdown);
+            Assert.Contains("| 日本 | Ready | 12,5 |", markdown);
+            Assert.Equal("`````text\n" + text + "`````\n", ConsoleExporter.Export(widget, ExportFormat.FencedText, options));
             Assert.Contains("Ready", markdown);
             Assert.Contains("12,5", markdown);
             Assert.DoesNotContain("[pass]", markdown);
@@ -38,6 +40,52 @@ namespace ConsoleMonster.Tests.Export {
             frame.Write(0, 0, "日本 **bold** | <tag>", Style.Plain);
             frame.Write(0, 1, "  ``` trailing", Style.Plain);
             Assert.Equal("````text\n" + ConsoleExporter.ToText(frame) + "````\n", ConsoleExporter.Export(frame, ExportFormat.Markdown));
+        }
+
+        [Fact]
+        public void TableMarkdownEscapesCellsKeepsCollectionsAndDoesNotCropToConsoleWidth() {
+            Table table = new Table { RecordViewRows = 0 };
+            table.AddColumn(new TableColumn("Left|header") { Alignment = HorizontalAlignment.Left });
+            table.AddColumn(new TableColumn("Center") { Alignment = HorizontalAlignment.Center });
+            table.AddColumn(new TableColumn("Right") { Alignment = HorizontalAlignment.Right });
+            table.AddValues("a|b\r\n<script> & *literal*", new[] { "one", "two" }, 12);
+            string markdown = ConsoleExporter.ToMarkdown(table, new ExportOptions { Width = 5, Culture = CultureInfo.InvariantCulture });
+            Assert.Equal("| Left\\|header | Center | Right |\n| :--- | :---: | ---: |\n| a\\|b<br>&lt;script&gt; &amp; \\*literal\\* | one, two | 12 |\n\n", markdown);
+        }
+
+        [Fact]
+        public void GroupedMarkdownUsesHeadingsAndBoldSubtotalsAndFinalTotal() {
+            Table table = new Table { Title = "Report", ShowTotals = true, ShowSubtotals = true };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Count") { Aggregate = ColumnAggregate.Sum });
+            table.AddGroup("East").AddValues("first", 2).AddValues("second", 3);
+            table.AddGroup("West").AddValues("third", 4);
+            string markdown = ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
+            Assert.Contains("### East · 2\n\n| Name | Count |", markdown);
+            Assert.Contains("| **Subtotal** | **5** |", markdown);
+            Assert.EndsWith("| **Total** | **9** |\n\n", markdown);
+        }
+
+        [Fact]
+        public void RecordsAndTreesUseSemanticStructureAndExistingStatusPresenters() {
+            RecordView record = new RecordView("Server");
+            record.AddField("State", TableCell.FromValue("Pass"), CellPresenters.StatusWord);
+            record.AddField("Notes", TableCell.FromValue("first\nsecond"));
+            Tree tree = new Tree("Root");
+            tree.Add("Child", StatusKind.Warn).Add("Leaf");
+            string markdown = ConsoleExporter.ToMarkdown(new Rows(record, tree));
+            Assert.Contains("| State | ✓ Pass |", markdown);
+            Assert.Contains("| Notes | first<br>second |", markdown);
+            Assert.Contains("- Root\n  - ▴ Child\n    - Leaf\n", markdown);
+        }
+
+        [Fact]
+        public void CultureScopesAndCustomPresentersAreKeptInMarkdown() {
+            Table table = new Table();
+            table.AddColumn(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
+            table.AddValues(1536);
+            string markdown = ConsoleExporter.ToMarkdown(new CultureScope(table, CultureInfo.GetCultureInfo("pl-PL")), new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
+            Assert.Contains("| 1,5 KB |", markdown);
         }
 
         [Fact]

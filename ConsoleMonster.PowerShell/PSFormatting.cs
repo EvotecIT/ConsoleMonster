@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     internal sealed class TableBuildOptions {
         public bool Total { get; set; }
 
-        public bool AutoPresenters { get; set; }
+        public bool AutoPresenters { get; set; } = true;
 
         public PSCmdlet? Cmdlet { get; set; }
 
@@ -245,7 +245,7 @@ namespace ConsoleMonster.PowerShell {
         // Identifier numbers (Id, PID, Port, Index, Year...) never get thousands separators; with autoPresenters, presenters
         // by member name and type too (bytes for Length, dates, durations, status-like enums). Columns with a presenter only
         // receive values the presenter can format.
-        private static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters) {
+        internal static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters) {
             for (int c = 0; c < columns.Count; c++) {
                 TableColumn column = columns[c].Column;
                 object? sample = null;
@@ -546,7 +546,8 @@ namespace ConsoleMonster.PowerShell {
                 }
                 object? cell = column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, column, shape, record);
                 // Status fields get their marker in records too, as status columns do in tables.
-                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared));
+                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared)
+                    ?? (prepared == null ? null : CellPresenters.ForMember(columns[c].Name, prepared.GetType())));
             }
             if (shown == 0) {
                 view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
@@ -585,11 +586,18 @@ namespace ConsoleMonster.PowerShell {
 
         private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget) {
             object?[] values = new object?[columns.Count];
+            for (int c = 0; c < columns.Count; c++) { values[c] = Read(columns[c], item, budget); }
+            return ShapeValues(columns, values, shape);
+        }
+
+        // Values already evaluated by native Format-* expressions enter the same shaping pass without reading again.
+        internal static object?[] ShapeValues(IReadOnlyList<BoundColumn> columns, IReadOnlyList<object?> raw, ShapeOptions shape) {
+            object?[] values = new object?[columns.Count];
             // Cell text (joined collections, titles) gets an allowance per row, so a large table is never cut short; slow
             // getters are guarded across the whole table.
             ShapeBudget row = ShapeBudget.For(shape);
             for (int c = 0; c < columns.Count; c++) {
-                object? value = Read(columns[c], item, budget);
+                object? value = raw[c];
                 object? prepared = value is FieldError || value is BudgetExceeded ? value : ValueShaper.Prepare(value, shape);
                 values[c] = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, row);
             }
@@ -597,7 +605,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>One column of one item, guarded: a column whose getter keeps stalling (a remote object) stops being read once the stalls use up the budget.</summary>
-        internal static object? Read(BoundColumn column, PSObject item, ShapeBudget budget) => budget.Guard(column, () => column.GetValue(item));
+        internal static object? Read(BoundColumn column, PSObject item, ShapeBudget budget, BoundColumn? budgetColumn = null) => budget.Guard(budgetColumn ?? column, () => column.GetValue(item));
 
 
         // The title every object shares, or null when they differ.

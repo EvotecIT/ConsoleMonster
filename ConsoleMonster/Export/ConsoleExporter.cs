@@ -13,7 +13,7 @@ namespace ConsoleMonster.Export {
     /// <summary>
     /// Exports a widget, a rendered frame or a live-session snapshot to self-contained HTML (inline CSS, selectable text, a
     /// light and a dark rendering that follow <c>prefers-color-scheme</c>), SVG (crisp shapes for box, block and braille
-    /// characters, selectable text, no external assets), fenced preformatted Markdown or plain text. Cell geometry is kept exactly: every glyph sits on
+    /// characters, selectable text, no external assets), semantic Markdown or plain/fenced text. HTML, SVG and text keep cell geometry: every glyph sits on
     /// the grid, colours and styles are kept, and OSC 8 links become links (web and mail links only).
     /// </summary>
     public static class ConsoleExporter {
@@ -113,11 +113,11 @@ namespace ConsoleMonster.Export {
         /// <returns>The text.</returns>
         public static string ToText(LiveSession session, ExportOptions? options = null) => ToText(SnapshotOf(session), options);
 
-        /// <summary>Exports a widget as fenced preformatted Markdown, preserving the rendered layout rather than inferring table semantics.</summary>
+        /// <summary>Exports tables as GFM pipe tables, records as property/value tables and trees as nested lists, using their shared presenters.</summary>
         /// <param name="widget">The widget to render.</param>
         /// <param name="options">Size, culture and glyph tier.</param>
-        /// <returns>A Markdown code block without terminal escape sequences.</returns>
-        public static string ToMarkdown(IWidget widget, ExportOptions? options = null) => MarkdownFrameWriter.Write(ToText(widget, options));
+        /// <returns>Semantic Markdown without terminal escape sequences; widgets without structured data use a fenced fallback.</returns>
+        public static string ToMarkdown(IWidget widget, ExportOptions? options = null) => MarkdownWidgetWriter.Write(widget, Ready(options));
 
         /// <summary>Exports a frame as fenced preformatted Markdown.</summary>
         /// <param name="frame">The rendered frame.</param>
@@ -144,6 +144,8 @@ namespace ConsoleMonster.Export {
                     return ToSvg(widget, options);
                 case ExportFormat.Text:
                     return ToText(widget, options);
+                case ExportFormat.FencedText:
+                    return MarkdownFrameWriter.Write(ToText(widget, options));
                 case ExportFormat.Markdown:
                     return ToMarkdown(widget, options);
                 default:
@@ -164,6 +166,8 @@ namespace ConsoleMonster.Export {
                     return ToSvg(frame, options);
                 case ExportFormat.Text:
                     return ToText(frame, options);
+                case ExportFormat.FencedText:
+                    return MarkdownFrameWriter.Write(ToText(frame, options));
                 case ExportFormat.Markdown:
                     return ToMarkdown(frame, options);
                 default:

@@ -30,8 +30,11 @@ namespace ConsoleMonster.Export {
         /// <summary>An asciicast v3 file for standard terminal players (recordings only).</summary>
         Asciicast = 3,
 
-        /// <summary>A fenced, preformatted Markdown block (frames only).</summary>
-        Markdown = 4
+        /// <summary>Semantic Markdown tables, records and trees; rendered frames retain a fenced fallback.</summary>
+        Markdown = 4,
+
+        /// <summary>The exact text layout inside a Markdown text fence.</summary>
+        FencedText = 5
     }
 
     /// <summary>

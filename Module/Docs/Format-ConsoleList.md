@@ -33,13 +33,13 @@ A process as a record
 ## PARAMETERS
 
 ### -As
-Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.
+Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Markdown, Html
+Possible values: Text, Markdown, Html
 
 Required: False
 Position: named

@@ -1,7 +1,8 @@
 # Export output and copy it to the clipboard
 
 ConsoleMonster exports the same widgets used in the terminal. Use `-As Markdown`
-or `-As Html` to capture a formatted view as one string:
+for tables and lists you can paste into reports, `-As Text` for the exact console
+layout in a fenced block, or `-As Html` for a self-contained page:
 
 ```powershell
 Import-Module ConsoleMonster
@@ -61,13 +62,25 @@ Without `-Path`, the document goes to the pipeline. A single `CellBuffer` or
 live-session snapshot keeps its own dimensions. Mixed widgets, snapshots, text
 and objects are stacked in input order.
 
-Markdown uses a fenced `text` block containing the rendered frame. Borders,
-group headings, list indentation, record cards, wrapping and Unicode characters
-remain visible. It does not turn a visual table into a semantic Markdown table
-or active Markdown links. The fence grows when the content contains backticks,
-so source code cannot close the block accidentally. Terminal escape sequences
-are not included. HTML uses the existing self-contained frame exporter, with
-selectable text, safe web/mail links and light/dark rendering.
+Markdown tables use GFM pipe syntax, with `:---`, `---:` or `:---:` alignment
+markers. Cells retain their value presenters, including status glyphs, byte units,
+dates, durations and joined collections. Pipes are escaped and line breaks become
+`<br>`. Groups become headings; subtotals and the final totals row are bold.
+Record lists become two-column property/value tables, and trees become nested
+bullet lists. Markdown includes every column without console-width truncation.
+
+Use `-As Text` to preserve borders and the exact console layout in a fenced `text`
+block. The fence grows around backticks in the content. `-AsString` and
+`Export-ConsoleFrame -Format Text` retain their plain-text output. Widgets without
+a semantic Markdown representation, and already-rendered frames or live snapshots,
+use a fenced fallback because their source fields are unavailable. Terminal
+escape sequences are not included. HTML uses the existing self-contained frame
+exporter, with selectable text, safe web/mail links and light/dark rendering.
+
+```powershell
+Get-Process | Select-Object -First 5 Name, Id | Format-ConsoleTable -As Markdown
+Get-Process | Select-Object -First 5 Name, Id | Format-ConsoleTable -As Text
+```
 
 ## Copy to the operating-system clipboard
 
@@ -85,7 +98,8 @@ Get-Service |
 ```
 
 `Copy-ConsoleOutput` accepts widgets, frames, live sessions, literal strings and
-objects. `-As Text` is the default. All three formats copy the serialized source
+objects. `-As Text` is the default and includes the rendered layout in a text fence.
+`-As Markdown` uses the same semantic tables and lists as the formatters. All three formats copy the serialized source
 as Unicode clipboard **text**; HTML is copied as HTML source, rather than a
 native rich-HTML clipboard payload. Use a widget to preserve a customized view,
 or pipeline objects directly to get a table. `-PassThru` returns the document

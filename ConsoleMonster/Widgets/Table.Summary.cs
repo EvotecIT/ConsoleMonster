@@ -70,7 +70,7 @@ namespace ConsoleMonster.Widgets {
                     stats.Add(cells);
                     rows.Add(new TableLayoutRow(TableRowKind.Data) { Source = r });
                 } else {
-                    rows.Add(new TableLayoutRow(TableRowKind.Data) { Cells = cells });
+                    rows.Add(new TableLayoutRow(TableRowKind.Data) { Cells = cells, Source = r });
                 }
             }
             AddSubtotal(rows, groupRows, contexts);

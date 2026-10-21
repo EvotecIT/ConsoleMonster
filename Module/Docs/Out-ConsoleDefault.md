@@ -33,13 +33,13 @@ Show processes the ConsoleMonster way once
 ## PARAMETERS
 
 ### -As
-Returns registered views as one Markdown document (fenced rendered text) or Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.
+Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Markdown, Html
+Possible values: Text, Markdown, Html
 
 Required: False
 Position: named

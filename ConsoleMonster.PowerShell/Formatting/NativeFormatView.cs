@@ -8,6 +8,9 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Binding;
+using ConsoleMonster.Presenters;
+using ConsoleMonster.Values;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
@@ -15,12 +18,19 @@ namespace ConsoleMonster.PowerShell {
     /// run exactly once, in PowerShell's formatter. Unknown shapes retain the native Out-Default route.
     /// </summary>
     internal static class NativeFormatView {
-        internal static bool TryBuild(IReadOnlyList<PSObject> records, out IWidget? result) {
+        internal static bool TryBuild(IReadOnlyList<PSObject> records, out IWidget? result, NativeFormatCapture? capture = null) {
             List<IWidget> widgets = new List<IWidget>();
             object? shape = null;
             Table? table = null;
             List<string> wide = new List<string>();
             string? title = null;
+            int rowIndex = 0;
+            ShapeOptions shapeOptions = PSShaping.Options();
+            List<object?[]> shapedRows = new List<object?[]>();
+            if (capture != null && capture.Columns.Count > 0) {
+                foreach (object?[] raw in capture.Rows) { shapedRows.Add(PSFormatting.ShapeValues(capture.Columns, raw, shapeOptions)); }
+                PSFormatting.ChoosePresenters(new List<BoundColumn>(capture.Columns), shapedRows, true);
+            }
             void Flush() {
                 if (table != null && table.Rows.Count > 0) { widgets.Add(table); }
                 if (wide.Count > 0) { widgets.Add(Wide(wide, shape, title)); wide.Clear(); }
@@ -58,18 +68,40 @@ namespace ConsoleMonster.PowerShell {
                             }
                         } else if (entryType == "TableRowEntry" && Get(shape, "tableColumnInfoList") != null) {
                             table ??= TableFor(shape, title, Bool(entry, "multiLine"));
+                            if (capture != null && capture.Columns.Count > 0 && rowIndex < capture.Rows.Count) {
+                                object?[] values = shapedRows[rowIndex];
+                                List<object> fields = new List<object>();
+                                foreach (object field in Items(Get(entry, "formatPropertyFieldList"))) { fields.Add(field); }
+                                if (values.Length != table.Columns.Count || fields.Count != values.Length) { return false; }
+                                for (int c = 0; c < values.Length; c++) {
+                                    if (capture.Formatted[c]) { values[c] = FormattedCell(capture.Rows[rowIndex][c], String(Get(fields[c], "propertyValue")), capture.Columns[c].Name); }
+                                }
+                                for (int c = 0; c < capture.Columns.Count; c++) { table.Columns[c].Presenter = capture.Columns[c].Column.Presenter; }
+                                table.AddValues(values);
+                                rowIndex++;
+                                break;
+                            }
                             List<TableCell> cells = new List<TableCell>();
                             foreach (object field in Items(Get(entry, "formatPropertyFieldList"))) {
-                                cells.Add(new TableCell(Markup.Escape(String(Get(field, "propertyValue")))));
+                                string value = String(Get(field, "propertyValue"));
+                                cells.Add(FormattedCell(value, value, cells.Count < table.Columns.Count ? Markup.Strip(table.Columns[cells.Count].Header) : string.Empty));
                             }
                             if (cells.Count != table.Columns.Count) { return false; }
                             table.AddRow(cells.ToArray());
                         } else if (entryType == "ListViewEntry") {
                             RecordView view = new RecordView(Markup.Escape(title ?? string.Empty)) { HideEmpty = false };
+                            object?[]? raw = capture != null && capture.Columns.Count > 0 && rowIndex < capture.Rows.Count ? capture.Rows[rowIndex++] : null;
+                            object?[]? shaped = raw == null ? null : shapedRows[rowIndex - 1];
+                            int index = 0;
                             foreach (object field in Items(Get(entry, "listViewFieldList"))) {
                                 string label = String(Get(field, "label"));
                                 if (label.Length == 0) { label = String(Get(field, "propertyName")); }
-                                view.AddField(label, new TableCell(Markup.Escape(String(Get(Get(field, "formatPropertyField"), "propertyValue")))));
+                                string native = String(Get(Get(field, "formatPropertyField"), "propertyValue"));
+                                if (shaped != null && index < shaped.Length) {
+                                    object? value = capture!.Formatted[index] ? FormattedCell(raw![index], native, capture.Columns[index].Name) : shaped[index];
+                                    view.AddField(label, value as TableCell ?? TableCell.FromValue(value), capture.Columns[index].Column.Presenter ?? CellPresenters.ForStatus(capture.Columns[index].Name, raw![index]));
+                                } else { view.AddField(label, FormattedCell(native, native, label)); }
+                                index++;
                             }
                             widgets.Add(view);
                         } else if (entryType == "WideViewEntry") {
@@ -84,6 +116,9 @@ namespace ConsoleMonster.PowerShell {
             result = PSFormatting.Combine(widgets);
             return true;
         }
+
+        private static TableCell FormattedCell(object? value, string text, string name) => CellPresenters.ForStatus(name, value) != null && StatusEnumPresenter.TryRead(Convert.ToString(value, CultureInfo.CurrentCulture), out StatusKind status)
+            ? TableCell.ForStatus(status, text) : new TableCell(Markup.Escape(text));
 
         private static Table TableFor(object? shape, string? title, bool wrap) {
             Table table = new Table { Title = Markup.Escape(title ?? string.Empty), ShowHeader = !Bool(shape, "hideHeader"), RecordViewRows = 0, CardsBelow = 0, WrapLines = wrap ? 0 : 1 };

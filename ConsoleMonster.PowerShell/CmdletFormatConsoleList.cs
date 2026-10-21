@@ -55,9 +55,9 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter PassThru { get; set; }
 
-        /// <summary><para type="description">Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</para></summary>
+        /// <summary><para type="description">Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</para></summary>
         [Parameter]
-        [ValidateSet("Markdown", "Html")]
+        [ValidateSet("Text", "Markdown", "Html")]
         public string? As { get; set; }
 
         /// <inheritdoc />

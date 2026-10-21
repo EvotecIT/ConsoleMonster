@@ -20,6 +20,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
 
+        /// <summary>The host proxy's evaluated values, retained before native string formatting.</summary>
+        [Parameter(DontShow = true)]
+        public NativeFormatCapture? Capture { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) { _records.Add(InputObject); }
@@ -28,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (_records.Count == 0) { return; }
-            if (NativeFormatView.TryBuild(_records, out IWidget? widget)) {
+            if (NativeFormatView.TryBuild(_records, out IWidget? widget, Capture)) {
                 if (AsWidget.IsPresent) { WriteObject(widget); }
                 else { PSFormatting.Write(this, widget!, 0); }
                 return;

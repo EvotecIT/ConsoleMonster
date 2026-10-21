@@ -890,12 +890,12 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:noun>ConsoleOutput</command:noun>
       <maml:description>
         <maml:para>Copies widgets, frames, text or pipeline objects to the operating-system clipboard.</maml:para>
-        <maml:para>Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Objects become tables, widgets retain their layout, and a single frame or live-session snapshot keeps its size. Markdown is a fenced preformatted block. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.</maml:para>
+        <maml:para>Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text preserves the console layout inside a text fence. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Copies widgets, frames, text or pipeline objects to the operating-system clipboard.</maml:para>
-      <maml:para>Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Objects become tables, widgets retain their layout, and a single frame or live-session snapshot keeps its size. Markdown is a fenced preformatted block. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.</maml:para>
+      <maml:para>Serializes input with ConsoleExporter as Text (default), Markdown or Html and copies the source as Unicode text. Markdown uses GFM tables, property/value lists and nested tree bullets, including the shared value presenters and totals. Text preserves the console layout inside a text fence. A rendered frame or live-session snapshot retains a fenced fallback. Windows uses its native clipboard, macOS uses pbcopy, and Linux uses wl-copy (Wayland) or xclip (X11). SSH, a missing desktop/provider or a failing provider produces a non-terminating error; use -ErrorAction Stop to catch it. No output is written unless -PassThru succeeds. -WhatIf exports without accessing the clipboard.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -2063,10 +2063,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -2226,10 +2227,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -2389,10 +2391,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -2616,10 +2619,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -2719,10 +2723,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -2874,10 +2879,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -2989,10 +2995,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -3156,10 +3163,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -3295,10 +3303,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -3473,10 +3482,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -3732,10 +3742,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -4037,10 +4048,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -4200,10 +4212,11 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -16697,10 +16710,11 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns registered views as one Markdown document (fenced rendered text) or Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</maml:para>
+            <maml:para>Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -16764,10 +16778,11 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns registered views as one Markdown document (fenced rendered text) or Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</maml:para>
+          <maml:para>Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
@@ -25804,10 +25819,11 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>As</maml:name>
           <maml:description>
-            <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+            <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
           </command:parameterValueGroup>
@@ -25895,10 +25911,11 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>As</maml:name>
         <maml:description>
-          <maml:para>Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
+          <maml:para>Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Html</command:parameterValue>
         </command:parameterValueGroup>
