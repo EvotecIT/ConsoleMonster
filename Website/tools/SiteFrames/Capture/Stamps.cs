@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Text.Json.Nodes;
 using SiteFrames.Replay;
 
@@ -25,6 +26,22 @@ namespace SiteFrames.Capture {
 
         /// <summary>Records what made a capture.</summary>
         public static void Write(Site site, string capture, string fingerprint) {
+            // One writer at a time across capture runs, and the file is swapped in whole, so no run drops another's entries.
+            using (Mutex mutex = new Mutex(false, @"Local\cmsite-capture-sources")) {
+                try {
+                    mutex.WaitOne();
+                } catch (AbandonedMutexException) {
+                    // The previous holder died; the file it was writing is either the old one or the new one, never half.
+                }
+                try {
+                    WriteLocked(site, capture, fingerprint);
+                } finally {
+                    mutex.ReleaseMutex();
+                }
+            }
+        }
+
+        private static void WriteLocked(Site site, string capture, string fingerprint) {
             JsonObject manifest = Read(site);
             manifest[Key(site, capture)] = fingerprint;
             SortedDictionary<string, string> sorted = new SortedDictionary<string, string>(StringComparer.Ordinal);
@@ -35,13 +52,19 @@ namespace SiteFrames.Capture {
             foreach (KeyValuePair<string, string> entry in sorted) {
                 output[entry.Key] = entry.Value;
             }
-            File.WriteAllText(ManifestPath(site), output.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }).Replace("\r\n", "\n") + "\n", new System.Text.UTF8Encoding(false));
+            string path = ManifestPath(site);
+            string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            File.WriteAllText(temporary, output.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }).Replace("\r\n", "\n") + "\n", new System.Text.UTF8Encoding(false));
+            File.Move(temporary, path, true);
         }
 
         /// <summary>A problem when a capture was made from something else than <paramref name="fingerprint"/>, or null.</summary>
         public static string? Check(Site site, string capture, string fingerprint, string area) {
             string key = Key(site, capture);
             string? recorded = Read(site)[key]?.GetValue<string>();
+            if (recorded == null) {
+                return key + " has no entry in captures/sources.json, so what made it is unknown; run the capture command for the " + area + " area.";
+            }
             return recorded == fingerprint ? null : key + " was captured from another version of its script or settings; run the capture command for the " + area + " area.";
         }
 

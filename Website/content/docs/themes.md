@@ -28,7 +28,7 @@ Set-ConsoleTheme Light
 Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
 ```
 
-For every new session, set the variable in your profile (`$PROFILE`) before the module loads; detection reads it once, when ConsoleMonster first draws:
+For every new session, set the variable before ConsoleMonster first draws in that session, since detection reads it once then. Your profile (`$PROFILE`) is the easy place:
 
 ```powershell
 $env:CONSOLEMONSTER_THEME = 'light'

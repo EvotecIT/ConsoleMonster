@@ -91,6 +91,8 @@ namespace SiteFrames.Tests {
         [InlineData("using ConsoleMonster;\n\nTerminal.Write(x);", true)]
         [InlineData("// A comment first.\n\nusing ConsoleMonster;\nTerminal.Write(x);", true)]
         [InlineData("global using ConsoleMonster;\nTerminal.Write(x);", true)]
+        [InlineData("#nullable enable\nusing ConsoleMonster;\nTerminal.Write(x);", true)]
+        [InlineData("/* A program\n   in two lines. */\nusing ConsoleMonster;\nTerminal.Write(x);", true)]
         [InlineData("using Cm = ConsoleMonster.Terminal;\nCm.Write(x);", true)]
         [InlineData("using static ConsoleMonster.Ui;\nWrite(x);", true)]
         [InlineData("Terminal.Write(x);", false)]

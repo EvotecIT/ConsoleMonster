@@ -26,9 +26,9 @@ namespace SiteFrames {
         // Rendered HTML (frames, posters) starts with a tag; a script that opens with a <# help block is still checked.
         private static readonly Regex Markup = new Regex(@"^\s*<[A-Za-z!/]", RegexOptions.CultureInvariant);
 
-        // A using directive (not a using statement or declaration) as the first code line, after any comments and blank
-        // lines: plain, static, global or an alias.
-        private static readonly Regex UsingDirective = new Regex(@"^(?:[ \t]*(?://[^\n]*)?\n)*[ \t]*(global\s+)?using\s+(static\s+)?(\w+\s*=\s*)?[\w.<>, ]+\s*;", RegexOptions.CultureInvariant);
+        // A using directive (not a using statement or declaration) as the first code line, after any comments, preprocessor
+        // directives (#nullable) and blank lines: plain, static, global or an alias.
+        private static readonly Regex UsingDirective = new Regex(@"^(?:[ \t]*(?://[^\n]*|#[^\n]*|/\*[\s\S]*?\*/[ \t]*)?\n)*[ \t]*(global\s+)?using\s+(static\s+)?(\w+\s*=\s*)?[\w.<>, ]+\s*;", RegexOptions.CultureInvariant);
 
         internal static readonly (Regex Pattern, string Why)[] Rules = {
             (new Regex(@"(?m)^\s*[&.]\s*['""]?\.\.[\\/]", RegexOptions.CultureInvariant), "runs a script by a path into the repository"),

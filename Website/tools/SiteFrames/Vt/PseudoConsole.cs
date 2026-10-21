@@ -26,6 +26,8 @@ namespace SiteFrames.Vt {
     /// draws exactly as it would in Windows Terminal, and records the VT byte stream it produces with timestamps.
     /// </summary>
     internal static class PseudoConsole {
+        private const uint WaitFailed = 0xFFFFFFFF;
+
         /// <summary>
         /// Runs a command line and returns its output. <paramref name="interrupt"/> presses Ctrl+C in the console after that
         /// long, the way a reader stops a program that runs until it is told to stop (a host).
@@ -99,7 +101,14 @@ namespace SiteFrames.Vt {
                 uint wait;
                 if (interrupt != null) {
                     wait = WaitForSingleObject(info.hProcess, (uint)interrupt.Value.TotalMilliseconds);
-                    if (wait != 0) {
+                    if (wait == WaitFailed) {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                    // A program that is stopped with Ctrl+C must still be running when the key is pressed.
+                    if (wait == 0) {
+                        throw new InvalidOperationException("The program exited before Ctrl+C was pressed at " + interrupt.Value.TotalSeconds + " s: " + commandLine);
+                    }
+                    {
                         // Ctrl+C typed into the pseudo console (ETX); the console turns it into the interrupt signal.
                         // The stream owns the pipe handle, so it stays open until the console closes (below).
                         input = new FileStream(inputWrite, FileAccess.Write, 1, false);
@@ -108,6 +117,9 @@ namespace SiteFrames.Vt {
                     }
                 }
                 wait = WaitForSingleObject(info.hProcess, (uint)timeout.TotalMilliseconds);
+                if (wait == WaitFailed) {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
                 if (wait != 0) {
                     TerminateProcess(info.hProcess, 1);
                     throw new TimeoutException("Capture timed out: " + commandLine);

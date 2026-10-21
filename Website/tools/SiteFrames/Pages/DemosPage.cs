@@ -271,16 +271,6 @@ namespace SiteFrames.Pages {
             return files;
         }
 
-        // The program a project demo builds: bin/Release/<framework>/<project name>.dll beside the project.
-        private static string ProjectProgram(Site site, Demo demo) {
-            string project = Path.Combine(site.Repository, demo.Project!);
-            string name = Path.GetFileNameWithoutExtension(project);
-            string[] built = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(project)!, "bin", "Release"), name + ".dll", SearchOption.AllDirectories);
-            if (built.Length != 1) {
-                throw new InvalidOperationException("Expected one build of " + demo.Project + ", found " + built.Length + ".");
-            }
-            return built[0];
-        }
 
         // The shown program of a project demo that has no other C# to show: the Program.cs in its folder.
         private static string? ProjectProgramSource(Site site, Demo demo) {
@@ -301,11 +291,6 @@ namespace SiteFrames.Pages {
         private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
 
         public static void Capture(Site site) {
-            foreach (Demo demo in All()) {
-                if (demo.Project != null) {
-                    Build(site, demo.Project);
-                }
-            }
             // SITEFRAMES_DEMOS (comma-separated ids) records only those demos, leaving the other recordings as they are.
             HashSet<string>? wanted = null;
             string? filter = Environment.GetEnvironmentVariable("SITEFRAMES_DEMOS");
@@ -342,9 +327,17 @@ namespace SiteFrames.Pages {
                         Site.RemoveTemporary(work);
                     }
                 } else {
-                    string command = "\"" + LivePage.DotnetHost + "\" \"" + ProjectProgram(site, demo) + "\"" + (demo.ProjectArguments.Length > 0 ? " " + demo.ProjectArguments : string.Empty);
-                    // The drive root as the working directory: a host logs its content root, which should not be this checkout.
-                    chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt);
+                    // The project is built into a folder of this run's own, then run from there and removed.
+                    string output = Path.Combine(Path.GetTempPath(), "cmsite-build-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+                    try {
+                        Build(site, demo.Project!, output);
+                        string dll = Path.Combine(output, Path.GetFileNameWithoutExtension(demo.Project!) + ".dll");
+                        string command = "\"" + LivePage.DotnetHost + "\" \"" + dll + "\"" + (demo.ProjectArguments.Length > 0 ? " " + demo.ProjectArguments : string.Empty);
+                        // The drive root as the working directory: a host logs its content root, which should not be this checkout.
+                        chunks = PseudoConsole.Run(command, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt);
+                    } finally {
+                        Site.RemoveTemporary(output);
+                    }
                 }
                 string path = CastPath(site, demo.Id);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -357,9 +350,10 @@ namespace SiteFrames.Pages {
         }
 
 
-        private static void Build(Site site, string project) {
+        private static void Build(Site site, string project, string output) {
             // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.
-            ProcessStartInfo info = new ProcessStartInfo("dotnet", "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true") { UseShellExecute = false };
+            // The same dotnet that runs the recordings builds them.
+            ProcessStartInfo info = new ProcessStartInfo(LivePage.DotnetHost, "build \"" + Path.Combine(site.Repository, project) + "\" -c Release -nologo -v q -p:ContinuousIntegrationBuild=true -o \"" + output + "\"") { UseShellExecute = false };
             using (Process process = Process.Start(info)!) {
                 process.WaitForExit();
                 if (process.ExitCode != 0) {

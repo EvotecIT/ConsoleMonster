@@ -46,9 +46,9 @@ foreach (string decision in profile.Decisions) {
 
 ## Overriding detection
 
-Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)). The site pins four for its captures, and the same script then reports each of them as pinned:
+Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)). The site pins the colour depth, glyph tier, theme, culture and language for its captures, and the same script then reports each of them as pinned:
 
-{{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
+{{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME`, `_CULTURE` and `_LANGUAGE` pinned." >}}
 
 In code, `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
 
