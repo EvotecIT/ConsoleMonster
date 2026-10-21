@@ -14,7 +14,9 @@ using SiteFrames.Vt;
 namespace SiteFrames.Pages {
     /// <summary>Figures for the docs and guides: detection decisions, themes, the too-small fallback and PowerShell output.</summary>
     internal static class DocsPage {
-        private static string Examples(Site site) => Path.Combine(site.Repository, "ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe");
+        private static string ProfileScript(Site site) => Path.Combine(site.Website, "examples", "docs", "profile.ps1");
+
+        private static string ProfileProgram(Site site) => Path.Combine(site.Website, "examples", "docs", "profile.cs");
 
         private static string ProfilePath(Site site, string id) => Path.Combine(site.Captures, "docs", id + ".ansi");
 
@@ -34,9 +36,8 @@ namespace SiteFrames.Pages {
         }
 
         public static void Capture(Site site) {
-            DemosPage.BuildExamples(site);
             foreach ((string id, Dictionary<string, string?> environment) in Profiles()) {
-                List<OutputChunk> chunks = PseudoConsole.Run("\"" + Examples(site) + "\" profile", 100, 40, environment, site.Repository, TimeSpan.FromMinutes(1));
+                List<OutputChunk> chunks = PowerShellRunner.Run(site, PowerShellHost.Core, ProfileScript(site), 100, 40, environment);
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);
                 File.WriteAllBytes(ProfilePath(site, id), PowerShellRunner.Bytes(chunks));
                 Console.WriteLine("captured " + id);
@@ -52,12 +53,18 @@ namespace SiteFrames.Pages {
                 }
                 CellBuffer frame = Site.Crop(Parity.Transcript(File.ReadAllBytes(path), 100, 40));
                 DocCards.Offer(id, frame, Frames.Screen.Dark);
-                Figures.Add(id, new JsonObject {
-                    ["title"] = "ConsoleMonster.Examples profile",
+                (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(ProfileScript(site)));
+                CSharpRunner.Compile(ProfileProgram(site));
+                JsonObject figure = new JsonObject {
+                    ["title"] = id == "profile-ci" ? "CI=true, NO_COLOR=1" : id == "profile" ? "pinned with CONSOLEMONSTER_*" : "nothing overridden",
+                    ["file"] = "profile.ps1",
                     ["label"] = "The terminal profile ConsoleMonster detected, with the decisions behind it",
-                    ["meta"] = new JsonArray("100 columns"),
-                    ["frame"] = site.Frame(frame, null)
-                });
+                    ["meta"] = new JsonArray("PowerShell 7", "100 columns"),
+                    ["frame"] = site.Frame(frame, null),
+                    ["script"] = script,
+                    ["scriptFull"] = scriptFull
+                };
+                Figures.Add(id, Figures.WithProgram(figure, ProfileProgram(site)));
             }
 
             // One composition in the three built-in themes.

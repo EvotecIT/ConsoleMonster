@@ -49,3 +49,17 @@ In bash, set it for one command: `NO_COLOR=1 pwsh -File ./format-consoletable.ps
 ## In code
 
 The same choices are available without the environment: `TerminalProfile.Fixed(width, height, colors, glyphs)` for a profile with no detection, and `WithCulture`, `WithThemePreference`, `WithSize`, `WithColorDepth` and `WithMode` to change one value. Live sessions take `LiveSessionOptions.Profile`, `Theme` and `Culture`.
+
+```csharp
+using System.Globalization;
+using ConsoleMonster;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Widgets;
+
+KeyValueList facts = new KeyValueList().Add("Updated", "2026-10-21").Add("Size", "1482113");
+// What NO_COLOR=1 and CONSOLEMONSTER_MODE=plain would decide, for these writes only:
+Terminal.Write(facts, Terminal.Profile.WithColorDepth(ColorDepth.None));
+Terminal.Write(facts, Terminal.Profile.WithMode(OutputMode.Plain).WithCulture(CultureInfo.GetCultureInfo("de-DE")));
+```
+
+In PowerShell, `Get-ConsoleCapability` shows the profile these variables produced, with the reason for each value.

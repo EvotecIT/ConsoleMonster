@@ -9,7 +9,7 @@ apis: [TerminalProfile, Get-ConsoleCapability]
 summary: "What ConsoleMonster detects about the console, and the decisions it records."
 ---
 
-Detection runs once and produces a `TerminalProfile`: the output mode, the colour depth, the glyph tier, the window size, the theme preference and the culture. Every value carries the reason it was chosen, which `Terminal.Profile.Decisions` (and `Get-ConsoleCapability` in PowerShell) lists. The frames below are `ConsoleMonster.Examples profile`, run by the site tool in a Windows pseudo console.
+Detection runs once and produces a `TerminalProfile`: the output mode, the colour depth, the glyph tier, the window size, the theme preference and the culture. Every value carries the reason it was chosen, which `Get-ConsoleCapability` (and `Terminal.Profile.Decisions` in C#) lists. The frames below are the script shown under the first one, run in a Windows console window with different environments.
 
 {{< cm-frame id="profile-detected" caption="Nothing overridden: VT is available, the Windows build supports 24-bit colour, and the console font (Consolas) has no braille, so the glyph tier is Basic." >}}
 
@@ -22,13 +22,24 @@ Detection runs once and produces a `TerminalProfile`: the output mode, the colou
 - **Widths.** Display widths come from Unicode 17 tables, with emoji and ambiguous widths that can be overridden. A width probe reads the console screen buffer and never reads input.
 - **Background.** In conhost, `auto` reads the console background colour to choose the light or dark theme. Windows Terminal does not expose its colour scheme to console programs, so there `CONSOLEMONSTER_THEME=light` selects the light theme.
 
-{{< cm-frame id="profile-ci" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}
+{{< cm-frame id="profile-ci" script="false" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}
 
 ## Overriding detection
 
-Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)) or in code: `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it.
+Any decision can be pinned with an environment variable (see [Environment overrides](/docs/environment/)) or in code: `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
 
-{{< cm-frame id="profile" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Widgets;
+
+Rule rule = new Rule("[bold]Release notes[/]");
+Terminal.Write(rule);                                                          // as detected
+Terminal.Write(rule, Terminal.Profile.WithColorDepth(ColorDepth.None));       // the same console, no colour
+Terminal.Write(rule, TerminalProfile.Fixed(40, 10, ColorDepth.Ansi16, GlyphTier.Ascii));  // a fixed profile
+```
+
+{{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME` and `_CULTURE` pinned." >}}
 
 ## Fonts and resizing during a session
 

@@ -19,6 +19,29 @@ Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Acc
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
 
+In PowerShell, for the session or for one run of a command:
+
+```powershell
+Import-Module ConsoleMonster
+
+Set-ConsoleTheme Light
+Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
+
+$env:CONSOLEMONSTER_THEME = 'dark'      # what detection uses from now on, in this session
+```
+
+In C#, for every write that follows:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
+
+Terminal.Theme = Theme.Light;                                   // every write from here on
+Terminal.Write(new TextBlock("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]"));
+Terminal.Theme = Theme.HighContrast;
+Terminal.Write(new Rule("[bold]High contrast[/]"));
+```
 The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background that could not be detected, because titles, headers and highlights use the terminal's own foreground in bold.
 
 ## Markup and roles
