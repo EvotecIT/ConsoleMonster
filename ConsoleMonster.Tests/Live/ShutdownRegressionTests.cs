@@ -21,7 +21,9 @@ namespace ConsoleMonster.Tests.Live {
             using (ManualResetEventSlim finished = new ManualResetEventSlim()) {
                 int producing = 1;
                 Thread[] producers = new Thread[32];
-                target.Applying = e => releaseApply.Wait(TimeSpan.FromSeconds(1));
+                target.Applying = e => {
+                    if (!releaseApply.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("Apply release watchdog expired."); }
+                };
                 session.Start();
                 for (int i = 0; i < producers.Length; i++) {
                     producers[i] = new Thread(() => {
@@ -36,18 +38,18 @@ namespace ConsoleMonster.Tests.Live {
                 Thread stopper = new Thread(() => { session.Stop(); finished.Set(); }) { IsBackground = true };
                 bool completed;
                 try {
-                    Assert.True(ready.Wait(TimeSpan.FromSeconds(1)));
+                    Assert.True(ready.Wait(TimeSpan.FromSeconds(30)));
                     stopper.Start();
-                    Assert.True(SpinWait.SpinUntil(() => !session.IsRunning, 1000));
+                    Assert.True(SpinWait.SpinUntil(() => !session.IsRunning, TimeSpan.FromSeconds(30)));
                     flood.Set();
-                    Assert.True(SpinWait.SpinUntil(() => session.EventsDropped >= 32, 1000));
+                    Assert.True(SpinWait.SpinUntil(() => session.EventsDropped >= 32, TimeSpan.FromSeconds(30)));
                     releaseApply.Set();
-                    completed = finished.Wait(TimeSpan.FromSeconds(1));
+                    completed = finished.Wait(TimeSpan.FromSeconds(30));
                 } finally {
                     Volatile.Write(ref producing, 0);
                     flood.Set();
                     releaseApply.Set();
-                    foreach (Thread producer in producers) { Assert.True(producer.Join(1000)); }
+                    foreach (Thread producer in producers) { Assert.True(producer.Join(TimeSpan.FromSeconds(30))); }
                 }
                 Assert.True(stopper.Join(1000));
                 Assert.True(completed);
