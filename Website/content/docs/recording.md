@@ -51,6 +51,7 @@ File.WriteAllText("nightly.html", ConsoleExporter.ToHtml(table, new ExportOption
 - **Links** become links for http, https, mailto and ftp only, and nothing is fetched from the network.
 
 The players on this site are ConsoleMonster's own player, the one `Export-ConsoleRecording -Format Html` writes.
+
 ## Targets
 
 Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a profile, a theme, a writer and an input source. `ConsoleTarget.Instance` is the process console; `TestTerminal.Target(...)` returns a `RecordingTarget` for tests, `WriterTarget` writes append-only lines to a `TextWriter`, and `NullTarget.Instance` discards output. `using (Terminal.Use(target)) { ... }` sends everything in the block to a target, and the scope flows with `async` calls. In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going to a file (`-Path`), a writer or a target, or returned as a string.

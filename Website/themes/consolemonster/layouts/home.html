@@ -182,9 +182,12 @@
     <p>{{ copy.live.body }}</p>
   </div>
   <dl class="cm-facts">
-    {{~ for f in copy.live.facts ~}}
-    <div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>
-    {{~ end ~}}
+    {{~ ## Measured, not quoted: the stress run recorded on the live page and the benchmark program (data/benchmarks.json). ## ~}}
+    {{~ bs = data.benchmarks.stress; bf = data.benchmarks.facts ~}}
+    <div><dt>Frames per second under load</dt><dd>{{ bs.fps }}</dd></div>
+    <div><dt>Updates per second</dt><dd>{{ bs.facts[1].value | string.replace "/s" "" }}</dd></div>
+    <div><dt>Render cost per frame</dt><dd>{{ bf[0].value }}</dd></div>
+    <div><dt>Updates dropped</dt><dd>{{ bs.dropped }}</dd></div>
   </dl>
   <p class="cm-section__source">{{ copy.live.source }} <a href="/live/">The programs and their run steps</a> · <a href="/benchmarks/">the benchmarks</a>.</p>
   <div class="cm-compare cm-compare--live">

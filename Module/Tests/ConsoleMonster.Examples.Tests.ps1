@@ -101,6 +101,12 @@ BeforeAll {
         $text = "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(`$false)`n" + $Script
         $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($text))
         $info = [System.Diagnostics.ProcessStartInfo]::new($script:Runtime, "-NoLogo -NoProfile -EncodedCommand $encoded")
+        # Each example gets its own temporary folder, removed afterwards: some write there (the record demo saves a recording).
+        $temp = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-' + [guid]::NewGuid().ToString('N').Substring(0, 12))
+        $null = New-Item -ItemType Directory -Path $temp
+        $info.Environment['TEMP'] = $temp
+        $info.Environment['TMP'] = $temp
+        $info.Environment['TMPDIR'] = $temp
         $info.UseShellExecute = $false
         $info.CreateNoWindow = $true
         $info.RedirectStandardInput = $true
@@ -121,6 +127,7 @@ BeforeAll {
             (($stdout.Result + "`n" + $stderr.Result) -replace "`r", '') -split "`n"
         } finally {
             $process.Dispose()
+            Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 

@@ -33,9 +33,9 @@
       {{~ for f in st.result.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
     </dl>
     <p class="cm-section__source">{{ copy.stress.source }}</p>
-    {{~ end ~}}
     {{~ code_lang = "text"; code_label = "Result line"; code_text = st.result.line ~}}
     {{ include "code" }}
+    {{~ end ~}}
     <div class="cm-live__code">
       {{~ code_lang = "csharp"; code_label = "C#"; code_file = st.csharpFile; code_text = st.csharp; code_full = st.csharpFull ~}}
       {{ include "code" }}

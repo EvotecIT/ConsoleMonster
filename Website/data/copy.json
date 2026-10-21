@@ -217,7 +217,7 @@
           "value": "0"
         }
       ],
-      "source": "Measured by the stress test program during its recording: 32 workers, with stray Console.WriteLine calls.",
+      "source": "Measured during the recorded runs: the stress test program (32 workers, with stray Console.WriteLine calls) and the benchmark program.",
       "richTitle": "On a console",
       "streamTitle": "In CI and redirected output"
     },
@@ -386,7 +386,7 @@
     "machine": "Measured for this site on {processor} ({threads} logical processors), {os}, {runtime}, on {date}. Results vary with the machine; rerun the program to measure yours.",
     "stress": {
       "title": "Under load: the stress test",
-      "body": "The stress showcase in ConsoleMonster.Examples measures a whole live session: 32 worker threads posting lane updates, four threads writing stray console output, and the session drawing frames. These are the figures it printed at the end of the run recorded for the live dashboards page."
+      "body": "The stress test program on the live dashboards page measures a whole live session: 32 worker threads posting lane updates, four threads writing stray console output, and the session drawing frames. These are the figures it printed at the end of the 12-second run recorded there."
     },
     "reported": {
       "title": "Reported in the repository",
@@ -395,27 +395,27 @@
         {
           "measure": "Frame rate during the stress test",
           "value": "15.0 fps sustained",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Updates during the stress test",
           "value": "about 80,000 per second, 0 dropped",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Time per frame during the stress test",
           "value": "about 0.75 ms",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Printing 50,000 rows at 140 columns",
           "value": "about 1.7 s",
-          "source": "README"
+          "source": "README", "url": "https://github.com/EvotecIT/ConsoleMonster#readme"
         },
         {
           "measure": "Peak memory for those 50,000 rows",
           "value": "about 76 MB above the starting point (510 MB before block printing)",
-          "source": "README"
+          "source": "README", "url": "https://github.com/EvotecIT/ConsoleMonster#readme"
         }
       ]
     }

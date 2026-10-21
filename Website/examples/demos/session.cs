@@ -18,10 +18,11 @@ using (LiveSession session = new LiveSession(dashboard)) {
     session.Run(s => {
         LanesHandle servers = lanes.Handle(s);
         Parallel.ForEach(new[] { "SRV1", "SRV2", "SRV3" }, server => {
+            Random random = new Random(server[^1]);
             servers.Start(server);
             foreach (string step in steps) {
                 servers.Start(server, step);
-                Thread.Sleep(400 + Random.Shared.Next(500));
+                Thread.Sleep(400 + random.Next(500));
                 servers.Advance(server, StatusKind.Pass);
             }
             Console.WriteLine(server + " done");

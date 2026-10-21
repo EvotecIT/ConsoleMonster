@@ -26,6 +26,9 @@ namespace SiteFrames {
         // Rendered HTML (frames, posters) starts with a tag; a script that opens with a <# help block is still checked.
         private static readonly Regex Markup = new Regex(@"^\s*<[A-Za-z!/]", RegexOptions.CultureInvariant);
 
+        // A using directive (not a using statement or declaration) on the first line.
+        private static readonly Regex UsingDirective = new Regex(@"^using\s+(static\s+)?[\w.]+\s*;", RegexOptions.CultureInvariant);
+
         internal static readonly (Regex Pattern, string Why)[] Rules = {
             (new Regex(@"(?m)^\s*[&.]\s*['""]?\.\.[\\/]", RegexOptions.CultureInvariant), "runs a script by a path into the repository"),
             (new Regex(@"\$PSScriptRoot\b[^\n]*?(?<![.\w])\.\.(?![.\w])", RegexOptions.CultureInvariant), "builds a path from $PSScriptRoot and .."),
@@ -51,16 +54,12 @@ namespace SiteFrames {
                 string name = Path.GetRelativePath(site.Website, page).Replace('\\', '/');
                 foreach ((int line, string language, string code) in Blocks(Site.ReadText(page))) {
                     Inspect(code, name + ":" + line, problems);
-                    // A C# block that starts with its using lines is a complete program: it must compile as a reader's would.
-                    if ((language == "csharp" || language == "cs") && code.StartsWith("using ", StringComparison.Ordinal)) {
-                        string file = Path.Combine(Path.GetTempPath(), "cmsite-fence-" + Path.GetFileNameWithoutExtension(page) + "-" + line + ".cs");
-                        File.WriteAllText(file, code);
+                    // A C# block that starts with its using directives is a complete program: it must compile as a reader's would.
+                    if ((language == "csharp" || language == "cs") && UsingDirective.IsMatch(code)) {
                         try {
-                            Capture.CSharpRunner.Compile(file);
+                            Capture.CSharpRunner.Check(name + ":" + line, code);
                         } catch (InvalidOperationException ex) {
-                            problems.Add(name + ":" + line + " " + ex.Message);
-                        } finally {
-                            File.Delete(file);
+                            problems.Add(ex.Message);
                         }
                     }
                 }

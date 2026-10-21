@@ -68,6 +68,9 @@ namespace SiteFrames.Capture {
             return assembly;
         }
 
+        /// <summary>Checks that program text (a code block on a page, named for messages) compiles cleanly; throws otherwise.</summary>
+        public static void Check(string name, string code) => Emit(name, code);
+
         /// <summary>
         /// Builds a program into <paramref name="folder"/> as a framework-dependent app (the program, its runtimeconfig and
         /// ConsoleMonster.dll), so a recording can run it as a real process in a pseudo console: <c>dotnet &lt;name&gt;.dll</c>.

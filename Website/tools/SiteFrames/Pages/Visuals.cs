@@ -28,7 +28,7 @@ namespace SiteFrames.Pages {
             Dictionary<string, Func<ITheme, CellBuffer?>> items = new Dictionary<string, Func<ITheme, CellBuffer?>> {
                 ["widgets"] = theme => Site.Render(WidgetGallery.Build(), 70, ColorDepth.TrueColor, GlyphTier.Full, theme),
                 ["tables"] = theme => TablesPage.Run(site, "dns", 80, theme),
-                ["live"] = LiveFrame,
+                ["live"] = theme => LivePage.FrameAt(site, "assessment", 1.0),
                 ["interactive"] = theme => InteractivePage.Thumbnail(site, theme),
                 ["powershell"] = theme => HomePage.Run(site, 80, theme),
                 ["docs"] = theme => Site.Render(Profile(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
@@ -46,7 +46,7 @@ namespace SiteFrames.Pages {
                         continue;
                     }
                     // Recorded runs exist in the dark theme only; the light thumbnail shows the same recording.
-                    Screen shown = item.Key == "benchmarks" ? Screen.Dark : screen;
+                    Screen shown = item.Key == "benchmarks" || item.Key == "live" ? Screen.Dark : screen;
                     int rows = wide ? Math.Min(frame.Height, 36) : Rows;
                     int columns = wide ? (int)Math.Round(rows * 3.2) : Columns;
                     string svg = FrameMinimap.Svg(frame, ColorDepth.TrueColor, shown, columns, rows);
@@ -68,33 +68,6 @@ namespace SiteFrames.Pages {
             List<Replay.TimedFrame> frames = Replay.Replays.FromCast(File.ReadAllText(path), 3, true, out _, out _, out _);
             return frames.Count > 0 ? frames[frames.Count - 1].Frame : null;
         }
-        // The assessment dashboard after the whole recording was applied.
-        private static CellBuffer LiveFrame(ITheme theme) {
-            Dashboard dashboard = ParallelRun.Build(out _);
-            Dictionary<string, ILiveTarget> targets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
-            Collect(dashboard, targets);
-            long last = 0;
-            foreach (LiveEvent e in ParallelRunRecording.Generate()) {
-                last = Math.Max(last, e.Time);
-                if (targets.TryGetValue(e.Target, out ILiveTarget? target)) {
-                    target.Apply(e);
-                }
-            }
-            RenderContext context = ConsoleMonster.Terminal.CreateContext(TerminalProfile.Fixed(120, 36, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture), theme);
-            return FrameComposer.Compose(dashboard, 120, 36, context.WithClock(0, TimeSpan.FromMilliseconds(last)));
-        }
-
-        private static void Collect(IWidget widget, Dictionary<string, ILiveTarget> targets) {
-            if (widget is ILiveTarget target && !targets.ContainsKey(target.Name)) {
-                targets.Add(target.Name, target);
-            }
-            if (widget is IContainer container) {
-                foreach (IWidget child in container.Children) {
-                    Collect(child, targets);
-                }
-            }
-        }
-
         private static IWidget Profile() {
             return new Panel(new KeyValueList()
                 .Add("Colour", "24-bit [muted](CONSOLEMONSTER_COLOR)[/]")

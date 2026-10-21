@@ -9,6 +9,7 @@ $dashboard = New-ConsoleDashboard -Title 'Deploy' {
 
 'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
     param($Server)
+    $null = Get-Random -SetSeed ([int] $Server[-1])
     foreach ($step in 'copying files', 'stopping the site', 'swapping folders', 'starting the site') {
         Update-ConsoleLane -Name servers -Key $Server -Status Running -Detail $step
         Start-Sleep -Milliseconds (400 + (Get-Random -Minimum 0 -Maximum 500))

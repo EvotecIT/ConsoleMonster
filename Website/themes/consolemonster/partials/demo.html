@@ -32,7 +32,7 @@
           {{ include "code" }}
         </div>
         <div id="demo-{{ demo_id }}-cs" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-cs-tab" hidden>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFiles ? "Program.cs" : null; code_text = d.csharp; code_full = d.csharpFull ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
           {{ include "code" }}
           {{~ for k in d.csharpFiles ~}}
           <details class="cm-source">

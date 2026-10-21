@@ -218,7 +218,28 @@ namespace SiteFrames.Pages {
             return true;
         }
 
-                private static string[] Companions(Site site, Demo demo) => Array.ConvertAll(demo.CSharpCompanions, c => Path.Combine(site.Repository, c));
+                // Everything a demo's recording is made from, as text, or null for demos recorded from a prebuilt program.
+        private static string? Source(Site site, Demo demo) {
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            if (demo.Script != null) {
+                text.Append(Site.ReadText(Script(site, demo.Script))).Append('\n');
+                foreach (string companion in demo.Companions) {
+                    text.Append(Site.ReadText(Path.Combine(Path.GetDirectoryName(Script(site, demo.Script))!, companion))).Append('\n');
+                }
+                text.Append(demo.Arguments).Append('\n').Append(demo.Prompt).Append('\n').Append(demo.Session).Append('\n').Append(demo.Setup);
+            } else if (demo.ProgramArguments != null) {
+                text.Append(Site.ReadText(Script(site, demo.CSharpProgram!))).Append('\n');
+                foreach (string companion in Companions(site, demo)) {
+                    text.Append(Site.ReadText(companion)).Append('\n');
+                }
+                text.Append(demo.ProgramArguments);
+            } else {
+                return null;
+            }
+            return text.Append('\n').Append(demo.Width).Append('x').Append(demo.Height).ToString();
+        }
+
+        private static string[] Companions(Site site, Demo demo) => Array.ConvertAll(demo.CSharpCompanions, c => Path.Combine(site.Repository, c));
 
         private static string Script(Site site, string name) => name.Contains(Path.DirectorySeparatorChar) || name.Contains('/') ? Path.Combine(site.Repository, name) : Path.Combine(site.Website, "examples", "demos", name);
 
@@ -247,14 +268,28 @@ namespace SiteFrames.Pages {
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks;
                 if (demo.Script != null) {
-                    chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
+                    // A fresh temporary folder per run: a script may write there (the record demo does), and nothing is left.
+                    string temp = Path.Combine(Path.GetTempPath(), "cmsite-demo-temp-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+                    Directory.CreateDirectory(temp);
+                    Dictionary<string, string?> environment = PowerShellRunner.Environment("dark");
+                    environment["TEMP"] = temp;
+                    environment["TMP"] = temp;
+                    try {
+                        chunks = PowerShellRunner.Run(site, PowerShellHost.Core, Script(site, demo.Script), demo.Width, demo.Height, environment, allowErrors: demo.AllowErrors, showProgress: demo.ShowProgress, arguments: demo.Arguments, prompt: demo.Prompt, session: demo.Session, setup: demo.Setup);
+                    } finally {
+                        Directory.Delete(temp, true);
+                    }
                 } else if (demo.ProgramArguments != null) {
-                    string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id);
+                    string work = Path.Combine(Path.GetTempPath(), "cmsite-demo-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
                     if (Directory.Exists(work)) {
                         Directory.Delete(work, true);
                     }
                     string dll = CSharpRunner.Build(Script(site, demo.CSharpProgram!), work, demo.Id, Companions(site, demo));
-                    chunks = PseudoConsole.Run("dotnet \"" + dll + "\" " + demo.ProgramArguments, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
+                    try {
+                        chunks = PseudoConsole.Run("\"" + LivePage.DotnetHost + "\" \"" + dll + "\" " + demo.ProgramArguments, demo.Width, demo.Height, PowerShellRunner.Environment("dark"), work, TimeSpan.FromMinutes(3));
+                    } finally {
+                        Directory.Delete(work, true);
+                    }
                 } else {
                     (string executable, string arguments) = demo.Program!.Value;
                     string command = "\"" + Path.Combine(site.Repository, executable) + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty);
@@ -265,7 +300,8 @@ namespace SiteFrames.Pages {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 // Window titles (OSC 0 and 2) carry the executable's path; nothing on the site shows them.
                 string cast = System.Text.RegularExpressions.Regex.Replace(Replays.ToCast(chunks, demo.Width, demo.Height, demo.Title), @"\\u001B\][02];(?:[^""\\]|\\\\)*?(?:\\u0007|\\u001B\\\\)", string.Empty);
-                File.WriteAllText(path, cast, new System.Text.UTF8Encoding(false));
+                string? source = Source(site, demo);
+                File.WriteAllText(path, source != null ? Replays.Stamp(cast, Replays.Fingerprint(source)) : cast, new System.Text.UTF8Encoding(false));
                 Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
         }
@@ -294,6 +330,10 @@ namespace SiteFrames.Pages {
                     continue;
                 }
                 string cast = File.ReadAllText(path);
+                string? expected = Source(site, demo);
+                if (expected != null && Replays.Source(cast) != Replays.Fingerprint(expected)) {
+                    problems.Add("demo " + demo.Id + ": the recording was made from another version of its script or program; run the capture command for the demos area (SITEFRAMES_DEMOS=" + demo.Id + ").");
+                }
                 List<TimedFrame> frames = TrimRows(Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height));
                 if (!demo.Static && frames.Count == 0) {
                     problems.Add("demo " + demo.Id + ": the capture has no replay frames; record a non-empty run.");
@@ -389,12 +429,18 @@ namespace SiteFrames.Pages {
                     if (demo.CSharpCompanions.Length == 0) {
                         CSharpRunner.Compile(program);
                     } else {
-                        CSharpRunner.Build(program, Path.Combine(Path.GetTempPath(), "cmsite-check-" + demo.Id), demo.Id, Companions(site, demo));
+                        string check = Path.Combine(Path.GetTempPath(), "cmsite-check-" + demo.Id + "-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+                        try {
+                            CSharpRunner.Build(program, check, demo.Id, Companions(site, demo));
+                        } finally {
+                            Directory.Delete(check, true);
+                        }
                     }
                     (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(program));
                     entry["csharp"] = shortForm;
                     entry["csharpFull"] = full;
                     entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
+                    entry["csharpFile"] = "Program.cs";
                     // The other files of a multi-file program, each shown whole with its name.
                     JsonArray files = new JsonArray();
                     foreach (string companion in Companions(site, demo)) {

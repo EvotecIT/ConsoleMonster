@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -19,7 +20,11 @@ namespace SiteFrames.Pages {
             string css = File.ReadAllText(Path.Combine(theme, "tokens.css")).Replace("url(/fonts/", "url(" + fonts)
                 + File.ReadAllText(Path.Combine(theme, "base.css")) + site.Styles.Css();
             JsonObject live = (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!;
-            string poster = live["assessment"]!["poster"]!["dark"]!.GetValue<string>();
+            string? poster = live["assessment"]?["poster"]?["dark"]?.GetValue<string>();
+            if (poster == null) {
+                WidgetsPage.Report(new List<string> { "the social card needs the assessment recording; run the capture command for the live area." }, "images");
+                return;
+            }
             string logo = File.ReadAllText(Path.Combine(site.Website, "themes", "consolemonster", "partials", "logo.html"));
 
             StringBuilder card = new StringBuilder();
