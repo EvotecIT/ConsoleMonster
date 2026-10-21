@@ -11,7 +11,7 @@ namespace ConsoleMonster.Presenters {
         /// <summary>The culture for numbers and dates, or null for the render culture (the profile's <see cref="Capabilities.TerminalProfile.Culture"/>, else the current culture).</summary>
         public CultureInfo? Culture { get; set; }
 
-        /// <summary>The reference time for relative dates, or null for the current time at render.</summary>
+        /// <summary>The reference time for relative dates, or null for CONSOLEMONSTER_NOW (recordings/tests) and then the current time at render.</summary>
         public DateTimeOffset? Now { get; set; }
 
         /// <summary>The time zone for absolute dates, or null for local time.</summary>
@@ -21,5 +21,16 @@ namespace ConsoleMonster.Presenters {
         /// <param name="render">The render context.</param>
         /// <returns>The presenter context.</returns>
         public PresenterContext CreateContext(RenderContext render) => new PresenterContext(render, Culture, Now, TimeZone);
+
+        // Read at presentation time, so an explicitly scoped recording override also reaches widgets already created.
+        internal static DateTimeOffset ReferenceNow() {
+            string? text = Environment.GetEnvironmentVariable("CONSOLEMONSTER_NOW");
+            if (!string.IsNullOrWhiteSpace(text) && DateTimeOffset.TryParseExact(text,
+                new[] { "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFzzz", "yyyy-MM-dd'T'HH:mm:sszzz", "yyyy-MM-dd'T'HH:mm:ss.FFFFFFF'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'" },
+                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset now)) {
+                return now;
+            }
+            return DateTimeOffset.Now;
+        }
     }
 }

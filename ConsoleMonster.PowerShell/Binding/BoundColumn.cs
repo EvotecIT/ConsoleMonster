@@ -30,6 +30,14 @@ namespace ConsoleMonster.PowerShell.Binding {
 
         internal ShapeOptions? Options { get; set; }
 
+        // Formatting turns numbers into text. Retain their alignment from the first raw value without guessing that
+        // every FormatString is numeric; explicit alignment always wins. The native capture calls the same step.
+        internal void InferFormattedAlignment(object? value) {
+            if (Column.Alignment.HasValue || value == null) { return; }
+            bool numeric = !(value is string) && (Presenters.PresenterValues.TryGetNumber(value, out _) || Presenters.PresenterValues.IsNonFinite(value));
+            Column.Alignment = numeric ? Layout.HorizontalAlignment.Right : Layout.HorizontalAlignment.Left;
+        }
+
         /// <summary>
         /// The property the column's values come from on <paramref name="sample"/>, past alias properties: a property name,
         /// or a script block that only reads one property (<c>{ $_.Name }</c>, as format views often define columns).
@@ -57,6 +65,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                 LastError ??= error.Message;
                 return value;
             }
+            if (!string.IsNullOrEmpty(FormatString)) { InferFormattedAlignment(value); }
             if (!string.IsNullOrEmpty(FormatString) && value is IFormattable formattable) {
                 CultureInfo culture = Options?.ResolvedCulture ?? CultureInfo.CurrentCulture;
                 try {

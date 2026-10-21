@@ -9,8 +9,9 @@ namespace ConsoleMonster.Hosting {
     public static class ConsoleDashboardServiceCollectionExtensions {
         /// <summary>
         /// Adds a live console dashboard that shows the hosted services registered so far (call it after
-        /// AddHostedService), their state and how long they have been in it, the entries the application reports through
-        /// <see cref="IConsoleDashboard"/>, and the log region ConsoleMonster.Extensions.Logging writes into. It draws only
+        /// AddHostedService), their state and elapsed lifetime through their own stop, completion or failure, the entries
+        /// the application reports through <see cref="IConsoleDashboard"/> (with time in their current state), and the log
+        /// region ConsoleMonster.Extensions.Logging writes into. It draws only
         /// on an interactive terminal; redirected output, CI, Windows services and daemons run the host unchanged.
         /// </summary>
         /// <param name="services">The service collection.</param>

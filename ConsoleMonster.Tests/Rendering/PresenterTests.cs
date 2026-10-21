@@ -12,7 +12,7 @@ namespace ConsoleMonster.Tests.Rendering {
         private static readonly DateTimeOffset Now = new DateTimeOffset(2026, 10, 16, 12, 0, 0, TimeSpan.Zero);
 
         private static PresenterContext Context(GlyphTier tier = GlyphTier.Full, ColorDepth depth = ColorDepth.TrueColor, string culture = "", TerminalKind kind = TerminalKind.Unknown) {
-            TerminalProfile profile = new TerminalProfile(depth, tier, OutputMode.Interactive, 80, 24, kind);
+            TerminalProfile profile = new TerminalProfile(depth, tier, OutputMode.Interactive, 80, 24, kind, supportsVirtualTerminal: true);
             return new PresenterContext(new RenderContext(profile, Theme.Dark), CultureInfo.GetCultureInfo(culture), Now, TimeZoneInfo.Utc);
         }
 

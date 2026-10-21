@@ -68,7 +68,7 @@ namespace ConsoleMonster.Interactive {
 
         public bool IsInline => true;
 
-        private bool Hyperlinks => _profile.Kind == TerminalKind.WindowsTerminal || _profile.Kind == TerminalKind.VisualStudioCode;
+        private bool Hyperlinks => _profile.SupportsHyperlinks;
 
         public bool Refresh() {
             ReadSize(out int width, out int height);

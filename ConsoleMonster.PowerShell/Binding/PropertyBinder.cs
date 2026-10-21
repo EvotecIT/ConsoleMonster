@@ -222,9 +222,6 @@ namespace ConsoleMonster.PowerShell.Binding {
             BoundColumn bound = new BoundColumn(name, column, expression);
             if (TryOption(options, "FormatString", out object? format) && format != null) {
                 bound.FormatString = Convert.ToString(format, CultureInfo.InvariantCulture);
-                // Formatted values are text; FormatString is almost always numeric (N2, {0:N0}), so they stay right-aligned.
-                if (!TryOption(options, "Alignment", out _))
-                    column.Alignment = HorizontalAlignment.Right;
             }
             return bound;
         }

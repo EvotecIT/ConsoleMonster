@@ -24,6 +24,18 @@ namespace ConsoleMonster.Capabilities {
         PowerShellIse = 5,
 
         /// <summary>Output is redirected to a file, pipe or log.</summary>
-        Redirected = 6
+        Redirected = 6,
+
+        /// <summary>iTerm2 (TERM_PROGRAM=iTerm.app).</summary>
+        ITerm2 = 7,
+
+        /// <summary>WezTerm (TERM_PROGRAM=WezTerm).</summary>
+        WezTerm = 8,
+
+        /// <summary>A VTE-based terminal, including GNOME Terminal (VTE_VERSION).</summary>
+        Vte = 9,
+
+        /// <summary>KDE Konsole (KONSOLE_VERSION).</summary>
+        Konsole = 10
     }
 }

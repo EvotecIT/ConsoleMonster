@@ -28,11 +28,17 @@ namespace ConsoleMonster.Export {
         Text = 2,
 
         /// <summary>An asciicast v3 file for standard terminal players (recordings only).</summary>
-        Asciicast = 3
+        Asciicast = 3,
+
+        /// <summary>Semantic Markdown tables, records and trees; rendered frames retain a fenced fallback.</summary>
+        Markdown = 4,
+
+        /// <summary>The exact text layout inside a Markdown text fence.</summary>
+        FencedText = 5
     }
 
     /// <summary>
-    /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG or text: the size in cells, the
+    /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG, Markdown or text: the size in cells, the
     /// theme, the font, and an optional window frame with a title bar.
     /// </summary>
     public sealed class ExportOptions {

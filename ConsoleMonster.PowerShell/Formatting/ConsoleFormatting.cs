@@ -56,8 +56,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress becomes an alias of Write-ConsoleProgress).</summary>
         Progress = 4,
 
-        /// <summary>Every feature.</summary>
-        All = Output | ErrorView | Progress
+        /// <summary>Explicitly opts Format-Table, Format-List and Format-Wide into host-only rendering. Excluded from All.</summary>
+        FormatCommands = 8,
+
+        /// <summary>Native warning, verbose, debug and (PowerShell 7.2+) error colours from the active theme; stream commands and records stay native.</summary>
+        Streams = 16,
+
+        /// <summary>Default output, errors, progress and stream colours. FormatCommands requires a separate explicit opt-in.</summary>
+        All = Output | ErrorView | Progress | Streams
     }
 
     /// <summary>
@@ -67,7 +73,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     internal static class ConsoleFormatting {
         private static readonly object Gate = new object();
-        private static readonly Dictionary<string, ConsoleViewRegistration> Views = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, ConsoleViewRegistration> Views => FormattingSessionState.Current.Views;
         private static readonly Dictionary<string, ConsoleViewRegistration> BuiltIns = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
         private static bool _builtInsReady;
 
@@ -151,13 +157,13 @@ namespace ConsoleMonster.PowerShell {
                 + "if ((Microsoft.PowerShell.Utility\\Get-Alias -Name Write-Progress -Scope Global -ErrorAction Ignore).Definition -eq '" + ProgressCommand + "') { "
                 + "Microsoft.PowerShell.Management\\Remove-Item -Path 'Alias:\\Write-Progress' -Force; "
                 + "if ($__cmProgressAlias) { Microsoft.PowerShell.Utility\\Set-Alias -Name Write-Progress -Value $__cmProgressAlias -Scope Global -Force } }; "
-                + "$__cmFunction = Microsoft.PowerShell.Core\\Get-Command -Name Out-Default -CommandType Function -ErrorAction Ignore; "
-                + "if ($__cmFunction -and $__cmFunction.Definition.IndexOf('" + Marker + "', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { "
+                + "$__cmFunction = ${function:global:Out-Default}; "
+                + "if ($__cmFunction -and $__cmFunction.ToString().IndexOf('" + Marker + "', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { "
                 + "if ($__cmOutDefault) { Microsoft.PowerShell.Management\\Set-Item -Path 'Function:\\global:Out-Default' -Value $__cmOutDefault } "
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)state.Reset);
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -171,7 +177,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }

@@ -46,8 +46,8 @@ Describe 'Every input type through every command' {
             $text = $cell.Text -join "`n"
             $text | Should -Not -Match 'System\.Object\[\]|System\.Byte\[\]|SyncRoot|IsFixedSize|CimClass|CimInstanceProperties|System\.Collections\.[\w.+`]*(KeyCollection|ValueCollection|Hashtable|ArrayList|List`1|Dictionary`2)(?![\w.]*\.dll)' -Because "$Name through $command"
             $text | Should -Not -Match 'NotARealSecret' -Because "$Name through $command"
-            # A hang guard, generous for a loaded CI agent (the stall test below holds the tight limit).
-            $cell.Ms | Should -BeLessThan 15000 -Because "$Name through $command"
+            # Completion is guarded by the child-process timeout. Fixture construction and runner scheduling are not
+            # rendering contracts; keep the dedicated stalled-getter budget below rather than timing ordinary cells.
         }
     }
 

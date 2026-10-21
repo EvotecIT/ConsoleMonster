@@ -1,4 +1,4 @@
-Describe 'ConsoleMonster module' {
+﻿Describe 'ConsoleMonster module' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -27,7 +27,9 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 109
+        $commands.Count | Should -Be 111
+        $commands.Name | Should -Contain 'Copy-ConsoleOutput'
+        $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'
         $commands.Name | Should -Contain 'Add-ConsoleItem'
         $commands.Name | Should -Contain 'Invoke-ConsolePester'
@@ -128,7 +130,7 @@ Stop-Transcript | Out-Null
     It 'colours host output in jobs with Write-Host style records: PASS green, FAIL red, WARN yellow' {
         $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
             param($ModulePath)
-            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'TERM') { [Environment]::SetEnvironmentVariable($name, $null) }
             Import-Module $ModulePath -Force
             $checks = @(
                 [pscustomobject] @{ Check = 'SPF'; Status = 'pass' }
@@ -169,7 +171,7 @@ Stop-Transcript | Out-Null
     It 'keeps the colours through Receive-Job' {
         $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
             param($ModulePath)
-            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE') { [Environment]::SetEnvironmentVariable($name, $null) }
+            foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'TERM') { [Environment]::SetEnvironmentVariable($name, $null) }
             Import-Module $ModulePath -Force
             [pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
         }

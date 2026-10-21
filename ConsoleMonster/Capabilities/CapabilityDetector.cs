@@ -6,7 +6,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Capabilities {
 
     /// <summary>Resolves terminal capabilities and explicit overrides from a captured environment.</summary>
-    public sealed class CapabilityDetector : ICapabilityProvider {
+    public sealed partial class CapabilityDetector : ICapabilityProvider {
         private readonly TerminalEnvironment _environment;
         private static readonly string[] CiVariables = {
             "CI", "GITHUB_ACTIONS", "TF_BUILD", "BUILD_BUILDID", "JENKINS_URL", "GITLAB_CI", "TEAMCITY_VERSION"
@@ -130,6 +130,7 @@ namespace ConsoleMonster.Capabilities {
             int width = env.IsOutputRedirected ? Dimension("COLUMNS", TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
             int height = env.IsOutputRedirected ? Dimension("LINES", TerminalProfile.DefaultHeight) : Positive(env.WindowHeight, TerminalProfile.DefaultHeight);
             TerminalKind kind = DetectKind();
+            bool hyperlinks = DetectHyperlinks(kind, decisions);
             decisions.Add("mode: " + mode + " (" + modeReason + ")");
             decisions.Add("colour: " + color + " (" + colorReason + ")");
             decisions.Add("glyphs: " + glyphs + " (" + glyphReason + ")");
@@ -141,7 +142,7 @@ namespace ConsoleMonster.Capabilities {
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture);
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks);
         }
 
         // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.
@@ -213,7 +214,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture);
+                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport).WithLanguage(profile.Language);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {
@@ -384,6 +385,18 @@ namespace ConsoleMonster.Capabilities {
             }
             if (Equal(Get("TERM_PROGRAM"), "vscode")) {
                 return TerminalKind.VisualStudioCode;
+            }
+            if (Equal(Get("TERM_PROGRAM"), "iTerm.app")) {
+                return TerminalKind.ITerm2;
+            }
+            if (Equal(Get("TERM_PROGRAM"), "WezTerm")) {
+                return TerminalKind.WezTerm;
+            }
+            if (Get("KONSOLE_VERSION").Length > 0) {
+                return TerminalKind.Konsole;
+            }
+            if (Get("VTE_VERSION").Length > 0) {
+                return TerminalKind.Vte;
             }
             if (_environment.IsWindows && _environment.IsConsoleHandle) {
                 return TerminalKind.Conhost;

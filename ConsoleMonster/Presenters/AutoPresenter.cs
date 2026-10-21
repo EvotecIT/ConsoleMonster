@@ -38,9 +38,10 @@ namespace ConsoleMonster.Presenters {
                 case DateTimeOffset _:
                     return Date;
                 case Uri _:
+                case System.IO.FileSystemInfo _:
                     return Link;
-                case string _:
-                    return Text;
+                case string text:
+                    return Rendering.HyperlinkTarget.From(text) != null ? Link : Text;
                 case Enum _:
                     return Text;
                 case IEnumerable _:

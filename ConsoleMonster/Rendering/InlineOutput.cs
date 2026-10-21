@@ -44,7 +44,7 @@ namespace ConsoleMonster.Rendering {
         /// <summary>The number of rows the live area occupies now.</summary>
         public int Height => _drawn;
 
-        private bool Hyperlinks => Profile.Kind == TerminalKind.WindowsTerminal || Profile.Kind == TerminalKind.VisualStudioCode;
+        private bool Hyperlinks => Profile.SupportsHyperlinks;
 
         /// <inheritdoc />
         public void WriteBlock(CellBuffer buffer) {
@@ -220,10 +220,7 @@ namespace ConsoleMonster.Rendering {
 
         private void AppendStyled(StyledLine line) {
             ColorDepth depth = Profile.ColorDepth;
-            foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth);
-                TextSanitizer.Append(_sb, span.Text);
-            }
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
             if (depth != ColorDepth.None) {
                 _sb.Append(SgrEncoder.Reset);
             }

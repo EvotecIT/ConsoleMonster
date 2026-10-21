@@ -16,13 +16,34 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <summary>The label (markup).</summary>
-        public string Label { get; set; }
+        public string Label {
+            get => LocalizedLabel?.Invoke(Localization.WidgetLabels.Current) ?? _label;
+            set {
+                _label = value;
+                LocalizedLabel = null;
+            }
+        }
+        private string _label = string.Empty;
 
         /// <summary>An optional status marker shown before the label.</summary>
         public StatusKind? Status { get; set; }
 
         /// <summary>A muted note shown after the label (counts, values), or <c>null</c>.</summary>
-        public string? Note { get; set; }
+        public string? Note {
+            get => LocalizedNote?.Invoke(Localization.WidgetLabels.Current) ?? _note;
+            set {
+                _note = value;
+                LocalizedNote = null;
+            }
+        }
+        private string? _note;
+
+        internal Func<Localization.WidgetLabels, string>? LocalizedLabel { get; set; }
+        internal Func<Localization.WidgetLabels, string?>? LocalizedNote { get; set; }
+        // Inspection indexes remain useful in the console; scalar items need only their value in semantic Markdown.
+        internal bool IsScalarCollectionItem { get; set; }
+        internal string LabelFor(Canvas.RenderContext context) => LocalizedLabel?.Invoke(context.Labels) ?? _label;
+        internal string? NoteFor(Canvas.RenderContext context) => LocalizedNote?.Invoke(context.Labels) ?? _note;
 
         /// <summary>A value shown after the label through <see cref="Presenter"/> (dates, sizes, statuses...), or null.</summary>
         public TableCell? Value { get; set; }

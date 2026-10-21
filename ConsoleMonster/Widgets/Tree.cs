@@ -65,7 +65,7 @@ namespace ConsoleMonster.Widgets {
                     x = region.Write(x, i, context.Glyphs.StatusMarker(node.Status.Value), context.Style(node.Status.Value));
                     x++;
                 }
-                StyledLine label = TextWrapper.Truncate(context.Markup(node.Label).Lines[0], Math.Max(1, region.Width - x), context.Ellipsis);
+                StyledLine label = TextWrapper.Truncate(context.Markup(node.LabelFor(context)).Lines[0], Math.Max(1, region.Width - x), context.Ellipsis);
                 x = region.Write(x, i, label);
                 if (node.Value != null) {
                     StyledLine value = CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
@@ -74,8 +74,9 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 int noteSpace = region.Width - x - 2;
-                if (!string.IsNullOrEmpty(node.Note) && noteSpace >= 4) {
-                    region.Write(x + 2, i, TextWrapper.Truncate(node.Note!, noteSpace, context.Ellipsis), muted);
+                string? note = node.NoteFor(context);
+                if (!string.IsNullOrEmpty(note) && noteSpace >= 4) {
+                    region.Write(x + 2, i, TextWrapper.Truncate(note!, noteSpace, context.Ellipsis), muted);
                 }
             }
         }
@@ -119,12 +120,13 @@ namespace ConsoleMonster.Widgets {
             public TreeNode Node { get; }
 
             public int Width(RenderContext context) {
-                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.Label).Width;
+                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width;
                 if (Node.Status.HasValue) {
                     width += DisplayWidth.Measure(context.Glyphs.StatusMarker(Node.Status.Value)) + 1;
                 }
-                if (!string.IsNullOrEmpty(Node.Note)) {
-                    width += DisplayWidth.Measure(Node.Note) + 2;
+                string? note = Node.NoteFor(context);
+                if (!string.IsNullOrEmpty(note)) {
+                    width += DisplayWidth.Measure(note) + 2;
                 }
                 return width;
             }

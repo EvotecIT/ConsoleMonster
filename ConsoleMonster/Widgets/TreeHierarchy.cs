@@ -90,8 +90,8 @@ namespace ConsoleMonster.Widgets {
                     parent.Add(child);
                     object identity = _options.Identity?.Invoke(item!) ?? item!;
                     if (_path.Contains(identity)) {
-                        string cycle = Localization.WidgetLabels.Current.TreeCycle;
-                        child.Note = string.IsNullOrEmpty(child.Note) ? cycle : child.Note + " " + cycle;
+                        string? note = child.Note;
+                        child.LocalizedNote = labels => string.IsNullOrEmpty(note) ? labels.TreeCycle : note + " " + labels.TreeCycle;
                         continue;
                     }
                     IEnumerable<T>? next = _children(item);
@@ -100,7 +100,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     if (depth >= _options.Depth) {
                         if (HasAny(next)) {
-                            child.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Current.TreeDepthLimit) + "[/]");
+                            child.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(labels.TreeDepthLimit) + "[/]";
                         }
                         continue;
                     }
@@ -115,15 +115,15 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 if (omitted > 0) {
-                    string more = Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.MoreCount, omitted.ToString("N0", CultureInfo.InvariantCulture));
-                    parent.Add("[muted]" + Markup.Escape(more) + "[/]");
+                    int count = omitted;
+                    parent.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(labels.MoreCount, count.ToString("N0", CultureInfo.InvariantCulture))) + "[/]";
                 }
             }
 
             private void NoteLimit(TreeNode parent) {
                 if (!_limitNoted) {
                     _limitNoted = true;
-                    parent.Add("[muted]" + Markup.Escape(Localization.WidgetLabels.Current.TreeNodeLimit) + "[/]");
+                    parent.Add(string.Empty).LocalizedLabel = labels => "[muted]" + Markup.Escape(labels.TreeNodeLimit) + "[/]";
                 }
             }
 

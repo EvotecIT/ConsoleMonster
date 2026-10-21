@@ -40,7 +40,7 @@ namespace ConsoleMonster.Rendering {
         public bool SupportsLiveFrames => true;
 
         // OSC 8 is emitted only where it is known to work; other terminals would print the sequence or ignore it unevenly.
-        private bool Hyperlinks => Profile.Kind == TerminalKind.WindowsTerminal || Profile.Kind == TerminalKind.VisualStudioCode;
+        private bool Hyperlinks => Profile.SupportsHyperlinks;
 
         /// <summary>Number of bytes (UTF-16 code units) written by the last frame; useful for benchmarks.</summary>
         public int LastFrameLength { get; private set; }
@@ -76,10 +76,7 @@ namespace ConsoleMonster.Rendering {
             _sb.Clear();
             _sb.Append('\r');
             ColorDepth depth = Profile.ColorDepth;
-            foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth);
-                TextSanitizer.Append(_sb, span.Text);
-            }
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
             if (depth != ColorDepth.None) {
                 _sb.Append(SgrEncoder.Reset);
             }
@@ -96,10 +93,7 @@ namespace ConsoleMonster.Rendering {
             }
             _sb.Clear();
             ColorDepth depth = Profile.ColorDepth;
-            foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth);
-                TextSanitizer.Append(_sb, span.Text);
-            }
+            CellEncoder.AppendStyled(_sb, line, depth, Hyperlinks);
             if (depth != ColorDepth.None) {
                 _sb.Append(SgrEncoder.Reset);
             }

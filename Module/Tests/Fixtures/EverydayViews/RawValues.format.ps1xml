@@ -1,0 +1,33 @@
+<Configuration><ViewDefinitions>
+<View><Name>RawTable</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.RawNative</TypeName></ViewSelectedBy>
+<TableControl><TableHeaders><TableColumnHeader><Label>Health</Label></TableColumnHeader><TableColumnHeader><Label>Exact bytes</Label></TableColumnHeader></TableHeaders>
+<TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawViewEvaluations++; $_.State</ScriptBlock></TableColumnItem><TableColumnItem><PropertyName>Bytes</PropertyName><FormatString>N1</FormatString></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View>
+<View><Name>RawList</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.RawNative</TypeName></ViewSelectedBy><ListControl><ListEntries><ListEntry><ListItems>
+<ListItem><Label>Health</Label><PropertyName>State</PropertyName></ListItem><ListItem><Label>Exact bytes</Label><PropertyName>Bytes</PropertyName><FormatString>N1</FormatString></ListItem>
+</ListItems></ListEntry></ListEntries></ListControl></View>
+<View><Name>RawConditional</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.ConditionalNative</TypeName></ViewSelectedBy>
+<TableControl><TableHeaders><TableColumnHeader><Label>Health</Label></TableColumnHeader></TableHeaders><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.ConditionalNative</TypeName><ScriptBlock>$global:RawSelections++; $_.UseAlternate</ScriptBlock></SelectionCondition></EntrySelectedBy><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.Alternate</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><ScriptBlock>$global:RawCells++; $_.State</ScriptBlock></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+<View><Name>RawHidden</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.HiddenNative</TypeName></ViewSelectedBy>
+<GroupBy><PropertyName>Group</PropertyName><Label>Native group</Label></GroupBy>
+<TableControl><HideTableHeaders/><TableHeaders><TableColumnHeader><Label>Hidden health</Label></TableColumnHeader></TableHeaders>
+<TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>State</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries></TableControl></View>
+<View><Name>RawFallbackWrap</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName></ViewSelectedBy><TableControl><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName><ScriptBlock>$global:RawFallbackSelections++; $global:RawFallbackSelections -le 2</ScriptBlock></SelectionCondition></EntrySelectedBy><Wrap/><TableColumnItems><TableColumnItem><PropertyName>Alternate</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>State</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+<View><Name>RawFallbackFormat</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName></ViewSelectedBy><TableControl><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName><ScriptBlock>$global:RawFallbackSelections++; $global:RawFallbackSelections -le 2</ScriptBlock></SelectionCondition></EntrySelectedBy><TableColumnItems><TableColumnItem><PropertyName>Alternate</PropertyName><FormatString>N1</FormatString></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>State</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+<View><Name>RawFallbackGroup</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName></ViewSelectedBy><GroupBy><PropertyName>Group</PropertyName><CustomControl><CustomEntries><CustomEntry><CustomItem><ExpressionBinding><PropertyName>Group</PropertyName></ExpressionBinding></CustomItem></CustomEntry></CustomEntries></CustomControl></GroupBy><TableControl><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><SelectionCondition><TypeName>ConsoleMonster.Tests.FallbackNative</TypeName><ScriptBlock>$global:RawFallbackSelections++; $global:RawFallbackSelections -le 2</ScriptBlock></SelectionCondition></EntrySelectedBy><TableColumnItems><TableColumnItem><PropertyName>Alternate</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>State</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+<View><Name>RawTypeSelected</Name><ViewSelectedBy><TypeName>ConsoleMonster.Tests.TypeSelectedNative</TypeName><TypeName>ConsoleMonster.Tests.AlternateNative</TypeName></ViewSelectedBy><TableControl><TableHeaders><TableColumnHeader><Label>Bytes</Label></TableColumnHeader></TableHeaders><TableRowEntries>
+<TableRowEntry><EntrySelectedBy><TypeName>ConsoleMonster.Tests.AlternateNative</TypeName></EntrySelectedBy><TableColumnItems><TableColumnItem><PropertyName>Alternate</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+<TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>Bytes</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry>
+</TableRowEntries></TableControl></View>
+</ViewDefinitions></Configuration>

@@ -20,6 +20,18 @@ namespace ConsoleMonster.PowerShell {
         private ConsoleViewRegistration? _batchView;
         private SteppablePipeline? _inner;
         private bool _active;
+        private readonly List<IWidget> _exportWidgets = new List<IWidget>();
+        private readonly List<object> _exportObjects = new List<object>();
+
+        /// <summary><para type="description">Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</para></summary>
+        [Parameter]
+        [ValidateSet("Text", "Markdown", "Html")]
+        public string? As { get; set; }
+
+        /// <summary><para type="description">Width in cells for an exported document (default 100).</para></summary>
+        [Parameter]
+        [ValidateRange(1, 1000)]
+        public int Width { get; set; } = 100;
 
         /// <summary><para type="description">The objects to show.</para></summary>
         [Parameter(ValueFromPipeline = true)]
@@ -47,6 +59,14 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void BeginProcessing() {
+            ConsoleModuleViews.Discover(this);
+            if (As != null) {
+                if (Transcript.IsPresent || Shim.IsPresent) {
+                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("-As cannot be combined with -Transcript or -Shim."), "IncompatibleOutputOptions", ErrorCategory.InvalidArgument, null));
+                }
+                _active = true;
+                return;
+            }
             _active = Force.IsPresent || ConsoleFormatting.Displayed(this);
             if (Shim.IsPresent) {
                 ConsoleFormattingFeature features = ConsoleFormatting.Features;
@@ -78,15 +98,16 @@ namespace ConsoleMonster.PowerShell {
             }
             if (item == null) {
                 Flush();
-                _inner!.Process(item);
+                _inner?.Process(item);
                 return;
             }
             // Get-Error's detailed records (PSExtendedError) keep PowerShell's view.
             if (_errors && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
                 return;
             }
-            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
+            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, As != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
+                FlushExportObjects();
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
                     Flush();
                 }
@@ -102,6 +123,10 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             Flush();
+            if (As != null) {
+                _exportObjects.Add(item);
+                return;
+            }
             _inner!.Process(item);
         }
 
@@ -111,6 +136,12 @@ namespace ConsoleMonster.PowerShell {
                 SessionProgress.EndPipeline();
             }
             Flush();
+            if (As != null) {
+                FlushExportObjects();
+                if (_exportWidgets.Count > 0) {
+                    WriteObject(PSFormatting.Export(PSFormatting.Combine(_exportWidgets), PSOutputExport.Format(As), Width));
+                }
+            }
             _inner?.End();
         }
 
@@ -184,9 +215,20 @@ namespace ConsoleMonster.PowerShell {
                     widget = ConsoleView.Auto(new List<object?>(_batch), options);
                     break;
             }
-            PSFormatting.Write(this, widget, 0);
+            if (As != null) {
+                _exportWidgets.Add(widget);
+            } else {
+                PSFormatting.Write(this, widget, 0);
+            }
             _batch.Clear();
             _batchView = null;
+        }
+
+        private void FlushExportObjects() {
+            if (_exportObjects.Count > 0) {
+                _exportWidgets.Add(PSOutputExport.Widget(_exportObjects, this));
+                _exportObjects.Clear();
+            }
         }
 
     }

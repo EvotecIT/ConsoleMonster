@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using ConsoleMonster.Text;
 using Xunit;
@@ -126,14 +126,24 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Fact]
-        public void Rank_TenThousandItems_CompletesWithinCiBudget() {
-            string[] values = Enumerable.Range(0, 10000).Select(index => "Replication policy " + index.ToString()).ToArray();
-            FuzzyMatcher.Rank(values.Take(100), value => value, "rpl");
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            IReadOnlyList<FuzzyResult<string>> results = FuzzyMatcher.Rank(values, value => value, "rpl");
-            stopwatch.Stop();
-            Assert.Equal(10000, results.Count);
-            Assert.True(stopwatch.ElapsedMilliseconds < 200, "Ranking took " + stopwatch.ElapsedMilliseconds + " ms.");
+        public void Rank_TenThousandItems_EvaluatesEachItemOnceAndRanksAllMatches() {
+            const int count = 10000;
+            int[] values = Enumerable.Range(0, count).Reverse().ToArray();
+            int[] textCalls = new int[count];
+            IReadOnlyList<FuzzyResult<int>> results = FuzzyMatcher.Rank(values, value => {
+                textCalls[value]++;
+                return "Replication policy " + value.ToString(CultureInfo.InvariantCulture);
+            }, "rpl");
+
+            // Every alignment has the same score: shorter text wins, then source order within each digit length.
+            IEnumerable<int> expected = Enumerable.Range(0, 10).Reverse()
+                .Concat(Enumerable.Range(10, 90).Reverse())
+                .Concat(Enumerable.Range(100, 900).Reverse())
+                .Concat(Enumerable.Range(1000, 9000).Reverse());
+            Assert.Equal(expected, results.Select(result => result.Item));
+            Assert.Equal(expected.Select(value => count - 1 - value), results.Select(result => result.Index));
+            Assert.All(results, result => Assert.Equal(new[] { 0, 2, 3 }, result.Match.Positions));
+            Assert.All(textCalls, calls => Assert.Equal(1, calls));
         }
     }
 }

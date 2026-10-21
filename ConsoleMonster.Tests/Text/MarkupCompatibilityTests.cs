@@ -217,7 +217,6 @@ namespace ConsoleMonster.Tests.Text {
 
         [Theory]
         [InlineData("[link=javascript:alert(1)]x[/]")]
-        [InlineData("[link=file:///c:/windows]x[/]")]
         [InlineData("[link]data:text/html,hi[/]")]
         [InlineData("[link=relative/path]x[/]")]
         public void Encode_UnsafeLink_StaysPlainText(string markup) {

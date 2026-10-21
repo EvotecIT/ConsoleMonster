@@ -25,6 +25,9 @@ namespace ConsoleMonster.Localization {
         /// </summary>
         public static WidgetLabels Current => Override ?? _scoped ?? For(LabelLanguage.Default);
 
+        // A live session owns narration labels even when its target differs from the ambient terminal target.
+        internal static WidgetLabels? Scoped => Override ?? _scoped;
+
         /// <summary>The labels for a language (cached; unknown languages get English).</summary>
         /// <param name="language">The language, or null for <see cref="LabelLanguage.Default"/>.</param>
         /// <returns>The labels; don't modify the cached instance, use <see cref="Clone"/>.</returns>

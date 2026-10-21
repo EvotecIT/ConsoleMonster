@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
 
-Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
 ## SYNTAX
 ### Register (Default)
@@ -21,10 +21,15 @@ Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property
 Register-ConsoleView [-TypeName] <string[]> -Remove [<CommonParameters>]
 ```
 
+### File
+```powershell
+Register-ConsoleView [-Path] <string[]> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 Registers how a type is shown by Enable-ConsoleFormatting and Out-ConsoleDefault.
 
-Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load.
+Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Format-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). -Remove deletes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
 ## EXAMPLES
 
@@ -64,6 +69,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Imports a data-only .consoleviews.psd1 file. Modules can ship a same-named file beside their manifest without depending on ConsoleMonster.
+
+```yaml
+Type: String[]
+Parameter Sets: File
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
