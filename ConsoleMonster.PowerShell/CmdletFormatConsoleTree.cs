@@ -68,6 +68,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter PassThru { get; set; }
 
+        /// <summary><para type="description">Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -PassThru.</para></summary>
+        [Parameter]
+        [ValidateSet("Markdown", "Html")]
+        public string? As { get; set; }
+
+        /// <inheritdoc />
+        protected override void BeginProcessing() => PSOutputExport.Validate(this);
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {

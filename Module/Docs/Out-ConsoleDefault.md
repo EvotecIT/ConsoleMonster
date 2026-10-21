@@ -13,7 +13,7 @@ This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objec
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Out-ConsoleDefault [-InputObject <psobject>] [-Transcript] [-Force] [<CommonParameters>]
+Out-ConsoleDefault [-As <string>] [-Width <int>] [-InputObject <psobject>] [-Transcript] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,22 @@ Get-Process | Out-ConsoleDefault
 Show processes the ConsoleMonster way once
 
 ## PARAMETERS
+
+### -As
+Returns registered views as one Markdown document (fenced rendered text) or Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Markdown, Html
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Force
 Renders registered types even when the output is redirected or the host is not a console (as plain lines there).
@@ -69,6 +85,22 @@ Passed to Out-Default (the host transcribes the output).
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Width
+Width in cells for an exported document (default 100).
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

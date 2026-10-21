@@ -6,7 +6,7 @@ schema: 2.0.0
 ---
 # Export-ConsoleFrame
 ## SYNOPSIS
-Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
+Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.
 
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
@@ -17,7 +17,7 @@ Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>
 ```
 
 ## DESCRIPTION
-Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG or text.
+Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.
 
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
@@ -56,13 +56,13 @@ Accept wildcard characters: False
 ```
 
 ### -Format
-The format: Html, Svg or Text (default: from the -Path extension, else Html).
+The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Html, Svg, Text
+Possible values: Html, Svg, Text, Markdown
 
 Required: False
 Position: named

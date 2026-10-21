@@ -86,6 +86,8 @@ namespace ConsoleMonster.PowerShell {
         /// dictionary as a key/value record. Every widget gets the same configuration through <paramref name="configure"/>.
         /// </summary>
         internal static List<IWidget> BuildTables(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, Action<Table>? configure = null) {
+            // Module groups must be installed before Runs partitions objects by their registered group identity.
+            if (options.Cmdlet != null) { ConsoleModuleViews.Discover(options.Cmdlet); }
             ShapeOptions shape = PSShaping.Options(options.Culture);
             IReadOnlyList<PSObject> expanded = Expand(items, shape);
             List<IReadOnlyList<PSObject>> runs = property != null && property.Length > 0 ? new List<IReadOnlyList<PSObject>> { expanded } : Runs(expanded, shape);
@@ -268,6 +270,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static IWidget BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title, CultureInfo? culture = null, PSCmdlet? cmdlet = null) {
+            if (cmdlet != null) { ConsoleModuleViews.Discover(cmdlet); }
             CultureInfo resolved = ResolveCulture(culture);
             ShapeOptions shape = PSShaping.Options(culture);
             ShapeBudget budget = ShapeBudget.For(shape);
@@ -369,6 +372,11 @@ namespace ConsoleMonster.PowerShell {
         /// -PassThru together are refused, as one stream would mix text and objects.
         /// </summary>
         internal static void Emit(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture, bool asString, bool passThru = false) {
+            if (cmdlet.MyInvocation.BoundParameters.TryGetValue("As", out object? requested) && requested is string format) {
+                PSOutputExport.Validate(cmdlet);
+                cmdlet.WriteObject(Export(widget, PSOutputExport.Format(format), width, culture));
+                return;
+            }
             if (asString && passThru) {
                 cmdlet.ThrowTerminatingError(new ErrorRecord(
                     new ArgumentException("-AsString and -PassThru cannot be used together: -AsString writes the view as text, -PassThru writes the input objects."),
@@ -395,6 +403,10 @@ namespace ConsoleMonster.PowerShell {
             }
             Write(cmdlet, widget, width, culture);
         }
+
+        /// <summary>Exports an already-built view for Format-Console*, registered views or native-format adapters. No host output or ANSI rendering is involved.</summary>
+        internal static string Export(IWidget widget, ConsoleMonster.Export.ExportFormat format, int width = 0, CultureInfo? culture = null) =>
+            ConsoleMonster.Export.ConsoleExporter.Export(widget, format, new ConsoleMonster.Export.ExportOptions { Width = width > 0 ? width : 100, Culture = culture });
 
         // Text for a capturing consumer: plain unless $PSStyle.OutputRendering is Ansi.
         private static string CaptureText(PSCmdlet cmdlet, IWidget widget, int width, CultureInfo? culture) =>

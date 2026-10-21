@@ -29,6 +29,7 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="view">The registered view that supplied the columns, or null.</param>
         /// <returns>Property names and calculated-property hashtables.</returns>
         internal static object[] Resolve(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet, ShapeOptions options, out ConsoleViewRegistration? view) {
+            if (cmdlet != null) { ConsoleModuleViews.Discover(cmdlet); }
             view = null;
             List<PSObject> present = items.Where(item => item != null).ToList();
             if (present.Count == 0) {

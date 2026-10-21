@@ -82,6 +82,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsWidget { get; set; }
 
+        /// <summary><para type="description">Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.</para></summary>
+        [Parameter]
+        [ValidateSet("Markdown", "Html")]
+        public string? As { get; set; }
+
+        /// <inheritdoc />
+        protected override void BeginProcessing() => PSOutputExport.Validate(this);
+
         /// <summary><para type="description">Keeps the -GroupBy column in the rows (by default the group heading names the key and the column is left out).</para></summary>
         [Parameter]
         public SwitchParameter ShowGroupColumn { get; set; }

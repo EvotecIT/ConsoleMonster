@@ -13,7 +13,7 @@ A thin convenience over Format-ConsoleCode -Language Json. Pipeline strings are 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleJson [[-InputObject] <Object>] [-Depth <int>] [-LineNumbers] [-MaxLines <int>] [-Title <string>] [-AsString] [-Width <int>] [-AsWidget] [<CommonParameters>]
+Format-ConsoleJson [[-InputObject] <Object>] [-Depth <int>] [-LineNumbers] [-MaxLines <int>] [-Title <string>] [-AsString] [-Width <int>] [-AsWidget] [-As <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,6 +38,22 @@ Get-Content .\settings.json | Format-ConsoleJson -LineNumbers
 A JSON file with line numbers
 
 ## PARAMETERS
+
+### -As
+Returns a Markdown document (fenced rendered text) or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Markdown, Html
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -AsString
 Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.

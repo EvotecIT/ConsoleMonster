@@ -40,13 +40,13 @@ Keep the views, go back to PowerShell's progress
 ## PARAMETERS
 
 ### -Feature
-What to turn off: Output, ErrorView, Progress or All (the default).
+What to turn off: Output, ErrorView, Progress, FormatCommands or All (Output, ErrorView and Progress). Without -Feature every enabled feature is removed, including FormatCommands.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, All
+Possible values: None, Output, ErrorView, Progress, All, FormatCommands
 
 Required: False
 Position: named

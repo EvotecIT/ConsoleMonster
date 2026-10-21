@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>EverydayTable</Name>
+      <ViewSelectedBy><TypeName>EverydayViews.Server</TypeName></ViewSelectedBy>
+      <TableControl>
+        <TableHeaders><TableColumnHeader><Label>Server</Label></TableColumnHeader></TableHeaders>
+        <TableRowEntries><TableRowEntry><TableColumnItems><TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem></TableColumnItems></TableRowEntry></TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>EverydayList</Name>
+      <ViewSelectedBy><TypeName>EverydayViews.Server</TypeName></ViewSelectedBy>
+      <ListControl><ListEntries><ListEntry><ListItems><ListItem><Label>Server</Label><PropertyName>Name</PropertyName></ListItem><ListItem><PropertyName>State</PropertyName></ListItem></ListItems></ListEntry></ListEntries></ListControl>
+    </View>
+    <View>
+      <Name>EverydayWide</Name>
+      <ViewSelectedBy><TypeName>EverydayViews.Server</TypeName></ViewSelectedBy>
+      <WideControl><WideEntries><WideEntry><WideItem><PropertyName>Name</PropertyName></WideItem></WideEntry></WideEntries></WideControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>

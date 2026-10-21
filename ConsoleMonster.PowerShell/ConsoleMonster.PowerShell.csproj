@@ -30,6 +30,7 @@
     <ItemGroup>
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
+        <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />
     </ItemGroup>
 
     <ItemGroup>
