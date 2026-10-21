@@ -9,11 +9,11 @@ IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync
     int number = int.Parse(server.Substring(3), CultureInfo.InvariantCulture);
     await Task.Delay(500 + number * 137 % 900, cancel);
     if (number % 13 == 0) {
-        throw new InvalidOperationException(server + " did not come back after the reboot");
+        throw new InvalidOperationException(server + " did not come back");
     }
     if (number == 22) {
         await Task.Delay(TimeSpan.FromSeconds(10), cancel);
     }
     // </more>
     return server + " patched";
-}, new RunOptions { ThrottleLimit = 8, Timeout = TimeSpan.FromSeconds(4), Title = "Patching the web farm" });
+}, new RunOptions { ThrottleLimit = 8, Timeout = TimeSpan.FromSeconds(4), Title = "Patching" });

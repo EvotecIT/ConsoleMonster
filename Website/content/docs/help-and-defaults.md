@@ -29,7 +29,9 @@ These features change how PowerShell's own output looks for the session, never w
 2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
 
    ```powershell
-   if (-not (Test-Path -Path $PROFILE)) { $null = New-Item -ItemType File -Path $PROFILE -Force }
+   if (-not (Test-Path -Path $PROFILE)) {
+       $null = New-Item -ItemType File -Path $PROFILE -Force
+   }
    Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
    ```
 

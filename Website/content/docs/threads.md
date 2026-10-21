@@ -29,7 +29,23 @@ Parallel work and a console do not mix on their own: every thread that writes to
 - **One write at a time.** Outside a session, `Terminal.Write` and `Terminal.WriteMarkupLine` take one lock, so two threads writing widgets never mix their output. While a session owns the console, each write is queued as a block and printed above an inline area, or after a full-screen view ends.
 - **Stopping.** When the work ends or throws, the session stops admitting updates, applies the ones already queued, draws the final frame and restores the terminal before the exception reaches you. The first Ctrl+C does the same for the view and cancels `session.Cancellation`; your work keeps running until it checks that token, and what it posts afterwards is dropped. `HandleCancelKey = false` leaves Ctrl+C to your program.
 - **Not a terminal.** Redirected output and CI get stream mode: each change worth a line becomes one whole line, in the order the updates were applied: every lane start and finish, status changes, table rows, finished progress and log entries, with a heartbeat summary every ten seconds. Console output without a log region is printed after the run.
+
 ## In PowerShell
+
+The smallest case: eight runspaces at once, each writing with `Write-Host`. The lines go to the log panel, never over the screen:
+
+```powershell
+Import-Module ConsoleMonster
+
+$dashboard = New-ConsoleDashboard -Title 'Workers' {
+    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+}
+1..8 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
+    param($Number)
+    Start-Sleep -Milliseconds (Get-Random -Maximum 800)
+    Write-Host "worker $Number finished"
+}
+```
 
 `Start-ConsoleDashboard -Parallel` runs a script block per input item in a runspace pool (`-ThrottleLimit`). Each runspace gets `$ConsoleSession`, so `Update-ConsoleLane`, `Update-ConsoleStatus`, `Update-ConsoleTable`, `Write-ConsoleLog` and the other update commands reach the dashboard by widget name. `Write-Host`, warnings and errors from those runspaces (and verbose and debug messages when their preference is on) go to the dashboard's log (a `New-ConsoleLog`; with `-Inline` and no log they print above the area, and a full-screen dashboard without one drops them with a warning); progress records go to its activity list.
 

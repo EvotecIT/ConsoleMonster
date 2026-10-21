@@ -56,6 +56,7 @@ namespace SiteFrames.Pages {
             // -As Markdown returns a document instead of drawing; the console shows that text as it is.
             yield return new Run("export-markdown", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             yield return new Run("relative-dates", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
+            yield return new Run("files", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             // Native stream colours before and after -Feature Streams, on both hosts and in both themes.
             yield return new Run("streams", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All);
             yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);

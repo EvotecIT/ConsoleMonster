@@ -136,6 +136,7 @@ namespace SiteFrames.Pages {
             Copy(site, powershell, "format-consoletable", "rich", "ps7", "format-consoletable");
             Copy(site, powershell, "format-table", "rich", "ps7", "format-table");
             Copy(site, powershell, "export-markdown", "rich", "ps7", "export-markdown", "Format-ConsoleTable -As Markdown");
+            Copy(site, powershell, "files", "rich", "ps7", "files", "Get-ChildItem | Format-ConsoleTable");
             Copy(site, powershell, "relative-dates", "rich", "ps7", "relative-dates", "CONSOLEMONSTER_NOW=2026-10-21T12:00:00Z");
             // Stream colours: the dark capture on the dark page and the light-theme capture on the light page, per host.
             foreach (PowerShellHost host in PowerShellHost.All) {

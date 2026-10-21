@@ -1,7 +1,7 @@
-[?9001h[?1004h[?25l[2J[m[H| Name | Kind | Size | Built in | Signed |
-| :--- | :--- | ---: | ---: | :--- |
-| ConsoleMonster.2.0.0.nupkg | NuGet | 1.41 MB | 48 s | ✓ yes |
-| ConsoleMonster.2.0.0.snupkg | NuGet | 393 KB | 3.1 s | ✓ yes |
-| ConsoleMonster-2.0.0.zip | Module | 2.77 MB | 12 s | ✓ yes |
-| Docs.zip | Module | 50.1 KB | 1.2 s | – no |
-| **Total** |  | **4.62 MB** | **1 m 04 s** |  |[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l
+[?9001h[?1004h[?25l[2J[m[H| Name | Length | LastWriteTime |
+| :--- | ---: | :--- |
+| System.Management.Automation.dll | 18.7 MB | 2026-09-02 21:18 |
+| Microsoft.CodeAnalysis.CSharp.dll | 17.7 MB | 2026-09-02 21:18 |
+| System.Private.CoreLib.dll | 15.3 MB | 2026-09-02 21:18 |
+| PresentationFramework.dll | 15.1 MB | 2026-09-02 21:18 |
+| System.Windows.Forms.dll | 13.1 MB | 2026-09-02 21:18 |[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?9001l[?1004l

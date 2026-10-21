@@ -12,6 +12,10 @@ The three Format cmdlets take pipeline input like the built-in `Format-Table`, `
 
 ## -Property
 
+Real pipeline data needs no preparation: sizes and dates get their presenters automatically.
+
+{{< cm-frame id="files" caption="A few of PowerShell's own files, grouped by extension, in PowerShell 7." >}}
+
 - Names, wildcards and calculated properties work as in Format-Table.
 - A hashtable with column options configures that column: `Name` (or `Expression`), `Header`, `Key`, `Priority`, `MinWidth`, `MaxWidth`, `Width`, `Overflow` (`Wrap`, `Truncate`, `TruncateMiddle`, `Never`), `MaxLines`, `Alignment`, `Presenter`, `Unit`, `Aggregate`, `Highlight`, `Markup` and thresholds such as `WarnAbove` and `FailBelow`.
 - Without `-Property`, an object's DefaultDisplayPropertySet is used.
