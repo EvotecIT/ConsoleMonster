@@ -5,8 +5,6 @@ using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
-using ConsoleMonster.Live;
-using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using ConsoleMonster.Examples.Showcases;
@@ -36,7 +34,7 @@ namespace SiteFrames.Pages {
         }
 
         public static void Capture(Site site) {
-            LivePage.Build(site);
+            DemosPage.BuildExamples(site);
             foreach ((string id, Dictionary<string, string?> environment) in Profiles()) {
                 List<OutputChunk> chunks = PseudoConsole.Run("\"" + Examples(site) + "\" profile", 100, 40, environment, site.Repository, TimeSpan.FromMinutes(1));
                 Directory.CreateDirectory(Path.GetDirectoryName(ProfilePath(site, id))!);
@@ -73,15 +71,23 @@ namespace SiteFrames.Pages {
             // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.
             DocCards.Offer("overrides-plain", TablesPage.Run(site, "dns", 80, Theme.Dark, ColorDepth.None, GlyphTier.Ascii), Frames.Screen.Dark);
 
-            // The too-small fallback: the assessment dashboard mid-run at three window sizes.
+            // The too-small fallback: the assessment program replaying its recording in three window sizes, halfway through.
+            (string replayShort, string replayFull) = SourceSnippets.Program(Site.ReadText(LivePage.ProgramPath(site, "replay")));
             foreach ((int w, int h) in new[] { (100, 30), (64, 20), (50, 12) }) {
-                CellBuffer midRun = MidRun(w, h);
-                DocCards.Offer("size-" + w + "x" + h, midRun, Frames.Screen.Dark);
-                Figures.Add("size-" + w + "x" + h, new JsonObject {
+                string id = "size-" + w + "x" + h;
+                CellBuffer? midRun = LivePage.FrameAt(site, id, 0.5);
+                if (midRun == null) {
+                    WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command for the live area." }, "docs");
+                    continue;
+                }
+                DocCards.Offer(id, midRun, Frames.Screen.Dark);
+                Figures.Add(id, new JsonObject {
                     ["title"] = w + "×" + h,
                     ["label"] = "The assessment dashboard in a " + w + " by " + h + " window",
                     ["meta"] = new JsonArray(w + "×" + h),
-                    ["frame"] = site.Frame(midRun, null)
+                    ["frame"] = site.Frame(midRun, null),
+                    ["csharp"] = replayShort,
+                    ["csharpFull"] = replayFull
                 });
             }
 
@@ -118,36 +124,6 @@ namespace SiteFrames.Pages {
                 ["script"] = powershell["examples"]![example]!["script"]!.DeepClone(),
                 ["scriptFull"] = powershell["examples"]![example]!["scriptFull"]?.DeepClone()
             });
-        }
-
-        // The assessment after half of its recorded events, composed at a given size.
-        private static CellBuffer MidRun(int width, int height) {
-            Dashboard dashboard = ParallelRun.Build(out _);
-            Dictionary<string, ILiveTarget> targets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
-            Collect(dashboard, targets);
-            List<LiveEvent> events = ParallelRunRecording.Generate();
-            long half = events[events.Count - 1].Time / 2;
-            foreach (LiveEvent e in events) {
-                if (e.Time > half) {
-                    break;
-                }
-                if (targets.TryGetValue(e.Target, out ILiveTarget? target)) {
-                    target.Apply(e);
-                }
-            }
-            RenderContext context = ConsoleMonster.Terminal.CreateContext(TerminalProfile.Fixed(width, height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture), Theme.Dark);
-            return FrameComposer.Compose(dashboard, width, height, context.WithClock(0, TimeSpan.FromMilliseconds(half)));
-        }
-
-        private static void Collect(IWidget widget, Dictionary<string, ILiveTarget> targets) {
-            if (widget is ILiveTarget target && !targets.ContainsKey(target.Name)) {
-                targets.Add(target.Name, target);
-            }
-            if (widget is IContainer container) {
-                foreach (IWidget child in container.Children) {
-                    Collect(child, targets);
-                }
-            }
         }
     }
 }

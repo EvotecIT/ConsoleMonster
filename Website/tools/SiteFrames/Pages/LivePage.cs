@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
-using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
-using ConsoleMonster.Widgets;
 using ConsoleMonster.Examples.Showcases;
 using SiteFrames.Capture;
 using SiteFrames.Frames;
@@ -18,26 +17,60 @@ using SiteFrames.Vt;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Live dashboards: the parallel assessment replayed from its JSON-lines recording, and the build pipeline, the
-    /// stress test and the CI narration recorded from real runs in a pseudo console.
+    /// Live dashboards, each recorded from a real run of the program shown beside it, in a pseudo console: the C# programs
+    /// under <c>Website/examples/live/</c> (built here exactly as written and run with <c>dotnet</c>) and the PowerShell
+    /// build pipeline script on both hosts. The assessment program replays a recording file; that file is synthetic data
+    /// the tool writes (and the page offers for download), the program only reads it.
     /// </summary>
     internal static class LivePage {
-        private static string Examples(Site site) => Path.Combine(site.Repository, "ConsoleMonster.Examples", "bin", "Release", "net8.0", "ConsoleMonster.Examples.exe");
+        public static string ProgramPath(Site site, string name) => Path.Combine(site.Website, "examples", "live", name + ".cs");
+
+        private static string PipelineScript(Site site) => Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1");
 
         private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "live", id + ".cast");
 
-        /// <summary>The run recordings: (id, title, command, width, height, environment).</summary>
+        // Where the programs are built and the recording file is written for the capture run.
+        private static string Work => Path.Combine(Path.GetTempPath(), "cmsite-live");
+
+        private static List<OutputChunk> Dotnet(string program, string arguments, int width, int height, Dictionary<string, string?> environment) =>
+            PseudoConsole.Run("dotnet \"" + Path.Combine(Work, program + ".dll") + "\"" + (arguments.Length > 0 ? " " + arguments : string.Empty), width, height, environment, Work, TimeSpan.FromMinutes(3));
+
+        /// <summary>The run recordings: (id, title, run, width, height). The title is the command a reader types.</summary>
         private static IEnumerable<(string Id, string Title, Func<Site, List<OutputChunk>> Run, int Width, int Height)> Recordings() {
-            yield return ("pipeline-csharp", "ConsoleMonster.Examples pipeline", site => PseudoConsole.Run("\"" + Examples(site) + "\" pipeline", 110, 32, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(2)), 110, 32);
-            yield return ("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
-            yield return ("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
-            yield return ("stress", "ConsoleMonster.Examples stress 12", site => PseudoConsole.Run("\"" + Examples(site) + "\" stress 12", 120, 40, PowerShellRunner.Environment("dark"), site.Repository, TimeSpan.FromMinutes(2)), 120, 40);
-            yield return ("assessment-stream", "ConsoleMonster.Examples assessment --speed 6", site => PseudoConsole.Run("\"" + Examples(site) + "\" assessment --speed 6", 100, 400, PowerShellRunner.Environment("dark", mode: "stream"), site.Repository, TimeSpan.FromMinutes(2)), 100, 400);
+            yield return ("pipeline-csharp", "dotnet run", site => Dotnet("pipeline", string.Empty, 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
+            yield return ("pipeline-ps7", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Core, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
+            yield return ("pipeline-ps5", "Example-BuildPipeline.ps1", site => PowerShellRunner.Run(site, PowerShellHost.Desktop, PipelineScript(site), 110, 32, PowerShellRunner.Environment("dark")), 110, 32);
+            yield return ("stress", "dotnet run -- 12", site => Dotnet("stress", "12", 120, 40, PowerShellRunner.Environment("dark")), 120, 40);
+            yield return ("assessment", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 120, 36, PowerShellRunner.Environment("dark")), 120, 36);
+            yield return ("assessment-compact", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 64, 30, PowerShellRunner.Environment("dark")), 64, 30);
+            yield return ("assessment-stream", "dotnet run -- assessment-run.jsonl 6", site => Dotnet("replay", "assessment-run.jsonl 6", 100, 400, PowerShellRunner.Environment("dark", mode: "stream")), 100, 400);
+            // The same dashboard in smaller windows, for the live sessions page.
+            yield return ("size-100x30", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 100, 30, PowerShellRunner.Environment("dark")), 100, 30);
+            yield return ("size-64x20", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 64, 20, PowerShellRunner.Environment("dark")), 64, 20);
+            yield return ("size-50x12", "dotnet run -- assessment-run.jsonl 2", site => Dotnet("replay", "assessment-run.jsonl 2", 50, 12, PowerShellRunner.Environment("dark")), 50, 12);
         }
 
+        /// <summary>The synthetic recording the assessment program replays (also offered for download).</summary>
+        public static string AssessmentRecording() => Replays.Record(ParallelRunRecording.Generate());
+
+        /// <summary>Builds the programs, writes the recording file, and records every run (SITEFRAMES_LIVE=id,id for some).</summary>
         public static void Capture(Site site) {
-            Build(site);
+            if (Directory.Exists(Work)) {
+                Directory.Delete(Work, true);
+            }
+            foreach (string program in new[] { "pipeline", "stress", "replay" }) {
+                CSharpRunner.Build(ProgramPath(site, program), Work);
+            }
+            File.WriteAllText(Path.Combine(Work, "assessment-run.jsonl"), AssessmentRecording(), new System.Text.UTF8Encoding(false));
+            HashSet<string>? wanted = null;
+            string? filter = Environment.GetEnvironmentVariable("SITEFRAMES_LIVE");
+            if (!string.IsNullOrWhiteSpace(filter)) {
+                wanted = new HashSet<string>(filter!.Split(','), StringComparer.OrdinalIgnoreCase);
+            }
             foreach (var recording in Recordings()) {
+                if (wanted != null && !wanted.Contains(recording.Id)) {
+                    continue;
+                }
                 Stopwatch watch = Stopwatch.StartNew();
                 List<OutputChunk> chunks = recording.Run(site);
                 string path = CastPath(site, recording.Id);
@@ -49,14 +82,12 @@ namespace SiteFrames.Pages {
             }
         }
 
-        internal static void Build(Site site) {
-            ProcessStartInfo info = new ProcessStartInfo("dotnet", "build \"" + Path.Combine(site.Repository, "ConsoleMonster.Examples", "ConsoleMonster.Examples.csproj") + "\" -c Release -f net8.0 -nologo -v q") { UseShellExecute = false };
-            using (Process process = Process.Start(info)!) {
-                process.WaitForExit();
-                if (process.ExitCode != 0) {
-                    throw new InvalidOperationException("Building ConsoleMonster.Examples failed.");
-                }
-            }
+        // The source of a program for the page: the short form, the whole program, and its file name.
+        private static void Source(JsonObject entry, string code, string language, string file) {
+            (string shortForm, string full) = SourceSnippets.Program(code);
+            entry[language] = shortForm;
+            entry[language + "Full"] = full;
+            entry[language + "File"] = file;
         }
 
         public static void Render(Site site) {
@@ -66,83 +97,52 @@ namespace SiteFrames.Pages {
             Site.Clean(downloads);
             JsonObject live = new JsonObject();
 
-            // The assessment: synthetic events from the examples, written with LiveRecorder and read back with LiveRecordingReader.
-            string jsonLines = Replays.Record(ParallelRunRecording.Generate());
+            // The assessment: the program replays the synthetic recording file, offered for download as it was replayed.
+            string jsonLines = AssessmentRecording();
             site.Write(Path.Combine(downloads, "assessment-run.jsonl"), jsonLines);
-            List<LiveEvent> events = Replays.Read(jsonLines);
-            live["assessment"] = Assessment(site, events, jsonLines, 120, 36, "assessment", 5, 2);
-            live["assessmentCompact"] = Assessment(site, events, jsonLines, 64, 30, "assessment-compact", 3, 2.5);
+            JsonObject assessment = FromCast(site, "assessment", "C#", "dotnet run -- assessment-run.jsonl 2", 5, 0.55);
+            string[] lines = jsonLines.Split('\n');
+            assessment["events"] = lines.Count(l => l.Trim().Length > 0);
+            assessment["bytes"] = jsonLines.Length;
+            assessment["excerpt"] = string.Join("\n", lines.Take(9));
+            Source(assessment, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
+            live["assessment"] = assessment;
+            live["assessmentCompact"] = FromCast(site, "assessment-compact", "C#", "dotnet run -- assessment-run.jsonl 2", 3, 0.55);
 
             // Recorded runs.
-            live["pipeline"] = new JsonObject {
-                ["csharp"] = FromCast(site, "pipeline-csharp", "C#", "ConsoleMonster.Examples pipeline"),
+            JsonObject pipeline = new JsonObject {
+                ["csharp"] = FromCast(site, "pipeline-csharp", "C#", "dotnet run"),
                 ["ps7"] = FromCast(site, "pipeline-ps7", "PowerShell 7", "Example-BuildPipeline.ps1"),
                 ["ps5"] = FromCast(site, "pipeline-ps5", "Windows PowerShell 5.1", "Example-BuildPipeline.ps1")
             };
-            JsonObject stress = FromCast(site, "stress", "C#", "ConsoleMonster.Examples stress 12", 3, 0.45);
+            // The recordings are keyed by run (csharp, ps7, ps5), so the two programs go under "source".
+            JsonObject pipelineSource = new JsonObject();
+            Source(pipelineSource, Site.ReadText(PipelineScript(site)), "powershell", "Example-BuildPipeline.ps1");
+            Source(pipelineSource, Site.ReadText(ProgramPath(site, "pipeline")), "csharp", "Program.cs");
+            pipeline["source"] = pipelineSource;
+            live["pipeline"] = pipeline;
+            JsonObject stress = FromCast(site, "stress", "C#", "dotnet run -- 12", 3, 0.45);
             stress["result"] = StressResult(site);
+            Source(stress, Site.ReadText(ProgramPath(site, "stress")), "csharp", "Program.cs");
             live["stress"] = stress;
-            live["stream"] = Stream(site);
-            live["query"] = Figures.Figure(site, "ConsoleMonster.Examples query", "DNS and mail-security query results printed once.", QueryResults.Build(), 100, rebuild: QueryResults.Build);
-
-            live["assessmentSource"] = SourceSnippets.Method(Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "ParallelRun.cs"), "public static Dashboard Build(out Lanes lanes)");
-            live["pipelineScript"] = Site.ReadText(Path.Combine(site.Repository, "Module", "Examples", "Example-BuildPipeline.ps1"));
-            site.WriteJson(site.Data("live"), live);
-        }
-
-        private static JsonObject Assessment(Site site, List<LiveEvent> events, string jsonLines, int width, int height, string id, double fps, double speed) {
-            // The replay is the engine's own player data (Recording.ExportPlayerData), played by the engine's player.
-            string data = ConsoleMonster.Export.Recording.ExportPlayerData(ParallelRun.Build(out _), events, new ConsoleMonster.Export.RecordingExportOptions {
-                Width = width,
-                Height = height,
-                // FramesPerSecond counts recorded time; the site shows fps frames per second of the sped-up replay.
-                FramesPerSecond = fps / speed,
-                Speed = speed,
-                Theme = ConsoleMonster.Export.ExportTheme.Dark,
-                Glyphs = GlyphTier.Full,
-                Culture = Site.Culture,
-                HoldLastFrame = TimeSpan.FromSeconds(4),
-                Title = "ConsoleMonster.Examples assessment"
-            });
-            site.Write(site.Static("replays/" + id + ".json"), data);
-            (long duration, int count) = Summary(data);
-            // The poster (and where the replay starts) is the run in full swing, not its empty first second or its end. The
-            // site samples the same events at the same rate to pick that moment and draw it for readers without JavaScript.
-            List<TimedFrame> frames = Replays.FromEvents(ParallelRun.Build(out _), events, width, height, fps, Theme.Dark, speed);
-            long posterTime = Poster(site, frames, 0.55, out string poster);
-            string[] lines = jsonLines.Split('\n');
-            JsonArray excerpt = new JsonArray();
-            for (int i = 0; i < Math.Min(9, lines.Length); i++) {
-                excerpt.Add(lines[i]);
-            }
-            return new JsonObject {
-                ["url"] = "/replays/" + id + ".json",
-                ["w"] = width,
-                ["h"] = height,
-                ["frames"] = count,
-                ["duration"] = duration,
-                ["events"] = events.Count,
-                ["fps"] = fps,
-                ["speed"] = speed,
-                ["start"] = posterTime,
-                ["bytes"] = jsonLines.Length,
-                ["excerpt"] = string.Join("\n", ToStrings(excerpt)),
-                ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster, ["start"] = posterTime }
+            JsonObject stream = Stream(site);
+            Source(stream, Site.ReadText(ProgramPath(site, "replay")), "csharp", "Program.cs");
+            live["stream"] = stream;
+            string query = ProgramPath(site, "query");
+            JsonObject queryFigure = new JsonObject {
+                ["title"] = "dotnet run",
+                ["label"] = "DNS and mail-security query results printed once.",
+                ["meta"] = new JsonArray("100 columns", "24-bit", "Full"),
+                ["frame"] = site.Frame(CSharpRunner.Run(query, 100, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark, 120), CSharpRunner.Run(query, 100, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light, 120))
             };
-        }
+            Source(queryFigure, Site.ReadText(query), "csharp", "Program.cs");
+            live["query"] = queryFigure;
 
-        // The length and frame count of player data, for the page's labels.
-        private static (long Duration, int Count) Summary(string data) {
-            using (System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(data)) {
-                return (doc.RootElement.GetProperty("duration").GetInt64(), doc.RootElement.GetProperty("frames").GetArrayLength());
+            // The same dashboard in smaller windows (the live sessions page), each at the middle of its run.
+            foreach (string size in new[] { "size-100x30", "size-64x20", "size-50x12" }) {
+                live[size] = FromCast(site, size, "C#", "dotnet run -- assessment-run.jsonl 2", 2, 0.5);
             }
-        }
-
-
-        private static IEnumerable<string> ToStrings(JsonArray array) {
-            foreach (JsonNode? node in array) {
-                yield return node!.GetValue<string>();
-            }
+            site.WriteJson(site.Data("live"), live);
         }
 
         /// <summary>The frame shown before a replay plays: the last frame at a share of the run, and its time.</summary>
@@ -157,15 +157,26 @@ namespace SiteFrames.Pages {
             return moment.Time;
         }
 
+        /// <summary>A frame from a recording at a share of its run (the frame the poster shows), or null.</summary>
+        public static CellBuffer? FrameAt(Site site, string id, double share, int fps = 2) {
+            string path = CastPath(site, id);
+            if (!File.Exists(path)) {
+                return null;
+            }
+            List<TimedFrame> frames = Replays.FromCast(File.ReadAllText(path), fps, true, out _, out _, out _);
+            Poster(site, frames, share, out _, out CellBuffer frame);
+            return frame;
+        }
+
         private static JsonObject FromCast(Site site, string id, string label, string command, double fps = 6, double share = 0.55) {
             string path = CastPath(site, id);
             if (!File.Exists(path)) {
-                WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "live");
+                WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command for the live area." }, "live");
                 return new JsonObject();
             }
             List<TimedFrame> frames = Replays.FromCast(File.ReadAllText(path), fps, true, out CellBuffer scrollback, out int width, out int height);
             site.Write(site.Static("replays/" + id + ".json"), PlayerData.Write(site, frames, command, fps, 3000, out long duration, out int count));
-            long posterTime = Poster(site, frames, share, out string poster);
+            long posterTime = Poster(site, frames, share, out string poster, out CellBuffer posterFrame);
             return new JsonObject {
                 ["start"] = posterTime,
                 ["id"] = id,
@@ -178,6 +189,7 @@ namespace SiteFrames.Pages {
                 ["duration"] = duration,
                 ["fps"] = fps,
                 ["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster },
+                ["posterFrame"] = site.Frame(posterFrame, null),
                 ["scrollback"] = site.Frame(Site.Crop(scrollback), null)
             };
         }

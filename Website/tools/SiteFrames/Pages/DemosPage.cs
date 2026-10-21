@@ -211,7 +211,7 @@ namespace SiteFrames.Pages {
         private static string CastPath(Site site, string id) => Path.Combine(site.Captures, "demos", id + ".cast");
 
         public static void Capture(Site site) {
-            LivePage.Build(site);
+            BuildExamples(site);
             Build(site, Path.Combine("ConsoleMonster.Examples.Extensions", "ConsoleMonster.Examples.Extensions.csproj"));
             Build(site, Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"));
             // SITEFRAMES_DEMOS (comma-separated ids) records only those demos, leaving the other recordings as they are.
@@ -245,6 +245,9 @@ namespace SiteFrames.Pages {
                 Console.WriteLine("recorded demo " + demo.Id + " in " + watch.Elapsed.TotalSeconds.ToString("0.0", CultureInfo.InvariantCulture) + " s");
             }
         }
+
+        /// <summary>Builds ConsoleMonster.Examples (the fleet app the Monster demo records, and the profile command).</summary>
+        internal static void BuildExamples(Site site) => Build(site, Path.Combine("ConsoleMonster.Examples", "ConsoleMonster.Examples.csproj"));
 
         private static void Build(Site site, string project) {
             // ContinuousIntegrationBuild maps source paths to /_/, so stack traces in the recordings do not show this checkout.

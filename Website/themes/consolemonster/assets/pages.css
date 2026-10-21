@@ -262,3 +262,6 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 @media (max-width: 760px) and (hover: hover) and (pointer: fine) {
   .cm-start { scrollbar-width: thin; }
 }
+
+/* The program under a live recording or frame. */
+.cm-live__code { display: grid; gap: var(--cm-space-4); margin-top: var(--cm-space-5); max-width: 980px; }

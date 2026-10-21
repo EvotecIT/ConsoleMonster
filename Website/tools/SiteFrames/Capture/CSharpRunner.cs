@@ -63,12 +63,35 @@ namespace SiteFrames.Capture {
             if (Compiled.TryGetValue(path + "\n" + code, out Assembly? cached)) {
                 return cached;
             }
+            Assembly assembly = Assembly.Load(Emit(path, code));
+            Compiled[path + "\n" + code] = assembly;
+            return assembly;
+        }
+
+        /// <summary>
+        /// Builds a program into <paramref name="folder"/> as a framework-dependent app (the program, its runtimeconfig and
+        /// ConsoleMonster.dll), so a recording can run it as a real process in a pseudo console: <c>dotnet &lt;name&gt;.dll</c>.
+        /// Returns the path of the program's dll.
+        /// </summary>
+        public static string Build(string path, string folder) {
+            Directory.CreateDirectory(folder);
+            string name = Path.GetFileNameWithoutExtension(path);
+            string dll = Path.Combine(folder, name + ".dll");
+            File.WriteAllBytes(dll, Emit(path, Site.ReadText(path), name));
+            string version = Environment.Version.Major + "." + Environment.Version.Minor + ".0";
+            File.WriteAllText(Path.Combine(folder, name + ".runtimeconfig.json"),
+                "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net" + Environment.Version.Major + "." + Environment.Version.Minor + "\",\n    \"framework\": { \"name\": \"Microsoft.NETCore.App\", \"version\": \"" + version + "\" }\n  }\n}\n");
+            File.Copy(typeof(Terminal).Assembly.Location, Path.Combine(folder, Path.GetFileName(typeof(Terminal).Assembly.Location)), true);
+            return dll;
+        }
+
+        private static byte[] Emit(string path, string code, string? assemblyName = null) {
             // C# 12 with the .NET 8 SDK's warning level: what a reader's `dotnet new console` project on .NET 8 compiles.
             CSharpParseOptions parse = new CSharpParseOptions(LanguageVersion.CSharp12);
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code, parse, path);
             SyntaxTree implicitUsings = CSharpSyntaxTree.ParseText(ImplicitUsings, parse, "GlobalUsings.g.cs");
             CSharpCompilation compilation = CSharpCompilation.Create(
-                "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
+                assemblyName ?? "SiteExample_" + Path.GetFileNameWithoutExtension(path).Replace('-', '_'),
                 new[] { tree, implicitUsings },
                 References,
                 new CSharpCompilationOptions(OutputKind.ConsoleApplication, nullableContextOptions: NullableContextOptions.Enable, optimizationLevel: OptimizationLevel.Release, warningLevel: 8));
@@ -81,9 +104,7 @@ namespace SiteFrames.Capture {
                 if (!result.Success || problems.Count > 0) {
                     throw new InvalidOperationException(Path.GetFileName(path) + " is not a clean program:\n" + string.Join("\n", problems.Select(Describe)));
                 }
-                Assembly assembly = Assembly.Load(stream.ToArray());
-                Compiled[path + "\n" + code] = assembly;
-                return assembly;
+                return stream.ToArray();
             }
         }
 
