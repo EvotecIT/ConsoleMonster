@@ -393,6 +393,11 @@ html[data-theme] body.pf-api-docs .member-card {
   background: none;
   box-shadow: none;
 }
+/* An overload group ends with one hairline, like a member. The next section heading draws its own rule, so the last
+   member or group in a section does not. */
+html[data-theme] body.pf-api-docs .member-group { border-bottom: 1px solid var(--cm-line); border-radius: 0; }
+html[data-theme] body.pf-api-docs .member-group-body > .member-card:last-child,
+html[data-theme] body.pf-api-docs .member-section-body > :last-child { border-bottom: 0; }
 html[data-theme] body.pf-api-docs .member-header { display: flex; align-items: flex-start; gap: var(--cm-space-2); margin: 0; padding: 0; border: 0; background: none; }
 html[data-theme] body.pf-api-docs .member-signature {
   flex: 1 1 auto;
