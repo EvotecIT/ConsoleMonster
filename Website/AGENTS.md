@@ -131,6 +131,14 @@ The site is set in the medium it documents: a terminal cell grid.
   `data/copy.json`. No all-caps labels, no numbered markers unless the content is a sequence, no arrows on links, and no
   numbers that are not in the repository or measured by the tool.
 
+## The README follows the site
+
+`README.md` at the repository root is the front page on GitHub and in the NuGet package. Its code blocks are marked
+`<!-- example: <source> -->` (a file under `examples/`, shown whole, or `content/<page>.md#N`, that page's Nth code
+block); `dotnet run --project tools/SiteFrames -c Release -- readme .` writes them, and the render fails when one has
+drifted (`tools/SiteFrames/Readme.cs`). Its images are frames the site shows, written as pages by the render and
+screenshotted by `build/Render-SiteImages.ps1` into `static/readme/`; the README links them with absolute
+raw.githubusercontent.com URLs, which NuGet also renders. Website CI runs on README changes for this check.
 ## The site is self-sufficient
 
 Every page lets a visitor do the thing without leaving the site: paste this, do this, then this, and this is the code

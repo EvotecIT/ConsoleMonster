@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "Website/**"
+      - "README.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
@@ -15,6 +16,7 @@ on:
     branches: [master]
     paths:
       - "Website/**"
+      - "README.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
@@ -35,7 +37,7 @@ concurrency:
 
 jobs:
   verify-site:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@99b71c814af6f41db22f0afdef1fd481cd01b6cf
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@2df4cfbfbd7e3a6a8fccf0b3c3890b220b37156d
     with:
       website_root: Website
       dotnet_version: |
