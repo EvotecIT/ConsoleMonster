@@ -73,6 +73,12 @@ namespace SiteFrames.Pages {
             /// </summary>
             public (string File, string? Example, string? Signature)? CSharp { get; set; }
 
+            /// <summary>
+            /// The C# twin of a PowerShell demo as a complete program under Website/examples/demos (a Program.cs). It is
+            /// compiled on every render exactly as a reader's project would compile it, so the C# tab is always runnable.
+            /// </summary>
+            public string? CSharpProgram { get; set; }
+
             /// <summary>Additional source files needed by the full C# program, relative to the repository.</summary>
             public string[] CSharpCompanions { get; set; } = Array.Empty<string>();
 
@@ -135,6 +141,8 @@ namespace SiteFrames.Pages {
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
             yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
+            yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
+            yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };
             yield return new Demo("login", "ssh deploy@app-web-03", 100, 30) {
                 Script = Path.Combine("Module", "Examples", "Example-LoginOverview.ps1"),
                 Arguments = "-Sample -Width 96",
@@ -359,6 +367,14 @@ namespace SiteFrames.Pages {
                     entry["powershell"] = shortForm;
                     entry["powershellRepo"] = demo.PowerShellTwin.Replace('\\', '/');
                     entry["powershellFull"] = full.TrimEnd('\n');
+                }
+                if (demo.CSharpProgram != null) {
+                    string program = Script(site, demo.CSharpProgram);
+                    CSharpRunner.Compile(program);
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(program));
+                    entry["csharp"] = shortForm;
+                    entry["csharpFull"] = full;
+                    entry["csharpRepo"] = ScriptFile(site, demo.CSharpProgram);
                 }
                 if (demo.CSharp != null) {
                     (string file, string? example, string? signature) = demo.CSharp.Value;

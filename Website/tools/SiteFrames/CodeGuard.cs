@@ -49,8 +49,20 @@ namespace SiteFrames {
             Array.Sort(pages, StringComparer.Ordinal);
             foreach (string page in pages) {
                 string name = Path.GetRelativePath(site.Website, page).Replace('\\', '/');
-                foreach ((int line, string code) in Fences(Site.ReadText(page))) {
+                foreach ((int line, string language, string code) in Blocks(Site.ReadText(page))) {
                     Inspect(code, name + ":" + line, problems);
+                    // A C# block that starts with its using lines is a complete program: it must compile as a reader's would.
+                    if ((language == "csharp" || language == "cs") && code.StartsWith("using ", StringComparison.Ordinal)) {
+                        string file = Path.Combine(Path.GetTempPath(), "cmsite-fence-" + Path.GetFileNameWithoutExtension(page) + "-" + line + ".cs");
+                        File.WriteAllText(file, code);
+                        try {
+                            Capture.CSharpRunner.Compile(file);
+                        } catch (InvalidOperationException ex) {
+                            problems.Add(name + ":" + line + " " + ex.Message);
+                        } finally {
+                            File.Delete(file);
+                        }
+                    }
                 }
             }
             WidgetsPage.Report(problems, "code");
@@ -58,18 +70,26 @@ namespace SiteFrames {
 
         /// <summary>The fenced code blocks of a Markdown page, with the line each starts on.</summary>
         internal static IEnumerable<(int Line, string Code)> Fences(string markdown) {
+            foreach ((int line, string _, string code) in Blocks(markdown)) {
+                yield return (line, code);
+            }
+        }
+
+        /// <summary>The fenced code blocks of a Markdown page, with the line each starts on and its language.</summary>
+        internal static IEnumerable<(int Line, string Language, string Code)> Blocks(string markdown) {
             string[] lines = markdown.Split('\n');
             for (int i = 0; i < lines.Length; i++) {
                 string trimmed = lines[i].TrimStart();
                 if (!trimmed.StartsWith("```", StringComparison.Ordinal)) {
                     continue;
                 }
+                string language = trimmed.Substring(3).Trim().ToLowerInvariant();
                 int start = i + 2;
                 List<string> block = new List<string>();
                 for (i++; i < lines.Length && !lines[i].TrimStart().StartsWith("```", StringComparison.Ordinal); i++) {
                     block.Add(lines[i]);
                 }
-                yield return (start, string.Join("\n", block));
+                yield return (start, language, string.Join("\n", block));
             }
         }
 

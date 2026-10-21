@@ -521,6 +521,39 @@
         ]
       }
     },
+    "session": {
+      "title": "A dashboard updated from three threads",
+      "body": "Each server is deployed in parallel and updates its own lane by name. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
+      "label": "Three servers deployed in parallel into one dashboard",
+      "use": {
+        "title": "Run it yourself",
+        "steps": [
+          { "text": "PowerShell: install the module, save the script and run it.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser\n./session.ps1" } ] },
+          { "text": "C#: a new console project with the package, the program as its `Program.cs`, then `dotnet run`.", "code": [ { "lang": "bash", "label": ".NET 8 and later", "text": "dotnet new console -n Deploy\ncd Deploy\ndotnet add package ConsoleMonster\ndotnet run" } ] }
+        ],
+        "links": [
+          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "LiveSession (C#)", "url": "/api/consolemonster-live-livesession/" }
+        ]
+      }
+    },
+    "record": {
+      "title": "Record, replay, export",
+      "body": "One script: a dashboard defined once, a run recorded with -RecordPath, the recording played back at twice the speed into the same dashboard, and a page with a player saved next to it.",
+      "label": "A deploy dashboard run, then its recording replayed at twice the speed",
+      "use": {
+        "title": "Run it yourself",
+        "steps": [
+          { "text": "Install the module and save the script (Copy on its panel) as `record.ps1`.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser" } ] },
+          { "text": "Run it (dot-sourced, so `$dashboard` stays defined). The recording and the page are written to your temporary folder; open the page in a browser to scrub through the run.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": ". ./record.ps1\nInvoke-Item (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')" } ] },
+          { "text": "To rewind the run in the terminal instead, with markers, failures and log search, use `Show-ConsoleReplay`.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Show-ConsoleReplay $dashboard (Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl')" } ] }
+        ],
+        "links": [
+          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "Export-ConsoleRecording", "url": "/powershell/commands/export-consolerecording/" }
+        ]
+      }
+    },
     "errors": {
       "title": "Errors you can read",
       "body": "The error view: the exception, the message, the category and the lines of the script around the failing statement.",
