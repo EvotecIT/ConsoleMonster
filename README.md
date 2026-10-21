@@ -25,6 +25,12 @@ console are then shown as ConsoleMonster tables and records. The objects don't c
 `Format-*`, `Out-String`, redirected output, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting`
 turns it off again.
 
+`Format-Table`, `Format-List` and `Format-Wide` use PowerShell's formatting unless you explicitly opt into
+`Enable-ConsoleFormatting -Feature FormatCommands`. This separate feature is excluded from `All`; captures, pipelines,
+files, jobs, remoting and transcripts retain native output. See [everyday formatting](Docs/Everyday-Formatting.md),
+[module-owned views](Docs/Module-Views.md), [Markdown/HTML and clipboard](Docs/Output-Exports.md), and
+[terminal links](Docs/Hyperlinks.md).
+
 To keep it on in every session, print the lines for your profile. The command only prints them and never edits the profile:
 
 ```powershell

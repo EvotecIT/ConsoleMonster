@@ -1049,7 +1049,12 @@ returns what you pick.
 
 `Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),
 processes (`Get-Process`), services (`Get-Service`) and any type registered with `Register-ConsoleView` as ConsoleMonster
-tables. `Disable-ConsoleFormatting` turns it off.
+tables. `Disable-ConsoleFormatting` turns it off. `Format-Table`, `Format-List` and `Format-Wide` retain PowerShell's
+formatting unless `Enable-ConsoleFormatting -Feature FormatCommands` is explicitly requested. This feature is excluded
+from `All` and applies only to direct console output; captures, pipeline continuations, files, jobs, remoting and
+transcripts keep native output. See [everyday formatting](Everyday-Formatting.md) for the parameter map,
+[module-owned views](Module-Views.md) for dependency-free registration, [exports and clipboard](Output-Exports.md), and
+[terminal links](Hyperlinks.md).
 
 ```powershell
 Enable-ConsoleFormatting
