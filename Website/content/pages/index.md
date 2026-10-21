@@ -1,6 +1,9 @@
 ---
 title: ConsoleMonster - Console rendering for .NET and PowerShell
 description: ConsoleMonster draws tables, trees, panels, charts and live dashboards for .NET and PowerShell 5.1 and 7, with no package dependencies.
+meta.social_title: "Everyday output in one line. The monster when you need it."
+meta.social_description: "Readable PowerShell output in one line; tables, live dashboards, menus and forms when you need them. .NET and PowerShell 5.1 and 7."
+meta.social_card_image: /site/nav/live-dark.svg
 slug: index
 meta.seo_title: ConsoleMonster - Console rendering for .NET and PowerShell
 layout: home

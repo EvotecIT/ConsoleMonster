@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@396e00acba04dcaae4c3c95433338f4df65fbc01
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@99b71c814af6f41db22f0afdef1fd481cd01b6cf
     with:
       website_root: Website
       dotnet_version: |

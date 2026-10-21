@@ -134,6 +134,17 @@
     "Image": "/site/social-card.png",
     "ImageWidth": 1200,
     "ImageHeight": 630,
+    "AutoGenerateCards": true,
+    "GeneratedCardsPath": "/site/social",
+    "GeneratedCardLogo": "/favicon.svg",
+    "GeneratedCardCollections": ["pages", "docs", "guides"],
+    "GeneratedCardTheme": "cm-pages",
+    "GeneratedCardThemesByCollection": { "pages": "cm-pages", "docs": "cm-docs", "guides": "cm-guides" },
+    "GeneratedCardThemes": {
+      "cm-pages": { "Style": "product", "Variant": "panel", "ColorScheme": "dark", "Tokens": { "socialCard": { "fontDisplay": "Space Grotesk, Segoe UI, sans-serif", "fontBody": "Segoe UI, sans-serif", "fontMono": "JetBrains Mono, Cascadia Mono, Consolas, monospace", "backgroundStart": "#0d121b", "backgroundMid": "#101826", "backgroundEnd": "#0d121b", "surface": "#141b27", "surfaceStroke": "#273041", "textPrimary": "#f8fafc", "textSecondary": "#c3cad6", "accent": "#60a5fa", "accentSoft": "#60a5fa", "accentStrong": "#60a5fa", "chipBackground": "#141b27", "chipBorder": "#273041", "chipText": "#c3cad6" } } },
+      "cm-docs": { "Style": "docs", "Variant": "panel", "ColorScheme": "dark", "Tokens": { "socialCard": { "fontDisplay": "Space Grotesk, Segoe UI, sans-serif", "fontBody": "Segoe UI, sans-serif", "fontMono": "JetBrains Mono, Cascadia Mono, Consolas, monospace", "backgroundStart": "#0d121b", "backgroundMid": "#101826", "backgroundEnd": "#0d121b", "surface": "#141b27", "surfaceStroke": "#273041", "textPrimary": "#f8fafc", "textSecondary": "#c3cad6", "accent": "#4ade80", "accentSoft": "#4ade80", "accentStrong": "#4ade80", "chipBackground": "#141b27", "chipBorder": "#273041", "chipText": "#c3cad6" } } },
+      "cm-guides": { "Style": "docs", "Variant": "panel", "ColorScheme": "dark", "Tokens": { "socialCard": { "fontDisplay": "Space Grotesk, Segoe UI, sans-serif", "fontBody": "Segoe UI, sans-serif", "fontMono": "JetBrains Mono, Cascadia Mono, Consolas, monospace", "backgroundStart": "#0d121b", "backgroundMid": "#101826", "backgroundEnd": "#0d121b", "surface": "#141b27", "surfaceStroke": "#273041", "textPrimary": "#f8fafc", "textSecondary": "#c3cad6", "accent": "#fbbf24", "accentSoft": "#fbbf24", "accentStrong": "#fbbf24", "chipBackground": "#141b27", "chipBorder": "#273041", "chipText": "#c3cad6" } } }
+    },
     "TwitterCard": "summary_large_image"
   },
   "AgentReadiness": {

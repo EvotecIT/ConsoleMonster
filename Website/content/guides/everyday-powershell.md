@@ -1,6 +1,8 @@
 ---
 title: Everyday PowerShell output
 description: "Enable-ConsoleFormatting makes ordinary output readable for the session: files, processes, hashtables, arrays and groups, before and after."
+social_card_image: /site/cards/formatting.svg
+meta.social_title: "Everyday PowerShell output"
 slug: everyday-powershell
 order: 1
 ---
