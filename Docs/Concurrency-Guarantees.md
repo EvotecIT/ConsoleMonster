@@ -61,6 +61,9 @@ The mode is saved before first-use capability capture, including in optimized .N
 A callback that prevents the render thread from joining can exceed `StopTimeout`. Console capture is restored, while the final
 drain and screen cleanup are deferred until that callback returns. Workers should observe cancellation. Use `GetCounters()` to inspect accepted, applied,
 dropped, and failed updates. Zero drops is the normal-run contract; a late post after cancellation is an expected rejection.
+Prepared one-shot blocks written after a timed-out stop wait in the closing queue without waiting for the blocked widget.
+They flush once when the render thread returns. Invalid strict markup in an unclaimed log event is reported through
+`ApplyErrors` and `LastError`, shown literally, and does not prevent later queued events from being delivered.
 
 ## .NET alternative
 
@@ -107,6 +110,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | One admission per block and preserved final inline line | `SessionWrites_AdmitWholeMultilineBlocksBeforeAnotherProducer`, `SessionWrite_PreservesTheFinalInlineLine` in the same file |
 | Exactly-once shutdown fallback to actual OS stdout | [`StopDuringWritePreparation_PrintsTheWholeFallbackExactlyOnceToNativeStdout`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs) |
 | Shutdown fallback cannot split draining blocks; restoration/summary writes flush once | [`ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining`, `ShutdownFallback_FromRestorationAndSummaryIsFlushedExactlyOnce`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
+| A late block does not wait for user rendering after Stop or StopTimeout, and flushes once afterward | `Stopping_LateBlockDoesNotWaitForBlockedWidgetAndFlushesOnce` in the same file |
 | Default output from a frame/summary callback cannot deadlock with a concurrent Snapshot request | [`RenderCallback_DefaultOutputAndConcurrentSnapshotCannotDeadlock`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs), forced frame and summary schedules in isolated processes |
 | Whole stream lines in apply order, many producers | [`Stream_ManyProducersWriteWholeLinesInExactApplyOrder`](../ConsoleMonster.Tests/Live/DispatcherConcurrencyTests.cs) |
 | Posting proceeds with blocked Apply; every accepted flood event drains | `Flood_PostingFinishesWhileApplyIsBlocked_ThenEveryAcceptedUpdateDrains` in the same file |
@@ -115,10 +119,12 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Concurrent handles, SummaryBar partial updates, and queued Slot swaps | [`HandlesAndSlotSet_KeepEveryUpdateAndEachProducersLastValue`](../ConsoleMonster.Tests/Live/HandleConcurrencyTests.cs) |
 | Per-thread fragments, CR/LF, and exactly-once tail flushing | [`ConcurrentFragments_StayWithTheirProducerUntilNewline`, `CarriageReturnState_BelongsToTheProducer`, `Complete_FlushesEveryProducerTailExactlyOnce`](../ConsoleMonster.Tests/Live/CaptureWriterConcurrencyTests.cs) |
 | Progressive no-log output and bounded full-screen tail with scrollback | [`StreamWithoutLog_WritesCapturedAndPostedLinesBeforeStopInApplyOrder`, `FullScreenWithoutLog_ShowsABoundedCaptureTailAndRetainsScrollback`](../ConsoleMonster.Tests/Live/UnclaimedOutputTests.cs) |
+| Strict malformed markup remains literal and later log events still arrive | `UnclaimedInvalidMarkup_IsLiteralAndDoesNotStopLaterEvents` in the same file, stream and full screen |
 | LF/CRLF host, warning, and colored messages retain lines without a log | `NoLog_MultilinePlainAndColouredMessagesKeepTheirLines` in the same file; [`preserves multiline host and warning messages without a log in <Mode> with <LineEnding>`](../Module/Tests/ConsoleMonster.Concurrency.Tests.ps1) |
 | Concurrent log entries retain exception details and scopes | [`ConcurrentExceptionEntries_KeepMessagesDetailsAndScopesTogether`](../ConsoleMonster.Extensions.Tests/LoggingConcurrencyTests.cs) |
 | All session log entries arrive; exceptions reach the configured explicit sink | `ConcurrentSessionLogging_DeliversEveryEntryAndAnExceptionToItsExplicitSink` in the same file |
 | Parallel dashboard/run host, warning, nested progress, and native results | [`routes host, warning and nested progress from <CommandName> without changing result records`](../Module/Tests/ConsoleMonster.Concurrency.Tests.ps1), all three command names |
+| Progress whose parent has not arrived contributes as a top-level activity | [`Activities_OrphansContributeProgressUntilTheirParentArrives`](../ConsoleMonster.Tests/Output/TaskbarProgressTests.cs), including a child updating after parent completion |
 | First actual Ctrl+C rejects later posts and restores terminal/writers | [`FirstActualCtrlC_RejectsLaterPostsAndRestoresNativeTerminalAndWriters`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs), isolated Windows console; [`FirstCancellation_DropsLaterPostsAndRestoresWritersExactlyOnce`](../ConsoleMonster.Tests/Live/CancellationConcurrencyTests.cs), portable cancellation |
 | Stress proves zero drops and actual captured line identities | [`StressRun_VerifiesZeroDropsAndCapturedLineIdentitiesAfterDrain`](../ConsoleMonster.Tests/Live/StressRunTests.cs) and the real stress example's delivered-line assertions |
 | Native Format-Wide fitting | [`matches native Wide column fitting for <LayoutName>, including boundary widths and groups`](../Module/Tests/ConsoleMonster.FormatCommands.Tests.ps1); direct-host proof in [`Assert-ConcurrencyHost.ps1`](../Module/Tests/Support/Assert-ConcurrencyHost.ps1) |

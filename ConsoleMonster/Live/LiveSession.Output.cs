@@ -21,8 +21,17 @@ namespace ConsoleMonster.Live {
         // Rejected one-shot writes still share the session's physical output lock until its final output is complete.
         // Before restoration, stream writes use that output and live writes wait for scrollback. Restored but not yet
         // finished output keeps late blocks for the final flush. Never invoke Terminal's normal writer under this lock:
-        // it takes Terminal.Gate, which a custom one-shot widget can already hold while asking for a session snapshot.
+        // it serializes writer callbacks, which can themselves request a session snapshot.
         internal bool TryWriteFallback(ConsoleWriteBlock write) {
+            lock (_lifecycle) {
+                if (!_renderExited && (_cleanupDeferred || _output?.SupportsLiveFrames == true)) {
+                    // Live writes already wait for scrollback; user rendering can still hold _outputGate even before
+                    // a stopping caller times out. Admit without waiting for it. Keeping the exit
+                    // check and enqueue under _lifecycle makes this precede the render thread's final cleanup.
+                    _unroutedLines.Enqueue(write);
+                    return true;
+                }
+            }
             lock (_outputGate) {
                 if (_outputFinished || _output == null) { return false; }
                 if (_restored) { _unroutedLines.Enqueue(write); }
@@ -32,14 +41,25 @@ namespace ConsoleMonster.Live {
         }
 
         private void RouteUnclaimedLog(LiveEvent liveEvent) {
+            StyledText text;
+            bool literalFallback = false;
+            try {
+                text = liveEvent.IsMarkup ? _context!.Markup(liveEvent.Text!) : StyledText.FromPlain(liveEvent.Text);
+            } catch (System.FormatException ex) {
+                System.Threading.Interlocked.Increment(ref _applyErrors);
+                Error(ex);
+                literalFallback = true;
+                text = StyledText.FromPlain(liveEvent.Text);
+            }
             if (_output != null && _output.SupportsLiveFrames && _options.Mode == LiveMode.FullScreen) {
                 if (_captureLog == null) {
                     _captureLog = new LogRegion { PreferredHeight = 6, ShowTime = false, Wrap = true };
                 }
-                _captureLog.Apply(liveEvent);
+                if (literalFallback) {
+                    _captureLog.Write(liveEvent.Text!, liveEvent.State ?? "info", System.TimeSpan.FromMilliseconds(liveEvent.Time));
+                } else { _captureLog.Apply(liveEvent); }
             }
-            var lines = liveEvent.IsMarkup ? _context!.Markup(liveEvent.Text!).Lines : StyledText.FromPlain(liveEvent.Text).Lines;
-            RouteConsoleWrite(new ConsoleWriteBlock(lines, true));
+            RouteConsoleWrite(new ConsoleWriteBlock(text.Lines, true));
         }
 
         private IWidget RootForFrame(int height) {

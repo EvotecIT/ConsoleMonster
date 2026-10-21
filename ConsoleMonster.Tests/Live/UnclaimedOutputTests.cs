@@ -10,6 +10,33 @@ namespace ConsoleMonster.Tests.Live {
     [Collection("Live sessions")]
     public sealed class UnclaimedOutputTests {
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UnclaimedInvalidMarkup_IsLiteralAndDoesNotStopLaterEvents(bool live) {
+            bool strict = ConsoleMonster.Text.Markup.Strict;
+            try {
+                ConsoleMonster.Text.Markup.Strict = true;
+                FakeOutput output = new FakeOutput(live);
+                TaskCompletionSource<bool> applied = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                FakeTarget fence = new FakeTarget { Applying = _ => applied.TrySetResult(true) };
+                using (LiveSession session = new LiveSession(fence, LiveSessionTests.Options(output))) {
+                    session.Start();
+                    session.Post(new LiveEvent("$log", "write", text: "[pass]broken", isMarkup: true));
+                    session.Write("later-line");
+                    session.Post(new LiveEvent("work", "fence"));
+                    await Observed(applied.Task);
+                    Assert.True(session.IsRunning);
+                    session.Stop();
+                    Assert.Equal(new[] { "[pass]broken", "later-line" }, output.Lines);
+                    Assert.Equal(1, session.ApplyErrors);
+                    Assert.IsType<FormatException>(session.LastError);
+                    Assert.Equal(0, session.EventsDropped);
+                    Assert.Equal(3, session.EventsApplied);
+                }
+            } finally { ConsoleMonster.Text.Markup.Strict = strict; }
+        }
+
+        [Theory]
         [InlineData(LiveMode.FullScreen)]
         [InlineData(LiveMode.Inline)]
         public async Task StreamWithoutLog_WritesCapturedAndPostedLinesBeforeStopInApplyOrder(LiveMode mode) {

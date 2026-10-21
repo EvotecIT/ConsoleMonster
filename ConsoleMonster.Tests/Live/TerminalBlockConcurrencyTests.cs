@@ -103,6 +103,58 @@ namespace ConsoleMonster.Tests.Live {
                 new[] { StyledLine.From("summary-first"), StyledLine.From("summary-last") }, profile: Profile);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Stopping_LateBlockDoesNotWaitForBlockedWidgetAndFlushesOnce(bool stoppedByRenderer) {
+            FakeOutput output = new FakeOutput();
+            LiveSessionOptions options = LiveSessionTests.Options(output);
+            options.StopTimeout = TimeSpan.Zero;
+            using (ManualResetEventSlim entered = new ManualResetEventSlim())
+            using (ManualResetEventSlim release = new ManualResetEventSlim())
+            using (Terminal.Use(ConsoleTarget.Instance)) {
+                GatedFrame widget = new GatedFrame(entered, release);
+                using (LiveSession session = new LiveSession(widget, options)) {
+                    if (stoppedByRenderer) { widget.BeforeBlock = session.Stop; }
+                    session.Start();
+                    Terminal.ClaimConsole(session);
+                    Task? writer = null;
+                    try {
+                        Assert.True(entered.Wait(TimeSpan.FromSeconds(30)));
+                        if (stoppedByRenderer) { Assert.False(session.IsRunning); }
+                        else { session.Stop(); Assert.IsType<TimeoutException>(session.LastError); }
+                        writer = Task.Run(() => Terminal.WriteLines(new[] {
+                            StyledLine.From("late-first"), StyledLine.From("late-last")
+                        }, profile: Profile));
+                        // Completion must precede releasing user rendering; this is a deadlock watchdog, not a speed budget.
+                        await Observed(writer);
+                        Assert.False(release.IsSet);
+                        Assert.Empty(output.Lines);
+                    } finally {
+                        release.Set();
+                        if (writer != null) { await Observed(writer); }
+                        Assert.True(SpinWait.SpinUntil(() => Terminal.ConsoleOwner == null, TimeSpan.FromSeconds(30)));
+                        session.Stop();
+                    }
+                    Assert.Equal(new[] { "late-first", "late-last" }, output.Lines);
+                }
+            }
+        }
+
+        private sealed class GatedFrame : IWidget {
+            private readonly ManualResetEventSlim _entered, _release;
+            private int _rendered;
+            internal Action? BeforeBlock;
+            internal GatedFrame(ManualResetEventSlim entered, ManualResetEventSlim release) { _entered = entered; _release = release; }
+            public Size Measure(Constraints constraints, RenderContext context) => new Size(1, 1);
+            public void Render(Region region, RenderContext context) {
+                if (Interlocked.Exchange(ref _rendered, 1) != 0) { return; }
+                BeforeBlock?.Invoke();
+                _entered.Set();
+                if (!_release.Wait(TimeSpan.FromSeconds(90))) { throw new TimeoutException("The blocked widget was not released."); }
+            }
+        }
+
         [Fact]
         public async Task ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining() {
             FakeOutput output = new FakeOutput(false);

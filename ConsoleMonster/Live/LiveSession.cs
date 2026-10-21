@@ -58,6 +58,7 @@ namespace ConsoleMonster.Live {
         private int _invalidate;
         private bool _callerStopping;
         private bool _renderExited;
+        private bool _cleanupDeferred; // Protected by _lifecycle, including the final render-thread handoff.
         private bool _restored;
         private bool _finishing;
         private long _eventsPosted;

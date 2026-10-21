@@ -155,6 +155,7 @@ namespace ConsoleMonster.Live {
             CancelWork();
             if (Thread.CurrentThread == thread) { return; }
             if (thread != null && !thread.Join(_options.StopTimeout)) {
+                lock (_lifecycle) { _cleanupDeferred = true; }
                 Error(new TimeoutException("The render callback has not returned; final cleanup is deferred."));
                 RestoreCapture();
                 bool finish;
