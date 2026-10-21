@@ -20,7 +20,7 @@
 .cm-gallery__intro { margin-bottom: 8px; }
 .cm-gallery__group { padding-top: var(--cm-space-6); scroll-margin-top: 140px; }
 .cm-gallery__heading { display: grid; gap: var(--cm-space-2); margin: 0 0 var(--cm-space-6); padding-bottom: var(--cm-space-4); border-bottom: 2px solid var(--cm-ink); }
-.cm-gallery__heading h2 { font-size: 30px; font-weight: 800; }
+.cm-gallery__heading h2 { font-size: 30px; font-weight: 700; }
 .cm-gallery__heading p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
 /* A specimen opens with a rule like ConsoleMonster's Rule widget: the title set into the line, the size on the right. */
 .cm-specimen { margin: 0 0 var(--cm-space-8); scroll-margin-top: 150px; }
@@ -86,7 +86,7 @@
 /* Showcase blocks on product pages. */
 .cm-showcase { display: grid; gap: var(--cm-space-5); margin: 0 0 var(--cm-space-8); }
 .cm-showcase__head { display: grid; gap: 10px; max-width: 72ch; }
-.cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 800; }
+.cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 700; }
 .cm-showcase__head p { margin: 0; color: var(--cm-ink-2); }
 .cm-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0; margin: 0; padding: 0; border-top: 1px solid var(--cm-line); }
 .cm-facts div { padding: 16px 18px 14px 0; border-bottom: 1px solid var(--cm-line); }
@@ -107,7 +107,7 @@
 /* Not found. */
 .cm-notfound { padding: var(--cm-space-8) 0; }
 .cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--cm-space-7); align-items: center; }
-.cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 800; }
+.cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 700; }
 
 @media (max-width: 1180px) {
   .cm-specimen__body, .cm-pair { grid-template-columns: minmax(0, 1fr); }

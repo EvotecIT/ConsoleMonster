@@ -8,10 +8,31 @@
   font-display: swap;
   src: url(/fonts/jetbrains-mono-latin.woff2) format("woff2");
 }
+/* Display face for h1/h2: Space Grotesk 700, Latin only (@fontsource/space-grotesk 5.3.0, OFL, fonts/OFL-SpaceGrotesk.txt).
+   The fallback face scales local Arial Bold to Space Grotesk's width and vertical metrics (measured on the site's own
+   headings), so the swap does not reflow the hero. */
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/space-grotesk-latin-700.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk Fallback";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 101.4%;
+  ascent-override: 97.04%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
 
 :root {
   color-scheme: light;
   --cm-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --cm-display: "Space Grotesk", "Space Grotesk Fallback", var(--cm-font);
   --cm-mono: "JetBrains Mono", "Cascadia Mono", "Cascadia Code", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
   --cm-max: 1240px;
   --cm-gutter: clamp(16px, 4vw, 40px);

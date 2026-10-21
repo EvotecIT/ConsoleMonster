@@ -24,6 +24,7 @@
     },
     "font": {
       "body": "system-ui, sans-serif",
+      "display": "Space Grotesk, Arial, sans-serif",
       "mono": "JetBrains Mono, Cascadia Mono, Consolas, monospace"
     },
     "layout": {

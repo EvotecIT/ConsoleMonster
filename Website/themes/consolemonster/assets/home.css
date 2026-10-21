@@ -2,7 +2,7 @@
    stage of one width for both paths, then install and code side by side), then sections on the shared spacing scale. */
 .cm-hero { padding: var(--cm-space-8) 0; }
 .cm-hero__intro { display: grid; justify-items: center; gap: var(--cm-space-5); text-align: center; }
-.cm-hero h1 { max-width: 20ch; margin: 0; font-size: clamp(32px, 4.4vw, 56px); font-weight: 800; line-height: 1.04; letter-spacing: -.035em; color: #f8fafc; text-wrap: balance; }
+.cm-hero h1 { max-width: 20ch; margin: 0; font-size: clamp(32px, 4.4vw, 56px); font-weight: 700; line-height: 1.04; letter-spacing: -.02em; color: #f8fafc; text-wrap: balance; }
 .cm-hero .cm-stage__lede { max-width: 62ch; margin: 0; text-wrap: pretty; }
 .cm-paths { display: grid; justify-items: center; gap: var(--cm-space-5); margin-top: var(--cm-space-7); }
 .cm-paths__switch button { min-width: 9.5em; font-size: 15px; }
@@ -22,7 +22,7 @@
 .cm-hero__install, .cm-hero__code { display: grid; gap: var(--cm-space-3); align-content: start; min-width: 0; }
 .cm-hero__code .cm-seg { justify-self: start; }
 .cm-hero__code > div { min-width: 0; }
-.cm-hero__take-title { margin: 0; font: 700 15px/1.3 var(--cm-mono); color: #e2e8f0; }
+.cm-hero__take-title { margin: 0; font: 700 15px/1.3 var(--cm-mono); letter-spacing: -.015em; color: #e2e8f0; }
 .cm-hero__take .cm-code { margin: 0; background: #0b1019; box-shadow: inset 0 0 0 1px #273041; }
 .cm-hero__take .cm-code__bar { border-bottom-color: #273041; }
 .cm-hero__take .cm-code pre { font-size: 13.5px; color: #e2e8f0; }

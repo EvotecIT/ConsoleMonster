@@ -201,11 +201,11 @@ html[data-theme] body.pf-api-docs .api-overview-header { display: grid; gap: var
 html[data-theme] body.pf-api-docs :is(.type-header, .api-overview-header) h1 {
   margin: 0;
   color: var(--cm-ink);
-  font-family: var(--cm-mono);
+  font-family: var(--cm-display);
   font-size: clamp(28px, 1.2rem + 1.6vw, 40px);
-  font-weight: 800;
+  font-weight: 700;
   font-stretch: normal;
-  letter-spacing: -.025em;
+  letter-spacing: -.02em;
   line-height: 1.1;
   overflow-wrap: anywhere;
 }
@@ -274,7 +274,7 @@ html[data-theme] body.pf-api-docs .api-content h2 {
   border: 0;
   border-top: 1px solid var(--cm-line);
   color: var(--cm-ink);
-  font: 700 20px/1.3 var(--cm-mono);
+  font: 700 20px/1.3 var(--cm-display);
   font-stretch: normal;
   letter-spacing: -.01em;
 }

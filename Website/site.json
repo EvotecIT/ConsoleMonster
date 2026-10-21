@@ -85,6 +85,13 @@
         "As": "font",
         "Type": "font/woff2",
         "Crossorigin": "anonymous"
+      },
+      {
+        "Rel": "preload",
+        "Href": "/fonts/space-grotesk-latin-700.woff2",
+        "As": "font",
+        "Type": "font/woff2",
+        "Crossorigin": "anonymous"
       }
     ],
     "Meta": [

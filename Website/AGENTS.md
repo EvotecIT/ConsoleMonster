@@ -80,8 +80,10 @@ The site is set in the medium it documents: a terminal cell grid.
   (`ConsoleMonster/Styling/Theme.BuiltIn.cs`). Pass, warn and fail keep their status meaning; navigation and tab keys use
   the six chart series colours (`--cm-s1` to `--cm-s6`). Dark pages sit on slate (`--cm-page`); terminal screens use the
   exporter's Campbell defaults (`#0c0c0c` / `#cccccc`) and `#ffffff` / `#24292f` for light frames.
-- **Type.** JetBrains Mono (self-hosted, OFL) for headings, navigation, controls, code and frames; the system sans for
-  prose.
+- **Type.** Space Grotesk 700 (self-hosted Latin subset from @fontsource, OFL, `--cm-display`) for h1/h2 page and
+  section titles, with a metric-matched Arial Bold fallback face so the swap does not reflow; JetBrains Mono (self-hosted,
+  OFL) for small headings, navigation, controls, code and frames; the system sans for prose. Only 700 ships, so title
+  rules ask for 700, not 800.
 - **Stage and masthead.** Product pages open with `partials/stage.html`, a band that stays dark in both themes, with real
   output beside or under the title. Docs and guides open with `partials/masthead.html`. No eyebrow labels above either.
 - **Screens.** Every frame uses `partials/screen.html`: a window bar with the real terminal profile as chips, then the

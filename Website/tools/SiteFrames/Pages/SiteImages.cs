@@ -13,9 +13,9 @@ namespace SiteFrames.Pages {
         public static void Render(Site site) {
             string folder = Path.Combine(site.Website, "_temp", "images");
             Directory.CreateDirectory(folder);
-            string fonts = new Uri(Path.Combine(site.Website, "static", "fonts", "jetbrains-mono-latin.woff2")).AbsoluteUri;
+            string fonts = new Uri(Path.Combine(site.Website, "static", "fonts") + Path.DirectorySeparatorChar).AbsoluteUri;
             string theme = Path.Combine(site.Website, "themes", "consolemonster", "assets");
-            string css = File.ReadAllText(Path.Combine(theme, "tokens.css")).Replace("url(/fonts/jetbrains-mono-latin.woff2)", "url(" + fonts + ")")
+            string css = File.ReadAllText(Path.Combine(theme, "tokens.css")).Replace("url(/fonts/", "url(" + fonts)
                 + File.ReadAllText(Path.Combine(theme, "base.css")) + site.Styles.Css();
             JsonObject live = (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!;
             string poster = live["assessment"]!["poster"]!["dark"]!.GetValue<string>();
@@ -28,7 +28,7 @@ html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0d121b}
 .text{position:absolute;left:64px;top:60px;width:470px}
 .brand{display:flex;align-items:center;gap:16px;font:700 30px/1 var(--cm-mono);color:#f8fafc}
 .brand svg{width:56px;height:56px}
-h1{margin:44px 0 0;font:800 58px/1.04 var(--cm-mono);letter-spacing:-.03em;color:#f8fafc}
+h1{margin:44px 0 0;font:700 58px/1.04 var(--cm-display);letter-spacing:-.02em;color:#f8fafc}
 p{margin:26px 0 0;font:400 23px/1.45 var(--cm-font);color:#c3cad6}
 .shot{position:absolute;left:560px;top:70px;width:900px;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #273041,0 30px 80px -20px rgba(0,0,0,.9)}
 .shot .cm-screen{font-size:10.416667px!important;min-width:0;width:max-content}
