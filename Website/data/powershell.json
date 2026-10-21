@@ -243,6 +243,46 @@
           }
         }
       }
+    },
+    "streams": {
+      "script": "# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nWrite-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nWrite-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nWrite-ConsoleRule \"PowerShell's own colours\"\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Feature Streams\n\nWrite-ConsoleRule 'With -Feature Streams: the theme''s colours'\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
+      "rich": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 100,
+            "h": 8,
+            "dark": "<span class=\"f4b5060 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<span class=\"f4b5060 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=ffbbf24>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=f38bdf8>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=f8b8f9a>DEBUG: Cache hit for evotec.xyz</span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 100,
+            "h": 8,
+            "dark": "<span class=\"f4b5060 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f4b5060\">────────────────────────────────────────────────────────────────────────</i>\n<span class=ff9f1a5>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=ff9f1a5>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=ff9f1a5>DEBUG: Cache hit for evotec.xyz</span>\n<span class=\"f4b5060 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f4b5060\">──────────────────────────────────────────────────────</i>\n<span class=ff9f1a5>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=f61d6d6>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=f767676>DEBUG: Cache hit for evotec.xyz</span>"
+          }
+        }
+      },
+      "light": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "frame": {
+            "w": 100,
+            "h": 8,
+            "dark": "<span class=\"f8a8a94 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=\"fc19c00 B\">WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=\"fc19c00 B\">VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=\"fc19c00 B\">DEBUG: Cache hit for evotec.xyz</span>\n<span class=\"f8a8a94 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"f111827 B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=fb45309>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=f0369a1>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=f6b7280>DEBUG: Cache hit for evotec.xyz</span>"
+          }
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "frame": {
+            "w": 100,
+            "h": 8,
+            "dark": "<span class=\"f8a8a94 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"f111827 B c24\">PowerShell's own colours</span><span class=c1> </span><i class=\"g2500 c72 f8a8a94\">────────────────────────────────────────────────────────────────────────</i>\n<span class=ff9f1a5>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=ff9f1a5>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=ff9f1a5>DEBUG: Cache hit for evotec.xyz</span>\n<span class=\"f8a8a94 c3\"><i class=\"g2500 c2\">──</i> </span><span class=\"f111827 B c42\">With -Feature Streams: the theme's colours</span><span class=c1> </span><i class=\"g2500 c54 f8a8a94\">──────────────────────────────────────────────────────</i>\n<span class=fc19c00>WARNING: Certificate for mail.evotec.xyz expires in 12 days</span>\n<span class=f3a96dd>VERBOSE: Queried 4 domain controllers in 2 domains</span>\n<span class=f767676>DEBUG: Cache hit for evotec.xyz</span>"
+          }
+        }
+      }
     }
   },
   "families": [

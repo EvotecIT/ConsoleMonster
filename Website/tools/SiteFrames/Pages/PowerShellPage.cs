@@ -50,9 +50,21 @@ namespace SiteFrames.Pages {
             // -As Markdown returns a document instead of drawing; the console shows that text as it is.
             yield return new Run("export-markdown", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
             yield return new Run("relative-dates", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
+            // Native stream colours before and after -Feature Streams, on both hosts and in both themes.
+            yield return new Run("streams", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All);
+            yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);
         }
 
-        private static string Path_(Site site, Run run, PowerShellHost host) => Path.Combine(site.Captures, "powershell", run.Id + "." + run.Variant + "." + host.Id + ".ansi");
+        private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
+
+        /// <summary>The raw capture of a script run: captures/powershell/&lt;id&gt;.&lt;variant&gt;.&lt;host&gt;.ansi.</summary>
+        public static string CapturePath(Site site, string id, string variant, PowerShellHost host) => Path.Combine(site.Captures, "powershell", id + "." + variant + "." + host.Id + ".ansi");
+
+        /// <summary>A capture as a frame, as the page shows it: from its first line with text, cropped.</summary>
+        public static CellBuffer? CaptureFrame(Site site, string id, string variant, PowerShellHost host, int width = Width) {
+            string path = CapturePath(site, id, variant, host);
+            return File.Exists(path) ? Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), width, 120))) : null;
+        }
 
         private static string Stamp(Site site, Run run, PowerShellHost host) => Stamps.Of(Twins.Script(site, "powershell", run.Id), run.Environment, host.Id, run.RunWidth.ToString(System.Globalization.CultureInfo.InvariantCulture));
 

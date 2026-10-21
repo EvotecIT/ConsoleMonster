@@ -137,6 +137,26 @@ namespace SiteFrames.Pages {
             Copy(site, powershell, "format-table", "rich", "ps7", "format-table");
             Copy(site, powershell, "export-markdown", "rich", "ps7", "export-markdown", "Format-ConsoleTable -As Markdown");
             Copy(site, powershell, "relative-dates", "rich", "ps7", "relative-dates", "CONSOLEMONSTER_NOW=2026-10-21T12:00:00Z");
+            // Stream colours: the dark capture on the dark page and the light-theme capture on the light page, per host.
+            foreach (PowerShellHost host in PowerShellHost.All) {
+                CellBuffer? dark = PowerShellPage.CaptureFrame(site, "streams", "rich", host);
+                CellBuffer? light = PowerShellPage.CaptureFrame(site, "streams", "light", host);
+                JsonNode? example = powershell["examples"]?["streams"];
+                if (dark == null || light == null || example == null) {
+                    WidgetsPage.Report(new List<string> { "missing capture streams on " + host.Label + "; run the capture command for the powershell area." }, "docs");
+                    continue;
+                }
+                string version = powershell["examples"]!["streams"]!["rich"]![host.Id]!["host"]!.GetValue<string>();
+                Figures.Add("streams-" + host.Id, new JsonObject {
+                    ["title"] = version,
+                    ["file"] = "streams.ps1",
+                    ["label"] = "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Feature Streams in " + version,
+                    ["meta"] = new JsonArray(),
+                    ["frame"] = site.Frame(dark, light),
+                    ["script"] = example["script"]!.DeepClone(),
+                    ["scriptFull"] = example["scriptFull"]?.DeepClone()
+                });
+            }
             Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "PowerShell 5.1");
             Copy(site, powershell, "job", "rich", "ps7", "job-ps7", "PowerShell 7");
         }

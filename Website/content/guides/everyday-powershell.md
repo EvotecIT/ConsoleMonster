@@ -35,7 +35,7 @@ Scripts call the three Format commands too, so they get their own switch, separa
 
 ```powershell
 Enable-ConsoleFormatting -Feature FormatCommands
-Enable-ConsoleFormatting -Feature All, FormatCommands   # everything at once
+Enable-ConsoleFormatting -Feature All, FormatCommands   # everything at once (All alone leaves the Format commands as they are)
 Disable-ConsoleFormatting -Feature FormatCommands       # just this one off again
 ```
 
@@ -60,8 +60,14 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 [Coming from Format-Table](/guides/format-table/) shows the Markdown a table becomes.
 
+## Warning, verbose and debug messages
+
+`Enable-ConsoleFormatting -Feature Streams` (part of `-Feature All`) gives PowerShell's own warning, verbose and debug messages the theme's colours on Windows PowerShell 5.1 and PowerShell 7. Their `WARNING:` and `VERBOSE:` prefixes, preferences and redirection stay PowerShell's; [Help, errors and progress](/docs/help-and-defaults/#warning-verbose-and-debug-colours) has the details.
+
+{{< cm-frame ids="streams-ps5,streams-ps7" caption="Before and after `-Feature Streams`; the light-theme runs show when the site is light." >}}
+
 ## More from the same switch
 
-- `Enable-ConsoleFormatting -Feature ErrorView` and `-Feature Progress` add the [error view and the progress area](/docs/help-and-defaults/).
+- `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` turns on all of them and default output.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
 - `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).
