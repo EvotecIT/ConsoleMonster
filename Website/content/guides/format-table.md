@@ -44,7 +44,7 @@ Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Exte
 
 ## Export as Markdown, HTML or text
 
-`-As Markdown` returns the table as a GitHub-flavoured Markdown document instead of drawing it, with the same presenters (sizes, durations, status words) and totals as bold rows; groups become headings. `-As Html` returns a self-contained page and `-As Text` the console layout in a fenced block. It works inside scripts and on Windows PowerShell 5.1, and `Format-ConsoleList`, `Format-ConsoleTree`, `Format-ConsoleCode`, `Format-ConsoleJson` and `Format-ConsoleError` take it too.
+`-As Markdown` returns the table as a GitHub-flavoured Markdown document instead of drawing it, with sizes and dates written as the console table shows them. `-As Html` returns a self-contained page and `-As Text` the console layout in a fenced block. It works inside scripts and on Windows PowerShell 5.1, and `Format-ConsoleList`, `Format-ConsoleTree`, `Format-ConsoleCode`, `Format-ConsoleJson` and `Format-ConsoleError` take it too.
 
 {{< cm-frame id="export-markdown" caption="`export-markdown.ps1` writes its table as Markdown; this is the text it printed." >}}
 
