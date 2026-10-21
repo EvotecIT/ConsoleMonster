@@ -17,7 +17,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
-    /// <para type="description">ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, output, errors and warnings are written when it ends, so nothing prints inside the view, and progress bars from the script block are hidden. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
+    /// <para type="description">ForEach-ConsoleItem is its alias. $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Name (or -Label) sets each item's label: a property name or a script block. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
     /// </summary>
     /// <example>
     ///   <para>Check servers in parallel</para>
@@ -96,7 +96,7 @@ namespace ConsoleMonster.PowerShell {
             bool live = !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
             // Built before the view starts, so an unsupported $using: fails without drawing a run first.
             Hashtable usings = new Hashtable(StringComparer.OrdinalIgnoreCase);
-            string? parallelScript = Parallel.IsPresent ? ParallelScript(usings, live) : null;
+            string? parallelScript = Parallel.IsPresent ? ParallelScript(usings) : null;
             // While the view is live every output (objects that may print further down the pipeline, errors, warnings)
             // waits until it ends, so nothing prints inside the view.
             bool hold = live;
@@ -192,7 +192,11 @@ namespace ConsoleMonster.PowerShell {
             TimeSpan? timeout = TimeoutSeconds > 0 ? TimeSpan.FromSeconds(TimeoutSeconds) : (TimeSpan?)null;
             BlockingCollection<int> done = new BlockingCollection<int>();
             Dictionary<int, Flight> flights = new Dictionary<int, Flight>();
-            using (RunspacePool pool = RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)) {
+            using (RunspacePool pool = monitor.Session == null
+                ? RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)
+                : RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
+                pool.SetMaxRunspaces(ThrottleLimit);
+                pool.SetMinRunspaces(1);
                 pool.Open();
                 int next = 0;
                 int finished = 0;
@@ -203,6 +207,9 @@ namespace ConsoleMonster.PowerShell {
                         ps.RunspacePool = pool;
                         ps.AddScript(script).AddArgument(_items[index]).AddArgument(usings);
                         Flight flight = new Flight(ps);
+                        if (monitor.Session != null) {
+                            flight.Capture = new PowerShellStreamCapture(ps, monitor.Session, merged: flight.Output, isolateProgress: true);
+                        }
                         flights[index] = flight;
                         lock (_inFlight) {
                             _inFlight.Add(ps);
@@ -259,6 +266,7 @@ namespace ConsoleMonster.PowerShell {
                     } else {
                         Finish(monitor, writer, completed, labels[completed], merged, failure, false, current.Watch.Elapsed);
                     }
+                    current.Capture?.Dispose();
                     current.Shell.Dispose();
                     current.Output.Dispose();
                     writer.Flush(false);
@@ -267,7 +275,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // The script for a runspace: $using:name read from the passed table, the body run with $_ as the item, every stream merged.
-        private string ParallelScript(Hashtable usings, bool quiet) {
+        private string ParallelScript(Hashtable usings) {
             Ast body = ScriptBlock.Ast;
             string text = body.Extent.Text;
             int origin = body.Extent.StartOffset;
@@ -287,7 +295,6 @@ namespace ConsoleMonster.PowerShell {
                 block = "{" + block + "}";
             }
             return "param($__cmItem, $__cmUsing)\n"
-                + (quiet ? "$ProgressPreference = 'SilentlyContinue'\n" : string.Empty)
                 + "foreach ($__cmPair in $__cmUsing.GetEnumerator()) { Set-Variable -Name $__cmPair.Key -Value $__cmPair.Value }\n"
                 + ". { , $__cmItem | ForEach-Object -Process " + block + " } *>&1";
         }
@@ -346,6 +353,8 @@ namespace ConsoleMonster.PowerShell {
             }
 
             internal System.Management.Automation.PowerShell Shell { get; }
+
+            internal PowerShellStreamCapture? Capture { get; set; }
 
             internal IAsyncResult? Result { get; set; }
 

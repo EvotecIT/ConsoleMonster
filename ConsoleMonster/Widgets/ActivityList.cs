@@ -52,7 +52,7 @@ namespace ConsoleMonster.Widgets {
             double sum = 0;
             int counted = 0;
             foreach (Activity activity in _activities) {
-                if (activity.Parent < 0 && activity.Percent >= 0) {
+                if (activity.Parent == -1 && activity.Percent >= 0) {
                     sum += Math.Min(100, activity.Percent) / 100.0;
                     counted++;
                 }
