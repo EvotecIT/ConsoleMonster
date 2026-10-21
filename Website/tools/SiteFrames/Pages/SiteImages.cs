@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Pages for the raster images the site needs (the social card, the touch icon and the 512 px app icon), written to
+    /// Pages for the raster images the site needs (the social card, the touch icon, the 512 px app icon and the README's images), written to
     /// <c>Website/_temp/images/</c>. <c>build/Render-SiteImages.ps1</c> screenshots them with headless Edge into
     /// <c>static/</c> and scales the smaller icons from the app icon. The card shows the last frame of the home page's
     /// replay, rendered by the same converter as every other frame.
@@ -42,6 +42,9 @@ p{margin:26px 0 0;font:400 23px/1.45 var(--cm-font);color:#c3cad6}
 <h1>Every cell accounted for.</h1><p>Tables, trees, charts and live dashboards for .NET and PowerShell 5.1 and 7. No dependencies.</p></div>
 <div class=""shot""><pre class=""cm-screen cm-screen--dark"" style=""--cols:120"">").Append(poster).Append("</pre></div></div></body></html>");
             File.WriteAllText(Path.Combine(folder, "social-card.html"), card.ToString(), new UTF8Encoding(false));
+
+            // The README's images: frames the site shows, in a terminal window, for the dark and the light GitHub theme.
+            Readme.WritePages(site, folder, css);
 
             // The logo on a square, at a fixed size per page (a headless window has a minimum width, so the page cannot
             // follow the window): 180 px for the touch icon, 512 px for the app icons the smaller ones are scaled from.

@@ -49,8 +49,10 @@ namespace SiteFrames {
                     return Render(new Site(website), only);
                 case "capture":
                     return CaptureAll(new Site(website), only);
+                case "readme":
+                    return Readme.Sync(new Site(website));
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
                     return 2;
             }
         }
@@ -143,6 +145,7 @@ namespace SiteFrames {
             WriteRuntimeVersion(site);
             CodeGuard.Check(site);
             FrameSources.Check(site);
+            Readme.Check(site);
             string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
             site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");

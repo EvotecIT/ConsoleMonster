@@ -1,6 +1,7 @@
 # Screenshots the pages tools/SiteFrames writes to _temp/images/ into the raster images the site needs:
 # static/site/social-card.png (1200x630), static/apple-touch-icon.png (180x180) and static/site/icon-512.png, from which
-# static/site/icon-192.png and static/favicon.ico (16, 32 and 48 px) are scaled. Needs Microsoft Edge.
+# static/site/icon-192.png and static/favicon.ico (16, 32 and 48 px) are scaled, and the README's images listed in
+# _temp/images/readme.json into static/readme/ (at twice their CSS size, for sharp text). Needs Microsoft Edge.
 # Run after `dotnet run --project tools/SiteFrames -c Release -- render .` when the card's frame or the logo changes.
 param(
     [string]$Edge = "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe"
@@ -11,16 +12,24 @@ $root = Split-Path -Parent $PSScriptRoot
 $pages = Join-Path $root '_temp/images'
 $profileDir = Join-Path $pages 'edge-profile'
 $targets = @(
-    @{ Page = 'social-card.html'; Out = (Join-Path $root 'static/site/social-card.png'); Width = 1200; Height = 630 }
-    @{ Page = 'touch-icon.html'; Out = (Join-Path $root 'static/apple-touch-icon.png'); Width = 180; Height = 180 }
-    @{ Page = 'app-icon.html'; Out = (Join-Path $root 'static/site/icon-512.png'); Width = 512; Height = 512 }
+    @{ Page = 'social-card.html'; Out = (Join-Path $root 'static/site/social-card.png'); Width = 1200; Height = 630; Scale = 1 }
+    @{ Page = 'touch-icon.html'; Out = (Join-Path $root 'static/apple-touch-icon.png'); Width = 180; Height = 180; Scale = 1 }
+    @{ Page = 'app-icon.html'; Out = (Join-Path $root 'static/site/icon-512.png'); Width = 512; Height = 512; Scale = 1 }
 )
+# The README's images: one page per frame and theme, written by the site tool's render with its size.
+$readme = Join-Path $pages 'readme.json'
+if (Test-Path -LiteralPath $readme) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $root 'static/readme') | Out-Null
+    $targets += foreach ($image in (Get-Content -LiteralPath $readme -Raw | ConvertFrom-Json)) {
+        @{ Page = $image.page; Out = (Join-Path $root $image.out); Width = [int] $image.width; Height = [int] $image.height; Scale = 2 }
+    }
+}
 New-Item -ItemType Directory -Force -Path (Join-Path $root 'static/site') | Out-Null
 try {
     foreach ($t in $targets) {
         $url = ([Uri](Join-Path $pages $t.Page)).AbsoluteUri
         if (Test-Path -LiteralPath $t.Out) { Remove-Item -LiteralPath $t.Out -Force }
-        $arguments = @('--headless', '--disable-gpu', '--hide-scrollbars', "--user-data-dir=$profileDir", "--window-size=$($t.Width),$($t.Height)", '--force-device-scale-factor=1', '--virtual-time-budget=2000', "--screenshot=$($t.Out)", $url)
+        $arguments = @('--headless', '--disable-gpu', '--hide-scrollbars', "--user-data-dir=$profileDir", "--window-size=$($t.Width),$($t.Height)", "--force-device-scale-factor=$($t.Scale)", '--virtual-time-budget=2000', "--screenshot=$($t.Out)", $url)
         Start-Process -FilePath $Edge -ArgumentList $arguments -WindowStyle Hidden | Out-Null
         # Edge hands the work to a background process; wait for the file instead of the launcher.
         $deadline = (Get-Date).AddSeconds(60)
@@ -30,7 +39,7 @@ try {
         # A headless window has a minimum size; a screenshot of another size means the page did not render as intended.
         $shot = [System.Drawing.Image]::FromFile($t.Out)
         try {
-            if ($shot.Width -ne $t.Width -or $shot.Height -ne $t.Height) { throw "$($t.Page) rendered at $($shot.Width)x$($shot.Height), expected $($t.Width)x$($t.Height)." }
+            if ($shot.Width -ne $t.Width * $t.Scale -or $shot.Height -ne $t.Height * $t.Scale) { throw "$($t.Page) rendered at $($shot.Width)x$($shot.Height), expected $($t.Width * $t.Scale)x$($t.Height * $t.Scale)." }
         } finally {
             $shot.Dispose()
         }
