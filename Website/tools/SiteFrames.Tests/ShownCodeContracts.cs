@@ -62,6 +62,8 @@ namespace SiteFrames.Tests {
         [InlineData("Split-Path $PSScriptRoot -Parent")]
         [InlineData("Push-Location ..")]
         [InlineData("Split-Path -Parent $PSScriptRoot")]
+        [InlineData("Split-Path $PSScriptRoot")]
+        [InlineData("Split-Path (Split-Path $PSCommandPath)")]
         [InlineData("Join-Path -Path $r -ChildPath '..'")]
         [InlineData("cd ..")]
         [InlineData("Get-Item C:/Support/GitHub/ConsoleMonster/x")]

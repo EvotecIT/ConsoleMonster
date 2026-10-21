@@ -55,9 +55,9 @@ namespace SiteFrames.Pages {
             yield return new Story("typed", "Typed confirmation", "For destructive actions the name has to be typed; anything else keeps the prompt open.",
                 "\"FS0\" Enter \"1\" Enter", 90, 10, true, false);
             yield return new Story("shell", "A menu as an app", "The Shell layout: a breadcrumb title bar, a sidebar, the content pane and a footer that lists the keys that work right now. Ctrl+K opens the command palette, and the review shows the equivalent command line.",
-                "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q y", 120, 34, false, true, new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
+                "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q", 120, 34, false, true, new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
             yield return new Story("wizard", "A form as a wizard", "Fields with pages become a wizard with a progress strip. Dependent fields reload their choices with a spinner, and the review page shows every answer and the equivalent command.",
-                "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape y", 110, 30, false, true, new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
+                "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape Escape Escape y", 110, 30, false, true, new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }
@@ -71,20 +71,56 @@ namespace SiteFrames.Pages {
         private static TerminalProfile Profile(Story story) =>
             TerminalProfile.Fixed(story.Width, story.Height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture).WithLanguage(Site.Culture);
 
-        // The driver: the scripted keys and the capture, set as the process defaults the shown program's prompts pick up.
+        // The driver: the scripted keys and the capture, set as the process defaults the shown program's prompts pick up. The
+        // run gets a fresh, empty temporary folder (a program may keep state there, such as the menu's presets), and every key
+        // must be used: a program that ends early, or waits for more keys, fails the render.
         private static ScreenCapture Capture(Site site, Story story, ITheme? theme = null) {
             ScreenCapture capture = new ScreenCapture(story.Width, story.Height, story.Inline);
+            ScriptedInput keys = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime };
             InteractiveOptions options = new InteractiveOptions {
                 Mode = InteractionMode.Rich,
-                Input = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime },
+                Input = keys,
                 Capture = capture,
                 Theme = theme ?? Theme.Dark,
                 Labels = new PromptLabels(),
                 Profile = Profile(story)
             };
-            CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? Theme.Dark, options);
+            string? tmp = Environment.GetEnvironmentVariable("TMP");
+            string? temp = Environment.GetEnvironmentVariable("TEMP");
+            string fresh = Path.Combine(Path.GetTempPath(), "cmsite-story-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(fresh);
+            try {
+                Environment.SetEnvironmentVariable("TMP", fresh);
+                Environment.SetEnvironmentVariable("TEMP", fresh);
+                Environment.SetEnvironmentVariable("TMPDIR", fresh);
+                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? Theme.Dark, options);
+            } finally {
+                Environment.SetEnvironmentVariable("TMP", tmp);
+                Environment.SetEnvironmentVariable("TEMP", temp);
+                Environment.SetEnvironmentVariable("TMPDIR", null);
+                Directory.Delete(fresh, true);
+            }
+            if (keys.Remaining > 0) {
+                throw new InvalidOperationException(story.Id + ".cs ended with " + keys.Remaining + " scripted keys unused.");
+            }
             return capture;
         }
+
+        // What a story's capture must have been made from: the twin script, the keys and the screen.
+        private static string Fingerprint(Site site, Story story) {
+            string source = Site.ReadText(ScriptPath(site, story)) + "\n" + story.Keys + "\n" + story.Width + "x" + story.Height + (story.Inline ? " inline" : " screen") + (story.RealTime ? " realtime" : string.Empty);
+            return Hash(source);
+        }
+
+        private static string Hash(string text) {
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                return Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text))).Substring(0, 16).ToLowerInvariant();
+            }
+        }
+
+        // One captured screen: a hash of its cells with their styles (ConsoleMonster's own HTML export), then its text, so a
+        // difference in colour fails the comparison as surely as a difference in words.
+        private static string Describe(CellBuffer frame) => Hash(ConsoleMonster.Export.ConsoleExporter.ToHtml(frame)) + "\n" + frame.ToPlainText().Replace("\r\n", "\n").TrimEnd();
 
         /// <summary>Runs each PowerShell twin on PowerShell 7 with the same keys and saves the text of the screens it drew.</summary>
         public static void Capture(Site site) {
@@ -95,6 +131,9 @@ namespace SiteFrames.Pages {
                 }
                 string output = CapturePath(site, story);
                 Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+                if (File.Exists(output)) {
+                    File.Delete(output);
+                }
                 string q(string text) => "'" + text.Replace("'", "''") + "'";
                 string driver =
                     "$cmCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
@@ -105,8 +144,15 @@ namespace SiteFrames.Pages {
                     "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::Dark\n$cmOptions.Labels = [ConsoleMonster.Interactive.PromptLabels]::new()\n" +
                     "$cmCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n" +
                     "$cmOptions.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(" + story.Width + ", " + story.Height + ", 'TrueColor', 'Full').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
-                    "try {\n    . " + q(script) + "\n} catch [ConsoleMonster.Input.InputClosedException] {\n}\n" +
-                    "[IO.File]::WriteAllText(" + q(output) + ", (@($cmCapture.Frames | ForEach-Object { $_.ToPlainText() }) -join [string][char]12), [Text.UTF8Encoding]::new($false))\n";
+                    ". " + q(script) + "\n" +
+                    "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
+                    "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
+                    "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
+                    "    $cmHtml = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($cmFrame)\n" +
+                    "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
+                    "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                    "}\n" +
+                    "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
                 string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + ".ps1");
                 File.WriteAllText(wrapper, driver, new System.Text.UTF8Encoding(true));
                 try {
@@ -114,21 +160,24 @@ namespace SiteFrames.Pages {
                 } finally {
                     File.Delete(wrapper);
                 }
+                if (!File.Exists(output)) {
+                    throw new InvalidOperationException(story.Id + ".ps1 did not finish; nothing was captured.");
+                }
                 Console.WriteLine("captured " + Path.GetRelativePath(site.Website, output));
             }
         }
 
-        // The text of each distinct screen, in order (a screen repeated by the next frame counts once).
-        private static List<string> Texts(IEnumerable<string> frames) {
-            List<string> texts = new List<string>();
-            foreach (string frame in frames) {
-                string text = frame.Replace("\r\n", "\n").TrimEnd();
-                if (texts.Count == 0 || texts[texts.Count - 1] != text) {
-                    texts.Add(text);
+        // Each distinct screen, in order (a screen repeated by the next frame counts once).
+        private static List<string> Distinct(IEnumerable<string> screens) {
+            List<string> list = new List<string>();
+            foreach (string screen in screens) {
+                if (list.Count == 0 || list[list.Count - 1] != screen) {
+                    list.Add(screen);
                 }
             }
-            return texts;
+            return list;
         }
+
         public static void Render(Site site) {
             JsonArray list = new JsonArray();
             List<string> problems = new List<string>();
@@ -188,8 +237,13 @@ namespace SiteFrames.Pages {
                 problems.Add(story.Id + " has no PowerShell capture; run the capture command for the interactive area.");
                 return false;
             }
-            List<string> csharp = Texts(System.Linq.Enumerable.Select(capture.Frames, f => f.ToPlainText()));
-            List<string> powershell = Texts(File.ReadAllText(path).Split('\f'));
+            string[] parts = File.ReadAllText(path).Split('\f');
+            if (parts[0] != "source " + Fingerprint(site, story)) {
+                problems.Add(story.Id + ": the PowerShell capture was made from another version of " + story.Id + ".ps1, its keys or its screen; run the capture command for the interactive area.");
+                return false;
+            }
+            List<string> csharp = Distinct(System.Linq.Enumerable.Select(capture.Frames, Describe));
+            List<string> powershell = Distinct(System.Linq.Enumerable.Skip(parts, 1));
             if (csharp.Count != powershell.Count) {
                 problems.Add(story.Id + ": PowerShell drew " + powershell.Count + " distinct screens, C# " + csharp.Count + ".");
                 return false;
@@ -217,9 +271,10 @@ namespace SiteFrames.Pages {
                             }
                         }
                     }
-                    if (found != null) {
-                        screens.Add(found);
+                    if (found == null) {
+                        throw new InvalidOperationException(story.Id + ": no screen shows \"" + phrase + "\"; the keys or the program changed.");
                     }
+                    screens.Add(found);
                 }
                 return screens;
             }

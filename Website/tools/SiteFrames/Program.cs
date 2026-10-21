@@ -27,11 +27,11 @@ namespace SiteFrames {
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
-            // Frames must not depend on the build machine: the variables ConsoleMonster reads are cleared and the label
+            // Frames must not depend on the build machine (or a CI runner): the variables ConsoleMonster reads are cleared and the label
             // language is pinned (some widgets read it from the process, not from the profile).
             foreach (System.Collections.DictionaryEntry variable in Environment.GetEnvironmentVariables()) {
                 string name = (string)variable.Key;
-                if (name.StartsWith("CONSOLEMONSTER_", StringComparison.OrdinalIgnoreCase) || name == "NO_COLOR" || name == "COLORFGBG") {
+                if (name.StartsWith("CONSOLEMONSTER_", StringComparison.OrdinalIgnoreCase) || name == "NO_COLOR" || name == "COLORFGBG" || name == "CI" || name == "GITHUB_ACTIONS" || name == "TF_BUILD" || name == "BUILD_BUILDID" || name == "JENKINS_URL" || name == "GITLAB_CI" || name == "TEAMCITY_VERSION") {
                     Environment.SetEnvironmentVariable(name, null);
                 }
             }

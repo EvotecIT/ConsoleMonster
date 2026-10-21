@@ -166,18 +166,21 @@ BeforeAll {
             )
         }
         'Module/Examples/Example-Stress.ps1'         = @{ Arguments = '-Seconds 2' }
-        # The site's prompt stories answer with the keys the site records them with, on a captured screen.
-        'Website/examples/interactive/select.ps1'    = @{ Input = 'Down Down "we" Down Enter'; Screen = '100x16'; Expect = @('Target server') }
-        'Website/examples/interactive/multi.ps1'     = @{ Input = 'Down Space Down Down Space Down Down Down Space Enter'; Screen = '110x20'; Expect = @('Disk cleanup') }
-        'Website/examples/interactive/text.ps1'      = @{ Input = '"9reports" Enter Home Delete Enter'; Screen = '90x10'; Expect = @('Share name') }
-        'Website/examples/interactive/typed.ps1'     = @{ Input = '"FS0" Enter "1" Enter'; Screen = '90x10'; Expect = @('Type FS01 to confirm') }
-        'Website/examples/interactive/grid.ps1'      = @{ Input = '"sql" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter'; RealTime = $true; Screen = '110x22'; Expect = @('Services on FS01') }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
         # The everyday demo types Windows commands (svchost, Get-Service), as its recording does; elsewhere they report errors.
         'Website/examples/demos/formatting.ps1'      = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
+    }
+    # The site's prompt stories answer with the keys the site records them with (data/interactive.json, written by the site
+    # tool from the same story list), on a captured screen of the story's size.
+    $interactive = Get-Content -LiteralPath (Join-Path $script:RepositoryRoot 'Website\data\interactive.json') -Raw | ConvertFrom-Json
+    foreach ($story in $interactive.stories) {
+        $name = "Website/examples/interactive/$($story.id).ps1"
+        if (Test-Path -LiteralPath (Join-Path $script:RepositoryRoot $name)) {
+            $script:ExampleCases[$name] = @{ Input = $story.keys; RealTime = $true; Screen = "$($story.player.w)x$($story.player.h)"; Expect = @($story.title.Substring(0, 0)) }
+        }
     }
 }
 

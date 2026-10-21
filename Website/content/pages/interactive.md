@@ -12,4 +12,5 @@ To run one yourself:
 
 1. **PowerShell 5.1 or 7:** `Install-Module ConsoleMonster -Scope CurrentUser`, save the script and run it in a console window.
 2. **.NET 8 or later:** `dotnet new console`, then `dotnet add package ConsoleMonster`, replace `Program.cs` with the C# program and `dotnet run`.
+
 When nobody can answer (CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1`), a prompt returns its default or fails with a message that names the parameter to pass. In remoting and the ISE, prompts ask through the host, and `CONSOLEMONSTER_ACCESSIBLE=1` switches to plain numbered questions.

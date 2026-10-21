@@ -308,7 +308,7 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 /* An identifier marked by site.js breaks only at the <wbr> after each underscore; its column is wide enough for most names
    on one or two lines. */
 .cm-prose code.cm-ident { overflow-wrap: normal; }
-.cm-prose td:has(> code.cm-ident) { min-width: 24ch; }
+@media (min-width: 700px) { .cm-prose td:has(> code.cm-ident) { min-width: 24ch; } }
 /* Side-by-side frames sit next to each other only when both fit at a readable size (12 px cells: the widest frame's
    columns × 7.2 px plus its chrome, set by the shortcode as --cm-strip-cols); otherwise they stack. */
 /* Side-by-side frames stack by default; frames.js puts them all in one row (is-row) when every one fits beside the others at

@@ -101,7 +101,11 @@ namespace SiteFrames.Capture {
         public static TerminalProfile Profile(int width, int height, ColorDepth depth, GlyphTier glyphs) =>
             TerminalProfile.Fixed(width, height, depth, glyphs).WithCulture(Site.Culture).WithLanguage(Site.Culture);
 
-        /// <summary>Runs a program against a recording target and returns it; <paramref name="interactive"/> drives prompts.</summary>
+        /// <summary>
+        /// Runs a program against a recording target and returns it. <paramref name="interactive"/> drives prompts with scripted
+        /// keys; without it, prompts are non-interactive, so a program that asks fails instead of waiting for the build's
+        /// console. The program must end on its own: running out of keys while a prompt waits is a failure.
+        /// </summary>
         public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive) {
             Assembly assembly = Compile(path);
             MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
@@ -114,9 +118,7 @@ namespace SiteFrames.Capture {
             TextReader stdin = Console.In;
             StringWriter stray = new StringWriter(CultureInfo.InvariantCulture);
             try {
-                if (interactive != null) {
-                    InteractiveOptions.Default = interactive;
-                }
+                InteractiveOptions.Default = interactive ?? new InteractiveOptions { NonInteractive = true };
                 Console.SetOut(stray);
                 Console.SetError(stray);
                 Console.SetIn(TextReader.Null);
@@ -124,8 +126,6 @@ namespace SiteFrames.Capture {
                     // A program with top-level await still has a synchronous entry point that waits for it.
                     entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { Array.Empty<string>() });
                 }
-            } catch (TargetInvocationException ex) when (interactive != null && (ex.InnerException is InputClosedException || ex.InnerException is PromptCancelledException || ex.InnerException is OperationCanceledException)) {
-                // The scripted keys ended the program (the last key closes a prompt); what it drew is kept.
             } catch (TargetInvocationException ex) when (ex.InnerException != null) {
                 throw new InvalidOperationException(Path.GetFileName(path) + " failed: " + ex.InnerException.Message, ex.InnerException);
             } finally {

@@ -40,8 +40,8 @@
       </div>
       {{~ if prev || next ~}}
       <nav class="cm-docs__pager" aria-label="Previous and next page">
-        {{~ if prev ~}}<a class="cm-docs__pager-prev" href="{{ prev.url }}" rel="prev"><span>Previous</span>{{ prev.title | html.escape }}</a>{{~ end ~}}
-        {{~ if next ~}}<a class="cm-docs__pager-next" href="{{ next.url }}" rel="next"><span>Next</span>{{ next.title | html.escape }}</a>{{~ end ~}}
+        {{~ if prev ~}}<a class="cm-docs__pager-prev" href="{{ prev.url }}" rel="prev"><span>Previous<span class="cm-visually-hidden">: </span></span>{{ prev.title | html.escape }}</a>{{~ end ~}}
+        {{~ if next ~}}<a class="cm-docs__pager-next" href="{{ next.url }}" rel="next"><span>Next<span class="cm-visually-hidden">: </span></span>{{ next.title | html.escape }}</a>{{~ end ~}}
       </nav>
       {{~ end ~}}
       {{ if edit_url != "" }}<p class="cm-docs__edit"><a href="{{ edit_url }}">Edit this page on GitHub</a></p>{{ end }}
