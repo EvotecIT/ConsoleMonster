@@ -124,6 +124,7 @@ using (LiveSession session = new LiveSession(dashboard)) {
 
 Every widget can be written in three equivalent styles. They build the same objects and render the same output (a
 golden test checks it), so use whichever reads best for the case, and mix them freely.
+Each style as a complete program, with the frame all three print: [Three ways to write it in C#](https://consolemonster.dev/docs/csharp-styles/).
 
 1. Object initializers are the canonical model, and the clearest when you set many options at once or fill rows in a loop:
 
@@ -169,9 +170,14 @@ Terminal.Write(new Rows()
 ```
 
 3. Nested composition uses `using static ConsoleMonster.Ui;` factories, so the code has the shape of the screen.
-   It's the clearest for layouts:
+   It's the clearest for layouts. The `With...` methods are extension methods in each widget's own namespace,
+   so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines:
 
 ```csharp
+using ConsoleMonster;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Presenters;
+using ConsoleMonster.Widgets;
 using static ConsoleMonster.Ui;
 
 Terminal.Write(Rows(

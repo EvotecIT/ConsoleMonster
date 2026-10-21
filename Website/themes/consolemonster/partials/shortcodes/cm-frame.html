@@ -1,14 +1,17 @@
 {{~ ## Docs figure shortcode (cm-frame with id and caption): shows a frame from data/figures.json in a terminal window;
-     ids="a,b" sets several side by side; every figure shows the script that produced it unless script="false". ## ~}}
+     ids="a,b" sets several side by side; every figure shows the script that produced it unless script="false", and
+     frame="false" shows only the code (a program that prints the frame already shown above it). ## ~}}
 {{~ a = shortcode.attrs; ids = (a.ids ?? a.id) | string.split "," ~}}
 {{~ strip_cols = 0; for id in ids; f = data.figures[id | string.strip]; if f && f.frame && f.frame.w > strip_cols; strip_cols = f.frame.w; end; end ~}}
 <figure class="cm-figure{{ if ids.size > 1 }} cm-figure--strip{{ end }}"{{ if ids.size > 1 }} style="--cm-strip-cols: {{ strip_cols }}"{{ end }}>
+{{~ if a.frame != "false" ~}}
 <div class="cm-figure__frames">
 {{~ for id in ids; key = id | string.strip; fig = data.figures[key] ~}}
 {{~ screen_frame = fig.frame; screen_title = fig.title; screen_meta = fig.meta; screen_label = fig.label; screen_dark = !fig.frame.light ~}}
 {{ include "screen" }}
 {{~ end ~}}
 </div>
+{{~ end ~}}
 {{~ ## The code that drew the frames, once per distinct script (side-by-side frames of one script under different
      settings share it), PowerShell first. ## ~}}
 {{~ if a.script != "false"; shown = []; for id in ids; fig = data.figures[id | string.strip]

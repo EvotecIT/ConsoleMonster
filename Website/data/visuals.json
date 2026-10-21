@@ -65,6 +65,9 @@
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
+    "three-fluent": {
+      "src": "/site/cards/three-fluent.svg"
+    },
     "overrides-plain": {
       "src": "/site/cards/overrides-plain.svg"
     },

@@ -43,6 +43,11 @@ In markup, a colour name is the 256-colour palette name, so `[darkred]` is palet
 | `AnsiConsole.Profile.Capabilities` | `CapabilityDetector` and `TerminalProfile` | Colour depth, glyph tier, links and interactivity; see [capability detection](/docs/capabilities/). |
 
 ```csharp
+using ConsoleMonster;
+using ConsoleMonster.Text;
+
+string server = "dc01";
+double elapsed = 1.25;
 Terminal.WriteMarkupLine(Markup.Interpolate($"[pass]{server}[/] answered in [muted]{elapsed:N1}s[/]"));
 ```
 
@@ -62,7 +67,7 @@ Terminal.WriteMarkupLine(Markup.Interpolate($"[pass]{server}[/] answered in [mut
 | `JsonText` (Spectre.Console.Json) | `CodeView` with `JsonHighlighter`, `Format-ConsoleJson` in PowerShell | |
 | `Calendar` | — | No counterpart. |
 
-The [widget gallery](/widgets/) shows each ConsoleMonster widget with its C# and PowerShell source.
+The [widget gallery](/widgets/) shows each ConsoleMonster widget with its PowerShell and C# source. Its C# uses the fluent style (`new Table().WithTitle(...)`, `Table.For(items).Column(...)`); [Three ways to write it in C#](/docs/csharp-styles/) shows it next to object initializers and the `Ui` factories.
 
 ## Status, progress and live output
 
@@ -74,10 +79,14 @@ The [widget gallery](/widgets/) shows each ConsoleMonster widget with its C# and
 | `AnsiConsole.Record()` / `ExportHtml()` | `ConsoleExporter.ToHtml(...)`, `LiveRecorder` | Exports a frame, or records a session's events for [replay and export](/docs/recording/). |
 
 ```csharp
+using ConsoleMonster;
+using ConsoleMonster.Text;
+
+string[] controllers = { "dc01", "dc02", "dc03" };
 Terminal.Status("Resolving…", ctx => {
     foreach (string dc in controllers) {
         ctx.Update(Markup.Interpolate($"Querying [accent]{dc}[/]"));
-        Query(dc);
+        Thread.Sleep(500);    // the work for this controller
     }
 });
 ```

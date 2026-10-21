@@ -2,7 +2,7 @@
 title: Recording and replay
 description: Record a live session as JSON lines, replay it into the same dashboard, and export widgets, frames and recordings to HTML, SVG, text and asciicast.
 slug: recording
-order: 6
+order: 7
 group: live
 card: app
 chips: [JSON lines, Replay, Export]

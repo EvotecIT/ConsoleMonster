@@ -2,7 +2,7 @@
 title: Hosting dashboard
 description: "ConsoleMonster.Hosting adds a live dashboard to a .NET generic host: each hosted service's state, failures and the log."
 slug: hosting
-order: 11
+order: 12
 group: live
 card: hosting
 chips: [Generic host]

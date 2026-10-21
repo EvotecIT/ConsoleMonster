@@ -2,7 +2,7 @@
 title: dotnet new template
 description: "dotnet new consolemonster: a console app with a menu, a status report, logging, the hosting dashboard and native AOT."
 slug: template
-order: 12
+order: 13
 group: apps
 card: template
 apis: [dotnet new]

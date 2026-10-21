@@ -2,7 +2,7 @@
 title: Live sessions
 description: A live session redraws about 15 times a second while any thread posts updates, captures console output and handles resizes and small windows.
 slug: live-sessions
-order: 5
+order: 6
 group: live
 card: size-100x30
 apis: [LiveSession, MinimumSize]

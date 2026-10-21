@@ -17,6 +17,8 @@ namespace SiteFrames.Pages {
         private static string ProfileScript(Site site) => Path.Combine(site.Website, "examples", "docs", "profile.ps1");
 
 
+        private const int ThreeWidth = 88;
+
         private static string ProfilePath(Site site, string id) => Path.Combine(site.Captures, "docs", id + ".ansi");
 
         private static IEnumerable<(string Id, Dictionary<string, string?> Environment)> Profiles() {
@@ -76,6 +78,30 @@ namespace SiteFrames.Pages {
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
                 Figures.Add(id, Figures.WithProgram(new JsonObject { ["title"] = ((Theme)theme).Name, ["label"] = "The assessment summary in the " + ((Theme)theme).Name + " theme", ["meta"] = new JsonArray("Theme." + ((Theme)theme).Name), ["frame"] = data }, Figures.SummaryProgram(site)));
+            }
+
+            // Three ways to write it in C#: three programs, one frame. Each runs, and each must print the fluent one's frame cell
+            // for cell, so the page can say they are the same.
+            CellBuffer? reference = null;
+            foreach (string style in new[] { "fluent", "objects", "composed" }) {
+                string program = Path.Combine(site.Website, "examples", "docs", "three", style + ".cs");
+                CellBuffer dark = Site.Crop(CSharpRunner.Run(program, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark));
+                if (reference == null) {
+                    reference = dark;
+                    DocCards.Offer("three-" + style, dark, Frames.Screen.Dark);
+                } else {
+                    ParityResult same = Parity.Compare(reference, dark);
+                    if (!same.Identical) {
+                        WidgetsPage.Report(new List<string> { "three/" + style + ".cs does not print what three/fluent.cs prints: " + same.Detail }, "docs");
+                    }
+                }
+                CellBuffer light = Site.Crop(CSharpRunner.Run(program, ThreeWidth, ColorDepth.TrueColor, GlyphTier.Full, Theme.Light));
+                Figures.Add("three-" + style, Figures.WithProgram(new JsonObject {
+                    ["title"] = "dotnet run",
+                    ["label"] = "A servers table, a summary and a CPU sparkline in two panels",
+                    ["meta"] = new JsonArray(ThreeWidth + " columns", "24-bit", "Full"),
+                    ["frame"] = site.Frame(dark, light)
+                }, program));
             }
 
             // For the environment overrides card: what pinning NO_COLOR and the ASCII glyph tier gives, a table in plain text.
