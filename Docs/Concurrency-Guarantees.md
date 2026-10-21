@@ -57,6 +57,7 @@ Many applied updates can share one rendered frame without dropping updates.
 The first Ctrl+C closes admission and requests graceful cancellation. Later posts are rejected and counted in `EventsDropped`;
 accepted work drains during shutdown. Graceful shutdown restores console writers, native Windows output mode, and cursor visibility.
 Native VT processing stays enabled through final scrollback and summary output, then the original output mode is restored.
+The mode is saved before first-use capability capture, including in optimized .NET Framework builds.
 A callback that prevents the render thread from joining can exceed `StopTimeout`. Console capture is restored, while the final
 drain and screen cleanup are deferred until that callback returns. Workers should observe cancellation. Use `GetCounters()` to inspect accepted, applied,
 dropped, and failed updates. Zero drops is the normal-run contract; a late post after cancellation is an expected rejection.

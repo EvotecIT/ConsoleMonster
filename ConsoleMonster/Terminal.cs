@@ -26,6 +26,10 @@ namespace ConsoleMonster {
         private static bool _defaultProvider = true;
         private static bool _explicitProfile;
 
+        // Do not mark Terminal beforefieldinit: the .NET Framework Release JIT may otherwise run capability
+        // capture before LiveSession.Start saves the native mode, even when its first Terminal call follows the guard.
+        static Terminal() { }
+
         // Test hook: returns { width, height } of the visible window, or null when unknown. Null uses the console.
         internal static Func<int[]?>? WindowSizeSource { get; set; }
 
