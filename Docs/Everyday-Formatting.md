@@ -33,6 +33,8 @@ The proxies use the parameter metadata of the current PowerShell runtime. On the
 
 An explicit `FormatString` keeps the native cell text. Known status values still receive their status glyph and tone. Native views with custom controls or unsupported conditional list layouts keep native text and status tones rather than approximating their controls.
 
+PowerShell's public view metadata can omit custom group headers. Named views with built-in grouping retain their native cell text and group renderer; an explicit `-Property` or `-GroupBy` selection uses the captured-value route. Views with scripted row selection also retain native cell text so PowerShell owns the selector's evaluation sequence. Type-based row selection uses captured values.
+
 | Parameter | Console host rendering |
 | --- | --- |
 | `-Property` | Names, wildcards and calculated properties select columns, list fields or wide values. Labels, format strings, alignment and declared widths retain native semantics. Table/list cells use raw evaluated values through the shared presenters. |

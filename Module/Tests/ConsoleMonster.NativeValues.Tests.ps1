@@ -96,7 +96,7 @@
         $text | Should -Match '✗ Fail'
     }
 
-    It 'selects conditional native table rows once per source and evaluates only their chosen cells' {
+    It 'retains native scripted row-selection counts and evaluates only the chosen cells' {
         Update-FormatData -PrependPath (Join-Path $PSScriptRoot 'Fixtures/EverydayViews/RawValues.format.ps1xml')
         $rows = @(
             [pscustomobject]@{PSTypeName='ConsoleMonster.Tests.ConditionalNative';State='Pass';Alternate='Wrong';UseAlternate=$false}
@@ -106,15 +106,34 @@
         $global:RawSelections = 0
         $global:RawCells = 0
         try {
+            $records = @($rows | Microsoft.PowerShell.Utility\Format-Table -View RawConditional)
+            $expectedSelections = $global:RawSelections
+            $expectedCells = $global:RawCells
+            $expectedText = $records | Out-ConsoleFormatCommand -AsWidget | Export-ConsoleFrame -Format Text -Width 80
+            $global:RawSelections = 0
+            $global:RawCells = 0
             $native = Convert-TestNativeView -Rows $rows -Arguments @{View='RawConditional'}
             $text = $native | Export-ConsoleFrame -Format Text -Width 80
-            $global:RawSelections | Should -Be 3
-            $global:RawCells | Should -Be 3
+            $global:RawSelections | Should -Be $expectedSelections
+            $global:RawCells | Should -Be $expectedCells
+            $text | Should -BeExactly $expectedText
             $text | Should -Match '✓ Pass'
-            $text | Should -Match '▴ Warning'
             $text | Should -Match '✗ Fail'
-            $text | Should -Not -Match 'Wrong'
         } finally { Remove-Variable -Name RawSelections, RawCells -Scope Global }
+    }
+
+    It 'captures raw values from type-selected native table entries' {
+        Update-FormatData -PrependPath (Join-Path $PSScriptRoot 'Fixtures/EverydayViews/RawValues.format.ps1xml')
+        $rows = @(
+            [pscustomobject]@{PSTypeName='ConsoleMonster.Tests.TypeSelectedNative';Bytes=2048L;Alternate=1L}
+            [pscustomobject]@{PSTypeName='ConsoleMonster.Tests.AlternateNative';Bytes=1L;Alternate=4096L}
+        )
+        $native = Convert-TestNativeView -Rows $rows -Arguments @{View='RawTypeSelected'}
+        $native.Rows[0][0].Value | Should -Be 2048
+        $native.Rows[1][0].Value | Should -Be 4096
+        $text = $native | Export-ConsoleFrame -Format Text -Width 80
+        $text | Should -Match '2 KB'
+        $text | Should -Match '4 KB'
     }
 
     It 'expands wildcard calculated expressions into the native columns with their labels and raw values' {
@@ -164,5 +183,31 @@
         $text | Should -Match 'Native group: A'
         $text | Should -Match '✓ Pass'
         $text | Should -Not -Match 'Hidden health'
+    }
+
+    It 'checks unsupported <Variant> metadata before evaluating native conditional rows' -ForEach @(@{Variant='Wrap'},@{Variant='Format'},@{Variant='Group'}) {
+        param($Variant)
+        Update-FormatData -PrependPath (Join-Path $PSScriptRoot 'Fixtures/EverydayViews/RawValues.format.ps1xml')
+        function Invoke-TestCaptureRecords {
+            [CmdletBinding()]
+            param($Row, $View)
+            $capture = [ConsoleMonster.PowerShell.NativeFormatCapture]::new($PSCmdlet, 'Table', @{View=$View})
+            $parameters = $capture.Prepare($Row)
+            $capture.BeginItem($Row)
+            $Row | Microsoft.PowerShell.Utility\Format-Table @parameters
+        }
+        $row = [pscustomobject]@{PSTypeName='ConsoleMonster.Tests.FallbackNative';State='Fail';Alternate='Warning';Group='A'}
+        $global:RawFallbackSelections=0
+        try {
+            $expected = $row | Microsoft.PowerShell.Utility\Format-Table -View ('RawFallback'+$Variant) | Out-String -Width 100
+            $expectedCount = $global:RawFallbackSelections
+            $expectedCount | Should -BeGreaterThan 0
+            $global:RawFallbackSelections=0
+            $actual = Invoke-TestCaptureRecords -Row $row -View ('RawFallback'+$Variant) | Out-String -Width 100
+            $global:RawFallbackSelections | Should -Be $expectedCount
+            $actual | Should -BeExactly $expected
+            $actual | Should -Match 'Warning'
+            $actual | Should -Not -Match 'Fail'
+        } finally { Remove-Variable -Name RawFallbackSelections -Scope Global }
     }
 }

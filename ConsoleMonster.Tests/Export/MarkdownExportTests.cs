@@ -125,8 +125,9 @@ namespace ConsoleMonster.Tests.Export {
             Tree tree = new Tree("# Service");
             tree.Add("1. ordered").Add("---");
             string markdown = ConsoleExporter.ToMarkdown(new Rows(new TextBlock("---") { IsMarkup = false }, tree));
-            Assert.StartsWith("\\-\\-\\-\n\n", markdown);
-            Assert.Contains("- \\# Service\n  - 1\\. ordered\n    - \\-\\-\\-\n", markdown);
+            Assert.StartsWith("\\---\n\n", markdown);
+            Assert.Contains("- \\# Service\n  - 1\\. ordered\n    - \\---\n", markdown);
+            Assert.Equal("export-marker\n\n", ConsoleExporter.ToMarkdown(new TextBlock("export-marker")));
         }
 
         [Fact]

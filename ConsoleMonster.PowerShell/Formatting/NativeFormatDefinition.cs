@@ -9,7 +9,6 @@ namespace ConsoleMonster.PowerShell {
     // Native view metadata supplies the selection and layout. Capture changes only the expression's return path.
     internal sealed class NativeFormatDefinition {
         internal readonly List<IDictionary> Columns = new List<IDictionary>();
-        internal object? GroupBy;
         internal bool Wrap;
         internal bool HideTableHeaders;
         internal bool AutoSize;
@@ -62,7 +61,12 @@ namespace ConsoleMonster.PowerShell {
                     foreach (FormatViewDefinition view in definition.FormatViewDefinition) {
                         if (requested != null && !string.Equals(requested, view.Name, StringComparison.OrdinalIgnoreCase)) { continue; }
                         if (view.Control.OutOfBand) { return null; }
+                        // Check all fallback conditions before Select can run an expression with observable effects.
+                        // Get-FormatData can omit a native custom group control entirely. The view's original group
+                        // renderer is the only complete source unless the caller explicitly overrides -GroupBy.
+                        if (view.Control.GroupBy != null && !parameters.Contains("GroupBy")) { return null; }
                         if (kind == "Table" && view.Control is TableControl table) {
+                            if (!Eligible(table)) { return null; }
                             TableControlRow? row = Select(table, first);
                             if (row == null) { return null; }
                             result._table = table;
@@ -73,13 +77,6 @@ namespace ConsoleMonster.PowerShell {
                             result.HideTableHeaders = table.HideTableHeaders;
                             result.AutoSize = table.AutoSize;
                             result.Columns.AddRange(TableColumns(table, row, result._labels));
-                            foreach (TableControlRow other in table.Rows) {
-                                if (other.Columns.Count != row.Columns.Count || other.Wrap != row.Wrap) { return null; }
-                                var columns = TableColumns(table, other, result._labels);
-                                for (int c = 0; c < columns.Count; c++) {
-                                    if (!Equals(columns[c]["FormatString"], result.Columns[c]["FormatString"])) { return null; }
-                                }
-                            }
                         } else if (kind == "List" && view.Control is ListControl list) {
                             if (list.Entries.Count != 1 || !DefaultRow(list.Entries[0].EntrySelectedBy)) { return null; }
                             foreach (ListControlEntryItem value in list.Entries[0].Items) {
@@ -89,14 +86,6 @@ namespace ConsoleMonster.PowerShell {
                                 result.Columns.Add(column);
                             }
                         } else { continue; }
-                        if (view.Control.GroupBy != null) {
-                            // A custom group header cannot be represented by -GroupBy; retain the entire native view.
-                            if (view.Control.GroupBy.CustomControl != null && !parameters.Contains("GroupBy")) { return null; }
-                            if (view.Control.GroupBy.Expression != null) {
-                                object expression = Expression(view.Control.GroupBy.Expression);
-                                result.GroupBy = string.IsNullOrEmpty(view.Control.GroupBy.Label) ? expression : Column(view.Control.GroupBy.Label, expression);
-                            }
-                        }
                         return result.Columns.Count > 0 ? result : null;
                     }
                 }
@@ -131,14 +120,27 @@ namespace ConsoleMonster.PowerShell {
         private static object Expression(DisplayEntry entry) => entry.ValueType == DisplayEntryValueType.ScriptBlock ? (object)ScriptBlock.Create(entry.Value) : entry.Value;
         private static string Label(DisplayEntry entry) => entry.Value;
         private static bool DefaultRow(EntrySelectedBy? selection) => selection == null || ((selection.TypeNames?.Count ?? 0) == 0 && (selection.SelectionCondition?.Count ?? 0) == 0);
+        private static bool Eligible(TableControl table) {
+            TableControlRow? prototype = table.Rows.FirstOrDefault();
+            // Without a default entry, a failed selection must be left entirely to native formatting too.
+            if (prototype == null || prototype.Columns.Count == 0 || !table.Rows.Any(row => DefaultRow(row.SelectedBy))) { return false; }
+            foreach (TableControlRow row in table.Rows) {
+                // Native formatting runs scripted selectors during view initialization as well as row rendering.
+                // Retain that engine-owned evaluation sequence instead of running scripts while inspecting metadata.
+                if ((row.SelectedBy?.SelectionCondition?.Count ?? 0) > 0) { return false; }
+                if (row.Columns.Count != prototype.Columns.Count || row.Wrap != prototype.Wrap) { return false; }
+                for (int c = 0; c < row.Columns.Count; c++) {
+                    if (!Equals(Format(row.Columns[c]), Format(prototype.Columns[c]))) { return false; }
+                }
+            }
+            return true;
+        }
+        private static string? Format(TableControlColumn column) => PSObject.AsPSObject(column).Properties["FormatString"]?.Value as string;
         private static TableControlRow? Select(TableControl table, PSObject item) {
             TableControlRow? fallback = null;
             foreach (TableControlRow row in table.Rows) {
                 if (DefaultRow(row.SelectedBy)) { fallback ??= row; continue; }
                 foreach (string type in row.SelectedBy.TypeNames ?? new List<string>()) { if (item.TypeNames.Any(name => string.Equals(name, type, StringComparison.OrdinalIgnoreCase))) { return row; } }
-                foreach (DisplayEntry condition in row.SelectedBy.SelectionCondition ?? new List<DisplayEntry>()) {
-                    if (LanguagePrimitives.IsTrue(PropertyBinder.Evaluate(item, Expression(condition)))) { return row; }
-                }
             }
             return fallback;
         }
@@ -151,7 +153,7 @@ namespace ConsoleMonster.PowerShell {
                 Alignment alignment = value.Alignment != Alignment.Undefined ? value.Alignment : header?.Alignment ?? Alignment.Undefined;
                 if (alignment != Alignment.Undefined) { column["Alignment"] = alignment.ToString(); }
                 if ((header?.Width ?? 0) > 0) { column["Width"] = header!.Width; }
-                string? format = PSObject.AsPSObject(value).Properties["FormatString"]?.Value as string;
+                string? format = Format(value);
                 if (!string.IsNullOrEmpty(format)) { column["FormatString"] = format; }
                 columns.Add(column);
             }

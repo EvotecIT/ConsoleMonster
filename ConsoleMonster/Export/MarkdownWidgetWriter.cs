@@ -113,7 +113,15 @@ namespace ConsoleMonster.Export {
         private static string Escape(string value) => Rendering.TextSanitizer.Clean(value, preserveLineBreaks: true).Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
             .Replace("\\", "\\\\").Replace("|", "\\|").Replace("*", "\\*").Replace("_", "\\_").Replace("`", "\\`")
             .Replace("[", "\\[").Replace("]", "\\]").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "<br>");
-        private static string Prose(string value) => Escape(value).Replace("#", "\\#").Replace("-", "\\-")
-            .Replace("+", "\\+").Replace("=", "\\=").Replace(".", "\\.").Replace("!", "\\!").Replace("~", "\\~");
+        private static string Prose(string value) {
+            string text = Escape(value).Replace("#", "\\#").Replace("~", "\\~");
+            int start = 0;
+            while (start < text.Length && char.IsWhiteSpace(text[start])) { start++; }
+            if (start < text.Length && "-+=".IndexOf(text[start]) >= 0) { return text.Insert(start, "\\"); }
+            int end = start;
+            while (end < text.Length && char.IsDigit(text[end])) { end++; }
+            if (end > start && end < text.Length && (text[end] == '.' || text[end] == ')')) { return text.Insert(end, "\\"); }
+            return text;
+        }
     }
 }

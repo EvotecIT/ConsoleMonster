@@ -56,7 +56,6 @@ namespace ConsoleMonster.PowerShell {
             }
             parameters.Remove("View");
             parameters["Property"] = properties.ToArray();
-            if (!parameters.ContainsKey("GroupBy") && definition.GroupBy != null) { parameters["GroupBy"] = definition.GroupBy; }
             if (_kind == "Table" && definition.Wrap) { parameters["Wrap"] = true; }
             if (_kind == "Table" && !parameters.ContainsKey("HideTableHeaders") && definition.HideTableHeaders) { parameters["HideTableHeaders"] = true; }
             if (_kind == "Table" && !parameters.ContainsKey("AutoSize") && definition.AutoSize) { parameters["AutoSize"] = true; }
