@@ -1,8 +1,9 @@
 namespace ConsoleMonster.Live {
     /// <summary>
     /// A widget that accepts live updates. <see cref="Apply"/> and <see cref="Describe"/> are only ever called on the
-    /// session's render thread (or on the definition thread when no session is attached), so implementations keep
-    /// plain, unsynchronised state.
+    /// session's render thread during normal operation. After that thread joins, the stopping caller may perform the final
+    /// drain. These phases are serialized, so implementations keep plain, unsynchronised state. Without a session, the
+    /// definition thread owns updates.
     /// </summary>
     public interface ILiveTarget {
         /// <summary>The unique name events are addressed to.</summary>

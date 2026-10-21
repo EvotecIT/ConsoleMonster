@@ -25,6 +25,9 @@ namespace ConsoleMonster.Live {
                         throw new ArgumentException("Specify RecordPath or RecordWriter, not both.");
                     }
                     try {
+                        // Capability detection can enable Windows VT mode. Save the caller's mode before resolving
+                        // the profile or theme, so cancellation and normal shutdown restore the state from entry.
+                        _guard = new TerminalGuard(RestoreTerminal, _options.HandleCancelKey);
                         ResolveLogTarget();
                         ITerminalTarget target = _options.Target ?? Terminal.Target;
                         bool console = target is ConsoleTarget;
@@ -41,8 +44,8 @@ namespace ConsoleMonster.Live {
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);
-                        _guard = new TerminalGuard(RestoreTerminal, _options.HandleCancelKey);
                         _guardRegistration = _guard.Cancellation.Register(RequestCancellation);
+                        _guard.Cancellation.ThrowIfCancellationRequested();
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
                         else if (_options.RecordPath != null) {
                             StreamWriter writer = OpenRecording(_options.RecordPath);

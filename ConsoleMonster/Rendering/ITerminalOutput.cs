@@ -7,7 +7,7 @@ namespace ConsoleMonster.Rendering {
     /// <summary>
     /// Turns frames and lines into output for one mode: VT (diffed live frames, alternate screen),
     /// Stream (append-only lines, optional colour) or Plain (ASCII lines, no colour). Not thread-safe:
-    /// a live session calls it from its single render thread only.
+    /// a live session serializes calls from its render thread and the stopping caller's final drain and restoration.
     /// </summary>
     public interface ITerminalOutput : IDisposable {
         /// <summary>The profile this output encodes for.</summary>
