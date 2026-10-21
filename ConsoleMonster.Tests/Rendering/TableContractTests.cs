@@ -11,6 +11,49 @@ using Xunit;
 namespace ConsoleMonster.Tests.Rendering {
     /// <summary>The table sizing rules from the report quality bar, applied to console tables.</summary>
     public sealed class TableContractTests {
+        [Fact]
+        public void KeepAllColumns_LongKeysAtFortyColumns_PreservesTheOnlyValueColumn() {
+            Table table = new Table { KeepAllColumns = true, WrapHeaders = true, RecordViewRows = 0, WrapLines = 0 };
+            table.AddColumn(new TableColumn("CA") { IsKey = true, MaxWidth = 20 });
+            table.AddColumn(new TableColumn("Issued") { MaxWidth = 7 });
+            table.AddColumn(new TableColumn("UserProtected off") { MaxWidth = 17 });
+            table.AddValues("ca01.example.test\\Issuing CA", 42, "Enabled");
+            table.AddValues("ca02.example.test\\Issuing CA", 24, "Disabled");
+
+            string text = Render(table, 40);
+            Assert.Contains("UserProtected", text);
+            Assert.Contains("Enabled", text);
+            Assert.Contains("Disabled", text);
+            Assert.DoesNotContain("columns (", text);
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void KeepAllColumns_NarrowGrid_RepeatsKeysAndKeepsEveryField(int width) {
+            Table table = new Table { KeepAllColumns = true, WrapHeaders = true, RecordViewRows = 0, WrapLines = 0 };
+            table.AddColumn(new TableColumn("Authority") { IsKey = true, MaxWidth = 12 });
+            table.AddColumn(new TableColumn("Issued") { MaxWidth = 8 });
+            table.AddColumn(new TableColumn("SAN from request") { MaxWidth = 10 });
+            table.AddColumn(new TableColumn("UserProtected off") { MaxWidth = 10 });
+            table.AddColumn(new TableColumn("Mapping methods") { MaxWidth = 10 });
+            table.AddValues("CA[1]", 42, "SAN enabled", "Protected", "Explicit");
+            table.AddValues("CA[2]", 24, "SAN disabled", "Unprotected", "Implicit");
+
+            string text = Render(table, width);
+            Assert.Contains("CA[1]", text);
+            Assert.Contains("CA[2]", text);
+            Assert.Contains("42", text);
+            Assert.Contains("24", text);
+            Assert.Contains("enabled", text);
+            Assert.Contains("disabled", text);
+            Assert.Contains("Protected", text);
+            Assert.Contains("Explicit", text);
+            Assert.Contains("Implicit", text);
+            Assert.DoesNotContain("+1 column", text);
+            Assert.DoesNotContain("record", text);
+        }
+
         private static string Render(Table table, int width) {
             return Terminal.RenderText(table, TerminalProfile.Fixed(width, 40, ColorDepth.None, GlyphTier.Full), Theme.Dark);
         }

@@ -10,6 +10,34 @@ using Xunit;
 namespace ConsoleMonster.Tests.HelpViews {
     /// <summary>A command's help: syntax wrapping, the parameter table's columns, synopsis and examples.</summary>
     public sealed class HelpViewTests {
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_ColumnsPreserveSyntaxAndWrapDescriptionsIndependently(int width) {
+            HelpTopic topic = new HelpTopic("tool") {
+                Synopsis = "Inspect saved findings.",
+                CommandLine = new CommandLineHelp { Usage = "tool [command] [options]" }
+            };
+            topic.CommandLine.Commands.Add(new HelpCommand("inspect", "Inspect findings saved by a previous discovery run.", "Discovery"));
+            topic.Parameters.Add(new HelpParameter("-output") { Type = "path", Required = true, Description = "Write the resulting report to this destination.", Default = "report.html" });
+            topic.Parameters[0].Aliases.Add("-o");
+            topic.Parameters.Add(new HelpParameter("-an-unusually-long-option") { Type = "path", Description = "Keep the complete syntax." });
+            topic.Examples.Add(new HelpExample(null, "tool inspect --output report.html"));
+
+            string text = Text(new HelpView(topic), width);
+            Assert.Contains("tool [command] [options]", text);
+            Assert.Contains("Discovery", text);
+            Assert.Contains("-o, --output <path>", text);
+            Assert.Equal(1, text.Split(new[] { "Required." }, StringSplitOptions.None).Length - 1);
+            Assert.Contains("--an-unusually-long-option <path>", text);
+            Assert.Contains("[default: report.html]", System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " "));
+            Assert.Contains("Examples", text);
+            string[] lines = text.Replace("\r", "").Split('\n');
+            int command = Array.FindIndex(lines, l => l.Contains("inspect") && l.Contains("Inspect findings"));
+            Assert.True(command >= 0);
+            if (width == 45) Assert.StartsWith(new string(' ', 11), lines[command + 1]);
+        }
+
         private static string Text(IWidget widget, int width) {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(width, 200, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             Size size = widget.Measure(new Constraints(width, 200), context);

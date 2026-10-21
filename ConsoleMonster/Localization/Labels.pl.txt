@@ -258,3 +258,5 @@ Widget.TailReaderReturnedNull = Czytnik dziennika zwrócił null.
 Widget.TailReaderReturnedNullEntry = Czytnik dziennika zwrócił wpis null.
 Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = Nowe wiersze: {0}
+
+Widget.OneWarningCount = {0} ostrzeżenie

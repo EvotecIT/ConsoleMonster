@@ -258,3 +258,5 @@ Widget.TailReaderReturnedNull = El lector del registro devolvió null.
 Widget.TailReaderReturnedNullEntry = El lector del registro devolvió una entrada null.
 Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = {0} líneas nuevas
+
+Widget.OneWarningCount = {0} advertencia

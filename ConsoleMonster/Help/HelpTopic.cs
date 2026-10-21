@@ -18,6 +18,9 @@ namespace ConsoleMonster.Help {
         /// <summary>The one-line summary, or null.</summary>
         public string? Synopsis { get; set; }
 
+        /// <summary>Optional compact command-line layout; null retains the PowerShell help layout.</summary>
+        public CommandLineHelp? CommandLine { get; set; }
+
         /// <summary>A note shown muted under the name (for example that only partial help is installed), or null.</summary>
         public string? Notice { get; set; }
 

@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
             summary.SetCounter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
             summary.SetCounter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
             if (snapshot.Warned > 0) {
-                summary.SetCounter(labels.WarningCount, snapshot.Warned, StatusKind.Warn);
+                summary.SetCounter(labels.Warnings(snapshot.Warned), snapshot.Warned, StatusKind.Warn);
             }
             if (snapshot.Skipped > 0) {
                 summary.SetCounter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);

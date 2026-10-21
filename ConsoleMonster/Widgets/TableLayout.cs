@@ -48,7 +48,7 @@ namespace ConsoleMonster.Widgets {
 
         internal TableMode Mode { get; }
 
-        internal RecordView? Record { get; set; }
+        internal IWidget? Record { get; set; }
 
         internal int Gap { get; set; }
 

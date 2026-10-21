@@ -13,7 +13,7 @@ namespace ConsoleMonster.Widgets {
     /// pipeline input, default, description), the examples with highlighted code, inputs, outputs, notes and related links.
     /// Everything is printed as it grows, so it reads well through a pager. Show-ConsoleHelp is the PowerShell face.
     /// </summary>
-    public sealed class HelpView : IWidget {
+    public sealed partial class HelpView : IWidget {
         private Rows? _built;
         private int _builtWidth = -1;
 
@@ -53,6 +53,11 @@ namespace ConsoleMonster.Widgets {
 
         private Rows Build(int width, RenderContext context) {
             if (_built != null && _builtWidth == width) {
+                return _built;
+            }
+            if (Topic.CommandLine != null) {
+                _built = BuildCommandLine(width, context);
+                _builtWidth = width;
                 return _built;
             }
             Rows rows = new Rows();

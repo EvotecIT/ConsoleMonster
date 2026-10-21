@@ -54,6 +54,9 @@ namespace ConsoleMonster.Widgets {
             for (int c = 0; c < count; c++) {
                 visible.Add(c);
             }
+            if (KeepAllColumns && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
+                return new TableLayout(TableMode.Grid) { Record = BuildColumnBands(maxWidth, minimum, gap) };
+            }
             if (_rows.Count > 0 && (AlwaysCards || (CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth))) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
@@ -92,7 +95,7 @@ namespace ConsoleMonster.Widgets {
             for (int v = 0; v < visible.Count; v++) {
                 int c = visible[v];
                 layout.Alignments[v] = _columns[c].Alignment ?? (stats != null ? stats.Alignment(c) ?? AutomaticAlignment(c, rows) : AutomaticAlignment(c, rows));
-                layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
+                layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], WrapHeaders ? ColumnOverflow.Wrap : ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
                 layout.HeaderHeight = Math.Max(layout.HeaderHeight, layout.HeaderLines[v].Count);
             }
             foreach (TableLayoutRow row in rows) {

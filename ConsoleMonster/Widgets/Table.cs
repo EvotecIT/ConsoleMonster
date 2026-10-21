@@ -57,6 +57,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether the header row is shown (default true).</summary>
         public bool ShowHeader { get; set; } = true;
 
+        /// <summary>Wrap column headings instead of shortening them (default false).</summary>
+        public bool WrapHeaders { get; set; }
+
+        /// <summary>Keep all columns by rendering consecutive grids with the key repeated when the full grid cannot fit.</summary>
+        public bool KeepAllColumns { get; set; }
+
         /// <summary>
         /// Whether a separator row is drawn under the header (default true). When false the header is underlined instead,
         /// so data starts on the row directly below it.
