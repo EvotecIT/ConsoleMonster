@@ -11,7 +11,9 @@ You do not have to change your commands to get readable output. One line turns i
 Enable-ConsoleFormatting
 ```
 
-Files and folders, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Format-*`, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
+Files and folders, processes, services, commands, modules, event log records, IP addresses, volumes and dictionaries are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
+
+> `Enable-ConsoleFormatting` changes only output that reaches the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own. For ConsoleMonster's views, use `Format-ConsoleTable` or `Format-ConsoleList`.
 
 To keep it on in every session, print the lines for your profile and paste them in (nothing is written for you):
 

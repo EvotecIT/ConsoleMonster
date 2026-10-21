@@ -12,6 +12,8 @@ summary: "Show-ConsoleHelp, the error view and the progress area, each opt-in."
 
 These features change how PowerShell's own output looks for the session, never what commands return. Each is opt-in and undone by `Disable-ConsoleFormatting`.
 
+> The default output of `Enable-ConsoleFormatting` changes only objects that reach the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own. For ConsoleMonster's views, use `Format-ConsoleTable` or `Format-ConsoleList`.
+
 ```powershell
 Enable-ConsoleFormatting                     # default output for files, processes, services, dictionaries...
 Enable-ConsoleFormatting -Feature ErrorView  # errors that reach the console
