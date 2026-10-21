@@ -326,28 +326,28 @@
           "host": "ps5",
           "title": "16 colours and ASCII glyphs",
           "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii",
-      "run": "$env:CONSOLEMONSTER_COLOR = '16'\n$env:CONSOLEMONSTER_GLYPHS = 'ascii'\npowershell -NoProfile -File .\\format-consoletable.ps1"
+          "run": "$env:CONSOLEMONSTER_COLOR = '16'\n$env:CONSOLEMONSTER_GLYPHS = 'ascii'\npowershell -NoProfile -File .\\format-consoletable.ps1\nRemove-Item Env:CONSOLEMONSTER_COLOR, Env:CONSOLEMONSTER_GLYPHS"
         },
         {
           "id": "nocolor",
           "host": "ps7",
           "title": "NO_COLOR",
           "command": "NO_COLOR=1",
-      "run": "$env:NO_COLOR = '1'\npwsh -NoProfile -File ./format-consoletable.ps1"
+          "run": "$env:NO_COLOR = '1'\npwsh -NoProfile -File ./format-consoletable.ps1\nRemove-Item Env:NO_COLOR"
         },
         {
           "id": "plain",
           "host": "ps7",
           "title": "Plain mode",
           "command": "CONSOLEMONSTER_MODE=plain",
-      "run": "$env:CONSOLEMONSTER_MODE = 'plain'\npwsh -NoProfile -File ./format-consoletable.ps1"
+          "run": "$env:CONSOLEMONSTER_MODE = 'plain'\npwsh -NoProfile -File ./format-consoletable.ps1\nRemove-Item Env:CONSOLEMONSTER_MODE"
         },
         {
           "id": "narrow",
           "host": "ps7",
           "title": "A 56-column console",
           "command": "56 columns",
-      "run": "# In a window 56 columns wide:\npwsh -NoProfile -File ./format-consoletable.ps1"
+          "run": "# In a window 56 columns wide:\npwsh -NoProfile -File ./format-consoletable.ps1"
         }
       ]
     },

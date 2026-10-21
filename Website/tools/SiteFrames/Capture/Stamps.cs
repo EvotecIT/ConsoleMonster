@@ -25,8 +25,14 @@ namespace SiteFrames.Capture {
         }
 
         /// <summary>Records what made a capture.</summary>
-        public static void Write(Site site, string capture, string fingerprint) {
-            // One writer at a time across capture runs, and the file is swapped in whole, so no run drops another's entries.
+        public static void Write(Site site, string capture, string fingerprint) => Locked(() => {
+            WriteLocked(site, capture, fingerprint);
+            return true;
+        });
+
+        // One reader or writer at a time across capture and render runs, and the file is swapped in whole, so no run drops
+        // another's entries or reads a file that is being replaced.
+        private static T Locked<T>(Func<T> action) {
             using (Mutex mutex = new Mutex(false, @"Local\cmsite-capture-sources")) {
                 try {
                     mutex.WaitOne();
@@ -34,7 +40,7 @@ namespace SiteFrames.Capture {
                     // The previous holder died; the file it was writing is either the old one or the new one, never half.
                 }
                 try {
-                    WriteLocked(site, capture, fingerprint);
+                    return action();
                 } finally {
                     mutex.ReleaseMutex();
                 }
@@ -54,14 +60,20 @@ namespace SiteFrames.Capture {
             }
             string path = ManifestPath(site);
             string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            File.WriteAllText(temporary, output.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }).Replace("\r\n", "\n") + "\n", new System.Text.UTF8Encoding(false));
-            File.Move(temporary, path, true);
+            try {
+                File.WriteAllText(temporary, output.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }).Replace("\r\n", "\n") + "\n", new System.Text.UTF8Encoding(false));
+                File.Move(temporary, path, true);
+            } finally {
+                if (File.Exists(temporary)) {
+                    File.Delete(temporary);
+                }
+            }
         }
 
         /// <summary>A problem when a capture was made from something else than <paramref name="fingerprint"/>, or null.</summary>
         public static string? Check(Site site, string capture, string fingerprint, string area) {
             string key = Key(site, capture);
-            string? recorded = Read(site)[key]?.GetValue<string>();
+            string? recorded = Locked(() => Read(site))[key]?.GetValue<string>();
             if (recorded == null) {
                 return key + " has no entry in captures/sources.json, so what made it is unknown; run the capture command for the " + area + " area.";
             }

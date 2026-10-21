@@ -30,7 +30,7 @@ summary: "A console app with a menu, logging, the dashboard and native AOT."
    dotnet run -- serve
    ```
 
-4. Publish one native executable (native AOT):
+4. Publish one native executable (native AOT, which needs the C++ build tools: on Windows, Visual Studio's "Desktop development with C++" workload):
 
    ```bash
    dotnet publish -c Release -r win-x64

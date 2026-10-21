@@ -84,9 +84,9 @@ New-ConsoleLog -Height 5 {
 ```
 
 ```powershell
+# Using the object directly
 Import-Module ConsoleMonster
 
-# Using the object directly
 $log = New-ConsoleLog -Height 5
 $log.Write('Discovered 4 domain controllers in 2 domains', 'info', [timespan]::FromSeconds(2))
 $log.Write('DC02: USN rollback check failed (event 2095)', 'err', [timespan]::FromSeconds(44))

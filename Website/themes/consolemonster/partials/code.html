@@ -6,7 +6,7 @@
      page's Markdown (which would end the HTML block there and turn the rest into paragraphs). ## ~}}
 {{~ if code_repo && !code_file; code_file = code_repo | string.split "/" | array.last; end ~}}
 <figure class="cm-code{{ if code_full }} cm-code--short{{ end }}" data-lang="{{ code_lang }}">
-  <figcaption class="cm-code__bar"><span class="cm-code__lang">{{ code_label }}</span>{{ if code_file }}<span class="cm-code__file">{{ code_file }}</span>{{ end }}{{ if code_repo }}<a class="cm-code__repo" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ code_repo }}">View on GitHub</a>{{ end }}<button type="button" class="cm-code__copy" data-cm-copy aria-live="polite">Copy</button></figcaption>
+  <figcaption class="cm-code__bar"><span class="cm-code__lang">{{ code_label }}</span>{{ if code_file }}<span class="cm-code__file">{{ code_file }}</span>{{ end }}{{ if code_repo }}<a class="cm-code__repo" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ code_repo }}" aria-label="View {{ code_repo }} on GitHub">View on GitHub</a>{{ end }}<button type="button" class="cm-code__copy" data-cm-copy aria-live="polite">Copy</button></figcaption>
   <pre><code class="language-{{ code_lang }}">{{ code_text | html.escape | string.replace "\n" "&#10;" }}</code></pre>
   {{~ if code_full ~}}
   <details class="cm-code__full">

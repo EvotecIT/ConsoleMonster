@@ -20,7 +20,8 @@ namespace SiteFrames {
             "script", "csharp", "powershell", "source", "code", "program"
         };
 
-        private static readonly Regex Shortcode = new Regex(@"\{\{<\s*cm-frame\s+(?<attrs>[^>]*?)>\}\}", RegexOptions.CultureInvariant);
+        // Attribute values may contain > (a caption with 6>&1), so quoted values are read whole.
+        private static readonly Regex Shortcode = new Regex(@"\{\{<\s*cm-frame\s+(?<attrs>(?:""[^""]*""|[^"">])*?)\s*>\}\}", RegexOptions.CultureInvariant);
 
         private static readonly Regex Attribute = new Regex(@"(?<name>\w+)=""(?<value>[^""]*)""", RegexOptions.CultureInvariant);
 
@@ -29,7 +30,7 @@ namespace SiteFrames {
             string[] files = Directory.GetFiles(Path.Combine(site.Website, "data"), "*.json");
             Array.Sort(files, StringComparer.Ordinal);
             foreach (string file in files) {
-                problems.AddRange(Find(JsonNode.Parse(File.ReadAllText(file)), Path.GetFileNameWithoutExtension(file)));
+                problems.AddRange(Find(JsonNode.Parse(File.ReadAllText(file)), Path.GetFileNameWithoutExtension(file), site.Repository));
             }
             JsonObject figures = JsonNode.Parse(File.ReadAllText(site.Data("figures")))!.AsObject();
             string[] pages = Directory.GetFiles(Path.Combine(site.Website, "content"), "*.md", SearchOption.AllDirectories);
@@ -41,43 +42,74 @@ namespace SiteFrames {
         }
 
         /// <summary>Frames in a data file whose entry carries no code, as "file.path" problems.</summary>
-        internal static IEnumerable<string> Find(JsonNode? root, string name) {
+        /// <param name="root">The data file.</param>
+        /// <param name="name">The file's name, for messages.</param>
+        /// <param name="repository">The repository a <c>*Repo</c> path must exist in; null skips that check.</param>
+        internal static IEnumerable<string> Find(JsonNode? root, string name, string? repository = null) {
             List<string> problems = new List<string>();
-            Walk(root, null, name, false, problems);
+            // The file's own top level is a collection of entries (or page text), never the code for all of them.
+            if (root is JsonObject top) {
+                foreach (KeyValuePair<string, JsonNode?> property in top) {
+                    Walk(property.Value, top, name + "." + property.Key, false, repository, problems);
+                }
+            } else {
+                Walk(root, null, name, false, repository, problems);
+            }
             return problems;
         }
 
-        private static void Walk(JsonNode? node, JsonObject? parent, string where, bool sourced, List<string> problems) {
+        private static void Walk(JsonNode? node, JsonObject? parent, string where, bool sourced, string? repository, List<string> problems) {
             switch (node) {
                 case JsonObject obj:
-                    bool here = sourced || HasSource(obj, parent);
+                    bool here = sourced || HasSource(obj, parent, repository);
                     foreach (KeyValuePair<string, JsonNode?> property in obj) {
-                        if ((property.Key == "frame" || property.Key == "poster") && property.Value is JsonObject && !here) {
+                        if ((property.Key == "frame" || property.Key == "poster") && IsFrame(property.Value) && !here) {
                             problems.Add(where + "." + property.Key + " has no code linked to it: add the script or program that drew it (script, csharp, powershell, source), a *Repo link, or sourceOf.");
                         }
-                        Walk(property.Value, obj, where + "." + property.Key, here, problems);
+                        Walk(property.Value, obj, where + "." + property.Key, here, repository, problems);
                     }
                     break;
                 case JsonArray array:
                     for (int i = 0; i < array.Count; i++) {
-                        Walk(array[i], parent, where + "[" + i + "]", sourced, problems);
+                        Walk(array[i], parent, where + "[" + i + "]", sourced, repository, problems);
                     }
                     break;
             }
         }
 
-        private static bool HasSource(JsonObject obj, JsonObject? parent) {
+        // A rendered frame: an object with the frame's HTML rows (page text that happens to be called "frame" is not one).
+        private static bool IsFrame(JsonNode? node) =>
+            node is JsonObject frame && (frame.ContainsKey("dark") || frame.ContainsKey("light") || frame.ContainsKey("darkOnly") || frame.ContainsKey("lightOnly"));
+
+        // Code: a non-empty string, or an object that itself carries code (a program's sources by language).
+        private static bool IsCode(JsonNode? node) {
+            if (node is JsonValue value) {
+                return value.TryGetValue(out string? text) && !string.IsNullOrWhiteSpace(text);
+            }
+            if (node is JsonObject obj) {
+                foreach (KeyValuePair<string, JsonNode?> property in obj) {
+                    if (SourceKeys.Contains(property.Key) && IsCode(property.Value)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool HasSource(JsonObject obj, JsonObject? parent, string? repository) {
             foreach (KeyValuePair<string, JsonNode?> property in obj) {
-                if (SourceKeys.Contains(property.Key) && property.Value != null) {
+                if (SourceKeys.Contains(property.Key) && IsCode(property.Value)) {
                     return true;
                 }
-                if (property.Key.EndsWith("Repo", StringComparison.Ordinal) && property.Value is JsonValue) {
+                // A link to a program in the repository counts only when that file exists.
+                if (property.Key.EndsWith("Repo", StringComparison.Ordinal) && property.Value is JsonValue link && link.TryGetValue(out string? path) && !string.IsNullOrWhiteSpace(path)
+                    && (repository == null || File.Exists(Path.Combine(repository, path!)))) {
                     return true;
                 }
             }
             // A variant of another entry (the same program at another size) names it, and that entry must carry the code.
-            if (obj["sourceOf"] is JsonValue of && parent?[of.GetValue<string>()] is JsonObject sibling) {
-                return HasSource(sibling, null);
+            if (obj["sourceOf"] is JsonValue of && of.TryGetValue(out string? name) && parent?[name!] is JsonObject sibling) {
+                return HasSource(sibling, null, repository);
             }
             return false;
         }
@@ -93,21 +125,30 @@ namespace SiteFrames {
                     shown.Add((id, hidden));
                 }
             }
-            string fences = string.Join("\n", CodeGuard.Fences(markdown).Select(f => f.Code.Replace("\n   ", "\n").Trim()));
+            string fences = string.Join("\n", CodeGuard.Fences(markdown).Select(f => f.Code.Trim()));
             foreach ((string id, bool hidden) in shown) {
                 if (!hidden) {
                     continue;
                 }
                 JsonObject? figure = figures[id] as JsonObject;
-                string? code = figure?["script"]?.GetValue<string>() ?? figure?["csharp"]?.GetValue<string>();
-                if (code == null) {
+                // Every language the figure carries must be on the page somewhere else.
+                List<string> codes = new List<string>();
+                foreach (string key in new[] { "script", "csharp" }) {
+                    if (figure?[key] is JsonValue value && value.TryGetValue(out string? text) && !string.IsNullOrWhiteSpace(text)) {
+                        codes.Add(text!);
+                    }
+                }
+                if (codes.Count == 0) {
                     yield return page + ": figure " + id + " has script=\"false\" and no code of its own.";
                     continue;
                 }
-                bool elsewhere = shown.Any(s => !s.Hidden && figures[s.Id] is JsonObject other
-                    && (other["script"]?.GetValue<string>() == code || other["csharp"]?.GetValue<string>() == code));
-                if (!elsewhere && !fences.Contains(code.Trim(), StringComparison.Ordinal)) {
-                    yield return page + ": figure " + id + " hides its code (script=\"false\"), and the page shows that code nowhere else.";
+                foreach (string code in codes) {
+                    bool elsewhere = shown.Any(s => !s.Hidden && figures[s.Id] is JsonObject other
+                        && (other["script"]?.GetValue<string>() == code || other["csharp"]?.GetValue<string>() == code));
+                    if (!elsewhere && !fences.Contains(code.Trim(), StringComparison.Ordinal)) {
+                        yield return page + ": figure " + id + " hides its code (script=\"false\"), and the page shows that code nowhere else.";
+                        break;
+                    }
                 }
             }
         }

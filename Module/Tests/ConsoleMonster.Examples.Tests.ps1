@@ -186,7 +186,7 @@ BeforeAll {
     foreach ($story in $interactive.stories) {
         $name = "Website/examples/interactive/$($story.id).ps1"
         if (Test-Path -LiteralPath (Join-Path $script:RepositoryRoot $name)) {
-            $script:ExampleCases[$name] = @{ Input = $story.keys; RealTime = $true; Screen = "$($story.player.w)x$($story.player.h)"; Expect = @($story.title.Substring(0, 0)) }
+            $script:ExampleCases[$name] = @{ Input = $story.keys; RealTime = $true; Paced = $true; Screen = "$($story.player.w)x$($story.player.h)"; Expect = @($story.title.Substring(0, 0)) }
         }
     }
 }
@@ -221,7 +221,9 @@ Describe 'Examples run headless' -Tag 'Examples' {
         if ($null -eq $case) { $case = @{} }
         # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
         $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
-        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
+        # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
+        $paced = if ($case['Paced']) { '$true' } else { '$false' }
+        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         # A case with a Screen draws the rich layouts on a fixed screen captured in memory, whose frames the Expect phrases
         # are looked up in afterwards.

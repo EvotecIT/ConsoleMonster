@@ -87,10 +87,17 @@ namespace SiteFrames {
                     continue;
                 }
                 string language = trimmed.Substring(3).Trim().ToLowerInvariant();
+                // A block inside a list item is indented like its fence; the code is what is left after that indent.
+                int indent = lines[i].Length - trimmed.Length;
                 int start = i + 2;
                 List<string> block = new List<string>();
                 for (i++; i < lines.Length && !lines[i].TrimStart().StartsWith("```", StringComparison.Ordinal); i++) {
-                    block.Add(lines[i]);
+                    string line = lines[i];
+                    int strip = 0;
+                    while (strip < indent && strip < line.Length && line[strip] == ' ') {
+                        strip++;
+                    }
+                    block.Add(line.Substring(strip));
                 }
                 yield return (start, language, string.Join("\n", block));
             }

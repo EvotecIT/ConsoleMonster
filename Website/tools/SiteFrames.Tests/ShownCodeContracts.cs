@@ -109,6 +109,10 @@ namespace SiteFrames.Tests {
         [InlineData("{\"a\":{\"programRepo\":\"P/Program.cs\",\"frame\":{\"dark\":\"x\"}}}", 0)]
         [InlineData("{\"a\":{\"source\":\"x\"},\"b\":{\"sourceOf\":\"a\",\"poster\":{\"dark\":\"x\"}}}", 0)]
         [InlineData("{\"a\":{},\"b\":{\"sourceOf\":\"a\",\"poster\":{\"dark\":\"x\"}}}", 1)]
+        [InlineData("{\"a\":{\"script\":\"\",\"frame\":{\"dark\":\"x\"}}}", 1)]
+        [InlineData("{\"a\":{\"csharp\":{\"url\":\"/r.json\"},\"frame\":{\"dark\":\"x\"}}}", 1)]
+        [InlineData("{\"a\":{\"source\":{\"csharp\":\"x\"},\"frame\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"a\":{\"frame\":{\"title\":\"Text\",\"body\":\"not a frame\"}}}", 0)]
         public void FrameSources_FrameWithoutCode_IsReported(string json, int expected) {
             Assert.Equal(expected, FrameSources.Find(System.Text.Json.Nodes.JsonNode.Parse(json), "data").Count());
         }
@@ -119,6 +123,8 @@ namespace SiteFrames.Tests {
             Assert.Empty(FrameSources.FindOnPage("{{< cm-frame id=\"a\" >}}\n{{< cm-frame id=\"b\" script=\"false\" >}}", figures, "p.md"));
             Assert.Empty(FrameSources.FindOnPage("```powershell\nGet-C\n```\n{{< cm-frame id=\"c\" script=\"false\" >}}", figures, "p.md"));
             Assert.Single(FrameSources.FindOnPage("{{< cm-frame id=\"c\" script=\"false\" >}}", figures, "p.md"));
+            Assert.Single(FrameSources.FindOnPage("{{< cm-frame id=\"c\" script=\"false\" caption=\"`6>&1` keeps lines\" >}}", figures, "p.md"));
+            Assert.Empty(FrameSources.FindOnPage("1. Step:\n\n   ```powershell\n   Get-C\n   ```\n{{< cm-frame id=\"c\" script=\"false\" >}}", figures, "p.md"));
         }
 
         [Fact]
