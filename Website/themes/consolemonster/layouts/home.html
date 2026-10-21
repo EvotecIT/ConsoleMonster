@@ -22,6 +22,25 @@
     <div class="cm-hero__intro">
       <h1 id="cm-hero-title">{{ copy.title }}</h1>
       <p class="cm-stage__lede">{{ copy.lede }}</p>
+      {{~ ## The one line to type, ready to copy, then the facts people check before they install. The command is a
+           tab set (PowerShell or .NET); each panel is its own code block, so the shared copy action copies the shown
+           command. The prompt is drawn by CSS, so it is never copied. ## ~}}
+      <div class="cm-quick" data-cm-tabs>
+        <div class="cm-seg cm-quick__switch" role="tablist" aria-label="{{ copy.quick.label }}">
+          {{~ for q in copy.quick.items ~}}
+          <button type="button" role="tab" id="cm-quick-{{ q.id }}-tab" aria-controls="cm-quick-{{ q.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ q.key }})">{{ q.tab }}</button>
+          {{~ end ~}}
+        </div>
+        {{~ for q in copy.quick.items ~}}
+        <div class="cm-code cm-quick__cmd" id="cm-quick-{{ q.id }}" role="tabpanel" aria-labelledby="cm-quick-{{ q.id }}-tab" data-prompt="{{ q.prompt }}"{{ if !for.first }} hidden{{ end }}>
+          <pre><code class="language-{{ q.lang }}">{{ q.text | html.escape }}</code></pre>
+          <button type="button" class="cm-code__copy cm-quick__copy" data-cm-copy aria-live="polite">Copy</button>
+        </div>
+        {{~ end ~}}
+      </div>
+      <ul class="cm-quick__facts" aria-label="{{ copy.quick.factsLabel }}">
+        {{~ for f in copy.facts ~}}<li>{{ f | string.replace "{version}" copy.version }}</li>{{~ end ~}}
+      </ul>
     </div>
     {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
          (#everyday, #monster). Without JavaScript both panels show, Everyday first (pages.css). ## ~}}
@@ -43,13 +62,14 @@
           <p class="cm-hero__note">{{ path.note }}</p>
         </div>
         <div class="cm-hero__take">
+          {{~ ## The install commands are in the bar under the lede; this column says where the packages live. ## ~}}
           <div class="cm-hero__install">
-            <h2 class="cm-hero__take-title">{{ copy.installTitle }}</h2>
-            {{~ for i in path.install ~}}
-            {{~ code_lang = i.lang; code_label = i.label; code_text = i.text ~}}
-            {{ include "code" }}
-            {{~ end ~}}
-            <p class="cm-install__note">ConsoleMonster 2.0.1 · <a href="https://www.nuget.org/packages/ConsoleMonster/2.0.1">NuGet 2.0.1</a> · <a href="https://www.powershellgallery.com/packages/ConsoleMonster/2.0.1">PowerShell Gallery 2.0.1</a> · <a href="https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.1">Release downloads</a></p>
+            <h2 class="cm-hero__take-title">{{ copy.packagesTitle }}</h2>
+            <ul class="cm-packages">
+              {{~ for k in copy.packages ~}}
+              <li><a href="{{ k.url | string.replace "{version}" copy.version }}"><strong>{{ k.title }}</strong><span>{{ k.body }} · {{ copy.version }}</span></a></li>
+              {{~ end ~}}
+            </ul>
           </div>
           <div class="cm-hero__code" data-cm-tabs>
             <h2 class="cm-hero__take-title">{{ path.codeTitle }}</h2>

@@ -15,13 +15,6 @@
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
           "note": "Shows PowerShell's own output, then the same commands after Enable-ConsoleFormatting and Get-Service grouped by status; it rests on the after view. Before and After under the player jump to each half. Recorded on PowerShell 7 from the script in the tab beside it.",
-          "install": [
-            {
-              "lang": "powershell",
-              "label": "PowerShell 5.1 and 7",
-              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
-            }
-          ],
           "codeTitle": "Two lines",
           "code": [
             {
@@ -45,18 +38,6 @@
           "url": "/interactive/",
           "linkText": "Menus, forms and apps",
           "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
-          "install": [
-            {
-              "lang": "powershell",
-              "label": "PowerShell 5.1 and 7",
-              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
-            },
-            {
-              "lang": "bash",
-              "label": ".NET",
-              "text": "dotnet add package ConsoleMonster"
-            }
-          ],
           "codeTitle": "The app's main program",
           "code": [
             {
@@ -71,7 +52,28 @@
         }
       ]
     },
-    "installTitle": "Install",
+    "version": "2.0.1",
+    "packagesTitle": "Packages",
+    "packages": [
+      { "title": "NuGet", "body": "ConsoleMonster for .NET", "url": "https://www.nuget.org/packages/ConsoleMonster/{version}" },
+      { "title": "PowerShell Gallery", "body": "The ConsoleMonster module", "url": "https://www.powershellgallery.com/packages/ConsoleMonster/{version}" },
+      { "title": "GitHub release", "body": "Notes and downloads", "url": "https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v{version}" }
+    ],
+    "quick": {
+      "label": "Install with",
+      "factsLabel": "At a glance",
+      "items": [
+        { "id": "ps", "tab": "PowerShell", "lang": "powershell", "prompt": "PS>", "text": "Install-Module ConsoleMonster -Scope CurrentUser", "key": 3 },
+        { "id": "net", "tab": ".NET", "lang": "bash", "prompt": "$", "text": "dotnet add package ConsoleMonster", "key": 5 }
+      ]
+    },
+    "facts": [
+      "No dependencies",
+      "PowerShell 5.1 and 7",
+      "netstandard2.0, net472, net8.0, net10.0",
+      "MIT licence",
+      "v{version}"
+    ],
     "sides": [
       {
         "id": "everyday-features",
