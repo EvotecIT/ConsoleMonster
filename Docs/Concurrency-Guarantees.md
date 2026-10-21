@@ -37,8 +37,9 @@ dropped dispatcher updates. The finite stress example retains its captured datas
 
 One `Terminal.Write` or `Terminal.WriteLines` call is a complete block. Concurrent calls sharing an output cannot interleave its
 lines. During a session, the prepared block has one queue admission decision. If shutdown wins before admission, the caller
-writes the whole block once, serialized with the session's remaining output and restoration. Until restoration, stream fallback
-uses the session's output and full-screen fallback waits for scrollback. Accepted blocks appear above an inline area or after a full screen ends.
+writes the whole block once, serialized with the session's remaining output and restoration. Stream fallback uses the session's
+output before restoration; late blocks during final cleanup wait for its final flush. Normal output resumes after cleanup.
+Accepted blocks appear above an inline area or after a full screen ends.
 
 `Console.Write` fragments and CR/LF state are buffered per managed thread until newline. Stopping flushes each unfinished tail
 once. A logical message that continues on a different thread should use one `WriteLine` or `Terminal.Write` call.
@@ -103,7 +104,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Complete concurrent one-shot blocks | [`TerminalWrite_ManyProducersKeepEveryMultilineBlockWhole`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
 | One admission per block and preserved final inline line | `SessionWrites_AdmitWholeMultilineBlocksBeforeAnotherProducer`, `SessionWrite_PreservesTheFinalInlineLine` in the same file |
 | Exactly-once shutdown fallback to actual OS stdout | [`StopDuringWritePreparation_PrintsTheWholeFallbackExactlyOnceToNativeStdout`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs) |
-| Shutdown fallback cannot split an accepted block still draining | [`ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
+| Shutdown fallback cannot split draining blocks; restoration/summary writes flush once | [`ShutdownFallback_KeepsItsBlockWholeWhileAnAcceptedBlockIsStillDraining`, `ShutdownFallback_FromRestorationAndSummaryIsFlushedExactlyOnce`](../ConsoleMonster.Tests/Live/TerminalBlockConcurrencyTests.cs) |
 | Whole stream lines in apply order, many producers | [`Stream_ManyProducersWriteWholeLinesInExactApplyOrder`](../ConsoleMonster.Tests/Live/DispatcherConcurrencyTests.cs) |
 | Posting proceeds with blocked Apply; every accepted flood event drains | `Flood_PostingFinishesWhileApplyIsBlocked_ThenEveryAcceptedUpdateDrains` in the same file |
 | Producer order and serialized normal application under stress | [`ConcurrentProducersPreserveEveryEventAndProducerOrderOnTheRenderThread`](../ConsoleMonster.Tests/Live/LiveSessionTests.cs) |

@@ -190,7 +190,7 @@ namespace ConsoleMonster {
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
                 Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));
-                if (!owner.TryWriteAbove(prepared)) { owner.WriteFallback(prepared, () => WritePrepared(prepared, p, writer)); }
+                if (!owner.TryWriteAbove(prepared) && !owner.TryWriteFallback(prepared)) { WritePrepared(prepared, p, writer); }
                 return;
             }
             lock (Gate) {
@@ -301,7 +301,7 @@ namespace ConsoleMonster {
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
                 Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(lines, newLine);
-                if (!owner.TryWriteAbove(prepared)) { owner.WriteFallback(prepared, () => WritePrepared(prepared, p, writer)); }
+                if (!owner.TryWriteAbove(prepared) && !owner.TryWriteFallback(prepared)) { WritePrepared(prepared, p, writer); }
                 return;
             }
             lock (Gate) {

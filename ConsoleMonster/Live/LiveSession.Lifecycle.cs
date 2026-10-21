@@ -240,9 +240,12 @@ namespace ConsoleMonster.Live {
                             if (summary != null) {
                                 _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
                             }
+                            // A summary widget or an output callback can itself emit a one-shot write during cleanup.
+                            FlushUnrouted();
                         });
                     }
                     if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                    _outputFinished = true;
                     // A new normal writer may start only after accepted blocks, scrollback and restoration are done.
                     Terminal.ReleaseConsole(this);
                 }

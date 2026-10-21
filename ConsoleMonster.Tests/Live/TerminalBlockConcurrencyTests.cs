@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Output;
 using ConsoleMonster.Text;
@@ -72,6 +74,33 @@ namespace ConsoleMonster.Tests.Live {
                 Terminal.WriteLines(new InterruptedLines("value", session.Stop), profile: Profile);
                 Assert.Empty(output.Lines);
             }
+        }
+
+        [Fact]
+        public void ShutdownFallback_FromRestorationAndSummaryIsFlushedExactlyOnce() {
+            foreach (bool live in new[] { false, true }) {
+                FakeOutput output = new FakeOutput(live);
+                LiveSessionOptions options = LiveSessionTests.Options(output);
+                options.Summary = new ClosingSummary();
+                output.Ending = () => Terminal.WriteLines(new[] { StyledLine.From("restore-first"), StyledLine.From("restore-last") }, profile: Profile);
+                using (Terminal.Use(ConsoleTarget.Instance))
+                using (LiveSession session = new LiveSession(new FakeTarget(), options)) {
+                    session.Start();
+                    Terminal.ClaimConsole(session);
+                    Terminal.WriteLines(new[] { StyledLine.From("accepted-first"), StyledLine.From("accepted-last") }, profile: Profile);
+                    session.Stop();
+                    Assert.Equal(new[] { "accepted-first", "accepted-last", "restore-first", "restore-last", "summary-first", "summary-last" }, output.Lines);
+                    Assert.Equal(0, session.EventsDropped);
+                    Assert.Equal(session.EventsPosted, session.EventsApplied);
+                    Assert.Null(Terminal.ConsoleOwner);
+                }
+            }
+        }
+
+        private sealed class ClosingSummary : IWidget {
+            public Size Measure(Constraints constraints, RenderContext context) => new Size(1, 1);
+            public void Render(Region region, RenderContext context) => Terminal.WriteLines(
+                new[] { StyledLine.From("summary-first"), StyledLine.From("summary-last") }, profile: Profile);
         }
 
         [Fact]

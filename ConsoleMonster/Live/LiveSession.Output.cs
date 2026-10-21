@@ -1,4 +1,3 @@
-using System;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
@@ -8,6 +7,7 @@ namespace ConsoleMonster.Live {
         private LogRegion? _captureLog;
         private IWidget? _captureRoot;
         private int _captureHeight;
+        private bool _outputFinished;
 
         // Dispatcher-only routing: stream output is progressive; live output preserves each complete write for scrollback.
         private void RouteConsoleWrite(ConsoleWriteBlock write) {
@@ -19,12 +19,15 @@ namespace ConsoleMonster.Live {
         }
 
         // Rejected one-shot writes still share the session's physical output lock until its final output is complete.
-        // Before restoration, stream writes use that output and live writes wait for scrollback; afterwards the normal
-        // writer runs under the same lock. This is separate from dispatcher admission and does not count as a posted event.
-        internal void WriteFallback(ConsoleWriteBlock write, Action normalWrite) {
+        // Before restoration, stream writes use that output and live writes wait for scrollback. Restored but not yet
+        // finished output keeps late blocks for the final flush. Never invoke Terminal's normal writer under this lock:
+        // it takes Terminal.Gate, which a custom one-shot widget can already hold while asking for a session snapshot.
+        internal bool TryWriteFallback(ConsoleWriteBlock write) {
             lock (_outputGate) {
-                if (!_restored && _output != null) { RouteConsoleWrite(write); }
-                else { normalWrite(); }
+                if (_outputFinished || _output == null) { return false; }
+                if (_restored) { _unroutedLines.Enqueue(write); }
+                else { RouteConsoleWrite(write); }
+                return true;
             }
         }
 
