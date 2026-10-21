@@ -9,7 +9,7 @@
 {{ include "player" }}
 {{~ if r.result ~}}
 <dl class="cm-facts">
-{{~ for f in r.result.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
+{{~ for f in r.result.facts ~}}<div><dt>{{ f.label | html.escape }}</dt><dd>{{ f.value | html.escape }}</dd></div>{{~ end ~}}
 </dl>
 {{~ code_lang = "text"; code_label = "Result line"; code_text = r.result.line ~}}
 {{ include "code" }}

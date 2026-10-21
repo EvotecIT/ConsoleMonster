@@ -23,6 +23,8 @@ namespace SiteFrames {
         // Attribute values may contain > (a caption with 6>&1), so quoted values are read whole.
         private static readonly Regex Shortcode = new Regex(@"\{\{<\s*cm-frame\s+(?<attrs>(?:""[^""]*""|[^"">])*?)\s*>\}\}", RegexOptions.CultureInvariant);
 
+        private static readonly Regex LiveShortcode = new Regex(@"\{\{<\s*cm-live\s+[^>]*?\bid=""(?<id>[^""]*)""", RegexOptions.CultureInvariant);
+
         private static readonly Regex Attribute = new Regex(@"(?<name>\w+)=""(?<value>[^""]*)""", RegexOptions.CultureInvariant);
 
         public static void Check(Site site) {
@@ -35,8 +37,17 @@ namespace SiteFrames {
             JsonObject figures = JsonNode.Parse(File.ReadAllText(site.Data("figures")))!.AsObject();
             string[] pages = Directory.GetFiles(Path.Combine(site.Website, "content"), "*.md", SearchOption.AllDirectories);
             Array.Sort(pages, StringComparer.Ordinal);
+            JsonObject live = JsonNode.Parse(File.ReadAllText(site.Data("live")))!.AsObject();
             foreach (string page in pages) {
-                problems.AddRange(FindOnPage(Site.ReadText(page), figures, Path.GetRelativePath(site.Website, page).Replace('\\', '/')));
+                string markdown = Site.ReadText(page);
+                string name = Path.GetRelativePath(site.Website, page).Replace('\\', '/');
+                problems.AddRange(FindOnPage(markdown, figures, name));
+                // A live recording embedded by id must exist; the shortcode alone would render nothing.
+                foreach (Match embed in LiveShortcode.Matches(markdown)) {
+                    if (live[embed.Groups["id"].Value] == null) {
+                        problems.Add(name + ": cm-live id=\"" + embed.Groups["id"].Value + "\" is not a recording in data/live.json.");
+                    }
+                }
             }
             WidgetsPage.Report(problems, "sources");
         }

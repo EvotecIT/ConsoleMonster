@@ -37,8 +37,8 @@
           "line": "Full console applications: menus, forms, live dashboards and results, from one library.",
           "url": "/interactive/",
           "linkText": "Menus, forms and apps",
-      "threads": "Any thread can update the screen: {workers} workers, {rate} updates a second, nothing torn.",
-      "threadsLink": "Threads and concurrency",
+          "threads": "Any thread can update the screen: {workers} workers, {rate} updates a second, none dropped.",
+          "threadsLink": "Threads and concurrency",
           "note": "A whole console application, recorded from its program in the C# tab with dotnet run -- --demo, pressing its own keys: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
           "codeTitle": "The app's program",
           "code": [
@@ -201,24 +201,6 @@
     "live": {
       "title": "Live dashboards from many threads",
       "body": "A live session takes updates from any thread through a lock-free queue and draws about 15 frames a second, writing only the cells that changed. Console output and PowerShell streams are captured into a log region instead of tearing the screen.",
-      "facts": [
-        {
-          "label": "Frames per second under load",
-          "value": "15"
-        },
-        {
-          "label": "Updates per second",
-          "value": "~80,000"
-        },
-        {
-          "label": "Render cost per frame",
-          "value": "~0.75 ms"
-        },
-        {
-          "label": "Updates dropped",
-          "value": "0"
-        }
-      ],
       "source": "Measured during the recorded runs: the stress test program (32 workers, with stray Console.WriteLine calls) and the benchmark program.",
       "richTitle": "On a console",
       "streamTitle": "In CI and redirected output"
@@ -550,7 +532,7 @@
     },
     "threads-ci": {
       "title": "The same script in CI",
-      "body": "With CI detected, the dashboard writes one line per change instead of redrawing, each line whole and in the order the updates arrived.",
+      "body": "With CI detected, the same dashboard writes a whole line for each start, finish and log entry instead of redrawing, in the order the updates were applied, then prints its final state.",
       "label": "The dashboard script's output when CI=true: ordered, whole lines"
     },
     "shaping": {
