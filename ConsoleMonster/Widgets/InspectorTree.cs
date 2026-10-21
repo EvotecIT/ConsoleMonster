@@ -40,7 +40,7 @@ namespace ConsoleMonster.Widgets {
                 case InspectCollection collection:
                     int index = 0;
                     foreach (InspectNode item in collection.Items) {
-                        AddNode(parent, item, "[" + index.ToString(CultureInfo.InvariantCulture) + "]");
+                        AddNode(parent, item, "[" + index.ToString(CultureInfo.InvariantCulture) + "]", true);
                         index++;
                     }
                     if (collection.Omitted > 0) {
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static void AddNode(TreeNode parent, InspectNode node, string name) {
+        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false) {
             string label = Markup.Escape(name);
             switch (node) {
                 case InspectObject obj:
@@ -65,7 +65,7 @@ namespace ConsoleMonster.Widgets {
                     Fill(branch, collection);
                     break;
                 case InspectScalar scalar:
-                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value), Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value) });
+                    parent.Add(new TreeNode(label) { Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value), Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value), IsScalarCollectionItem = collectionItem });
                     break;
                 case InspectCycle cycle:
                     parent.Add(label, null, "(cycle: " + cycle.TargetPath + ")");

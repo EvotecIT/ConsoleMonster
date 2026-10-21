@@ -67,7 +67,14 @@ namespace ConsoleMonster.Export {
                 }
             }
             if (!started) { Header(); }
-            if (layout.Total?.Cells != null) { Row(output, layout.Total.Cells.Select(cell => Cell(cell)).Select(Escape), true); }
+            if (layout.Total?.Cells != null) {
+                if (layout.Rows.Any(row => row.Kind == TableRowKind.Group)) {
+                    output.Append('\n');
+                    Heading(output, table.TotalLabel ?? context.Labels.Total);
+                    Header();
+                }
+                Row(output, layout.Total.Cells.Select(cell => Cell(cell)).Select(Escape), true);
+            }
             output.Append('\n');
             if (!string.IsNullOrEmpty(table.Caption)) { output.Append(Prose(Plain(table.Caption, context))).Append("\n\n"); }
         }
@@ -95,9 +102,9 @@ namespace ConsoleMonster.Export {
         }
 
         private static void Node(StringBuilder output, TreeNode node, int depth, PresenterContext presenter) {
-            string label = Plain(node.LabelFor(presenter.Render), presenter.Render);
+            string label = node.IsScalarCollectionItem ? string.Empty : Plain(node.LabelFor(presenter.Render), presenter.Render);
             if (node.Status.HasValue) { label = presenter.Render.Glyphs.StatusMarker(node.Status.Value) + " " + label; }
-            if (node.Value != null) { label += ": " + Cell(CellRendering.Content(node.Value, node.Presenter, null, presenter)); }
+            if (node.Value != null) { label += (label.Length > 0 ? ": " : string.Empty) + Cell(CellRendering.Content(node.Value, node.Presenter, null, presenter), node.Value, node.Presenter); }
             string? note = node.NoteFor(presenter.Render);
             if (!string.IsNullOrEmpty(note)) { label += " · " + note; }
             output.Append(' ', depth * 2).Append("- ").Append(Prose(label)).Append('\n');

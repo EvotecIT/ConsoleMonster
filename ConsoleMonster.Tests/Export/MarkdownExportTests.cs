@@ -63,7 +63,28 @@ namespace ConsoleMonster.Tests.Export {
             string markdown = ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
             Assert.Contains("### East · 2\n\n| Name | Count |", markdown);
             Assert.Contains("| **Subtotal** | **5** |", markdown);
-            Assert.EndsWith("| **Total** | **9** |\n\n", markdown);
+            Assert.EndsWith("\n\n### Total\n\n| Name | Count |\n| :--- | ---: |\n| **Total** | **9** |\n\n", markdown);
+            table.TotalLabel = "Grand total";
+            Assert.EndsWith("\n\n### Grand total\n\n| Name | Count |\n| :--- | ---: |\n| **Grand total** | **9** |\n\n",
+                ConsoleExporter.ToMarkdown(table, new ExportOptions { Culture = CultureInfo.InvariantCulture }));
+        }
+
+        [Fact]
+        public void InspectedTreeUsesMemberPresentersAndOmitsOnlyScalarCollectionIndexes() {
+            Tree tree = InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(new {
+                State = "Pass", Bytes = 2048L, Duration = TimeSpan.FromSeconds(125),
+                Tags = new[] { "production", "web" }, Services = new[] { new { State = "Warning", Bytes = 4096L } }
+            }), "Service");
+            ExportOptions options = new ExportOptions { Culture = CultureInfo.InvariantCulture };
+            string markdown = ConsoleExporter.ToMarkdown(tree, options);
+            Assert.Contains("  - State: ✓ Pass\n  - Bytes: 2 KB\n  - Duration: 2 m 05 s\n", markdown);
+            Assert.Contains("    - production\n    - web\n", markdown);
+            Assert.Contains("    - \\[0\\]", markdown);
+            Assert.Contains("      - State: ▴ Warning\n      - Bytes: 4 KB\n", markdown);
+            string console = ConsoleExporter.ToText(tree, options);
+            Assert.Contains("2 KB", console);
+            Assert.Contains("✓ Pass", console);
+            Assert.Contains("[0]", console);
         }
 
         [Fact]

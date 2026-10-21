@@ -40,6 +40,8 @@ namespace ConsoleMonster.Widgets {
 
         internal Func<Localization.WidgetLabels, string>? LocalizedLabel { get; set; }
         internal Func<Localization.WidgetLabels, string?>? LocalizedNote { get; set; }
+        // Inspection indexes remain useful in the console; scalar items need only their value in semantic Markdown.
+        internal bool IsScalarCollectionItem { get; set; }
         internal string LabelFor(Canvas.RenderContext context) => LocalizedLabel?.Invoke(context.Labels) ?? _label;
         internal string? NoteFor(Canvas.RenderContext context) => LocalizedNote?.Invoke(context.Labels) ?? _note;
 

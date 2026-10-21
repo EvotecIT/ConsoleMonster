@@ -65,9 +65,14 @@ and objects are stacked in input order.
 Markdown tables use GFM pipe syntax, with `:---`, `---:` or `:---:` alignment
 markers. Cells retain their value presenters, including status glyphs, byte units,
 dates, durations and joined collections. Pipes are escaped and line breaks become
-`<br>`. Groups become headings; subtotals and the final totals row are bold.
+`<br>`. Automatic alignment follows the console presenters: numbers, bytes and
+durations align right; status words and text align left. Explicit column alignment
+is retained. Groups become headings, with bold subtotals inside each group and a
+separate table for the bold grand total after all groups.
 Record lists become two-column property/value tables, and trees become nested
-bullet lists. Markdown includes every column without console-width truncation.
+bullet lists with the same member presenters. Scalar collection items appear as
+direct bullets; complex items retain their indexes. Markdown includes every
+column without console-width truncation.
 
 Use `-As Text` to preserve borders and the exact console layout in a fenced `text`
 block. The fence grows around backticks in the content. `-AsString` and

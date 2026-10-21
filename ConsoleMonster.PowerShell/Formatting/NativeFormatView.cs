@@ -74,9 +74,15 @@ namespace ConsoleMonster.PowerShell {
                                 foreach (object field in Items(Get(entry, "formatPropertyFieldList"))) { fields.Add(field); }
                                 if (values.Length != table.Columns.Count || fields.Count != values.Length) { return false; }
                                 for (int c = 0; c < values.Length; c++) {
-                                    if (capture.Formatted[c]) { values[c] = FormattedCell(capture.Rows[rowIndex][c], String(Get(fields[c], "propertyValue")), capture.Columns[c].Name); }
+                                    if (capture.Formatted[c]) {
+                                        capture.Columns[c].InferFormattedAlignment(capture.Rows[rowIndex][c]);
+                                        values[c] = FormattedCell(capture.Rows[rowIndex][c], String(Get(fields[c], "propertyValue")), capture.Columns[c].Name);
+                                    }
                                 }
-                                for (int c = 0; c < capture.Columns.Count; c++) { table.Columns[c].Presenter = capture.Columns[c].Column.Presenter; }
+                                for (int c = 0; c < capture.Columns.Count; c++) {
+                                    table.Columns[c].Presenter = capture.Columns[c].Column.Presenter;
+                                    table.Columns[c].Alignment = capture.Columns[c].Column.Alignment;
+                                }
                                 table.AddValues(values);
                                 rowIndex++;
                                 break;

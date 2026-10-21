@@ -82,25 +82,13 @@ namespace ConsoleMonster.Presenters {
         }
 
         /// <summary>
-        /// The identifier presenter for an integer whose label reads as an identifier (Id, ProcessId, Port, Handle...), so
-        /// record fields, trees and key/value lists show <c>8080</c> and <c>127096</c> as tables do, never <c>8 080</c>.
+        /// The member-name and value-type presenter used by tables, also for record fields, trees and key/value lists:
+        /// identifiers, byte counts, dates, durations, booleans and recognized status words.
         /// </summary>
         /// <param name="label">The field label or member name.</param>
         /// <param name="value">The value.</param>
-        /// <returns>The identifier presenter, or null.</returns>
-        public static ICellPresenter? ForLabel(string? label, object? value) {
-            switch (value) {
-                case int _:
-                case long _:
-                case short _:
-                case uint _:
-                case ulong _:
-                case ushort _:
-                    return IdentifierPresenter.LooksLikeIdentifier(label) ? Identifier : null;
-                default:
-                    return null;
-            }
-        }
+        /// <returns>The matching presenter, or null for automatic value presentation.</returns>
+        public static ICellPresenter? ForLabel(string? label, object? value) => ForStatus(label, value) ?? ForMember(label, value?.GetType());
 
         private static bool IsStatusName(string? name) {
             if (string.IsNullOrEmpty(name)) {

@@ -54,7 +54,7 @@ foreach ($kind in 'Table','List') {
     $after | Export-ConsoleFrame -Format Markdown | Set-Content -LiteralPath (Join-Path $OutputDirectory "1-values-$($kind.ToLowerInvariant())-after.md") -Encoding UTF8
 }
 
-$markdownColumns = @('Name', @{Name='State';Alignment='Center'}, @{Name='Bytes';Aggregate='Sum'}, 'Date','Duration','Tags')
+$markdownColumns = @('Name', 'State', @{Name='Bytes';Aggregate='Sum'}, 'Date','Duration','Tags')
 $valueRows | Format-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -Total -As Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-table.md') -Encoding UTF8
 $valueRows | Format-ConsoleList -Property $valueColumns -As Markdown |

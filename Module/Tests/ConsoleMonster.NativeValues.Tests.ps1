@@ -36,6 +36,35 @@
         $text | Should -Match '\| Date \| 2026-10-21'
     }
 
+    It 'keeps automatic presenter alignment consistent in native plain and grouped Markdown tables' {
+        $native = Convert-TestNativeView -Rows $script:NativeRows -Arguments @{Property=$script:NativeProperties}
+        $plain = $script:NativeRows | Format-ConsoleTable -Property $script:NativeProperties -As Markdown
+        $grouped = $script:NativeRows | Format-ConsoleTable -Property $script:NativeProperties -GroupBy State -ShowGroupColumn -As Markdown
+        $alignment = '| :--- | :--- | ---: | :--- | ---: | :--- |'
+        foreach ($markdown in @(($native | Export-ConsoleFrame -Format Markdown), $plain, $grouped)) {
+            $markdown | Should -Match ([regex]::Escape($alignment))
+        }
+        $explicit = Convert-TestNativeView -Rows $script:NativeRows -Arguments @{Property=@('Name', @{Expression='Duration';Alignment='Left'})}
+        ($explicit | Export-ConsoleFrame -Format Markdown) | Should -Match '\| :--- \| :--- \|'
+    }
+
+    It 'infers formatted column alignment from raw values while explicit alignment wins' {
+        $rows = @([pscustomobject]@{State='Pass';Name='server';Count=12.5;Duration=[timespan]::FromSeconds(125)})
+        $properties = @(
+            @{Label='Health';Expression='State';FormatString='[{0}]'},
+            @{Label='Text';Expression='Name';FormatString='[{0}]'},
+            @{Label='Count';Expression='Count';FormatString='N2'},
+            @{Label='Duration';Expression='Duration';FormatString='c'},
+            @{Label='Explicit';Expression='State';FormatString='[{0}]';Alignment='Right'}
+        )
+        $native = Convert-TestNativeView -Rows $rows -Arguments @{Property=$properties}
+        $console = $rows | Format-ConsoleTable -Property $properties -AsWidget
+        foreach($widget in @($native,$console)) {
+            ($widget | Export-ConsoleFrame -Format Markdown) | Should -Match '\| :--- \| :--- \| ---: \| ---: \| ---: \|'
+        }
+        ($native | Export-ConsoleFrame -Format Markdown) | Should -Match ([regex]::Escape('✓ \[Pass\]'))
+    }
+
     It 'shapes default columns and wildcard selections without reading a getter twice' {
         $global:RawGetterReads = 0
         $row = [pscustomobject]@{ Name='getter'; Bytes=2048L }
