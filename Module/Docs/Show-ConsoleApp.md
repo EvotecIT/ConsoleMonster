@@ -36,7 +36,8 @@ Filter application data without leaving PowerShell.
 
 ### EXAMPLE 2
 ```powershell
-$capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
+# Using the object directly
+            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
 $keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')
 Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $keys -Capture $capture -PassThru
 ```
@@ -94,7 +95,7 @@ Accept wildcard characters: False
 ```
 
 ### -Live
-Optional live rendering settings, passed directly to the core runner.
+Optional full-screen live rendering settings, passed directly to the core runner. Inline mode is rejected before input or state initialization.
 
 ```yaml
 Type: LiveSessionOptions
