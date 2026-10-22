@@ -19,17 +19,17 @@ namespace SiteFrames.Tests {
         [Fact]
         public void Parse_TheGuaranteesSection_GivesRowsWithTestsAndRuntimes() {
             List<string> problems = new List<string>();
-            (List<string> notes, List<Guarantees.Row> rows) = Guarantees.Parse(Document, file => file.StartsWith("ConsoleMonster.Tests/", StringComparison.Ordinal) ? ".NET 8" : null, problems);
+            (List<string> notes, List<Guarantees.Row> rows) = Guarantees.Parse(Document, file => file.StartsWith("ConsoleMonster.Tests/", StringComparison.Ordinal) ? new[] { ".NET 8" } : null, problems);
             Assert.Empty(problems);
             Assert.Equal(new[] { "These tests assert ordering. Core tests run on net8.0; PowerShell tests run on 5.1 and 7." }, notes);
             Assert.Equal(3, rows.Count);
             Assert.Equal("Whole blocks", rows[0].Guarantee);
-            Assert.Equal("<a href=\"https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Tests/Live/BlockTests.cs\"><code>Blocks_StayWhole</code></a>", rows[0].Evidence);
-            Assert.Equal(".NET 8", rows[0].Runtimes);
-            Assert.Equal(".NET 8", rows[1].Runtimes);
+            Assert.Equal("<a href=\"https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Tests/Live/BlockTests.cs\"><code>Blocks_<wbr>Stay<wbr>Whole</code></a>", rows[0].Evidence);
+            Assert.Equal(new[] { ".NET 8" }, rows[0].Runtimes);
+            Assert.Equal(new[] { ".NET 8" }, rows[1].Runtimes);
             Assert.Equal("Host lines keep <code>a|b</code>", rows[2].Guarantee);
             Assert.Contains("<code>keeps lines in &lt;Mode&gt;</code>", rows[2].Evidence, StringComparison.Ordinal);
-            Assert.Equal(".NET 8; PowerShell 5.1 and 7", rows[2].Runtimes);
+            Assert.Equal(new[] { ".NET 8", "PowerShell 5.1 and 7" }, rows[2].Runtimes);
         }
 
         [Theory]
@@ -50,7 +50,7 @@ namespace SiteFrames.Tests {
                 root = Path.GetDirectoryName(root) ?? throw new InvalidOperationException("The repository root was not found.");
             }
             List<string> problems = new List<string>();
-            (_, List<Guarantees.Row> rows) = Guarantees.Parse(File.ReadAllText(Path.Combine(root, "Docs", "Concurrency-Guarantees.md")), file => "x", problems);
+            (_, List<Guarantees.Row> rows) = Guarantees.Parse(File.ReadAllText(Path.Combine(root, "Docs", "Concurrency-Guarantees.md")), file => new[] { "x" }, problems);
             Assert.Empty(problems);
             JsonArray generated = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "Website", "data", "guarantees.json")))!["rows"]!.AsArray();
             Assert.Equal(rows.Select(r => r.Guarantee + "\n" + r.Evidence), generated.Select(r => r!["guarantee"]!.GetValue<string>() + "\n" + r["evidence"]!.GetValue<string>()));

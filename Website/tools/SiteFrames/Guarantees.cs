@@ -26,7 +26,7 @@ namespace SiteFrames {
         private static readonly Regex PowerShellRuntimes = new Regex(@"PowerShell tests run on (?<runtimes>.+?)(?:\.\s|\.$|;|$)", RegexOptions.CultureInvariant);
 
         /// <summary>One table row: the guarantee, the tests that prove it (HTML) and where they run.</summary>
-        internal sealed record Row(string Guarantee, string Evidence, string Runtimes);
+        internal sealed record Row(string Guarantee, string Evidence, IReadOnlyList<string> Runtimes);
 
         /// <summary>Reads the document and writes <c>data/guarantees.json</c>.</summary>
         public static void Render(Site site) {
@@ -43,7 +43,7 @@ namespace SiteFrames {
             }
             JsonArray rowArray = new JsonArray();
             foreach (Row row in rows) {
-                rowArray.Add(new JsonObject { ["guarantee"] = row.Guarantee, ["evidence"] = row.Evidence, ["runtimes"] = row.Runtimes });
+                rowArray.Add(new JsonObject { ["guarantee"] = row.Guarantee, ["evidence"] = row.Evidence, ["runtimes"] = new JsonArray(row.Runtimes.Select(r => (JsonNode?)JsonValue.Create(r)).ToArray()) });
             }
             JsonArray noteArray = new JsonArray();
             foreach (string note in notes) {
@@ -61,7 +61,7 @@ namespace SiteFrames {
         /// The section's notes (the paragraph above the table, as HTML) and rows. <paramref name="runtimes"/> names where a
         /// referenced file's tests run; a row that links no file ("in the same file") uses the files of the row above.
         /// </summary>
-        internal static (List<string> Notes, List<Row> Rows) Parse(string markdown, Func<string, string?> runtimes, List<string> problems) {
+        internal static (List<string> Notes, List<Row> Rows) Parse(string markdown, Func<string, IReadOnlyList<string>?> runtimes, List<string> problems) {
             string[] lines = markdown.Replace("\r\n", "\n").Split('\n');
             int start = Array.FindIndex(lines, l => l.Trim() == Heading);
             List<string> notes = new List<string>();
@@ -100,14 +100,16 @@ namespace SiteFrames {
                 previousFiles = files;
                 List<string> where = new List<string>();
                 foreach (string file in files) {
-                    string? runs = file.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ? "PowerShell " + powerShell : runtimes(file);
+                    IReadOnlyList<string>? runs = file.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ? new[] { "PowerShell " + powerShell } : runtimes(file);
                     if (runs == null) {
                         problems.Add(Source + ": no test project found for " + file + ".");
-                    } else if (!where.Contains(runs)) {
-                        where.Add(runs);
+                        continue;
+                    }
+                    foreach (string run in runs) {
+                        if (!where.Contains(run)) { where.Add(run); }
                     }
                 }
-                rows.Add(new Row(Inline(cells[0]), Inline(cells[1]), string.Join("; ", where)));
+                rows.Add(new Row(Inline(cells[0]), Inline(cells[1]), where));
             }
             if (rows.Count == 0) {
                 problems.Add(Source + ": the \"" + Heading.Substring(3) + "\" section has no table rows.");
@@ -157,17 +159,26 @@ namespace SiteFrames {
                 string href = url.Contains("://", StringComparison.Ordinal) ? url : Blob + Resolve(url) + (url.Contains('#') ? "#" + url.Split('#')[1] : string.Empty);
                 return "<a href=\"" + WebUtility.HtmlEncode(href) + "\">" + l.Groups["text"].Value + "</a>";
             });
-            return Code.Replace(html, c => "<code>" + c.Groups["code"].Value + "</code>");
+            return Code.Replace(html, c => "<code>" + Breaks(c.Groups["code"].Value) + "</code>");
+        }
+
+        // A test method name (one word of letters, digits and underscores) may break after an underscore and between words,
+        // never inside one; names with spaces wrap at their spaces.
+        private static string Breaks(string code) {
+            if (!Regex.IsMatch(code, "^[A-Za-z0-9_]+$")) {
+                return code;
+            }
+            return Regex.Replace(code, "(?<=_)(?=.)|(?<=[a-z0-9])(?=[A-Z])", "<wbr>");
         }
 
         // Where a C# test file's tests run: its project's target frameworks, by name.
-        private static string? Runtimes(Site site, string file) {
+        private static IReadOnlyList<string>? Runtimes(Site site, string file) {
             string? folder = Path.GetDirectoryName(Path.Combine(site.Repository, file.Replace('/', Path.DirectorySeparatorChar)));
             while (folder != null && folder.Length >= site.Repository.Length) {
                 string? project = Directory.Exists(folder) ? Directory.GetFiles(folder, "*.csproj").FirstOrDefault() : null;
                 if (project != null) {
                     Match frameworks = Regex.Match(File.ReadAllText(project), @"<TargetFrameworks?>(?<tf>[^<]+)</TargetFrameworks?>");
-                    return frameworks.Success ? string.Join(", ", frameworks.Groups["tf"].Value.Split(';').Select(f => f.Trim()).Where(f => f.Length > 0).Select(Framework)) : null;
+                    return frameworks.Success ? frameworks.Groups["tf"].Value.Split(';').Select(f => f.Trim()).Where(f => f.Length > 0).Select(Framework).ToList() : null;
                 }
                 folder = Path.GetDirectoryName(folder);
             }

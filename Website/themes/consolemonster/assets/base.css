@@ -316,9 +316,11 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-figure--strip .cm-figure__frames.is-row { grid-template-columns: repeat(var(--cm-strip-count, 2), minmax(0, 1fr)); }
 /* Tables written in Markdown sit directly in the prose: they get the same block spacing as code, figures and wrapped tables. */
 .cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap, .cm-prose > table { margin: 1.4em 0 1.6em; }
-/* The concurrency guarantees table: test names break anywhere, the runtimes column stays narrow, the source note is quiet. */
+/* The concurrency guarantees table: test names break between words (the <wbr> the generator adds), each runtime stays on one line, the source note is quiet. */
 .cm-guarantees td { font-size: 14px; }
-.cm-guarantees .cm-guarantees__runs { min-width: 12ch; color: var(--cm-ink-2); }
+.cm-guarantees .cm-guarantees__runs { color: var(--cm-ink-2); }
+.cm-guarantees__runs span { display: block; white-space: nowrap; }
+.cm-prose .cm-guarantees code { overflow-wrap: normal; }
 .cm-prose .cm-guarantees + .cm-guarantees__note { margin-top: -0.8em; color: var(--cm-muted); font-size: 14px; }
 .cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
 .cm-tablewrap { max-width: 100%; overflow-x: auto; }
