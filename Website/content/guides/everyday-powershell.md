@@ -40,6 +40,22 @@ Disable-ConsoleFormatting -Feature FormatCommands       # just this one off agai
 
 {{< cm-demo id="format-commands" heading="h3" >}}
 
+## Command-line editor and native progress
+
+`ReadLine` colors the already loaded PSReadLine editor from the active theme, including selection and available inline predictions. `Streams` also colors native progress: `$PSStyle.Progress.Style` on PowerShell 7.2+, or available host progress colors on Windows PowerShell 5.1. The user's progress view, editing mode, key bindings and prediction behavior stay as configured. Missing PSReadLine and unsupported color properties are skipped.
+
+```powershell
+Import-Module ConsoleMonster
+Set-ConsoleTheme -Name Light
+Enable-ConsoleFormatting -Feature ReadLine, Streams
+Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42
+Write-Progress -Activity 'Backup' -Completed
+Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
+Disable-ConsoleFormatting -Feature ReadLine, Streams
+```
+
+ReadLine is included in `All`. On disable or module removal, each cosmetic feature restores its original owned colors exactly, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. The separate legacy `Progress` feature continues to opt into the `Write-ConsoleProgress` alias.
+
 ## Views that ship with a module
 
 A module can describe how its objects look without depending on ConsoleMonster: a `<ModuleName>.consoleviews.psd1` file beside its manifest names the columns, their presenters and the grouping, as plain data. ConsoleMonster reads it for loaded modules when formatting is on, and `Format-ConsoleTable` and the exports use the same columns.

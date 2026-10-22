@@ -376,12 +376,14 @@ try {
     if ($data.WarningForegroundColor -ne [ConsoleColor]::Yellow) { throw 'A rejected sibling setter prevented the writable warning colour.' }
     if ($data.VerboseAttempts -ne 1 -or $data.VerboseWrites -ne 0) { throw 'The rejecting property was not exercised.' }
     if ($data.DebugForegroundColor -ne [ConsoleColor]::Blue) { throw 'A read-only property changed.' }
+    if ($data.ProgressForegroundColor -ne [ConsoleColor]::Blue -or $data.ProgressBackgroundColor -ne [ConsoleColor]::DarkRed) { throw 'Optional progress properties did not respect host writability.' }
     if ($data.WarningBackgroundColor -ne [ConsoleColor]::DarkMagenta -or $data.DebugBackgroundColor -ne [ConsoleColor]::DarkBlue) { throw 'A missing RawUI supplied a background colour.' }
     $data.RejectVerbose = $false
     $data.WarningForegroundColor = [ConsoleColor]::White
     $data.VerboseForegroundColor = [ConsoleColor]::Cyan
     $data.WarningBackgroundColor = [ConsoleColor]::DarkGreen
     $data.ErrorForegroundColor = [ConsoleColor]::Red
+    $data.ProgressForegroundColor = [ConsoleColor]::Magenta
     $shell.Commands.Clear()
     $null = $shell.AddScript('Disable-ConsoleFormatting -Feature Streams; Remove-Module ConsoleMonster -ErrorAction Stop').Invoke()
     if ($shell.HadErrors) { throw ($shell.Streams.Error | Out-String) }
@@ -389,6 +391,7 @@ try {
     if ($data.VerboseForegroundColor -ne [ConsoleColor]::Cyan -or $data.VerboseWrites -ne 1) { throw 'Disable restored a failed write it did not own.' }
     if ($data.WarningBackgroundColor -ne [ConsoleColor]::DarkGreen) { throw 'Disable restored a background it did not own.' }
     if ($data.ErrorForegroundColor -ne [ConsoleColor]::Red) { throw 'Disable changed an unowned host error colour.' }
+    if ($data.ProgressForegroundColor -ne [ConsoleColor]::DarkYellow -or $data.ProgressBackgroundColor -ne [ConsoleColor]::DarkRed) { throw 'Native progress ownership did not restore only writable colours.' }
     'SUCCESSFUL_PROPERTY_OWNERSHIP_OK'
 } finally { $shell.Dispose(); $runspace.Dispose() }
 '@.Replace('__MODULE__', $script:StreamsModule.Replace("'", "''").Replace("'", "''")))
