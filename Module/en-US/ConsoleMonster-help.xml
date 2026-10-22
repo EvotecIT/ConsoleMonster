@@ -16769,7 +16769,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
-            <maml:para>Numbers or objects containing the numeric property, supplied through the pipeline.</maml:para>
+            <maml:para>Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
@@ -16793,7 +16793,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Property</maml:name>
           <maml:description>
-            <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Defaults to Value for scalar input.</maml:para>
+            <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -16914,7 +16914,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>Numbers or objects containing the numeric property, supplied through the pipeline.</maml:para>
+          <maml:para>Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
         <dev:type>
@@ -16938,7 +16938,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Property</maml:name>
         <maml:description>
-          <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Defaults to Value for scalar input.</maml:para>
+          <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>

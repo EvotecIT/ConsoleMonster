@@ -34,6 +34,29 @@ Describe 'ConsoleMonster pipeline charts' {
         $text.Trim() | Should -Be "1: 2`n2: -1`n3: 0"
     }
 
+    It 'uses raw calculated numeric values despite <FormatString> formatting in <Culture>' -TestCases @(
+        @{ Culture = 'en-US'; FormatString = 'N2' }
+        @{ Culture = 'pl-PL'; FormatString = 'F2' }
+    ) {
+        param($Culture, $FormatString)
+        $thread = [System.Threading.Thread]::CurrentThread
+        $previousCulture = $thread.CurrentCulture
+        try {
+            $thread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo($Culture)
+            $errors = @()
+            $chart = [pscustomobject]@{ Value = 1234.567 } | Out-ConsoleChart -Property @{
+                Name = 'Doubled'
+                Expression = { $_.Value * 2 }
+                FormatString = $FormatString
+            } -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors
+            $errors.Count | Should -Be 0
+            $chart.Samples.Count | Should -Be 1
+            $chart.Samples[0].Value | Should -Be (1234.567 * 2)
+        } finally {
+            $thread.CurrentCulture = $previousCulture
+        }
+    }
+
     It 'keeps group appearance and sample order in trends' {
         $items = @(
             [pscustomobject]@{ Host = 'b'; Value = 3 }
@@ -71,6 +94,31 @@ Describe 'ConsoleMonster pipeline charts' {
 
     It 'produces no output for an empty pipeline' {
         @(@() | Out-ConsoleChart -AsString).Count | Should -Be 0
+    }
+
+    It 'reports an explicitly bound null sample through ErrorVariable without terminating' {
+        $errors = @()
+        $result = @(Out-ConsoleChart -InputObject $null -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors)
+        $result.Count | Should -Be 0
+        $errors.Count | Should -Be 1
+        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletOutConsoleChart'
+        $errors[0].CategoryInfo.Category | Should -Be ([System.Management.Automation.ErrorCategory]::InvalidData)
+    }
+
+    It 'skips a pipeline null with an invalid-sample error and keeps valid samples' {
+        $errors = @()
+        $chart = 1, $null, 2 | Out-ConsoleChart -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors
+        $errors.Count | Should -Be 1
+        $errors[0].FullyQualifiedErrorId | Should -Be 'ConsoleMonsterChartValue,ConsoleMonster.PowerShell.CmdletOutConsoleChart'
+        $chart.Samples.Count | Should -Be 2
+        $chart.Samples[0].Value | Should -Be 1
+        $chart.Samples[1].Value | Should -Be 2
+    }
+
+    It 'produces no output or errors when invoked without input' {
+        $errors = @()
+        @(Out-ConsoleChart -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors).Count | Should -Be 0
+        $errors.Count | Should -Be 0
     }
 
     It 'counts every histogram observation including the last edge' {

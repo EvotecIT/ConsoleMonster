@@ -6,6 +6,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
 using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
@@ -75,7 +76,28 @@ namespace SiteFrames.Pages {
             }
             Save(site, output, 60, "16-colour", Theme.Dark, ExportTheme.Dark, ColorDepth.Ansi16, GlyphTier.Basic);
             Save(site, output, 60, "no-colour", Theme.Dark, ExportTheme.Dark, ColorDepth.None, GlyphTier.Ascii);
+            ReviewChrome(output);
             return Program.Failures == 0 ? 0 : 1;
+        }
+
+        /// <summary>Reproduces narrow exporter chrome with real chart content, including the reported 20-column frame.</summary>
+        private static void ReviewChrome(string output) {
+            PipelineChart chart = new PipelineChart { Type = PipelineChartType.Sparkline };
+            foreach (double sample in new[] { 1.0, 2.0, 3.0 }) {
+                chart.Add("long-host-name.example.org", sample).Add("日本語の長いホスト名", sample + 1);
+            }
+            foreach (ExportTheme theme in new[] { ExportTheme.Light, ExportTheme.Dark }) {
+                foreach (int width in new[] { 12, 20, 36, 60 }) {
+                    foreach (bool longTitle in new[] { false, true }) {
+                        string title = longTitle ? "Long labels / " + width + " columns" : "Chart";
+                        string name = longTitle ? "long-labels-" : "short-title-";
+                        ExportOptions options = new ExportOptions { Width = width, Theme = theme, Title = title, WindowChrome = true };
+                        string path = Path.Combine(output, name + theme + "-" + width);
+                        File.WriteAllText(path + ".html", ConsoleExporter.ToHtml(chart, options));
+                        File.WriteAllText(path + ".svg", ConsoleExporter.ToSvg(chart, options));
+                    }
+                }
+            }
         }
 
         private static void Save(Site site, string output, int width, string name, ITheme theme, ExportTheme exportTheme, ColorDepth depth, GlyphTier glyphs) {

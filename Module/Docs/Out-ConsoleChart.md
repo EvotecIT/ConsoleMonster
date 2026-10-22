@@ -114,7 +114,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-Numbers or objects containing the numeric property, supplied through the pipeline.
+Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.
 
 ```yaml
 Type: PSObject
@@ -146,7 +146,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-One numeric property name, wildcard matching one property, or calculated-property hashtable. Defaults to Value for scalar input.
+One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.
 
 ```yaml
 Type: Object

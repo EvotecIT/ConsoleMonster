@@ -89,6 +89,20 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal(expected, TestTerminal.RenderText(chart.Build(textOnly), 20));
         }
 
+        [Theory]
+        [InlineData(4)]
+        [InlineData(20)]
+        public void UnnamedPositiveTrendUsesAllCellsForSamplesAndLatestValue(int width) {
+            PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline).Add(null, 1).Add(null, 2);
+            Assert.Equal("▄█ 2", TestTerminal.RenderText(chart.Build(), width, glyphs: GlyphTier.Full));
+        }
+
+        [Fact]
+        public void NarrowPositiveTrendOmitsHiddenLabelAndKeepsBothSamples() {
+            PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline).Add("host", 1).Add("host", 2);
+            Assert.Equal("▄█ 2", TestTerminal.RenderText(chart.Build(), 4, glyphs: GlyphTier.Full));
+        }
+
         [Fact]
         public void NumericSamplesAndNearbyHistogramEdgesRetainDoublePrecision() {
             double first = BitConverter.Int64BitsToDouble(0x3ff0000000000001);

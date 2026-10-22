@@ -38,11 +38,11 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletOutConsoleChart : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
 
-        /// <summary><para type="description">Numbers or objects containing the numeric property, supplied through the pipeline.</para></summary>
+        /// <summary><para type="description">Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.</para></summary>
         [Parameter(ValueFromPipeline = true)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">One numeric property name, wildcard matching one property, or calculated-property hashtable. Defaults to Value for scalar input.</para></summary>
+        /// <summary><para type="description">One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.</para></summary>
         [Parameter(Position = 0)]
         [ValidateNotNull]
         public object Property { get; set; } = "Value";
@@ -97,6 +97,9 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) { _items.Add(InputObject); }
+            else if (MyInvocation.BoundParameters.ContainsKey(nameof(InputObject))) {
+                WriteError(new ErrorRecord(new ArgumentException("Chart samples must have a finite numeric value; null is not a valid sample."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, null));
+            }
         }
 
         /// <inheritdoc />
@@ -105,6 +108,8 @@ namespace ConsoleMonster.PowerShell {
             IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, PSShaping.Options());
             if (items.Count == 0) { return; }
             BoundColumn value = Bind(items, Property);
+            // Chart calculations consume numbers, not the culture-specific text used by table formatting.
+            value.FormatString = null;
             BoundColumn? label = Type == PipelineChartType.Histogram ? null : Bind(items, Label);
             PipelineChart chart = new PipelineChart().WithType(Type).WithSort(Sort).WithTop(Top).WithBins(Bins).WithUnit(Unit);
             int row = 0;

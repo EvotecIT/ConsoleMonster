@@ -174,9 +174,12 @@ namespace ConsoleMonster.Widgets {
                 int chartWidth = _sparkline.Values.Count + _latestWidth + 1;
                 int reserved = Math.Min(_desiredWidth, Math.Max(_minimumWidth, width / 2));
                 int labelWidth = Math.Min(_labelWidth, Math.Max(0, width - reserved - 1));
-                return new Columns() { CollapseBelow = 0 }
-                    .Add(new TextBlock(_label) { IsMarkup = false, Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth))
-                    .Add(_sparkline, LayoutSize.Fixed(chartWidth));
+                Columns columns = new Columns() { CollapseBelow = 0 };
+                // An omitted label must not reserve a track or its inter-column gap.
+                if (labelWidth > 0) {
+                    columns.Add(new TextBlock(_label) { IsMarkup = false, Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth));
+                }
+                return columns.Add(_sparkline, LayoutSize.Fixed(chartWidth));
             }
 
             public Size Measure(Constraints constraints, RenderContext context) => Layout(constraints.MaxWidth).Measure(constraints, context);
