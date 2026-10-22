@@ -96,6 +96,10 @@
       "dark": "/site/cards/object-explorer-120-dark.svg",
       "light": "/site/cards/object-explorer-120-light.svg"
     },
+    "pipeline-charts-60": {
+      "dark": "/site/cards/pipeline-charts-60-dark.svg",
+      "light": "/site/cards/pipeline-charts-60-light.svg"
+    },
     "shaping": {
       "src": "/site/cards/shaping.svg"
     },

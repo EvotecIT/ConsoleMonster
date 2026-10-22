@@ -92,7 +92,9 @@
             frame = el('div', 'cm-window', host);
             var bar = el('div', 'cm-titlebar', frame);
             el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
-            el('span', 'cm-title', bar).textContent = data.title || '';
+            var title = el('span', 'cm-title', bar);
+            title.textContent = data.title || '';
+            title.title = data.title || '';
         } else {
             frame = el('div', 'cm-player', host);
         }
