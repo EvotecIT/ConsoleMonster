@@ -3,6 +3,8 @@
     TypeName = 'Microsoft.PowerShell.Commands.MemberDefinition'
     Group = 'Member'
     GroupBy = 'MemberType'
+    Title = { "TypeName: $($_.TypeName)" }
+    GroupHeadersAsRows = $true
     Property = @(
         'Name'
         @{ Name = 'MemberType'; Expression = { [string] $_.MemberType } }

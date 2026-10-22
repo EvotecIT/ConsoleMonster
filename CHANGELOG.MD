@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- Everyday Get-Member views show each type name above its table and use full-width member-group sections with counts, preserving native column overrides and script-safe output.
 - `Compare-ConsoleText` compares strings or files with line numbers, word highlights and collapsed unchanged ranges. It uses side-by-side output from 120 columns, inline output below that, `-Context`, `-IgnoreWhitespace` and plain unified text with `-AsUnified`. The shared text engine uses linear auxiliary memory and bounded alignment work.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.
 - Hosted-service dashboard durations measure each service's lifetime with a monotonic clock and freeze at its own stop, completion or failure, preserving the result through host shutdown.

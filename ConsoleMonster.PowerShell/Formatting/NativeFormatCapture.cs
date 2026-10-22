@@ -19,8 +19,10 @@ namespace ConsoleMonster.PowerShell {
         private NativeFormatDefinition? _definition;
         private IReadOnlyList<BoundColumn>? _selected;
         internal readonly List<object?[]> Rows = new List<object?[]>();
+        internal readonly List<PSObject> Sources = new List<PSObject>();
         internal readonly List<bool> Formatted = new List<bool>();
         internal IReadOnlyList<BoundColumn> Columns => _columns;
+        internal ConsoleViewRegistration? Presentation { get; private set; }
 
         /// <summary>Creates the capture for one host-only formatter invocation.</summary>
         /// <param name="cmdlet">The executing proxy.</param><param name="kind">Table or List.</param><param name="parameters">Native bound parameters.</param>
@@ -37,6 +39,7 @@ namespace ConsoleMonster.PowerShell {
             foreach (DictionaryEntry entry in _parameters) { parameters[entry.Key] = entry.Value; }
             ConsoleViewRegistration? view = ConsoleFormatting.Find(first, ConsoleFormatting.TakeOverBuiltIns);
             bool decorate = view?.NativePresentation == true && !parameters.ContainsKey("Property") && !parameters.ContainsKey("View");
+            Presentation = decorate && _kind == "Table" ? view : null;
             if (decorate && !parameters.ContainsKey("GroupBy") && view!.GroupBy != null) { parameters["GroupBy"] = view.GroupBy; }
             NativeFormatDefinition? definition = _definition = NativeFormatDefinition.Resolve(_cmdlet, _kind, first, parameters);
             if (definition == null) { return parameters; }
@@ -96,7 +99,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="item">The source object supplied by PowerShell.</param><param name="column">Selected column index.</param><returns>The original evaluated value.</returns>
         public object? Read(PSObject item, int column) {
             if (_current == null || _read == null) { return null; }
-            if (!_retained) { Rows.Add(_current); _retained = true; }
+            if (!_retained) { Rows.Add(_current); Sources.Add(item); _retained = true; }
             if (!_read[column]) { _current[column] = PSFormatting.Read(_selected![column], item, _budget, _columns[column]); _read[column] = true; }
             return _current[column];
         }

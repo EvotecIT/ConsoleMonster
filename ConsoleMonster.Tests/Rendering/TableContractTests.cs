@@ -11,6 +11,28 @@ namespace ConsoleMonster.Tests.Rendering {
             return Terminal.RenderText(table, TerminalProfile.Fixed(width, 40, ColorDepth.None, GlyphTier.Full), Theme.Dark);
         }
 
+        /// <summary>Section groups span every column and keep the next data row's column borders intact.</summary>
+        [Theory]
+        [InlineData(60)]
+        [InlineData(120)]
+        public void SectionGroupsSpanColumnsWithoutBorderCollisions(int width) {
+            Table table = new Table { GroupHeadersAsRows = true, RecordViewRows = 0 };
+            table.AddColumn("Name");
+            table.AddColumn("Definition");
+            table.AddGroup("Method");
+            table.AddPlainRow("Run", "void Run()");
+            table.AddGroup("Property");
+            table.AddPlainRow("IsBusy", "bool IsBusy {get;}");
+            string[] lines = Render(table, width).Split('\n');
+            foreach (string group in new[] { "Method  1", "Property  1" }) {
+                string line = Assert.Single(lines, value => value.Contains(group));
+                Assert.Equal(2, line.Count(character => character == '│'));
+                Assert.DoesNotContain('┼', line);
+                Assert.DoesNotContain('─', line);
+            }
+            Assert.Contains(lines, line => line.Contains("void Run()") && line.Count(character => character == '│') == 3);
+        }
+
         [Fact]
         public void NumericColumnsAndTheirHeadersAreRightAligned() {
             Table table = new Table { Border = TableBorder.None };

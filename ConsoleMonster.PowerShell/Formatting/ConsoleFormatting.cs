@@ -6,7 +6,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false) {
+        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -15,10 +15,14 @@ namespace ConsoleMonster.PowerShell {
             Title = title;
             IsBuiltIn = builtIn;
             NativePresentation = nativePresentation;
+            GroupHeadersAsRows = groupHeadersAsRows;
         }
 
         // These registrations also decorate native-selected columns; user property/view overrides stay engine-owned.
         internal bool NativePresentation { get; }
+
+        /// <summary>Uses the table's full-width group section rows.</summary>
+        internal bool GroupHeadersAsRows { get; }
 
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }

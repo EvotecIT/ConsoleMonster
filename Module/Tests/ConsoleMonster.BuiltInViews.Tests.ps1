@@ -40,6 +40,34 @@
         }
     }
 
+    It 'keeps member type captions and full-width section rows at both widths' {
+        $other = @([datetime]'2026-10-22' | Get-Member -Name Day, AddDays)
+        $rows = @($script:members) + $other
+        foreach ($width in 60, 120) {
+            $layout = $rows | Format-ConsoleTable -AsWidget
+            $widgets = @($layout.Children)
+            $widgets.Count | Should -Be 2
+            $widgets[0].Title | Should -Be 'TypeName: System.String'
+            $widgets[1].Title | Should -Be 'TypeName: System.DateTime'
+            foreach ($widget in $widgets) {
+                $widget.GroupHeadersAsRows | Should -BeTrue
+                $text = $widget | Export-ConsoleFrame -Format Text -Width $width
+                $groups = @($text -split "`n" | Where-Object { $_ -match '(Method|Property)  [0-9]+' })
+                $groups.Count | Should -Be 2
+                foreach ($group in $groups) {
+                    ([regex]::Matches($group, '│')).Count | Should -Be 2
+                    $group | Should -Not -Match '┼|─'
+                }
+            }
+            $native = Convert-TestNativeView -Rows $script:members
+            $nativeText = $native | Export-ConsoleFrame -Format Text -Width $width
+            $nativeText | Should -Match 'TypeName: System.String'
+            $native.GroupHeadersAsRows | Should -BeTrue
+            $nativeText | Should -Match 'Method.*1'
+            $nativeText | Should -Match 'Property.*1'
+        }
+    }
+
     It 'groups command kinds together by module with literal type chips' {
         $text = $script:commands | Format-ConsoleTable -AsString -Width 120
         $text | Should -Match 'Demo.Inventory'

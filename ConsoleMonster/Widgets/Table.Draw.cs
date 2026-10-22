@@ -104,7 +104,7 @@ namespace ConsoleMonster.Widgets {
             int first = Math.Max(0, Math.Min(start, layout.Rows.Count));
             // A page that starts on a group heading draws it in place of the header separator (or of the top rule without
             // a header), as the whole table does for its first group, so two rules never stack.
-            bool merge = count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
+            bool merge = !GroupHeadersAsRows && count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
                 && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
             headHeight = HeadHeight(layout, merge);
             rowLines = new List<int>();
@@ -248,6 +248,16 @@ namespace ConsoleMonster.Widgets {
         private int DrawGroupRule(Region region, int y, TableLayout layout, StyledLine text, BoxGlyphs box, Style border, RenderContext context, bool top = false) {
             if (y >= region.Height) {
                 return y;
+            }
+            if (GroupHeadersAsRows) {
+                region.HorizontalLine(0, y, layout.TotalWidth, " ", Style.Plain);
+                if (IsBoxed) {
+                    region.Put(0, y, box.Vertical, border);
+                    region.Put(layout.TotalWidth - 1, y, box.Vertical, border);
+                }
+                int inset = IsBoxed ? 2 : 0;
+                region.Write(inset, y, TextWrapper.Truncate(text, Math.Max(0, layout.TotalWidth - 2 * inset), context.Ellipsis));
+                return y + 1;
             }
             int start;
             int room;

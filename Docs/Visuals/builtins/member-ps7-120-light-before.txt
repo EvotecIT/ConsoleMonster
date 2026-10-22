@@ -1,0 +1,16 @@
+
+   TypeName: System.String
+
+Name      MemberType Definition
+----      ---------- ----------
+Length    Property   int Length {get;}
+Substring Method     string Substring(int startIndex), string Substring(int startIndex, int length)
+
+
+   TypeName: System.ComponentModel.BackgroundWorker
+
+Name           MemberType Definition
+----           ---------- ----------
+DoWork         Event      System.ComponentModel.DoWorkEventHandler DoWork(System.Object, System.ComponentModel.DoWorkE…
+IsBusy         Property   bool IsBusy {get;}
+RunWorkerAsync Method     void RunWorkerAsync(), void RunWorkerAsync(System.Object argument)

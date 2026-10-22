@@ -14,7 +14,8 @@ namespace ConsoleMonster.PowerShell {
                     IDictionary data = (IDictionary)item.BaseObject;
                     foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) {
                         AddBuiltIn(new ConsoleViewRegistration((string)type, ConsoleViewKind.Table,
-                            (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, null, true, true));
+                            (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, data["Title"] as ScriptBlock, true, true,
+                            data["GroupHeadersAsRows"] is bool section && section));
                     }
                 }
             }

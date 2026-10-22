@@ -111,10 +111,10 @@ namespace ConsoleMonster.Widgets {
         internal StyledLine GroupLabel(int group, PresenterContext presenter, int shown) {
             int total = GroupRowCount(group);
             List<TextSpan> spans = new List<TextSpan>();
-            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(ThemeToken.Header).With(TextDecoration.Bold))) {
+            foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
                 spans.Add(span);
             }
-            string separator = presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
+            string separator = GroupHeadersAsRows ? "  " : presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
             string count = shown < total
                 ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, shown.ToString("N0", presenter.Culture), total.ToString("N0", presenter.Culture))
                 : total.ToString("N0", presenter.Culture);

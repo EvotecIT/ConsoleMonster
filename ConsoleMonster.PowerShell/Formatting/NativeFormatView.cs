@@ -23,6 +23,8 @@ namespace ConsoleMonster.PowerShell {
             object? shape = null;
             Table? table = null;
             string? title = null;
+            bool sectionGroups = capture?.Presentation?.GroupHeadersAsRows == true;
+            bool pendingGroup = false;
             int rowIndex = 0;
             ShapeOptions shapeOptions = PSShaping.Options();
             List<object?[]> shapedRows = new List<object?[]>();
@@ -48,10 +50,13 @@ namespace ConsoleMonster.PowerShell {
                         title = null;
                         break;
                     case "GroupStartData":
-                        Flush();
+                        if (!sectionGroups) { Flush(); }
                         title = TextOf(Get(record, "groupingEntry")).Trim();
+                        pendingGroup = true;
                         break;
                     case "GroupEndData":
+                        if (!sectionGroups) { Flush(); }
+                        break;
                     case "FormatEndData":
                         Flush();
                         break;
@@ -65,7 +70,17 @@ namespace ConsoleMonster.PowerShell {
                                 widgets.Add(new TextBlock(text) { IsMarkup = false });
                             }
                         } else if (entryType == "TableRowEntry" && Get(shape, "tableColumnInfoList") != null) {
-                            table ??= TableFor(shape, title, Bool(entry, "multiLine"));
+                            if (sectionGroups && capture != null && rowIndex < capture.Sources.Count) {
+                                string? tableTitle = capture.Presentation!.Title == null ? null :
+                                    PSFormatting.SharedTitle(new[] { capture.Sources[rowIndex] }, capture.Presentation.Title);
+                                if (table != null && table.Title != Markup.Escape(tableTitle ?? string.Empty)) { Flush(); }
+                                if (table == null) {
+                                    table = TableFor(shape, tableTitle, Bool(entry, "multiLine"));
+                                    table.GroupHeadersAsRows = true;
+                                    pendingGroup = true;
+                                }
+                                if (pendingGroup) { table.AddGroup(Markup.Escape(title ?? string.Empty)); pendingGroup = false; }
+                            } else { table ??= TableFor(shape, title, Bool(entry, "multiLine")); }
                             // A valid native wildcard can match no properties. Preserve its native empty shape.
                             if (table.Columns.Count == 0) { return false; }
                             if (capture != null && capture.Columns.Count > 0 && rowIndex < capture.Rows.Count) {
