@@ -76,8 +76,23 @@ if ((prompt) -cne 'LATER_USER_PROMPT') { throw 'User replacement lost' }
 '@ | Should -Match 'OWNERSHIP_OK'
     }
 
+    It 'establishes failed native process state with exit code <ExitCode> independently of Prompt' -ForEach @(
+        @{ ExitCode = 7 }
+        @{ ExitCode = 11 }
+    ) {
+        $source = @'
+$Error.Clear()
+& ([Diagnostics.Process]::GetCurrentProcess().Path) -NoLogo -NoProfile -NonInteractive -Command 'exit __EXIT__'
+$state = "$?/$LASTEXITCODE"
+if ($state -cne 'False/__EXIT__' -or $Error.Count -ne 0) { throw "Native fixture did not establish failed process state: $state/$($Error.Count)" }
+'NATIVE_EXIT_OK'
+'@
+        Invoke-PromptChild $source.Replace('__EXIT__', [string]$ExitCode) | Should -Match 'NATIVE_EXIT_OK'
+    }
+
     It 'keeps captured prompt text, native error state, exit status and preferences' {
         Invoke-PromptChild @'
+$native = [Diagnostics.Process]::GetCurrentProcess().Path
 function global:prompt {
     "ORIGINAL:$?/$global:LASTEXITCODE"
     if ($args.Count) { 'ARGS:' + ($args -join '|') }
@@ -85,10 +100,10 @@ function global:prompt {
 $Error.Clear()
 $baseline = $ErrorActionPreference, $WarningPreference, $VerbosePreference, $DebugPreference, $InformationPreference, $ProgressPreference
 Enable-ConsoleFormatting -Feature Prompt
-cmd /c exit 7
+& $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'
 $assigned = prompt
 if ($assigned -cne 'ORIGINAL:False/7' -or $LASTEXITCODE -ne 7) { throw "Status lost: $assigned/$LASTEXITCODE" }
-cmd /c exit 7
+& $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'
 $piped = prompt | Out-String
 if ($piped.TrimEnd() -cne 'ORIGINAL:False/7') { throw "Piped status lost: $piped" }
 $arguments = @(prompt 'one' 'two')

@@ -14,13 +14,14 @@ function Assert-PromptFallback {
     $saved = ${function:global:prompt}
     $file = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName())
     $scope = $null
+    $native = [Diagnostics.Process]::GetCurrentProcess().Path
     try {
         function global:prompt {
             [CmdletBinding()]
             param([switch] $Recurse)
             $inputStatus = $?
             if ($Recurse) {
-                cmd /c exit 11
+                & ([Diagnostics.Process]::GetCurrentProcess().Path) -NoLogo -NoProfile -NonInteractive -Command 'exit 11'
                 prompt
                 "OUTER_EXIT:$global:LASTEXITCODE"
             } else {
@@ -68,19 +69,19 @@ function Assert-PromptFallback {
             # Every native call below sees the same failed input status and exit code.
             try {
                 switch ($Route) {
-                    'SimpleMerge' { cmd /c exit 7; $observed = @(prompt 2>&1) }
-                    'Merge' { cmd /c exit 7; $observed = @(prompt 2>&1) }
-                    'AllStreams' { cmd /c exit 7; $observed = @(prompt *>&1) }
-                    'Suppress' { cmd /c exit 7; $observed = @(prompt 2>$null) }
-                    'File' { cmd /c exit 7; $observed = @(prompt 2>$file) }
-                    'ErrorVariable' { cmd /c exit 7; $observed = @(prompt -ErrorVariable variable 2>&1) }
-                    'AppendVariables' { cmd /c exit 7; $observed = @(prompt -ErrorVariable +variable -OutVariable +outputVariable 2>&1) }
-                    'PreferenceContinue' { cmd /c exit 7; $observed = @(prompt 2>&1) }
-                    'PreferenceSilent' { cmd /c exit 7; $observed = @(prompt 2>&1) }
-                    'Stop' { cmd /c exit 7; $observed = @(prompt -ErrorAction Stop 2>&1) }
-                    'Throw' { cmd /c exit 7; $observed = @(prompt 2>&1) }
-                    'Recursive' { cmd /c exit 7; $observed = @(prompt -Recurse 2>&1) }
-                    'Recording' { cmd /c exit 7; $observed = @(prompt 2>&1) }
+                    'SimpleMerge' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
+                    'Merge' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
+                    'AllStreams' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt *>&1) }
+                    'Suppress' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>$null) }
+                    'File' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>$file) }
+                    'ErrorVariable' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt -ErrorVariable variable 2>&1) }
+                    'AppendVariables' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt -ErrorVariable +variable -OutVariable +outputVariable 2>&1) }
+                    'PreferenceContinue' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
+                    'PreferenceSilent' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
+                    'Stop' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt -ErrorAction Stop 2>&1) }
+                    'Throw' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
+                    'Recursive' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt -Recurse 2>&1) }
+                    'Recording' { & $native -NoLogo -NoProfile -NonInteractive -Command 'exit 7'; $observed = @(prompt 2>&1) }
                 }
             } catch {
                 $caught = $_
