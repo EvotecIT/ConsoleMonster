@@ -67,18 +67,25 @@ namespace ConsoleMonster.Tests.Overview {
                 } finally { exited.TrySetResult(true); }
             });
             OverviewCollector collector = new OverviewCollector(registry);
-            Task<OverviewSection?> flight = registry.Select(null).Single().Start(TimeSpan.FromSeconds(2));
+            // This controlled flight tests caller cancellation, not the independent probe deadline.
+            Task<OverviewSection?> flight = registry.Select(null).Single().Start(Timeout.InfiniteTimeSpan);
             try {
+                // Provider startup can be scheduled after the entire short collection budget on a busy runner.
+                await entered.Task;
                 using (CancellationTokenSource stop = new CancellationTokenSource()) {
-                    Task<OverviewSnapshot> cancelled = collector.CollectAsync(cancellationToken: stop.Token);
-                    await entered.Task;
                     Task<OverviewSnapshot> continuing = collector.CollectAsync();
+                    Task<OverviewSnapshot> cancelled = collector.CollectAsync(cancellationToken: stop.Token);
                     stop.Cancel();
                     await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled);
-                    Assert.False(continuing.IsCompleted);
+                    Assert.False(flight.IsCompleted);
                     release.TrySetResult(true);
                     OverviewSnapshot finished = await continuing;
-                    Assert.False(Assert.Single(finished.Sections).IsPending);
+                    // A delayed caller may legitimately return a pending snapshot; its shared probe must survive.
+                    Assert.Equal("Busy", Assert.Single(finished.Sections).Name);
+                    OverviewSection? observed = await flight;
+                    Assert.NotNull(observed);
+                    Assert.False(observed.IsPending);
+                    Assert.Equal("Synthetic", Assert.Single(observed.Items).Value);
                     Assert.Equal(1, busyCalls);
                 }
             } finally {

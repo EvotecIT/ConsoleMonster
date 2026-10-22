@@ -38,7 +38,8 @@ namespace ConsoleMonster.Overview {
             string uptime = Snapshot.Uptime.HasValue ? "up " + ((int)Snapshot.Uptime.Value.TotalDays).ToString(CultureInfo.InvariantCulture) + "d " + Snapshot.Uptime.Value.ToString(@"hh\:mm", CultureInfo.InvariantCulture) : string.Empty;
             // Preserve host, uptime and local clock when the OS description needs truncation on small terminals.
             string separator = context.Profile.Glyphs == Capabilities.GlyphTier.Ascii ? " | " : " · ";
-            string tail = separator + uptime + separator + Snapshot.CapturedAt.ToString("HH:mm zzz", CultureInfo.InvariantCulture);
+            string tail = separator + (uptime.Length > 0 ? uptime + separator : string.Empty)
+                + Snapshot.CapturedAt.ToString("HH:mm zzz", CultureInfo.InvariantCulture);
             string head = Clean(Snapshot.HostName) + separator + Clean(Snapshot.OperatingSystem);
             int available = Math.Max(0, width - DisplayWidth.Measure(tail));
             StyledLine headline = TextWrapper.Truncate(StyledLine.From(head), available, context.Ellipsis);

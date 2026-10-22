@@ -11,6 +11,16 @@ using Xunit;
 namespace ConsoleMonster.Tests.Overview {
     public sealed class OverviewRenderingTests {
         [Theory]
+        [InlineData(GlyphTier.Full, " · ")]
+        [InlineData(GlyphTier.Ascii, " | ")]
+        public void MissingUptimeDoesNotLeaveAnEmptyHeaderSegment(GlyphTier glyphs, string separator) {
+            OverviewSnapshot snapshot = new OverviewSnapshot("demo-host", "Example OS 1.0", null,
+                new DateTimeOffset(2026, 10, 22, 12, 34, 0, TimeSpan.FromHours(2)), Array.Empty<OverviewSection>());
+            string text = Terminal.RenderText(new OverviewWidget(snapshot), TerminalProfile.Fixed(120, 24, ColorDepth.None, glyphs));
+            Assert.Equal("demo-host" + separator + "Example OS 1.0" + separator + "12:34 +02:00", text.Split('\n')[0].TrimEnd());
+        }
+
+        [Theory]
         [InlineData(120, false)]
         [InlineData(120, true)]
         [InlineData(60, false)]
