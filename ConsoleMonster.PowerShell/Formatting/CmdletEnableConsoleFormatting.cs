@@ -5,11 +5,16 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
-    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), commands (Get-Command), modules (Get-Module), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
+    /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), commands (Get-Command), modules (Get-Module), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; nothing else changes: objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. If you already have your own Out-Default function, it is kept and output formatting is not enabled unless you pass -Force. Prompt is a separate opt-in, excluded from All: a shortened path, cached git branch and dirty mark, last-command status and completed-history duration only above two seconds. Captures, transcripts, recordings, jobs, remoting and nested prompts retain the original prompt. PSReadLine handlers stay untouched. Disable or module removal restores the original prompt; oh-my-posh and Starship require Force.</para>
     /// </summary>
+
     /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
+    /// </example>
+    /// <example>
+    ///   <para>Use a minimal themed shell prompt, separately from default output formatting</para>
+    ///   <code>Set-ConsoleTheme -Name Dark; Enable-ConsoleFormatting -Feature Prompt</code>
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
@@ -25,11 +30,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Prompt (excluded from All) opts into a minimal shell prompt with shortened path, cached git branch and dirty mark, last-command status and history duration only above two seconds. Captures, transcripts, recordings, remoting and nested prompts keep the original prompt. PSReadLine handlers stay untouched; oh-my-posh and Starship require Force. Disable or module removal restores the original prompt. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
-        /// <summary><para type="description">Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's (Disable-ConsoleFormatting puts it back).</para></summary>
+        /// <summary><para type="description">Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's, or an oh-my-posh or Starship prompt with Feature Prompt. Disable-ConsoleFormatting restores the original.</para></summary>
         [Parameter]
         public SwitchParameter Force { get; set; }
 
@@ -55,6 +60,14 @@ namespace ConsoleMonster.PowerShell {
             }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
+            }
+            if ((wanted & ConsoleFormattingFeature.Prompt) != 0) {
+                if (PromptInstallation.Install(this, Force.IsPresent)) {
+                    ConsoleFormatting.Features |= ConsoleFormattingFeature.Prompt;
+                    ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
+                }
+                wanted &= ~ConsoleFormattingFeature.Prompt;
+                if (wanted == ConsoleFormattingFeature.None) { return; }
             }
             if (wanted == ConsoleFormattingFeature.Streams) {
                 FormattingSessionState.Current.Streams.Apply(this);
@@ -133,15 +146,18 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.</para></summary>
+        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Prompt restores the original shell prompt if ConsoleMonster still owns the slot; later user replacements are kept. Without -Feature every enabled feature is removed, including FormatCommands and Prompt.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
             ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.FormatCommands }) {
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.FormatCommands | ConsoleFormattingFeature.Prompt }) {
                 off |= feature;
+            }
+            if ((off & ConsoleFormattingFeature.Prompt) != 0) {
+                PromptInstallation.Remove(FormattingSessionState.Current);
             }
             if ((off & ConsoleFormattingFeature.Progress) != 0) {
                 ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
@@ -153,7 +169,7 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.Streams.Restore();
             }
             ConsoleFormatting.Features &= ~off;
-            if ((ConsoleFormatting.Features & ~ConsoleFormattingFeature.Streams) != ConsoleFormattingFeature.None) {
+            if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.Prompt)) != ConsoleFormattingFeature.None) {
                 return;
             }
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");

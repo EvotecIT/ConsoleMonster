@@ -30,13 +30,20 @@ namespace ConsoleMonster.PowerShell {
                     return false;
                 }
                 // Require readable transcription state. An engine change must fall back to native output, never guess.
-                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
-                object? transcripts = Member(data, "Transcripts");
-                object? system = Member(data, "SystemTranscript");
-                return transcripts is ICollection list && list.Count == 0 && system == null;
+                return IsUnrecorded(cmdlet.Host);
             } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
                 return false;
             }
+        }
+
+        /// <summary>Require readable native transcription state; unknown engine versions retain native output.</summary>
+        internal static bool IsUnrecorded(PSHost host) {
+            try {
+                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(host.UI, null);
+                object? transcripts = Member(data, "Transcripts");
+                object? system = Member(data, "SystemTranscript");
+                return transcripts is ICollection list && list.Count == 0 && system == null;
+            } catch (Exception error) when (!(error is PipelineStoppedException)) { return false; }
         }
 
         private static object? Member(object? value, string name) {

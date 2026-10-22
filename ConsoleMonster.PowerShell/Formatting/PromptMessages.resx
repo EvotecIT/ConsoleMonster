@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ProtectedPrompt" xml:space="preserve"><value>An oh-my-posh or Starship prompt was kept. Use -Feature Prompt -Force to replace it for this session.</value></data>
+  <data name="UnsupportedEngine" xml:space="preserve"><value>This PowerShell engine cannot preserve prompt status; the existing prompt was kept.</value></data>
+  <data name="MissingResource" xml:space="preserve"><value>The prompt resource is missing.</value></data>
+</root>

@@ -57,6 +57,8 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "review-prompt":
+                    return PromptFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the review output directory."));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;
@@ -143,6 +145,7 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            PromptFigures.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);

@@ -1,6 +1,7 @@
 ### Unreleased - the everyday path
 #### What's new
 - `Compare-ConsoleText` compares strings or files with line numbers, word highlights and collapsed unchanged ranges. It uses side-by-side output from 120 columns, inline output below that, `-Context`, `-IgnoreWhitespace` and plain unified text with `-AsUnified`. The shared text engine uses linear auxiliary memory and bounded alignment work.
+- Optional `Enable-ConsoleFormatting -Feature Prompt` (excluded from `All`): shortened path, bounded asynchronous cached git state, last-command status and completed-history duration above two seconds; exact prompt restoration and protected oh-my-posh/Starship opt-in with `-Force`.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.
 - Hosted-service dashboard durations measure each service's lifetime with a monotonic clock and freeze at its own stop, completion or failure, preserving the result through host shutdown.
 - `Enable-ConsoleFormatting -Feature Streams` colors native warning, verbose and debug messages with the active theme, plus errors on PowerShell 7.2+. Included in `All`; disabling or removing the module restores the original settings. PowerShell keeps its stream commands, prefixes, preferences, redirection and transcripts.
