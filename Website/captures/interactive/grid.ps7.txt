@@ -1,4 +1,4 @@
-source ab05a95ffd48dc674956f1eac99f1a36
+source ab05a95ffd48dc6717f271681f4bbba0
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
@@ -20,7 +20,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keys6e2dd924127aabf8
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keysbe7c1674576bf755
  Services on FS01                                                                                 7 of 7 rows
 
  › s
@@ -42,7 +42,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc clear filter  f1 keys39c8a343f142a9b4
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  f1 keysc77c88cadb12bf2a
  Services on FS01                                                                                 2 of 7 rows
 
  › sq
@@ -64,7 +64,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc clear filter  f1 keys2bfe1775c1e5bb60
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  f1 keys677fce438210d697
  Services on FS01                                                                                 2 of 7 rows
 
  › sql
@@ -86,7 +86,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc clear filter  f1 keys39c8a343f142a9b4
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  f1 keysc77c88cadb12bf2a
  Services on FS01                                                                                 2 of 7 rows
 
  › sq
@@ -108,7 +108,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc clear filter  f1 keysb0b0330a2be1fb9d
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  f1 keys1edd1b64252ad67a
  Services on FS01                                                                                 7 of 7 rows
 
  › s
@@ -130,7 +130,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc clear filter  f1 keys4fd2e5d40d5fc118
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  f1 keys21b680e9272d7e9e
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
@@ -152,7 +152,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keysd0c74812fd05c864
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keys0191111316ef9e7c
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
@@ -174,7 +174,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keysa2b9b4e8c01988f5
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keysee83703389e2c52a
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
@@ -196,7 +196,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keysfd36b6e874afc296
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keysc96da53d5296c546
  Services on FS01                                                                    7 of 7 rows · 1 selected
 
  › type to filter
@@ -218,7 +218,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keysc175be7447a8ac36
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keys2d0caa4db37e4a73
  Services on FS01                                                                    7 of 7 rows · 1 selected
 
  › type to filter
@@ -240,7 +240,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keys37b574ed5d1c811f
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keysbd38542ff92ec3cd
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
@@ -262,7 +262,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keysf6a5c8371e4f16b2
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keysf6a5c8371e4f16b2
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
@@ -284,7 +284,7 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  esc close37b574ed5d1c811f
+ ↑↓ move  esc closebd38542ff92ec3cd
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
@@ -306,4 +306,4 @@ source ab05a95ffd48dc674956f1eac99f1a36
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  esc cancel  f1 keys
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  f1 keys

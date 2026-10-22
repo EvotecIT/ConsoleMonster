@@ -52,10 +52,11 @@ namespace SiteFrames.Pages {
                         File.WriteAllText(stem + ".txt", frame.ToPlainText());
                         ExportOptions export = new ExportOptions { Title = caption, Theme = theme == Theme.Light ? ExportTheme.Light : ExportTheme.Dark };
                         File.WriteAllText(stem + ".html", ConsoleExporter.ToHtml(frame, export));
+                        File.WriteAllText(stem + ".svg", ConsoleExporter.ToSvg(frame, export));
                     }
                 }
             }
-            Console.WriteLine("GridView review: 8 real frames, HTML and text, from the compiled example.");
+            Console.WriteLine("GridView review: 8 real frames, HTML, SVG and text, from the compiled example.");
             return 0;
         }
     }

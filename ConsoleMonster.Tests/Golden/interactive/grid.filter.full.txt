@@ -17,4 +17,4 @@
 │                                                                                        │
 │                                                                                        │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  enter details  f3 sort  f2 columns  ctrl+enter done  f1 keys
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort

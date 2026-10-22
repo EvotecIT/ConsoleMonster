@@ -30,12 +30,13 @@ namespace ConsoleMonster.Tests.Interactive {
             return grid;
         }
 
-        private static GridResult Show(Grid grid, string keys, out RecordingSurface surface, GlyphTier tier = GlyphTier.Full, int width = 90, int height = 20, GridOptions? options = null) {
+        private static GridResult Show(Grid grid, string keys, out RecordingSurface surface, GlyphTier tier = GlyphTier.Full, int width = 90, int height = 20, GridOptions? options = null, ITheme? theme = null) {
             RecordingSurface s = new RecordingSurface(width, height, false);
             surface = s;
             GridOptions o = options ?? new GridOptions();
             o.Interactive = PromptHarness.Options(keys, s);
             o.Interactive.Profile = TerminalProfile.Fixed(width, height, ColorDepth.TrueColor, tier);
+            o.Interactive.Theme = theme ?? Theme.Dark;
             return PromptHarness.Guard(s, () => grid.Show(o));
         }
 
@@ -97,6 +98,59 @@ namespace ConsoleMonster.Tests.Interactive {
         public void NoMatches_SaysSo() {
             Show(Servers(), "\"zzz\" Escape Escape", out RecordingSurface surface);
             Assert.Contains(surface.Frames, f => f.ToPlainText().Contains("No matches") && f.ToPlainText().Contains("0 of 30 rows"));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Footer_AtSixtyColumns_KeepsMoveSelectDoneAndCancel(bool light) {
+            ITheme theme = light ? Theme.Light : Theme.Dark;
+            GridResult result = Show(Servers(), "Space Down Space Ctrl+Enter", out RecordingSurface surface, width: 60, theme: theme);
+            Assert.True(result.Accepted);
+            Assert.Equal(new object?[] { "SRV01", "SRV02" }, result.Items.ToArray());
+            var frame = surface.Frames.First();
+            string footer = frame.GetRowText(19);
+            Assert.Equal(" ↑↓ move  space select  ctrl+enter done  esc cancel", footer.TrimEnd());
+            Assert.Equal(20, frame.Height);
+            Assert.StartsWith("╭", frame.GetRowText(3));
+            Assert.Contains("SRV01", frame.GetRowText(6));
+            Assert.Contains("SRV12", frame.GetRowText(17));
+            Assert.StartsWith("╰", frame.GetRowText(18));
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(60, 20), theme);
+            foreach (string keys in new[] { "↑↓", "space", "ctrl+enter", "esc" }) {
+                int start = footer.IndexOf(keys, StringComparison.Ordinal);
+                for (int x = start; x < start + keys.Length; x++) {
+                    Assert.Equal(context.Style(ThemeToken.Accent), frame[x, 19].Style);
+                }
+            }
+            foreach (string label in new[] { "move", "select", "done", "cancel" }) {
+                int start = footer.IndexOf(label, StringComparison.Ordinal);
+                for (int x = start; x < start + label.Length; x++) {
+                    Assert.Equal(context.Style(ThemeToken.Muted), frame[x, 19].Style);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(60)]
+        [InlineData(120)]
+        public void Footer_SecondaryHints_RemainInWideFooterAndFullKeyMap(int width) {
+            GridResult result = Show(Servers(), "F1 Escape F10", out RecordingSurface surface, width: width);
+            Assert.True(result.Accepted);
+            Assert.Equal("SRV01", result.Items.Single());
+            string footer = surface.Frames.First().GetRowText(19);
+            if (width == 120) {
+                foreach (string hint in new[] { "enter details", "f3 sort", "f2 columns", "f1 keys" }) {
+                    Assert.Contains(hint, footer);
+                }
+            }
+            string keyMap = surface.Frames.First(f => f.ToPlainText().Contains("pgup/pgdn")).ToPlainText();
+            foreach (string keys in new[] { "ctrl+a", "ctrl+enter", "enter", "esc", "f2", "f3", "f4" }) {
+                Assert.Contains(keys, keyMap);
+            }
+            GridResult cancelled = Show(Servers(), "F1 Escape Escape", out _, width: width);
+            Assert.False(cancelled.Accepted);
+            Assert.Empty(cancelled.Items);
         }
     }
 }
