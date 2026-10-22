@@ -45,10 +45,10 @@ namespace ConsoleMonster.Interactive {
             rows.Add(TextBlock.Plain(_root.Path, ThemeToken.Accent), LayoutSize.Fixed(1));
             if (_searching) { rows.Add(TextBlock.Plain("/ " + _search.Text, ThemeToken.Muted), LayoutSize.Fixed(1)); }
             IWidget body = new ExplorerBody(this);
-            Table? grid = InlineGrid();
+            int available = Math.Max(1, (frame?.Height ?? 20) - (_searching ? 6 : 5));
+            int gridRows = Math.Min(6, Math.Max(0, available - 2));
+            Table? grid = gridRows >= 3 ? InlineGrid() : null;
             if (grid != null) {
-                int available = Math.Max(1, (frame?.Height ?? 20) - (_searching ? 6 : 5));
-                int gridRows = Math.Min(6, Math.Max(0, available - 2));
                 if (gridRows >= 3) {
                     int members = Math.Min(Math.Max(1, _visible.Count + (_root.HasMore ? 1 : 0)), available - gridRows - 1);
                     body = new Rows(new Sized(body, LayoutSize.Fixed(members)), new Sized(grid, LayoutSize.Fixed(gridRows))) { Gap = 1 };
@@ -63,17 +63,26 @@ namespace ConsoleMonster.Interactive {
 
         private Table? InlineGrid() {
             if (!(_root.Value is System.Collections.IEnumerable) || _root.Value is System.Collections.IDictionary || _visible.Count == 0) { return null; }
-            IReadOnlyList<ExplorerNode> first = _visible[0].Node.Children;
+            IReadOnlyList<string> first = _root.Children[0].PreviewNames();
             if (first.Count == 0 || first.Count > 8) { return null; }
-            Table table = new Table { Border = TableBorder.Minimal, RecordViewRows = 0 };
-            foreach (ExplorerNode member in first) { table.AddColumn(Markup.Escape(member.Name)); }
             int count = Math.Min(3, _root.Children.Count);
+            int cost = 0;
+            for (int i = 0; i < count; i++) {
+                ExplorerNode node = _root.Children[i];
+                IReadOnlyList<string> names = node.PreviewNames();
+                if (names.Count != first.Count) { return null; }
+                for (int c = 0; c < names.Count; c++) { if (names[c] != first[c]) { return null; } }
+                cost += node.PreviewCost(names.Count);
+            }
+            if (cost > _root.RemainingNodes) { return null; }
+            Table table = new Table { Border = TableBorder.Minimal, RecordViewRows = 0 };
+            foreach (string name in first) { table.AddColumn(Markup.Escape(name)); }
             for (int i = 0; i < count; i++) {
                 IReadOnlyList<ExplorerNode> members = _root.Children[i].Children;
                 if (members.Count != first.Count) { return null; }
                 object?[] values = new object?[members.Count];
                 for (int c = 0; c < members.Count; c++) {
-                    if (members[c].Name != first[c].Name) { return null; }
+                    if (members[c].Name != first[c]) { return null; }
                     values[c] = members[c].Summary;
                 }
                 table.AddValues(values);

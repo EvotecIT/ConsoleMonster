@@ -20,6 +20,9 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<(string Name, int? Index), Lazy<object?>> _identifierValues = new Dictionary<(string, int?), Lazy<object?>>();
         private bool _readLabel;
         private string? _label;
+        private IReadOnlyList<string>? _previewNames;
+        private IReadOnlyList<InspectMember>? _previewMembers;
+        private IReadOnlyList<object?>? _previewItems;
 
         internal ExplorerNode(string name, string path, Func<object?> read, InspectorOptions options, ExplorerNode? parent, bool collectionItem = false) {
             Name = name;
@@ -81,7 +84,10 @@ namespace ConsoleMonster.Interactive {
                 if (value == null) { return "null"; }
                 if (Pending(out string? pending)) { return pending ?? "pending"; }
                 if (value is ICollection collection && !(value is IDictionary) && !(value is string)) {
-                    return collection.Count.ToString(CultureInfo.InvariantCulture) + " items" + (Depth >= _options.MaxDepth ? " (depth limit)" : "");
+                    string count;
+                    try { count = collection.Count.ToString(CultureInfo.InvariantCulture) + " items"; }
+                    catch (Exception ex) when (!ObjectInspector.IsCancellation(ex)) { count = "items (count unavailable)"; }
+                    return count + (Depth >= _options.MaxDepth ? " (depth limit)" : "");
                 }
                 if (!ObjectInspector.IsScalarValue(value)) {
                     string type = ObjectInspector.FindSource(value, _options)?.GetTypeName(value) ?? value.GetType().Name;
@@ -112,7 +118,7 @@ namespace ConsoleMonster.Interactive {
             if (source == null) { return null; }
             Dictionary<string, InspectMember> identifiers = new Dictionary<string, InspectMember>(StringComparer.OrdinalIgnoreCase);
             try {
-                IEnumerable<InspectMember> members = source is DictionaryMemberSource dictionary ? dictionary.GetMembers(value, Math.Max(1, _options.MaxNodes)) : source.GetMembers(value);
+                IEnumerable<InspectMember> members = Members(source, value, Math.Max(1, _options.MaxNodes));
                 Stopwatch elapsed = Stopwatch.StartNew();
                 int scanned = 0;
                 foreach (InspectMember member in members) {
@@ -150,6 +156,60 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Whether collection or node limits left more children undisplayed.</summary>
         public bool HasMore { get; private set; }
 
+        // Preview preflight reads descriptors only. It must not create nodes until a complete grid can be displayed.
+        internal IReadOnlyList<string> PreviewNames() {
+            if (_children != null) {
+                if (HasMore) { return Array.Empty<string>(); }
+                List<string> cached = new List<string>();
+                foreach (ExplorerNode child in _children) { cached.Add(child.Name); if (cached.Count > 8) { break; } }
+                return cached;
+            }
+            if (_previewNames != null) { return _previewNames; }
+            List<string> names = new List<string>();
+            _previewNames = names;
+            if (!CanExpand || Prepared == null) { return names; }
+            try {
+                if (ObjectInspector.TryGetEnumerable(Prepared, out IEnumerable? items)) {
+                    // Known small collection rows keep their existing grid view without spending navigation nodes.
+                    if (!(Prepared is ICollection collection)) { return names; }
+                    int count = collection.Count;
+                    if (count <= 0 || count > Math.Min(8, Math.Max(0, _options.MaxItems))) { return names; }
+                    List<object?> values = new List<object?>();
+                    Stopwatch scan = Stopwatch.StartNew();
+                    foreach (object? item in items!) {
+                        if (values.Count >= count || (_options.TimeBudget > TimeSpan.Zero && scan.Elapsed >= _options.TimeBudget)) { return names; }
+                        values.Add(item);
+                    }
+                    if (values.Count != count) { return names; }
+                    _previewItems = values;
+                    for (int i = 0; i < count; i++) { names.Add("[" + i.ToString(CultureInfo.InvariantCulture) + "]"); }
+                    return names;
+                }
+                IMemberSource? source = ObjectInspector.FindSource(Prepared, _options);
+                if (source == null) { return names; }
+                List<InspectMember> descriptors = new List<InspectMember>();
+                Stopwatch elapsed = Stopwatch.StartNew();
+                foreach (InspectMember member in Members(source, Prepared, 8)) {
+                    if (_options.TimeBudget > TimeSpan.Zero && elapsed.Elapsed >= _options.TimeBudget) { names.Clear(); break; }
+                    if (ObjectInspector.MemberIncluded(member.Name, _options)) { names.Add(member.Name); descriptors.Add(member); }
+                    if (names.Count > 8) { break; }
+                }
+                if (names.Count > 0 && names.Count <= 8 && (_options.TimeBudget <= TimeSpan.Zero || elapsed.Elapsed < _options.TimeBudget)) { _previewMembers = descriptors; }
+            } catch (Exception ex) when (!ObjectInspector.IsCancellation(ex)) { names.Clear(); }
+            return names;
+        }
+
+        internal int PreviewCost(int count) => _children == null ? count : 0;
+        internal int RemainingNodes => _budget.Remaining;
+
+        private IEnumerable<InspectMember> Members(IMemberSource source, object value, int limit) {
+            if (source is DictionaryMemberSource dictionary) { return dictionary.GetMembers(value, limit, _options); }
+#if NET8_0_OR_GREATER
+            if (source is Values.JsonNodeMemberSource json) { return json.GetMembers(value, true); }
+#endif
+            return source.GetMembers(value);
+        }
+
         /// <summary>Reads only this level, caching a bounded page without visiting grandchildren.</summary>
         public IReadOnlyList<ExplorerNode> Children {
             get {
@@ -164,11 +224,7 @@ namespace ConsoleMonster.Interactive {
                     } else {
                         IMemberSource? source = ObjectInspector.FindSource(value, _options);
                         if (source != null) {
-                            if (source is DictionaryMemberSource && value is IDictionary map && map.Count > _budget.Remaining) { HasMore = true; }
-                            IEnumerable<InspectMember> members = source is DictionaryMemberSource dictionary ? dictionary.GetMembers(value, _budget.Remaining) : source.GetMembers(value);
-#if NET8_0_OR_GREATER
-                            if (source is Values.JsonNodeMemberSource json) { members = json.GetMembers(value, true); }
-#endif
+                            IEnumerable<InspectMember> members = _previewMembers ?? Members(source, value, _budget.Remaining);
                             Stopwatch elapsed = Stopwatch.StartNew();
                             foreach (InspectMember member in members) {
                                 if (_options.TimeBudget > TimeSpan.Zero && elapsed.Elapsed >= _options.TimeBudget) { HasMore = true; break; }
@@ -181,6 +237,7 @@ namespace ConsoleMonster.Interactive {
                                 if (!dictionaryMember && IsIdentifier(name)) { path = Path + "." + name; }
                                 _children.Add(new ExplorerNode(name, path, () => ReadMember(member), _options, this));
                             }
+                            if (_options.TimeBudget > TimeSpan.Zero && elapsed.Elapsed >= _options.TimeBudget) { HasMore = true; }
                         }
                     }
                 } catch (Exception ex) when (!ObjectInspector.IsCancellation(ex)) { Error = ex.Message; }
@@ -215,7 +272,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void ReadItems(IEnumerable items) {
-            IEnumerator iterator = items.GetEnumerator();
+            IEnumerator iterator = (_previewItems != null ? (IEnumerable)_previewItems : items).GetEnumerator();
             try {
                 int limit = Math.Min(Math.Max(0, _options.MaxItems), Math.Max(1, _options.MaxNodes));
                 Stopwatch elapsed = Stopwatch.StartNew();
