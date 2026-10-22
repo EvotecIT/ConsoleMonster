@@ -22,7 +22,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TEST_VERBOSITY: minimal
-  # Match the version qualified locally on Windows PowerShell 5.1 and PowerShell 7.
+  # Use the same exact Pester package on every supported host.
   PESTER_VERSION: '6.1.0'
 
 jobs:
@@ -112,8 +112,11 @@ jobs:
           $ErrorActionPreference = 'Stop'
           Write-Host "PowerShell $($PSVersionTable.PSVersion)"
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-            Register-PSRepository -Default -ErrorAction Stop
+          try {
+            $null = Get-PSRepository -Name PSGallery -ErrorAction Stop
+          } catch {
+            if ($_.FullyQualifiedErrorId -notmatch '^(SourceNotFound|RepositoryNotFound),') { throw }
+            Register-PSRepository -Default
           }
           Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
 
@@ -278,8 +281,11 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-            Register-PSRepository -Default -ErrorAction Stop
+          try {
+            $null = Get-PSRepository -Name PSGallery -ErrorAction Stop
+          } catch {
+            if ($_.FullyQualifiedErrorId -notmatch '^(SourceNotFound|RepositoryNotFound),') { throw }
+            Register-PSRepository -Default
           }
           Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
       - name: Run Pester
@@ -326,8 +332,11 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-            Register-PSRepository -Default -ErrorAction Stop
+          try {
+            $null = Get-PSRepository -Name PSGallery -ErrorAction Stop
+          } catch {
+            if ($_.FullyQualifiedErrorId -notmatch '^(SourceNotFound|RepositoryNotFound),') { throw }
+            Register-PSRepository -Default
           }
           Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
       - name: Run Pester
