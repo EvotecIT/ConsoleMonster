@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Team Light",
+  "BaseTheme": "Light",
+  "Tokens": {
+    "Accent": {
+      "Foreground": { "TrueColor": "#075985", "Ansi16": 1, "Ansi256": 24 },
+      "Decoration": "Bold"
+    },
+    "Title": {
+      "Foreground": { "TrueColor": "#075985", "Ansi16": 1, "Ansi256": 24 },
+      "Decoration": "Bold"
+    },
+    "Header": {
+      "Foreground": { "TrueColor": "#075985", "Ansi16": 1, "Ansi256": 24 },
+      "Decoration": "Bold"
+    },
+    "Pass": {
+      "Foreground": { "TrueColor": "#005f87", "Ansi16": 1, "Ansi256": 24 },
+      "Decoration": "Bold"
+    },
+    "Warn": {
+      "Foreground": { "TrueColor": "#805500", "Ansi16": 3, "Ansi256": 94 },
+      "Decoration": "Bold"
+    },
+    "Fail": {
+      "Foreground": { "TrueColor": "#9a3412", "Ansi16": 4, "Ansi256": 130 },
+      "Decoration": "Bold, Underline"
+    },
+    "Info": {
+      "Foreground": { "TrueColor": "#075985", "Ansi16": 1, "Ansi256": 24 }
+    }
+  }
+}

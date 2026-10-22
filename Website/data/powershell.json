@@ -774,7 +774,7 @@
     },
     {
       "verb": "Export",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Export-ConsoleFrame",
@@ -785,6 +785,11 @@
           "name": "Export-ConsoleRecording",
           "synopsis": "Exports a dashboard recording to an HTML player, an animated SVG or asciicast.",
           "url": "/powershell/commands/export-consolerecording/"
+        },
+        {
+          "name": "Export-ConsoleTheme",
+          "synopsis": "Exports the current ConsoleMonster theme as a starting file for a user or team.",
+          "url": "/powershell/commands/export-consoletheme/"
         }
       ]
     },

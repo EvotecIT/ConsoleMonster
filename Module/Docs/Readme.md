@@ -65,6 +65,11 @@ Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
 
 Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
 
+### [Export-ConsoleTheme](Export-ConsoleTheme.md)
+Exports the current ConsoleMonster theme as a starting file for a user or team.
+
+Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.
+
 ### [Format-ConsoleCode](Format-ConsoleCode.md)
 Shows source text with syntax highlighting, line numbers and highlighted lines.
 
@@ -403,7 +408,7 @@ The new widget is shown from the next frame on; the surrounding frame stays, and
 ### [Set-ConsoleTheme](Set-ConsoleTheme.md)
 Selects the theme used by every ConsoleMonster widget.
 
-Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colours for every colour tier. Dark suits dark terminals (the default), Light suits light backgrounds, HighContrast uses saturated primaries.
+Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ### [Set-ConsoleValue](Set-ConsoleValue.md)
 Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.

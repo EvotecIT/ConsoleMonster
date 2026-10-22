@@ -16,6 +16,7 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// <item><c>theme-files-review [Website] [OutputDirectory] [--powershell]</c>: writes offline theme comparison exports outside the repository.</item>
     /// </list>
     /// </summary>
     public static class Program {
@@ -57,8 +58,10 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
+                    return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text|theme-files-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -135,6 +138,7 @@ namespace SiteFrames {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
             TextDiffFigures.Render(site);
+            ThemeFilesPage.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);

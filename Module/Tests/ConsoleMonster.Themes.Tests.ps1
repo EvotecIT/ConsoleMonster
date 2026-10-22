@@ -1,9 +1,8 @@
 ﻿Describe 'Theme files through the compiled PowerShell commands' {
     BeforeAll {
-        $framework = if ($PSVersionTable.PSEdition -eq 'Desktop') { 'net472' } else { 'net8.0' }
         $assembly = $env:CONSOLEMONSTER_THEME_TEST_ASSEMBLY
         if (-not $assembly) {
-            $assembly = Join-Path $PSScriptRoot "../../ConsoleMonster.PowerShell/bin/Debug/$framework/ConsoleMonster.PowerShell.dll"
+            $assembly = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
         }
         Import-Module $assembly -Force
         $script:OriginalTheme = [ConsoleMonster.Terminal]::Theme
@@ -48,7 +47,7 @@
         if ($Extension -eq 'psd1') {
             (Import-PowerShellDataFile -LiteralPath $path).Name | Should -BeExactly $before.Name
         } else {
-            (Get-Content -LiteralPath $path -Raw | ConvertFrom-Json).Name | Should -BeExactly $before.Name
+            (Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json).Name | Should -BeExactly $before.Name
         }
     }
 
