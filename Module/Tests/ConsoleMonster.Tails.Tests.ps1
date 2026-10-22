@@ -57,6 +57,26 @@
         ($lines -join '') | Should -Not -Match ([regex]::Escape([string][char]27))
     }
 
+    It 'renders an explicit timestamp format at both widths without changing original plain source lines' {
+        $path = Join-Path $TestDrive 'timestamp.log'
+        $original = '2026-10-22T09:31:09+02:00 WARN [red]literal[/]'
+        [IO.File]::WriteAllText($path, $original + "`n", [Text.UTF8Encoding]::new($false))
+        @(Watch-ConsoleLog -Path $path -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz' -Count 1 -Plain) | Should -Be @($original)
+        foreach ($set in (Get-Command Watch-ConsoleLog).ParameterSets) {
+            $set.Parameters.Name | Should -Contain 'TimestampFormat'
+        }
+        foreach ($width in 60, 120) {
+            $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 4)
+            $target = [ConsoleMonster.Output.RecordingTarget]::new($profile, '')
+            Use-ConsoleTarget -Target $target {
+                Watch-ConsoleLog -Path $path -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz' -Count 1
+            }
+            $target.Output | Should -Match '2026-10-22 09:31:09 \+02:00'
+            $target.Output | Should -Match '\[red\]literal\[/\]'
+        }
+        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+    }
+
     It 'uses the shared encoding names for a BOMless file and gives an existing BOM precedence' {
         $path = Join-Path $TestDrive 'encoding.log'
         [IO.File]::WriteAllText($path, "INFO Zażółć`n", [Text.UnicodeEncoding]::new($false, $false))

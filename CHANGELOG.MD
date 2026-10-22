@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- Live tails highlight navigation keys, show a warning-colored paused-history state with applied new-line counts, and hide zero discarded-history counts. Source timestamps use the same compact time column at every width, include dates across retained source days, and accept an explicit `Watch-ConsoleLog -TimestampFormat` or core option.
 - `Compare-ConsoleText` compares strings or files with line numbers, word highlights and collapsed unchanged ranges. It uses side-by-side output from 120 columns, inline output below that, `-Context`, `-IgnoreWhitespace` and plain unified text with `-AsUnified`. The shared text engine uses linear auxiliary memory and bounded alignment work.
 - `Watch-ConsoleLog` follows files across observed truncation and rotation, or local Windows event logs, using a scrollable log view with source timestamps, level colours, literal filters and highlights. Scrolling pauses following; End resumes it. Redirected and plain output preserve original lines and never read input. The zero-dependency `FileLogTail`, `LogTailView` and `ConsoleLogTail` APIs share the same engine.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.

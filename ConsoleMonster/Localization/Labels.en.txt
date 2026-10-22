@@ -1,9 +1,11 @@
 # English fallback for live tail labels.
 Widget.TailFollowing = Following latest
-Widget.TailPaused = Paused - viewing history
+Widget.TailPaused = Paused · viewing history
 Widget.TailCounts = {0} history lines discarded
-Widget.TailKeys = q/Esc/Ctrl+C: quit | PgUp: history | End: follow
+Widget.TailKeys = [accent]q[/] [muted]quit ·[/] [accent]PgUp[/] [muted]history ·[/] [accent]End[/] [muted]follow[/]
 Widget.TailSessionFailed = The log-tail live session failed.
 Widget.TailViewFailed = The log-tail view could not be updated or rendered.
 Widget.TailReaderReturnedNull = The log-tail reader returned null.
 Widget.TailReaderReturnedNullEntry = The log-tail reader returned a null entry.
+Widget.TailPauseMarker = ⏸
+Widget.TailNewLines = {0} new lines

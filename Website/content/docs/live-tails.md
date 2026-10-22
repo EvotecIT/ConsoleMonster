@@ -10,7 +10,9 @@ chips: [Files, Logs, PowerShell]
 summary: "Follow files and local Windows event logs; pause on scroll and resume with End."
 ---
 
-`Watch-ConsoleLog` follows completed log lines with level colours and a source timestamp column. Up, PgUp and Home pause following so you can read older entries. End returns to the newest entries. The footer tells you whether the view is following or paused and how many history entries were discarded.
+`Watch-ConsoleLog` follows completed log lines with level colours and a source timestamp column. Up, PgUp and Home pause following so you can read older entries. End returns to the newest entries. Accent keys and muted descriptions keep `q quit · PgUp history · End follow` readable. The warning-colored paused state counts new lines as they are applied; End resets that counter. Discarded history appears only when nonzero.
+
+Source timestamps use `HH:mm:ss` at both 60 and 120 columns, adding `yyyy-MM-dd` when retained history spans source calendar days. Use `-TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz'` for an explicit invariant .NET format. The C# equivalents are `LogTailOptions.TimestampFormat` and `LogTailView.TimestampFormat`. Unknown source timestamps stay blank, and plain output keeps the original lines.
 
 ## Run the synthetic example
 

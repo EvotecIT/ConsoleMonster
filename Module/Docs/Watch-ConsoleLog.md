@@ -13,12 +13,12 @@ File lines are decoded incrementally and followed across observed truncation and
 ## SYNTAX
 ### Path (Default)
 ```powershell
-Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
+Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
 ```
 
 ### EventLog
 ```powershell
-Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
+Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -200,6 +200,22 @@ Completed history lines or events shown initially; zero starts with later entrie
 
 ```yaml
 Type: Int32
+Parameter Sets: Path, EventLog
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TimestampFormat
+Explicit invariant .NET source timestamp format for the live view, at every terminal width. By default, HH:mm:ss expands to yyyy-MM-dd HH:mm:ss when retained source dates differ. Missing timestamps stay blank; plain output keeps the original text.
+
+```yaml
+Type: String
 Parameter Sets: Path, EventLog
 Aliases: None
 Possible values:

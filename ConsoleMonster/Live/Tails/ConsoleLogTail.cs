@@ -63,7 +63,7 @@ namespace ConsoleMonster.Live.Tails {
 
         private static void RunLive(Func<IReadOnlyList<TailedLogEntry>> read, LogTailOptions options,
             TerminalProfile profile, CancellationToken cancellationToken) {
-            LogTailView view = new LogTailView(options.Capacity, highlight: options.Highlight);
+            LogTailView view = new LogTailView(options.Capacity, highlight: options.Highlight) { TimestampFormat = options.TimestampFormat };
             using (LiveSession session = new LiveSession(view, new LiveSessionOptions {
                 Mode = options.Mode, Profile = profile, Theme = options.Theme, Output = options.Output,
                 CaptureConsole = false, HandleCancelKey = options.HandleCancelKey, PrintFinalState = false,

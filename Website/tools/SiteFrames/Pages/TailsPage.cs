@@ -14,7 +14,7 @@ using SiteFrames.Vt;
 
 namespace SiteFrames.Pages {
     /// <summary>Real file-tail examples, native PowerShell captures and navigation evidence for the live-tails guide.</summary>
-    internal static class TailsPage {
+    internal static partial class TailsPage {
         private const int Rows = 12;
         private const string Keys = "wait:300 PgUp wait:300 End wait:300 q";
         private static readonly int[] Widths = { 120, 60 };
@@ -140,36 +140,5 @@ namespace SiteFrames.Pages {
             return result;
         }
 
-        /// <summary>Writes offline HTML and text using the existing cell renderer and site styles, without a server.</summary>
-        public static int Review(Site site, string output) {
-            Directory.CreateDirectory(output);
-            foreach (int width in Widths) {
-                foreach ((string name, ITheme theme, Screen screen) in new[] { ("dark", (ITheme)Theme.Dark, Screen.Dark), ("light", (ITheme)Theme.Light, Screen.Light) }) {
-                    Dictionary<string, CellBuffer> frames = Run(site, width, theme);
-                    foreach (PowerShellHost host in PowerShellHost.All) {
-                        string path = CapturePath(site, host, width, name);
-                        if (File.Exists(path)) { frames[host.Id + "-following"] = FindFrames(File.ReadAllText(path), width)["following"]; }
-                    }
-                    foreach (KeyValuePair<string, CellBuffer> entry in frames) {
-                        string id = "tails-" + entry.Key + "-" + width + "-" + name;
-                        string body = FrameHtml.Body(FrameHtml.Rows(entry.Value, ColorDepth.TrueColor, screen, site.Styles));
-                        string assets = Path.Combine(site.Website, "themes", "consolemonster", "assets");
-                        string fonts = new Uri(site.Static("fonts") + Path.DirectorySeparatorChar).AbsoluteUri;
-                        string css = File.ReadAllText(Path.Combine(assets, "tokens.css")).Replace("url(/fonts/", "url(" + fonts)
-                            + File.ReadAllText(Path.Combine(assets, "base.css"))
-                            + site.Styles.Css();
-                        File.WriteAllText(Path.Combine(output, id + ".html"), "<!doctype html><html lang=\"en\" data-theme=\"" + name
-                            + "\"><head><meta charset=\"utf-8\"><title>" + id + "</title><style>" + css
-                            + "</style></head><body><h1>" + id + "</h1><figure class=\"cm-window\"><div class=\"cm-window__frame\">"
-                            + "<figcaption class=\"cm-window__bar\">" + id + "</figcaption><div class=\"cm-window__body\">"
-                            + "<pre class=\"cm-screen cm-screen--" + name + "\" style=\"--cols:" + width + "\">" + body
-                            + "</pre></div></div></figure></body></html>\n");
-                        File.WriteAllText(Path.Combine(output, id + ".txt"), Parity.Describe(entry.Value), new UTF8Encoding(false));
-                    }
-                }
-            }
-            Console.WriteLine("Wrote offline tails review to " + Path.GetFullPath(output));
-            return 0;
-        }
     }
 }

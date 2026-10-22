@@ -60,6 +60,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Highlight { get; set; }
 
+        /// <summary><para type="description">Explicit invariant .NET source timestamp format for the live view, at every terminal width. By default, HH:mm:ss expands to yyyy-MM-dd HH:mm:ss when retained source dates differ. Missing timestamps stay blank; plain output keeps the original text.</para></summary>
+        [Parameter]
+        [ValidateNotNullOrEmpty]
+        public string? TimestampFormat { get; set; }
+
         /// <summary><para type="description">Maximum retained history lines, default 1000.</para></summary>
         [Parameter]
         [ValidateRange(1, 100000)]
@@ -80,7 +85,7 @@ namespace ConsoleMonster.PowerShell {
                     bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
                     LogTailOptions options = new LogTailOptions {
                         Count = Count, PollInterval = TimeSpan.FromSeconds(Interval), Capacity = Capacity,
-                        Filter = Filter, Highlight = Highlight, HandleCancelKey = false, Profile = profile,
+                        Filter = Filter, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
                         Plain = Plain.IsPresent || !last || HostOutput.UseHost(this, profile) || profile.Mode != OutputMode.Interactive,
                         WriteLine = text => WriteObject(text)
                     };

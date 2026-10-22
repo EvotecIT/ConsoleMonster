@@ -26316,6 +26316,18 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TimestampFormat</maml:name>
+          <maml:description>
+            <maml:para>Explicit invariant .NET source timestamp format for the live view, at every terminal width. By default, HH:mm:ss expands to yyyy-MM-dd HH:mm:ss when retained source dates differ. Missing timestamps stay blank; plain output keeps the original text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="EventLog">
         <maml:name>Watch-ConsoleLog</maml:name>
@@ -26411,6 +26423,18 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TimestampFormat</maml:name>
+          <maml:description>
+            <maml:para>Explicit invariant .NET source timestamp format for the live view, at every terminal width. By default, HH:mm:ss expands to yyyy-MM-dd HH:mm:ss when retained source dates differ. Missing timestamps stay blank; plain output keeps the original text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -26547,6 +26571,18 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TimestampFormat</maml:name>
+        <maml:description>
+          <maml:para>Explicit invariant .NET source timestamp format for the live view, at every terminal width. By default, HH:mm:ss expands to yyyy-MM-dd HH:mm:ss when retained source dates differ. Missing timestamps stay blank; plain output keeps the original text.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

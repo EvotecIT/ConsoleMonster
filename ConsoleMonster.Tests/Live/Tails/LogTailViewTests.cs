@@ -45,8 +45,8 @@ namespace ConsoleMonster.Tests.Live.Tails {
             Assert.DoesNotContain("ERROR", row);
             int message = row.IndexOf("database", StringComparison.Ordinal);
             Assert.True((buffer[message, 0].Style.Decoration & TextDecoration.Bold) != 0);
-            Assert.Contains("q/Esc/Ctrl+C: quit", buffer.GetRowText(3));
-            Assert.Contains("End: follow", buffer.GetRowText(3));
+            Assert.Contains("q quit", buffer.GetRowText(3));
+            Assert.Contains("End follow", buffer.GetRowText(3));
             Assert.Equal("database timeout", Assert.Single(view.Entries).Text);
         }
 
@@ -152,9 +152,9 @@ namespace ConsoleMonster.Tests.Live.Tails {
             view.Post(queue, new TailedLogEntry("[green]second[/]", "info"));
             queue.Flush();
             string[] frame = Lines(view);
-            Assert.StartsWith("2026-10-22 09:30:00.000 +02:00", frame[0]);
+            Assert.StartsWith("09:30:00", frame[0]);
             Assert.Equal(frame[0].IndexOf("[red]", StringComparison.Ordinal), frame[1].IndexOf("[green]", StringComparison.Ordinal));
-            Assert.StartsWith(new string(' ', 30), frame[1]);
+            Assert.StartsWith(new string(' ', 11), frame[1]);
             Assert.Equal(source, view.Entries.First().Timestamp);
             Assert.Null(view.Entries.Last().Timestamp);
             Assert.All(view.Entries, entry => Assert.Null(entry.RichText));
@@ -186,7 +186,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             CellBuffer frame = new CellBuffer(160, 4);
             view.Render(new Region(frame), new RenderContext(profile, Theme.Light));
             Assert.Contains(WidgetLabels.For(profile.Language).TailFollowing, frame.GetRowText(2));
-            Assert.Contains("q/Esc/Ctrl+C", frame.GetRowText(3));
+            Assert.Contains("q quit", frame.GetRowText(3));
             Assert.Equal("Following latest", WidgetLabels.For(profile.Language).TailFollowing);
             Assert.Equal("Following latest", LabelCatalog.Entries("en")["Widget.TailFollowing"]);
         }

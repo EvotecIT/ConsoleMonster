@@ -1,0 +1,12 @@
+09:31:00        worker started
+09:31:01        database opening
+09:31:02 ▴ WARN database slow response
+09:31:03        queue ready
+09:31:04 ✗ ERR  database retry required
+09:31:05        retry scheduled
+09:31:06        worker heartbeat
+09:31:07 ▴ WARN database pool busy
+09:31:08        cache warmed
+09:31:09 ✗ ERR  database timeout
+⏸ Paused · viewing history
+q quit · PgUp history · End follow

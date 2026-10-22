@@ -16,6 +16,33 @@ namespace ConsoleMonster.Tests.Live.Tails {
     [Collection("Live sessions")]
     public sealed class ConsoleLogTailRenderingTests {
         [Fact]
+        public void ExplicitTimestampFormatFlowsThroughRunnerAndPreservesSourceOffset() {
+            TerminalProfile profile = TerminalProfile.Fixed(160, 4, ColorDepth.None, GlyphTier.Ascii);
+            using (ScreenWriter writer = new ScreenWriter())
+            using (VtOutput output = new VtOutput(writer, profile, false)) {
+                DateTimeOffset source = new DateTimeOffset(2026, 10, 22, 9, 30, 0, TimeSpan.FromHours(2));
+                ConsoleLogTail.Run(() => new[] { new TailedLogEntry("literal [red]text[/]", timestamp: source) }, new LogTailOptions {
+                    Profile = profile, Output = output, Input = new TimestampInput(writer), HandleCancelKey = false,
+                    TimestampFormat = "yyyy-MM-dd HH:mm:ss zzz"
+                });
+                Assert.Contains("2026-10-22 09:30:00 +02:00", writer.LastRows[0]);
+                Assert.Contains("literal [red]text[/]", writer.LastRows[0]);
+                Assert.True(writer.Began && writer.Ended);
+            }
+        }
+
+        private sealed class TimestampInput : IInputSource {
+            private readonly ScreenWriter _writer;
+            internal TimestampInput(ScreenWriter writer) { _writer = writer; }
+            public string Name => "timestamp frame synchronized quit";
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                _writer.Wait(rows => rows[0].StartsWith("2026-10-22 09:30:00 +02:00", StringComparison.Ordinal));
+                return InputEvent.Character('q');
+            }
+            public void Dispose() { }
+        }
+
+        [Fact]
         public void RunnerRendersAndNavigatesRealVtFramesThenRestoresAlternateScreen() {
             TerminalProfile profile = TerminalProfile.Fixed(160, 4, ColorDepth.None, GlyphTier.Ascii);
             using (ScreenWriter writer = new ScreenWriter())
@@ -39,7 +66,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
                 Assert.True(writer.Began);
                 Assert.True(writer.Ended);
                 Assert.False(writer.Disposed);
-                Assert.Contains("q/Esc/Ctrl+C", writer.LastRows[3]);
+                Assert.Contains("q quit", writer.LastRows[3]);
             }
         }
 
@@ -64,7 +91,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
                     case 2:
                         // Wait for a source read to prove a new line arrived while the anchor remains in place.
                         if (Volatile.Read(ref Supplied) == 0) { cancellationToken.WaitHandle.WaitOne(timeout); return null; }
-                        _writer.Wait(rows => rows[0] == "[red]L4[/]" && rows[2].StartsWith("Paused", StringComparison.Ordinal));
+                        _writer.Wait(rows => rows[0] == "[red]L4[/]" && rows[2].StartsWith("Paused", StringComparison.Ordinal) && rows[2].Contains("1 new lines"));
                         Step++;
                         return InputEvent.Press(ConsoleKey.End);
                     default:

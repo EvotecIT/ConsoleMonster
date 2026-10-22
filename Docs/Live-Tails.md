@@ -38,9 +38,12 @@ The Windows event-log command is a usage example. The website's captured evidenc
 | `-Capacity` | `1000` | Maximum retained history entries in the live view. |
 | `-Filter` | Empty | Required literal substring in each original line. |
 | `-Highlight` | Empty | Literal substring emphasized in the live view. |
+| `-TimestampFormat` | Automatic | Invariant .NET source timestamp format for the live view. Defaults to `HH:mm:ss`, adding `yyyy-MM-dd` when retained entries span source calendar days, at both compact and wide widths. |
 | `-Plain` | Off | Force original-line output and never acquire input. |
 
-Capacity limits applied history. Updates use the existing live session's unbounded queue; capacity is not a bound on all memory used by a busy producer. Accepted updates are applied before history eviction, and posts after shutdown follow the session's normal dropped-update rule. The footer reports discarded history entries.
+Capacity limits applied history. Updates use the existing live session's unbounded queue; capacity is not a bound on all memory used by a busy producer. Accepted updates are applied before history eviction, and posts after shutdown follow the session's normal dropped-update rule. The footer reports discarded history entries only when the count is nonzero.
+
+Use `Watch-ConsoleLog -Path ./service.log -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz'` to show dates and source offsets explicitly. Formatting never changes source timestamps or original plain lines. Unknown timestamps reserve a blank aligned column.
 
 ## Navigation
 
@@ -51,7 +54,7 @@ Capacity limits applied history. Updates use the existing live session's unbound
 | End | Return to the newest entries and resume following. |
 | q / Escape / Ctrl+C | End the tail and restore the terminal. |
 
-New entries still arrive while paused. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped.
+New entries still arrive while paused. The warning-colored `⏸ Paused · viewing history` state shows how many new lines have been applied since pausing, including each row of a multiline entry. The counter resets when End or forward navigation resumes following. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped. The footer highlights the keys in `q quit · PgUp history · End follow`; Escape and Ctrl+C also quit.
 
 ## C#
 
@@ -76,7 +79,7 @@ ConsoleLogTail.Run(source.ReadAvailable, new LogTailOptions {
 
 Set `Count = 1` for a finite snapshot. `ConsoleLogTail.Run` calls its reader synchronously on the calling thread, so readers must return promptly. The caller owns the reader and its resources. `LogTailOptions` also accepts `Profile`, `Theme`, borrowed `Output`, and borrowed `Input`; `Plain = true` never acquires input. `WriteLine` receives the raw original text in plain mode, without a line terminator.
 
-To embed the view in an application, construct `LogTailView`, include it in a `LiveSession`, send entries with `view.Post(dispatcher, entry)`, and forward input with `view.Navigate(dispatcher, input)`. Both methods queue work through the dispatcher. The view owns its `LogRegion`; that renderer supplies `ShowTimestamp`, `HighlightText`, and `ScrollOffset`. Keep source polling and input ownership in the application.
+To embed the view in an application, construct `LogTailView`, include it in a `LiveSession`, send entries with `view.Post(dispatcher, entry)`, and forward input with `view.Navigate(dispatcher, input)`. Both methods queue work through the dispatcher. Set `LogTailOptions.TimestampFormat` for the runner or `LogTailView.TimestampFormat` for an embedded view to override the automatic source-date policy. The view owns its `LogRegion`; that renderer supplies `ShowTimestamp`, `HighlightText`, and `ScrollOffset`. Keep source polling and input ownership in the application.
 
 ## File behavior and limits
 

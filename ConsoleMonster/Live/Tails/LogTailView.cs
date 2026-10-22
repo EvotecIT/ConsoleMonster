@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Localization;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Live.Tails {
@@ -12,6 +14,7 @@ namespace ConsoleMonster.Live.Tails {
     public sealed class LogTailView : LiveWidget {
         private readonly LogRegion _log;
         private int _visibleRows = 1;
+        private long _newLines;
 
         /// <summary>Creates a view that initially follows the newest entry.</summary>
         /// <param name="capacity">Maximum retained history entries. Pending updates are not discarded.</param>
@@ -24,6 +27,10 @@ namespace ConsoleMonster.Live.Tails {
 
         /// <summary>Whether the viewport follows new entries. Read after dispatch or on the render thread.</summary>
         public bool Following { get; private set; } = true;
+
+        /// <summary>Invariant source timestamp format, or null for time only, adding dates when retained source dates differ.
+        /// The format and timestamp column are independent of terminal width; missing timestamps stay blank.</summary>
+        public string? TimestampFormat { get; set; }
 
         /// <summary>Lines evicted from bounded retained history after application.</summary>
         public long DiscardedHistoryLines => _log.TotalLines - _log.Entries.Count;
@@ -59,7 +66,9 @@ namespace ConsoleMonster.Live.Tails {
                 long before = _log.TotalLines;
                 _log.WriteTimestamped(entry.Message, entry.Level, entry.Timestamp);
                 if (!Following) {
-                    _log.ScrollOffset = (int)Math.Min(int.MaxValue, (long)_log.ScrollOffset + _log.TotalLines - before);
+                    long added = _log.TotalLines - before;
+                    _newLines += added;
+                    _log.ScrollOffset = (int)Math.Min(int.MaxValue, (long)_log.ScrollOffset + added);
                 }
                 ClampScroll();
                 return;
@@ -71,13 +80,14 @@ namespace ConsoleMonster.Live.Tails {
                 case "home": Following = false; _log.ScrollOffset = maximum; break;
                 case "down": Scroll(-1, maximum); break;
                 case "page-down": Scroll(-_visibleRows, maximum); break;
-                case "follow": Following = true; _log.ScrollOffset = 0; break;
+                case "follow": Following = true; _newLines = 0; _log.ScrollOffset = 0; break;
             }
         }
 
         private void Scroll(int amount, int maximum) {
             _log.ScrollOffset = (int)Math.Max(0, Math.Min(maximum, (long)_log.ScrollOffset + amount));
             Following = amount < 0 && _log.ScrollOffset == 0;
+            if (Following) { _newLines = 0; }
         }
 
         private void ClampScroll() => _log.ScrollOffset = Math.Min(_log.ScrollOffset, Math.Max(0, _log.Entries.Count - _visibleRows));
@@ -93,13 +103,31 @@ namespace ConsoleMonster.Live.Tails {
             _visibleRows = Math.Max(1, region.Height - footerRows);
             ClampScroll();
             int logRows = Math.Max(0, region.Height - footerRows);
-            _log.TimestampFormat = region.Width < 100 ? "HH:mm:ss" : "yyyy-MM-dd HH:mm:ss.fff zzz";
+            _log.TimestampFormat = TimestampFormat ?? DefaultTimestampFormat();
             if (logRows > 0) { _log.Render(region.Sub(0, 0, region.Width, logRows), context); }
             WidgetLabels labels = context.Labels;
             string state = Following ? labels.TailFollowing : labels.TailPaused;
-            string counts = WidgetLabels.Format(labels.TailCounts, DiscardedHistoryLines);
-            region.Write(0, logRows, state + " | " + counts, context.Style(ThemeToken.Muted));
-            if (footerRows == 2) { region.Write(0, region.Height - 1, labels.TailKeys, context.Style(ThemeToken.Muted)); }
+            if (!Following && context.Glyphs.Tier != GlyphTier.Ascii) { state = labels.TailPauseMarker + " " + state; }
+            string separator = " " + context.Glyphs.Get(Glyphs.Glyph.Dot) + " ";
+            if (!Following && _newLines > 0) { state += separator + WidgetLabels.Format(labels.TailNewLines, _newLines); }
+            int end = region.Write(0, logRows, state, context.Style(Following ? ThemeToken.Muted : ThemeToken.Warn));
+            if (DiscardedHistoryLines > 0) {
+                region.Write(end, logRows, separator + WidgetLabels.Format(labels.TailCounts, DiscardedHistoryLines), context.Style(ThemeToken.Muted));
+            }
+            if (footerRows == 2) {
+                region.Write(0, region.Height - 1, RichText.FromMarkup(labels.TailKeys).ToStyledText(context).Lines[0]);
+            }
+        }
+
+        private string DefaultTimestampFormat() {
+            DateTime? date = null;
+            foreach (LogEntry entry in _log.Entries) {
+                if (!entry.Timestamp.HasValue) { continue; }
+                DateTime sourceDate = entry.Timestamp.Value.Date;
+                if (date.HasValue && date.Value != sourceDate) { return "yyyy-MM-dd HH:mm:ss"; }
+                date = sourceDate;
+            }
+            return "HH:mm:ss";
         }
     }
 }

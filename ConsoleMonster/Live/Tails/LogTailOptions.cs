@@ -19,6 +19,10 @@ namespace ConsoleMonster.Live.Tails {
         /// <summary>Literal, ordinal case-insensitive substring emphasized in live frames; plain lines stay unchanged.</summary>
         public string? Highlight { get; set; }
 
+        /// <summary>Invariant source timestamp format, or null for HH:mm:ss, adding yyyy-MM-dd when retained source dates differ.
+        /// Applies only to the live view, at every terminal width; plain original lines and source metadata are unchanged.</summary>
+        public string? TimestampFormat { get; set; }
+
         /// <summary>Time between source reads (default 250 milliseconds; positive and at most Int32.MaxValue milliseconds).</summary>
         public TimeSpan PollInterval { get; set; } = TimeSpan.FromMilliseconds(250);
 
@@ -47,6 +51,7 @@ namespace ConsoleMonster.Live.Tails {
         public bool HandleCancelKey { get; set; } = true;
 
         internal void Validate() {
+            if (TimestampFormat != null) { DateTimeOffset.MinValue.ToString(TimestampFormat, System.Globalization.CultureInfo.InvariantCulture); }
             if (Capacity < 1) { throw new ArgumentOutOfRangeException(nameof(Capacity)); }
             if (Count < 0) { throw new ArgumentOutOfRangeException(nameof(Count)); }
             if (PollInterval <= TimeSpan.Zero || PollInterval.TotalMilliseconds > int.MaxValue) {
