@@ -80,7 +80,7 @@ The fallback maps `-Title`, `-PassThru` (multiple selection), and `-OutputMode N
 
 The grid keeps its normal keys: type to filter, arrows to move, Space to mark rows, F10 or Ctrl+Enter to accept, and Esc to cancel. Selection returns the original objects, so assignment, `-OutVariable` and a downstream command receive objects rather than screen text. A working native command's pipeline, file, job and transcript behavior is unchanged. Without interactivity the existing `Show-ConsoleGrid` fallback prints a table with a warning and returns no selections.
 
-Existing functions and aliases are kept unless you pass `-Force` while the native grid is unavailable. Disable or module removal restores the saved function and alias, including their options and descriptions. A command you replace after enabling belongs to you and is kept. `-Force` never replaces a working native grid.
+Existing functions and aliases are kept unless you pass `-Force` while the native grid is unavailable. Constants, `AllScope` aliases and caller-local aliases that cannot be replaced safely are kept with a warning, even with `-Force`; remove or rename them in their defining scope first if you want the fallback. Installation verifies that callers can actually resolve the fallback before marking it enabled. Disable or module removal restores the saved function and alias, including their options and descriptions. A command you replace after enabling belongs to you and is kept. `-Force` never replaces a working native grid.
 
 For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
 

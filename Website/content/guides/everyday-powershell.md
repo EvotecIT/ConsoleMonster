@@ -52,7 +52,7 @@ Disable-ConsoleFormatting -Feature GridView
 
 {{< cm-frame ids="gridview-fallback-120,gridview-fallback-60" script="true" >}}
 
-Without an interactive console, the grid prints its existing table fallback with a warning and returns no selections. Existing functions and aliases need `-Force`; disabling or removing the module restores them. A working desktop command and its captures, jobs and transcripts keep PowerShell's behavior.
+Without an interactive console, the grid prints its existing table fallback with a warning and returns no selections. Existing functions and aliases need `-Force`; disabling or removing the module restores them. Constants, `AllScope` aliases and caller-local aliases that cannot be replaced safely are kept with a warning even with `-Force`. Remove or rename them in their defining scope first if you want the fallback. A working desktop command and its captures, jobs and transcripts keep PowerShell's behavior.
 
 The .NET equivalent uses `Grid`, the renderer behind `Show-ConsoleGrid`:
 

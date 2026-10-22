@@ -83,6 +83,52 @@ if ((Out-GridView abc) -ne 'custom-function:abc') { throw 'Function behavior los
 '@ | Should -Be 'RESTORE_OK'
     }
 
+    It 'keeps a pre-import <Options> alias with an accurate warning instead of claiming success' -ForEach @(
+        @{ Options = 'AllScope' }
+        @{ Options = 'ReadOnly, AllScope' }
+    ) {
+        $body = @'
+$savedModulePath = (Get-Module ConsoleMonster).Path
+Remove-Module ConsoleMonster
+Set-Alias -Name Out-GridView -Value Get-Date -Scope Global -Option '__OPTIONS__' -Description 'pre-import global alias'
+$original = Get-Alias Out-GridView -Scope Global
+$definition = $original.Definition
+$options = $original.Options
+$description = $original.Description
+$visibility = $original.Visibility
+Import-Module $savedModulePath
+$warnings = @()
+Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
+if ($warnings.Count -ne 1 -or $warnings[0].Message -notmatch 'cannot be replaced in this scope') { throw 'The unsupported alias scope was not reported.' }
+if (${function:global:Out-GridView}) { throw 'An unreachable fallback function was left installed.' }
+if ((Get-Command Out-GridView).CommandType -ne 'Alias') { throw 'Original alias resolution changed.' }
+Disable-ConsoleFormatting
+Remove-Module ConsoleMonster
+$restored = Get-Alias Out-GridView -Scope Global
+if ($restored.Definition -cne $definition -or $restored.Options -ne $options -or $restored.Description -cne $description -or $restored.Visibility -ne $visibility) { throw 'Original alias metadata changed.' }
+'ALLSCOPE_KEPT_OK'
+'@.Replace('__OPTIONS__', $Options)
+        Invoke-GridViewSession $body | Should -Be 'ALLSCOPE_KEPT_OK'
+    }
+
+    It 'rolls back a global installation when a caller-local alias still wins resolution' {
+        Invoke-GridViewSession @'
+Set-Alias -Name Out-GridView -Value Get-Date -Scope Global
+function Invoke-LocalGridProbe {
+    Set-Alias -Name Out-GridView -Value Write-Output -Scope Local
+    $warnings = @()
+    Enable-ConsoleFormatting -Feature GridView -Force -WarningVariable warnings
+    if ($warnings.Count -ne 1) { throw 'Local command precedence was not reported.' }
+    if ((Get-Command Out-GridView).Definition -ne 'Write-Output') { throw 'Caller-local alias was changed.' }
+    if (${function:global:Out-GridView}) { throw 'Unreachable global fallback survived rollback.' }
+}
+Invoke-LocalGridProbe
+if ((Get-Alias Out-GridView -Scope Global).Definition -ne 'Get-Date') { throw 'Rollback did not restore the global alias.' }
+Disable-ConsoleFormatting
+'LOCAL_ALIAS_ROLLBACK_OK'
+'@ | Should -Be 'LOCAL_ALIAS_ROLLBACK_OK'
+    }
+
     It 'restores on module removal and repeated enable/disable without changing later user commands' {
         Invoke-GridViewSession @'
 function global:Out-GridView { 'original' }

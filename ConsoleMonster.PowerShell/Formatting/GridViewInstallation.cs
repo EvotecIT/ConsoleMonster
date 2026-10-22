@@ -36,21 +36,30 @@ namespace ConsoleMonster.PowerShell {
             GridViewInstallation installation = new GridViewInstallation(cmdlet.MyInvocation.MyCommand.Module);
             Hashtable? alias = installation._saved["Alias"] as Hashtable;
             Hashtable? function = installation._saved["Function"] as Hashtable;
-            // Local aliases cannot be removed through the module's global installation boundary. Constants cannot be
-            // restored safely; leave both alone even with -Force.
+            // Local aliases cannot be removed through the module's global installation boundary. An AllScope alias
+            // inherited before import can be removed only from the module's copy, leaving the global alias dominant.
+            // Keep both, and constants, rather than reporting an installed function that callers cannot reach.
             if ((custom is AliasInfo && alias == null) || (custom is FunctionInfo && function == null)
-                || IsConstant(alias) || IsConstant(function)) {
+                || IsConstant(alias) || IsConstant(function) || HasOption(alias, ScopedItemOptions.AllScope)) {
                 cmdlet.WriteWarning(Message("Immutable"));
                 return false;
             }
+            bool reachable;
             try {
                 installation._module.Invoke(installation._lifecycle, "Install", installation._body, installation._saved);
-                state.GridView = installation;
-                return true;
+                CommandInfo? effective = cmdlet.InvokeCommand.GetCommand("Out-GridView", CommandTypes.All);
+                reachable = effective is FunctionInfo installed && string.Equals(installed.ScriptBlock.ToString(), installation._body.ToString(), StringComparison.Ordinal);
             } catch {
                 installation._module.Invoke(installation._lifecycle, "Rollback", installation._body, installation._saved);
                 throw;
             }
+            if (!reachable) {
+                installation._module.Invoke(installation._lifecycle, "Rollback", installation._body, installation._saved);
+                cmdlet.WriteWarning(Message("Immutable"));
+                return false;
+            }
+            state.GridView = installation;
+            return true;
         }
 
         internal static void Remove(FormattingSessionState state) {
@@ -60,7 +69,9 @@ namespace ConsoleMonster.PowerShell {
 
         private void Restore() => _module.Invoke(_lifecycle, "Restore", _body, _saved);
 
-        private static bool IsConstant(Hashtable? saved) => saved?["Options"] is ScopedItemOptions options && (options & ScopedItemOptions.Constant) != 0;
+        private static bool IsConstant(Hashtable? saved) => HasOption(saved, ScopedItemOptions.Constant);
+
+        private static bool HasOption(Hashtable? saved, ScopedItemOptions option) => saved?["Options"] is ScopedItemOptions options && (options & option) != 0;
 
         private static bool NativeUsable(PSCmdlet cmdlet, CommandInfo native) {
             // Third-party implementations own their own capabilities; do not make Windows/WPF assumptions for them.
