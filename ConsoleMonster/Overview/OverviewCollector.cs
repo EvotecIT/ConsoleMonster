@@ -37,12 +37,18 @@ namespace ConsoleMonster.Overview {
                 await Task.Delay(remaining < TimeSpan.FromMilliseconds(5) ? remaining : TimeSpan.FromMilliseconds(5), cancellationToken).ConfigureAwait(false);
             }
             cancellationToken.ThrowIfCancellationRequested();
+            List<OverviewSection> sections = AvailableSections(probes, tasks);
+            return new OverviewSnapshot(Environment.MachineName, RuntimeInformation.OSDescription, OverviewPlatform.Uptime(), DateTimeOffset.Now, sections);
+        }
+
+        /// <summary>Preserves completed observations and marks flights still unfinished when the caller stops waiting.</summary>
+        internal static List<OverviewSection> AvailableSections(OverviewProbe[] probes, Task<OverviewSection?>[] tasks) {
             List<OverviewSection> sections = new List<OverviewSection>();
             for (int i = 0; i < probes.Length; i++) {
                 OverviewSection? section = tasks[i].Status == TaskStatus.RanToCompletion ? tasks[i].Result : probes[i].Pending();
                 if (section != null && (section.IsPending || section.Items.Count > 0)) { sections.Add(section); }
             }
-            return new OverviewSnapshot(Environment.MachineName, RuntimeInformation.OSDescription, OverviewPlatform.Uptime(), DateTimeOffset.Now, sections);
+            return sections;
         }
     }
 }

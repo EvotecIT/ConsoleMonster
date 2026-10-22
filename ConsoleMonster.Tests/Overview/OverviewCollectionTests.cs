@@ -30,12 +30,11 @@ namespace ConsoleMonster.Tests.Overview {
         }
 
         [Fact]
-        public async Task SlowProbeReturnsPendingWithoutHidingCompletedDataAndIsCancelled() {
+        public async Task SlowProbeReturnsPendingWhileProviderIsHeldAndIsCancelled() {
             TaskCompletionSource<bool> cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             OverviewSectionRegistry registry = new OverviewSectionRegistry()
-                .Register("Fast", "Fast", _ => Task.FromResult<OverviewSection?>(Section("Fast")))
                 .Register("Slow", "Slow", async token => {
                     using (token.Register(() => cancelled.TrySetResult(true))) {
                         entered.TrySetResult(true);
@@ -50,13 +49,34 @@ namespace ConsoleMonster.Tests.Overview {
                 OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(options);
                 // The caller returns while the controlled provider is still blocked, irrespective of OS scheduling delay.
                 Assert.False(flight.IsCompleted);
-                Assert.False(snapshot.Sections.Single(section => section.Name == "Fast").IsPending);
                 Assert.True(snapshot.Sections.Single(section => section.Name == "Slow").IsPending);
                 await cancelled.Task;
             } finally {
                 release.TrySetResult(true);
                 await flight;
             }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AvailableSectionsPreservesCompletedSiblingsAndMarksUnfinishedFlights(bool fastCompleted) {
+            OverviewSectionRegistry registry = new OverviewSectionRegistry()
+                .Register("Fast", "Fast", _ => Task.FromResult<OverviewSection?>(null))
+                .Register("Slow", "Slow", _ => Task.FromResult<OverviewSection?>(null));
+            TaskCompletionSource<OverviewSection?> fast = new TaskCompletionSource<OverviewSection?>();
+            TaskCompletionSource<OverviewSection?> slow = new TaskCompletionSource<OverviewSection?>();
+            OverviewSection completed = Section("Fast");
+            if (fastCompleted) { fast.SetResult(completed); }
+
+            // Fix the actual flight states: an immediately returning delegate may still be queued past the budget.
+            var sections = OverviewCollector.AvailableSections(registry.Select(null), new[] { fast.Task, slow.Task });
+
+            Assert.Equal(new[] { "Fast", "Slow" }, sections.Select(section => section.Name));
+            if (fastCompleted) { Assert.Same(completed, sections[0]); }
+            else { Assert.True(sections[0].IsPending); Assert.Empty(sections[0].Items); }
+            Assert.True(sections[1].IsPending);
+            Assert.Empty(sections[1].Items);
         }
 
         [Fact]
