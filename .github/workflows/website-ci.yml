@@ -43,7 +43,7 @@ concurrency:
 
 jobs:
   verify-site:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@2df4cfbfbd7e3a6a8fccf0b3c3890b220b37156d
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@87e7665bb3df2f9d8c96b66fc21eb39d70754c9c
     with:
       website_root: Website
       dotnet_version: |
