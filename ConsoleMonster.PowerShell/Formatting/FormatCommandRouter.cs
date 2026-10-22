@@ -29,13 +29,21 @@ namespace ConsoleMonster.PowerShell {
                 if (command == null || !string.Equals(command.Name, "Out-Default", StringComparison.OrdinalIgnoreCase) || (!native && !shim)) {
                     return false;
                 }
-                // Require readable transcription state. An engine change must fall back to native output, never guess.
+                return !IsTranscribing(cmdlet);
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                return false;
+            }
+        }
+
+        // Unknown transcription state is treated as recorded; native records and unattended grid output are safe there.
+        internal static bool IsTranscribing(PSCmdlet cmdlet) {
+            try {
                 object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
                 object? transcripts = Member(data, "Transcripts");
                 object? system = Member(data, "SystemTranscript");
-                return transcripts is ICollection list && list.Count == 0 && system == null;
+                return !(transcripts is ICollection list && list.Count == 0 && system == null);
             } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
-                return false;
+                return true;
             }
         }
 

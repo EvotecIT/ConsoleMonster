@@ -62,6 +62,21 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Native warning, verbose, debug and (PowerShell 7.2+) error colours from the active theme; stream commands and records stay native.</summary>
         Streams = 16,
 
+        /// <summary>Reserved for opt-in host help rendering; excluded from All.</summary>
+        Help = 32,
+
+        /// <summary>Reserved for opt-in host error rendering; excluded from All.</summary>
+        Errors = 64,
+
+        /// <summary>Reserved for cosmetic PSReadLine syntax colours.</summary>
+        ReadLine = 128,
+
+        /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable; excluded from All.</summary>
+        GridView = 256,
+
+        /// <summary>Reserved for an opt-in themed prompt; excluded from All.</summary>
+        Prompt = 512,
+
         /// <summary>Default output, errors, progress and stream colours. FormatCommands requires a separate explicit opt-in.</summary>
         All = Output | ErrorView | Progress | Streams
     }
@@ -163,7 +178,7 @@ namespace ConsoleMonster.PowerShell {
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); state.Reset(); }));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.Remove(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -177,7 +192,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView, ConsoleFormattingFeature.Prompt }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }
