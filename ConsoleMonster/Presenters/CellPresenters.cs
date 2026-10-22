@@ -147,12 +147,18 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Hyperlinks.</summary>
         public static ICellPresenter Link { get; } = new LinkPresenter();
 
+        /// <summary>Literal category text in a bracketed chip.</summary>
+        public static ICellPresenter Chip { get; } = new ChipPresenter();
+
+        /// <summary>PowerShell member signatures with muted types and highlighted member names.</summary>
+        public static ICellPresenter MemberSignature { get; } = new HighlightPresenter(new Highlighting.MemberSignatureHighlighter()) { TypeTone = ThemeToken.Muted };
+
         /// <summary>Text values interpreted as markup (<c>[pass]OK[/]</c>); invalid markup is shown literally. Data stays literal unless a column opts in with this presenter.</summary>
         public static ICellPresenter Markup { get; } = new MarkupPresenter();
 
         /// <summary>
         /// Returns a built-in presenter by name (case-insensitive): Text, Auto, Status, Number, Bytes, Duration, Date,
-        /// DateRelative, DateBoth, Boolean, Bar (DataBar), Sparkline, Progress, Link.
+        /// DateRelative, DateBoth, Boolean, Bar (DataBar), Sparkline, Progress, Link, Chip and MemberSignature.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="unit">The unit for Number, or null.</param>
@@ -160,6 +166,10 @@ namespace ConsoleMonster.Presenters {
         /// <exception cref="ArgumentException">The name is unknown.</exception>
         public static ICellPresenter FromName(string name, string? unit = null) {
             switch ((name ?? string.Empty).Trim().ToLowerInvariant()) {
+                case "chip":
+                    return Chip;
+                case "membersignature":
+                    return MemberSignature;
                 case "text":
                     return Text;
                 case "emoji":
