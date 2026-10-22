@@ -11,6 +11,23 @@ namespace ConsoleMonster.Tests.Interactive {
     /// <summary>Filtering and preview probes leave the navigation budget for visible members.</summary>
     public sealed class ExplorerBudgetRegressionTests {
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void NonexpandableEnumerableRootsRenderTheirSummary(bool depthLimited) {
+            InspectorOptions options = Options(5);
+            if (depthLimited) { options.MaxDepth = 0; }
+            object value = depthLimited ? (object)new[] { 7 } : "literal-root";
+            ObjectExplorer explorer = new ObjectExplorer(value, options);
+            Assert.False(explorer.Root.CanExpand);
+            Assert.Empty(explorer.Root.Children);
+
+            string frame = TestTerminal.RenderText(explorer.Snapshot(), 80, 20);
+
+            Assert.Contains(depthLimited ? "depth limit" : "literal-root", frame);
+            Assert.Contains("$x", frame);
+        }
+
+        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void DictionaryFiltersApplyBeforeTheVisibleNodeLimit(bool include) {

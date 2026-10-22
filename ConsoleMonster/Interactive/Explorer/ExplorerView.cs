@@ -63,6 +63,7 @@ namespace ConsoleMonster.Interactive {
 
         private Table? InlineGrid() {
             if (!(_root.Value is System.Collections.IEnumerable) || _root.Value is System.Collections.IDictionary || _visible.Count == 0) { return null; }
+            if (_root.Children.Count == 0) { return null; }
             IReadOnlyList<string> first = _root.Children[0].PreviewNames();
             if (first.Count == 0 || first.Count > 8) { return null; }
             int count = Math.Min(3, _root.Children.Count);
