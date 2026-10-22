@@ -1,0 +1,32 @@
+source 0f93f803e195c2ee9d4c59b2d000c8e0
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  ›
+  enter confirm  esc cancel9b2d345e8aa4becc
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › F
+  enter confirm  esc canceld6f11fa33e870311
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS
+  enter confirm  esc cancel002e2ba5c63c0dd9
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS0
+  enter confirm  esc cancelb7c2b3fbbb437409
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS0
+  ✗ That doesn't match FS01.
+  enter confirm  esc cancel5a781ba25fa16c71
+▴ Remove FS01 from the inventory?
+  Its history and reports are deleted too. This cannot be undone.
+  Type FS01 to confirm
+  › FS01
+  enter confirm  esc cancel

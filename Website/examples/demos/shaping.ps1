@@ -1,4 +1,6 @@
-﻿# Arrays in cells and groups: the built-in Format-Table beside Format-ConsoleTable, on the same objects.
+﻿Import-Module ConsoleMonster
+
+# Arrays in cells and groups: the built-in Format-Table beside Format-ConsoleTable, on the same objects.
 $servers = @(
     [pscustomobject] @{ Name = 'DC01'; Site = 'Warsaw'; Roles = 'DNS', 'GC', 'PDC'; LastSync = (New-TimeSpan -Seconds 42); Status = 'Pass' }
     [pscustomobject] @{ Name = 'DC02'; Site = 'Warsaw'; Roles = 'DNS', 'GC'; LastSync = (New-TimeSpan -Minutes 42); Status = 'Warn' }

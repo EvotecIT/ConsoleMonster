@@ -28,28 +28,61 @@
           <button type="button" role="tab" id="demo-{{ demo_id }}-cs-tab" aria-controls="demo-{{ demo_id }}-cs" aria-selected="false" tabindex="-1" style="--key: var(--cm-s5)">C#</button>
         </div>
         <div id="demo-{{ demo_id }}-ps" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-ps-tab">
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.powershellFile; code_text = d.powershell; code_full = d.powershellFull ~}}
+          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
           {{ include "code" }}
+          {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
         </div>
         <div id="demo-{{ demo_id }}-cs" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-cs-tab" hidden>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
+          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
           {{ include "code" }}
+          {{~ if d.csharpNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpNote }}</p>{{~ end ~}}
+          {{~ for k in d.csharpFiles ~}}
+          <details class="cm-source">
+            <summary>{{ k.file }}</summary>
+            {{~ code_lang = "csharp"; code_label = "C#"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
+            {{ include "code" }}
+          </details>
+          {{~ end ~}}
         </div>
       </div>
       {{~ else if d.powershell ~}}
-      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.powershellFile; code_text = d.powershell; code_full = d.powershellFull ~}}
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
       {{ include "code" }}
-      {{~ else if d.csharp ~}}
-      {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
+      {{~ for k in d.companions ~}}
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code ~}}
       {{ include "code" }}
       {{~ end ~}}
+      {{~ else if d.csharp ~}}
+      {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
+      {{ include "code" }}
+      {{~ end ~}}
+      {{~ ## How to use it yourself: either one install block, or numbered steps (copy.json demos.<id>.use.steps), each a
+           sentence and the code to paste. Reference links point at pages on this site; a GitHub link is only ever the
+           secondary "View on GitHub". ## ~}}
       {{~ if c.use ~}}
       <div class="cm-demo__use">
         <p class="cm-demo__use-title">{{ c.use.title }}</p>
+        {{~ if c.use.steps ~}}
+        <ol class="cm-demo__steps">
+          {{~ for s in c.use.steps ~}}
+          <li>
+            <p>{{ s.text | html.escape | regex.replace "`([^`]+)`" "<code>$1</code>" }}</p>
+            {{~ for k in s.code ~}}
+            {{~ code_lang = k.lang ?? "powershell"; code_label = k.label; code_text = k.text ~}}
+            {{ include "code" }}
+            {{~ end ~}}
+          </li>
+          {{~ end ~}}
+        </ol>
+        {{~ else ~}}
         {{~ code_lang = c.use.lang ?? "powershell"; code_label = c.use.label; code_text = c.use.install ~}}
         {{ include "code" }}
+        {{~ end ~}}
         {{~ if c.use.links ~}}
-        <p class="cm-demo__refs">Reference: {{~ for l in c.use.links ~}}{{ if !for.first }},{{ end }} <a href="{{ l.url }}">{{ l.title }}</a>{{~ end ~}}</p>
+        <p class="cm-demo__refs">See also: {{~ for l in c.use.links ~}}{{ if !for.first }},{{ end }} <a href="{{ l.url }}">{{ l.title }}</a>{{~ end ~}}</p>
+        {{~ end ~}}
+        {{~ if c.use.github ~}}
+        <p class="cm-demo__refs cm-demo__refs--quiet"><a href="{{ c.use.github }}" aria-label="View on GitHub: {{ c.use.github | string.replace "https://github.com/EvotecIT/ConsoleMonster/blob/master/" "" }}">View on GitHub</a></p>
         {{~ end ~}}
       </div>
       {{~ end ~}}

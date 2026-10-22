@@ -194,5 +194,19 @@ namespace SiteFrames {
             }
             Directory.CreateDirectory(folder);
         }
+
+        /// <summary>
+        /// Removes a temporary folder this tool created for one run. A file still held (a process that timed out) leaves the
+        /// folder with a warning instead of hiding the run's own error.
+        /// </summary>
+        public static void RemoveTemporary(string folder) {
+            try {
+                if (Directory.Exists(folder)) {
+                    Directory.Delete(folder, true);
+                }
+            } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
+                Console.Error.WriteLine("warning: could not remove " + folder + ": " + ex.Message);
+            }
+        }
     }
 }

@@ -39,7 +39,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <!-- The README as nuget.org shows it (Markdown images, no HTML), written from README.md by the site tool: SiteFrames readme. -->
+        <None Include="README.nuget.md" Pack="true" PackagePath="\README.md" />
     </ItemGroup>
 
     <!--

@@ -26,7 +26,24 @@ namespace SiteFrames.Vt {
     /// draws exactly as it would in Windows Terminal, and records the VT byte stream it produces with timestamps.
     /// </summary>
     internal static class PseudoConsole {
-        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout) {
+        private const uint WaitFailed = 0xFFFFFFFF;
+
+        // Waits for the process; a failed wait ends it before raising, so nothing keeps running behind the closed console.
+        private static uint Wait(IntPtr process, TimeSpan timeout) {
+            uint wait = WaitForSingleObject(process, (uint)timeout.TotalMilliseconds);
+            if (wait == WaitFailed) {
+                int error = Marshal.GetLastWin32Error();
+                TerminateProcess(process, 1);
+                throw new Win32Exception(error);
+            }
+            return wait;
+        }
+
+        /// <summary>
+        /// Runs a command line and returns its output. <paramref name="interrupt"/> presses Ctrl+C in the console after that
+        /// long, the way a reader stops a program that runs until it is told to stop (a host).
+        /// </summary>
+        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null) {
             if (!OperatingSystem.IsWindows()) {
                 throw new PlatformNotSupportedException("Captures run in a Windows pseudo console.");
             }
@@ -72,6 +89,7 @@ namespace SiteFrames.Vt {
             attributes = Marshal.AllocHGlobal(size);
             ProcessInformation info = default;
             IntPtr block = IntPtr.Zero;
+            FileStream? input = null;
             try {
                 if (!InitializeProcThreadAttributeList(attributes, 1, 0, ref size)) {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -91,7 +109,21 @@ namespace SiteFrames.Vt {
                 if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, ExtendedStartupInfoPresent | UnicodeEnvironment, block, workingDirectory, ref startup, out info)) {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                uint wait = WaitForSingleObject(info.hProcess, (uint)timeout.TotalMilliseconds);
+                uint wait;
+                if (interrupt != null) {
+                    wait = Wait(info.hProcess, interrupt.Value);
+                    // A program that is stopped with Ctrl+C must still be running when the key is pressed.
+                    if (wait == 0) {
+                        GetExitCodeProcess(info.hProcess, out uint early);
+                        throw new InvalidOperationException("The program exited with code " + early + " before Ctrl+C was pressed at " + interrupt.Value.TotalSeconds + " s: " + commandLine);
+                    }
+                    // Ctrl+C typed into the pseudo console (ETX); the console turns it into the interrupt signal.
+                    // The stream owns the pipe handle, so it stays open until the console closes (below).
+                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
+                    input.Write(new byte[] { 3 }, 0, 1);
+                    input.Flush();
+                }
+                wait = Wait(info.hProcess, timeout);
                 if (wait != 0) {
                     TerminateProcess(info.hProcess, 1);
                     throw new TimeoutException("Capture timed out: " + commandLine);
@@ -107,6 +139,7 @@ namespace SiteFrames.Vt {
             } finally {
                 ClosePseudoConsole(pty);
                 reader.Join(TimeSpan.FromSeconds(10));
+                input?.Dispose();
                 inputWrite.Dispose();
                 if (info.hProcess != IntPtr.Zero) {
                     CloseHandle(info.hProcess);

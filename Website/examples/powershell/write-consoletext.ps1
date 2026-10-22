@@ -1,4 +1,6 @@
-﻿Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow
+﻿Import-Module ConsoleMonster
+
+Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow
 Write-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -StartTab 1
 Write-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -StartSpaces 8
 Write-ConsoleText -Text 'Collecting inventory ' -Color Gray -PadRight 40 -PadCharacter '.' -NoNewLine

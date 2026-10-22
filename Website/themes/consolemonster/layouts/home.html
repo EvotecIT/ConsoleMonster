@@ -22,6 +22,25 @@
     <div class="cm-hero__intro">
       <h1 id="cm-hero-title">{{ copy.title }}</h1>
       <p class="cm-stage__lede">{{ copy.lede }}</p>
+      {{~ ## The one line to type, ready to copy, then the facts people check before they install. The command is a
+           tab set (PowerShell or .NET); each panel is its own code block, so the shared copy action copies the shown
+           command. The prompt is drawn by CSS, so it is never copied. ## ~}}
+      <div class="cm-quick" data-cm-tabs>
+        <div class="cm-seg cm-quick__switch" role="tablist" aria-label="{{ copy.quick.label }}">
+          {{~ for q in copy.quick.items ~}}
+          <button type="button" role="tab" id="cm-quick-{{ q.id }}-tab" aria-controls="cm-quick-{{ q.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ q.key }})">{{ q.tab }}</button>
+          {{~ end ~}}
+        </div>
+        {{~ for q in copy.quick.items ~}}
+        <div class="cm-code cm-quick__cmd" id="cm-quick-{{ q.id }}" role="tabpanel" aria-labelledby="cm-quick-{{ q.id }}-tab" data-prompt="{{ q.prompt }}"{{ if !for.first }} hidden{{ end }}>
+          <pre><code class="language-{{ q.lang }}">{{ q.text | html.escape }}</code></pre>
+          <button type="button" class="cm-code__copy cm-quick__copy" data-cm-copy aria-live="polite">Copy</button>
+        </div>
+        {{~ end ~}}
+      </div>
+      <ul class="cm-quick__facts" aria-label="{{ copy.quick.factsLabel }}">
+        {{~ for f in copy.facts ~}}<li>{{ f | string.replace "{version}" copy.version }}</li>{{~ end ~}}
+      </ul>
     </div>
     {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
          (#everyday, #monster). Without JavaScript both panels show, Everyday first (pages.css). ## ~}}
@@ -36,6 +55,10 @@
         <div class="cm-paths__lead">
           <p class="cm-paths__line">{{ path.line }}</p>
           <a class="cm-paths__more" href="{{ path.url }}">{{ path.linkText }}</a>
+          {{~ ## One measured line about threads (the stress run in data/benchmarks.json), linking the page that explains it. ## ~}}
+          {{~ ts = data.benchmarks.stress; if path.threads && ts && ts.avgRate && ts.dropped == "0" ~}}
+          <p class="cm-paths__threads">{{ path.threads | string.replace "{workers}" ts.workers | string.replace "{rate}" (ts.avgRate | string.replace "/s" "" | string.to_int | math.format "N0") }} <a href="/docs/threads/">{{ path.threadsLink }}</a></p>
+          {{~ end ~}}
         </div>
         <div class="cm-hero__stage">
           {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 18; player_class = "cm-window--fill" ~}}
@@ -43,13 +66,14 @@
           <p class="cm-hero__note">{{ path.note }}</p>
         </div>
         <div class="cm-hero__take">
+          {{~ ## The install commands are in the bar under the lede; this column says where the packages live. ## ~}}
           <div class="cm-hero__install">
-            <h2 class="cm-hero__take-title">{{ copy.installTitle }}</h2>
-            {{~ for i in path.install ~}}
-            {{~ code_lang = i.lang; code_label = i.label; code_text = i.text ~}}
-            {{ include "code" }}
-            {{~ end ~}}
-            <p class="cm-install__note">ConsoleMonster 2.0.1 · <a href="https://www.nuget.org/packages/ConsoleMonster/2.0.1">NuGet 2.0.1</a> · <a href="https://www.powershellgallery.com/packages/ConsoleMonster/2.0.1">PowerShell Gallery 2.0.1</a> · <a href="https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v2.0.1">Release downloads</a></p>
+            <h2 class="cm-hero__take-title">{{ copy.packagesTitle }}</h2>
+            <ul class="cm-packages">
+              {{~ for k in copy.packages ~}}
+              <li><a href="{{ k.url | string.replace "{version}" copy.version }}"><strong>{{ k.title }}</strong><span>{{ k.body }} · {{ copy.version }}</span></a></li>
+              {{~ end ~}}
+            </ul>
           </div>
           <div class="cm-hero__code" data-cm-tabs>
             <h2 class="cm-hero__take-title">{{ path.codeTitle }}</h2>
@@ -61,9 +85,9 @@
             {{~ for t in path.code ~}}
             <div id="cm-code-{{ path.id }}-{{ for.index }}" role="tabpanel" aria-labelledby="cm-code-{{ path.id }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}>
               {{~ if t.source == "csharp" ~}}
-              {{~ code_lang = "csharp"; code_label = "C#"; code_file = pd.csharpFile; code_text = pd.csharp; code_full = pd.csharpFull ~}}
+              {{~ code_lang = "csharp"; code_label = "C#"; code_repo = pd.csharpRepo; code_text = pd.csharp; code_full = pd.csharpFull ~}}
               {{~ else if t.source == "powershell" ~}}
-              {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = pd.powershellFile; code_text = pd.powershell; code_full = pd.powershellFull ~}}
+              {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = pd.powershellRepo; code_text = pd.powershell; code_full = pd.powershellFull ~}}
               {{~ else ~}}
               {{~ code_lang = t.lang; code_label = t.label; code_text = t.text ~}}
               {{~ end ~}}
@@ -108,9 +132,9 @@
     </p>
   </div>
   <div class="cm-twins__code">
-    {{~ code_lang = "csharp"; code_label = "C#"; code_text = c.csharp; code_full = c.csharpFull ~}}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = c.powershellFile; code_text = c.powershell; code_full = c.powershellFull ~}}
     {{ include "code" }}
-    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = c.powershell; code_full = c.powershellFull ~}}
+    {{~ code_lang = "csharp"; code_label = "C#"; code_file = c.csharpFile; code_text = c.csharp; code_full = c.csharpFull ~}}
     {{ include "code" }}
   </div>
 </section>
@@ -124,11 +148,18 @@
     </ul>
     <p><a href="/widgets/">Switch tiers on every widget</a></p>
   </div>
-  <div class="cm-ribbon cm-ribbon--home">
-    {{~ for t in ribbon.tiers ~}}
-    {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
-    {{ include "screen" }}
-    {{~ end ~}}
+  <div>
+    <div class="cm-ribbon cm-ribbon--home">
+      {{~ for t in ribbon.tiers ~}}
+      {{~ screen_frame = t.frame; screen_title = t.title; screen_meta = t.meta; screen_dark = true; screen_label = t.label ~}}
+      {{ include "screen" }}
+      {{~ end ~}}
+    </div>
+    <details class="cm-source">
+      <summary>The program behind all four</summary>
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = "Program.cs"; code_text = ribbon.csharp; code_full = ribbon.csharpFull ~}}
+      {{ include "code" }}
+    </details>
   </div>
 </section>
 </div>
@@ -155,11 +186,14 @@
     <p>{{ copy.live.body }}</p>
   </div>
   <dl class="cm-facts">
-    {{~ for f in copy.live.facts ~}}
-    <div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>
-    {{~ end ~}}
+    {{~ ## Measured, not quoted: the stress run recorded on the live page and the benchmark program (data/benchmarks.json). ## ~}}
+    {{~ bs = data.benchmarks.stress; bf = data.benchmarks.facts ~}}
+    <div><dt>Frames per second under load</dt><dd>{{ bs.fps }}</dd></div>
+    <div><dt>Updates per second</dt><dd>{{ bs.facts[1].value | string.replace "/s" "" }}</dd></div>
+    <div><dt>Render cost per frame</dt><dd>{{ bf[0].value }}</dd></div>
+    <div><dt>Updates dropped</dt><dd>{{ bs.dropped }}</dd></div>
   </dl>
-  <p class="cm-section__source">{{ copy.live.source }} <a href="/benchmarks/">See the benchmarks</a>.</p>
+  <p class="cm-section__source">{{ copy.live.source }} <a href="/live/">The programs and their run steps</a> · <a href="/benchmarks/">the benchmarks</a>.</p>
   <div class="cm-compare cm-compare--live">
     <div>
       <h3>{{ copy.live.richTitle }}</h3>
@@ -180,11 +214,7 @@
     <h2 id="cm-start-title">{{ copy.start.title }}</h2>
     <p>{{ copy.start.body | string.replace "{cmdlets}" h.cmdlets | string.replace "{widgets}" h.widgets }}</p>
   </div>
-  <ul class="cm-start">
-    {{~ for l in copy.start.links ~}}
-    <li style="--key: var(--cm-s{{ l.key }})"><a href="{{ l.url }}"><strong><span class="cm-key" aria-hidden="true"></span>{{ l.title }}</strong><span>{{ l.body }}</span></a></li>
-    {{~ end ~}}
-  </ul>
+  {{ include "start-cards" }}
 </section>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}

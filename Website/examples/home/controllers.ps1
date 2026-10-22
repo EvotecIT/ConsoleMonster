@@ -1,4 +1,6 @@
-﻿$controllers = @(
+﻿Import-Module ConsoleMonster
+
+$controllers = @(
     #region more
     [pscustomobject] @{ Name = 'DC01.ad.adatum.com'; Site = 'Warsaw'; Status = 'Pass'; Latency = 12; LastSync = [timespan]::FromSeconds(42) }
     [pscustomobject] @{ Name = 'DC02.ad.adatum.com'; Site = 'Warsaw'; Status = 'Warn'; Latency = 140; LastSync = [timespan]::FromMinutes(42) }

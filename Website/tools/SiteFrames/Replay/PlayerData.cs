@@ -9,9 +9,8 @@ using SiteFrames.Frames;
 
 namespace SiteFrames.Replay {
     /// <summary>
-    /// Writes frames the site captured itself (pseudo-console runs and scripted-key storyboards, which are not LiveEvent
-    /// recordings) in the engine player's documented data format, so every replay on the site plays in the engine's
-    /// player. Recordings of live events use the engine's own exporter (<c>Recording.ExportPlayerData</c>) instead.
+    /// Writes frames the site captured (pseudo-console runs of the shown programs and scripted-key storyboards) in the
+    /// engine player's documented data format, so every replay on the site plays in the engine's player.
     /// The rows are the site's cell HTML, styled by the site's frames.css, so the data carries no CSS of its own.
     /// </summary>
     internal static class PlayerData {

@@ -1,0 +1,14 @@
+{{~ ## The entry strip (home "Where to go next" and the 404 page): one .cm-card per destination in copy.home.start.links,
+     each with the navigation's miniature of it (data/visuals.json nav). On a phone the strip scrolls sideways and snaps. ## ~}}
+<ul class="cm-start">
+  {{~ for l in data.copy.home.start.links; t = null; if data.visuals && data.visuals.nav && l.visual; t = data.visuals.nav[l.visual]; end ~}}
+  <li style="--key: var(--cm-s{{ l.key }})"><a class="cm-card" href="{{ l.url }}">
+    <span class="cm-card__thumb" aria-hidden="true">
+      {{~ thumb = t ~}}
+      {{ include "thumb" }}
+    </span>
+    <strong class="cm-card__title"><span class="cm-key" aria-hidden="true"></span>{{ l.title }}</strong>
+    <span class="cm-card__body">{{ l.body }}</span>
+  </a></li>
+  {{~ end ~}}
+</ul>

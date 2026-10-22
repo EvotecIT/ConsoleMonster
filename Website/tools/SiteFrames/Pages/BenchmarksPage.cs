@@ -97,7 +97,7 @@ namespace SiteFrames.Pages {
             site.WriteJson(site.Data("benchmarks"), new JsonObject {
                 ["runtime"] = runtime,
                 ["machine"] = machine.DeepClone(),
-                ["output"] = new JsonObject { ["title"] = "ConsoleMonster.Benchmarks 600", ["frame"] = site.Frame(Site.Crop(Parity.Trim(output)), null), ["w"] = width },
+                ["output"] = new JsonObject { ["title"] = "ConsoleMonster.Benchmarks 600", ["frame"] = site.Frame(Site.Crop(Parity.Trim(output)), null), ["w"] = width, ["programRepo"] = "ConsoleMonster.Benchmarks/Program.cs" },
                 ["table"] = site.Frame(() => table, 96, crop: true),
                 ["facts"] = new JsonArray(
                     new JsonObject { ["label"] = "Compose plus diff and VT, per frame", ["value"] = (compose + encode).ToString("0.000", Site.Culture) + " ms" },

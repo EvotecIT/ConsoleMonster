@@ -6,8 +6,14 @@ layout: live
 meta.seo_title: Live console dashboards | ConsoleMonster
 ---
 
-## How these replays were made
+## Run them yourself
 
-The stress test, the build pipeline and the stream-mode run were recorded by the site tool: it starts each showcase inside a Windows pseudo console of a fixed size, pins the terminal profile with `CONSOLEMONSTER_COLOR`, `CONSOLEMONSTER_GLYPHS`, `CONSOLEMONSTER_THEME` and `CONSOLEMONSTER_CULTURE`, and saves the VT byte stream with its timing as asciicast. The tool's own VT parser replays that stream into cells, samples it at a fixed rate and keeps only the rows that change. The assessment comes from its JSON-lines recording instead, played into the dashboard in-process, the way ConsoleMonster's recording export does.
+Every dashboard on this page is a complete program; the recordings are what those programs drew in a terminal window of the size shown.
 
-Without JavaScript, each player shows its last frame. With reduced motion, nothing plays until you press play.
+1. `dotnet new console -n Live`, then `cd Live` and `dotnet add package ConsoleMonster`.
+2. Replace `Program.cs` with a program from this page (Copy on its panel).
+3. `dotnet run`. The stress test takes the seconds to run (`dotnet run -- 12`); the replay takes the recording and the speed (`dotnet run -- assessment-run.jsonl 2`), so download the recording into the project folder first.
+
+The PowerShell build pipeline runs with `Install-Module ConsoleMonster -Scope CurrentUser`, then the script.
+
+Without JavaScript, each player shows a frame from the middle of its run. With reduced motion, nothing plays until you press play.

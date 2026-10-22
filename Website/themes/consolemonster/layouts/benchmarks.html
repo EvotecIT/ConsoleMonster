@@ -32,6 +32,7 @@
     <p class="cm-section__source">{{ copy.machine | string.replace "{processor}" m.processor | string.replace "{threads}" m.logicalProcessors | string.replace "{os}" m.os | string.replace "{runtime}" b.runtime | string.replace "{date}" m.recorded }}</p>
     {{~ screen_frame = b.output.frame; screen_title = b.output.title; screen_meta = [b.runtime, "Release build"]; screen_dark = true; screen_label = "The output of ConsoleMonster.Benchmarks, as it printed it" ~}}
     {{ include "screen" }}
+    <p class="cm-section__source">Printed by <code>ConsoleMonster.Benchmarks</code>; <a href="#run-them-yourself">run it yourself</a> or <a href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ b.output.programRepo }}">view its source on GitHub</a>.</p>
   </section>
 
   {{~ if b.stress ~}}
@@ -56,7 +57,7 @@
       <table class="cm-table">
         <thead><tr><th>Measure</th><th>Reported</th><th>Source</th></tr></thead>
         <tbody>
-          {{~ for r in copy.reported.rows ~}}<tr><td>{{ r.measure }}</td><td>{{ r.value }}</td><td>{{ r.source }}</td></tr>{{~ end ~}}
+          {{~ for r in copy.reported.rows ~}}<tr><td>{{ r.measure }}</td><td>{{ r.value }}</td><td>{{ if r.url }}<a href="{{ r.url }}">{{ r.source }}</a>{{ else }}{{ r.source }}{{ end }}</td></tr>{{~ end ~}}
         </tbody>
       </table>
     </div>

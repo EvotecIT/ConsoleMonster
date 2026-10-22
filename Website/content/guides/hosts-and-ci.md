@@ -2,6 +2,7 @@
 title: Hosts, CI and transcripts
 description: What ConsoleMonster writes on a real console, in CI, in background jobs, remoting and SSH, the ISE, transcripts and redirected output, and with NO_COLOR.
 slug: hosts-and-ci
+card: threads-ci
 order: 5
 ---
 
@@ -13,7 +14,7 @@ ConsoleMonster draws directly only on a real local interactive console. Everywhe
 | A real console with `Start-Transcript` running | Coloured text through the host UI; the transcript receives the same lines as plain text. |
 | The ISE | Coloured text through the host UI. Prompts ask through the host. |
 | Background jobs and remoting | `Write-Host` style information records (tag `PSHOST`) with foreground and background colours. |
-| Redirected output, thread jobs and other hosts | One plain record per line, so files, transcripts and `6>&1` get whole lines of plain text. |
+| Redirected output, thread jobs and other hosts | One plain record per line, so files, transcripts and redirected streams get whole lines of plain text. |
 | `NO_COLOR`, `CONSOLEMONSTER_COLOR=none`, plain mode | No colour on any route. |
 
 Colours on the host routes map to the 16 console colours by role: pass green, fail red, warn yellow, muted dark grey and accent cyan; the light theme uses the darker variants. A live dashboard in those hosts narrates as append-only lines.
@@ -26,7 +27,24 @@ Colours on the host routes map to the 16 console colours by role: pass green, fa
 
 When a CI system is detected (`CI`, GitHub Actions, Azure Pipelines, Jenkins, GitLab or TeamCity) or output is redirected, live sessions switch to stream mode: one line per meaningful change, a heartbeat summary every ten seconds and `[mm:ss]` prefixes in CI, where log viewers often lack their own timestamps.
 
-{{< cm-frame id="plain" caption="Format-ConsoleTable with CONSOLEMONSTER_MODE=plain: ASCII and no escape sequences, for logs that keep every byte." >}}
+To use it in a pipeline:
+
+1. Install the module in the job. On GitHub Actions, with PowerShell 7:
+
+   ```yaml
+   - name: Checks
+     shell: pwsh
+     run: |
+       Install-Module ConsoleMonster -Scope CurrentUser -Force
+       Import-Module ConsoleMonster
+       ./checks.ps1
+   ```
+
+2. Nothing else to configure: GitHub Actions sets `CI`, so live output streams as lines. Other systems are detected by their own variables, and `CI=true` works for any of them.
+
+3. For logs with ASCII glyphs and no escape sequences, also set `CONSOLEMONSTER_MODE: plain` under the step's `env:`.
+
+{{< cm-frame id="plain" caption="`Format-ConsoleTable` with `CONSOLEMONSTER_MODE=plain`: ASCII glyphs and no escape sequences, for logs that keep every byte." >}}
 
 Text that reaches stream and plain output is sanitised: escape sequences and control characters in log messages, captured lines or data are removed, so plain mode never emits an escape sequence.
 

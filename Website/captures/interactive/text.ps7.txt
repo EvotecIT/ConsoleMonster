@@ -1,0 +1,51 @@
+source e3863a386caad9586f971fb448c09f72
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  ›
+  enter confirm  tab edit  esc cancelcb622c88cd28c601
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9
+  enter confirm  esc cancel27151aefa5d97089
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9r
+  enter confirm  esc cancelb7b124b12c8ba649
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9re
+  enter confirm  esc cancel3d43cae3046e3537
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9rep
+  enter confirm  esc cancel278f2057580b1618
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9repo
+  enter confirm  esc cancel87e571ff5801ad01
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9repor
+  enter confirm  esc cancel75bc5b04683512f0
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9report
+  enter confirm  esc cancel9226134c0bb88025
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  enter confirm  esc cancelc8e820a1d64a272b
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  ✗ Start with a letter; letters, digits, - and _ only
+  enter confirm  esc cancelc8e820a1d64a272b
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › 9reports
+  ✗ Start with a letter; letters, digits, - and _ only
+  enter confirm  esc cancel7449724ca0b6da8b
+? Share name  default: Reports
+  Shown to users when they browse the server.
+  › reports
+  enter confirm  esc cancel

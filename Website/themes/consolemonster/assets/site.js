@@ -134,6 +134,17 @@
     }, function () { /* an unknown language stays plain, readable text */ });
   }  window.cmHighlight = highlight;
 
+  // Identifiers in tables (CONSOLEMONSTER_AMBIGUOUS_WIDTH) may break only after an underscore, never inside a word.
+  document.querySelectorAll('.cm-prose td > code, .cm-prose th > code').forEach(function (code) {
+    var text = code.textContent;
+    if (text.indexOf('_') < 1 || code.children.length || /\s/.test(text)) return;
+    code.textContent = '';
+    text.split('_').forEach(function (part, i, parts) {
+      code.appendChild(document.createTextNode(part + (i < parts.length - 1 ? '_' : '')));
+      if (i < parts.length - 1) code.appendChild(document.createElement('wbr'));
+    });
+    code.classList.add('cm-ident');
+  });
   // Markdown fences become the shared code block: a caption with the language and a copy action.
   var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', text: 'Text', xml: 'XML', yaml: 'YAML' };
   // Prose code and the examples on the reference pages are set in the shared code block (language, copy).

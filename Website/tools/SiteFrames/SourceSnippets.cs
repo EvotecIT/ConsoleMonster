@@ -16,15 +16,23 @@ namespace SiteFrames {
         /// <c>// &lt;more&gt;</c> and <c>// &lt;/more&gt;</c> (C#) or <c>#region more</c> and <c>#endregion</c> (PowerShell) are
         /// data the reader can take on trust: the short form keeps the first of them and says how many follow. The full form
         /// is the code exactly as it ran, without the markers. Lines between <c>#region hidden</c> and <c>#endregion</c> (or
-        /// <c>// &lt;hidden&gt;</c> and <c>// &lt;/hidden&gt;</c>) are presentation for the recording, such as an echoed prompt: the
-        /// short form leaves them out entirely and the full form keeps them.
+        /// <c>// &lt;hidden&gt;</c> and <c>// &lt;/hidden&gt;</c>) are presentation for a recording: the short form leaves them
+        /// out and the full form keeps them.
+        /// <para>
+        /// PowerShell regions nest (other <c>#region</c> blocks inside are kept as written), <c>#endregion</c> may carry a label,
+        /// and a block that never ends is an error, so no code silently disappears. There is no way to hide code from both
+        /// forms: the full form is always the code that ran.
+        /// </para>
         /// </summary>
         public static (string Short, string Full) Split(string code) {
             string[] lines = code.Replace("\r\n", "\n").Split('\n');
             List<string> shortForm = new List<string>();
             List<string> full = new List<string>();
             for (int i = 0; i < lines.Length; i++) {
-                string trimmed = lines[i].Trim();
+                string trimmed = Normalise(lines[i].Trim());
+                if (trimmed == "#region harness" || trimmed == "// <harness>") {
+                    throw new InvalidOperationException("Line " + (i + 1) + ": harness regions are not allowed; the shown code must be the code that ran.");
+                }
                 bool hidden = trimmed == "#region hidden" || trimmed == "// <hidden>";
                 bool csharp = trimmed == "// <more>" || trimmed == "// <hidden>";
                 bool powershell = trimmed == "#region more" || trimmed == "#region hidden";
@@ -33,10 +41,32 @@ namespace SiteFrames {
                     full.Add(lines[i]);
                     continue;
                 }
+                int opened = i;
                 string end = csharp ? (hidden ? "// </hidden>" : "// </more>") : "#endregion";
                 List<string> block = new List<string>();
-                for (i++; i < lines.Length && lines[i].Trim() != end; i++) {
+                int depth = 0;
+                bool closed = false;
+                for (i++; i < lines.Length; i++) {
+                    string inner = Normalise(lines[i].Trim());
+                    if (powershell && inner.StartsWith("#region", StringComparison.Ordinal)) {
+                        depth++;
+                    } else if (powershell && IsEndRegion(inner)) {
+                        if (depth == 0) {
+                            closed = true;
+                            break;
+                        }
+                        depth--;
+                    } else if (csharp && inner == end) {
+                        closed = true;
+                        break;
+                    }
+                    if (inner == "#region harness" || inner == "// <harness>") {
+                        throw new InvalidOperationException("Line " + (i + 1) + ": harness regions are not allowed; the shown code must be the code that ran.");
+                    }
                     block.Add(lines[i]);
+                }
+                if (!closed) {
+                    throw new InvalidOperationException("Line " + (opened + 1) + ": \"" + trimmed + "\" is never closed with \"" + end + "\".");
                 }
                 full.AddRange(block);
                 if (block.Count == 0 || hidden) {
@@ -52,6 +82,25 @@ namespace SiteFrames {
             return (string.Join("\n", shortForm), string.Join("\n", full));
         }
 
+        /// <summary>
+        /// The short and full forms of a complete program (a C# Program.cs or a PowerShell script): the short form leads with the
+        /// program's own statements, without its <c>using</c> lines or <c>Import-Module ConsoleMonster</c>, and folds its data
+        /// (<c>// &lt;more&gt;</c>, <c>#region more</c>); the full form is the whole file as it runs, without the region marker lines.
+        /// </summary>
+        public static (string Short, string Full) Program(string code) {
+            (string shortForm, string full) = Split(code);
+            string[] lines = shortForm.Split('\n');
+            int first = 0;
+            while (first < lines.Length && (lines[first].StartsWith("using ", StringComparison.Ordinal) || lines[first].Trim() == "Import-Module ConsoleMonster" || lines[first].Trim().Length == 0)) {
+                first++;
+            }
+            return (string.Join("\n", lines, first, lines.Length - first), full);
+        }
+
+        // PowerShell accepts #Region and #EndRegion in any case; markers compare in lower case.
+        private static string Normalise(string trimmed) => trimmed.StartsWith("#", StringComparison.Ordinal) ? trimmed.ToLowerInvariant() : trimmed;
+
+        private static bool IsEndRegion(string trimmed) => trimmed == "#endregion" || trimmed.StartsWith("#endregion ", StringComparison.Ordinal);
         /// <summary>A whole method (signature and body, without its documentation comment) from a source file, dedented.</summary>
         public static string Method(string sourceFile, string signature) {
             string[] lines = File.ReadAllText(sourceFile).Replace("\r\n", "\n").Split('\n');

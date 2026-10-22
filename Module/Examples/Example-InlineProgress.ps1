@@ -5,7 +5,7 @@
 # An inline live area: progress and lanes stay at the bottom while output scrolls above, with no alternate screen.
 # The first part is a small dashboard with -Inline; the second runs an unchanged Write-Progress loop through
 # Use-ConsoleProgress. Nothing is really deployed; the data is invented.
-Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+Import-Module ConsoleMonster
 
 if ($Part -in 'Dashboard', 'Both') {
     Write-Host 'Deploying release 2026.10 to three servers'

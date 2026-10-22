@@ -271,8 +271,20 @@
   document.addEventListener('contentvisibilityautostatechange', function (event) {
     if (!event.skipped) markScrollable(event.target);
   }, true);
+  // Side-by-side figures: all frames in one row when each fits at a readable size, otherwise all stacked.
+  function layoutStrips() {
+    document.querySelectorAll('.cm-figure--strip').forEach(function (figure) {
+      var frames = figure.querySelector('.cm-figure__frames');
+      if (!frames) return;
+      var count = frames.children.length;
+      var cols = parseFloat(getComputedStyle(figure).getPropertyValue('--cm-strip-cols')) || 40;
+      var need = count * (cols * 7.2 + 34) + (count - 1) * 14;
+      frames.style.setProperty('--cm-strip-count', count);
+      frames.classList.toggle('is-row', frames.clientWidth >= need);
+    });
+  }
   var hintTimer = 0;
-  var hint = function () { markScrollable(); };
+  var hint = function () { layoutStrips(); markScrollable(); };
   window.addEventListener('resize', function () { clearTimeout(hintTimer); hintTimer = setTimeout(hint, 150); });
   window.addEventListener('load', hint);
   document.addEventListener('cm:tab', hint);

@@ -1,7 +1,12 @@
 # Captured VT streams and recordings are byte-exact program output.
 captures/** -text -diff
+# The prompt stories' PowerShell screens are text, reviewable in a diff.
+captures/interactive/*.txt diff
 static/recordings/** -text
 
 # Copied from the engine (ConsoleExporter.PlayerScript / PlayerStyles) by the site tool's render step.
 static/assets/player/** linguist-generated=true
 static/replays/** linguist-generated=true
+
+# Card fonts (site.json Social.GeneratedCardFonts).
+*.ttf binary

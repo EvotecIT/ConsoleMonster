@@ -1,4 +1,6 @@
-﻿$certificate = [pscustomobject] @{
+﻿Import-Module ConsoleMonster
+
+$certificate = [pscustomobject] @{
     Subject                 = 'CN=mail.evotec.xyz'
     Issuer                  = "CN=R11, O=Let's Encrypt, C=US"
     KeyAlgorithm            = 'ECDSA P-256'

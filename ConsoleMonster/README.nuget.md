@@ -1,0 +1,181 @@
+# ConsoleMonster
+
+**Everyday output in one line. The monster when you need it.** ConsoleMonster makes the output of the commands you
+already run readable, and draws tables, trees, charts, live runs, dashboards, menus and forms when you need more. One
+engine for PowerShell 5.1 and 7 and .NET, with no package dependencies and plain lines when the output is a log.
+
+![A live assessment dashboard: progress per target, a results summary, charts, failures by category and the log](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/hero-light.png)
+
+[Website](https://consolemonster.dev/) · [Documentation](https://consolemonster.dev/docs/) ·
+[Widgets](https://consolemonster.dev/widgets/) · [Prompts, menus and forms](https://consolemonster.dev/interactive/) ·
+[.NET API](https://consolemonster.dev/api/) · [PowerShell commands](https://consolemonster.dev/powershell/commands/)
+
+## Install
+
+```powershell
+Install-Module ConsoleMonster -Scope CurrentUser
+```
+
+```bash
+dotnet new console -n FirstTable
+cd FirstTable
+dotnet add package ConsoleMonster
+```
+
+## Nicer default output in one line
+
+Files, processes, services, hashtables and more read as tables and records; the objects, pipelines, files and
+transcripts stay PowerShell's.
+
+```powershell
+Enable-ConsoleFormatting
+```
+
+![Get-ChildItem and a hashtable after Enable-ConsoleFormatting](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png)
+
+To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
+
+```powershell
+if (-not (Test-Path -Path $PROFILE)) {
+    $null = New-Item -ItemType File -Path $PROFILE -Force
+}
+Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFILE
+```
+
+[Everyday PowerShell output](https://consolemonster.dev/guides/everyday-powershell/)
+
+## Tables, lists and trees
+
+`Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` take pipeline input and fit the window.
+`Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `-Feature FormatCommands`.
+
+```powershell
+Import-Module ConsoleMonster
+
+# A few of PowerShell's own files, grouped by extension.
+Get-ChildItem -Path $PSHOME -File |
+    Where-Object Extension -in '.exe', '.json', '.ps1' |
+    Format-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension
+```
+
+![The files in PowerShell's folder grouped by extension, with sizes and dates](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/files-light.png)
+
+[Coming from Format-Table](https://consolemonster.dev/guides/format-table/) · [Tables at six widths](https://consolemonster.dev/tables/)
+
+## Widgets
+
+Every widget is a `New-Console*` command: panels, trees, charts, logs, lanes and more. Containers take a script block
+of children, and items share `-Status`, `-Detail` and `-Tone`.
+
+```powershell
+Import-Module ConsoleMonster
+
+New-ConsoleBarChart -Tone Fail ([ordered] @{
+    'Domain controllers' = 14
+    'Group Policy'       = 9
+    'Kerberos'           = 6
+    'DNS'                = 4
+    'PKI'                = 2
+}) | Write-ConsoleWidget
+```
+
+![A bar chart of failures by category](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/widgets-light.png)
+
+[The widget gallery](https://consolemonster.dev/widgets/): every widget at every colour and glyph tier, in PowerShell and C#.
+
+## Live progress for long-running work
+
+```powershell
+Import-Module ConsoleMonster
+
+# Forty servers, eight at a time: three fail and one hangs past the four-second limit.
+$servers = 1..40 | ForEach-Object { 'web{0:d2}' -f $_ }
+$run = @{ Parallel = $true; ThrottleLimit = 8; TimeoutSeconds = 4; Title = 'Patching' }
+$results = $servers | ForEach-ConsoleItem @run -ErrorAction SilentlyContinue {
+    Start-Sleep -Milliseconds (500 + ([int] $_.Substring(3) * 137) % 900)
+    if ($_ -in 'web13', 'web26', 'web39') { throw "$_ did not come back" }
+    if ($_ -eq 'web22') { Start-Sleep -Seconds 10 }
+    "$_ patched"
+}
+```
+
+![A parallel run of forty servers: the summary bar, a cell per server and the failures](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/parallel-light.png)
+
+[Live runs](https://consolemonster.dev/docs/live-runs/) · [Live dashboards](https://consolemonster.dev/live/)
+
+## C# and the fluent API
+
+The same engine as a .NET library. Every widget has fluent `With...` and `Add...` methods, object initializers and
+`Ui` factories.
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
+
+Terminal.Write(new StatusList()
+    .Add("Restore NuGet packages", StatusKind.Pass, "1.6 s")
+    .Add("Compile ConsoleMonster", StatusKind.Pass, "4.7 s")
+    .Add("Run Pester on PowerShell 7", StatusKind.Warn, "1 skipped")
+    .Add("Sign module files", StatusKind.Skip, "skipped")
+    .Add("Pack ConsoleMonster.2.0.0.nupkg", StatusKind.Running)
+    .Add("Publish to PowerShell Gallery", StatusKind.Pending));
+```
+
+![A status list of build steps: passed, warning, skipped, running and pending](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/csharp-light.png)
+
+[Three ways to write it in C#](https://consolemonster.dev/docs/csharp-styles/) · [Logging](https://consolemonster.dev/docs/logging/) ·
+[Hosting dashboard](https://consolemonster.dev/docs/hosting/) · [dotnet new template](https://consolemonster.dev/docs/template/)
+
+## Save, replay and test
+
+Views export to Markdown, HTML, SVG and text, live runs record and replay, and `Assert-ConsoleOutput` checks output in
+tests.
+
+```powershell
+Import-Module ConsoleMonster
+
+# The largest files in PowerShell's folder, as a Markdown table for a report.
+Get-ChildItem -Path $PSHOME -File |
+    Sort-Object -Property Length -Descending |
+    Select-Object -First 5 |
+    Format-ConsoleTable -Property Name, Length, LastWriteTime -As Markdown
+```
+
+![The Markdown table the script printed](https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/markdown-light.png)
+
+[Recording and replay](https://consolemonster.dev/docs/recording/) ·
+[Testing your output](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Usage.md#testing-your-output)
+
+## Thread safety
+
+Any thread can update the screen and one thread draws it, so parallel work never tears the view.
+
+```powershell
+Import-Module ConsoleMonster
+
+$dashboard = New-ConsoleDashboard -Title 'Workers' {
+    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+}
+1..8 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
+    param($Number)
+    Start-Sleep -Milliseconds (Get-Random -Maximum 800)
+    Write-Host "worker $Number finished"
+}
+```
+
+[Threads and concurrency](https://consolemonster.dev/docs/threads/): what is safe from which thread, and the stress test.
+
+## Compatibility
+
+- **PowerShell** 5.1 and 7. On 5.1 one ConsoleMonster version loads per session; restart it after an upgrade.
+- **.NET** netstandard2.0, net472, net8.0 and net10.0, no package dependencies, AOT compatible on net8.0 and net10.0
+  ([trimming notes](https://consolemonster.dev/docs/install/)).
+- **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
+  `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
+  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/), [upgrading from 0.0.x](https://consolemonster.dev/guides/)).
+
+[Benchmarks](https://consolemonster.dev/benchmarks/) ·
+[Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·
+[Contributing](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md) ·
+[MIT license](https://github.com/EvotecIT/ConsoleMonster/blob/master/LICENSE) · Maintained by [Evotec](https://evotec.xyz/).

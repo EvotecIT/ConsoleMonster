@@ -1,0 +1,161 @@
+source 9d4b14ff3dfc7b22a7ba65c48ed69bb6
+? Tasks
+  › type to filter       0 of 11 selected  ╭─ Disk cleanup ──────────────────────────────────────────────────╮
+    ▾ [ ] Maintenance                0/3 ┃ │ Removes temporary files, old update caches and crash dumps      │
+  ▌   [ ] Disk cleanup                   ┃ │ older than 30 days.                                             │
+      [ ] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Maintenance                                          │
+    ▾ [ ] Security                   0/4 ┃ │ Duration   about 3 min per server                               │
+      [ ] Patch status                   ┃ │ Changes    yes, makes changes                                   │
+      [ ] Certificate expiry             ┃ │ Parameter  DiskCleanup                                          │
+      [ ] Local administrators audit     ┃ │                                                                 │
+      [ ] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keyscf2fc5e76479545c
+? Tasks
+  › type to filter       0 of 11 selected  ╭─ Log rotation ──────────────────────────────────────────────────╮
+    ▾ [ ] Maintenance                0/3 ┃ │ Compresses application logs older than 7 days and deletes       │
+      [ ] Disk cleanup                   ┃ │ archives older than 90 days.                                    │
+  ▌   [ ] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Maintenance                                          │
+    ▾ [ ] Security                   0/4 ┃ │ Duration   about 2 min per server                               │
+      [ ] Patch status                   ┃ │ Changes    yes, makes changes                                   │
+      [ ] Certificate expiry             ┃ │ Parameter  LogRotation                                          │
+      [ ] Local administrators audit     ┃ │                                                                 │
+      [ ] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keysbda9e0876ffe38c8
+? Tasks
+  › type to filter       1 of 11 selected  ╭─ Log rotation ──────────────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Compresses application logs older than 7 days and deletes       │
+      [ ] Disk cleanup                   ┃ │ archives older than 90 days.                                    │
+  ▌   [✓] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Maintenance                                          │
+    ▾ [ ] Security                   0/4 ┃ │ Duration   about 2 min per server                               │
+      [ ] Patch status                   ┃ │ Changes    yes, makes changes                                   │
+      [ ] Certificate expiry             ┃ │ Parameter  LogRotation                                          │
+      [ ] Local administrators audit     ┃ │                                                                 │
+      [ ] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys774faeecb7a51977
+? Tasks
+  › type to filter       1 of 11 selected  ╭─ Pending restart check ─────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Reports servers waiting for a restart after updates or role     │
+      [ ] Disk cleanup                   ┃ │ changes.                                                        │
+      [✓] Log rotation                   ┃ │                                                                 │
+  ▌   [ ] Pending restart check          ┃ │ Group      Maintenance                                          │
+    ▾ [ ] Security                   0/4 ┃ │ Duration   about 1 min per server                               │
+      [ ] Patch status                   ┃ │ Changes    no, read only                                        │
+      [ ] Certificate expiry             ┃ │ Parameter  RestartPending                                       │
+      [ ] Local administrators audit     ┃ │                                                                 │
+      [ ] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keysfaf5df6c38513b9b
+? Tasks
+  › type to filter       1 of 11 selected  ╭─ Security ──────────────────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ 0 of 4 selected                                                 │
+      [ ] Disk cleanup                   ┃ │                                                                 │
+      [✓] Log rotation                   ┃ │ [ ] Patch status                                                │
+      [ ] Pending restart check          ┃ │ [ ] Certificate expiry                                          │
+  ▌ ▾ [ ] Security                   0/4 ┃ │ [ ] Local administrators audit                                  │
+      [ ] Patch status                   ┃ │ [ ] Firewall rules review                                       │
+      [ ] Certificate expiry             ┃ │                                                                 │
+      [ ] Local administrators audit     ┃ │                                                                 │
+      [ ] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ←→ expand/collapse  ctrl+a all  ctrl+n none  esc cancel  f1 keys233a1ddd4077b462
+? Tasks
+  › type to filter       5 of 11 selected  ╭─ Security ──────────────────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ 4 of 4 selected                                                 │
+      [ ] Disk cleanup                   ┃ │                                                                 │
+      [✓] Log rotation                   ┃ │ [✓] Patch status                                                │
+      [ ] Pending restart check          ┃ │ [✓] Certificate expiry                                          │
+  ▌ ▾ [✓] Security                   4/4 ┃ │ [✓] Local administrators audit                                  │
+      [✓] Patch status                   ┃ │ [✓] Firewall rules review                                       │
+      [✓] Certificate expiry             ┃ │                                                                 │
+      [✓] Local administrators audit     ┃ │                                                                 │
+      [✓] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ←→ expand/collapse  ctrl+a all  ctrl+n none  esc cancel  f1 keys1573c5fbe30b79c2
+? Tasks
+  › type to filter       5 of 11 selected  ╭─ Patch status ──────────────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Lists missing security updates and the date of the last         │
+      [ ] Disk cleanup                   ┃ │ successful install.                                             │
+      [✓] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Security                                             │
+    ▾ [✓] Security                   4/4 ┃ │ Duration   about 2 min per server                               │
+  ▌   [✓] Patch status                   ┃ │ Changes    no, read only                                        │
+      [✓] Certificate expiry             ┃ │ Parameter  PatchStatus                                          │
+      [✓] Local administrators audit     ┃ │                                                                 │
+      [✓] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys2976da4374aa5fdd
+? Tasks
+  › type to filter       5 of 11 selected  ╭─ Certificate expiry ────────────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Finds machine certificates that expire within 30 days and the   │
+      [ ] Disk cleanup                   ┃ │ services that use them.                                         │
+      [✓] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Security                                             │
+    ▾ [✓] Security                   4/4 ┃ │ Duration   about 1 min per server                               │
+      [✓] Patch status                   ┃ │ Changes    no, read only                                        │
+  ▌   [✓] Certificate expiry             ┃ │ Parameter  Certificates                                         │
+      [✓] Local administrators audit     ┃ │                                                                 │
+      [✓] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys8d6ef068c30c5ab9
+? Tasks
+  › type to filter       5 of 11 selected  ╭─ Local administrators audit ────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Compares local Administrators membership with the approved      │
+      [ ] Disk cleanup                   ┃ │ list.                                                           │
+      [✓] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Security                                             │
+    ▾ [✓] Security                   4/4 ┃ │ Duration   about 1 min per server                               │
+      [✓] Patch status                   ┃ │ Changes    no, read only                                        │
+      [✓] Certificate expiry             ┃ │ Parameter  LocalAdmins                                          │
+  ▌   [✓] Local administrators audit     ┃ │                                                                 │
+      [✓] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys8fafe84a3a5243bf
+? Tasks
+  › type to filter       4 of 11 selected  ╭─ Local administrators audit ────────────────────────────────────╮
+    ▾ [–] Maintenance                1/3 ┃ │ Compares local Administrators membership with the approved      │
+      [ ] Disk cleanup                   ┃ │ list.                                                           │
+      [✓] Log rotation                   ┃ │                                                                 │
+      [ ] Pending restart check          ┃ │ Group      Security                                             │
+    ▾ [–] Security                   3/4 ┃ │ Duration   about 1 min per server                               │
+      [✓] Patch status                   ┃ │ Changes    no, read only                                        │
+      [✓] Certificate expiry             ┃ │ Parameter  LocalAdmins                                          │
+  ▌   [ ] Local administrators audit     ┃ │                                                                 │
+      [✓] Firewall rules review          ┃ │                                                                 │
+    ▾ [ ] Health                     0/4 ┃ │                                                                 │
+      [ ] Event log errors               │ │                                                                 │
+      [ ] Service health                 │ │                                                                 │
+                                           ╰─────────────────────────────────────────────────────────────────╯
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys

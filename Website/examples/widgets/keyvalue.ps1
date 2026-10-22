@@ -1,4 +1,6 @@
-﻿New-ConsoleKeyValue -Markup ([ordered] @{
+﻿Import-Module ConsoleMonster
+
+New-ConsoleKeyValue -Markup ([ordered] @{
     Module     = '[bold]ConsoleMonster[/]'
     Version    = '0.0.4 [muted]→[/] [bold]2.0.0[/]'
     Frameworks = 'netstandard2.0, net472, net8.0'

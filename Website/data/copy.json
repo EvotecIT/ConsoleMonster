@@ -15,20 +15,13 @@
           "url": "/guides/everyday-powershell/",
           "linkText": "Everyday PowerShell output",
           "note": "Shows PowerShell's own output, then the same commands after Enable-ConsoleFormatting and Get-Service grouped by status; it rests on the after view. Before and After under the player jump to each half. Recorded on PowerShell 7 from the script in the tab beside it.",
-          "install": [
-            {
-              "lang": "powershell",
-              "label": "PowerShell 5.1 and 7",
-              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
-            }
-          ],
           "codeTitle": "Two lines",
           "code": [
             {
               "tab": "Your session",
               "lang": "powershell",
               "label": "PowerShell",
-              "text": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# Keep it on in every session: prints the lines for your profile.\nEnable-ConsoleFormatting -ProfileSnippet"
+              "text": "# 1. Install once\nInstall-Module ConsoleMonster -Scope CurrentUser\n\n# 2. Turn it on for this session\nEnable-ConsoleFormatting\n\n# 3. Keep it on: paste the lines this prints into your profile (notepad $PROFILE), then open a new session\nEnable-ConsoleFormatting -ProfileSnippet"
             },
             {
               "tab": "The recorded script",
@@ -44,34 +37,45 @@
           "line": "Full console applications: menus, forms, live dashboards and results, from one library.",
           "url": "/interactive/",
           "linkText": "Menus, forms and apps",
-          "note": "A whole console application, recorded from the Release build as it drives itself: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
-          "install": [
-            {
-              "lang": "powershell",
-              "label": "PowerShell 5.1 and 7",
-              "text": "Install-Module ConsoleMonster -Scope CurrentUser"
-            },
-            {
-              "lang": "bash",
-              "label": ".NET",
-              "text": "dotnet add package ConsoleMonster"
-            }
-          ],
-          "codeTitle": "The app's main program",
+          "threads": "Any thread can update the screen: {workers} workers, {rate} updates a second, none dropped.",
+          "threadsLink": "Threads and concurrency",
+          "note": "A whole console application, recorded from its program in the C# tab with dotnet run -- --demo, pressing its own keys: a preset in the Shell menu, a form whose servers load for the chosen domain, the review with the equivalent command, the live dashboard, and the results with next steps. Menu, Form, Dashboard and Results under the player jump to each part. It plays once when you choose Monster and stops on the results; Play runs it again.",
+          "codeTitle": "The app's program",
           "code": [
-            {
-              "tab": "C#",
-              "source": "csharp"
-            },
             {
               "tab": "PowerShell",
               "source": "powershell"
+            },
+            {
+              "tab": "C#",
+              "source": "csharp"
             }
           ]
         }
       ]
     },
-    "installTitle": "Install",
+    "version": "2.0.1",
+    "packagesTitle": "Packages",
+    "packages": [
+      { "title": "NuGet", "body": "ConsoleMonster for .NET", "url": "https://www.nuget.org/packages/ConsoleMonster/{version}" },
+      { "title": "PowerShell Gallery", "body": "The ConsoleMonster module", "url": "https://www.powershellgallery.com/packages/ConsoleMonster/{version}" },
+      { "title": "GitHub release", "body": "Notes and downloads", "url": "https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v{version}" }
+    ],
+    "quick": {
+      "label": "Install with",
+      "factsLabel": "At a glance",
+      "items": [
+        { "id": "ps", "tab": "PowerShell", "lang": "powershell", "prompt": "PS>", "text": "Install-Module ConsoleMonster -Scope CurrentUser", "key": 3 },
+        { "id": "net", "tab": ".NET", "lang": "bash", "prompt": "$", "text": "dotnet add package ConsoleMonster", "key": 5 }
+      ]
+    },
+    "facts": [
+      "No dependencies",
+      "PowerShell 5.1 and 7",
+      "netstandard2.0, net472, net8.0, net10.0",
+      "MIT licence",
+      "v{version}"
+    ],
     "sides": [
       {
         "id": "everyday-features",
@@ -174,7 +178,7 @@
     ],
     "twins": {
       "title": "One engine for C# and PowerShell",
-      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the C# in-process and the script on Windows PowerShell 5.1 and PowerShell 7 in a 92-column console. The site tool compared every cell they drew."
+      "body": "The module's cmdlets are a thin layer over the same .NET library. Both programs shown here ran for this page, the script on Windows PowerShell 5.1 and PowerShell 7 and the C# program on .NET 8, each 92 columns wide, and every cell they drew was compared."
     },
     "tiers": {
       "title": "Readable on every console",
@@ -197,100 +201,88 @@
     "live": {
       "title": "Live dashboards from many threads",
       "body": "A live session takes updates from any thread through a lock-free queue and draws about 15 frames a second, writing only the cells that changed. Console output and PowerShell streams are captured into a log region instead of tearing the screen.",
-      "facts": [
-        {
-          "label": "Frames per second under load",
-          "value": "15"
-        },
-        {
-          "label": "Updates per second",
-          "value": "~80,000"
-        },
-        {
-          "label": "Render cost per frame",
-          "value": "~0.75 ms"
-        },
-        {
-          "label": "Updates dropped",
-          "value": "0"
-        }
-      ],
-      "source": "The stress test in ConsoleMonster.Examples: 32 workers, with stray Console.WriteLine calls. Figures from the ConsoleMonster 2.0 pull request.",
+      "source": "Measured during the recorded runs: the stress test program (32 workers, with stray Console.WriteLine calls) and the benchmark program.",
       "richTitle": "On a console",
       "streamTitle": "In CI and redirected output"
     },
     "start": {
       "title": "Where to go next",
-      "body": "The gallery has {widgets} widget examples with their C# and PowerShell source, the module has {cmdlets} cmdlets with full help, and the .NET API is documented type by type.",
+      "body": "The gallery has {widgets} widget examples with their PowerShell and C# source, the module has {cmdlets} cmdlets with full help, and the .NET API is documented type by type.",
       "links": [
         {
           "title": "Widgets",
           "url": "/widgets/",
+          "visual": "widgets",
           "key": 1,
           "body": "Every widget at every colour and glyph tier."
         },
         {
           "title": "Tables",
           "url": "/tables/",
+          "visual": "tables",
           "key": 6,
           "body": "Priority columns, cards, presenters and totals at six widths."
         },
         {
           "title": "Live dashboards",
           "url": "/live/",
+          "visual": "live",
           "key": 2,
           "body": "Recorded runs of the build pipeline and the stress test."
         },
         {
           "title": "PowerShell",
           "url": "/powershell/",
+          "visual": "powershell",
           "key": 3,
           "body": "Format-ConsoleTable beside Format-Table, on 5.1 and 7."
         },
         {
           "title": "Guides",
           "url": "/guides/",
+          "visual": "guides",
           "key": 4,
           "body": "Coming from Write-Color, Spectre.Console or Format-Table."
         },
         {
           "title": "Docs",
           "url": "/docs/",
+          "visual": "docs",
           "key": 5,
-          "body": "Detection, themes, overrides, live sessions and recording."
+          "body": "Install first, then detection, themes, live sessions and recording."
         }
       ]
     }
   },
   "live": {
-    "stressNote": "Recorded from a real run in a 120×40 pseudo console. The session drew 15 frames a second; this replay samples {fps} of them per second to keep the file small.",
+    "stressNote": "Recorded from a real run of the program below in a 120×40 window. The session drew 15 frames a second; this replay samples {fps} of them per second to keep the file small.",
     "stress": {
       "title": "The stress test",
       "body": "32 workers post lane updates as fast as they can while four threads write to Console.Out and Console.Error at random. The workers never touch the console: the session coalesces everything into about 15 frames a second and captures the stray output into the log region.",
-      "source": "Measured by the stress test itself during the recording above (.NET 8, Release build). The ConsoleMonster 2.0 pull request reports the same picture: 15.0 fps sustained at about 80,000 updates/s, 0 dropped, about 0.75 ms per frame."
+      "source": "Measured by the program itself during the recording above (.NET 8). It prints this line when the session ends."
     },
     "assessment": {
       "title": "Recorded once, replayed exactly",
-      "body": "The assessment showcase does not run any rules. It replays a JSON-lines event stream of {events} events into a dashboard definition that knows nothing about the recording: every update arrives as a LiveEvent addressed by name.",
+      "body": "This program runs no rules: it replays a recording of {events} events into a dashboard that knows nothing about the recording, because every update is addressed to a widget by name. The same dashboard could be fed by a live run.",
       "recordTitle": "The recording",
       "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Start-ConsoleDashboard with -RecordPath.",
-      "layoutTitle": "The dashboard",
-      "layoutBody": "Phases, lanes for twelve targets, a stacked bar and a key/value list, a braille line chart, a histogram, a bar chart and a log region. Below 60×20 the dashboard shows one status line plus the phases and the lanes that fit."
+      "layoutTitle": "The program",
+      "layoutBody": "Phases, lanes for twelve targets, a stacked bar and a key/value list, a braille line chart, a histogram, a bar chart and a log region, replayed from the file at the speed you give. Below 60×20 the dashboard shows one status line plus the phases and the lanes that fit."
     },
     "pipeline": {
       "title": "A build pipeline, from C# and PowerShell",
-      "body": "A module build: phases, steps with timings, module facts, overall progress and the tool output. The C# showcase writes to Console.Out like a real tool, and the PowerShell script calls Write-Host and Write-Warning from the dashboard's runspace; both land in the log region. Each run was recorded in a 110×32 pseudo console.",
+      "body": "A module build: phases, steps with timings, module facts, overall progress and the tool output. The C# program writes to Console.Out like a real tool, and the PowerShell script calls Write-Host and Write-Warning from the dashboard's runspace; both land in the Output panel. Each run was recorded in a 110×32 window.",
       "scriptTitle": "The PowerShell script",
       "afterTitle": "What stays in the scrollback",
-      "afterBody": "When the session ends the screen is restored and a summary is printed to the scrollback, so a live dashboard always leaves a record behind. This is the C# run's summary."
+      "afterBody": "When the session ends the screen is restored and the summary is printed to the scrollback, so a live dashboard always leaves a record behind. This is the C# run's summary."
     },
     "stream": {
       "title": "The same run in CI",
-      "body": "With CONSOLEMONSTER_MODE=stream, with redirected output or when a CI system is detected, a live dashboard narrates append-only lines instead of redrawing. This is the assessment replay at six times speed in stream mode."
+      "body": "With CONSOLEMONSTER_MODE=stream, with redirected output or when a CI system is detected, a live dashboard narrates append-only lines instead of redrawing. This is the replay program above, run with the variable set, at six times speed."
     },
     "query": {
       "title": "Printed once: query results",
-      "body": "Not every tool needs a live view. The DNS and mail-security showcase prints a summary, the records, a delegation tree, mail-security checks and resolver latency once, at the width of the console."
+      "body": "Not every tool needs a live view. This program prints a summary, the records, a delegation tree, mail-security checks and resolver latency once, at the width of the console."
     }
   },
   "powershell": {
@@ -311,31 +303,35 @@
     },
     "consoles": {
       "title": "The same command on other consoles",
-      "body": "Format-ConsoleTable from above, run again with the terminal profile overridden. The script does not change.",
+      "body": "Format-ConsoleTable from above, run again in a new session with the terminal profile overridden. The script does not change.",
       "variants": [
         {
           "id": "16-ascii",
           "host": "ps5",
           "title": "16 colours and ASCII glyphs",
-          "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii"
+          "command": "CONSOLEMONSTER_COLOR=16, CONSOLEMONSTER_GLYPHS=ascii",
+          "run": "$env:CONSOLEMONSTER_COLOR = '16'\n$env:CONSOLEMONSTER_GLYPHS = 'ascii'\npowershell -NoProfile -File .\\format-consoletable.ps1\nRemove-Item Env:CONSOLEMONSTER_COLOR, Env:CONSOLEMONSTER_GLYPHS"
         },
         {
           "id": "nocolor",
           "host": "ps7",
           "title": "NO_COLOR",
-          "command": "NO_COLOR=1"
+          "command": "NO_COLOR=1",
+          "run": "$env:NO_COLOR = '1'\npwsh -NoProfile -File ./format-consoletable.ps1\nRemove-Item Env:NO_COLOR"
         },
         {
           "id": "plain",
           "host": "ps7",
           "title": "Plain mode",
-          "command": "CONSOLEMONSTER_MODE=plain"
+          "command": "CONSOLEMONSTER_MODE=plain",
+          "run": "$env:CONSOLEMONSTER_MODE = 'plain'\npwsh -NoProfile -File ./format-consoletable.ps1\nRemove-Item Env:CONSOLEMONSTER_MODE"
         },
         {
           "id": "narrow",
           "host": "ps7",
           "title": "A 56-column console",
-          "command": "56 columns"
+          "command": "56 columns",
+          "run": "# In a window 56 columns wide:\npwsh -NoProfile -File ./format-consoletable.ps1"
         }
       ]
     },
@@ -378,7 +374,7 @@
     "machine": "Measured for this site on {processor} ({threads} logical processors), {os}, {runtime}, on {date}. Results vary with the machine; rerun the program to measure yours.",
     "stress": {
       "title": "Under load: the stress test",
-      "body": "The stress showcase in ConsoleMonster.Examples measures a whole live session: 32 worker threads posting lane updates, four threads writing stray console output, and the session drawing frames. These are the figures it printed at the end of the run recorded for the live dashboards page."
+      "body": "The stress test program on the live dashboards page measures a whole live session: 32 worker threads posting lane updates, four threads writing stray console output, and the session drawing frames. These are the figures it printed at the end of the 12-second run recorded there."
     },
     "reported": {
       "title": "Reported in the repository",
@@ -387,27 +383,27 @@
         {
           "measure": "Frame rate during the stress test",
           "value": "15.0 fps sustained",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Updates during the stress test",
           "value": "about 80,000 per second, 0 dropped",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Time per frame during the stress test",
           "value": "about 0.75 ms",
-          "source": "Pull request #11"
+          "source": "Pull request #11", "url": "https://github.com/EvotecIT/ConsoleMonster/pull/11"
         },
         {
           "measure": "Printing 50,000 rows at 140 columns",
           "value": "about 1.7 s",
-          "source": "README"
+          "source": "README", "url": "https://github.com/EvotecIT/ConsoleMonster#readme"
         },
         {
           "measure": "Peak memory for those 50,000 rows",
           "value": "about 76 MB above the starting point (510 MB before block printing)",
-          "source": "README"
+          "source": "README", "url": "https://github.com/EvotecIT/ConsoleMonster#readme"
         }
       ]
     }
@@ -472,7 +468,7 @@
       "use": {
         "title": "Use it in every session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -ProfileSnippet",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\n# Prints the lines that turn it on in every session; paste them into $PROFILE (notepad $PROFILE)\nEnable-ConsoleFormatting -ProfileSnippet",
         "links": [
           {
             "title": "Enable-ConsoleFormatting",
@@ -480,6 +476,64 @@
           }
         ]
       }
+    },
+    "format-commands": {
+      "title": "Before and after -Feature FormatCommands",
+      "body": "The same three commands before and after Enable-ConsoleFormatting -Feature FormatCommands. Only output that goes straight to the console changes; assignments, pipelines, files, jobs and transcripts keep PowerShell's own formatting.",
+      "label": "Format-Table, Format-List and Format-Wide as PowerShell draws them, then as ConsoleMonster draws them",
+      "use": {
+        "title": "Turn it on",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nImport-Module ConsoleMonster\n# Not part of -Feature All: it is a separate opt-in, because scripts call these commands too.\nEnable-ConsoleFormatting -Feature FormatCommands",
+        "links": [
+          {
+            "title": "Enable-ConsoleFormatting",
+            "url": "/powershell/commands/enable-consoleformatting/"
+          }
+        ]
+      }
+    },
+    "module-views": {
+      "title": "Get-ContosoServer before and after its view",
+      "body": "A module puts Contoso.Servers.consoleviews.psd1 beside its manifest: plain data naming the columns, their presenters and the grouping. The module never imports ConsoleMonster; its users get the view when they turn formatting on.",
+      "label": "Get-ContosoServer as a plain PowerShell table, then with the module's own ConsoleMonster view",
+      "use": {
+        "title": "Ship views with your module",
+        "label": "PowerShell 5.1 and 7",
+        "install": "# Beside YourModule.psd1:\n# YourModule.consoleviews.psd1 with SchemaVersion = 1 and a Views list, as above.\n# Your users:\nImport-Module YourModule\nImport-Module ConsoleMonster\nEnable-ConsoleFormatting",
+        "links": [
+          {
+            "title": "Register-ConsoleView",
+            "url": "/powershell/commands/register-consoleview/"
+          }
+        ]
+      }
+    },
+    "threads-naive": {
+      "title": "Twelve threads, one console",
+      "body": "Each worker writes its progress with Write-Host as it goes. The pieces of different workers land in each other's lines.",
+      "label": "Parallel workers writing to the console directly, their lines interleaved"
+    },
+    "threads-live": {
+      "title": "The same work through a dashboard",
+      "body": "Each runspace updates its own lane by name and Write-Host goes to the log panel. The session draws the screen about 15 times a second from one thread.",
+      "label": "Twelve lanes updated by parallel workers, with a log panel",
+      "use": {
+        "title": "Run it",
+        "label": "PowerShell 5.1 and 7",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\n./threads-dashboard.ps1",
+        "links": [
+          {
+            "title": "Start-ConsoleDashboard",
+            "url": "/powershell/commands/start-consoledashboard/"
+          }
+        ]
+      }
+    },
+    "threads-ci": {
+      "title": "The same script in CI",
+      "body": "With CI detected, the same dashboard writes a whole line for each lane start and finish and each log entry instead of redrawing, in the order the updates were applied, then prints its final state.",
+      "label": "The dashboard script's output when CI=true: ordered, whole lines"
     },
     "shaping": {
       "title": "Arrays in cells and groups",
@@ -513,6 +567,39 @@
         ]
       }
     },
+    "session": {
+      "title": "A dashboard updated from three threads",
+      "body": "Each server is deployed in parallel and updates its own lane by name. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
+      "label": "Three servers deployed in parallel into one dashboard",
+      "use": {
+        "title": "Run it yourself",
+        "steps": [
+          { "text": "PowerShell: install the module, save the script and run it.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser\n./session.ps1" } ] },
+          { "text": "C#: a new console project with the package, the program as its `Program.cs`, then `dotnet run`.", "code": [ { "lang": "bash", "label": ".NET 8 and later", "text": "dotnet new console -n Deploy\ncd Deploy\ndotnet add package ConsoleMonster\ndotnet run" } ] }
+        ],
+        "links": [
+          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "LiveSession (C#)", "url": "/api/consolemonster-live-livesession/" }
+        ]
+      }
+    },
+    "record": {
+      "title": "Record, replay, export",
+      "body": "One script: a dashboard defined once, a run recorded with -RecordPath, the recording played back at twice the speed into the same dashboard, and a page with a player saved next to it.",
+      "label": "A deploy dashboard run, then its recording replayed at twice the speed",
+      "use": {
+        "title": "Run it yourself",
+        "steps": [
+          { "text": "Install the module and save the script (Copy on its panel) as `record.ps1`.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser" } ] },
+          { "text": "Run it (dot-sourced, so `$dashboard` stays defined). The recording and the page are written to your temporary folder; open the page in a browser to scrub through the run.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": ". ./record.ps1\nInvoke-Item (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')" } ] },
+          { "text": "To rewind the run in the terminal instead, with markers, failures and log search, use `Show-ConsoleReplay`.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Show-ConsoleReplay $dashboard (Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl')" } ] }
+        ],
+        "links": [
+          { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
+          { "title": "Export-ConsoleRecording", "url": "/powershell/commands/export-consolerecording/" }
+        ]
+      }
+    },
     "errors": {
       "title": "Errors you can read",
       "body": "The error view: the exception, the message, the category and the lines of the script around the failing statement.",
@@ -520,7 +607,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Enable-ConsoleFormatting -Feature ErrorView",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature ErrorView",
         "links": [
           {
             "title": "Format-ConsoleError",
@@ -536,7 +623,7 @@
       "use": {
         "title": "Use it in your session",
         "label": "PowerShell 5.1 and 7",
-        "install": "Enable-ConsoleFormatting -Feature Progress",
+        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nEnable-ConsoleFormatting -Feature Progress",
         "links": [
           {
             "title": "Write-ConsoleProgress",
@@ -551,14 +638,54 @@
       "label": "A server's login overview: system facts, health checks and disk use",
       "use": {
         "title": "Use it on your servers",
-        "label": "PowerShell 7 on Linux",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
-        "links": [
+        "steps": [
           {
-            "title": "Example-LoginOverview.ps1",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Examples/Example-LoginOverview.ps1"
+            "text": "Install PowerShell 7 on the server if it is not there yet (Microsoft publishes packages for each distribution; on Ubuntu the snap is the quickest), then start it with `pwsh`.",
+            "code": [
+              {
+                "lang": "bash",
+                "label": "Ubuntu",
+                "text": "sudo snap install powershell --classic\npwsh"
+              }
+            ]
+          },
+          {
+            "text": "In pwsh, install the module for your account.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "PowerShell 7 on Linux",
+                "text": "Install-Module ConsoleMonster -Scope CurrentUser"
+              }
+            ]
+          },
+          {
+            "text": "Download the script into `~/bin` (it is the full program above; Copy on its panel works too), and run it once with `-Sample` to see the layout.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "PowerShell 7",
+                "text": "$null = New-Item -ItemType Directory -Force ~/bin\n$url = 'https://consolemonster.dev/examples/Example-LoginOverview.ps1'\nInvoke-WebRequest $url -OutFile ~/bin/Example-LoginOverview.ps1\n~/bin/Example-LoginOverview.ps1 -Sample"
+              }
+            ]
+          },
+          {
+            "text": "Show it when someone logs in over SSH. With pwsh as the login shell, add this to `~/.config/powershell/Microsoft.PowerShell_profile.ps1`; with bash, add the second block to the end of `~/.profile`.",
+            "code": [
+              {
+                "lang": "powershell",
+                "label": "~/.config/powershell/Microsoft.PowerShell_profile.ps1",
+                "text": "if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {\n    $env:CM_OVERVIEW_SHOWN = 1\n    & ~/bin/Example-LoginOverview.ps1\n}"
+              },
+              {
+                "lang": "bash",
+                "label": "~/.profile (bash)",
+                "text": "case $- in\n    *i*) if [ -n \"$SSH_TTY\" ] && command -v pwsh >/dev/null; then\n             pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1\n         fi ;;\nesac"
+              }
+            ]
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Examples/Example-LoginOverview.ps1"
       }
     },
     "hosting": {
@@ -569,17 +696,14 @@
         "title": "Run the full program",
         "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- hosting 12",
+        "install": "dotnet new console -n Orders\ncd Orders\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\n# Replace Program.cs with the full program above.\ndotnet run\n# Ctrl+C stops the host.",
         "links": [
           {
             "title": "Hosting dashboard",
             "url": "/docs/hosting/"
-          },
-          {
-            "title": "Package README",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
       }
     },
     "logging": {
@@ -590,17 +714,14 @@
         "title": "Run the full program",
         "label": ".NET 8 and later",
         "lang": "bash",
-        "install": "dotnet new console -n ConsoleMonsterDemo\ncd ConsoleMonsterDemo\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\ndotnet add package System.CommandLine\n# Replace Program.cs with the full program above.\ndotnet run -- logging",
+        "install": "dotnet new console -n Shop\ncd Shop\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Logging\n# Replace Program.cs with the full program above.\ndotnet run",
         "links": [
           {
             "title": "Logging",
             "url": "/docs/logging/"
-          },
-          {
-            "title": "Package README",
-            "url": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Extensions.Logging/README.md"
           }
-        ]
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Extensions.Logging/README.md"
       }
     },
     "template": {
@@ -641,73 +762,17 @@
       }
     }
   },
-  "docsIndex": [
-    {
-      "title": "Install",
-      "url": "/docs/install/",
-      "body": "The NuGet package, the PowerShell module and a first program in each."
-    },
-    {
-      "title": "Capability detection",
-      "url": "/docs/capabilities/",
-      "body": "What ConsoleMonster detects about the console, and the decisions it records."
-    },
-    {
-      "title": "Themes",
-      "url": "/docs/themes/",
-      "body": "Dark, light and high contrast, and how colours are reduced per tier."
-    },
-    {
-      "title": "Environment overrides",
-      "url": "/docs/environment/",
-      "body": "NO_COLOR and the CONSOLEMONSTER_* variables."
-    },
-    {
-      "title": "Live sessions",
-      "url": "/docs/live-sessions/",
-      "body": "Dashboards updated from any thread, inline areas and windows that are too small."
-    },
-    {
-      "title": "Recording and replay",
-      "url": "/docs/recording/",
-      "body": "JSON-lines recordings, replays, exports and test helpers."
-    },
-    {
-      "title": "Live runs",
-      "url": "/docs/live-runs/",
-      "body": "ForEach-ConsoleItem in parallel, Watch-Console and Pester runs, recorded."
-    },
-    {
-      "title": "Help, errors and progress",
-      "url": "/docs/help-and-defaults/",
-      "body": "Show-ConsoleHelp, the error view and the progress area, each opt-in."
-    },
-    {
-      "title": "Linux and SSH",
-      "url": "/docs/linux-and-ssh/",
-      "body": "Detection on Unix terminals and a login overview for your servers."
-    },
-    {
-      "title": "Logging",
-      "url": "/docs/logging/",
-      "body": "A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags."
-    },
-    {
-      "title": "Hosting dashboard",
-      "url": "/docs/hosting/",
-      "body": "A live dashboard for .NET generic host applications."
-    },
-    {
-      "title": "dotnet new template",
-      "url": "/docs/template/",
-      "body": "A console app with a menu, logging, the dashboard and native AOT."
-    },
-    {
-      "title": "PowerShell conventions",
-      "url": "/docs/powershell-conventions/",
-      "body": "One grammar for every widget, and each widget's .NET methods."
-    }
-  ],
+  "docsCatalog": {
+    "label": "Documentation by topic",
+    "layersTitle": "How the library is layered",
+    "startHere": "New here? Start with {install}: the PowerShell module or the .NET package, and a first table in each, in a few steps.",
+    "groups": [
+      { "id": "start", "title": "Get started", "body": "Install, the three ways to write C#, what gets detected, and how to pin or theme it.", "key": 1 },
+      { "id": "live", "title": "Live output", "body": "Dashboards, runs that redraw, and recordings you can replay.", "key": 2 },
+      { "id": "apps", "title": "Applications", "body": "Help, errors, progress, logging and a template to start from.", "key": 5 },
+      { "id": "hosts", "title": "Hosts and shells", "body": "Unix terminals over SSH, and the grammar of the PowerShell module.", "key": 3 }
+    ]
+  },
   "guidesIndex": [
     {
       "title": "Everyday PowerShell output",

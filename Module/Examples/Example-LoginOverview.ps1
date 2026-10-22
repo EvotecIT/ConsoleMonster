@@ -2,42 +2,38 @@
     [switch] $Sample,
     [int] $Width
 )
-<#
-    A login overview (message of the day) for a Linux server: host facts, health and disk use, rendered once when someone
-    logs in over SSH. Nothing is live; the script prints and exits, so login stays fast. Every collector is cheap and falls
-    back quietly, so a missing tool never blocks a login. -Sample uses invented data, so the layout can be tried on any
-    machine (Windows included).
+#region more
+# A login overview (message of the day) for a Linux server: host facts, health and disk use, rendered once when someone
+# logs in over SSH. Nothing is live; the script prints and exits, so login stays fast. Every collector is cheap and falls
+# back quietly, so a missing tool never blocks a login. -Sample uses invented data, so the layout can be tried on any
+# machine (Windows included).
+#
+# Hook it up (pick one, and keep it to interactive SSH sessions):
+#
+#   * pwsh as the login shell, in ~/.config/powershell/Microsoft.PowerShell_profile.ps1:
+#
+#         # ssh host command loads this profile too: SSH_TTY and a console that is not redirected mean a person logged in.
+#         if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {
+#             $env:CM_OVERVIEW_SHOWN = 1
+#             & ~/bin/Example-LoginOverview.ps1
+#         }
+#
+#   * bash as the login shell, at the end of ~/.profile (or ~/.bash_profile when you have one; bash then skips ~/.profile):
+#
+#         case $- in
+#             *i*) if [ -n "$SSH_TTY" ] && command -v pwsh >/dev/null; then
+#                      pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1
+#                  fi ;;
+#         esac
+#
+# Output that is not a terminal (scp, rsync, ssh host command) is skipped by both guards: the pwsh guard needs a terminal
+# and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output
+# is redirected anyway.
+#endregion
+Import-Module ConsoleMonster
 
-    Hook it up (pick one, and keep it to interactive SSH sessions):
-
-      * pwsh as the login shell, in ~/.config/powershell/Microsoft.PowerShell_profile.ps1:
-
-            # ssh host command loads this profile too: SSH_TTY and a console that is not redirected mean a person logged in.
-            if ($env:SSH_TTY -and -not [Console]::IsOutputRedirected -and -not $env:CM_OVERVIEW_SHOWN) {
-                $env:CM_OVERVIEW_SHOWN = 1
-                & ~/bin/Example-LoginOverview.ps1
-            }
-
-      * bash as the login shell, at the end of ~/.profile (or ~/.bash_profile when you have one; bash then skips ~/.profile):
-
-            case $- in
-                *i*) if [ -n "$SSH_TTY" ] && command -v pwsh >/dev/null; then
-                         pwsh -NoLogo -NoProfile -File ~/bin/Example-LoginOverview.ps1
-                     fi ;;
-            esac
-
-    Output that is not a terminal (scp, rsync, ssh host command) is skipped by both guards: the pwsh guard needs a terminal
-    and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output
-    is redirected anyway.
-#>
-# The repository copy when the script runs from the repository, the installed module otherwise (~/bin).
-$local = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
-if (Test-Path -LiteralPath $local) {
-    Import-Module $local -Force
-} else {
-    Import-Module ConsoleMonster -ErrorAction Stop
-}
-
+#region more
+# Collectors: the last login, disk use per file system and the overview data (invented data with -Sample).
 function Get-LastLogin {
     # The previous login of this user from `last` ("deploy pts/0 198.51.100.24 Mon Oct 19 22:41 - 23:10 (00:29)"), as
     # "from 198.51.100.24, Oct 19 22:41": the first line is the current session, so the second one is the previous login.
@@ -116,6 +112,7 @@ function Get-OverviewData {
         LastLogin   = Get-LastLogin
     }
 }
+#endregion
 
 $data = Get-OverviewData -Sample:$Sample
 $memoryPercent = if ($data.MemoryTotal -gt 0) { [math]::Round(100 * $data.MemoryUsed / $data.MemoryTotal) } else { 0 }

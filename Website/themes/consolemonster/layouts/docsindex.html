@@ -15,20 +15,55 @@
 <main id="main" class="cm-main">
   {{~ masthead_title = page.title; masthead_lede = page.description; masthead_extra = "" ~}}
   {{ include "masthead" }}
-  <div class="cm-wrap cm-docs">
+  {{~ ## The catalogue is built from the docs pages themselves (content/docs/_index.md is a section, so `items` holds
+       them in order): each page's front matter names its group, a one-line summary, chips for the APIs it covers and a
+       card (a figure or demo the page shows, drawn as a miniature by the site tool into data/visuals.json). The rail
+       jumps to each group. The page's own text, how the library is layered, follows the catalogue. ## ~}}
+  {{~ cat = data.copy.docsCatalog; cards = data.visuals.cards ~}}
+  <div class="cm-wrap cm-docs cm-docs--index">
     {{ include "docs-sidebar" }}
-    <article class="cm-docs__article">
-      <div class="cm-prose">
+    <article class="cm-docs__article cm-catalog">
+      {{~ if cat.startHere ~}}<p class="cm-catalog__start">{{ cat.startHere | html.escape | string.replace "{install}" "<a href=\"/docs/install/\">Install</a>" }}</p>{{~ end ~}}
+      <nav class="cm-catalog__rail" aria-label="{{ cat.label }}">
+        <ul>
+          {{~ for g in cat.groups; n = 0; for i in items; if i.meta.group == g.id; n = n + 1; end; end ~}}
+          <li style="--key: var(--cm-s{{ g.key }})"><a href="#{{ g.id }}"><span class="cm-key" aria-hidden="true"></span>{{ g.title | html.escape }}<span class="cm-catalog__count">{{ n }}</span></a></li>
+          {{~ end ~}}
+        </ul>
+      </nav>
+      {{~ for g in cat.groups ~}}
+      <section class="cm-catalog__group" id="{{ g.id }}" aria-labelledby="{{ g.id }}-title" style="--key: var(--cm-s{{ g.key }})">
+        <div class="cm-catalog__head">
+          <h2 id="{{ g.id }}-title"><span class="cm-key" aria-hidden="true"></span>{{ g.title | html.escape }}</h2>
+          <p>{{ g.body | html.escape }}</p>
+        </div>
+        <ul class="cm-catalog__cards">
+          {{~ for i in items; if i.meta.group == g.id; t = null; if cards && i.meta.card; t = cards[i.meta.card]; end ~}}
+          <li>
+            <a class="cm-card" href="{{ i.output_path }}">
+              <span class="cm-card__thumb" aria-hidden="true">
+                {{~ thumb = t ~}}
+                {{ include "thumb" }}
+              </span>
+              <strong class="cm-card__title">{{ i.title | html.escape }}</strong>
+              <span class="cm-card__body">{{ i.meta.summary | html.escape }}</span>
+              {{~ if i.meta.apis || i.meta.chips ~}}
+              <span class="cm-catalog__chips">{{ for c in i.meta.apis }}<code>{{ c | html.escape }}</code>{{ end }}{{ for c in i.meta.chips }}<span>{{ c | html.escape }}</span>{{ end }}</span>
+              {{~ end ~}}
+            </a>
+          </li>
+          {{~ end; end ~}}
+        </ul>
+      </section>
+      {{~ end ~}}
+      <section class="cm-catalog__layers" aria-labelledby="cm-layers-title">
+        <h2 id="cm-layers-title">{{ cat.layersTitle }}</h2>
+        <div class="cm-prose">
 {{ content }}
-      </div>
-      <ul class="cm-index">
-        {{~ for i in data.copy.docsIndex ~}}
-        <li><a href="{{ i.url }}"><strong>{{ i.title }}</strong><span>{{ i.body }}</span></a></li>
-        {{~ end ~}}
-      </ul>
+        </div>
+      </section>
       {{ if edit_url != "" }}<p class="cm-docs__edit"><a href="{{ edit_url }}">Edit this page on GitHub</a></p>{{ end }}
     </article>
-    {{ if toc != "" }}<aside class="cm-docs__toc" aria-label="On this page">{{ toc }}</aside>{{ end }}
   </div>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}

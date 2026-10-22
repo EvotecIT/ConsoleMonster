@@ -37,10 +37,13 @@
         <p class="cm-story__keys"><span>Keys</span> <code>{{ s.keys | html.escape }}</code></p>
       </div>
       <div class="cm-story__code">
-        {{~ code_lang = "csharp"; code_label = "C#"; code_text = s.csharp; code_full = s.csharpFull ~}}
+        {{~ if s.powershell ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = s.powershellFile; code_text = s.powershell; code_full = s.powershellFull ~}}
         {{ include "code" }}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = s.powershell ~}}
+        {{~ end ~}}
+        {{~ code_lang = "csharp"; code_label = "C#"; code_file = s.csharpFile; code_text = s.csharp; code_full = s.csharpFull ~}}
         {{ include "code" }}
+        {{~ if s.parity ~}}<p class="cm-story__parity">PowerShell 7 draws the same screens for the same keys.</p>{{~ end ~}}
       </div>
     </div>
   </section>

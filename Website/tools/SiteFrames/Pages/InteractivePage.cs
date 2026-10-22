@@ -6,24 +6,23 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
-using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
-using ConsoleMonster.Text;
-using ConsoleMonster.Widgets;
-using ConsoleMonster.Examples.Showcases;
+using SiteFrames.Capture;
 using SiteFrames.Frames;
 using SiteFrames.Replay;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Prompts, menus, forms and the grid, driven by scripted keys into a <see cref="ScreenCapture"/> (ConsoleMonster's
-    /// in-memory surface for documentation captures). Each storyboard keeps the distinct screens the keys produced. The
-    /// lines between the example markers in each method are what the site shows as its C# source; <c>options</c> carries
-    /// the scripted keys and the capture.
+    /// Prompts, menus, forms and the grid. Each story is a complete C# program (<c>Website/examples/interactive/&lt;id&gt;.cs</c>)
+    /// and, where one exists, its PowerShell twin (<c>&lt;id&gt;.ps1</c>). Neither mentions the recording: the tool is the
+    /// driver, setting <see cref="InteractiveOptions.Default"/> to scripted keys and an in-memory <see cref="ScreenCapture"/>
+    /// before it runs the program, exactly as the module's example test does. The storyboard keeps the distinct screens the
+    /// keys produced; the capture runs the twin the same way on PowerShell 7 and the render compares its screens' text with
+    /// the program's.
     /// </summary>
     internal static class InteractivePage {
         private sealed class Story {
-            public Story(string id, string title, string summary, string keys, int width, int height, bool inline, bool realTime, Action<InteractiveOptions> run, string method, string powershell, string[]? pick = null) {
+            public Story(string id, string title, string summary, string keys, int width, int height, bool inline, bool realTime, string[]? pick = null) {
                 Id = id;
                 Title = title;
                 Summary = summary;
@@ -32,9 +31,6 @@ namespace SiteFrames.Pages {
                 Height = height;
                 Inline = inline;
                 RealTime = realTime;
-                Run = run;
-                Method = method;
-                PowerShell = powershell;
                 Pick = pick;
             }
 
@@ -46,134 +42,148 @@ namespace SiteFrames.Pages {
             public int Height { get; }
             public bool Inline { get; }
             public bool RealTime { get; }
-            public Action<InteractiveOptions> Run { get; }
-            public string Method { get; }
-            public string PowerShell { get; }
             public string[]? Pick { get; }
         }
 
         private static IEnumerable<Story> Stories() {
             yield return new Story("select", "Selection", "A list that filters as you type, with groups, badges, and choices that are unavailable with their reason. The answer comes back as the chosen object, not a string.",
-                "Down Down \"we\" Down Enter", 100, 16, true, false, SelectServer, nameof(SelectServer),
-                "$server = Read-ConsoleSelection 'Target server' -Choices $servers -Display Name -GroupBy Site");
+                "Down Down \"we\" Down Enter", 100, 16, true, false);
             yield return new Story("multi", "Multi-selection with a preview", "Tri-state group checkboxes, a live count and a preview pane beside the list. Ctrl+A selects all, Ctrl+N none and Ctrl+T inverts.",
-                "Down Space Down Down Space Down Down Down Space Enter", 110, 20, true, false, SelectTasks, nameof(SelectTasks),
-                "$tasks = $allTasks | Read-ConsoleMultiSelection 'Tasks' -Display Name -GroupBy Category -Minimum 1");
+                "Down Space Down Down Space Down Down Down Space Enter", 110, 20, true, false);
             yield return new Story("text", "Text with validation", "A pattern, a length or a scriptblock validates the answer, and the message stays inline until the input is valid.",
-                "\"9reports\" Enter Home Delete Enter", 90, 10, true, false, AskShareName, nameof(AskShareName),
-                "$name = Read-ConsoleText 'Share name' -Pattern '[A-Za-z][A-Za-z0-9_-]{1,23}' -PatternMessage 'Start with a letter; letters, digits, - and _ only'");
+                "\"9reports\" Enter Home Delete Enter", 90, 10, true, false);
             yield return new Story("typed", "Typed confirmation", "For destructive actions the name has to be typed; anything else keeps the prompt open.",
-                "\"FS0\" Enter \"1\" Enter", 90, 10, true, false, ConfirmRemoval, nameof(ConfirmRemoval),
-                "if (Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation 'FS01') { Remove-Server FS01 }");
+                "\"FS0\" Enter \"1\" Enter", 90, 10, true, false);
             yield return new Story("shell", "A menu as an app", "The Shell layout: a breadcrumb title bar, a sidebar, the content pane and a footer that lists the keys that work right now. Ctrl+K opens the command palette, and the review shows the equivalent command line.",
-                "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q y", 120, 34, false, true, RunToolbox, nameof(RunToolbox),
-                "Show-ConsoleMenu $menu -Layout Shell", new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
+                "wait:1600 Enter Space Down Space Down Down Down Space Escape Down Enter Down Down Down Down wait:300 Escape Ctrl+K \"cert\" wait:300 Escape Escape r wait:300 Ctrl+Q", 120, 34, false, true, new[] { "SQL01", "3 of 11 selected", "› cert", "Equivalent command" });
             yield return new Story("wizard", "A form as a wizard", "Fields with pages become a wizard with a progress strip. Dependent fields reload their choices with a spinner, and the review page shows every answer and the equivalent command.",
-                "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape y", 110, 30, false, true, RunInstaller, nameof(RunInstaller),
-                "$answers = Read-ConsoleForm $form -AppName 'Agent setup'", new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
+                "PageDown Enter Escape PageDown Right Down \"svc-toolbox\" Down \"Example-Pass1\" PageDown Right wait:400 Down wait:1800 Enter Enter PageDown wait:300 Escape Escape Escape Escape Escape y", 110, 30, false, true, new[] { "3 of 6 selected", "eu-central-1", "Equivalent command" });
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
-                "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false, BrowseServices, nameof(BrowseServices),
-                "Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title 'Services' | Restart-Service -WhatIf");
+                "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }
 
-        private static void SelectServer(InteractiveOptions options) {
-            // <example>
-            SelectPrompt<ToolboxServer> prompt = new SelectPrompt<ToolboxServer>("Target server", ToolboxData.Servers, s => s.Name, s => s.Site) {
-                Description = "Type to filter; offline servers show why they cannot be picked."
-            };
-            foreach (Choice choice in prompt.Choices) {
-                ToolboxServer server = (ToolboxServer)choice.Value!;
-                choice.Badge = RichText.Plain(server.Role, new RichStyle(ThemeToken.Muted));
-                choice.DisabledReason = server.Offline;
-            }
-            ToolboxServer target = prompt.Show(options);
-            // </example>
-        }
+        private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", "interactive", story.Id + ".cs");
 
-        private static void SelectTasks(InteractiveOptions options) {
-            // <example>
-            IReadOnlyList<ToolboxTask> tasks = new MultiSelectPrompt<ToolboxTask>("Tasks", ToolboxData.Tasks, t => t.Name, t => t.Category) {
-                Minimum = 1,
-                Preview = ToolboxData.TaskPreview
-            }.Show(options);
-            // </example>
-        }
+        private static string ScriptPath(Site site, Story story) => Path.Combine(site.Website, "examples", "interactive", story.Id + ".ps1");
 
-        private static void AskShareName(InteractiveOptions options) {
-            // <example>
-            string name = new TextPrompt("Share name") {
-                Default = "Reports",
-                Pattern = "[A-Za-z][A-Za-z0-9_-]{1,23}",
-                PatternMessage = "Start with a letter; letters, digits, - and _ only",
-                Description = "Shown to users when they browse the server."
-            }.Show(options);
-            // </example>
-        }
+        private static string CapturePath(Site site, Story story) => Path.Combine(site.Captures, "interactive", story.Id + ".ps7.txt");
 
-        private static void ConfirmRemoval(InteractiveOptions options) {
-            // <example>
-            bool remove = new TypedConfirmPrompt("Remove FS01 from the inventory?", "FS01") {
-                Warning = "Its history and reports are deleted too. This cannot be undone."
-            }.Show(options);
-            // </example>
-        }
+        private static TerminalProfile Profile(Story story) =>
+            TerminalProfile.Fixed(story.Width, story.Height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture).WithLanguage(Site.Culture);
 
-        private static void RunToolbox(InteractiveOptions options) {
-            // <example>
-            Menu menu = ServerToolbox.Build();
-            menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = options, StorageRoot = Path.Combine(Path.GetTempPath(), "cmsite-toolbox") });
-            // </example>
-        }
-
-        private static void RunInstaller(InteractiveOptions options) {
-            // <example>
-            FormResult result = SetupWizard.Build().Show(new FormOptions { Interactive = options });
-            // </example>
-        }
-
-        private static void BrowseServices(InteractiveOptions options) {
-            // <example>
-            ConsoleMonster.Interactive.Grid grid = new ConsoleMonster.Interactive.Grid("Services on FS01");
-            grid.AddColumn(new TableColumn("Name") { IsKey = true });
-            grid.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-            grid.AddColumn("Start type");
-            grid.AddColumn(new TableColumn("Memory") { Presenter = CellPresenters.Bytes });
-            // <more>
-            grid.AddRow("Spooler", "Spooler", StatusKind.Pass, "Automatic", 14_221_312L);
-            grid.AddRow("MSSQLSERVER", "MSSQLSERVER", StatusKind.Pass, "Automatic", 812_466_176L);
-            grid.AddRow("SQLSERVERAGENT", "SQLSERVERAGENT", StatusKind.Warn, "Manual", 42_004_480L);
-            grid.AddRow("W32Time", "W32Time", StatusKind.Pass, "Automatic", 3_276_800L);
-            grid.AddRow("WinRM", "WinRM", StatusKind.Pass, "Automatic", 9_830_400L);
-            grid.AddRow("DFSR", "DFSR", StatusKind.Fail, "Automatic", 0L);
-            grid.AddRow("LanmanServer", "LanmanServer", StatusKind.Pass, "Automatic", 6_553_600L);
-            // </more>
-            GridResult picked = grid.Show(new GridOptions { Interactive = options });
-            // </example>
-        }
-
-        private static ScreenCapture Capture(Story story, ITheme? theme = null) {
+        // The driver: the scripted keys and the capture, set as the process defaults the shown program's prompts pick up. The
+        // run gets a fresh, empty temporary folder (a program may keep state there, such as the menu's presets), and every key
+        // must be used: a program that ends early, or waits for more keys, fails the render.
+        private static ScreenCapture Capture(Site site, Story story, ITheme? theme = null) {
             ScreenCapture capture = new ScreenCapture(story.Width, story.Height, story.Inline);
+            ScriptedInput keys = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime };
             InteractiveOptions options = new InteractiveOptions {
                 Mode = InteractionMode.Rich,
-                Input = new ScriptedInput(story.Keys) { Paced = true, RealTime = story.RealTime },
+                Input = keys,
                 Capture = capture,
                 Theme = theme ?? Theme.Dark,
                 Labels = new PromptLabels(),
-                Profile = TerminalProfile.Fixed(story.Width, story.Height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture)
+                Profile = Profile(story)
             };
+            string? tmp = Environment.GetEnvironmentVariable("TMP");
+            string? temp = Environment.GetEnvironmentVariable("TEMP");
+            string fresh = Path.Combine(Path.GetTempPath(), "cmsite-story-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(fresh);
             try {
-                story.Run(options);
-            } catch (Exception ex) when (ex is InputClosedException || ex is PromptCancelledException || ex is OperationCanceledException) {
-                // The script ends the prompt; what was drawn is kept in the capture.
+                Environment.SetEnvironmentVariable("TMP", fresh);
+                Environment.SetEnvironmentVariable("TEMP", fresh);
+                Environment.SetEnvironmentVariable("TMPDIR", fresh);
+                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? Theme.Dark, options);
+            } finally {
+                Environment.SetEnvironmentVariable("TMP", tmp);
+                Environment.SetEnvironmentVariable("TEMP", temp);
+                Environment.SetEnvironmentVariable("TMPDIR", null);
+                Site.RemoveTemporary(fresh);
+            }
+            if (keys.Remaining > 0) {
+                throw new InvalidOperationException(story.Id + ".cs ended with " + keys.Remaining + " scripted keys unused.");
             }
             return capture;
         }
 
-        public static void Render(Site site) {
-            string source = Path.Combine(site.Tool, "Pages", "InteractivePage.cs");
-            JsonArray list = new JsonArray();
+        // What a story's capture must have been made from: the twin script, the keys and the screen.
+        private static string Fingerprint(Site site, Story story) {
+            string source = Site.ReadText(ScriptPath(site, story)) + "\n" + story.Keys + "\n" + story.Width + "x" + story.Height + (story.Inline ? " inline" : " screen") + (story.RealTime ? " realtime" : string.Empty);
+            return Hash(source);
+        }
+
+        private static string Hash(string text) {
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                return Convert.ToHexString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text))).Substring(0, 16).ToLowerInvariant();
+            }
+        }
+
+        // One captured screen: a hash of its cells with their styles (ConsoleMonster's own HTML export), then its text, so a
+        // difference in colour fails the comparison as surely as a difference in words.
+        private static string Describe(CellBuffer frame) => Hash(ConsoleMonster.Export.ConsoleExporter.ToHtml(frame)) + "\n" + frame.ToPlainText().Replace("\r\n", "\n").TrimEnd();
+
+        /// <summary>Runs each PowerShell twin on PowerShell 7 with the same keys and saves the text of the screens it drew.</summary>
+        public static void Capture(Site site) {
             foreach (Story story in Stories()) {
-                List<CellBuffer> screens = Screens(story, Capture(story));
+                string script = ScriptPath(site, story);
+                if (!File.Exists(script)) {
+                    continue;
+                }
+                string output = CapturePath(site, story);
+                Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+                if (File.Exists(output)) {
+                    File.Delete(output);
+                }
+                string q(string text) => "'" + text.Replace("'", "''") + "'";
+                string driver =
+                    "$cmCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
+                    "$cmKeys = [ConsoleMonster.Input.ScriptedInput]::new(" + q(story.Keys) + ")\n" +
+                    "$cmKeys.Paced = $true\n$cmKeys.RealTime = $" + (story.RealTime ? "true" : "false") + "\n" +
+                    "$cmOptions = [ConsoleMonster.Interactive.InteractiveOptions]::Default\n" +
+                    "$cmOptions.Mode = 'Rich'\n$cmOptions.Input = $cmKeys\n$cmOptions.Capture = $cmCapture\n" +
+                    "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::Dark\n$cmOptions.Labels = [ConsoleMonster.Interactive.PromptLabels]::new()\n" +
+                    "$cmCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n" +
+                    "$cmOptions.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(" + story.Width + ", " + story.Height + ", 'TrueColor', 'Full').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
+                    ". " + q(script) + "\n" +
+                    "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
+                    "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
+                    "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
+                    "    $cmHtml = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($cmFrame)\n" +
+                    "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
+                    "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                    "}\n" +
+                    "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
+                string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + ".ps1");
+                File.WriteAllText(wrapper, driver, new System.Text.UTF8Encoding(true));
+                try {
+                    PowerShellRunner.Run(site, PowerShellHost.Core, wrapper, story.Width, story.Height, PowerShellRunner.Environment("dark"), Path.GetDirectoryName(script), interactive: true);
+                } finally {
+                    File.Delete(wrapper);
+                }
+                if (!File.Exists(output)) {
+                    throw new InvalidOperationException(story.Id + ".ps1 did not finish; nothing was captured.");
+                }
+                Console.WriteLine("captured " + Path.GetRelativePath(site.Website, output));
+            }
+        }
+
+        // Each distinct screen, in order (a screen repeated by the next frame counts once).
+        private static List<string> Distinct(IEnumerable<string> screens) {
+            List<string> list = new List<string>();
+            foreach (string screen in screens) {
+                if (list.Count == 0 || list[list.Count - 1] != screen) {
+                    list.Add(screen);
+                }
+            }
+            return list;
+        }
+
+        public static void Render(Site site) {
+            JsonArray list = new JsonArray();
+            List<string> problems = new List<string>();
+            foreach (Story story in Stories()) {
+                ScreenCapture capture = Capture(site, story);
+                List<CellBuffer> screens = Screens(story, capture);
                 if (screens.Count == 0) {
                     WidgetsPage.Report(new List<string> { story.Id + " drew no screens" }, "interactive");
                     continue;
@@ -188,14 +198,15 @@ namespace SiteFrames.Pages {
                 // Before it plays, a storyboard shows its fullest screen (a prompt ends by collapsing to a one-line answer).
                 int fullest = Fullest(screens);
                 string poster = FrameHtml.Body(FrameHtml.Rows(screens[fullest], ColorDepth.TrueColor, Screen.Dark, site.Styles), false);
-                list.Add(new JsonObject {
+                (string csharp, string csharpFull) = SourceSnippets.Program(Site.ReadText(ProgramPath(site, story)));
+                JsonObject entry = new JsonObject {
                     ["id"] = story.Id,
                     ["title"] = story.Title,
                     ["summary"] = story.Summary,
                     ["keys"] = story.Keys,
-                    ["csharp"] = SourceSnippets.Split(SourceSnippets.Get(source, story.Method)).Short,
-                    ["csharpFull"] = WidgetsPage.Longer(SourceSnippets.Split(SourceSnippets.Get(source, story.Method))),
-                    ["powershell"] = story.PowerShell,
+                    ["csharp"] = csharp,
+                    ["csharpFull"] = csharpFull,
+                    ["csharpFile"] = "Program.cs",
                     ["player"] = new JsonObject {
                         ["url"] = "/replays/interactive-" + story.Id + ".json",
                         ["w"] = story.Width,
@@ -205,9 +216,45 @@ namespace SiteFrames.Pages {
                         ["start"] = frames[fullest].Time,
                         ["poster"] = new JsonObject { ["w"] = story.Width, ["h"] = Height(screens), ["dark"] = poster }
                     }
-                });
+                };
+                if (File.Exists(ScriptPath(site, story))) {
+                    (string powershell, string powershellFull) = SourceSnippets.Program(Site.ReadText(ScriptPath(site, story)));
+                    entry["powershell"] = powershell;
+                    entry["powershellFull"] = powershellFull;
+                    entry["powershellFile"] = story.Id + ".ps1";
+                    entry["parity"] = Parity(site, story, capture, problems);
+                }
+                list.Add(entry);
             }
             site.WriteJson(site.Data("interactive"), new JsonObject { ["stories"] = list });
+            WidgetsPage.Report(problems, "interactive");
+        }
+
+        // Whether the PowerShell twin drew the same screens (by their text) as the C# program for the same keys.
+        private static bool Parity(Site site, Story story, ScreenCapture capture, List<string> problems) {
+            string path = CapturePath(site, story);
+            if (!File.Exists(path)) {
+                problems.Add(story.Id + " has no PowerShell capture; run the capture command for the interactive area.");
+                return false;
+            }
+            string[] parts = File.ReadAllText(path).Split('\f');
+            if (parts[0] != "source " + Fingerprint(site, story)) {
+                problems.Add(story.Id + ": the PowerShell capture was made from another version of " + story.Id + ".ps1, its keys or its screen; run the capture command for the interactive area.");
+                return false;
+            }
+            List<string> csharp = Distinct(System.Linq.Enumerable.Select(capture.Frames, Describe));
+            List<string> powershell = Distinct(System.Linq.Enumerable.Skip(parts, 1));
+            if (csharp.Count != powershell.Count) {
+                problems.Add(story.Id + ": PowerShell drew " + powershell.Count + " distinct screens, C# " + csharp.Count + ".");
+                return false;
+            }
+            for (int i = 0; i < csharp.Count; i++) {
+                if (csharp[i] != powershell[i]) {
+                    problems.Add(story.Id + ": screen " + (i + 1) + " differs between PowerShell and C#:\n--- C#\n" + csharp[i] + "\n--- PowerShell\n" + powershell[i]);
+                    return false;
+                }
+            }
+            return true;
         }
 
         // The screens a storyboard shows: every distinct frame, or for apps the frame that settles on each phrase.
@@ -224,9 +271,10 @@ namespace SiteFrames.Pages {
                             }
                         }
                     }
-                    if (found != null) {
-                        screens.Add(found);
+                    if (found == null) {
+                        throw new InvalidOperationException(story.Id + ": no screen shows \"" + phrase + "\"; the keys or the program changed.");
                     }
+                    screens.Add(found);
                 }
                 return screens;
             }
@@ -288,7 +336,7 @@ namespace SiteFrames.Pages {
         public static CellBuffer? Thumbnail(Site site, ITheme theme) {
             foreach (Story story in Stories()) {
                 if (story.Id == "shell") {
-                    List<CellBuffer> screens = Screens(story, Capture(story, theme));
+                    List<CellBuffer> screens = Screens(story, Capture(site, story, theme));
                     return screens.Count > 1 ? screens[1] : screens.Count > 0 ? screens[0] : null;
                 }
             }

@@ -1,4 +1,4 @@
-BeforeDiscovery {
+﻿BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 
     # Every script example: the website gallery and demos, and the module's own examples.
@@ -35,6 +35,7 @@ BeforeAll {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
     $script:ModulePath = Join-Path $script:RepositoryRoot 'Module\ConsoleMonster.psd1'
     $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+
 
     # Primary PowerShell examples are written in the cmdlet form. These patterns are the .NET form: type names, constructors,
     # discarded method results and the widgets' add/write/set methods.
@@ -100,6 +101,12 @@ BeforeAll {
         $text = "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(`$false)`n" + $Script
         $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($text))
         $info = [System.Diagnostics.ProcessStartInfo]::new($script:Runtime, "-NoLogo -NoProfile -EncodedCommand $encoded")
+        # Each example gets its own temporary folder, removed afterwards: some write there (the record demo saves a recording).
+        $temp = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-' + [guid]::NewGuid().ToString('N').Substring(0, 12))
+        $null = New-Item -ItemType Directory -Path $temp
+        $info.Environment['TEMP'] = $temp
+        $info.Environment['TMP'] = $temp
+        $info.Environment['TMPDIR'] = $temp
         $info.UseShellExecute = $false
         $info.CreateNoWindow = $true
         $info.RedirectStandardInput = $true
@@ -120,6 +127,7 @@ BeforeAll {
             (($stdout.Result + "`n" + $stderr.Result) -replace "`r", '') -split "`n"
         } finally {
             $process.Dispose()
+            Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 
@@ -166,19 +174,68 @@ BeforeAll {
         }
         'Module/Examples/Example-Stress.ps1'         = @{ Arguments = '-Seconds 2' }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
+        # The everyday and FormatCommands demos run Windows commands (svchost, Get-Service), as their recordings do; a
+        # command that does not exist stops the script, so they run on Windows only.
+        'Website/examples/demos/formatting.ps1'      = @{ RequiresWindows = $true }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
+        'Website/examples/demos/format-commands.ps1' = @{ RequiresWindows = $true }
+        # ForEach-Object -Parallel needs PowerShell 7 (the demo says so).
+        'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
+    }
+    # The site's prompt stories answer with the keys the site records them with (data/interactive.json, written by the site
+    # tool from the same story list), on a captured screen of the story's size.
+    $interactive = Get-Content -LiteralPath (Join-Path $script:RepositoryRoot 'Website\data\interactive.json') -Raw | ConvertFrom-Json
+    foreach ($story in $interactive.stories) {
+        $name = "Website/examples/interactive/$($story.id).ps1"
+        if (Test-Path -LiteralPath (Join-Path $script:RepositoryRoot $name)) {
+            $script:ExampleCases[$name] = @{ Input = $story.keys; RealTime = $true; Paced = $true; Screen = "$($story.player.w)x$($story.player.h)"; Expect = @($story.title.Substring(0, 0)) }
+        }
     }
 }
 
 Describe 'Examples run headless' -Tag 'Examples' {
+    BeforeAll {
+        # Examples import the module by name (Import-Module ConsoleMonster), as a reader's copy would. A link named
+        # ConsoleMonster to this repository's Module folder, first on PSModulePath in each child, makes that name load the
+        # repository build instead of an installed version. ConsoleMonster.PowerShell is linked beside it because the
+        # module's development loader looks for the cmdlet binaries at $PSScriptRoot\..\ConsoleMonster.PowerShell\bin.
+        $script:ModuleLinkRoot = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-modules-' + $PID + '-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+        $script:ModuleLinks = @(
+            @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster'; Target = Join-Path $script:RepositoryRoot 'Module' }
+            @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster.PowerShell'; Target = Join-Path $script:RepositoryRoot 'ConsoleMonster.PowerShell' }
+        )
+        $null = New-Item -ItemType Directory -Force -Path $script:ModuleLinkRoot
+        $linkType = if ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) { 'Junction' } else { 'SymbolicLink' }
+        foreach ($link in $script:ModuleLinks) {
+            $null = New-Item -ItemType $linkType -Path $link.Path -Value $link.Target
+        }
+    }
+
+    AfterAll {
+        # Directory.Delete without recursion removes the link itself and never the repository folder it points to.
+        foreach ($link in $script:ModuleLinks) {
+            if (Test-Path -LiteralPath $link.Path) { [IO.Directory]::Delete($link.Path, $false) }
+        }
+        if (Test-Path -LiteralPath $script:ModuleLinkRoot) { [IO.Directory]::Delete($script:ModuleLinkRoot, $false) }
+    }
     It '<Name> runs without errors' -ForEach $script:ExampleRuns {
         $case = $script:ExampleCases[$Name]
         if ($null -eq $case) { $case = @{} }
+        if ($case['RequiresCore'] -and $PSVersionTable.PSEdition -eq 'Desktop') {
+            Set-ItResult -Skipped -Because 'the example uses PowerShell 7 syntax and says so'
+            return
+        }
+        if ($case['RequiresWindows'] -and -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows)) {
+            Set-ItResult -Skipped -Because 'the example runs Windows commands, as its recording does'
+            return
+        }
         # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
         $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
-        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
+        # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
+        $paced = if ($case['Paced']) { '$true' } else { '$false' }
+        $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         # A case with a Screen draws the rich layouts on a fixed screen captured in memory, whose frames the Expect phrases
         # are looked up in afterwards.
@@ -193,7 +250,9 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
-Import-Module '$script:ModulePath' -Force
+`$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
+Import-Module ConsoleMonster -Force
+if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Write-ConsoleWidget).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $keys
 $screen
 Set-Location -LiteralPath '$(Split-Path -Parent $Path)'

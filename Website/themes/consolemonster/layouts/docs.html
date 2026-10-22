@@ -15,15 +15,38 @@
 <main id="main" class="cm-main">
   {{~ masthead_title = page.title; masthead_lede = page.description; masthead_extra = "" ~}}
   {{ include "masthead" }}
-  <div class="cm-wrap cm-docs">
+  {{~ ## "On this page" only earns its column on a long page: at least four headings and more than about two screens of
+       text (the page's text without markup, frames included, over 5,000 characters). Otherwise the article takes the
+       width. Front matter toc: true or toc: false decides it for a page. ## ~}}
+  {{~ toc_count = 0; if toc != ""; toc_count = ((toc | string.split "<li") | array.size) - 1; end
+      text_size = content | html.strip | string.size
+      show_toc = toc_count >= 4 && text_size > 5000
+      if page.meta.toc == true; show_toc = toc != ""; end
+      if page.meta.toc == false; show_toc = false; end ~}}
+  {{~ ## Previous and next follow the documentation order, then the guides: the order of the sidebar. ## ~}}
+  {{~ seq = []; for m in ["docs", "guides"]; mt = pf.menu m; for it in mt.items
+        if it.url != "/docs/" && it.url != "/guides/"; seq = seq | array.add it; end
+        for ch in it.items; seq = seq | array.add ch; end
+      end; end
+      at = -1; for it in seq; if it.is_active; at = for.index; end; end
+      prev = null; next = null
+      if at > 0; prev = seq[at - 1]; end
+      if at >= 0 && at < seq.size - 1; next = seq[at + 1]; end ~}}
+  <div class="cm-wrap cm-docs{{ if !show_toc }} cm-docs--wide{{ end }}">
     {{ include "docs-sidebar" }}
     <article class="cm-docs__article">
       <div class="cm-prose">
 {{ content }}
       </div>
+      {{~ if prev || next ~}}
+      <nav class="cm-docs__pager" aria-label="Previous and next page">
+        {{~ if prev ~}}<a class="cm-docs__pager-prev" href="{{ prev.url }}" rel="prev"><span>Previous<span class="cm-visually-hidden">: </span></span>{{ prev.title | html.escape }}</a>{{~ end ~}}
+        {{~ if next ~}}<a class="cm-docs__pager-next" href="{{ next.url }}" rel="next"><span>Next<span class="cm-visually-hidden">: </span></span>{{ next.title | html.escape }}</a>{{~ end ~}}
+      </nav>
+      {{~ end ~}}
       {{ if edit_url != "" }}<p class="cm-docs__edit"><a href="{{ edit_url }}">Edit this page on GitHub</a></p>{{ end }}
     </article>
-    {{ if toc != "" }}<aside class="cm-docs__toc" aria-label="On this page">{{ toc }}</aside>{{ end }}
+    {{ if show_toc }}<aside class="cm-docs__toc" aria-label="On this page">{{ toc }}</aside>{{ end }}
   </div>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}

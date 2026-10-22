@@ -24,11 +24,16 @@
       {{ include "screen" }}
     </div>
   </section>
-  <div class="cm-wrap cm-page">
-    <div class="cm-prose">
+  {{~ ## The way on: the same entry strip as the home page's close, with the page's own line above it. ## ~}}
+  <section class="cm-section cm-wrap" aria-labelledby="cm-start-title">
+    <div class="cm-section__head">
+      <h2 id="cm-start-title">{{ data.copy.home.start.title }}</h2>
+      <div class="cm-prose">
 {{ content }}
+      </div>
     </div>
-  </div>
+    {{ include "start-cards" }}
+  </section>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}
 {{ extra_scripts_html }}

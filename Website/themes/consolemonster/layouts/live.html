@@ -33,9 +33,13 @@
       {{~ for f in st.result.facts ~}}<div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{{~ end ~}}
     </dl>
     <p class="cm-section__source">{{ copy.stress.source }}</p>
-    {{~ end ~}}
     {{~ code_lang = "text"; code_label = "Result line"; code_text = st.result.line ~}}
     {{ include "code" }}
+    {{~ end ~}}
+    <div class="cm-live__code">
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = st.csharpFile; code_text = st.csharp; code_full = st.csharpFull ~}}
+      {{ include "code" }}
+    </div>
   </section>
 
   <section class="cm-showcase" aria-labelledby="assessment-title">
@@ -43,7 +47,7 @@
       <h2 id="assessment-title">{{ copy.assessment.title }}</h2>
       <p>{{ copy.assessment.body | string.replace "{events}" (live.assessment.events | math.format "N0") }}</p>
     </div>
-    {{~ player_data = live.assessment; player_title = "ConsoleMonster.Examples assessment"; player_meta = ["24-bit", "Full"]; player_label = "The parallel assessment dashboard, replayed from its recording"; player_compact = live.assessmentCompact.url; player_alt = live.assessmentCompact.poster; player_autoplay = true ~}}
+    {{~ player_data = live.assessment; player_title = live.assessment.command; player_meta = ["24-bit", "Full"]; player_label = "The parallel assessment dashboard, replayed from its recording"; player_compact = live.assessmentCompact.url; player_alt = live.assessmentCompact.poster; player_autoplay = true ~}}
     {{ include "player" }}
     <div class="cm-steps">
       <div>
@@ -56,11 +60,8 @@
       <div>
         <h3>{{ copy.assessment.layoutTitle }}</h3>
         <p>{{ copy.assessment.layoutBody }}</p>
-        <details class="cm-source">
-          <summary>C# source of the dashboard</summary>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_file = "ConsoleMonster.Examples/Showcases/ParallelRun.cs"; code_text = live.assessmentSource ~}}
-          {{ include "code" }}
-        </details>
+        {{~ a = live.assessment; code_lang = "csharp"; code_label = "C#"; code_file = a.csharpFile; code_text = a.csharp; code_full = a.csharpFull ~}}
+        {{ include "code" }}
       </div>
     </div>
   </section>
@@ -86,7 +87,9 @@
     <div class="cm-steps">
       <div>
         <h3>{{ copy.pipeline.scriptTitle }}</h3>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "Module/Examples/Example-BuildPipeline.ps1"; code_text = live.pipelineScript ~}}
+        {{~ pl = live.pipeline.source; code_lang = "powershell"; code_label = "PowerShell"; code_file = pl.powershellFile; code_text = pl.powershell; code_full = pl.powershellFull ~}}
+        {{ include "code" }}
+        {{~ code_lang = "csharp"; code_label = "C#"; code_file = pl.csharpFile; code_text = pl.csharp; code_full = pl.csharpFull ~}}
         {{ include "code" }}
       </div>
       <div>
@@ -105,6 +108,12 @@
     </div>
     {{~ s = live.stream; screen_frame = s.frame; screen_title = s.title; screen_meta = s.meta; screen_dark = true; screen_label = "The assessment narrated as plain lines"; screen_class = "cm-stream" ~}}
     {{ include "screen" }}
+    <div class="cm-live__code">
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = null; code_text = "$env:CONSOLEMONSTER_MODE = 'stream'\ndotnet run -- assessment-run.jsonl 6\nRemove-Item Env:CONSOLEMONSTER_MODE" ~}}
+      {{ include "code" }}
+      {{~ code_lang = "bash"; code_label = "bash"; code_text = "CONSOLEMONSTER_MODE=stream dotnet run -- assessment-run.jsonl 6" ~}}
+      {{ include "code" }}
+    </div>
   </section>
 
   <section class="cm-showcase" aria-labelledby="query-title">
@@ -114,6 +123,10 @@
     </div>
     {{~ q = live.query; screen_frame = q.frame; screen_title = q.title; screen_meta = q.meta; screen_label = q.label ~}}
     {{ include "screen" }}
+    <div class="cm-live__code">
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = q.csharpFile; code_text = q.csharp; code_full = q.csharpFull ~}}
+      {{ include "code" }}
+    </div>
   </section>
 
   <div class="cm-prose">

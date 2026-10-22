@@ -2,7 +2,11 @@
 title: Logging
 description: A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags, scopes and exceptions, and plain lines when output is redirected.
 slug: logging
-order: 10
+order: 12
+group: apps
+card: logging
+apis: [ILogger]
+summary: "A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags."
 ---
 
 ```bash

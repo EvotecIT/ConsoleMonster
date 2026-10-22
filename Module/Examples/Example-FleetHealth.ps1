@@ -7,7 +7,7 @@
 # load for the chosen domain, grouped checks with a preview, the review with the equivalent command, and a run into a
 # dashboard on a simulated clock that ends on a results summary with next actions. The outcomes are fixed, so every run
 # tells the same story. All data is invented.
-Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+Import-Module ConsoleMonster
 
 #region more
 $servers = foreach ($server in @(

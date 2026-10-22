@@ -21,6 +21,10 @@
 {{~ stage_title = page.title; stage_lede = copy.lede | string.replace "{cmdlets}" hm.cmdlets; stage_side = ""; stage_art = art; stage_wide = false ~}}
 {{ include "stage" }}
 <div class="cm-wrap cm-page">
+  {{~ ## Install first: the page's own content (install steps and how the frames were made), then the showcases. ## ~}}
+  <div class="cm-prose">
+{{ content }}
+  </div>
   <section class="cm-showcase" aria-labelledby="ps-format-title">
     <div class="cm-showcase__head">
       <h2 id="ps-format-title">{{ copy.format.title }}</h2>
@@ -49,20 +53,15 @@
     </div>
     <div class="cm-steps">
       <div>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-table.ps1"; code_text = ex["format-table"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-table.ps1"; code_text = ex["format-table"].script; code_full = ex["format-table"].scriptFull ~}}
         {{ include "code" }}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletable.ps1"; code_text = ex["format-consoletable"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletable.ps1"; code_text = ex["format-consoletable"].script; code_full = ex["format-consoletable"].scriptFull ~}}
         {{ include "code" }}
       </div>
       <div>
         <ul class="cm-points">
           {{~ for p in copy.format.points ~}}<li>{{ p }}</li>{{~ end ~}}
         </ul>
-        <details class="cm-source">
-          <summary>The data both scripts use</summary>
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "artifacts.ps1"; code_text = ex.artifacts.script ~}}
-          {{ include "code" }}
-        </details>
       </div>
     </div>
   </section>
@@ -77,12 +76,14 @@
         <h3>Format-List</h3>
         {{~ f = ex["format-list"].rich.ps7; screen_frame = f.frame; screen_title = "Format-List"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-List output" ~}}
         {{ include "screen" }}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-list.ps1"; code_text = ex["format-list"].script; code_full = ex["format-list"].scriptFull ~}}
+        {{ include "code" }}
       </div>
       <div>
         <h3>Format-ConsoleList</h3>
         {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Format-ConsoleList"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-ConsoleList output" ~}}
         {{ include "screen" }}
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script; code_full = ex["format-consolelist"].scriptFull ~}}
         {{ include "code" }}
       </div>
     </div>
@@ -93,7 +94,7 @@
         {{ include "screen" }}
       </div>
       <div>
-        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletree.ps1"; code_text = ex["format-consoletree"].script ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consoletree.ps1"; code_text = ex["format-consoletree"].script; code_full = ex["format-consoletree"].scriptFull ~}}
         {{ include "code" }}
       </div>
     </div>
@@ -111,6 +112,9 @@
         <h3>{{ v.title }}</h3>
         {{~ screen_frame = f.frame; screen_title = v.command; screen_meta = [f.host]; screen_dark = true; screen_label = v.title ~}}
         {{ include "screen" }}
+        {{~ if v.run; code_lang = "powershell"; code_label = "PowerShell"; code_text = v.run ~}}
+        {{ include "code" }}
+        {{~ end ~}}
       </div>
       {{~ end ~}}
     </div>
@@ -138,7 +142,7 @@
       </div>
       {{~ end ~}}
     </div>
-    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "job.ps1"; code_text = ex.job.script ~}}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "job.ps1"; code_text = ex.job.script; code_full = ex.job.scriptFull ~}}
     {{ include "code" }}
     <p><a href="/guides/hosts-and-ci/">How output behaves in CI, jobs, remoting, SSH, the ISE and transcripts</a></p>
   </section>
@@ -159,9 +163,6 @@
       {{~ end ~}}
     </div>
   </section>
-  <div class="cm-prose">
-{{ content }}
-  </div>
 </div>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}

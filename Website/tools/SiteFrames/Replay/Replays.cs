@@ -15,62 +15,11 @@ using SiteFrames.Vt;
 
 namespace SiteFrames.Replay {
     /// <summary>
-    /// Turns recordings into frames. A JSON-lines recording (what <see cref="LiveRecorder"/> writes) is read back with
-    /// <see cref="LiveRecordingReader"/> and played into the dashboard it was recorded from, the way ConsoleMonster's own
-    /// recording export does: events are applied by name in order and the tree is composed at a fixed frame rate, with the
-    /// session clock following the recorded timeline. A pseudo-console capture (asciicast) is fed through
-    /// <see cref="VtScreen"/> and sampled at the same rate.
+    /// Recordings: writes the synthetic JSON-lines file a shown program replays (with <see cref="LiveRecorder"/>), saves
+    /// pseudo-console captures as asciicast stamped with a fingerprint of what made them, and turns asciicast back into
+    /// frames through <see cref="VtScreen"/>, sampled at a fixed rate.
     /// </summary>
     internal static class Replays {
-        public static List<TimedFrame> FromEvents(IWidget root, IReadOnlyList<LiveEvent> events, int width, int height, double fps, ITheme theme, double speed = 1, ColorDepth depth = ColorDepth.TrueColor, GlyphTier glyphs = GlyphTier.Full) {
-            Dictionary<string, ILiveTarget> targets = new Dictionary<string, ILiveTarget>(StringComparer.Ordinal);
-            ILiveTarget? log = null;
-            Discover(root, targets, ref log);
-            TerminalProfile profile = TerminalProfile.Fixed(width, height, depth, glyphs).WithCulture(Site.Culture);
-            RenderContext context = ConsoleMonster.Terminal.CreateContext(profile, theme);
-            long end = 0;
-            foreach (LiveEvent e in events) {
-                end = Math.Max(end, e.Time);
-            }
-            List<TimedFrame> frames = new List<TimedFrame>();
-            // Frames are sampled on the recorded timeline (so clocks show recorded time) and shown sooner at higher speeds.
-            double period = 1000.0 * speed / fps;
-            int index = 0;
-            long tick = 0;
-            for (double next = 0; ; next += period) {
-                long until = (long)Math.Round(next);
-                while (index < events.Count && events[index].Time <= until) {
-                    LiveEvent e = events[index++];
-                    ILiveTarget? target = e.Target == "$log" ? log : targets.TryGetValue(e.Target, out ILiveTarget? found) ? found : null;
-                    try {
-                        target?.Apply(e);
-                    } catch (Exception) {
-                        // A malformed event changes nothing, as in a live session.
-                    }
-                }
-                CellBuffer frame = FrameComposer.Compose(root, width, height, context.WithClock(tick++, TimeSpan.FromMilliseconds(until)));
-                frames.Add(new TimedFrame((long)Math.Round(until / speed), frame));
-                if (index >= events.Count && until >= end) {
-                    break;
-                }
-            }
-            return frames;
-        }
-
-        private static void Discover(IWidget widget, Dictionary<string, ILiveTarget> targets, ref ILiveTarget? log) {
-            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name) && !targets.ContainsKey(target.Name)) {
-                targets.Add(target.Name, target);
-                if (log == null && target is ILogTarget) {
-                    log = target;
-                }
-            }
-            if (widget is IContainer container) {
-                foreach (IWidget child in container.Children) {
-                    Discover(child, targets, ref log);
-                }
-            }
-        }
-
         /// <summary>Writes events as a JSON-lines recording with <see cref="LiveRecorder"/>.</summary>
         public static string Record(IEnumerable<LiveEvent> events) {
             StringWriter writer = new StringWriter(CultureInfo.InvariantCulture) { NewLine = "\n" };
@@ -82,10 +31,21 @@ namespace SiteFrames.Replay {
             return writer.ToString();
         }
 
-        /// <summary>Reads a JSON-lines recording back with <see cref="LiveRecordingReader"/>.</summary>
-        public static List<LiveEvent> Read(string jsonLines) {
-            using (StringReader reader = new StringReader(jsonLines)) {
-                return new List<LiveEvent>(LiveRecordingReader.Read(reader));
+        /// <summary>A short hash of everything a recording was made from (its program, arguments, size and data).</summary>
+        public static string Fingerprint(params string[] parts) {
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(string.Join("\n\u0001", parts).Replace("\r\n", "\n")))).Substring(0, 16).ToLowerInvariant();
+            }
+        }
+
+        /// <summary>Writes a fingerprint into an asciicast header (cm_source), so a render can tell a recording is stale.</summary>
+        public static string Stamp(string cast, string fingerprint) => "{\"cm_source\":\"" + fingerprint + "\"," + cast.Substring(cast.IndexOf('{') + 1);
+
+        /// <summary>The fingerprint an asciicast was stamped with, or null.</summary>
+        public static string? Source(string cast) {
+            int end = cast.IndexOf('\n');
+            using (JsonDocument header = JsonDocument.Parse(end < 0 ? cast : cast.Substring(0, end))) {
+                return header.RootElement.TryGetProperty("cm_source", out JsonElement value) ? value.GetString() : null;
             }
         }
 

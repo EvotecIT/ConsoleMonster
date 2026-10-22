@@ -17,6 +17,12 @@ namespace SiteFrames.Pages {
     internal static class PowerShellPage {
         public const int Width = 100;
 
+        /// <summary>The width of the narrow variant, a console too small for the table.</summary>
+        public const int NarrowWidth = 56;
+
+        /// <summary>The console width a capture variant ran at.</summary>
+        public static int RunWidth(string variant) => variant == "narrow" ? NarrowWidth : Width;
+
         /// <summary>A capture: the script, a variant name, the environment and the hosts it runs on.</summary>
         private sealed class Run {
             public Run(string id, string variant, Dictionary<string, string?> environment, PowerShellHost[] hosts, int width = Width) {
@@ -46,10 +52,28 @@ namespace SiteFrames.Pages {
             yield return new Run("format-consoletable", "nocolor", noColor, new[] { PowerShellHost.Core });
             Dictionary<string, string?> ascii = PowerShellRunner.Environment("dark", "16", "ascii");
             yield return new Run("format-consoletable", "16-ascii", ascii, new[] { PowerShellHost.Desktop });
-            yield return new Run("format-consoletable", "narrow", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }, 56);
+            yield return new Run("format-consoletable", "narrow", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }, NarrowWidth);
+            // -As Markdown returns a document instead of drawing; the console shows that text as it is.
+            yield return new Run("export-markdown", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
+            yield return new Run("relative-dates", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
+            yield return new Run("files", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core });
+            // Native stream colours before and after -Feature Streams, on both hosts and in both themes.
+            yield return new Run("streams", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All);
+            yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);
         }
 
-        private static string Path_(Site site, Run run, PowerShellHost host) => Path.Combine(site.Captures, "powershell", run.Id + "." + run.Variant + "." + host.Id + ".ansi");
+        private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
+
+        /// <summary>The raw capture of a script run: captures/powershell/&lt;id&gt;.&lt;variant&gt;.&lt;host&gt;.ansi.</summary>
+        public static string CapturePath(Site site, string id, string variant, PowerShellHost host) => Path.Combine(site.Captures, "powershell", id + "." + variant + "." + host.Id + ".ansi");
+
+        /// <summary>A capture as a frame, as the page shows it: from its first line with text, cropped.</summary>
+        public static CellBuffer? CaptureFrame(Site site, string id, string variant, PowerShellHost host, int width = Width) {
+            string path = CapturePath(site, id, variant, host);
+            return File.Exists(path) ? Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), width, 120))) : null;
+        }
+
+        private static string Stamp(Site site, Run run, PowerShellHost host) => Stamps.Of(Twins.Script(site, "powershell", run.Id), run.Environment, host.Id, run.RunWidth.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
@@ -58,6 +82,7 @@ namespace SiteFrames.Pages {
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
+                    Stamps.Write(site, path, Stamp(site, run, host));
                     Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
                 }
             }
@@ -67,7 +92,11 @@ namespace SiteFrames.Pages {
             JsonObject examples = new JsonObject();
             List<string> problems = new List<string>();
             foreach (Run run in Runs()) {
-                JsonObject example = examples[run.Id] as JsonObject ?? new JsonObject { ["script"] = Site.ReadText(Twins.Script(site, "powershell", run.Id)) };
+                JsonObject? example = examples[run.Id] as JsonObject;
+                if (example == null) {
+                    (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Twins.Script(site, "powershell", run.Id)));
+                    example = new JsonObject { ["script"] = shortForm, ["scriptFull"] = WidgetsPage.Longer((shortForm, full)) };
+                }
                 examples[run.Id] = example;
                 JsonObject variant = new JsonObject();
                 foreach (PowerShellHost host in run.Hosts) {
@@ -75,6 +104,10 @@ namespace SiteFrames.Pages {
                     if (!File.Exists(path)) {
                         problems.Add("missing capture " + Path.GetFileName(path) + "; run the capture command.");
                         continue;
+                    }
+                    string? stale = Stamps.Check(site, path, Stamp(site, run, host), "powershell");
+                    if (stale != null) {
+                        problems.Add(stale);
                     }
                     CellBuffer frame = Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), run.RunWidth, 120)));
                     variant[host.Id] = new JsonObject {
@@ -84,7 +117,6 @@ namespace SiteFrames.Pages {
                 }
                 example[run.Variant] = variant;
             }
-            examples["artifacts"] = new JsonObject { ["script"] = Site.ReadText(Twins.Script(site, "powershell", "artifacts")) };
             site.WriteJson(site.Data("powershell"), new JsonObject {
                 ["examples"] = examples,
                 ["families"] = Families(site)

@@ -1,4 +1,6 @@
-﻿$module = (Get-Module ConsoleMonster).Path
+﻿Import-Module ConsoleMonster
+
+$module = (Get-Module ConsoleMonster).Path
 Start-Job -ArgumentList $module {
     param($Module)
     Import-Module $Module

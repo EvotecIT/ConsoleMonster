@@ -1,8 +1,12 @@
 ---
 title: PowerShell conventions
-description: One grammar for every widget: containers take script blocks, items are commands with shared parameters, and .NET methods still work.
+description: "One grammar for every widget: containers take script blocks, items are commands with shared parameters, and .NET methods still work."
 slug: powershell-conventions
-order: 13
+order: 15
+group: hosts
+card: shaping
+chips: [Cmdlets, Script blocks]
+summary: "One grammar for every widget, and each widget's .NET methods."
 ---
 
 Every widget is a `New-Console*` command, and they read the same way, so a widget you have not used yet works like the last one.
@@ -13,6 +17,8 @@ Every widget is a `New-Console*` command, and they read the same way, so a widge
 - **A widget made earlier grows with `Add-ConsoleItem`**, which takes the same item commands; a widget in a running dashboard changes through the live commands (`Update-ConsoleStatus`, `Write-ConsoleLog`, `Add-ConsoleValue`...).
 
 ```powershell
+Import-Module ConsoleMonster
+
 New-ConsoleTree '[bold]evotec.xyz[/]' {
     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
@@ -21,6 +27,16 @@ New-ConsoleTree '[bold]evotec.xyz[/]' {
     New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
 } | Write-ConsoleWidget
 
+# Objects with children: each group's Members become its branches.
+$groups = @(
+    [pscustomobject]@{ Name = 'Domain Admins'; Health = 'Warn'; Members = @(
+        [pscustomobject]@{ Name = 'admin.jane'; Health = 'Pass' }
+        [pscustomobject]@{ Name = 'svc.backup'; Health = 'Warn' }
+    ) }
+    [pscustomobject]@{ Name = 'Enterprise Admins'; Health = 'Pass'; Members = @(
+        [pscustomobject]@{ Name = 'admin.jane'; Health = 'Pass' }
+    ) }
+)
 $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -Depth 3 | Write-ConsoleWidget
 ```
 
@@ -59,6 +75,8 @@ The cmdlet form is what the documentation shows first. Each widget is also an or
 The same log written both ways:
 
 ```powershell
+Import-Module ConsoleMonster
+
 New-ConsoleLog -Height 5 {
     New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
     New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
@@ -67,10 +85,12 @@ New-ConsoleLog -Height 5 {
 
 ```powershell
 # Using the object directly
+Import-Module ConsoleMonster
+
 $log = New-ConsoleLog -Height 5
 $log.Write('Discovered 4 domain controllers in 2 domains', 'info', [timespan]::FromSeconds(2))
 $log.Write('DC02: USN rollback check failed (event 2095)', 'err', [timespan]::FromSeconds(44))
 $log | Write-ConsoleWidget
 ```
 
-The full conventions, with every widget and parameter, are in [Docs/PowerShell-Conventions.md](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/PowerShell-Conventions.md), and every command is in the [command reference](/powershell/commands/).
+Every command, with its parameters and examples, is in the [command reference](/powershell/commands/), and the [widget gallery](/widgets/) shows each widget's script beside what it draws. The repository keeps the full conventions document as well ([view on GitHub](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/PowerShell-Conventions.md)).

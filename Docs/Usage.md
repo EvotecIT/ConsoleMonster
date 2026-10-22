@@ -126,6 +126,7 @@ using (LiveSession session = new LiveSession(dashboard)) {
 
 Every widget can be written in three equivalent styles. They build the same objects and render the same output (a
 golden test checks it), so use whichever reads best for the case, and mix them freely.
+Each style as a complete program, with the frame all three print: [Three ways to write it in C#](https://consolemonster.dev/docs/csharp-styles/).
 
 1. Object initializers are the canonical model, and the clearest when you set many options at once or fill rows in a loop:
 
@@ -171,10 +172,23 @@ Terminal.Write(new Rows()
 ```
 
 3. Nested composition uses `using static ConsoleMonster.Ui;` factories, so the code has the shape of the screen.
-   It's the clearest for layouts:
+   It's the clearest for layouts. The `With...` methods are extension methods in each widget's own namespace,
+   so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines:
 
 ```csharp
+using ConsoleMonster;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Presenters;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
 using static ConsoleMonster.Ui;
+
+Server[] servers = {
+    new("web01", "IIS", 8L * 1024 * 1024 * 1024, StatusKind.Pass),
+    new("app01", "App", 16L * 1024 * 1024 * 1024, StatusKind.Warn),
+    new("db01", "SQL", 64L * 1024 * 1024 * 1024, StatusKind.Fail)
+};
+double[] load = { 12, 18, 31, 64, 47, 38, 55, 70, 72, 41 };
 
 Terminal.Write(Rows(
     Columns(
@@ -190,6 +204,8 @@ Terminal.Write(Rows(
     ).WithGap(1),
     Text("[muted]Updated 10:02[/]")
 ).WithGap(1));
+
+record Server(string Name, string Role, long Ram, StatusKind Status);
 ```
 
 All three print:
@@ -326,6 +342,10 @@ Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security
 checks, an assessment run summary and build artifacts at any width.
+The scripts in `Module/Examples` import the module by name (`Import-Module ConsoleMonster`), as a copy on your machine
+would. To run them against a build of this repository, put a folder holding a link named `ConsoleMonster` to `Module` (and
+one named `ConsoleMonster.PowerShell` to `ConsoleMonster.PowerShell`) first on `PSModulePath`, as
+`Module/Tests/ConsoleMonster.Examples.Tests.ps1` does.
 
 ## Rich text
 

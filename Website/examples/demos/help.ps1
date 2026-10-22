@@ -1,4 +1,6 @@
-﻿# Show-ConsoleHelp reads the help PowerShell already has: here a function's comment-based help.
+﻿Import-Module ConsoleMonster
+
+# Show-ConsoleHelp reads the help PowerShell already has: here a function's comment-based help.
 #region more
 function Test-MailDomain {
     <#
@@ -32,8 +34,5 @@ function Test-MailDomain {
     process { [pscustomobject] @{ Domain = $Domain; Checks = 5 } }
 }
 #endregion
-#region hidden
-Write-Host 'PS> Show-ConsoleHelp Test-MailDomain' -ForegroundColor Yellow
-Start-Sleep -Milliseconds 900
-#endregion
+
 Show-ConsoleHelp Test-MailDomain

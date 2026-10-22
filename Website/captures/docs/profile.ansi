@@ -1,5 +1,12 @@
-[?9001h[?1004h[?25l[2J[m[HConhost 100x40 Interactive TrueColor Full
-]0;C:\Support\GitHub\_worktrees\ConsoleMonster-website\ConsoleMonster.Examples\bin\Release\net8.0\ConsoleMonster.Examples.exe[?25h  mode: Interactive (VT terminal)
+[?9001h[?1004h[?25l[2J[m[1m[HThis console[38;2;139;143;154m[22m
+Mode             [mInteractive[38;2;139;143;154m
+ColorDepth       [mTrueColor[38;2;139;143;154m
+Glyphs           [mFull[38;2;139;143;154m
+Width            [m100[38;2;139;143;154m
+Height           [m40[38;2;139;143;154m
+ThemePreference  [mDark[38;2;139;143;154m
+FontFace         [mConsolas[10;1H]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)
+  mode: Interactive (VT terminal)
   colour: TrueColor (CONSOLEMONSTER_COLOR)
   glyphs: Full (CONSOLEMONSTER_GLYPHS)
   VT: supported

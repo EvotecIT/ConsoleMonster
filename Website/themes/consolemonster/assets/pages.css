@@ -16,11 +16,11 @@
 .cm-gallery { display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: var(--cm-space-7); padding-top: var(--cm-space-7); }
 .cm-gallery__index { grid-row: 1 / span 99; position: sticky; top: 140px; align-self: start; display: grid; gap: 2px; }
 .cm-gallery__index a { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 5px; color: var(--cm-ink-2); font: 500 14px/1.2 var(--cm-mono); text-decoration: none; }
-.cm-gallery__index a:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-gallery__index a:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-gallery__intro { margin-bottom: 8px; }
 .cm-gallery__group { padding-top: var(--cm-space-6); scroll-margin-top: 140px; }
 .cm-gallery__heading { display: grid; gap: var(--cm-space-2); margin: 0 0 var(--cm-space-6); padding-bottom: var(--cm-space-4); border-bottom: 2px solid var(--cm-ink); }
-.cm-gallery__heading h2 { font-size: 30px; font-weight: 800; }
+.cm-gallery__heading h2 { font-size: 30px; font-weight: 700; }
 .cm-gallery__heading p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
 /* A specimen opens with a rule like ConsoleMonster's Rule widget: the title set into the line, the size on the right. */
 .cm-specimen { margin: 0 0 var(--cm-space-8); scroll-margin-top: 150px; }
@@ -67,7 +67,7 @@
 .cm-replay > .cm-player { min-width: 0; }
 .cm-replay .cm-controls { display: flex; align-items: center; gap: 12px; padding: 0; background: none; color: var(--cm-muted); font: 500 12.5px/1 var(--cm-mono); }
 .cm-replay .cm-controls button { flex: none; min-width: 72px; height: 32px; padding: 0 14px; border: 1px solid var(--cm-line-strong); border-radius: 999px; background: var(--cm-surface); color: var(--cm-ink); font: 600 12.5px/1 var(--cm-mono); cursor: pointer; }
-.cm-replay .cm-controls button:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls button:hover { background: var(--cm-hover); color: var(--cm-ink); }
 .cm-replay .cm-controls input[type=range] { flex: 1; min-width: 0; height: 24px; accent-color: var(--cm-accent); }
 .cm-replay .cm-controls select { height: 28px; padding: 0 6px; border: 1px solid var(--cm-line-strong); border-radius: 6px; background: var(--cm-surface); color: var(--cm-ink); font: 500 12px/1 var(--cm-mono); }
 .cm-replay .cm-controls option { color: initial; }
@@ -86,7 +86,7 @@
 /* Showcase blocks on product pages. */
 .cm-showcase { display: grid; gap: var(--cm-space-5); margin: 0 0 var(--cm-space-8); }
 .cm-showcase__head { display: grid; gap: 10px; max-width: 72ch; }
-.cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 800; }
+.cm-showcase__head h2 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 700; }
 .cm-showcase__head p { margin: 0; color: var(--cm-ink-2); }
 .cm-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0; margin: 0; padding: 0; border-top: 1px solid var(--cm-line); }
 .cm-facts div { padding: 16px 18px 14px 0; border-bottom: 1px solid var(--cm-line); }
@@ -107,7 +107,7 @@
 /* Not found. */
 .cm-notfound { padding: var(--cm-space-8) 0; }
 .cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--cm-space-7); align-items: center; }
-.cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 800; }
+.cm-notfound h1 { color: #f8fafc; font-size: clamp(32px, 4vw, 48px); font-weight: 700; }
 
 @media (max-width: 1180px) {
   .cm-specimen__body, .cm-pair { grid-template-columns: minmax(0, 1fr); }
@@ -137,8 +137,9 @@
 .cm-page__intro { margin-bottom: var(--cm-space-7); }
 .cm-table-showcase__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: var(--cm-space-6); align-items: start; }
 .cm-table-showcase__side { display: grid; gap: var(--cm-space-4); }
+.cm-table-showcase__code { display: grid; gap: var(--cm-space-4); margin-top: var(--cm-space-5); max-width: 980px; }
 .cm-source summary { cursor: pointer; font: 600 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
-.cm-source summary:hover { color: var(--cm-accent); }
+.cm-source summary:hover { color: var(--cm-ink); text-decoration: underline; }
 .cm-source[open] summary { margin-bottom: 12px; }
 .cm-source .cm-code pre { max-height: 420px; font-size: 12px; }
 .cm-source[open] { grid-column: 1 / -1; }
@@ -168,6 +169,7 @@
 /* PowerShell page. */
 .cm-quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cm-space-5); }
 .cm-quad h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+.cm-quad .cm-code { margin-top: 10px; }
 .cm-compare--tree { margin-top: var(--cm-space-5); }
 .cm-compare > div { display: grid; gap: 12px; align-content: start; }
 .cm-families { columns: 3 300px; column-gap: var(--cm-space-6); }
@@ -196,6 +198,14 @@
 .cm-demo__use-title { margin: 0; font: 700 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-demo__use .cm-code pre { font-size: 12.5px; }
 .cm-demo__refs { margin: 0; font-size: 14px; color: var(--cm-ink-2); }
+.cm-demo__refs--quiet { font-size: 13px; color: var(--cm-muted); }
+.cm-demo__refs--quiet a { color: inherit; }
+/* Numbered steps: a sentence, then the code to paste for that step. */
+.cm-demo__steps { display: grid; gap: var(--cm-space-4); margin: 0; padding: 0; list-style: none; counter-reset: cm-step; }
+.cm-demo__steps > li { display: grid; gap: var(--cm-space-2); min-width: 0; counter-increment: cm-step; }
+.cm-demo__steps > li > p { position: relative; margin: 0; padding-left: 30px; color: var(--cm-ink-2); font-size: 14.5px; line-height: 1.5; }
+.cm-demo__steps > li > p code { padding: 1px 5px; border-radius: 4px; background: var(--cm-hover); color: var(--cm-ink); font: 500 13px/1.4 var(--cm-mono); overflow-wrap: anywhere; }
+.cm-demo__steps > li > p::before { content: counter(cm-step); position: absolute; left: 0; top: 0; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--cm-accent); color: var(--cm-accent-ink); font: 700 12px/1 var(--cm-mono); }
 .cm-prose .cm-demo { margin: var(--cm-space-6) 0 var(--cm-space-7); }
 /* Inside a demo the grid sets every gap: prose margins on its window, code blocks, tabs and paragraphs would stack on top. */
 .cm-prose .cm-demo figure, .cm-prose .cm-demo .cm-code, .cm-prose .cm-demo .cm-tabset, .cm-prose .cm-demo p { margin: 0; }
@@ -220,7 +230,7 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-replay .cm-controls.cm-has-marks { padding-bottom: 24px; }
 .cm-replay .cm-controls .cm-mark { min-width: 0; height: auto; padding: 1px 6px; border: 0; border-left: 2px solid var(--cm-accent); border-radius: 0; background: none; color: var(--cm-ink-2); font: 600 11.5px/1.2 var(--cm-mono); }
 .cm-replay .cm-controls .cm-mark.cm-mark--end { border-left: 0; border-right: 2px solid var(--cm-accent); }
-.cm-replay .cm-controls .cm-mark:hover { background: var(--cm-focus-bg); color: var(--cm-focus-fg); }
+.cm-replay .cm-controls .cm-mark:hover { background: var(--cm-hover); color: var(--cm-ink); }
 @media (max-width: 700px) {
   /* On a narrow position bar the marks would overlap: they become a row of jump buttons under it. */
   .cm-replay .cm-controls.cm-has-marks { padding-bottom: 0; }
@@ -234,3 +244,25 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
   .cm-replay.cm-export .cm-controls .cm-marks { position: static; display: flex; flex-basis: 100%; gap: 8px; height: auto; margin-top: 4px; }
   .cm-replay.cm-export .cm-controls .cm-mark, .cm-replay.cm-export .cm-controls .cm-mark.cm-mark--end { position: static; transform: none; min-height: 28px; padding: 4px 10px; border-right: 0; border-left: 2px solid var(--cm-accent); }
 }
+
+/* The entry strip (home "Where to go next" and the 404 page, partials/start-cards.html): entry cards (the shared .cm-card),
+   each with the navigation's miniature of that destination. Six across when their titles fit, three below that, and a
+   snapping strip on phones. */
+.cm-start { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; }
+.cm-start li { min-width: 0; }
+
+@media (max-width: 1260px) {
+  .cm-start { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .cm-start { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(220px, 72%, 300px); margin: 0 calc(var(--cm-gutter) * -1) -28px; padding: 4px var(--cm-gutter) 32px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--cm-gutter); scrollbar-width: none; }
+  .cm-start li { scroll-snap-align: start; }
+}
+
+@media (max-width: 760px) and (hover: hover) and (pointer: fine) {
+  .cm-start { scrollbar-width: thin; }
+}
+
+/* The program under a live recording or frame. */
+.cm-live__code { display: grid; gap: var(--cm-space-4); margin-top: var(--cm-space-5); max-width: 980px; }

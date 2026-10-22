@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - "Website/**"
+      - "README.md"
+      - "Docs/Concurrency-Guarantees.md"
+      - "ConsoleMonster.Tests/*.csproj"
+      - "ConsoleMonster.Extensions.Tests/*.csproj"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
@@ -15,6 +19,10 @@ on:
     branches: [master]
     paths:
       - "Website/**"
+      - "README.md"
+      - "Docs/Concurrency-Guarantees.md"
+      - "ConsoleMonster.Tests/*.csproj"
+      - "ConsoleMonster.Extensions.Tests/*.csproj"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
@@ -35,7 +43,7 @@ concurrency:
 
 jobs:
   verify-site:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@396e00acba04dcaae4c3c95433338f4df65fbc01
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@87e7665bb3df2f9d8c96b66fc21eb39d70754c9c
     with:
       website_root: Website
       dotnet_version: |

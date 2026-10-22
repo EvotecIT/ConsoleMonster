@@ -1,4 +1,6 @@
-﻿New-ConsoleRows {
+﻿Import-Module ConsoleMonster
+
+New-ConsoleRows {
     New-ConsoleProgress 'Build' -Value 64 -Total 100
     New-ConsoleProgress 'Tests' -Value 412 -Total 530
     New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass

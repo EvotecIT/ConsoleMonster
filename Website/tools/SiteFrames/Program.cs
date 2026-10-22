@@ -27,6 +27,16 @@ namespace SiteFrames {
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
+            // Frames must not depend on the build machine (or a CI runner): the variables ConsoleMonster reads are cleared and the label
+            // language is pinned (some widgets read it from the process, not from the profile).
+            foreach (System.Collections.DictionaryEntry variable in Environment.GetEnvironmentVariables()) {
+                string name = (string)variable.Key;
+                if (name.StartsWith("CONSOLEMONSTER_", StringComparison.OrdinalIgnoreCase) || name == "NO_COLOR" || name == "COLORFGBG" || name == "CI" || name == "GITHUB_ACTIONS" || name == "TF_BUILD" || name == "BUILD_BUILDID" || name == "JENKINS_URL" || name == "GITLAB_CI" || name == "TEAMCITY_VERSION") {
+                    Environment.SetEnvironmentVariable(name, null);
+                }
+            }
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", "en");
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_CULTURE", "en-US");
             string command = args.Length > 0 ? args[0] : "render";
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;
@@ -39,8 +49,10 @@ namespace SiteFrames {
                     return Render(new Site(website), only);
                 case "capture":
                     return CaptureAll(new Site(website), only);
+                case "readme":
+                    return Readme.Sync(new Site(website));
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
                     return 2;
             }
         }
@@ -101,6 +113,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "interactive")) {
+                InteractivePage.Capture(site);
+            }
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }
@@ -118,6 +133,7 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            Guarantees.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);
@@ -128,6 +144,9 @@ namespace SiteFrames {
             site.Write(site.Static("assets/player/player.css"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerStyles", "player.css") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerStyles);
             SiteImages.Render(site);
             WriteRuntimeVersion(site);
+            CodeGuard.Check(site);
+            FrameSources.Check(site);
+            Readme.Check(site);
             string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
             site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
             Console.WriteLine("Wrote " + site.Written.Count + " files.");

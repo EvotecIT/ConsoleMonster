@@ -4,7 +4,7 @@
 # A small script menu in the Classic layout: actions that ask questions in front of the menu, a settings form, a page
 # and a run into a live dashboard that comes back with a result. Actions are plain scriptblocks run on the pipeline
 # thread; $MenuContext offers Toast, Confirm, Ask, Run and ShowResult. Nothing is really backed up; the data is invented.
-Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+Import-Module ConsoleMonster
 
 $backups = @(
     [pscustomobject] @{ Name = 'Nightly 16 Oct 23:00'; Size = '4.2 GB'; Kind = 'Full'; When = (Get-Date).AddHours(-11) }
