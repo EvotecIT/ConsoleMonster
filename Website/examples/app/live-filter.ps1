@@ -17,6 +17,8 @@ None. The application draws to the terminal or the supplied capture.
 [CmdletBinding()]
 param([hashtable] $AppOptions = @{})
 
+Import-Module ConsoleMonster
+
 #region more
 $hosts = @(
     [pscustomobject] @{ Host = 'WEB01'; Role = 'Web'; Site = 'North'; Status = 'Pass' }

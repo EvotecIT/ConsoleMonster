@@ -13,8 +13,8 @@ using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// Captures the compiled live-filter showcase through the shared app runner. The site bundle and optional review
-    /// files use its first and final frames, independent of the live renderer's intermediate frame scheduling.
+    /// Runs the complete live-filter program shown on the site and checks its output against the frozen showcase and
+    /// native PowerShell captures. Published frames use its first and final states, independent of intermediate scheduling.
     /// </summary>
     internal static class AppPage {
         private const string Id = "live-filter";
@@ -48,6 +48,30 @@ namespace SiteFrames.Pages {
             return capture;
         }
 
+        /// <summary>Executes the exact published program with site-only terminal settings and scripted input.</summary>
+        /// <param name="site">The checkout supplying the complete example.</param>
+        /// <param name="width">Terminal width in cells.</param>
+        /// <param name="theme">Theme shared by the input and dependent widgets.</param>
+        /// <returns>The initial and final frames produced by the shown program.</returns>
+        private static ScreenCapture CaptureProgram(Site site, int width, ITheme theme) {
+            ScreenCapture capture = new ScreenCapture(width, Height);
+            TerminalProfile profile = CSharpRunner.Profile(width, Height, ColorDepth.TrueColor, GlyphTier.Full);
+            using (ScriptedInput input = new ScriptedInput("\"sql\" Escape") { Paced = true }) {
+                CSharpRunner.Execute(ExamplePath(site), profile, theme, new InteractiveOptions {
+                    Input = input,
+                    Capture = capture,
+                    Mode = InteractionMode.Rich,
+                    Theme = theme,
+                    Labels = new PromptLabels(),
+                    Profile = profile
+                });
+            }
+            if (capture.Frames.Count < 2 || capture.LastFrame == null) {
+                throw new InvalidOperationException("The published live-filter program did not capture initial and final frames.");
+            }
+            return capture;
+        }
+
         /// <summary>Captures the native PowerShell twin through the site's existing host runner.</summary>
         /// <param name="site">The current website checkout.</param>
         public static void Capture(Site site) {
@@ -70,24 +94,46 @@ namespace SiteFrames.Pages {
             }
         }
 
-        /// <summary>Writes theme-aware site frames and checks saved PowerShell captures against the compiled example.</summary>
+        /// <summary>Registers sourced docs figures and checks the published program against both existing twins.</summary>
         /// <param name="site">Paths and shared frame style registry.</param>
         /// <param name="hosts">Recorded versions of the two PowerShell hosts.</param>
         public static void Render(Site site, JsonObject hosts) {
             JsonObject frames = new JsonObject();
             JsonArray variants = new JsonArray();
             List<string> problems = new List<string>();
+            (string csharp, string csharpFull) = SourceSnippets.Program(Site.ReadText(ExamplePath(site)));
+            (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(Twins.Script(site, "app", Id)));
             foreach (int width in Widths) {
-                ScreenCapture dark = CaptureFrames(width, Theme.Dark);
-                ScreenCapture light = CaptureFrames(width, Theme.Light);
+                ScreenCapture dark = CaptureProgram(site, width, Theme.Dark);
+                ScreenCapture light = CaptureProgram(site, width, Theme.Light);
+                ScreenCapture showcaseDark = CaptureFrames(width, Theme.Dark);
+                ScreenCapture showcaseLight = CaptureFrames(width, Theme.Light);
                 foreach (string state in States) {
                     CellBuffer darkFrame = Pick(dark, state);
                     CellBuffer lightFrame = Pick(light, state);
                     string key = state + "-" + width.ToString(Site.Culture);
                     frames[key] = site.Frame(darkFrame, lightFrame);
+                    string figureId = "app-" + Id + "-" + key;
+                    Figures.Add(figureId, new JsonObject {
+                        ["title"] = state == "initial" ? "Host inventory · initial" : "Host inventory · sql",
+                        ["label"] = "Synthetic host inventory " + (state == "initial" ? "before typing" : "filtered by sql"),
+                        ["meta"] = new JsonArray(width.ToString(Site.Culture) + " columns", "24-bit", "Full"),
+                        ["frame"] = frames[key]!.DeepClone(),
+                        ["file"] = "live-filter.ps1",
+                        ["script"] = script,
+                        ["scriptFull"] = scriptFull,
+                        ["csharp"] = csharp,
+                        ["csharpFull"] = csharpFull
+                    });
+                    DocCards.Offer(figureId, darkFrame, Frames.Screen.Dark);
                     JsonObject parity = new JsonObject();
                     foreach (string theme in Themes) {
                         CellBuffer expected = theme == "dark" ? darkFrame : lightFrame;
+                        CellBuffer showcase = Pick(theme == "dark" ? showcaseDark : showcaseLight, state);
+                        ParityResult sourceParity = Parity.Compare(expected, showcase);
+                        if (!sourceParity.Identical) {
+                            problems.Add(key + " differs from the compiled showcase in " + theme + ": " + sourceParity.Detail);
+                        }
                         foreach (PowerShellHost host in PowerShellHost.All) {
                             string path = CapturePath(site, width, theme, state, host);
                             string parityKey = theme + "-" + host.Id;
@@ -122,10 +168,10 @@ namespace SiteFrames.Pages {
                 ["summary"] = "A Query input updates the matching count and table after every edit. All hosts are synthetic.",
                 ["bundle"] = "/frames/app/" + Id + ".json",
                 ["keys"] = "\"sql\" Escape",
-                ["csharp"] = SourceSnippets.Get(ExamplePath(site), nameof(LiveFilterApp.Build)),
-                ["csharpRun"] = SourceSnippets.Get(ExamplePath(site), nameof(LiveFilterApp.Run)),
-                ["csharpFull"] = Site.ReadText(ExamplePath(site)),
-                ["powershell"] = Site.ReadText(Twins.Script(site, "app", Id)),
+                ["csharp"] = csharp,
+                ["csharpFull"] = csharpFull,
+                ["powershell"] = script,
+                ["powershellFull"] = scriptFull,
                 ["variants"] = variants
             });
             WidgetsPage.Report(problems, "app");
@@ -135,7 +181,7 @@ namespace SiteFrames.Pages {
         /// Writes eight standalone exporter HTML pages and text frames to a caller-selected review folder. This path
         /// does not regenerate website assets or require saved PowerShell captures.
         /// </summary>
-        /// <param name="site">The checkout supplying the compiled example and source paths.</param>
+        /// <param name="site">The checkout supplying the published program.</param>
         /// <param name="outputDirectory">A scratch directory chosen by the parent performing visual review.</param>
         /// <returns>Zero after all initial/final frames have been written.</returns>
         public static int Review(Site site, string outputDirectory) {
@@ -143,7 +189,7 @@ namespace SiteFrames.Pages {
             JsonArray artifacts = new JsonArray();
             foreach (int width in Widths) {
                 foreach (string theme in Themes) {
-                    ScreenCapture capture = CaptureFrames(width, theme == "dark" ? Theme.Dark : Theme.Light);
+                    ScreenCapture capture = CaptureProgram(site, width, theme == "dark" ? Theme.Dark : Theme.Light);
                     foreach (string state in States) {
                         CellBuffer frame = Pick(capture, state);
                         string name = Id + "-" + state + "-" + width.ToString(Site.Culture) + "-" + theme;
@@ -170,7 +216,7 @@ namespace SiteFrames.Pages {
             return 0;
         }
 
-        private static string ExamplePath(Site site) => Path.Combine(site.Repository, "ConsoleMonster.Examples", "Showcases", "LiveFilterApp.cs");
+        private static string ExamplePath(Site site) => Path.Combine(site.Website, "examples", "app", Id + ".cs");
 
         private static CellBuffer Pick(ScreenCapture capture, string state) =>
             state == "initial" ? capture.Frames[0] : capture.LastFrame!;
