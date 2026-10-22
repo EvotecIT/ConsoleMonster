@@ -1,7 +1,55 @@
 ﻿Describe 'ConsoleMonster host overview' {
     BeforeAll {
-        $modulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
-        Import-Module $modulePath -Force -ErrorAction Stop
+        . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
+        $script:OverviewModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
+        $script:OverviewRuntime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+        Import-Module $script:OverviewModulePath -Force -ErrorAction Stop
+
+        # The default registry has no unregister operation. Register controlled providers only in an owned child.
+        function Invoke-OverviewProviderChild {
+            param([Parameter(Mandatory)][ValidateSet('Completed', 'Pending')][string] $Mode)
+            $body = @'
+$name = if ($mode -eq 'Completed') { 'PesterComplete' } else { 'PesterHeld' }
+$held = [System.Threading.Tasks.TaskCompletionSource[ConsoleMonster.Overview.OverviewSection]]::new()
+$resources = [ConsoleMonster.Overview.OverviewSection]::new($name, 'Controlled resources', [ConsoleMonster.Overview.OverviewItem[]]@(
+    [ConsoleMonster.Overview.OverviewItem]::new('CPU', '8 logical CPUs', 24),
+    [ConsoleMonster.Overview.OverviewItem]::new('Memory', '12 / 32 GiB', 37.5)
+))
+try {
+    if ($mode -eq 'Completed') { $held.SetResult($resources) }
+    # A compiled expression delegate does not need a PowerShell runspace on the probe's pool thread.
+    $providerType = [Func[System.Threading.CancellationToken, System.Threading.Tasks.Task[ConsoleMonster.Overview.OverviewSection]]]
+    $token = [System.Linq.Expressions.Expression]::Parameter([System.Threading.CancellationToken], 'token')
+    $body = [System.Linq.Expressions.Expression]::Constant($held.Task, [System.Threading.Tasks.Task[ConsoleMonster.Overview.OverviewSection]])
+    $provider = [System.Linq.Expressions.Expression]::Lambda($providerType, $body, [System.Linq.Expressions.ParameterExpression[]]@($token)).Compile()
+    [void][ConsoleMonster.Overview.OverviewSectionRegistry]::Default.Register($name, 'Controlled resources', $provider)
+    $budget = if ($mode -eq 'Completed') { 750 } else { 1 }
+    $snapshot = Show-ConsoleOverview -Section $name -BudgetMilliseconds $budget -AsObject
+    [pscustomobject]@{
+        SectionCount = $snapshot.Sections.Count
+        Name = $snapshot.Sections[0].Name
+        IsPending = $snapshot.Sections[0].IsPending
+        ItemCount = $snapshot.Sections[0].Items.Count
+        Cpu = @($snapshot.Sections[0].Items | Where-Object Label -eq CPU)[0].Value
+        Memory = @($snapshot.Sections[0].Items | Where-Object Label -eq Memory)[0].Value
+        ProviderCompleted = $held.Task.IsCompleted
+    } | ConvertTo-Json -Compress
+} finally {
+    # Release the owned task on success and failure before the child exits.
+    [void]$held.TrySetResult($resources)
+}
+'@
+            $lines = @(
+                '$ErrorActionPreference = ''Stop''; try {'
+                "Import-Module '$($script:OverviewModulePath.Replace("'", "''"))' -Force -ErrorAction Stop"
+                "`$mode = '$Mode'"
+                $body
+                '} catch { [Console]::Error.WriteLine($_.Exception.ToString()); exit 1 }'
+            )
+            $output = @(Invoke-TestChild -Runtime $script:OverviewRuntime -Script ($lines -join "`n"))
+            if ($LASTEXITCODE -ne 0) { throw ($output -join "`n") }
+            ($output -join "`n") | ConvertFrom-Json
+        }
     }
 
     It 'exports the compiled command through the source module manifest' {
@@ -16,9 +64,31 @@
         $snapshot.GetType().FullName | Should -Be 'ConsoleMonster.Overview.OverviewSnapshot'
         $snapshot.Sections.Count | Should -Be 1
         $snapshot.Sections[0].Name | Should -Be 'Resources'
-        $snapshot.Sections[0].IsPending | Should -BeFalse
-        @($snapshot.Sections[0].Items | Where-Object Label -eq CPU).Count | Should -Be 1
-        @($snapshot.Sections[0].Items | Where-Object Label -eq Memory).Count | Should -Be 1
+        if ($snapshot.Sections[0].IsPending) {
+            $snapshot.Sections[0].Items.Count | Should -Be 0
+        } else {
+            @($snapshot.Sections[0].Items | Where-Object Label -eq CPU).Count | Should -Be 1
+            @($snapshot.Sections[0].Items | Where-Object Label -eq Memory).Count | Should -Be 1
+        }
+    }
+
+    It 'returns completed observations from a controlled provider' {
+        $result = Invoke-OverviewProviderChild -Mode Completed
+        $result.SectionCount | Should -Be 1
+        $result.Name | Should -Be 'PesterComplete'
+        $result.IsPending | Should -BeFalse
+        $result.ItemCount | Should -Be 2
+        $result.Cpu | Should -Be '8 logical CPUs'
+        $result.Memory | Should -Be '12 / 32 GiB'
+    }
+
+    It 'returns a pending marker while a controlled provider remains incomplete' {
+        $result = Invoke-OverviewProviderChild -Mode Pending
+        $result.SectionCount | Should -Be 1
+        $result.Name | Should -Be 'PesterHeld'
+        $result.IsPending | Should -BeTrue
+        $result.ItemCount | Should -Be 0
+        $result.ProviderCompleted | Should -BeFalse
     }
 
     It 'captures plain text within the requested narrow width' {

@@ -20,12 +20,12 @@ namespace ConsoleMonster.Overview {
             uint[] values = new uint[64];
             uint count = (uint)values.Length;
             uint host = Host.Value;
-            if (host_statistics64(host, 4, values, ref count) != 0 || count < 4 || host_page_size(host, out uint pageSize) != 0) { return false; }
+            if (host_statistics64(host, 4, values, ref count) != 0 || count < 4 || host_page_size(host, out UIntPtr pageSize) != 0) { return false; }
             byte[] size = Read("hw.memsize", 8);
             if (size.Length != 8) { return false; }
             total = BitConverter.ToUInt64(size, 0);
             // Available estimate: free + inactive pages, rather than process memory or a fabricated usage value.
-            available = Math.Min(total, ((double)values[0] + values[2]) * pageSize);
+            available = Math.Min(total, ((double)values[0] + values[2]) * pageSize.ToUInt64());
             return total > 0;
         }
 
@@ -49,7 +49,8 @@ namespace ConsoleMonster.Overview {
         [DllImport("/usr/lib/libSystem.B.dylib")]
         private static extern int host_statistics64(uint host, int flavor, [Out] uint[] values, ref uint count);
         [DllImport("/usr/lib/libSystem.B.dylib")]
-        private static extern int host_page_size(uint host, out uint pageSize);
+        // Darwin vm_size_t is uintptr_t on both LP64 architectures (mach/{arm,i386}/vm_types.h).
+        private static extern int host_page_size(uint host, out UIntPtr pageSize);
         [DllImport("/usr/lib/libSystem.B.dylib", CharSet = CharSet.Ansi)]
         private static extern int sysctlbyname(string name, [Out] byte[] value, ref UIntPtr size, IntPtr newValue, UIntPtr newSize);
     }

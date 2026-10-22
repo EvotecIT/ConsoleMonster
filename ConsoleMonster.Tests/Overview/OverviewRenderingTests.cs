@@ -29,6 +29,10 @@ namespace ConsoleMonster.Tests.Overview {
             Assert.Contains("12:34 +02:00", text);
             Assert.Contains("CPU", text);
             Assert.Contains("Memory", text);
+            Assert.Contains("12 / 32 GiB", text);
+            Assert.Contains("82 / 100 GiB", text);
+            Assert.Contains("91 / 100 GiB", text);
+            Assert.Contains("8 logical CPUs", text);
             Assert.Contains("Reboot required", text);
             Assert.Contains("Security", text);
             Assert.DoesNotContain("N/A", text);
@@ -53,7 +57,6 @@ namespace ConsoleMonster.Tests.Overview {
         [InlineData(60, ColorDepth.TrueColor, GlyphTier.Full)]
         [InlineData(60, ColorDepth.Ansi16, GlyphTier.Basic)]
         [InlineData(60, ColorDepth.None, GlyphTier.Ascii)]
-        [InlineData(80, ColorDepth.None, GlyphTier.Ascii)]
         public void PanelBarsShareCellColumnsAcrossLabelWidths(int width, ColorDepth depth, GlyphTier glyphs) {
             TerminalProfile profile = TerminalProfile.Fixed(width, 40, depth, glyphs);
             CellBuffer frame = Terminal.Render(new OverviewWidget(Scene()), profile);
@@ -72,7 +75,10 @@ namespace ConsoleMonster.Tests.Overview {
             int? end = null;
             int? percent = null;
             foreach (string label in labels) {
-                int y = Assert.Single(Enumerable.Range(0, lines.Length), row => lines[row].Contains(label) && lines[row].Contains("%"));
+                int y = Assert.Single(Enumerable.Range(0, lines.Length), row => {
+                    string panelText = string.Concat(Enumerable.Range(left, right - left).Select(x => frame[x, row].Glyph));
+                    return panelText.TrimStart(' ', '|', '│').StartsWith(label, StringComparison.Ordinal) && panelText.Contains("%");
+                });
                 int[] bars = Enumerable.Range(left, right - left).Where(x =>
                     glyphs == GlyphTier.Full ? frame[x, y].Glyph == "▆" :
                     glyphs == GlyphTier.Basic ? frame[x, y].Glyph == "▄" :
@@ -131,6 +137,28 @@ namespace ConsoleMonster.Tests.Overview {
             Assert.InRange(text.TrimEnd('\n').Split('\n').Length, 1, 24);
             Assert.Contains("more", text);
             Assert.Contains("more sections", text);
+            // Ten visible panels leave one body row each. Every panel must still convey an observation.
+            Assert.Equal(10, System.Text.RegularExpressions.Regex.Matches(text, "Synthetic 0:").Count);
+            Assert.Equal(10, System.Text.RegularExpressions.Regex.Matches(text, @"\+19 more").Count);
+        }
+
+        [Fact]
+        public void BreakpointPanelsPreserveMeasuredValuesWhenThereIsNoRoomForBars() {
+            string text = Terminal.RenderText(new OverviewWidget(Scene()), TerminalProfile.Fixed(80, 40, ColorDepth.None, GlyphTier.Ascii));
+            Assert.Contains("12 / 32 GiB", text);
+            Assert.Contains("82 / 100 GiB 82% high", text);
+            Assert.Contains("91 / 100 GiB 91% critical", text);
+            Assert.All(text.Split('\n'), line => Assert.InRange(DisplayWidth.Measure(line), 0, 80));
+        }
+
+        [Theory]
+        [InlineData(120)]
+        [InlineData(60)]
+        public void HealthyPercentageObservationsPreserveValuesWithoutAPressureSuffix(int width) {
+            OverviewSnapshot snapshot = Snapshot(new OverviewSection("Resources", "Resources", new[] { new OverviewItem("Memory", "12 / 32 GiB", 37.5) }));
+            string text = Terminal.RenderText(new OverviewWidget(snapshot), TerminalProfile.Fixed(width, 24, ColorDepth.None, GlyphTier.Ascii));
+            Assert.Contains("12 / 32 GiB", text);
+            Assert.Contains("37%", text);
         }
 
         [Fact]

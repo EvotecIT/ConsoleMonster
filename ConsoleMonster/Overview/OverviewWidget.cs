@@ -46,7 +46,7 @@ namespace ConsoleMonster.Overview {
             List<OverviewSection> visible = Snapshot.Sections.Where(section => section.IsPending || section.Items.Count > 0).ToList();
             if (width < 80) {
                 foreach (OverviewSection section in visible) {
-                    result.Add(BuildPanel(section, Math.Max(3, section.Items.Count + 2), context));
+                    result.Add(BuildPanel(section, Math.Max(3, section.Items.Count + 2), width, context));
                 }
                 return result;
             }
@@ -73,32 +73,42 @@ namespace ConsoleMonster.Overview {
             result.Gap = gap;
             for (int index = 0; index < visible.Count; index += columns) {
                 int panelHeight = heights[index / columns];
-                IWidget first = BuildPanel(visible[index], panelHeight, context);
+                int panelWidth = index + 1 < visible.Count ? (width - 2) / columns : width;
+                IWidget first = BuildPanel(visible[index], panelHeight, panelWidth, context);
                 if (columns == 2 && index + 1 < visible.Count) {
-                    result.Add(new Columns(first, BuildPanel(visible[index + 1], panelHeight, context)) { Gap = 2, CollapseBelow = 80 });
+                    result.Add(new Columns(first, BuildPanel(visible[index + 1], panelHeight, panelWidth, context)) { Gap = 2, CollapseBelow = 80 });
                 } else { result.Add(first); }
             }
             if (omitted) { result.Add(TextBlock.Plain(context.Ellipsis + " more sections", ThemeToken.Muted)); }
             return result;
         }
 
-        private static IWidget BuildPanel(OverviewSection section, int height, RenderContext context) {
+        private static IWidget BuildPanel(OverviewSection section, int height, int width, RenderContext context) {
             Rows body = new Rows();
             int capacity = Math.Max(1, height - 2);
+            string? footer = null;
             if (section.IsPending) {
                 body.Add(TextBlock.Plain(context.Ellipsis, ThemeToken.Muted));
             } else {
                 bool overflow = section.Items.Count > capacity;
-                int count = overflow ? capacity - 1 : section.Items.Count;
+                int count = overflow ? Math.Max(1, capacity - 1) : section.Items.Count;
                 IReadOnlyList<OverviewItem> items = overflow && string.Equals(section.Name, "Disks", StringComparison.OrdinalIgnoreCase)
                     ? section.Items.OrderByDescending(item => item.Percentage ?? -1).ToArray() : section.Items;
                 OverviewItem[] metrics = items.Take(count).Where(item => item.Percentage.HasValue).ToArray();
                 int labelWidth = metrics.Select(item => DisplayWidth.Measure(Clean(item.Label))).DefaultIfEmpty(0).Max();
                 int statusWidth = metrics.Select(item => Pressure(item.Percentage!.Value).Length).DefaultIfEmpty(0).Max();
+                int valueWidth = metrics.Select(item => DisplayWidth.Measure(Clean(item.Value))).DefaultIfEmpty(0).Max();
                 for (int i = 0; i < count; i++) {
                     OverviewItem item = items[i];
                     if (item.Percentage.HasValue) {
                         double used = item.Percentage.Value;
+                        string status = Pressure(used);
+                        // At the two-column breakpoint retain the measured value before spending space on a bar.
+                        if (width < labelWidth + valueWidth + statusWidth + 18) {
+                            ThemeToken tone = used >= 90 ? ThemeToken.Fail : used >= 80 ? ThemeToken.Warn : item.Tone;
+                            body.Add(Truncated(TextBlock.Plain(Clean(item.Label) + ": " + Clean(item.Value) + " " + NumberFormat.Percent(used / 100) + (status.Length > 0 ? " " + status : string.Empty), tone)));
+                            continue;
+                        }
                         ProgressBar bar = new ProgressBar(Markup.Escape(Clean(item.Label))) {
                             LabelWidth = labelWidth,
                             Value = used,
@@ -108,16 +118,21 @@ namespace ConsoleMonster.Overview {
                             Status = used >= 90 ? StatusKind.Fail : used >= 80 ? StatusKind.Warn : StatusKind.Pass
                         };
                         // Reserve the same suffix space for every metric so both bar edges and percentages align.
-                        body.Add(statusWidth == 0 ? (IWidget)bar : new Columns { Gap = 1, CollapseBelow = 0 }
-                            .Add(bar)
-                            .Add(TextBlock.Plain(Pressure(used), ThemeToken.Muted), LayoutSize.Fixed(statusWidth)));
+                        Columns row = new Columns { Gap = 1, CollapseBelow = 0 }.Add(bar);
+                        if (statusWidth > 0) { row.Add(TextBlock.Plain(status, ThemeToken.Muted), LayoutSize.Fixed(statusWidth)); }
+                        if (valueWidth > 0) { row.Add(Truncated(TextBlock.Plain(Clean(item.Value), ThemeToken.Muted)), LayoutSize.Fixed(valueWidth)); }
+                        body.Add(row);
                     } else {
                         body.Add(Truncated(TextBlock.Plain(Clean(item.Label) + ": " + Clean(item.Value), item.Tone)));
                     }
                 }
-                if (overflow) { body.Add(TextBlock.Plain("+" + (section.Items.Count - count).ToString(CultureInfo.InvariantCulture) + " more", ThemeToken.Muted)); }
+                if (overflow) {
+                    string omitted = "+" + (section.Items.Count - count).ToString(CultureInfo.InvariantCulture) + " more";
+                    if (capacity == 1) { footer = omitted; }
+                    else { body.Add(TextBlock.Plain(omitted, ThemeToken.Muted)); }
+                }
             }
-            return new Panel(body, Markup.Escape(Clean(section.Title))) { Height = Math.Min(height, body.Children.Count + 2) };
+            return new Panel(body, Markup.Escape(Clean(section.Title))) { Height = Math.Min(height, body.Children.Count + 2), Footer = footer };
         }
 
         private static string Pressure(double used) => used >= 90 ? "critical" : used >= 80 ? "high" : string.Empty;
