@@ -335,6 +335,17 @@ Creates a tree node with an optional status, a muted detail and child nodes, for
 
 Use it inside the script block of New-ConsoleTree, or inside another New-ConsoleTreeNode to nest. The label accepts markup or rich text from New-ConsoleText. -Status shows a status marker before the label (Pass, Fail, Warn, Skip, Info, Running, Pending, or PowerShell's words such as Success, Warning and Error). -Detail is a muted note after the label, and -Value a value formatted by a presenter (sizes, dates, durations). The script block emits the children: more New-ConsoleTreeNode calls, or strings for leaves (shown literally). To add nodes to a tree made earlier, pipe the tree to Add-ConsoleItem.
 
+### [Out-ConsoleChart](Out-ConsoleChart.md)
+Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.
+
+Select one numeric property, including a calculated property, or pipe numbers directly.
+Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;
+samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every
+valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean
+and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.
+No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text
+because the existing sparkline renderer scales from zero. Output uses the normal ConsoleMonster formatting route.
+
 ### [Out-ConsoleDefault](Out-ConsoleDefault.md)
 Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.
 
