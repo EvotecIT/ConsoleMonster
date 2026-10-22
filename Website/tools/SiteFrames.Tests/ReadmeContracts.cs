@@ -87,6 +87,16 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void Sync_WithoutARender_SaysTheImageWidthsWereNotSet() {
+            string image = "<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"" + Readme.ImageBase + "t-dark.png\">\n  <img alt=\"T\" src=\"" + Readme.ImageBase + "t-light.png\">\n</picture>\n";
+            File.WriteAllText(Path.Combine(_root, "README.md"), image);
+            StringWriter output = new StringWriter();
+            Readme.Sync(_site, output);
+            Assert.Contains("Image widths not set", output.ToString(), StringComparison.Ordinal);
+            Assert.Equal(image, File.ReadAllText(Path.Combine(_root, "README.md")));
+        }
+
+        [Fact]
         public void Sync_WritesBlocksFromTheirSources() {
             File.WriteAllText(Path.Combine(_root, "README.md"), "# Title\n\n<!-- example: Website/examples/rule.ps1 -->\n```powershell\nold\n```\n");
             Readme.Sync(_site);

@@ -264,7 +264,10 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
         }
 
         /// <summary>Writes every marked block from its source, then the package readme (the SiteFrames readme command).</summary>
-        public static int Sync(Site site) {
+        public static int Sync(Site site) => Sync(site, Console.Out);
+
+        /// <summary>Writes the README's blocks, image widths and package readme, reporting to <paramref name="log"/>.</summary>
+        internal static int Sync(Site site, TextWriter log) {
             string path = ReadmePath(site);
             string readme = File.ReadAllText(path).Replace("\r\n", "\n");
             List<string> refused = new List<string>();
@@ -283,12 +286,15 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
             }
             if (updated != readme) {
                 File.WriteAllText(path, updated, new UTF8Encoding(false));
-                Console.WriteLine("Updated README.md from its example sources.");
+                log.WriteLine("Updated README.md from its example sources.");
             } else {
-                Console.WriteLine("README.md matches its example sources.");
+                log.WriteLine("README.md matches its example sources.");
             }
             // Each image shows at its own CSS size (the PNGs are drawn at twice that), never stretched to the page.
             Dictionary<string, int> widths = ImageWidths(site);
+            if (widths.Count == 0 && ImageTag.IsMatch(updated)) {
+                log.WriteLine("Image widths not set: there is no _temp/images/readme.json yet. Run SiteFrames render, then readme again.");
+            }
             string sized = ImageTag.Replace(updated, m => widths.TryGetValue(m.Groups["name"].Value, out int width)
                 ? m.Groups["before"].Value + " width=\"" + width + "\" src=\"" + m.Groups["src"].Value + "\""
                 : m.Value);
