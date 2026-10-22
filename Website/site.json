@@ -16,6 +16,10 @@
   "StaticAssets": [
     {
       "Source": "static"
+    },
+    {
+      "Source": "examples/themes",
+      "Destination": "examples/themes"
     }
   ],
   "Collections": [
