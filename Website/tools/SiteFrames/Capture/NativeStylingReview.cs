@@ -48,9 +48,7 @@ namespace SiteFrames.Capture {
                             string text = Encoding.UTF8.GetString(raw);
                             int marker = text.IndexOf("\u001b]0;CM_FRAME\a", StringComparison.Ordinal);
                             if (marker < 0) { throw new InvalidOperationException("Missing native frame marker: " + id); }
-                            VtScreen terminal = new VtScreen(width, 20);
-                            terminal.Feed(text.Substring(0, marker));
-                            CellBuffer frame = terminal.Snapshot();
+                            CellBuffer frame = FrameFromVt(text.Substring(0, marker), width, 20);
                             ExportOptions options = new ExportOptions {
                                 Theme = theme == "Light" ? ExportTheme.Light : ExportTheme.Dark,
                                 WindowChrome = true, Title = host.Label + " · " + phase
@@ -60,6 +58,7 @@ namespace SiteFrames.Capture {
                             File.WriteAllText(prefix + ".txt", ConsoleExporter.ToText(frame));
                             evidence.Add(new JsonObject { ["id"] = id, ["runtime"] = host.Label, ["theme"] = theme,
                                 ["width"] = width, ["phase"] = phase, ["bytes"] = raw.Length, ["all"] = useAll,
+                                ["capturedRows"] = 20, ["frameRows"] = frame.Height,
                                 ["resolvedTheme"] = receipt["ResolvedTheme"]!.GetValue<string>(),
                                 ["readLine"] = receipt["ReadLine"]!.GetValue<string>(), ["readLinePath"] = receipt["ReadLinePath"]!.GetValue<string>() });
                             Console.WriteLine("Native styling: " + id);
@@ -75,6 +74,24 @@ namespace SiteFrames.Capture {
             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme == "Light" ? "light" : "dark");
             environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
             return environment;
+        }
+
+        /// <summary>Replays native cells, retaining their content and exactly one trailing blank row.</summary>
+        internal static CellBuffer FrameFromVt(string text, int width, int height) {
+            VtScreen terminal = new VtScreen(width, height);
+            terminal.Feed(text);
+            CellBuffer captured = terminal.Snapshot();
+            int last = -1;
+            for (int y = 0; y < captured.Height; y++) {
+                if (!string.IsNullOrWhiteSpace(captured.GetRowText(y))) { last = y; }
+            }
+            CellBuffer frame = new CellBuffer(width, last + 2);
+            frame.Blit(captured, 0, 0, width, Math.Min(captured.Height, frame.Height), 0, 0);
+            if (frame.Height > captured.Height) {
+                ConsoleMonster.Styling.Style blank = new ConsoleMonster.Styling.Style(default, captured[0, 0].Style.Background);
+                for (int x = 0; x < width; x++) { frame.Set(x, frame.Height - 1, " ", blank); }
+            }
+            return frame;
         }
     }
 }

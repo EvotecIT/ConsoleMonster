@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1032" height="87.6" viewBox="0 0 1032 87.6" role="img" aria-label="Windows PowerShell 5.1 · syntax">
+<title>Windows PowerShell 5.1 · syntax</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}
+</style>
+<rect width="1032" height="87.6" rx="10" style="fill:var(--cm-chrome)"/><circle cx="18" cy="15" r="6" fill="#ff5f57"/><circle cx="38" cy="15" r="6" fill="#febc2e"/><circle cx="58" cy="15" r="6" fill="#28c840"/><text class="cm-title" x="516" y="15">Windows PowerShell 5.1 · syntax</text>
+<g class="cm-layer" transform="translate(12 42)"><rect width="1032" height="57.6" x="-12" y="-12" fill="#0c0c0c"/><text class="cm-t" x="4.2 12.6 29.4 37.8 46.2 54.6 63 71.4 79.8 88.2 96.6" y="8.4" fill="#cccccc">PSC:\Admin&gt;</text><text class="cm-t" x="113.4 121.8 130.2 138.6 147 155.4 163.8 172.2 180.6 189 197.4" y="8.4" fill="#2dd4bf">Get-Process</text><text class="cm-t" x="214.2 222.6 231 239.4 247.8" y="8.4" fill="#60a5fa">-Name</text><text class="cm-t" x="264.6 273 281.4 289.8 298.2 306.6" y="8.4" fill="#4ade80">&#39;pwsh&#39;</text><text class="cm-t" x="323.4" y="8.4" fill="#cccccc">|</text><text class="cm-t" x="340.2 348.6 357 365.4 373.8 382.2 390.6 399 407.4 415.8 424.2 432.6 441" y="8.4" fill="#2dd4bf">Select-Object</text><text class="cm-t" x="457.8 466.2 474.6 483 491.4 499.8" y="8.4" fill="#60a5fa">-First</text><text class="cm-t" x="516.6" y="8.4" fill="#fbbf24">3</text></g>
+</svg>

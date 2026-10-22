@@ -1,0 +1,9 @@
+Native backup progress
+
+
+ Backup
+    Copying archive.zip
+    [oooooooooooooooooooo                            ]
+    00:00:09 remaining.
+
+    archive.zip

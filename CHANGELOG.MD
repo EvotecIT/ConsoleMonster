@@ -25,6 +25,7 @@
 - Renderings (what `Format-Console*` writes on PowerShell 7.2+) are out of band at `Out-Default`, so they show on their own also between the rows of another table; widgets keep `Format-List *`.
 - Linux and macOS: locale-aware glyphs (LC_ALL, LC_CTYPE, LANG), no cursor queries on Unix, portable display paths; CI on Linux for every push and macOS for pull requests.
 #### Behaviour changes
+- Frame exports extend a uniform native terminal background through the surrounding padding, so Light captures fill the window body without an inset panel.
 - A single object in `Format-ConsoleTable` stays a one-row table, as with `Format-Table` (a single dictionary is still shown as a record); use `-View Record` for labelled fields.
 - `TableColumn.MaxLines = 0` now follows `Table.WrapLines` (3 by default) instead of meaning no limit; use `TableColumn.Unlimited` (in PowerShell column hashtables `MaxLines = 0` keeps meaning no limit).
 - `Show-ConsoleGrid` without an interactive console prints the rows as a table with a warning and returns nothing; a script that caught the old error with `-Mode Full` or `Line` now gets the warning (`-Mode None` still fails).
