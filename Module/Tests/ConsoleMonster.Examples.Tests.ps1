@@ -1,4 +1,4 @@
-BeforeDiscovery {
+﻿BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 
     # Every script example: the website gallery and demos, and the module's own examples.
@@ -174,11 +174,12 @@ BeforeAll {
         }
         'Module/Examples/Example-Stress.ps1'         = @{ Arguments = '-Seconds 2' }
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
-        # The everyday demo types Windows commands (svchost, Get-Service), as its recording does; elsewhere they report errors.
-        'Website/examples/demos/formatting.ps1'      = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
+        # The everyday and FormatCommands demos run Windows commands (svchost, Get-Service), as their recordings do; a
+        # command that does not exist stops the script, so they run on Windows only.
+        'Website/examples/demos/formatting.ps1'      = @{ RequiresWindows = $true }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
-        # Get-Service is Windows-only; ForEach-Object -Parallel needs PowerShell 7 (the demo says so).
-        'Website/examples/demos/format-commands.ps1' = @{ ExpectErrors = -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) }
+        'Website/examples/demos/format-commands.ps1' = @{ RequiresWindows = $true }
+        # ForEach-Object -Parallel needs PowerShell 7 (the demo says so).
         'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
@@ -224,6 +225,10 @@ Describe 'Examples run headless' -Tag 'Examples' {
         if ($null -eq $case) { $case = @{} }
         if ($case['RequiresCore'] -and $PSVersionTable.PSEdition -eq 'Desktop') {
             Set-ItResult -Skipped -Because 'the example uses PowerShell 7 syntax and says so'
+            return
+        }
+        if ($case['RequiresWindows'] -and -not ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows)) {
+            Set-ItResult -Skipped -Because 'the example runs Windows commands, as its recording does'
             return
         }
         # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
