@@ -32,8 +32,31 @@ TAILS = {"idle_mouse": b"6Mz", "idle_overlong": b"Mz", "idle_paste": b"\x1b[201~
 
 
 def attrs(fd):
+    if sys.platform == "darwin":
+        # Darwin sets PENDIN on a return to canonical mode. Observing the pending input count
+        # lets the kernel process that state; compare every attribute afterwards, without masking flags.
+        fcntl.ioctl(fd, termios.FIONREAD, struct.pack("I", 0))
     value = termios.tcgetattr(fd)
     return [*value[:6], [x if isinstance(x, int) else x[0] for x in value[6]]]
+
+
+def record_exit_state(receipt, fd, before, exit_code):
+    """Inspect a reaped child's PTY; only Darwin may revoke it after proven live restoration."""
+    try:
+        after = attrs(fd)
+    except (OSError, termios.error) as ex:
+        if (sys.platform != "darwin" or ex.args[0] != errno.ENOTTY or exit_code != 0
+                or receipt.get("restored_while_child_alive") is not True
+                or receipt.get("lease_released") is not True
+                or receipt.get("finished_observed") is not True):
+            raise
+        receipt["pty_revoked_after_exit"] = True
+        receipt["termios_after_exit"] = None
+        return
+    receipt["termios_after_exit"] = after
+    receipt["restored_after_exit"] = after == before
+    if after != before:
+        receipt["errors"].append("Terminal state changed after child exit.")
 
 
 def main():
@@ -46,7 +69,8 @@ def main():
     options.output.mkdir(exist_ok=False)
     master, slave = pty.openpty()
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
-    before = attrs(slave)
+    before_exec = attrs(slave)
+    before = None
     report_r, report_w = os.pipe()
     control_r, control_w = os.pipe()
     os.set_inheritable(control_r, True)
@@ -54,7 +78,7 @@ def main():
                str(options.dll.resolve()), "unix-input-probe", str(control_r)]
     receipt = {"command": command, "harness_pid": os.getpid(), "pty": os.ttyname(slave),
                "term": "xterm-256color", "watchdog_seconds": options.watchdog,
-               "termios_before": before, "sent": [], "passed": [], "errors": [], "phases": [],
+               "termios_before_exec": before_exec, "sent": [], "passed": [], "errors": [], "phases": [],
                "assembly_sha256": hashlib.sha256(options.dll.read_bytes()).hexdigest(),
                "core_assembly_sha256": hashlib.sha256(
                    (options.dll.parent / "ConsoleMonster.dll").read_bytes()).hexdigest()}
@@ -111,7 +135,15 @@ def main():
                     event = json.loads(line)
                     phase = event["phase"]
                     receipt["phases"].append(phase)
-                    if phase == "ready":
+                    if phase == "opened":
+                        # The .NET runtime has initialized the console, but cannot acquire its lease until this ACK.
+                        if before is not None:
+                            raise RuntimeError("Duplicate prelease handshake")
+                        before = attrs(slave)
+                        receipt["termios_before"] = before
+                        receipt["prelease_baseline_acknowledged"] = True
+                        os.write(control_w, b"\x03")
+                    elif phase == "ready":
                         name = event["name"]
                         payload = CASES[name]
                         written = os.write(master, payload)
@@ -127,7 +159,12 @@ def main():
                     elif phase == "menu_ready":
                         os.write(master, b"\r")
                     elif phase == "signal_ready":
-                        receipt["signals_enabled_during_work"] = bool(attrs(slave)[3] & termios.ISIG)
+                        suspended = attrs(slave)
+                        receipt["termios_while_suspended"] = suspended
+                        receipt["restored_while_suspended"] = suspended == before
+                        receipt["signals_enabled_during_work"] = bool(suspended[3] & termios.ISIG)
+                        if suspended != before:
+                            receipt["errors"].append("Suspending input did not restore the complete prelease terminal state.")
                         os.write(master, b"\x03")
                     elif phase == "menu_resumed":
                         receipt["keyboard_cancelled_work"] = event["cancelled"]
@@ -140,12 +177,13 @@ def main():
                         receipt["errors"].append(event["error"])
                     elif phase == "disposed":
                         disposed = True
-                        receipt["termios_after_dispose"] = attrs(slave)
-                        receipt["restored_while_child_alive"] = attrs(slave) == before
+                        after_dispose = attrs(slave)
+                        receipt["termios_after_dispose"] = after_dispose
+                        receipt["restored_while_child_alive"] = after_dispose == before
                         receipt["lease_released"] = event["acquired"] is False
                         receipt["terminal_flags"] = {
                             name: {"before": bool(before[3] & getattr(termios, name)),
-                                   "after_dispose": bool(attrs(slave)[3] & getattr(termios, name))}
+                                   "after_dispose": bool(after_dispose[3] & getattr(termios, name))}
                             for name in ("ICANON", "ECHO", "ISIG", "IEXTEN")}
                         if not receipt["restored_while_child_alive"]:
                             receipt["errors"].append("Terminal state was not restored by lease disposal while child remained alive.")
@@ -160,8 +198,8 @@ def main():
                     # unregister master once the child has exited to avoid false EOF waits.
                     if master in selector.get_map():
                         selector.unregister(master)
-        receipt["termios_after_exit"] = attrs(slave)
-        receipt["restored_after_exit"] = attrs(slave) == before
+        receipt["finished_observed"] = finished
+        record_exit_state(receipt, slave, before, os.waitstatus_to_exitcode(status))
     except BaseException as ex:
         receipt["errors"].append(type(ex).__name__ + ": " + str(ex))
     finally:
@@ -194,13 +232,17 @@ def main():
         receipt["cleanup"]["pty_and_pipes_closed"] = True
         receipt["success"] = (receipt["exit_code"] == 0 and not receipt["errors"]
                               and receipt["passed"] == list(CASES)
+                              and receipt.get("prelease_baseline_acknowledged") is True
+                              and receipt.get("restored_while_suspended") is True
                               and receipt.get("restored_while_child_alive") is True
                               and receipt.get("lease_released") is True and finished)
         receipt["success"] = (receipt["success"]
                               and receipt.get("signals_enabled_during_work") is True
                               and receipt.get("keyboard_cancelled_work") is True
                               and receipt.get("raw_mode_resumed") is True
-                              and receipt.get("menu_navigation_after_work") is True)
+                              and receipt.get("menu_navigation_after_work") is True
+                              and (receipt.get("restored_after_exit") is True
+                                   or receipt.get("pty_revoked_after_exit") is True))
         (options.output / "probe.jsonl").write_bytes(report_bytes)
         (options.output / "terminal.bin").write_bytes(raw_terminal)
         (options.output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

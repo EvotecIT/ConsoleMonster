@@ -34,6 +34,7 @@ try {
     using (var direct = ConsoleInput.OpenConsole()) {
         if (direct is not ConsoleKeyInput) throw new InvalidOperationException("OpenConsole did not select ConsoleKeyInput.");
         Report(new { phase = "opened", source = direct.GetType().FullName });
+        if (control.ReadByte() != 3) throw new InvalidOperationException("The prelease terminal baseline was not acknowledged.");
     }
     lease = ConsoleInput.Acquire();
     if (lease.Source is not ConsoleKeyInput || !ConsoleInput.IsAcquired)
