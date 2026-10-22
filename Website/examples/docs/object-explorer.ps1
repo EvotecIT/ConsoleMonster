@@ -3,6 +3,7 @@
 $server = [pscustomobject]@{
     Name = 'web-01'
     Owner = [pscustomobject]@{
+        PSTypeName = 'OwnerInfo'
         Name = 'Ada'
         Groups = @('Operators', 'Readers')
     }

@@ -193,6 +193,60 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal(1, second.Reads);
         }
 
+        [Fact]
+        public void CollectionLabels_LeaveTheNodeBudgetAvailableForExplicitExpansion() {
+            var records = Enumerable.Range(0, 65).Select(i => {
+                var record = new System.Collections.Specialized.OrderedDictionary { ["Name"] = "host-" + i };
+                for (int member = 0; member < 79; member++) { record.Add("Field" + member, member); }
+                return record;
+            }).ToArray();
+            var explorer = new ObjectExplorer(records, new InspectorOptions { MaxItems = 65, MaxNodes = 200 });
+            foreach (ExplorerNode node in explorer.Root.Children) {
+                Assert.Equal("host-" + Array.IndexOf(records, node.Value), node.DisplayValue().Text);
+            }
+            ExplorerNode last = explorer.Root.Children.Last();
+            Assert.Equal(80, last.Children.Count);
+            Assert.False(last.HasMore);
+            Assert.Equal("host-64", last.Children[0].Value);
+        }
+
+        [Fact]
+        public void CollectionLabel_UsesIdentifierPriorityAndHonorsExcludedGetters() {
+            var record = new IdentifierRecord();
+            var options = new InspectorOptions();
+            options.Exclude.Add("Name");
+            ExplorerNode node = Assert.Single(new ObjectExplorer(new[] { record }, options).Root.Children);
+            Assert.Equal("identity", node.DisplayValue().Text);
+            Assert.Equal(0, record.NameReads);
+            Assert.Equal("identity", node.Children.Single(n => n.Name == "Id").Value);
+            Assert.Equal(1, record.IdReads);
+            Assert.Equal(0, record.DisplayReads);
+            Assert.Equal(0, record.OtherReads);
+        }
+
+        [Fact]
+        public void CollectionLabel_CachesThrowingGettersWhenFallingBackToAnotherIdentifier() {
+            var record = new IdentifierRecord { ThrowName = true };
+            ExplorerNode node = Assert.Single(new ObjectExplorer(new[] { record }).Root.Children);
+            Assert.Equal("identity", node.DisplayValue().Text);
+            Assert.Equal("identity", node.DisplayValue().Text);
+            ExplorerNode name = node.Children.Single(n => n.Name == "Name");
+            Assert.Null(name.Value);
+            Assert.Equal("name unavailable", name.Error);
+            Assert.Equal(1, record.NameReads);
+            Assert.Equal(1, record.IdReads);
+        }
+
+        [Fact]
+        public void CollectionLabel_DoesNotAliasDictionaryKeysWithTheSameDisplayName() {
+            var record = new System.Collections.Specialized.OrderedDictionary { ["Name"] = "primary", [new NamedKey()] = "other" };
+            ExplorerNode node = Assert.Single(new ObjectExplorer(new[] { record }).Root.Children);
+            Assert.Equal("primary", node.DisplayValue().Text);
+            Assert.Equal("primary", node.Children[0].Value);
+            Assert.Equal("other", node.Children[1].Value);
+            Assert.NotEqual(node.Children[0].Path, node.Children[1].Path);
+        }
+
         private static ExplorerNode? Show(ObjectExplorer explorer, string keys, out RecordingSurface surface, int width = 90, GlyphTier glyphs = GlyphTier.Full, ColorDepth depth = ColorDepth.TrueColor) {
             RecordingSurface capture = new RecordingSurface(width, 20, false);
             surface = capture;
@@ -209,6 +263,22 @@ namespace ConsoleMonster.Tests.Interactive {
         private sealed class CountingIdentifier {
             internal int Reads;
             public string Name { get { Reads++; return "web"; } }
+        }
+
+        private sealed class IdentifierRecord {
+            internal int NameReads;
+            internal int IdReads;
+            internal int DisplayReads;
+            internal int OtherReads;
+            internal bool ThrowName;
+            public string Name { get { NameReads++; if (ThrowName) { throw new InvalidOperationException("name unavailable"); } return "primary"; } }
+            public string Id { get { IdReads++; return "identity"; } }
+            public string DisplayName { get { DisplayReads++; return "display"; } }
+            public string Other { get { OtherReads++; return "other"; } }
+        }
+
+        private sealed class NamedKey {
+            public override string ToString() => "Name";
         }
     }
 }

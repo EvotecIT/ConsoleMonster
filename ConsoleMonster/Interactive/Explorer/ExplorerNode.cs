@@ -17,6 +17,9 @@ namespace ConsoleMonster.Interactive {
         private bool _prepared;
         private object? _preparedValue;
         private List<ExplorerNode>? _children;
+        private readonly Dictionary<(string Name, int? Index), Lazy<object?>> _identifierValues = new Dictionary<(string, int?), Lazy<object?>>();
+        private bool _readLabel;
+        private string? _label;
 
         internal ExplorerNode(string name, string path, Func<object?> read, InspectorOptions options, ExplorerNode? parent, bool collectionItem = false) {
             Name = name;
@@ -90,23 +93,59 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        // Collection rows keep their index/path while showing an identifying string from the same bounded children.
-        // Reading a label uses the ordinary cached getters, exclusions and node/depth budgets.
+        // Labels do not create child nodes or spend the expansion budget. Identifier reads are shared with later expansion.
         internal (string Text, bool Descriptor) DisplayValue() {
             string summary = Summary;
             bool descriptor = Error == null && Prepared != null && !ObjectInspector.IsScalarValue(Prepared);
             if (descriptor && _collectionItem && CanExpand) {
-                foreach (string identifier in new[] { "Name", "Id", "DisplayName" }) {
-                    foreach (ExplorerNode child in Children) {
-                        if (string.Equals(child.Name, identifier, StringComparison.OrdinalIgnoreCase) &&
-                            child.Prepared is string text && !string.IsNullOrWhiteSpace(text)) {
-                            return (text.Length > 240 ? text.Substring(0, 240) + "…" : text, false);
-                        }
-                    }
-                }
+                string? label = IdentifyingLabel();
+                if (label != null) { return (label, false); }
             }
             return (summary, descriptor);
         }
+
+        private string? IdentifyingLabel() {
+            if (_readLabel) { return _label; }
+            _readLabel = true;
+            object value = Prepared!;
+            IMemberSource? source = ObjectInspector.FindSource(value, _options);
+            if (source == null) { return null; }
+            Dictionary<string, InspectMember> identifiers = new Dictionary<string, InspectMember>(StringComparer.OrdinalIgnoreCase);
+            try {
+                IEnumerable<InspectMember> members = source is DictionaryMemberSource dictionary ? dictionary.GetMembers(value, Math.Max(1, _options.MaxNodes)) : source.GetMembers(value);
+                Stopwatch elapsed = Stopwatch.StartNew();
+                int scanned = 0;
+                foreach (InspectMember member in members) {
+                    if (++scanned > Math.Max(1, _options.MaxNodes) || (_options.TimeBudget > TimeSpan.Zero && elapsed.Elapsed >= _options.TimeBudget)) { break; }
+                    if (IsIdentifierMember(member.Name) && ObjectInspector.MemberIncluded(member.Name, _options) && !identifiers.ContainsKey(member.Name)) { identifiers.Add(member.Name, member); }
+                }
+                foreach (string name in new[] { "Name", "Id", "DisplayName" }) {
+                    if (!identifiers.TryGetValue(name, out InspectMember? member)) { continue; }
+                    try {
+                        object? raw = ReadMember(member);
+                        object? prepared = Values.ValueShaper.Prepare(ObjectInspector.UnwrapValue(raw, _options));
+                        if (prepared is string text && !string.IsNullOrWhiteSpace(text)) {
+                            _label = text.Length > 240 ? text.Substring(0, 240) + "…" : text;
+                            break;
+                        }
+                    } catch (Exception ex) when (!ObjectInspector.IsCancellation(ex)) { }
+                }
+            } catch (Exception ex) when (!ObjectInspector.IsCancellation(ex)) { }
+            return _label;
+        }
+
+        private object? ReadMember(InspectMember member) {
+            if (!IsIdentifierMember(member.Name)) { return member.ReadValue(); }
+            var key = (member.Name, member.DictionaryIndex);
+            if (!_identifierValues.TryGetValue(key, out Lazy<object?>? value)) {
+                value = new Lazy<object?>(member.ReadValue);
+                _identifierValues.Add(key, value);
+            }
+            return value.Value;
+        }
+
+        private static bool IsIdentifierMember(string name) =>
+            string.Equals(name, "Name", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "Id", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "DisplayName", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Whether collection or node limits left more children undisplayed.</summary>
         public bool HasMore { get; private set; }
@@ -140,7 +179,7 @@ namespace ConsoleMonster.Interactive {
                                 bool dictionaryMember = value is IDictionary || source is DictionaryMemberSource;
                                 string path = member.DictionaryIndex.HasValue ? DictionaryPath(Path, member) : dictionaryMember ? Path + "['" + quoted + "']" : Path + ".'" + quoted + "'";
                                 if (!dictionaryMember && IsIdentifier(name)) { path = Path + "." + name; }
-                                _children.Add(new ExplorerNode(name, path, member.ReadValue, _options, this));
+                                _children.Add(new ExplorerNode(name, path, () => ReadMember(member), _options, this));
                             }
                         }
                     }

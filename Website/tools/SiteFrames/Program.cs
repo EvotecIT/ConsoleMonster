@@ -116,6 +116,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "objects") || Wants(only, "docs")) {
+                ExplorerFigures.Capture(site);
+            }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }

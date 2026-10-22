@@ -8,8 +8,10 @@ Describe 'ConsoleMonster exports' {
         New-ConsolePanel -Title 'Status' { New-ConsoleText 'All <good> & "fine"' } | Export-ConsoleFrame -Path $path -Width 40
         $html = Get-Content -LiteralPath $path -Raw -Encoding UTF8
         $html | Should -Match '<!DOCTYPE html>'
-        $html | Should -Match 'class="cm-screen cm-dark"'
-        $html | Should -Match 'class="cm-screen cm-light"'
+        $screens = [regex]::Matches($html, '<pre class="([^"]+)">')
+        foreach ($theme in 'cm-dark', 'cm-light') {
+            @($screens | Where-Object { $classes = $_.Groups[1].Value -split '\s+'; $classes -contains 'cm-screen' -and $classes -contains $theme }).Count | Should -Be 1
+        }
         $html | Should -Match 'prefers-color-scheme: light'
         $html | Should -Match 'All &lt;good&gt; &amp; &quot;fine&quot;'
         $html | Should -Not -Match '<script'
