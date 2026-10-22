@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace ConsoleMonster.Live {
     internal sealed class CaptureWriter : TextWriter {
@@ -11,11 +12,10 @@ namespace ConsoleMonster.Live {
         private static int t_passThrough;
 
         private readonly object _gate = new object();
-        private readonly StringBuilder _buffer = new StringBuilder();
+        private readonly ThreadLocal<Fragment> _fragments = new ThreadLocal<Fragment>(() => new Fragment(), true);
         private readonly Action<string> _write;
         private readonly TextWriter _fallback;
         private bool _completed;
-        private bool _carriageReturn;
 
         internal CaptureWriter(Action<string> write, TextWriter fallback) {
             _write = write;
@@ -33,7 +33,7 @@ namespace ConsoleMonster.Live {
         public override void Write(char value) {
             lock (_gate) {
                 if (_completed || PassingThrough) { _fallback.Write(value); return; }
-                Append(value);
+                Append(_fragments.Value!, value);
             }
         }
 
@@ -41,7 +41,8 @@ namespace ConsoleMonster.Live {
             if (value == null) { return; }
             lock (_gate) {
                 if (_completed || PassingThrough) { _fallback.Write(value); return; }
-                foreach (char c in value) { Append(c); }
+                Fragment fragment = _fragments.Value!;
+                foreach (char c in value) { Append(fragment, c); }
             }
         }
 
@@ -50,8 +51,9 @@ namespace ConsoleMonster.Live {
         public override void WriteLine(string? value) {
             lock (_gate) {
                 if (_completed || PassingThrough) { _fallback.WriteLine(value); return; }
-                if (value != null) { foreach (char c in value) { Append(c); } }
-                Append('\n');
+                Fragment fragment = _fragments.Value!;
+                if (value != null) { foreach (char c in value) { Append(fragment, c); } }
+                Append(fragment, '\n');
             }
         }
 
@@ -65,27 +67,36 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 if (_completed) { return; }
                 _completed = true;
-                if (_buffer.Length > 0) { Emit(); }
+                // Track all values so a producer that has already exited still gets its final partial line flushed.
+                foreach (Fragment fragment in _fragments.Values) {
+                    if (fragment.Buffer.Length > 0) { Emit(fragment); }
+                }
+                _fragments.Dispose();
             }
         }
 
-        private void Append(char value) {
+        private void Append(Fragment fragment, char value) {
             if (value == '\n') {
-                if (!_carriageReturn) { Emit(); }
-                _carriageReturn = false;
+                if (!fragment.CarriageReturn) { Emit(fragment); }
+                fragment.CarriageReturn = false;
             } else if (value == '\r') {
-                Emit();
-                _carriageReturn = true;
+                Emit(fragment);
+                fragment.CarriageReturn = true;
             } else {
-                _carriageReturn = false;
-                _buffer.Append(value);
+                fragment.CarriageReturn = false;
+                fragment.Buffer.Append(value);
             }
         }
 
-        private void Emit() {
-            string line = _buffer.ToString();
-            _buffer.Clear();
+        private void Emit(Fragment fragment) {
+            string line = fragment.Buffer.ToString();
+            fragment.Buffer.Clear();
             _write(line);
+        }
+
+        private sealed class Fragment {
+            internal readonly StringBuilder Buffer = new StringBuilder();
+            internal bool CarriageReturn;
         }
     }
 }

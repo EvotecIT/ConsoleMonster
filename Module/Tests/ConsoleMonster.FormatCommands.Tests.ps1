@@ -19,6 +19,40 @@
         }
     }
 
+    It 'matches native Wide column fitting for <LayoutName>, including boundary widths and groups' -ForEach @(
+        @{ LayoutName = 'default'; Layout = @{} }
+        @{ LayoutName = 'one column'; Layout = @{ Column = 1 } }
+        @{ LayoutName = 'two columns'; Layout = @{ Column = 2 } }
+        @{ LayoutName = 'three columns'; Layout = @{ Column = 3 } }
+        @{ LayoutName = 'autosize'; Layout = @{ AutoSize = $true } }
+    ) {
+        $layoutJson = $Layout | ConvertTo-Json -Compress
+        $text = Invoke-EverydayChild (@'
+$layout = @{}
+($layoutJson = '__LAYOUT__' | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $layout[$_.Name] = $_.Value }
+foreach ($width in 20, 21, 40, 41, 80) {
+    $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 40, 'None')
+    [ConsoleMonster.Terminal]::Profile = $profile
+    foreach ($length in 5, 16, 20) {
+        $values = 1..7 | ForEach-Object { [pscustomobject]@{ Name = "$_-" + ('x' * $length); Group = if ($_ -lt 4) { 'A' } else { 'B' } } }
+        foreach ($grouped in $false, $true) {
+            $parameters = @{} + $layout
+            if ($grouped) { $parameters.GroupBy = 'Group' }
+            $records = @($values | Microsoft.PowerShell.Utility\Format-Wide Name @parameters)
+            $native = $records | Microsoft.PowerShell.Utility\Out-String -Width $width
+            $widget = $records | Out-ConsoleFormatCommand -AsWidget
+            $actual = [ConsoleMonster.Terminal]::RenderText($widget, $profile)
+            $native = (($native -replace "`r", '').Trim("`n") -split "`n" | ForEach-Object { $_.TrimEnd() }) -join "`n"
+            $actual = (($actual -replace "`r", '').Trim("`n") -split "`n" | ForEach-Object { $_.TrimEnd() }) -join "`n"
+            if ($native -cne $actual) { throw "Wide fit differs: width=$width length=$length grouped=$grouped`nNative:`n$native`nActual:`n$actual" }
+        }
+    }
+}
+'WIDE_FIT_OK'
+'@.Replace('__LAYOUT__', $layoutJson.Replace("'", "''")))
+        $text | Should -Match 'WIDE_FIT_OK'
+    }
+
     It 'preserves exact native records, captures and file bytes for Format-<Kind>' -ForEach @(
         @{ Kind = 'Table'; Arguments = "-Property Name, State -GroupBy Site -AutoSize -Wrap -HideTableHeaders" }
         @{ Kind = 'List'; Arguments = "-Property N*, @{Label='Health';Expression={ `$_.State }} -GroupBy Site" }

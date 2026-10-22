@@ -46,15 +46,10 @@ namespace ConsoleMonster.Live {
 
         /// <summary>
         /// Takes a one-shot write meant for the console while the session draws on it (see <see cref="Terminal.ClaimConsole"/>):
-        /// a <see cref="CellBuffer"/> block or a <see cref="Text.StyledLine"/>, written above an inline area on the next frame or
-        /// after the full screen ends.
+        /// one prepared block, written above an inline area on the next frame or after the full screen ends.
         /// </summary>
-        internal bool TryWriteAbove(object item) {
-            if (Volatile.Read(ref _state) != 1 || _restored) {
-                return false;
-            }
-            _unroutedLines.Enqueue(item);
-            return true;
+        internal bool TryWriteAbove(ConsoleWriteBlock item) {
+            return IsRunning && TryPost(new LiveEvent("$console", "write-block") { Payload = item });
         }
 
         internal bool CanOverlay => IsRunning && _output != null && _output.SupportsLiveFrames && !_restored;

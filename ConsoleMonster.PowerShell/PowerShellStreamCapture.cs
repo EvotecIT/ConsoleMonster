@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Management.Automation;
+using System.Threading;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.PowerShell {
@@ -11,11 +13,18 @@ namespace ConsoleMonster.PowerShell {
         private readonly System.Management.Automation.PowerShell _shell;
         private readonly ILiveDispatcher _session;
         private readonly string? _prefix;
+        private readonly PSDataCollection<PSObject>? _merged;
+        private readonly ConcurrentDictionary<int, int>? _progressIds;
+        private static int _nextProgressId = -1;
 
-        public PowerShellStreamCapture(System.Management.Automation.PowerShell shell, ILiveDispatcher session, string? prefix = null) {
+        public PowerShellStreamCapture(System.Management.Automation.PowerShell shell, ILiveDispatcher session, string? prefix = null,
+            PSDataCollection<PSObject>? merged = null, bool isolateProgress = false) {
             _shell = shell;
             _session = session;
             _prefix = prefix;
+            _merged = merged;
+            _progressIds = isolateProgress ? new ConcurrentDictionary<int, int>() : null;
+            if (_merged != null) { _merged.DataAdded += OnMerged; }
             shell.Streams.Information.DataAdded += OnInformation;
             shell.Streams.Warning.DataAdded += OnWarning;
             shell.Streams.Verbose.DataAdded += OnVerbose;
@@ -25,23 +34,47 @@ namespace ConsoleMonster.PowerShell {
         }
 
         public void Dispose() {
+            if (_merged != null) { _merged.DataAdded -= OnMerged; }
             _shell.Streams.Information.DataAdded -= OnInformation;
             _shell.Streams.Warning.DataAdded -= OnWarning;
             _shell.Streams.Verbose.DataAdded -= OnVerbose;
             _shell.Streams.Debug.DataAdded -= OnDebug;
             _shell.Streams.Error.DataAdded -= OnError;
             _shell.Streams.Progress.DataAdded -= OnProgress;
+            if (_progressIds != null) {
+                // PowerShell clears a pipeline's progress when it ends, even if the script did not send -Completed.
+                foreach (int id in _progressIds.Values) {
+                    _session.Post(ProgressEvents.From(id, -1, null, null, -1, -1, true));
+                }
+            }
         }
 
         // Write-Progress becomes an activity in the session's activity list (added by Start-ConsoleDashboard when the
         // dashboard has none), nested by ParentActivityId.
         private void OnProgress(object? sender, DataAddedEventArgs e) {
             ProgressRecord record = _shell.Streams.Progress[e.Index];
-            _session.Post(ProgressEvents.From(record.ActivityId, record.ParentActivityId, record.Activity, record.StatusDescription, record.PercentComplete, record.SecondsRemaining, record.RecordType == ProgressRecordType.Completed));
+            _session.Post(ProgressEvents.From(ProgressId(record.ActivityId), record.ParentActivityId < 0 ? -1 : ProgressId(record.ParentActivityId), record.Activity, record.StatusDescription, record.PercentComplete, record.SecondsRemaining, record.RecordType == ProgressRecordType.Completed));
+        }
+
+        // PowerShell's local ids are nonnegative. Negative ids below -1 isolate invocations without hashing collisions;
+        // both ends of a parent relationship use the same map, and -1 remains the activity list's root sentinel.
+        private int ProgressId(int local) => _progressIds == null ? local : _progressIds.GetOrAdd(local, _ => Interlocked.Decrement(ref _nextProgressId));
+
+        private void OnMerged(object? sender, DataAddedEventArgs e) {
+            switch (_merged![e.Index]?.BaseObject) {
+                case InformationRecord information: CaptureInformation(information); break;
+                case WarningRecord warning: Write(warning.Message, "warn"); break;
+                case VerboseRecord verbose: Write(verbose.Message, "verbose"); break;
+                case DebugRecord debug: Write(debug.Message, "debug"); break;
+                case ErrorRecord error: Write(error.ToString(), PSStreams.IsNativeErrorLine(error) ? "out" : "err"); break;
+            }
         }
 
         private void OnInformation(object? sender, DataAddedEventArgs e) {
-            InformationRecord record = _shell.Streams.Information[e.Index];
+            CaptureInformation(_shell.Streams.Information[e.Index]);
+        }
+
+        private void CaptureInformation(InformationRecord record) {
             bool host = record.Tags.Contains("PSHOST");
             if (record.MessageData is HostInformationMessage message && (message.ForegroundColor.HasValue || message.BackgroundColor.HasValue)) {
                 // Write-Host colours are kept: the line travels as markup to the log region or above an inline area.

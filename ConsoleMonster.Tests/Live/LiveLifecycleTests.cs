@@ -77,8 +77,8 @@ namespace ConsoleMonster.Tests.Live {
                     Console.Error.Write("unrouted partial");
                 });
                 Assert.Equal(new[] { "unrouted out", "unrouted partial" }, output.Lines);
-                // Unrouted lines come first, then the final state of the root (PrintFinalState defaults to true).
-                Assert.Equal(new[] { "begin", "end", "line", "line", "block" }, output.Calls);
+                // Stream capture is progressive, including tails flushed during stop; the final root follows EndLive.
+                Assert.Equal(new[] { "begin", "line", "line", "end", "block" }, output.Calls);
             }
         }
 
