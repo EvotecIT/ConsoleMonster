@@ -1,0 +1,8 @@
+/* The dots end at 64px. Keep a 12px gap and a 12px right inset for the title. */
+.cm-export .cm-window{min-width:76px}
+.cm-export .cm-titlebar{container-type:inline-size;min-width:76px}
+.cm-export .cm-titlebar .cm-dots{display:flex;gap:8px;top:9px;height:12px}
+.cm-export .cm-titlebar .cm-dots i{flex:none;margin:0}
+.cm-export .cm-titlebar .cm-title{position:absolute;left:76px;right:12px;top:0;display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;font:13px/30px monospace}
+/* A partial ellipsis is less useful than a clean title bar. */
+@container (width < 96px){.cm-export .cm-titlebar .cm-title{visibility:hidden}}
