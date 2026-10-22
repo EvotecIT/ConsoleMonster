@@ -40,9 +40,6 @@ namespace SiteFrames {
             string command = args.Length > 0 ? args[0] : "render";
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;
-            if (command == "review-object" && only != null) {
-                return ExplorerFigures.Review(new Site(website), only);
-            }
             if (command == "render" && only != null) {
                 Console.Error.WriteLine("Render regenerates all areas together because they share styles and thumbnails. Use: SiteFrames render [WebsiteRoot]");
                 return 2;
@@ -54,6 +51,12 @@ namespace SiteFrames {
                     return CaptureAll(new Site(website), only);
                 case "readme":
                     return Readme.Sync(new Site(website));
+                case "review-object":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-object [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return ExplorerFigures.Review(new Site(website), only);
                 case "review-text":
                     if (only == null) {
                         Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
@@ -62,6 +65,7 @@ namespace SiteFrames {
                     return TextDiffFigures.Review(new Site(website), only);
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("       SiteFrames review-object [WebsiteRoot] [OutputDirectory]");
                     return 2;
             }
         }

@@ -108,6 +108,36 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal("$x.Parent", selected!.Path);
         }
 
+        [Theory]
+        [InlineData(60, false)]
+        [InlineData(120, false)]
+        [InlineData(60, true)]
+        [InlineData(120, true)]
+        public void SearchPreviewOmitsHiddenRowsAndReturnsAfterTheFilterIsCleared(int width, bool clearFilter) {
+            var records = new[] {
+                new { Name = "alpha", Payload = "hidden-first" },
+                new { Name = "beta", Payload = "wanted-payload" },
+                new { Name = "gamma", Payload = "hidden-third" }
+            };
+            string keys = clearFilter
+                ? "/ \"beta\" Enter / Backspace Backspace Backspace Backspace Enter F10"
+                : "/ \"beta\" Enter F10";
+            ExplorerNode? selected = Show(new ObjectExplorer(records), keys, out RecordingSurface surface, width);
+            Assert.Contains("hidden-first", surface.Frames.First().ToPlainText());
+            string final = surface.Frames.Last().ToPlainText();
+            Golden.Match("interactive/explorer.search." + (clearFilter ? "cleared." : "filtered.") + width + ".txt", final.TrimEnd() + "\n");
+            if (clearFilter) {
+                Assert.Contains("hidden-first", final);
+                Assert.Contains("hidden-third", final);
+                Assert.Same(records[0], selected!.Value);
+            } else {
+                Assert.DoesNotContain("hidden-first", final);
+                Assert.DoesNotContain("hidden-third", final);
+                Assert.Contains("beta", final);
+                Assert.Same(records[1], selected!.Value);
+            }
+        }
+
         [Fact]
         public void LimitedCollection_KeepsTheFocusedBottomMemberVisible() {
             ExplorerNode? result = Show(new ObjectExplorer(Enumerable.Range(0, 50), new InspectorOptions { MaxItems = 20 }), "PageDown PageDown F10", out RecordingSurface surface);
