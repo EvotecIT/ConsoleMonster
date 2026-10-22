@@ -11,10 +11,18 @@ using System.Text.Json;
 
 namespace ConsoleMonster.Tests.Data {
     public sealed class ObjectInspectorTests {
+        // Shape assertions must not depend on how long a loaded CI runner takes to start the adapters.
+        // ValueShaperTests.Inspector_TimeBudget_StopsWithAMarker covers the separate deadline contract.
+        private static InspectNode InspectShape(object? value, InspectorOptions? options = null) {
+            InspectorOptions actual = options ?? new InspectorOptions();
+            actual.TimeBudget = TimeSpan.Zero;
+            return ObjectInspector.Inspect(value, actual);
+        }
+
         [Fact]
         public void Inspect_PocoWithNestedObjectAndRecords_ProducesTabularCollection() {
             InspectObject root = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(
+                InspectShape(
                     new Sample {
                         Name = "root",
                         Child = new Child { Label = "nested" },
@@ -43,7 +51,7 @@ namespace ConsoleMonster.Tests.Data {
                 ["First"] = 1,
                 ["Nested"] = new Hashtable { ["Second"] = "two" },
             };
-            InspectObject result = Assert.IsType<InspectObject>(ObjectInspector.Inspect(map));
+            InspectObject result = Assert.IsType<InspectObject>(InspectShape(map));
             Assert.Equal("Hashtable", result.TypeName);
             InspectObject nested = Assert.IsType<InspectObject>(
                 result.Members.Single(member => member.Name == "Nested")
@@ -56,7 +64,7 @@ namespace ConsoleMonster.Tests.Data {
             ExpandoObject value = new ExpandoObject();
             IDictionary<string, object?> fields = value;
             fields["Name"] = "Ada";
-            InspectObject result = Assert.IsType<InspectObject>(ObjectInspector.Inspect(value));
+            InspectObject result = Assert.IsType<InspectObject>(InspectShape(value));
             Assert.Equal("PSCustomObject", result.TypeName);
             Assert.Equal("Ada", Scalar(result.Members[0]));
         }
@@ -64,7 +72,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_ScalarList_HasNoInferredColumns() {
             InspectCollection result = Assert.IsType<InspectCollection>(
-                ObjectInspector.Inspect(new[] { 1, 2, 3 })
+                InspectShape(new[] { 1, 2, 3 })
             );
             Assert.Null(result.Columns);
             Assert.Equal(3, result.Count);
@@ -74,7 +82,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_DepthLimit_KeepsScalarsAndSummarisesDeeperObjects() {
             // Scalars cost nothing to show, so a value past the depth limit is still its value, never "(depth limit)".
-            InspectNode result = ObjectInspector.Inspect(
+            InspectNode result = InspectShape(
                 new Sample { Child = new Child { Label = "deep" } },
                 new InspectorOptions { MaxDepth = 1 }
             );
@@ -83,7 +91,7 @@ namespace ConsoleMonster.Tests.Data {
             );
             InspectScalar label = Assert.IsType<InspectScalar>(child.Members[0]);
             Assert.Equal("deep", label.Value);
-            InspectNode deeper = ObjectInspector.Inspect(
+            InspectNode deeper = InspectShape(
                 new Sample { Child = new Child { Label = "deep" } },
                 new InspectorOptions { MaxDepth = 0 }
             );
@@ -96,7 +104,7 @@ namespace ConsoleMonster.Tests.Data {
             Link link = new Link();
             link.Next = link;
             InspectCycle cycle = Assert.IsType<InspectCycle>(
-                Assert.IsType<InspectObject>(ObjectInspector.Inspect(link)).Members[0]
+                Assert.IsType<InspectObject>(InspectShape(link)).Members[0]
             );
             Assert.Equal("$", cycle.TargetPath);
         }
@@ -107,7 +115,7 @@ namespace ConsoleMonster.Tests.Data {
             Link second = new Link();
             first.Next = second;
             second.Next = first;
-            InspectObject root = Assert.IsType<InspectObject>(ObjectInspector.Inspect(first));
+            InspectObject root = Assert.IsType<InspectObject>(InspectShape(first));
             InspectCycle cycle = Assert.IsType<InspectCycle>(
                 Assert.IsType<InspectObject>(root.Members[0]).Members[0]
             );
@@ -124,7 +132,7 @@ namespace ConsoleMonster.Tests.Data {
                 Identity = value => normalizedIdentity && ReferenceEquals(value, shared) ? identity : value
             };
             InspectObject result = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(new Pair { Left = shared, Right = shared }, options)
+                InspectShape(new Pair { Left = shared, Right = shared }, options)
             );
             Assert.IsType<InspectObject>(result.Members[0]);
             Assert.IsType<InspectObject>(result.Members[1]);
@@ -145,7 +153,7 @@ namespace ConsoleMonster.Tests.Data {
                 }
             );
 
-            InspectObject result = Assert.IsType<InspectObject>(ObjectInspector.Inspect(root, options));
+            InspectObject result = Assert.IsType<InspectObject>(InspectShape(root, options));
             InspectObject child = Assert.IsType<InspectObject>(result.Members[0]);
             Assert.Equal("nested", Scalar(child.Members[0]));
             InspectCollection items = Assert.IsType<InspectCollection>(result.Members[1]);
@@ -158,7 +166,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_MaxItemsWithCollection_KeepsKnownOmittedCount() {
             InspectCollection result = Assert.IsType<InspectCollection>(
-                ObjectInspector.Inspect(
+                InspectShape(
                     new List<int> { 1, 2, 3, 4 },
                     new InspectorOptions { MaxItems = 2 }
                 )
@@ -171,7 +179,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_MaxItemsWithLazySequence_ReportsUnknownOmittedCount() {
             InspectCollection result = Assert.IsType<InspectCollection>(
-                ObjectInspector.Inspect(Generate(), new InspectorOptions { MaxItems = 2 })
+                InspectShape(Generate(), new InspectorOptions { MaxItems = 2 })
             );
             Assert.Equal(2, result.Items.Count);
             Assert.Null(result.Count);
@@ -185,7 +193,7 @@ namespace ConsoleMonster.Tests.Data {
             options.Exclude.Add("Beta");
             options.Order.Add("Gamma");
             InspectObject result = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(new FilterSample(), options)
+                InspectShape(new FilterSample(), options)
             );
             Assert.Equal(new[] { "Gamma", "Alpha" }, result.Members.Select(member => member.Name));
         }
@@ -193,7 +201,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_ThrowingProperty_ReturnsUnwrappedErrorNode() {
             InspectObject result = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(new ThrowingSample())
+                InspectShape(new ThrowingSample())
             );
             InspectError error = Assert.IsType<InspectError>(result.Members[0]);
             Assert.Equal("getter failed", error.Message);
@@ -202,7 +210,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_MaxColumns_ReportsHiddenColumns() {
             InspectCollection result = Assert.IsType<InspectCollection>(
-                ObjectInspector.Inspect(
+                InspectShape(
                     new[] { new WideRow() },
                     new InspectorOptions { MaxColumns = 2 }
                 )
@@ -228,7 +236,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_ThrowingCollectionEnumeration_ReturnsErrorNode() {
             InspectError error = Assert.IsType<InspectError>(
-                ObjectInspector.Inspect(new ThrowingEnumerable())
+                InspectShape(new ThrowingEnumerable())
             );
             Assert.Equal("enumeration failed", error.Message);
         }
@@ -236,7 +244,7 @@ namespace ConsoleMonster.Tests.Data {
         [Fact]
         public void Inspect_ThrowingCollectionCount_UsesUnknownCountAndContinues() {
             InspectCollection result = Assert.IsType<InspectCollection>(
-                ObjectInspector.Inspect(
+                InspectShape(
                     new ThrowingCountCollection(),
                     new InspectorOptions { MaxItems = 1 }
                 )
@@ -250,7 +258,7 @@ namespace ConsoleMonster.Tests.Data {
         public void Inspect_ReflectionDisabled_LeavesUnknownObjectAsScalar() {
             object value = new Child { Label = "not inspected" };
             InspectScalar result = Assert.IsType<InspectScalar>(
-                ObjectInspector.Inspect(value, new InspectorOptions { UseReflection = false })
+                InspectShape(value, new InspectorOptions { UseReflection = false })
             );
             Assert.Same(value, result.Value);
         }
@@ -260,12 +268,12 @@ namespace ConsoleMonster.Tests.Data {
             Assert.Equal(
                 "String",
                 Assert
-                    .IsType<InspectScalar>(ObjectInspector.Inspect(new string('x', 10001)))
+                    .IsType<InspectScalar>(InspectShape(new string('x', 10001)))
                     .TypeName
             );
             Assert.Equal(
                 "Guid",
-                Assert.IsType<InspectScalar>(ObjectInspector.Inspect(Guid.NewGuid())).TypeName
+                Assert.IsType<InspectScalar>(InspectShape(Guid.NewGuid())).TypeName
             );
             Assert.True(ColumnInference.IsScalar(new byte[] { 1, 2 }));
         }
@@ -277,7 +285,7 @@ namespace ConsoleMonster.Tests.Data {
                 "{\"Name\":\"Ada\",\"Items\":[1,2.5,true,null]}"
             );
             InspectObject root = Assert.IsType<InspectObject>(
-                ObjectInspector.Inspect(document.RootElement)
+                InspectShape(document.RootElement)
             );
             Assert.Equal("Ada", Scalar(root.Members[0]));
             InspectCollection items = Assert.IsType<InspectCollection>(root.Members[1]);

@@ -23,7 +23,10 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The items.</summary>
         public IReadOnlyList<ChartItem> Items => _items;
 
-        /// <summary>The value of a full bar, or <c>null</c> for the largest item.</summary>
+        /// <summary>
+        /// The value of a full bar, or <c>null</c> for the largest item. Non-finite maxima use the largest finite item;
+        /// a negative maximum is treated as zero, so signed bars always include their zero baseline.
+        /// </summary>
         public double? Max { get; set; }
 
         /// <summary>The default bar colour (default <see cref="ThemeToken.Series1"/>).</summary>
@@ -136,19 +139,20 @@ namespace ConsoleMonster.Widgets {
             }
             int labelWidth = 0;
             int valueWidth = 0;
-            double max = Max ?? 0;
+            bool fixedMax = Max.HasValue && NumberFormat.IsFinite(Max.Value);
+            double max = fixedMax ? Math.Max(0, Max!.Value) : 0;
             double min = 0;
             foreach (ChartItem item in _items) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
                 valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
-                if (!Max.HasValue && NumberFormat.IsFinite(item.Value)) {
+                if (!fixedMax && NumberFormat.IsFinite(item.Value)) {
                     max = Math.Max(max, item.Value);
                 }
                 if (Signed && NumberFormat.IsFinite(item.Value)) { min = Math.Min(min, item.Value); }
             }
             labelWidth = Math.Min(labelWidth, Math.Max(4, region.Width / 3));
             if (ShowValues) {
-                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), Max.HasValue ? DisplayWidth.Measure(FormatValue(Max.Value)) : 0);
+                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Max!.Value)) : 0);
             }
             int barX = labelWidth + 1;
             int barWidth = region.Width - barX - (ShowValues ? valueWidth + 1 : 0);

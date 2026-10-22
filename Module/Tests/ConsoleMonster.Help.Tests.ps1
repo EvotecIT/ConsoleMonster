@@ -65,11 +65,18 @@ function Get-Thing {
 
     It 'lists wildcard matches, reads a script''s help by path and points programs to their own help' {
         $text = Invoke-HelpChild @'
+$script:literalWildcardLookups = 0
+$ExecutionContext.InvokeCommand.CommandNotFoundAction = {
+    param($name, $eventArgs)
+    if ($name -eq 'Get-Thin*') { $script:literalWildcardLookups++ }
+}
 '== list'
 Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
 function Get-Thinner { <# .SYNOPSIS
 Makes things thinner. #> param() }
 Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+$ExecutionContext.InvokeCommand.CommandNotFoundAction = $null
+"WILDCARD_LOOKUPS=$script:literalWildcardLookups"
 '== script'
 $path = Join-Path ([IO.Path]::GetTempPath()) "cm-help-$PID.ps1"
 Set-Content -LiteralPath $path -Value "<#`n.SYNOPSIS`nCleans the cache.`n.EXAMPLE`nPS C:\> .\clean.ps1 -Days 7`n#>`nparam([int] `$Days = 30)"
@@ -83,6 +90,7 @@ Show-ConsoleHelp $exe -ErrorVariable e -ErrorAction SilentlyContinue
         $list = ($text -split '== script')[0]
         $list | Should -Match 'Gets things from a store\.'
         $list | Should -Match 'Get-Thinner\s+\S\s+Function\s+\S\s+Makes things thinner\.'
+        $list | Should -Match 'WILDCARD_LOOKUPS=0'
         $script = (($text -split '== script')[1] -split '== program')[0]
         $script | Should -Match 'Cleans the cache\.'
         $script | Should -Match '-Days\s+\S\s+Int32'

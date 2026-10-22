@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
+using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using SiteFrames.Capture;
@@ -77,7 +78,29 @@ namespace SiteFrames.Pages {
             Save(site, output, 60, "16-colour", Theme.Dark, ExportTheme.Dark, ColorDepth.Ansi16, GlyphTier.Basic);
             Save(site, output, 60, "no-colour", Theme.Dark, ExportTheme.Dark, ColorDepth.None, GlyphTier.Ascii);
             ReviewChrome(output);
+            ReviewMinimumWindow(output);
             return Program.Failures == 0 ? 0 : 1;
+        }
+
+        /// <summary>Exports terminal backgrounds at the chrome minimum, including a two-frame recording.</summary>
+        private static void ReviewMinimumWindow(string output) {
+            foreach (ExportTheme theme in new[] { ExportTheme.Light, ExportTheme.Dark }) {
+                foreach (int padding in new[] { 0, 4 }) {
+                    LogRegion log = new LogRegion("minimum") { ShowTime = false };
+                    log.Apply(new LiveEvent("minimum", "write", text: "x"));
+                    string path = Path.Combine(output, "minimum-window-" + theme + "-padding-" + padding);
+                    ExportOptions options = new ExportOptions {
+                        Width = 1, Height = 1, Padding = padding, Theme = theme, Title = "Minimum window", WindowChrome = true
+                    };
+                    File.WriteAllText(path + ".html", ConsoleExporter.ToHtml(log, options));
+                    File.WriteAllText(path + ".svg", ConsoleExporter.ToSvg(log, options));
+                    RecordingExportOptions recording = new RecordingExportOptions {
+                        Width = 1, Height = 1, Padding = padding, Theme = theme, Title = options.Title, WindowChrome = true
+                    };
+                    LiveEvent[] events = { new LiveEvent("minimum", "write", text: "y", time: 200) };
+                    File.WriteAllText(path + "-animated.svg", Recording.Export(log, events, ExportFormat.Svg, recording));
+                }
+            }
         }
 
         /// <summary>Reproduces narrow exporter chrome with real chart content, including the reported 20-column frame.</summary>

@@ -24,7 +24,7 @@ namespace ConsoleMonster.Export {
                     content.Append(" cm-").Append(layer.Scheme);
                 }
                 content.Append("\" transform=\"translate(").Append(ExportText.Num(g.ScreenX)).Append(' ').Append(ExportText.Num(g.ScreenY)).Append(")\">");
-                content.Append("<rect width=\"").Append(ExportText.Num(g.GridWidth + (2 * options.Padding))).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
+                content.Append("<rect width=\"").Append(ExportText.Num(g.Width)).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
                     .Append("\" x=\"").Append(-options.Padding).Append("\" y=\"").Append(-options.Padding).Append('"');
                 ExportText.AppendPaint(content, "fill", layer.Palette.Background);
                 content.Append("/>");

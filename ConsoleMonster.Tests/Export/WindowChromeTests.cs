@@ -6,8 +6,10 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
+using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Tests.Rendering;
+using ConsoleMonster.Widgets;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Export {
@@ -93,6 +95,65 @@ namespace ConsoleMonster.Tests.Export {
             string html = ConsoleExporter.ToHtml(Frame(columns), options);
             Assert.Contains(".cm-export .cm-window{min-width:76px}", html);
             Assert.Contains("@container (width < 96px)", html);
+        }
+
+        public static IEnumerable<object[]> MinimumFrames() {
+            foreach (int padding in new[] { 0, 4 }) {
+                foreach (ExportTheme theme in new[] { ExportTheme.Light, ExportTheme.Dark, ExportTheme.Auto }) {
+                    yield return new object[] { padding, theme };
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(MinimumFrames))]
+        public void MinimumSvgWindowBackgroundCoversTheWholeTerminal(int padding, ExportTheme theme) {
+            ExportOptions options = Options("Chart", theme);
+            options.Padding = padding;
+            options.Width = 1;
+            XElement svg = XElement.Parse(ConsoleExporter.ToSvg(TextBlock.Plain("x"), options));
+            Assert.Equal(76, Number(svg, "width"));
+            XElement[] layers = svg.Elements().Where(e => ((string?)e.Attribute("class"))?.StartsWith("cm-layer", StringComparison.Ordinal) == true).ToArray();
+            Assert.Equal(theme == ExportTheme.Auto ? 2 : 1, layers.Length);
+            foreach (XElement layer in layers) {
+                Assert.Equal("translate(" + padding + " " + (padding + 30) + ")", (string?)layer.Attribute("transform"));
+                XElement background = layer.Elements().First();
+                Assert.Equal("rect", background.Name.LocalName);
+                Assert.Equal(-padding, Number(background, "x"));
+                Assert.Equal(-padding, Number(background, "y"));
+                Assert.Equal(Number(svg, "width"), Number(background, "width"));
+                Assert.Equal(Number(svg, "height") - 30, Number(background, "height"), 2);
+                string scheme = (string?)layer.Attribute("class") ?? string.Empty;
+                Assert.Equal(theme == ExportTheme.Light || scheme.Contains("cm-light") ? "#ffffff" : "#0c0c0c", (string?)background.Attribute("fill"));
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(MinimumFrames))]
+        public void MinimumAnimatedSvgBackgroundAndFrameStrideCoverTheWholeTerminal(int padding, ExportTheme theme) {
+            RecordingExportOptions options = new RecordingExportOptions {
+                Width = 1, Height = 1, Padding = padding, Theme = theme, WindowChrome = true, Title = "Chart", FramesPerSecond = 50
+            };
+            LiveEvent[] events = { new LiveEvent("log", "write", text: "x", time: 20) };
+            XElement svg = XElement.Parse(Recording.Export(new LogRegion("log"), events, ExportFormat.Svg, options));
+            Assert.Equal(76, Number(svg, "width"));
+            XElement viewport = Assert.Single(svg.Elements(), e => e.Name.LocalName == "svg");
+            Assert.Equal(0, Number(viewport, "x"));
+            Assert.Equal(30, Number(viewport, "y"));
+            Assert.Equal(Number(svg, "width"), Number(viewport, "width"));
+            Assert.Equal(Number(svg, "height") - 30, Number(viewport, "height"), 2);
+            XElement background = viewport.Elements().First();
+            Assert.Equal("rect", background.Name.LocalName);
+            Assert.Equal("100%", (string?)background.Attribute("width"));
+            Assert.Equal("100%", (string?)background.Attribute("height"));
+            Assert.Equal(theme == ExportTheme.Light ? "#ffffff" : "#0c0c0c", (string?)background.Attribute("fill"));
+            XElement strip = Assert.Single(viewport.Elements(), e => (string?)e.Attribute("class") == "cm-strip");
+            XElement[] frames = strip.Elements().ToArray();
+            Assert.True(frames.Length > 1);
+            for (int i = 0; i < frames.Length; i++) {
+                Assert.Equal("translate(" + (i * 76).ToString(CultureInfo.InvariantCulture) + " 0)", (string?)frames[i].Attribute("transform"));
+            }
+            Assert.Contains("transform:translateX(-76px)", svg.Value, StringComparison.Ordinal);
         }
 
         [Fact]
