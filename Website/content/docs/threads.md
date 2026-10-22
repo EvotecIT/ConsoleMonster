@@ -146,4 +146,4 @@ Build a widget fully before the session starts, then change it only through hand
 - **PowerShell workers.** Host messages, warnings and progress from `Start-ConsoleDashboard -Parallel` and `ForEach-ConsoleItem -Parallel` reach the view without changing what the script returns.
 - **CI and redirected output.** Whole lines, in the order the updates were applied.
 
-Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([the tests on GitHub](https://github.com/EvotecIT/ConsoleMonster/tree/master/ConsoleMonster.Tests/Live)).
+Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([running the tests](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md#running-the-tests)).

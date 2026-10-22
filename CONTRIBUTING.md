@@ -10,15 +10,20 @@ or a .NET application), the terminal and its font, the module or package version
 
 ## Build and test
 
-Build the solution and run the .NET and PowerShell suites:
+### Running the tests
+
+The tests live in three places: `ConsoleMonster.Tests` (the engine, including live sessions and concurrency),
+`ConsoleMonster.Extensions.Tests` (logging and hosting) and `Module/Tests` (the PowerShell module, as Pester 5 tests).
+Build the solution, then run all three:
 
 ```powershell
 dotnet build ConsoleMonster.sln -c Release
 dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj -c Release --no-build
+dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj -c Release --no-build
 Invoke-Pester -Path ./Module/Tests
 ```
 
-Run Pester 5 in both Windows PowerShell 5.1 and PowerShell 7 after building the module binaries. CI exercises both
+Run Pester in both Windows PowerShell 5.1 and PowerShell 7 after building the module binaries. CI exercises both
 PowerShell hosts and the .NET Framework 4.7.2 / .NET 8 / .NET 10 test targets. The source module can load development
 binaries from `ConsoleMonster.PowerShell/bin`.
 
