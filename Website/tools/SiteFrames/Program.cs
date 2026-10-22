@@ -16,6 +16,7 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// <item><c>native-styling Website Output</c>: captures real PSReadLine and native progress at both review widths and exports their cells and restoration evidence.</item>
     /// </list>
     /// </summary>
     public static class Program {
@@ -57,6 +58,8 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "native-styling":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;
