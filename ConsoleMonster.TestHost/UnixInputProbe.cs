@@ -64,6 +64,7 @@ try {
     foreach (var test in cases) {
         Report(new { phase = "ready", name = test.Name, count = test.Expected.Length });
         if (test.Name.StartsWith("idle_", StringComparison.Ordinal)) {
+            if (control.ReadByte() != 2) { throw new InvalidOperationException("The partial input was not acknowledged."); }
             // Both reads must return while the VT parser deliberately retains an unfinished state.
             // The parent watchdog protects a hung reader; this makes no hosted-runner latency assertion.
             for (int i = 0; i < 2; i++) {

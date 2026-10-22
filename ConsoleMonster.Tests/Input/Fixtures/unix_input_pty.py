@@ -118,6 +118,8 @@ def main():
                         if written != len(payload):
                             raise RuntimeError("Partial PTY write")
                         receipt["sent"].append({"name": name, "hex": payload.hex()})
+                        if name.startswith("idle_"):
+                            os.write(control_w, b"\x02")
                     elif phase == "pass":
                         receipt["passed"].append(event["name"])
                     elif phase == "ready_tail":
