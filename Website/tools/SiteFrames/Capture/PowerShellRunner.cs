@@ -16,8 +16,8 @@ namespace SiteFrames.Capture {
         /// <summary>Windows PowerShell 5.1.</summary>
         public static PowerShellHost Desktop { get; } = new PowerShellHost("ps5", "Windows PowerShell 5.1", "powershell.exe");
 
-        /// <summary>PowerShell 7.</summary>
-        public static PowerShellHost Core { get; } = new PowerShellHost("ps7", "PowerShell 7", "pwsh.exe");
+        /// <summary>PowerShell 7 (<c>pwsh</c> outside Windows, where CI renders the site and parses its code blocks).</summary>
+        public static PowerShellHost Core { get; } = new PowerShellHost("ps7", "PowerShell 7", OperatingSystem.IsWindows() ? "pwsh.exe" : "pwsh");
 
         public static PowerShellHost[] All { get; } = { Core, Desktop };
 
