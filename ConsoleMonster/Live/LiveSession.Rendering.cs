@@ -119,7 +119,9 @@ namespace ConsoleMonster.Live {
                     }
                     if (description != null) {
                         lock (_outputGate) {
-                            _output.WriteLine(StyledLine.From(Stamp(description)));
+                            foreach (StyledLine line in StyledText.FromPlain(description).Lines) {
+                                _output.WriteLine(StyledLine.From(Stamp(line.PlainText)));
+                            }
                         }
                     }
                 });
