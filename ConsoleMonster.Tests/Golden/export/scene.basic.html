@@ -23,19 +23,24 @@ body{padding:0}
 .cm-export .cm-screen a:hover{text-decoration:underline}
 .cm-export .cm-screen .n{width:1ch;text-align:center;overflow:visible}
 .cm-export .cm-screen .w{width:2ch;text-align:center;overflow:visible}
+.cm-export .cm-screen .b{position:relative}
+.cm-export .cm-screen .b svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;shape-rendering:crispEdges}
+.cm-export .cm-screen{position:relative}
+.cm-export .cm-screen>.cm-paint{position:absolute;left:12px;top:12px;width:calc(100% - 24px);height:calc(100% - 24px);overflow:visible;pointer-events:none;user-select:none;shape-rendering:crispEdges}
+.cm-export .cm-screen.cm-h10{height:168px}
+.cm-export .cm-screen.cm-h10>.cm-paint{height:168px}
 .cm-export .s0{color:#4b5060;}
 .cm-export .s1{font-weight:bold;}
 .cm-export .s2{color:#4ade80;}
 .cm-export .s3{color:#fbbf24;background:#3a2a00;}
 .cm-export .cm-screen .b{width:1ch;-webkit-text-fill-color:transparent;background-repeat:no-repeat}
-.cm-export .b2588{background:currentColor}
-.cm-export .b258c{background:linear-gradient(to right,currentColor 50%,transparent 0)}
 .cm-export .b28c0{background:radial-gradient(circle at 30% 87.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 70% 87.5%,currentColor .09em,transparent .13em)}
 .cm-export .b28ff{background:radial-gradient(circle at 30% 12.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 30% 37.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 30% 62.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 70% 12.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 70% 37.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 70% 62.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 30% 87.5%,currentColor .09em,transparent .13em),radial-gradient(circle at 70% 87.5%,currentColor .09em,transparent .13em)}
+.cm-export .cm-screen .bc2{width:2ch}
 </style>
 </head>
 <body>
-<div class="cm-export"><pre class="cm-screen"><span class="s0">┌─</span> <span class="s1">Mail &lt;checks&gt; &amp; &quot;more&quot;</span> <span class="s0">─────────────┐</span>
+<div class="cm-export"><pre class="cm-screen cm-h10"><!-- Preserve leading blank frame rows. --><span class="s0">┌─</span> <span class="s1">Mail &lt;checks&gt; &amp; &quot;more&quot;</span> <span class="s0">─────────────┐</span>
 <span class="s0">│</span> <span class="s0">┌───────┬────────┐</span>                   <span class="s0">│</span>
 <span class="s0">│</span> <span class="s0">│</span> <span class="s1">Check</span> <span class="s0">│</span> <span class="s1">Status</span> <span class="s0">│</span>                   <span class="s0">│</span>
 <span class="s0">│</span> <span class="s0">├───────┼────────┤</span>                   <span class="s0">│</span>
@@ -44,6 +49,6 @@ body{padding:0}
 <span class="s0">│</span> <span class="s0">│</span> <a href="https://example.org/docs">docs</a>  <span class="s0">│</span> <span class="w">日</span><span class="w">本</span>   <span class="s0">│</span>                   <span class="s0">│</span>
 <span class="s0">│</span> <span class="s0">└───────┴────────┘</span>                   <span class="s0">│</span>
 <span class="s0">└──────────────────────────────────────┘</span>
-<span class="b b2588">█</span><span class="b b2588">█</span><span class="b b258c">▌</span> <span class="b b28ff">⣿</span><span class="b b28c0">⣀</span> ═══ &lt;script&gt;alert(1)&lt;/script&gt;</pre></div>
+<span class="b b2588 bc2">██</span><span class="b b258c">▌</span> <span class="b b28ff">⣿</span><span class="b b28c0">⣀</span> ═══ &lt;script&gt;alert(1)&lt;/script&gt;<svg class="cm-paint" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="cm-s" d="M0 144h16v16h-16zM16 144h4v16h-4z" fill="#cccccc"/></svg></pre></div>
 </body>
 </html>
