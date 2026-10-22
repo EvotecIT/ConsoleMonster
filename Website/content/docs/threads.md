@@ -137,11 +137,11 @@ Build a widget fully before the session starts, then change it only through hand
 
 ## Guarantees
 
-- **Whole lines and blocks.** Many threads writing at once never split a line, and the lines of one write never mix with another's.
+- **Whole lines and blocks.** While a session runs, many threads writing at once never split a line, and the lines of one `Terminal.Write` never mix with another's.
 - **Order per producer.** Each thread's updates arrive in the order it sent them.
-- **Posting never waits for the screen.** Workers keep going while drawing catches up, and every accepted update is applied.
+- **Posting never waits for the screen.** Workers keep going while drawing catches up, and every accepted update is applied once.
 - **No drops under load.** A normal run ends with every posted update applied and nothing dropped, even with dozens of workers and stray console output.
-- **Clean shutdown.** When the work ends or throws, queued updates and output are written exactly once and the terminal is restored before the error reaches you.
+- **Clean shutdown.** When the work ends or throws, queued updates and output are written exactly once and the terminal is restored (see [Stopping](#how-it-works) for a widget callback that blocks drawing).
 - **Ctrl+C.** The first Ctrl+C stops new updates and restores the terminal and the console writers.
 - **PowerShell workers.** Host messages, warnings and progress from `Start-ConsoleDashboard -Parallel` and `ForEach-ConsoleItem -Parallel` reach the view without changing what the script returns.
 - **CI and redirected output.** Whole lines, in the order the updates were applied.
