@@ -168,11 +168,7 @@ namespace ConsoleMonster.PowerShell {
                     return false;
                 case LogRegion log:
                     if (item is LogEntry entry) {
-                        if (entry.RichText != null) {
-                            log.Write(entry.RichText, entry.Level, entry.Time);
-                        } else {
-                            log.Write(entry.Text, entry.Level, entry.Time);
-                        }
+                        log.Write(entry);
                         return true;
                     }
                     if (item is string line) {

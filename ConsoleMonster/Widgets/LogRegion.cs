@@ -51,15 +51,25 @@ namespace ConsoleMonster.Widgets {
         public void Write(string text, string level = "info", TimeSpan time = default) {
             string[] lines = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
             foreach (string line in lines) {
-                _entries.Enqueue(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    ")));
-                TotalLines++;
-                while (_entries.Count > Math.Max(1, Capacity)) {
-                    _entries.Dequeue();
-                }
+                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    ")));
             }
         }
 
-        /// <summary>Appends a multicolour line (line breaks inside it create several entries, each keeping its styles).</summary>
+        /// <summary>Appends an entry, preserving its selected rich line, level and time. Caller-created multiline entries expand into lines.</summary>
+        /// <param name="entry">An existing log entry or a new message entry.</param>
+        /// <exception cref="ArgumentNullException">The entry is null.</exception>
+        public void Write(LogEntry entry) {
+            if (entry == null) { throw new ArgumentNullException(nameof(entry)); }
+            if (entry.IsLineSlice) {
+                Append(new LogEntry(entry.Time, Level(entry.Level), entry.RichText!, entry.Text, entry.LineIndex));
+            } else if (entry.RichText != null) {
+                Write(entry.RichText, entry.Level, entry.Time);
+            } else {
+                Write(entry.Text, entry.Level, entry.Time);
+            }
+        }
+
+        /// <summary>Appends rich text as separate lines, preserving styles across line breaks. Malformed markup is literal.</summary>
         /// <param name="text">The rich text.</param>
         /// <param name="level">The level.</param>
         /// <param name="time">Session time.</param>
@@ -67,13 +77,24 @@ namespace ConsoleMonster.Widgets {
             if (text == null) {
                 throw new ArgumentNullException(nameof(text));
             }
-            foreach (string line in text.ToMarkup().Replace("\r\n", "\n").Split('\n')) {
-                _entries.Enqueue(new LogEntry(time, Level(level ?? "info"), RichText.FromMarkup(line)));
-                TotalLines++;
-                while (_entries.Count > Math.Max(1, Capacity)) {
-                    _entries.Dequeue();
-                }
+            string markup = text.ToMarkup();
+            if (!Markup.Validate(markup, out _)) {
+                System.Text.StringBuilder literal = new System.Text.StringBuilder();
+                foreach (RichSegment segment in text.Segments) { literal.Append(segment.Text); }
+                Write(literal.ToString(), level, time);
+                return;
             }
+            string[] lines = Markup.Strip(markup).Split('\n');
+            for (int i = 0; i < lines.Length; i++) {
+                // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
+                Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i));
+            }
+        }
+
+        private void Append(LogEntry entry) {
+            _entries.Enqueue(entry);
+            TotalLines++;
+            while (_entries.Count > Math.Max(1, Capacity)) { _entries.Dequeue(); }
         }
 
         /// <summary>Returns a handle that writes through a dispatcher.</summary>
@@ -102,7 +123,7 @@ namespace ConsoleMonster.Widgets {
             // Rich text narrates as its plain text: stream and plain output never show markup tags.
             string text = liveEvent.Text ?? string.Empty;
             if (liveEvent.IsMarkup) {
-                text = Markup.Strip(text);
+                text = RichLines.FromEventText(text, true).PlainText;
             }
             return (tag.Length > 0 ? tag + " " : string.Empty) + text;
         }
@@ -165,7 +186,7 @@ namespace ConsoleMonster.Widgets {
                 int y = startRow + i;
                 int x = WritePrefix(region, y, entry, levelWidth, muted, context);
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
-                StyledLine line = TextWrapper.Truncate(RichLines.Line(entry.RichText, entry.Text, textStyle, context), region.Width - x, context.Ellipsis);
+                StyledLine line = TextWrapper.Truncate(EntryLine(entry, textStyle, context), region.Width - x, context.Ellipsis);
                 region.Write(x, y, line);
             }
         }
@@ -219,7 +240,7 @@ namespace ConsoleMonster.Widgets {
 
         // Wrapping keeps styles across lines; the last kept row of a cut entry ends with an ellipsis.
         private IReadOnlyList<StyledLine> WrapEntry(LogEntry entry, Style style, int width, RenderContext context) {
-            IReadOnlyList<StyledLine> lines = TextWrapper.Wrap(RichLines.Line(entry.RichText, entry.Text, style, context), width);
+            IReadOnlyList<StyledLine> lines = TextWrapper.Wrap(EntryLine(entry, style, context), width);
             int max = Math.Max(1, MaxLinesPerEntry);
             if (lines.Count <= max) {
                 return lines;
@@ -238,6 +259,11 @@ namespace ConsoleMonster.Widgets {
             kept.Add(new StyledLine(spans));
             return kept;
         }
+
+        private static StyledLine EntryLine(LogEntry entry, Style style, RenderContext context) => entry.RichText == null
+            ? StyledLine.From(entry.Text, style)
+            : entry.RichText.ToStyledText(context).Lines[entry.LineIndex].WithBaseStyle(style);
+
         private static string Level(string level) => LogTags.Normalize(level);
 
         // Entries hold a normalized level (Write normalizes once), so drawing a frame only switches on it.
