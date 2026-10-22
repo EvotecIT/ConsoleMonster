@@ -13,6 +13,12 @@ namespace ConsoleMonster.Interop {
         [FieldOffset(12)] public ushort VirtualScanCode;
         [FieldOffset(14)] public ushort UnicodeChar;
         [FieldOffset(16)] public uint ControlKeyState;
+        // MOUSE_EVENT_RECORD (the modifier state is at a different offset from KEY_EVENT_RECORD).
+        [FieldOffset(4)] public short MouseX;
+        [FieldOffset(6)] public short MouseY;
+        [FieldOffset(8)] public uint MouseButtonState;
+        [FieldOffset(12)] public uint MouseControlKeyState;
+        [FieldOffset(16)] public uint MouseEventFlags;
         // WINDOW_BUFFER_SIZE_RECORD shares offset 4 (a COORD); FOCUS_EVENT_RECORD shares offset 4 (a BOOL).
         [FieldOffset(4)] public short SizeX;
         [FieldOffset(6)] public short SizeY;
@@ -30,6 +36,8 @@ namespace ConsoleMonster.Interop {
         internal const uint EnableEchoInput = 0x0004;
         internal const uint EnableWindowInput = 0x0008;
         internal const uint EnableMouseInput = 0x0010;
+        internal const uint EnableQuickEditMode = 0x0040;
+        internal const uint EnableExtendedFlags = 0x0080;
         internal const uint EnableVirtualTerminalInput = 0x0200;
 
         internal const uint RightAlt = 0x0001;

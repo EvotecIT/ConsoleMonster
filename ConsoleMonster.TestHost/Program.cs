@@ -30,6 +30,7 @@ namespace ConsoleMonster.TestHost {
                     case "host": return LaunchHidden(args.Skip(1));
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
+                    case "unix-input-probe": return UnixInputProbe.Run(args[1]);
                     default: throw new ArgumentException("Unknown process contract.");
                 }
                 return 0;

@@ -66,7 +66,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void Editor_UpAndDown_FollowTheVisualRows() {
             TextAreaEditor editor = new TextAreaEditor("alpha beta gamma delta\nshort");
-            TextAreaWidget widget = new TextAreaWidget(editor, null) { Height = 6 };
+            TextArea widget = new TextArea(editor, null) { Height = 6 };
             ConsoleMonster.Testing.TestTerminal.Render(widget, 14);
             Assert.Equal(new[] { 0, 11 }, editor.Rows[0]);
             editor.Handle(InputEvent.Press(ConsoleKey.Home, KeyModifiers.Control));

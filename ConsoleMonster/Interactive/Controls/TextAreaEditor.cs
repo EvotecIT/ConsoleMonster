@@ -8,7 +8,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A multi-line text editor: typing, Enter for a new line, paste with line breaks kept (tabs become spaces, control
     /// characters are dropped), deletion, caret movement by character, word, visual row (soft wrap) and document, and
-    /// limits on length and lines. Pure state; <see cref="TextAreaWidget"/> draws it and keeps the visual rows.
+    /// limits on length and lines. Pure state; <see cref="TextArea"/> draws it and keeps the visual rows.
     /// </summary>
     internal sealed class TextAreaEditor {
         private readonly StringBuilder _text = new StringBuilder();

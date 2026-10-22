@@ -11,28 +11,52 @@ namespace ConsoleMonster.Interactive {
     /// of visible rows scrolled to keep the caret in view, a placeholder while empty, and the caret reported to the
     /// <see cref="CaretSlot"/>. The layout it computes is what Up and Down move through.
     /// </summary>
-    internal sealed class TextAreaWidget : IWidget {
+    public sealed class TextArea : InputControl {
         private readonly TextAreaEditor _editor;
         private readonly CaretSlot? _caret;
 
-        public TextAreaWidget(TextAreaEditor editor, CaretSlot? caret) {
-            _editor = editor ?? throw new ArgumentNullException(nameof(editor));
-            _caret = caret;
+        /// <summary>Creates a named multiline input using the shared text-area editor.</summary>
+        /// <param name="name">The application-state key.</param>
+        /// <param name="value">The initial text.</param>
+        public TextArea(string name, string? value = null) : base(name) {
+            _editor = new TextAreaEditor(value);
+            _caret = new CaretSlot();
         }
 
+        internal TextArea(TextAreaEditor editor, CaretSlot? caret) : base(nameof(TextArea), false) {
+            _editor = editor ?? throw new ArgumentNullException(nameof(editor));
+            _caret = caret;
+            Focused = true;
+        }
+
+        /// <summary>Muted text shown when the value is empty.</summary>
         public string? Placeholder { get; set; }
 
         /// <summary>The visible rows (default 6).</summary>
         public int Height { get; set; } = 6;
 
-        public bool Focused { get; set; } = true;
-
         /// <summary>The first visible row (kept between frames).</summary>
         public int ScrollRow { get; set; }
 
-        public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(Math.Max(1, Height), constraints.IsHeightUnbounded ? Height : constraints.MaxHeight));
+        /// <summary>The multiline text value.</summary>
+        public string Value { get => Read(() => _editor.Text); set => Change(() => _editor.Text = value); }
 
-        public void Render(Region region, RenderContext context) {
+        /// <summary>The maximum text length, in UTF-16 units.</summary>
+        public int MaxLength { get => Read(() => _editor.MaxLength); set => Change(() => _editor.MaxLength = value); }
+
+        internal override Caret? CurrentCaret => _caret?.Caret;
+
+        /// <inheritdoc />
+        protected override object ReadValueCore() => _editor.Text;
+
+        /// <inheritdoc />
+        protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
+
+        /// <inheritdoc />
+        protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(Math.Max(1, Height), constraints.IsHeightUnbounded ? Height : constraints.MaxHeight));
+
+        /// <inheritdoc />
+        protected override void RenderContent(Region region, RenderContext context) {
             if (region.Width < 4 || region.Height <= 0) {
                 return;
             }

@@ -68,7 +68,7 @@ namespace ConsoleMonster.Interactive {
             if (!string.IsNullOrEmpty(_message)) {
                 rows.Add(new UiParagraph(_message!, ThemeToken.Muted));
             }
-            rows.Add(new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), new TextInputWidget(_editor, caret)) { Gap = 0 });
+            rows.Add(new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), new TextInput(_editor, caret)) { Gap = 0 });
             rows.Add(_error == null ? UiLine.Empty : new UiLine(context => ChoicePane.Problem(_error, context)));
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);

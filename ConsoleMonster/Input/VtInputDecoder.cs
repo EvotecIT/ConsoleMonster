@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ConsoleMonster.Input {
     /// <summary>Decodes VT and xterm terminal input into normalized input events.</summary>
-    public sealed class VtInputDecoder {
+    public sealed partial class VtInputDecoder {
         private const char Escape = '\u001b';
         private const int MaximumCsiLength = 64;
         private readonly StringBuilder _pending = new StringBuilder();
@@ -173,6 +173,9 @@ namespace ConsoleMonster.Input {
             _pending.Clear();
             if (pending == Escape.ToString()) {
                 output.Add(InputEvent.Press(ConsoleKey.Escape));
+            } else if (pending.StartsWith("\u001b[<", StringComparison.Ordinal)) {
+                // An unfinished mouse report must not become Alt+[ or leak its tail as typing.
+                _droppingCsi = true;
             } else if (pending.Length >= 2 && pending[0] == Escape && (pending[1] == '[' || pending[1] == 'O')) {
                 output.Add(InputEvent.Character(pending[1], KeyModifiers.Alt));
             }
@@ -195,7 +198,7 @@ namespace ConsoleMonster.Input {
                 // Keep scanning malformed bytes to the CSI final so no tail leaks as typed text.
                 if (i - start - 1 > MaximumCsiLength) {
                     overlong = true;
-                    consumed = text.Length - start;
+                    consumed = i - start + 1;
                     return true;
                 }
             }
@@ -208,6 +211,10 @@ namespace ConsoleMonster.Input {
             }
             char final = sequence[sequence.Length - 1];
             string parameters = sequence.Substring(0, sequence.Length - 1);
+            if (parameters.Length > 0 && parameters[0] == '<') {
+                DecodeMouse(parameters.Substring(1), final, output);
+                return;
+            }
             int[] values;
             if (!TryParameters(parameters, out values)) {
                 return;

@@ -1,0 +1,10 @@
+# Application diagnostics are resource-owned; existing widget/prompt English defaults remain unchanged.
+App.InvalidChoice = The value must identify an enabled choice.
+App.InvalidChoices = Every value must identify an enabled choice.
+App.DuplicateInput = Input names must be unique (case-insensitive): {0}.
+App.BoundInputs = Declare input controls in the stable layout, outside a binding.
+App.EmptyBinding = A binding must return a display widget.
+App.ControlName = An input needs a non-empty name.
+App.Unavailable = An interactive app needs an input source; request a static snapshot for redirected output or CI.
+App.ReflowWidth = The reflow width must be positive.
+Input.Closed = The terminal input is closed or its mode cannot be changed.

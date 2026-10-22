@@ -137,7 +137,7 @@ namespace ConsoleMonster.Interactive {
                 row.Write(row.Width - count.Width - 1, 0, count);
                 inputWidth = row.Width - count.Width - 5;
             }
-            TextInputWidget input = new TextInputWidget(_list.Filter, Caret) {
+            TextInput input = new TextInput(_list.Filter, Caret) {
                 Placeholder = Labels.TypeToFilter,
                 Focused = _list.Focused
             };
