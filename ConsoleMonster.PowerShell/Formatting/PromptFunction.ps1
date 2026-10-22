@@ -11,6 +11,7 @@ param($__cmInvoke, $__cmAdvanced)
             $__cmFrame.Text
         } else {
             $__cmParameters = @{} + $PSBoundParameters
+            $__cmArguments = $args
             if ($__cmAdvanced) {
                 # The wrapper's native runtime owns caller variable captures. Forwarding these again
                 # would append each record twice when the caller uses a +variable capture.
@@ -21,7 +22,7 @@ param($__cmInvoke, $__cmAdvanced)
             # Native function dispatch carries caller stream redirections and the original error identity.
             # Evaluate the status setter in the command expression: a separate statement
             # would reset $? before the original function's first statement can capture it.
-            & ($__cmFrame.Original()) @__cmParameters __ARGUMENTS__
+            & ($__cmFrame.AtCaller({ & ($__cmFrame.Original()) @__cmParameters __ARGUMENTS__ }))
         }
     } finally {
         $__cmFrame.Restore()

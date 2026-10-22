@@ -78,7 +78,10 @@ if ((prompt) -cne 'LATER_USER_PROMPT') { throw 'User replacement lost' }
 
     It 'keeps captured prompt text, native error state, exit status and preferences' {
         Invoke-PromptChild @'
-function global:prompt { "ORIGINAL:$?/$global:LASTEXITCODE" }
+function global:prompt {
+    "ORIGINAL:$?/$global:LASTEXITCODE"
+    if ($args.Count) { 'ARGS:' + ($args -join '|') }
+}
 $Error.Clear()
 $baseline = $ErrorActionPreference, $WarningPreference, $VerbosePreference, $DebugPreference, $InformationPreference, $ProgressPreference
 Enable-ConsoleFormatting -Feature Prompt
@@ -88,6 +91,8 @@ if ($assigned -cne 'ORIGINAL:False/7' -or $LASTEXITCODE -ne 7) { throw "Status l
 cmd /c exit 7
 $piped = prompt | Out-String
 if ($piped.TrimEnd() -cne 'ORIGINAL:False/7') { throw "Piped status lost: $piped" }
+$arguments = @(prompt 'one' 'two')
+if ($arguments[-1] -cne 'ARGS:one|two') { throw 'Original prompt arguments lost' }
 if ($Error.Count -ne 0) { throw "Prompt changed Error: $($Error[0])" }
 $after = $ErrorActionPreference, $WarningPreference, $VerbosePreference, $DebugPreference, $InformationPreference, $ProgressPreference
 if (($baseline -join '|') -cne ($after -join '|')) { throw 'Preferences changed' }

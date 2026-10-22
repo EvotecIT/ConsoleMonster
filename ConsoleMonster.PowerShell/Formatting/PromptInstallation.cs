@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Host;
+using System.Management.Automation.Language;
 using System.Reflection;
 using System.Resources;
 using ConsoleMonster.Canvas;
@@ -20,15 +22,17 @@ namespace ConsoleMonster.PowerShell {
         private readonly PromptGitCache _git = new PromptGitCache();
         private readonly object _engine;
         private readonly PropertyInfo _success;
+        private readonly PropertyInfo _position;
         private ScriptBlock? _installed;
         private bool _removed;
 
-        private PromptInstallation(PSCmdlet cmdlet, object engine, PropertyInfo success) {
+        private PromptInstallation(PSCmdlet cmdlet, object engine, PropertyInfo success, PropertyInfo position) {
             _session = cmdlet.SessionState;
             _module = cmdlet.MyInvocation.MyCommand.Module;
             _saved = FormatCommandInstallation.GlobalFunction(_session, "prompt");
             _engine = engine;
             _success = success;
+            _position = position;
         }
 
         internal static bool Install(PSCmdlet cmdlet, bool force) {
@@ -50,12 +54,13 @@ namespace ConsoleMonster.PowerShell {
             object? intrinsics = cmdlet.SessionState.PSVariable.GetValue("ExecutionContext");
             object? engine = intrinsics?.GetType().GetField("_context", Flags)?.GetValue(intrinsics);
             PropertyInfo? success = engine?.GetType().GetProperty("QuestionMarkVariableValue", Flags);
+            PropertyInfo? position = typeof(InvocationInfo).GetProperty("ScriptPosition", Flags);
             ConstructorInfo? copy = typeof(FunctionInfo).GetConstructor(Flags, null, new[] { typeof(FunctionInfo) }, null);
-            if (engine == null || success == null || !success.CanRead || !success.CanWrite || copy == null) {
+            if (engine == null || success == null || !success.CanRead || !success.CanWrite || copy == null || position == null || !position.CanRead) {
                 cmdlet.WriteWarning(Message("UnsupportedEngine"));
                 return false;
             }
-            PromptInstallation installation = new PromptInstallation(cmdlet, engine, success);
+            PromptInstallation installation = new PromptInstallation(cmdlet, engine, success, position);
             try {
                 string resource;
                 using (Stream stream = typeof(PromptInstallation).Assembly.GetManifestResourceStream("ConsoleMonster.PowerShell.Formatting.PromptFunction.ps1")
@@ -68,7 +73,7 @@ namespace ConsoleMonster.PowerShell {
                 CommandMetadata? metadata = installation._original == null ? null : new CommandMetadata(installation._original);
                 resource = resource.Replace("__BINDING__", metadata == null ? string.Empty : ProxyCommand.GetCmdletBindingAttribute(metadata))
                     .Replace("__PARAMETERS__", metadata == null ? string.Empty : ProxyCommand.GetParamBlock(metadata))
-                    .Replace("__ARGUMENTS__", installation._original?.CmdletBinding == true ? string.Empty : "@args");
+                    .Replace("__ARGUMENTS__", installation._original?.CmdletBinding == true ? string.Empty : "@__cmArguments");
                 Func<bool, InvocationInfo, PSHost, object[], Invocation> invoke = installation.Invoke;
                 ScriptBlock prompt = (ScriptBlock)ScriptBlock.Create(resource).Invoke(invoke, installation._original?.CmdletBinding == true)[0].BaseObject;
                 cmdlet.SessionState.InvokeProvider.Item.Set("Function:\\global:prompt", prompt);
@@ -81,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
         private static string Message(string key) => Messages.GetString(key, LabelLanguage.Default) ?? key;
 
         private Invocation Invoke(bool succeeded, InvocationInfo invocation, PSHost host, object[] stack) {
-            Invocation frame = new Invocation(this, succeeded);
+            Invocation frame = new Invocation(this, succeeded, invocation);
             try {
                 if (_removed || !DirectHost(invocation, host, stack)) {
                     if (_original == null) { frame.Text = NativePrompt(); }
@@ -111,15 +116,29 @@ namespace ConsoleMonster.PowerShell {
             private readonly bool _succeeded;
             private readonly PSVariable? _lastExit;
             private readonly object? _exitValue;
-            internal Invocation(PromptInstallation owner, bool succeeded) {
+            private readonly IScriptExtent _callsite;
+            internal Invocation(PromptInstallation owner, bool succeeded, InvocationInfo invocation) {
                 _owner = owner;
                 _succeeded = succeeded;
                 _lastExit = owner._session.PSVariable.Get("global:LASTEXITCODE");
                 _exitValue = _lastExit?.Value;
+                _callsite = invocation.DisplayScriptPosition ?? (IScriptExtent)owner._position.GetValue(invocation, null)!;
             }
             public string? Text { get; internal set; }
             private void PrepareOriginal() => _owner._success.SetValue(_owner._engine, _succeeded, null);
             public FunctionInfo? Original() { PrepareOriginal(); return _owner._original; }
+            public ScriptBlock AtCaller(ScriptBlock template) {
+                // Let the native engine create and format errors at the actual caller's extent.
+                // The saved body and error records are untouched; only this dispatch command is mapped.
+                CommandAst command = (CommandAst)((PipelineAst)((ScriptBlockAst)template.Ast).EndBlock.Statements[0]).PipelineElements[0];
+                List<CommandElementAst> elements = new List<CommandElementAst>();
+                foreach (CommandElementAst element in command.CommandElements) { elements.Add((CommandElementAst)element.Copy()); }
+                CommandAst mapped = new CommandAst(_callsite, elements, command.InvocationOperator, null);
+                PipelineAst pipeline = new PipelineAst(_callsite, new CommandBaseAst[] { mapped });
+                StatementBlockAst statements = new StatementBlockAst(_callsite, new StatementAst[] { pipeline }, null);
+                NamedBlockAst end = new NamedBlockAst(_callsite, TokenKind.End, statements, true);
+                return new ScriptBlockAst(_callsite, null, null, null, end, null).GetScriptBlock();
+            }
             public void Restore() {
                 if (_lastExit != null) {
                     if (!Equals(_lastExit.Value, _exitValue)) { _lastExit.Value = _exitValue; }
