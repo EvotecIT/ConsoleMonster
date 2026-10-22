@@ -31,6 +31,9 @@
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
         <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />
+        <EmbeddedResource Update="Help\HelpMessages.resx" LogicalName="ConsoleMonster.PowerShell.Help.HelpMessages.resources" />
+        <EmbeddedResource Include="Formatting\OutDefaultProxy.ps1" />
+        <EmbeddedResource Include="Help\HelpProxy.ps1" />
     </ItemGroup>
 
     <ItemGroup>

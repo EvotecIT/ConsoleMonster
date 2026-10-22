@@ -53,6 +53,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(DontShow = true)]
         public SwitchParameter TopLevel { get; set; }
 
+        /// <summary>The implicit Out-Default shim; used internally to check native help provenance during record delivery.</summary>
+        [Parameter(DontShow = true)]
+        public PSCmdlet? HelpSink { get; set; }
+
         private bool _types = true;
         private bool _errors;
         private bool _progress;
@@ -78,6 +82,10 @@ namespace ConsoleMonster.PowerShell {
                     SessionProgress.EndPipeline();
                 }
             }
+            StartNative();
+        }
+
+        private void StartNative() {
             ScriptBlock inner = ScriptBlock.Create(Transcript.IsPresent ? "Microsoft.PowerShell.Core\\Out-Default -Transcript" : "Microsoft.PowerShell.Core\\Out-Default");
             _inner = inner.GetSteppablePipeline(CommandOrigin.Internal);
             _inner.Begin(this);
@@ -100,6 +108,20 @@ namespace ConsoleMonster.PowerShell {
                 Flush();
                 _inner?.Process(item);
                 return;
+            }
+            if (_active && Shim.IsPresent && !Transcript.IsPresent && HelpSink != null
+                && HelpHostFormatting.FindSource(HelpSink) is PSCmdlet source) {
+                if (HelpHostFormatting.IsQuit(source)) { return; }
+                if (HelpHostFormatting.CreateView(source, item, HelpHostFormatting.IsPaged(source)) is IWidget help) {
+                    // Finish native output before drawing or pausing: help must not overtake a buffered table.
+                    _inner!.End();
+                    _inner.Dispose();
+                    _inner = null;
+                    Flush();
+                    if (!HelpPager.Write(this, help, HelpHostFormatting.IsPaged(source))) { HelpHostFormatting.Quit(source); }
+                    StartNative();
+                    return;
+                }
             }
             // Get-Error's detailed records (PSExtendedError) keep PowerShell's view.
             if (_errors && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
@@ -132,6 +154,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            HelpHostFormatting.EndSink(HelpSink);
             if (_progress && TopLevel.IsPresent) {
                 SessionProgress.EndPipeline();
             }
@@ -180,6 +203,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void StopProcessing() {
+            HelpHostFormatting.EndSink(HelpSink);
             _inner?.Dispose();
         }
 

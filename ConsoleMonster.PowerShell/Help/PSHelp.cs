@@ -17,6 +17,38 @@ namespace ConsoleMonster.PowerShell {
         private static readonly Regex Prompt = new Regex(@"^PS [^>\r\n]*>\s*", RegexOptions.CultureInvariant);
         private static readonly Regex ExampleNumber = new Regex(@"^-*\s*example\s+\d+\s*-*\s*:?\s*", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+        /// <summary>Builds the one shared help view, selecting the sections requested by native Get-Help.</summary>
+        internal static Widgets.HelpView CreateView(PSObject help, CommandInfo? command, bool noExamples = false, bool parametersOnly = false) {
+            HelpTopic topic = Read(help, command);
+            if (parametersOnly) {
+                topic.CommonParameters = false;
+                topic.Synopsis = null;
+                topic.Notice = null;
+            }
+            if (HasView(help, "ExamplesView")) {
+                topic.Syntax.Clear();
+                topic.Description.Clear();
+                topic.Parameters.Clear();
+                topic.CommonParameters = false;
+                topic.Inputs.Clear();
+                topic.Outputs.Clear();
+                topic.Notes.Clear();
+                topic.Links.Clear();
+            } else if (HasView(help, "DetailedView")) {
+                topic.Inputs.Clear();
+                topic.Outputs.Clear();
+                topic.Notes.Clear();
+            }
+            return new Widgets.HelpView(topic) { ShowExamples = !noExamples };
+        }
+
+        private static bool HasView(PSObject help, string view) {
+            foreach (string type in help.TypeNames) {
+                if (type.EndsWith("#" + view, StringComparison.OrdinalIgnoreCase)) { return true; }
+            }
+            return false;
+        }
+
         internal static HelpTopic Read(PSObject help, CommandInfo? command) {
             string name = Text(help, "Name") ?? Text(Child(help, "details"), "name") ?? command?.Name ?? string.Empty;
             HelpTopic topic = new HelpTopic(name) {

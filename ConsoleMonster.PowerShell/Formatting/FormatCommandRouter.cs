@@ -13,8 +13,16 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="cmdlet">The executing proxy function.</param>
         /// <returns>False for captures, another pipeline command, jobs, remoting, transcripts, or unknown engine state.</returns>
         public static bool IsDirectHost(PSCmdlet cmdlet) {
+            return IsDirectHost(cmdlet, ConsoleFormattingFeature.FormatCommands);
+        }
+
+        /// <summary>Checks the conservative host route for an explicitly enabled formatting feature.</summary>
+        /// <param name="cmdlet">The command whose success output is being routed.</param>
+        /// <param name="feature">The feature required for this route.</param>
+        /// <returns>Whether output reaches the local host without capture or transcription.</returns>
+        public static bool IsDirectHost(PSCmdlet cmdlet, ConsoleFormattingFeature feature) {
             if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
-            if ((ConsoleFormatting.Features & ConsoleFormattingFeature.FormatCommands) == 0 || !ConsoleFormatting.Displayed(cmdlet)
+            if ((ConsoleFormatting.Features & feature) == 0 || !ConsoleFormatting.Displayed(cmdlet)
                 || cmdlet.MyInvocation.PipelinePosition < cmdlet.MyInvocation.PipelineLength
                 || Terminal.GetCurrentProfile().IsContinuousIntegration || cmdlet.MyInvocation.BoundParameters.ContainsKey("OutVariable")
                 || cmdlet.MyInvocation.BoundParameters.ContainsKey("PipelineVariable")) {
@@ -39,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        private static object? Member(object? value, string name) {
+        internal static object? Member(object? value, string name) {
             if (value == null) { return null; }
             Type type = value.GetType();
             return type.GetProperty(name, Flags)?.GetValue(value, null) ?? type.GetField(name, Flags)?.GetValue(value);

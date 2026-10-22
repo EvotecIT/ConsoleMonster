@@ -27,6 +27,7 @@ namespace ConsoleMonster.PowerShell {
         internal ScriptBlock? PreviousModuleOnRemove { get; set; }
 
         internal FormatCommandInstallation? FormatCommands { get; set; }
+        internal FormatCommandInstallation? Help { get; set; }
         internal StreamFormattingInstallation Streams { get; } = new StreamFormattingInstallation();
 
         internal Dictionary<string, ConsoleViewRegistration> Views { get; } = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
