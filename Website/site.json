@@ -140,7 +140,7 @@
     "GeneratedCardCollections": ["pages", "docs", "guides"],
     "GeneratedCardTitle": "page",
     "GeneratedCardTextFit": true,
-    "SocialCardsRequired": false,
+    "SocialCardsRequired": true,
     "GeneratedCardImagesRequired": true,
     "GeneratedCardFonts": [
       { "Family": "Space Grotesk", "Weight": 700, "Path": "build/social-fonts/space-grotesk-latin-700.ttf" },
