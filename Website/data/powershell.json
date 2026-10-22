@@ -984,12 +984,17 @@
     },
     {
       "verb": "Watch",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Watch-Console",
           "synopsis": "Runs a script block again and again and shows its latest output as a live view.",
           "url": "/powershell/commands/watch-console/"
+        },
+        {
+          "name": "Watch-ConsoleLog",
+          "synopsis": "Follows a log file or a local Windows event log with a live, scrollable log view.",
+          "url": "/powershell/commands/watch-consolelog/"
         }
       ]
     }

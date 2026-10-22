@@ -57,8 +57,10 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "tails-review" when only != null:
+                    return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -128,6 +130,9 @@ namespace SiteFrames {
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }
+            if (Wants(only, "tails")) {
+                TailsPage.Capture(site);
+            }
             return 0;
         }
 
@@ -144,6 +149,7 @@ namespace SiteFrames {
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
             HomePage.Render(site, hosts);
+            TailsPage.Render(site);
             Visuals.Render(site);
             Figures.Write(site);
             site.Write(site.Static("css/frames.css"), site.Styles.Css());

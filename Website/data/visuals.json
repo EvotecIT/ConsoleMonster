@@ -89,6 +89,9 @@
     "parallel": {
       "src": "/site/cards/parallel.svg"
     },
+    "tails-following-120": {
+      "src": "/site/cards/tails-following-120.svg"
+    },
     "logging": {
       "src": "/site/cards/logging.svg"
     },
