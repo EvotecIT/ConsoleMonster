@@ -36,6 +36,11 @@ namespace ConsoleMonster.Widgets {
         public SummaryBar(string name = "summary") : base(name) {
         }
 
+        /// <summary>Returns a thread-safe handle that queues progress and counter changes for a live session.</summary>
+        /// <param name="dispatcher">The dispatcher.</param>
+        /// <returns>The handle.</returns>
+        public SummaryBarHandle Handle(ILiveDispatcher dispatcher) => new SummaryBarHandle(dispatcher, Name);
+
         /// <summary>
         /// The value a <c>progress</c> event gives for done or total to keep what the bar has (any negative number or NaN
         /// does the same). Events are applied in order, so an update that keeps the total uses the total of the update

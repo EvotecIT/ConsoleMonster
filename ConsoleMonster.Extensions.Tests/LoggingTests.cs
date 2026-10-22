@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Extensions.Logging;
 using ConsoleMonster.Layout;
@@ -14,6 +13,7 @@ using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests {
     /// <summary>The logging provider: line layout, levels, scopes, exceptions, the live log region and the DI extension.</summary>
+    [Collection("Logging sessions")]
     public sealed class LoggingTests {
         private static (ILoggerFactory Factory, StringTerminalWriter Writer) Factory(Action<ConsoleMonsterLoggerOptions>? configure = null, OutputMode mode = OutputMode.Plain) {
             StringTerminalWriter writer = new StringTerminalWriter();
@@ -118,15 +118,12 @@ namespace ConsoleMonster.Extensions.Tests {
                 }))) {
                     factory.CreateLogger("Shop.Orders").LogWarning(new EventId(7), "payment slow");
                 }
-                for (int i = 0; i < 100 && region.Entries.Count == 0; i++) {
-                    Thread.Sleep(20);
-                }
+                session.Stop();
                 Assert.Empty(printed.ToString());
                 LogEntry entry = Assert.Single(region.Entries);
                 Assert.Equal("warn", entry.Level);
                 Assert.Contains("payment slow", entry.RichText != null ? entry.RichText.PlainText : entry.Text);
                 Assert.Contains("[7]", entry.RichText != null ? entry.RichText.PlainText : entry.Text);
-                session.Stop();
             }
         }
 

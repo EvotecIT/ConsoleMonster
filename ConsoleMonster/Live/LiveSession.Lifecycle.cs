@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
@@ -25,6 +26,9 @@ namespace ConsoleMonster.Live {
                         throw new ArgumentException("Specify RecordPath or RecordWriter, not both.");
                     }
                     try {
+                        // Capability detection can enable Windows VT mode. Save the caller's mode before resolving
+                        // the profile or theme, so cancellation and normal shutdown restore the state from entry.
+                        _guard = new TerminalGuard(RestoreTerminal, _options.HandleCancelKey);
                         ResolveLogTarget();
                         ITerminalTarget target = _options.Target ?? Terminal.Target;
                         bool console = target is ConsoleTarget;
@@ -41,8 +45,8 @@ namespace ConsoleMonster.Live {
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);
-                        _guard = new TerminalGuard(RestoreTerminal, _options.HandleCancelKey);
                         _guardRegistration = _guard.Cancellation.Register(RequestCancellation);
+                        _guard.Cancellation.ThrowIfCancellationRequested();
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
                         else if (_options.RecordPath != null) {
                             StreamWriter writer = OpenRecording(_options.RecordPath);
@@ -151,6 +155,7 @@ namespace ConsoleMonster.Live {
             CancelWork();
             if (Thread.CurrentThread == thread) { return; }
             if (thread != null && !thread.Join(_options.StopTimeout)) {
+                lock (_lifecycle) { _cleanupDeferred = true; }
                 Error(new TimeoutException("The render callback has not returned; final cleanup is deferred."));
                 RestoreCapture();
                 bool finish;
@@ -181,8 +186,7 @@ namespace ConsoleMonster.Live {
 
         private void CaptureLine(string line, string level) {
             // Capture owns its own admission during shutdown, until both partial buffers have been flushed.
-            if (Volatile.Read(ref _logTarget) == null) { _unroutedLines.Enqueue(line); }
-            else { Enqueue(new LiveEvent("$log", "write", text: line, state: level)); }
+            Enqueue(new LiveEvent("$log", "write", text: line, state: level));
         }
 
         private void RestoreCapture() {
@@ -210,7 +214,6 @@ namespace ConsoleMonster.Live {
             lock (_finishGate) {
                 if (Volatile.Read(ref _state) == 3 || _finishing) { return; }
                 _finishing = true;
-                Terminal.ReleaseConsole(this);
                 CancelWork();
                 // A producer admitted just before Stop must finish publishing before the final drain.
                 SpinWait producers = new SpinWait();
@@ -229,18 +232,32 @@ namespace ConsoleMonster.Live {
                     Attempt(TaskbarProgress.Bell);
                 }
                 _guardRegistration.Dispose();
-                Attempt(() => _guard?.Dispose());
                 Attempt(() => _recorder?.Dispose());
+                CellBuffer? summaryFrame = null;
                 if (drawn && _output != null && _context != null) {
-                    Attempt(() => {
-                        while (_unroutedLines.TryDequeue(out object? line)) { WriteUnrouted(line, _context); }
-                        IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
-                        if (summary != null) {
-                            _output.WriteBlock(FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
-                        }
-                    });
+                    IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
+                    // User rendering can resolve a profile, write a late block or request Snapshot. Keep it outside the
+                    // physical output lock; ownership and the closing queue remain in place until the final flush ends.
+                    if (summary != null) {
+                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
+                    }
                 }
-                if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                lock (_outputGate) {
+                    if (drawn && _output != null && _context != null) {
+                        Attempt(() => {
+                            FlushUnrouted();
+                            if (summaryFrame != null) { _output.WriteBlock(summaryFrame); }
+                            // A summary widget or an output callback can itself emit a one-shot write during cleanup.
+                            FlushUnrouted();
+                        });
+                    }
+                    if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                    // Final scrollback still needs VT processing. Restore the original native mode after its last write.
+                    Attempt(() => _guard?.Dispose());
+                    _outputFinished = true;
+                    // A new normal writer may start only after accepted blocks, scrollback and restoration are done.
+                    Terminal.ReleaseConsole(this);
+                }
                 Attempt(() => _stoppedElapsed = Scale(ReadElapsed()));
                 _watch.Stop();
                 lock (CurrentGate) { Running.Remove(this); }

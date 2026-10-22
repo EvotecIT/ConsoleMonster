@@ -95,7 +95,9 @@ namespace ConsoleMonster.Live {
             Tracker = new RunTracker(total);
             IsLive = _options.Interactive ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
             if (IsLive) {
-                _session = new LiveSession(new RunView(Tracker) { Title = _options.Title }, _options.Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true });
+                Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title }, LayoutSize.Fraction(1, 1))
+                    .Add(new ActivityList()).Add(new LogRegion { PreferredHeight = 5 });
+                _session = new LiveSession(view, _options.Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true });
                 _session.Start();
             } else {
                 _glyphs = Terminal.CreateContext(Terminal.GetCurrentProfile()).Glyphs;

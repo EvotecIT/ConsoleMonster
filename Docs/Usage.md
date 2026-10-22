@@ -2,6 +2,8 @@
 
 See [the README](../README.md) for installation and first examples, or [consolemonster.dev](https://consolemonster.dev/) for the interactive gallery and references.
 
+For worker updates, output ordering, capture, cancellation, and the tests behind each promise, see [Concurrency guarantees](Concurrency-Guarantees.md).
+
 ## Layers
 
 Each layer can be used without the ones above it.

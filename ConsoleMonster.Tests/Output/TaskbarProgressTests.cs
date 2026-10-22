@@ -53,6 +53,23 @@ namespace ConsoleMonster.Tests.Output {
         }
 
         [Fact]
+        public void Activities_OrphansContributeProgressUntilTheirParentArrives() {
+            ActivityList activities = new ActivityList();
+            activities.Apply(new LiveEvent("$progress", "update", "-2/-3", value: 40));
+            Assert.True(activities.TryGetTaskbarProgress(out TaskbarState state, out double fraction));
+            Assert.Equal(TaskbarState.Normal, state);
+            Assert.Equal(0.4, fraction, 3);
+            activities.Apply(new LiveEvent("$progress", "update", "-3", value: 20));
+            Assert.True(activities.TryGetTaskbarProgress(out state, out fraction));
+            Assert.Equal(0.2, fraction, 3);
+            activities.Apply(new LiveEvent("$progress", "complete", "-3"));
+            activities.Apply(new LiveEvent("$progress", "update", "-2/-3", value: 60));
+            Assert.True(activities.TryGetTaskbarProgress(out state, out fraction));
+            Assert.Equal(TaskbarState.Normal, state);
+            Assert.Equal(0.6, fraction, 3);
+        }
+
+        [Fact]
         public void Widgets_ReportTheirProgress() {
             Lanes lanes = new Lanes();
             lanes.Apply(new LiveEvent("lanes", "add", "a", "A", total: 10));

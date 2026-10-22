@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (_records.Count == 0) { return; }
-            if (NativeFormatView.TryBuild(_records, out IWidget? widget, Capture)) {
+            if (NativeWideView.TryBuild(this, _records, out IWidget? widget) || NativeFormatView.TryBuild(_records, out widget, Capture)) {
                 if (AsWidget.IsPresent) { WriteObject(widget); }
                 else { PSFormatting.Write(this, widget!, 0); }
                 return;

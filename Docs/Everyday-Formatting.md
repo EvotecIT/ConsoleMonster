@@ -15,6 +15,9 @@ Disable-ConsoleFormatting
 
 Only output sent directly to a local console host uses ConsoleMonster. If another command follows in the pipeline, output is assigned to a variable, or output is redirected, the proxy delegates to the native formatter. Jobs, remoting, transcripts, CI and hosts without a local console also use PowerShell's output. An unrecognized output route or format shape uses the native renderer.
 
+Wide output uses PowerShell's own column fitting on its evaluated records, preserving `-Column`, `-AutoSize`, grouping, spacing,
+and the current runtime's ellipsis rules. ConsoleMonster's table padding and narrow-column hiding do not shorten Wide names.
+
 ```powershell
 # These retain PowerShell's own formatting records and exact text output.
 $records = Get-Process | Format-Table Name, Id

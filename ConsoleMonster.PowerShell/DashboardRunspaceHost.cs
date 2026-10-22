@@ -80,7 +80,7 @@ namespace ConsoleMonster.PowerShell {
             shell.RunspacePool = _pool;
             shell.AddScript(script).AddArgument(item);
             AddArguments(shell, arguments);
-            Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session));
+            Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session, isolateProgress: true));
             invocation.Async = shell.BeginInvoke();
             _running.Add(invocation);
             CollectFinished(cancelled, false);
