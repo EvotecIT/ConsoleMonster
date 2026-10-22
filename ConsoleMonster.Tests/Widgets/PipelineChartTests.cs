@@ -29,22 +29,23 @@ namespace ConsoleMonster.Tests.Widgets {
         public void SparklineGroupsRetainFirstAppearanceAndSampleOrder() {
             PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline)
                 .Add("b", 9).Add("a", 7).Add("b", 2).Add("c", 2).Add("a", 1);
-            Rows rows = Assert.IsType<Rows>(chart.Build());
-            Assert.Equal(new[] { "b", "a", "c" }, rows.Children.Cast<Columns>().Select(s => Assert.IsType<TextBlock>(s.Children[0]).Content));
-            Assert.Equal(new[] { 9.0, 2 }, Trend(rows.Children[0]).Values);
+            Rows rows = Assert.IsType<Rows>(chart.Build(true));
+            Assert.Equal(new[] { "b: 9, 2", "a: 7, 1", "c: 2" }, rows.Children.Cast<TextBlock>().Select(s => s.Content));
             chart.WithSort(PipelineChartSort.Descending).WithTop(2);
-            rows = Assert.IsType<Rows>(chart.Build());
-            Assert.Equal(new[] { "b", "c" }, rows.Children.Cast<Columns>().Select(s => Assert.IsType<TextBlock>(s.Children[0]).Content));
-            Assert.Equal(new[] { 9.0, 2 }, Trend(rows.Children[0]).Values);
+            rows = Assert.IsType<Rows>(chart.Build(true));
+            Assert.Equal(new[] { "b: 9, 2", "c: 2" }, rows.Children.Cast<TextBlock>().Select(s => s.Content));
         }
 
         [Fact]
         public void SparklineRetainsMoreThanDefaultCapacityAndEscapesLabels() {
             PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline);
-            for (int i = 0; i < 1025; i++) { chart.Add("[red]host", i); }
-            Sparkline trend = Trend(Assert.Single(Assert.IsType<Rows>(chart.Build()).Children));
-            Assert.Equal(1025, trend.Values.Count);
-            Assert.Equal(0, trend.Values[0]);
+            for (int i = 1; i <= 1025; i++) { chart.Add("[red]host", i); }
+            Assert.Equal(1025, chart.Samples.Count);
+            Assert.Equal(1, chart.Samples[0].Value);
+            Assert.Equal("[red]host: " + string.Join(", ", Enumerable.Range(1, 1025)),
+                Assert.IsType<TextBlock>(Assert.Single(Assert.IsType<Rows>(chart.Build(true)).Children)).Content);
+            string wide = TestTerminal.RenderText(chart.Build(), 1100, glyphs: GlyphTier.Full);
+            Assert.Equal(1025, wide.Count(c => c >= '▁' && c <= '█'));
             Assert.Contains("[red]host", TestTerminal.RenderText(chart.Build()), StringComparison.Ordinal);
         }
 
@@ -67,7 +68,39 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal(new[] { "日本 █ 1", "[x]  █ 1" }, lines);
         }
 
-        private static Sparkline Trend(IWidget row) => Assert.IsType<Sparkline>(Assert.IsType<Columns>(row).Children[1]);
+        [Theory]
+        [InlineData("a-very-long-host-name", 12)]
+        [InlineData("日本の長いサーバー名", 16)]
+        public void LongTrendLabelsLeaveRoomForSamplesAndLatestValue(string name, int width) {
+            PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline).WithUnit("ms")
+                .Add(name, 1).Add(name, 3).Add(name, 2);
+            string frame = TestTerminal.RenderText(chart.Build(), width, glyphs: GlyphTier.Full);
+            Assert.Contains("▅ 2ms", frame, StringComparison.Ordinal);
+            Assert.Single(frame.Split('\n'));
+            Assert.True(ConsoleMonster.Text.DisplayWidth.Measure(frame) <= width);
+        }
+
+        [Theory]
+        [InlineData(true, 1, 2, "1, 2")]
+        [InlineData(false, -1, 2, "-1, 2")]
+        [InlineData(true, -1, 2, "-1, 2")]
+        public void UnnamedTrendsHaveNoLabelSeparator(bool textOnly, double first, double second, string expected) {
+            PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline).Add(null, first).Add(null, second);
+            Assert.Equal(expected, TestTerminal.RenderText(chart.Build(textOnly), 20));
+        }
+
+        [Fact]
+        public void NumericSamplesAndNearbyHistogramEdgesRetainDoublePrecision() {
+            double first = BitConverter.Int64BitsToDouble(0x3ff0000000000001);
+            double second = BitConverter.Int64BitsToDouble(0x3ff0000000000002);
+            Assert.True(PipelineChart.TryNumber(first, out double parsed));
+            Assert.Equal(first, parsed);
+            PipelineChart chart = new PipelineChart().Add("value", parsed);
+            Assert.Equal("value: 1.0000000000000002", TestTerminal.RenderText(chart.Build(true)));
+            Histogram histogram = Assert.IsType<Histogram>(chart.WithType(PipelineChartType.Histogram).Add(null, second).Build());
+            Assert.Equal("1.0000000000000002", histogram.EdgeFormat!(first));
+            Assert.Equal("1.0000000000000004", histogram.EdgeFormat!(second));
+        }
 
         [Fact]
         public void SignedTrendsUseExactTextRatherThanFlatteningNegatives() {

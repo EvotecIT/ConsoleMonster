@@ -80,9 +80,12 @@ namespace ConsoleMonster.Widgets {
             if (value == null || value.GetType().IsEnum) { return false; }
             TypeCode code = System.Type.GetTypeCode(value.GetType());
             bool numeric = code >= TypeCode.SByte && code <= TypeCode.Decimal;
-            if ((!numeric && code != TypeCode.String) ||
-                !double.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture), NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed) ||
-                !NumberFormat.IsFinite(parsed)) { return false; }
+            double parsed;
+            if (numeric) {
+                parsed = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+            } else if (code != TypeCode.String ||
+                !double.TryParse((string)value, NumberStyles.Float, CultureInfo.InvariantCulture, out parsed)) { return false; }
+            if (!NumberFormat.IsFinite(parsed)) { return false; }
             number = parsed;
             return true;
         }
@@ -134,19 +137,51 @@ namespace ConsoleMonster.Widgets {
             Rows rows = new Rows();
             ChartSeries[] selected = Select(groups, g => g.Values[g.Values.Count - 1]).ToArray();
             int labelWidth = selected.Max(g => DisplayWidth.Measure(g.Name));
+            int latestWidth = selected.Max(g => DisplayWidth.Measure(NumberFormat.Compact(g.Values[g.Values.Count - 1]) + (Unit ?? string.Empty)));
+            int desiredWidth = selected.Max(g => g.Values.Count) + latestWidth + 1;
             foreach (ChartSeries series in selected) {
                 // The existing sparkline scales from zero. Signed trends use exact text rather than flattening negatives.
                 if (textOnly || series.Values.Any(v => v < 0)) {
-                    rows.Add(TextBlock.Plain(series.Name + ": " + string.Join(", ", series.Values.Select(Value))));
+                    rows.Add(TextBlock.Plain((series.Name.Length == 0 ? string.Empty : series.Name + ": ") + string.Join(", ", series.Values.Select(Value))));
                 } else {
                     Sparkline sparkline = new Sparkline() { Token = series.Token, Unit = Unit, Capacity = series.Values.Count }.AddRange(series.Values);
-                    int latestWidth = DisplayWidth.Measure(NumberFormat.Compact(series.Values[series.Values.Count - 1]) + (Unit ?? string.Empty));
-                    rows.Add(new Columns() { CollapseBelow = 0 }
-                        .Add(TextBlock.Plain(series.Name, ThemeToken.Muted), LayoutSize.Fixed(labelWidth))
-                        .Add(sparkline, LayoutSize.Fixed(series.Values.Count + latestWidth + 1)));
+                    int valueWidth = DisplayWidth.Measure(NumberFormat.Compact(series.Values[series.Values.Count - 1]) + (Unit ?? string.Empty));
+                    rows.Add(new TrendRow(series.Name, labelWidth, sparkline, valueWidth, desiredWidth, latestWidth + 2));
                 }
             }
             return rows;
+        }
+
+        // Resolve label space at layout time so both direct charts and Build() snapshots adapt to narrow regions.
+        private sealed class TrendRow : IWidget {
+            private readonly string _label;
+            private readonly int _labelWidth;
+            private readonly Sparkline _sparkline;
+            private readonly int _latestWidth;
+            private readonly int _desiredWidth;
+            private readonly int _minimumWidth;
+
+            public TrendRow(string label, int labelWidth, Sparkline sparkline, int latestWidth, int desiredWidth, int minimumWidth) {
+                _label = label;
+                _labelWidth = labelWidth;
+                _sparkline = sparkline;
+                _latestWidth = latestWidth;
+                _desiredWidth = desiredWidth;
+                _minimumWidth = minimumWidth;
+            }
+
+            private Columns Layout(int width) {
+                int chartWidth = _sparkline.Values.Count + _latestWidth + 1;
+                int reserved = Math.Min(_desiredWidth, Math.Max(_minimumWidth, width / 2));
+                int labelWidth = Math.Min(_labelWidth, Math.Max(0, width - reserved - 1));
+                return new Columns() { CollapseBelow = 0 }
+                    .Add(new TextBlock(_label) { IsMarkup = false, Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth))
+                    .Add(_sparkline, LayoutSize.Fixed(chartWidth));
+            }
+
+            public Size Measure(Constraints constraints, RenderContext context) => Layout(constraints.MaxWidth).Measure(constraints, context);
+
+            public void Render(Region region, RenderContext context) => Layout(region.Width).Render(region, context);
         }
 
         private IWidget Distribution(bool textOnly) {
@@ -184,7 +219,7 @@ namespace ConsoleMonster.Widgets {
             return edges.ToArray();
         }
 
-        private string Value(double value) => value.ToString("G", CultureInfo.InvariantCulture) + (Unit ?? string.Empty);
+        private string Value(double value) => value.ToString("G17", CultureInfo.InvariantCulture) + (Unit ?? string.Empty);
 
         private static ThemeToken Palette(int index) => (ThemeToken)((int)ThemeToken.Series1 + index % 6);
     }

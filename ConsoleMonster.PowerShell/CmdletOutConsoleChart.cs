@@ -105,13 +105,13 @@ namespace ConsoleMonster.PowerShell {
             IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, PSShaping.Options());
             if (items.Count == 0) { return; }
             BoundColumn value = Bind(items, Property);
-            BoundColumn label = Bind(items, Label);
+            BoundColumn? label = Type == PipelineChartType.Histogram ? null : Bind(items, Label);
             PipelineChart chart = new PipelineChart().WithType(Type).WithSort(Sort).WithTop(Top).WithBins(Bins).WithUnit(Unit);
             int row = 0;
             foreach (PSObject item in items) {
                 row++;
                 object? raw = PSText.Unwrap(value.GetValue(item));
-                object? name = PSText.Unwrap(label.GetValue(item));
+                object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
                 if (!PipelineChart.TryNumber(raw, out double number) || name is FieldError) {
                     WriteError(new ErrorRecord(new ArgumentException("Row " + row.ToString(CultureInfo.InvariantCulture) + " must have a finite numeric value and a readable label."), "ConsoleMonsterChartValue", ErrorCategory.InvalidData, item));
                     continue;

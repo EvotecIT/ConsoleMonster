@@ -78,6 +78,33 @@ Describe 'ConsoleMonster pipeline charts' {
         $text.Trim() | Should -Be "[-2, -1): 1`n[-1, 0): 1`n[0, 1): 1`n[1, 2]: 2"
     }
 
+    It 'counts histogram values without evaluating unreadable or calculated labels' {
+        $item = [pscustomobject]@{ Value = 4 }
+        $item | Add-Member -MemberType ScriptProperty -Name Name -Value { throw 'label must not run' }
+        $errors = @()
+        $chart = $item | Out-ConsoleChart -Type Histogram -AsWidget -ErrorAction SilentlyContinue -ErrorVariable errors
+        $errors.Count | Should -Be 0
+        $chart.Samples.Count | Should -Be 1
+        $chart.Samples[0].Value | Should -Be 4
+        $text = $item | Out-ConsoleChart -Type Histogram -Label @{
+            Name = 'Unused'
+            Expression = { throw 'calculated label must not run' }
+        } -AsString -ErrorAction Stop
+        $text.Trim() | Should -Be '[2, 4]: 1'
+    }
+
+    It 'omits the separator for unnamed positive and signed trends' {
+        (1, 2 | Out-ConsoleChart -Type Sparkline -AsString).Trim() | Should -Be '1, 2'
+        (-1, 2 | Out-ConsoleChart -Type Sparkline -AsString).Trim() | Should -Be '-1, 2'
+    }
+
+    It 'preserves the same exact double value on both PowerShell runtimes' {
+        $value = [BitConverter]::Int64BitsToDouble(0x3ff0000000000001L)
+        $chart = $value | Out-ConsoleChart -AsWidget
+        $chart.Samples[0].Value | Should -Be $value
+        ($value | Out-ConsoleChart -AsString).Trim() | Should -Be '1: 1.0000000000000002'
+    }
+
     It 'emits plain strings to a downstream command through PSFormatting' {
         $lines = @(1, 2 | Out-ConsoleChart | ForEach-Object { $_ })
         $lines.Count | Should -BeGreaterThan 0

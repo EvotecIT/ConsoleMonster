@@ -119,6 +119,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "charts") || Wants(only, "docs")) {
+                ChartFigures.Capture(site);
+            }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }
