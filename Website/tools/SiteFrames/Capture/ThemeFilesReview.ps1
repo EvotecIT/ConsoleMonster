@@ -4,7 +4,7 @@ Export the public native PowerShell theme example for offline review.
 .DESCRIPTION
 Uses SiteFrames' source-module capture runner, runs the published script and exports the
 widget it actually created. Rendering interop belongs here, outside the shown
-example. Writes eight HTML/text pairs; does not start a browser or server.
+example. Writes eight HTML/SVG/text sets; does not start a browser or server.
 .PARAMETER ExamplePath
 The public theme-files.ps1 script beside its team JSON files.
 .PARAMETER OutputDirectory
@@ -54,8 +54,10 @@ foreach ($scheme in 'Dark', 'Light') {
             $frame = [ConsoleMonster.Export.ConsoleExporter]::Render($themeReport, $options, $theme)
             $name = $stage + '-' + $scheme.ToLowerInvariant() + '-' + $width
             $html = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($frame, $options)
+            $svg = [ConsoleMonster.Export.ConsoleExporter]::ToSvg($frame, $options)
             $text = [ConsoleMonster.Export.ConsoleExporter]::ToText($frame)
             [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.html')), $html, [Text.UTF8Encoding]::new($false))
+            [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.svg')), $svg, [Text.UTF8Encoding]::new($false))
             [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.txt')), $text, [Text.UTF8Encoding]::new($false))
         }
     }

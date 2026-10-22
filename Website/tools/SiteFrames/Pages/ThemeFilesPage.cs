@@ -38,7 +38,7 @@ namespace SiteFrames.Pages {
         /// <param name="site">The source website, including its team JSON examples.</param>
         /// <param name="outputDirectory">An explicit review directory outside the repository; no existing directory is cleaned.</param>
         /// <param name="powershell">Also run the public PowerShell example through the site's existing source-module capture runner.</param>
-        /// <returns>Zero after writing the text, HTML, site frame bundle and four preset exports.</returns>
+        /// <returns>Zero after writing the text, HTML, SVG, site frame bundle and four preset exports.</returns>
         /// <remarks>HTML comes from ConsoleExporter; site fragments and their stylesheet come from Site.Frame and FrameStyles.</remarks>
         public static int Review(Site site, string outputDirectory, bool powershell = false) {
             string output = Path.GetFullPath(outputDirectory);
@@ -80,11 +80,11 @@ namespace SiteFrames.Pages {
                 ["source"] = "Website/examples/themes/report.cs",
                 ["powershellExample"] = "Website/examples/themes/theme-files.ps1",
                 ["scope"] = "Offline exports; browser appearance is not established by this run.",
-                ["powershellParity"] = powershell ? "Eight text and eight HTML exports match the compiled .NET example." : "Not requested.",
+                ["powershellParity"] = powershell ? "Eight text, eight HTML and eight SVG exports match the compiled .NET example." : "Not requested.",
                 ["files"] = files,
                 ["presets"] = presets
             };
-            Console.WriteLine("Theme review: " + output + " (8 frames, HTML and text; 4 JSON presets).");
+            Console.WriteLine("Theme review: " + output + " (8 frames, HTML, SVG and text; 4 JSON presets).");
             if (powershell) {
                 string quote(string value) => "'" + value.Replace("'", "''") + "'";
                 foreach (PowerShellHost host in OperatingSystem.IsWindows() ? PowerShellHost.All : new[] { PowerShellHost.Core }) {
@@ -139,7 +139,7 @@ namespace SiteFrames.Pages {
             return Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(target.Output), width, 80);
         }
 
-        /// <summary>Writes a cell buffer through the engine's existing standalone HTML and text exporters.</summary>
+        /// <summary>Writes a cell buffer through the engine's existing standalone HTML, SVG and text exporters.</summary>
         /// <param name="site">The deterministic file writer.</param>
         /// <param name="output">The review directory.</param>
         /// <param name="files">Receives the relative artifact names.</param>
@@ -153,8 +153,10 @@ namespace SiteFrames.Pages {
                 Title = name + " | Build queue (sample data)"
             };
             site.Write(Path.Combine(output, name + ".html"), ConsoleExporter.ToHtml(frame, options));
+            site.Write(Path.Combine(output, name + ".svg"), ConsoleExporter.ToSvg(frame, options));
             site.Write(Path.Combine(output, name + ".txt"), ConsoleExporter.ToText(frame));
             files.Add(name + ".html");
+            files.Add(name + ".svg");
             files.Add(name + ".txt");
         }
     }
