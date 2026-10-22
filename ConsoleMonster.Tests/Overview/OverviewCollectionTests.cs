@@ -49,26 +49,42 @@ namespace ConsoleMonster.Tests.Overview {
 
         [Fact]
         public async Task RepeatedCollectionSharesSingleInFlightSynchronousProvider() {
-            using (ManualResetEventSlim release = new ManualResetEventSlim())
-            using (ManualResetEventSlim entered = new ManualResetEventSlim()) {
+            using (ManualResetEventSlim release = new ManualResetEventSlim()) {
+                TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                TaskCompletionSource<bool> cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                TaskCompletionSource<bool> exited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                 int calls = 0;
                 OverviewSectionRegistry registry = new OverviewSectionRegistry().Register("Busy", "Busy", token => {
                     Interlocked.Increment(ref calls);
-                    entered.Set();
-                    release.Wait(token);
-                    return Task.FromResult<OverviewSection?>(Section("Busy"));
+                    using (token.Register(() => cancelled.TrySetResult(true))) {
+                        entered.TrySetResult(true);
+                        try {
+                            // Model a synchronous native call that cannot stop at its cooperative deadline.
+                            release.Wait();
+                            return Task.FromResult<OverviewSection?>(Section("Busy"));
+                        } finally { exited.TrySetResult(true); }
+                    }
                 });
-                Task<OverviewSnapshot> first = new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(30) });
+                OverviewOptions options = new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(30), ProbeTimeout = TimeSpan.FromMilliseconds(1) };
+                OverviewProbe probe = Assert.Single(registry.Select(null));
+                Task<OverviewSnapshot> first = new OverviewCollector(registry).CollectAsync(options);
+                // The provider stays in flight until explicitly released, so this retrieves the same owned task.
+                Task<OverviewSection?> flight = probe.Start(options.ProbeTimeout);
                 try {
-                    Assert.True(entered.Wait(1000));
+                    await entered.Task;
+                    await cancelled.Task;
                     Assert.True((await first).Sections.Single().IsPending);
-                    OverviewSnapshot second = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(30) });
+                    OverviewSnapshot second = await new OverviewCollector(registry).CollectAsync(options);
                     Assert.True(second.Sections.Single().IsPending);
+                    Assert.Same(flight, probe.Start(options.ProbeTimeout));
+                    Assert.False(exited.Task.IsCompleted);
                     Assert.Equal(1, calls);
-                } finally { release.Set(); }
-                // Wait for owned work to leave the synchronization primitives before disposing them.
-                OverviewSnapshot finished = await new OverviewCollector(registry).CollectAsync();
-                Assert.False(finished.Sections.Single().IsPending);
+                } finally {
+                    release.Set();
+                    await exited.Task;
+                    await flight;
+                    await first;
+                }
             }
         }
 
