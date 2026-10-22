@@ -10,7 +10,10 @@ Describe 'ConsoleMonster exports' {
         $html | Should -Match '<!DOCTYPE html>'
         $screens = [regex]::Matches($html, '<pre class="([^"]+)">')
         foreach ($theme in 'cm-dark', 'cm-light') {
-            @($screens | Where-Object { $classes = $_.Groups[1].Value -split '\s+'; $classes -contains 'cm-screen' -and $classes -contains $theme }).Count | Should -Be 1
+            @($screens | Where-Object {
+                $classes = $_.Groups[1].Value -split '\s+'
+                $classes -contains 'cm-screen' -and $classes -contains $theme
+            }).Count | Should -Be 1
         }
         $html | Should -Match 'prefers-color-scheme: light'
         $html | Should -Match 'All &lt;good&gt; &amp; &quot;fine&quot;'

@@ -190,6 +190,22 @@ Describe 'One grammar for every widget' {
     }
 
     Context 'Add-ConsoleItem' {
+        It 'copies rich log entries once and preserves a selected physical line' {
+            $source = New-ConsoleLog
+            $source.Write([ConsoleMonster.Text.RichText]::FromMarkup("[pass]first`nsecond[/]"))
+            $entries = @($source.Entries)
+            $all = New-ConsoleLog | Add-ConsoleItem $entries -PassThru
+            (@($all.Entries).Text -join '|') | Should -Be 'first|second'
+            $selected = New-ConsoleLog | Add-ConsoleItem $entries[1] -PassThru
+            @($selected.Entries).Count | Should -Be 1
+            @($selected.Entries)[0].Text | Should -Be 'second'
+            ($selected | Get-WidgetText) | Should -Match 'second'
+            ($selected | Get-WidgetText) | Should -Not -Match 'first'
+            $message = New-ConsoleLogEntry "third`nfourth"
+            $expanded = New-ConsoleLog | Add-ConsoleItem $message -PassThru
+            (@($expanded.Entries).Text -join '|') | Should -Be 'third|fourth'
+        }
+
         It 'grows widgets made earlier and passes them on with -PassThru' {
             $tree = New-ConsoleTree 'Shares'
             $tree | Add-ConsoleItem { New-ConsoleTreeNode 'Reports' -Detail 'D:\Reports' }

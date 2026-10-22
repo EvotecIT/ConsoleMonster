@@ -849,12 +849,17 @@
     },
     {
       "verb": "Compare",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Compare-ConsoleObject",
           "synopsis": "Compares two sets of objects and shows what was added, removed and changed, property by property.",
           "url": "/powershell/commands/compare-consoleobject/"
+        },
+        {
+          "name": "Compare-ConsoleText",
+          "synopsis": "Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.",
+          "url": "/powershell/commands/compare-consoletext/"
         }
       ]
     },

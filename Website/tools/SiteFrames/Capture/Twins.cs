@@ -15,18 +15,20 @@ namespace SiteFrames.Capture {
     internal static class Twins {
         public static string Script(Site site, string area, string id) => Path.Combine(site.Website, "examples", area, id + ".ps1");
 
-        private static string CapturePath(Site site, string area, string id, PowerShellHost host) => Path.Combine(site.Captures, area, id + "." + host.Id + ".ansi");
+        private static string CapturePath(Site site, string area, string id, PowerShellHost host, string? variant = null) =>
+            Path.Combine(site.Captures, area, id + (variant == null ? string.Empty : "-" + variant) + "." + host.Id + ".ansi");
 
-        private static string Stamp(Site site, string area, string id, int width, PowerShellHost host) =>
-            Stamps.Of(Script(site, area, id), PowerShellRunner.Environment("dark"), host.Id, width.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        private static string Stamp(Site site, string area, string id, int width, PowerShellHost host, Dictionary<string, string?>? environment = null) =>
+            Stamps.Of(Script(site, area, id), environment ?? PowerShellRunner.Environment("dark"), host.Id, width.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-        public static void Capture(Site site, string area, string id, int width) {
+        /// <summary>Captures both hosts, optionally naming a profile variant and pinning its environment.</summary>
+        public static void Capture(Site site, string area, string id, int width, string? variant = null, Dictionary<string, string?>? environment = null) {
             foreach (PowerShellHost host in PowerShellHost.All) {
-                List<Vt.OutputChunk> chunks = PowerShellRunner.Run(site, host, Script(site, area, id), width, 80, PowerShellRunner.Environment("dark"));
-                string path = CapturePath(site, area, id, host);
+                List<Vt.OutputChunk> chunks = PowerShellRunner.Run(site, host, Script(site, area, id), width, 80, environment ?? PowerShellRunner.Environment("dark"));
+                string path = CapturePath(site, area, id, host, variant);
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
-                Stamps.Write(site, path, Stamp(site, area, id, width, host));
+                Stamps.Write(site, path, Stamp(site, area, id, width, host, environment));
                 Console.WriteLine("captured " + Path.GetRelativePath(site.Website, path));
             }
         }
@@ -35,16 +37,16 @@ namespace SiteFrames.Capture {
         public static JsonObject Check(Site site, string area, string id, int width, Func<IWidget> build, JsonObject hosts, List<string> problems) =>
             Check(site, area, id, width, Site.Render(build(), width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), hosts, problems);
 
-        /// <summary>The parity record against a frame the C# twin printed (24-bit colour, full glyphs, dark theme).</summary>
-        public static JsonObject Check(Site site, string area, string id, int width, CellBuffer expected, JsonObject hosts, List<string> problems) {
+        /// <summary>The parity record against the C# frame, using the default dark capture or a pinned profile variant.</summary>
+        public static JsonObject Check(Site site, string area, string id, int width, CellBuffer expected, JsonObject hosts, List<string> problems, string? variant = null, Dictionary<string, string?>? environment = null) {
             JsonObject parity = new JsonObject();
             foreach (PowerShellHost host in PowerShellHost.All) {
-                string path = CapturePath(site, area, id, host);
+                string path = CapturePath(site, area, id, host, variant);
                 if (!File.Exists(path)) {
                     problems.Add(id + " has no " + host.Label + " capture; run the capture command.");
                     continue;
                 }
-                string? stale = Stamps.Check(site, path, Stamp(site, area, id, width, host), area);
+                string? stale = Stamps.Check(site, path, Stamp(site, area, id, width, host, environment), area);
                 if (stale != null) {
                     problems.Add(stale);
                 }

@@ -54,8 +54,14 @@ namespace SiteFrames {
                     return CaptureAll(new Site(website), only);
                 case "readme":
                     return Readme.Sync(new Site(website));
+                case "review-text":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return TextDiffFigures.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -119,6 +125,9 @@ namespace SiteFrames {
             if (Wants(only, "objects") || Wants(only, "docs")) {
                 ExplorerFigures.Capture(site);
             }
+            if (Wants(only, "docs") || Wants(only, "text-diff")) {
+                TextDiffFigures.Capture(site);
+            }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }
@@ -131,6 +140,7 @@ namespace SiteFrames {
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
+            TextDiffFigures.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);

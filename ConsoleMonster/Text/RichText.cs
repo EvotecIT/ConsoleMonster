@@ -240,20 +240,25 @@ namespace ConsoleMonster.Text {
             int column = 0;
             foreach (RichSegment segment in _segments) {
                 string specification = segment.Style.ToMarkup();
+                if (segment.IsMarkup) {
+                    // Wrap the complete segment: a nested tag may remain open across a newline.
+                    string body = segment.Text.Replace("\r\n", "\n").Replace('\r', '\n');
+                    if (specification.Length > 0) { sb.Append('[').Append(specification).Append(']'); }
+                    sb.Append(body);
+                    if (specification.Length > 0) { sb.Append("[/]"); }
+                    string plain = Markup.Strip(body);
+                    int lastBreak = plain.LastIndexOf('\n');
+                    column = lastBreak >= 0 ? DisplayWidth.Measure(plain.Substring(lastBreak + 1)) : column + DisplayWidth.Measure(plain);
+                    continue;
+                }
                 string[] lines = segment.Text.Replace("\r\n", "\n").Split('\n');
                 for (int i = 0; i < lines.Length; i++) {
                     if (i > 0) {
                         sb.Append('\n');
                         column = 0;
                     }
-                    string body;
-                    if (segment.IsMarkup) {
-                        body = lines[i];
-                        column += DisplayWidth.Measure(Markup.Strip(body));
-                    } else {
-                        string expanded = ExpandTabs(lines[i], ref column);
-                        body = Markup.Escape(expanded);
-                    }
+                    string expanded = ExpandTabs(lines[i], ref column);
+                    string body = Markup.Escape(expanded);
                     if (body.Length == 0) {
                         continue;
                     }
