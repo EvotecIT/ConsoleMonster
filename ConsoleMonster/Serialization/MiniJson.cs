@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace ConsoleMonster.Interactive {
+namespace ConsoleMonster.Serialization {
     /// <summary>
     /// A small JSON reader and writer for presets and remembered choices: objects, arrays, strings, booleans, null and
     /// numbers (kept as strings). Zero dependencies; malformed input raises <see cref="FormatException"/>.
@@ -16,8 +16,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         public static object? Read(string text) {
+            if (text == null) { throw new ArgumentNullException(nameof(text)); }
             int index = 0;
-            object? value = ReadValue(text, ref index);
+            object? value = ReadValue(text, ref index, 0);
             SkipWhite(text, ref index);
             if (index != text.Length) {
                 throw new FormatException("Unexpected text after the JSON value at " + index.ToString(CultureInfo.InvariantCulture) + ".");
@@ -65,7 +66,11 @@ namespace ConsoleMonster.Interactive {
                     sb.Append(']');
                     return;
                 default:
-                    WriteString(sb, CommandLine.Format(value));
+                    if (value is byte || value is sbyte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong || value is decimal) {
+                        sb.Append(Convert.ToString(value, CultureInfo.InvariantCulture));
+                    } else {
+                        WriteString(sb, value is IFormattable formattable ? formattable.ToString(null, CultureInfo.InvariantCulture) : Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
+                    }
                     return;
             }
         }
@@ -101,7 +106,8 @@ namespace ConsoleMonster.Interactive {
             sb.Append('"');
         }
 
-        private static object? ReadValue(string text, ref int i) {
+        private static object? ReadValue(string text, ref int i, int depth) {
+            if (depth > 64) { throw new FormatException("JSON nesting exceeds 64 levels."); }
             SkipWhite(text, ref i);
             if (i >= text.Length) {
                 throw new FormatException("Unexpected end of JSON.");
@@ -120,7 +126,8 @@ namespace ConsoleMonster.Interactive {
                     string key = ReadString(text, ref i);
                     SkipWhite(text, ref i);
                     Expect(text, ref i, ':');
-                    map[key] = ReadValue(text, ref i);
+                    if (map.ContainsKey(key)) { throw new FormatException("Duplicate JSON key '" + key + "'."); }
+                    map.Add(key, ReadValue(text, ref i, depth + 1));
                     SkipWhite(text, ref i);
                     if (i < text.Length && text[i] == ',') {
                         i++;
@@ -139,7 +146,7 @@ namespace ConsoleMonster.Interactive {
                     return list;
                 }
                 while (true) {
-                    list.Add(ReadValue(text, ref i));
+                    list.Add(ReadValue(text, ref i, depth + 1));
                     SkipWhite(text, ref i);
                     if (i < text.Length && text[i] == ',') {
                         i++;
@@ -164,14 +171,30 @@ namespace ConsoleMonster.Interactive {
                 i += 4;
                 return null;
             }
+            return ReadNumber(text, ref i);
+        }
+
+        private static string ReadNumber(string text, ref int i) {
             int start = i;
-            while (i < text.Length && (char.IsDigit(text[i]) || "+-.eE".IndexOf(text[i]) >= 0)) {
+            if (i < text.Length && text[i] == '-') { i++; }
+            if (i < text.Length && text[i] == '0') { i++; }
+            else { Digits(text, ref i); }
+            if (i < text.Length && text[i] == '.') {
                 i++;
+                Digits(text, ref i);
             }
-            if (i == start) {
-                throw new FormatException("Unexpected character '" + c + "' at " + i.ToString(CultureInfo.InvariantCulture) + ".");
+            if (i < text.Length && (text[i] == 'e' || text[i] == 'E')) {
+                i++;
+                if (i < text.Length && (text[i] == '+' || text[i] == '-')) { i++; }
+                Digits(text, ref i);
             }
             return text.Substring(start, i - start);
+        }
+
+        private static void Digits(string text, ref int i) {
+            int start = i;
+            while (i < text.Length && text[i] >= '0' && text[i] <= '9') { i++; }
+            if (start == i) { throw new FormatException("Expected a JSON digit at " + i.ToString(CultureInfo.InvariantCulture) + "."); }
         }
 
         private static string ReadString(string text, ref int i) {
@@ -183,6 +206,7 @@ namespace ConsoleMonster.Interactive {
                     return sb.ToString();
                 }
                 if (c != '\\') {
+                    if (c < ' ') { throw new FormatException("Unescaped control character in JSON string."); }
                     sb.Append(c);
                     continue;
                 }
@@ -191,6 +215,11 @@ namespace ConsoleMonster.Interactive {
                 }
                 char e = text[i++];
                 switch (e) {
+                    case '"':
+                    case '\\':
+                    case '/':
+                        sb.Append(e);
+                        break;
                     case 'n':
                         sb.Append('\n');
                         break;
@@ -210,12 +239,14 @@ namespace ConsoleMonster.Interactive {
                         if (i + 4 > text.Length) {
                             throw new FormatException("Bad unicode escape.");
                         }
-                        sb.Append((char)int.Parse(text.Substring(i, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+                        if (!ushort.TryParse(text.Substring(i, 4), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out ushort code)) {
+                            throw new FormatException("Bad unicode escape.");
+                        }
+                        sb.Append((char)code);
                         i += 4;
                         break;
                     default:
-                        sb.Append(e);
-                        break;
+                        throw new FormatException("Unknown JSON escape: \\" + e + ".");
                 }
             }
             throw new FormatException("Unterminated string.");
@@ -231,7 +262,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private static void SkipWhite(string text, ref int i) {
-            while (i < text.Length && char.IsWhiteSpace(text[i])) {
+            while (i < text.Length && (text[i] == ' ' || text[i] == '\t' || text[i] == '\r' || text[i] == '\n')) {
                 i++;
             }
         }

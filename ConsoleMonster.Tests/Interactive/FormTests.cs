@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Interactive;
+using ConsoleMonster.Serialization;
 using ConsoleMonster.Tests.Rendering;
 using Xunit;
 
