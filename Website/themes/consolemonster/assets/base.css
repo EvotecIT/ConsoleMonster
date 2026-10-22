@@ -314,7 +314,12 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 /* Side-by-side frames stack by default; frames.js puts them all in one row (is-row) when every one fits beside the others at
    a readable size (12 px cells: the widest frame's columns × 7.2 px plus its chrome, --cm-strip-cols). Never two and one. */
 .cm-figure--strip .cm-figure__frames.is-row { grid-template-columns: repeat(var(--cm-strip-count, 2), minmax(0, 1fr)); }
-.cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap { margin: 1.4em 0 1.6em; }
+/* Tables written in Markdown sit directly in the prose: they get the same block spacing as code, figures and wrapped tables. */
+.cm-prose .cm-code, .cm-prose figure, .cm-prose .cm-tablewrap, .cm-prose > table { margin: 1.4em 0 1.6em; }
+/* The concurrency guarantees table: test names break anywhere, the runtimes column stays narrow, the source note is quiet. */
+.cm-guarantees td { font-size: 14px; }
+.cm-guarantees .cm-guarantees__runs { min-width: 12ch; color: var(--cm-ink-2); }
+.cm-prose .cm-guarantees + .cm-guarantees__note { margin-top: -0.8em; color: var(--cm-muted); font-size: 14px; }
 .cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
 .cm-tablewrap { max-width: 100%; overflow-x: auto; }
 .cm-prose table, .cm-table { width: 100%; border-collapse: collapse; font-size: 15px; }
