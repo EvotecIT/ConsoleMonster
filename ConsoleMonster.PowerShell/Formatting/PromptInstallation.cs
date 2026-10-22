@@ -16,6 +16,7 @@ namespace ConsoleMonster.PowerShell {
         private readonly SessionState _session;
         private readonly PSModuleInfo _module;
         private readonly ScriptBlock? _saved;
+        private FunctionInfo? _original;
         private readonly PromptGitCache _git = new PromptGitCache();
         private readonly object _engine;
         private readonly PropertyInfo _success;
@@ -49,7 +50,8 @@ namespace ConsoleMonster.PowerShell {
             object? intrinsics = cmdlet.SessionState.PSVariable.GetValue("ExecutionContext");
             object? engine = intrinsics?.GetType().GetField("_context", Flags)?.GetValue(intrinsics);
             PropertyInfo? success = engine?.GetType().GetProperty("QuestionMarkVariableValue", Flags);
-            if (engine == null || success == null || !success.CanRead || !success.CanWrite) {
+            ConstructorInfo? copy = typeof(FunctionInfo).GetConstructor(Flags, null, new[] { typeof(FunctionInfo) }, null);
+            if (engine == null || success == null || !success.CanRead || !success.CanWrite || copy == null) {
                 cmdlet.WriteWarning(Message("UnsupportedEngine"));
                 return false;
             }
@@ -59,8 +61,16 @@ namespace ConsoleMonster.PowerShell {
                 using (Stream stream = typeof(PromptInstallation).Assembly.GetManifestResourceStream("ConsoleMonster.PowerShell.Formatting.PromptFunction.ps1")
                     ?? throw new InvalidOperationException(Message("MissingResource")))
                 using (StreamReader reader = new StreamReader(stream)) { resource = reader.ReadToEnd(); }
-                Func<bool, InvocationInfo, PSHost, object[], object?> invoke = installation.Invoke;
-                ScriptBlock prompt = (ScriptBlock)ScriptBlock.Create(resource).Invoke(invoke)[0].BaseObject;
+                // Set-Item mutates the existing FunctionInfo. Retain separate native metadata so dispatch
+                // keeps the original function identity, closure, parameters and caller error pipeline.
+                FunctionInfo? function = cmdlet.InvokeCommand.GetCommand("global:prompt", CommandTypes.Function) as FunctionInfo;
+                installation._original = function == null ? null : (FunctionInfo)copy.Invoke(new object[] { function });
+                CommandMetadata? metadata = installation._original == null ? null : new CommandMetadata(installation._original);
+                resource = resource.Replace("__BINDING__", metadata == null ? string.Empty : ProxyCommand.GetCmdletBindingAttribute(metadata))
+                    .Replace("__PARAMETERS__", metadata == null ? string.Empty : ProxyCommand.GetParamBlock(metadata))
+                    .Replace("__ARGUMENTS__", installation._original?.CmdletBinding == true ? string.Empty : "@args");
+                Func<bool, InvocationInfo, PSHost, object[], Invocation> invoke = installation.Invoke;
+                ScriptBlock prompt = (ScriptBlock)ScriptBlock.Create(resource).Invoke(invoke, installation._original?.CmdletBinding == true)[0].BaseObject;
                 cmdlet.SessionState.InvokeProvider.Item.Set("Function:\\global:prompt", prompt);
                 installation._installed = FormatCommandInstallation.GlobalFunction(cmdlet.SessionState, "prompt");
                 state.Prompt = installation;
@@ -70,13 +80,12 @@ namespace ConsoleMonster.PowerShell {
 
         private static string Message(string key) => Messages.GetString(key, LabelLanguage.Default) ?? key;
 
-        private object? Invoke(bool succeeded, InvocationInfo invocation, PSHost host, object[] stack) {
-            PSVariable? lastExit = _session.PSVariable.Get("global:LASTEXITCODE");
-            object? exitValue = lastExit?.Value;
+        private Invocation Invoke(bool succeeded, InvocationInfo invocation, PSHost host, object[] stack) {
+            Invocation frame = new Invocation(this, succeeded);
             try {
                 if (_removed || !DirectHost(invocation, host, stack)) {
-                    _success.SetValue(_engine, succeeded, null);
-                    return _saved != null ? (object)_saved.Invoke() : NativePrompt();
+                    if (_original == null) { frame.Text = NativePrompt(); }
+                    return frame;
                 }
                 PathInfo location = _session.Path.CurrentLocation;
                 (string? branch, bool dirty) = string.Equals(location.Provider.Name, "FileSystem", StringComparison.OrdinalIgnoreCase)
@@ -90,15 +99,35 @@ namespace ConsoleMonster.PowerShell {
                 }
                 ShellPrompt prompt = new ShellPrompt { Path = location.Path, Home = Convert.ToString(_session.PSVariable.GetValue("HOME")),
                     Branch = branch, Dirty = dirty, Succeeded = succeeded, Duration = duration };
-                return prompt.ToAnsi(new RenderContext(Terminal.GetCurrentProfile(), Terminal.Theme), Math.Max(1, Terminal.GetCurrentProfile().Width - 1));
-            } finally {
-                if (lastExit != null) {
-                    if (!Equals(lastExit.Value, exitValue)) { lastExit.Value = exitValue; }
-                    if (!ReferenceEquals(_session.PSVariable.Get("global:LASTEXITCODE"), lastExit)) { _session.PSVariable.Set(lastExit); }
-                } else if (_session.PSVariable.Get("global:LASTEXITCODE") != null) {
-                    _session.PSVariable.Remove("global:LASTEXITCODE");
+                frame.Text = prompt.ToAnsi(new RenderContext(Terminal.GetCurrentProfile(), Terminal.Theme), Math.Max(1, Terminal.GetCurrentProfile().Width - 1));
+                return frame;
+            } catch { frame.Restore(); throw; }
+        }
+
+        // One frame per call also protects recursive/nested native prompt evaluation. Its public members
+        // are consumed only by the embedded PowerShell closure; the type is not a module API.
+        internal sealed class Invocation {
+            private readonly PromptInstallation _owner;
+            private readonly bool _succeeded;
+            private readonly PSVariable? _lastExit;
+            private readonly object? _exitValue;
+            internal Invocation(PromptInstallation owner, bool succeeded) {
+                _owner = owner;
+                _succeeded = succeeded;
+                _lastExit = owner._session.PSVariable.Get("global:LASTEXITCODE");
+                _exitValue = _lastExit?.Value;
+            }
+            public string? Text { get; internal set; }
+            private void PrepareOriginal() => _owner._success.SetValue(_owner._engine, _succeeded, null);
+            public FunctionInfo? Original() { PrepareOriginal(); return _owner._original; }
+            public void Restore() {
+                if (_lastExit != null) {
+                    if (!Equals(_lastExit.Value, _exitValue)) { _lastExit.Value = _exitValue; }
+                    if (!ReferenceEquals(_owner._session.PSVariable.Get("global:LASTEXITCODE"), _lastExit)) { _owner._session.PSVariable.Set(_lastExit); }
+                } else if (_owner._session.PSVariable.Get("global:LASTEXITCODE") != null) {
+                    _owner._session.PSVariable.Remove("global:LASTEXITCODE");
                 }
-                _success.SetValue(_engine, succeeded, null);
+                PrepareOriginal();
             }
         }
 

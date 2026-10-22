@@ -78,6 +78,15 @@ if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Nat
 
 Set-Item Function:global:prompt $initialPrompt
 Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1') -Force
+. (Join-Path $PSScriptRoot 'Assert-PromptFallback.ps1')
+$fallbackRoutes = foreach ($route in 'SimpleMerge', 'Merge', 'AllStreams', 'Suppress', 'File', 'ErrorVariable', 'AppendVariables', 'PreferenceContinue', 'PreferenceSilent', 'Stop', 'Throw', 'Recursive', 'Recording') {
+    Assert-PromptFallback -Route $route
+}
+[ordered]@{
+    Version = $PSVersionTable.PSVersion.ToString()
+    Routes = @($fallbackRoutes)
+    AttachedConsole = $true
+} | ConvertTo-Json | Set-Content -LiteralPath ($ResultPath + '.fallback.json') -Encoding UTF8
 Set-ConsoleTheme -Name Dark
 Enable-ConsoleFormatting -Feature Prompt
 [Console]::WriteLine('PROMPT_HOST_CONTRACTS_OK')

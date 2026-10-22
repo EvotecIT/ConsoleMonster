@@ -100,6 +100,26 @@ Disable-ConsoleFormatting
 '@ | Should -Match 'CAPTURE_STATE_OK'
     }
 
+    It 'preserves original native prompt errors through <Route>' -ForEach @(
+        @{ Route = 'SimpleMerge' }
+        @{ Route = 'Merge' }
+        @{ Route = 'AllStreams' }
+        @{ Route = 'Suppress' }
+        @{ Route = 'File' }
+        @{ Route = 'ErrorVariable' }
+        @{ Route = 'AppendVariables' }
+        @{ Route = 'PreferenceContinue' }
+        @{ Route = 'PreferenceSilent' }
+        @{ Route = 'Stop' }
+        @{ Route = 'Throw' }
+        @{ Route = 'Recursive' }
+        @{ Route = 'Recording' }
+    ) {
+        $helper = Join-Path $PSScriptRoot 'Support/Assert-PromptFallback.ps1'
+        $source = ". '$($helper.Replace("'", "''"))'`nAssert-PromptFallback -Route '$Route'"
+        Invoke-PromptChild $source | Should -Match $Route
+    }
+
     It 'restores an absent original prompt and absent LASTEXITCODE' {
         Invoke-PromptChild @'
 Remove-Item Function:prompt
