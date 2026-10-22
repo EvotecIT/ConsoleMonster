@@ -187,6 +187,8 @@ Describe 'Native console applications' {
         $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
         @(Show-ConsoleApp { New-ConsoleTextInput -Name Query } -StaticSnapshot -Capture $capture).Count | Should -Be 0
         { Show-ConsoleApp { New-ConsoleBinding { New-ConsoleToggle -Name Nested } } -StaticSnapshot -Capture $capture -ErrorAction Stop } | Should -Throw
+        { Write-ConsoleTable -Bind { [pscustomobject]@{ Name = 'host' } } -ErrorAction Stop } |
+            Should -Throw '*Use New-ConsoleTable -Bind inside Show-ConsoleApp*'
     }
 
     It 'attaches controls and bindings created in an earlier pipeline of the same runspace' {

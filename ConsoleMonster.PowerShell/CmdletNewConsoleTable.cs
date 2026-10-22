@@ -69,7 +69,7 @@ namespace ConsoleMonster.PowerShell {
             if (Bind != null) {
                 if (this is CmdletWriteConsoleTable) {
                     ThrowTerminatingError(new ErrorRecord(new System.InvalidOperationException(
-                        "Use New-ConsoleTable -Bind inside Show-ConsoleApp to create a dependent table."),
+                        PSAppMessages.BindingRequiresFactory),
                         "AppBindingRequiresFactory", ErrorCategory.InvalidArgument, Bind));
                 }
                 PSAppScript script = new PSAppScript(Bind);

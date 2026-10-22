@@ -19,6 +19,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Native application state accepts string keys.</summary>
         internal static string StringStateKeys => Get(nameof(StringStateKeys));
 
+        /// <summary>A dependent table must be created as a widget inside an application.</summary>
+        internal static string BindingRequiresFactory => Get(nameof(BindingRequiresFactory));
+
         private static string Get(string name) => Resources.GetString(name, CultureInfo.CurrentUICulture)!;
     }
 }

@@ -8,4 +8,5 @@
   <data name="AlreadyAttached" xml:space="preserve"><value>An application scriptblock is already attached to a running app.</value></data>
   <data name="ActiveInputThread" xml:space="preserve"><value>Application scriptblocks must run on their active PowerShell input thread and creating runspace.</value></data>
   <data name="StringStateKeys" xml:space="preserve"><value>Application state keys must be strings.</value></data>
+  <data name="BindingRequiresFactory" xml:space="preserve"><value>Use New-ConsoleTable -Bind inside Show-ConsoleApp to create a dependent table.</value></data>
 </root>
