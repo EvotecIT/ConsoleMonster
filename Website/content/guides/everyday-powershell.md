@@ -54,7 +54,7 @@ Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
-ReadLine is included in `All`. On disable or module removal, each cosmetic feature restores its original owned colors exactly, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
+ReadLine is included in `All`. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
 
 ## Views that ship with a module
 

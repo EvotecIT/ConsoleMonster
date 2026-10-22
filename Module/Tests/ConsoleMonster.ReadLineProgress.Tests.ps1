@@ -243,6 +243,23 @@ __END_BODY__
 '@.Replace('__END_BODY__', "'@").Replace('__MODULE__', $script:NativeModule.Replace("'", "''"))) | Should -Match 'NATIVE_PROGRESS_RECORDS_OK'
     }
 
+    It 'preserves shared native ownership when <FirstRelease> releases first via <Lifecycle> with reapply <Reapply>' -ForEach @(
+        @{ FirstRelease = 'A'; Lifecycle = 'disable'; Reapply = $false }
+        @{ FirstRelease = 'B'; Lifecycle = 'disable'; Reapply = $false }
+        @{ FirstRelease = 'A'; Lifecycle = 'module removal'; Reapply = $false }
+        @{ FirstRelease = 'B'; Lifecycle = 'module removal'; Reapply = $false }
+        @{ FirstRelease = 'A'; Lifecycle = 'disable'; Reapply = $true }
+        @{ FirstRelease = 'B'; Lifecycle = 'disable'; Reapply = $true }
+        @{ FirstRelease = 'A'; Lifecycle = 'module removal'; Reapply = $true }
+        @{ FirstRelease = 'B'; Lifecycle = 'module removal'; Reapply = $true }
+    ) {
+        $support = Join-Path $PSScriptRoot 'Support'
+        Invoke-NativeStylingChild (@'
+. '__SUPPORT__/SharedNativeOwnership.ps1'
+Test-SharedNativeOwnership -ModulePath '__MODULE__' -SupportPath '__SUPPORT__' -FirstRelease '__FIRST__' -RemoveModules:$__REMOVE__ -Reapply:$__REAPPLY__
+'@.Replace('__MODULE__', $script:NativeModule.Replace("'", "''")).Replace('__SUPPORT__', $support.Replace("'", "''")).Replace('__FIRST__', $FirstRelease).Replace('__REMOVE__', ($Lifecycle -eq 'module removal').ToString().ToLowerInvariant()).Replace('__REAPPLY__', $Reapply.ToString().ToLowerInvariant())) | Should -Match 'SHARED_NATIVE_OWNERSHIP_OK'
+    }
+
     It 'preserves caller edits to the native progress View while restoring only Style' {
         Invoke-NativeStylingChild @'
 if ($PSVersionTable.PSVersion -ge [version] '7.2') {

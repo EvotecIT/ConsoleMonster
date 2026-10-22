@@ -329,13 +329,11 @@ function Invoke-StreamsRunspace($shell, $body) {
 $setup = "Import-Module '__MODULE__' -ErrorAction Stop`n. '__SUPPORT__'`n"
 try {
     Invoke-StreamsRunspace $first ($setup + 'Set-StreamsBaseline; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected)')
-    Invoke-StreamsRunspace $second ($setup + 'Set-StreamsBaseline -Variant 1; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected)')
-    Invoke-StreamsRunspace $first 'Disable-ConsoleFormatting -Feature Streams; Assert-StreamsState $global:baseline; Remove-Module ConsoleMonster'
-    if ($PSVersionTable.PSVersion -lt [version] '7.2') {
-        Invoke-StreamsRunspace $second 'Assert-StreamsState (Get-StreamsExpected)'
-    }
-    # Native PSStyle can be process-shared; the installation ledger must still belong to its runspace.
-    Invoke-StreamsRunspace $second 'Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected); Remove-Module ConsoleMonster; Assert-StreamsState $global:baseline'
+    Invoke-StreamsRunspace $second ($setup + 'if ($PSVersionTable.PSVersion -lt [version] "7.2") { Set-StreamsBaseline -Variant 1 }; $global:baseline = Get-StreamsState; Enable-ConsoleFormatting -Feature Streams; Assert-StreamsState (Get-StreamsExpected)')
+    Invoke-StreamsRunspace $first 'Disable-ConsoleFormatting -Feature Streams; if ($PSVersionTable.PSVersion -lt [version] "7.2") { Assert-StreamsState $global:baseline }; Remove-Module ConsoleMonster'
+    Invoke-StreamsRunspace $second 'Assert-StreamsState (Get-StreamsExpected); Remove-Module ConsoleMonster'
+    if ($PSVersionTable.PSVersion -lt [version] '7.2') { Invoke-StreamsRunspace $second 'Assert-StreamsState $global:baseline' }
+    else { Invoke-StreamsRunspace $first 'Assert-StreamsState $global:baseline' }
     'RUNSPACE_BASELINES_OK'
 } finally { $first.Dispose(); $second.Dispose(); $firstRunspace.Dispose(); $secondRunspace.Dispose() }
 '@.Replace('__MODULE__', $script:StreamsModule.Replace("'", "''")).Replace('__SUPPORT__', $script:StreamsSupport.Replace("'", "''")))

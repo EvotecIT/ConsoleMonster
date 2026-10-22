@@ -14,27 +14,37 @@ namespace SiteFrames.Capture {
             Directory.CreateDirectory(output);
             JsonArray evidence = new JsonArray();
             foreach (PowerShellHost host in PowerShellHost.All) {
+                string script = Path.Combine(site.Tool, "Capture", "NativeStyling.ps1");
+                string commandPrefix = host.Executable + " -NoLogo -NoProfile -File \"" + script + "\" -ModulePath \""
+                    + Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1") + "\"";
+                string capabilitiesPath = Path.Combine(output, host.Id + "-capabilities");
+                PseudoConsole.Run(commandPrefix + " -Theme Dark -CapabilitiesOnly -EvidencePath \"" + capabilitiesPath + "\"", 120, 20,
+                    CaptureEnvironment("Dark"), site.Repository, TimeSpan.FromSeconds(30), capturePath: capabilitiesPath + ".ansi");
+                JsonNode capabilities = JsonNode.Parse(File.ReadAllText(capabilitiesPath + ".json"))!;
                 foreach (string theme in new[] { "Dark", "Light", "HighContrast" }) {
                     foreach (int width in new[] { 120, 60 }) {
                         foreach (string phase in new[] { "syntax", "selection", "prediction", "progress" }) {
-                            // The installed PSReadLine 2.0 on Desktop has no prediction feature.
-                            if (host == PowerShellHost.Desktop && phase == "prediction") { continue; }
                             string id = host.Id + "-" + theme + "-" + width + "-" + phase;
+                            if (phase == "prediction" && !capabilities["PredictionAvailable"]!.GetValue<bool>()) {
+                                evidence.Add(new JsonObject { ["id"] = id, ["skipped"] = true,
+                                    ["reason"] = "Missing native properties: " + capabilities["MissingPredictionProperties"]!.ToJsonString(),
+                                    ["readLine"] = capabilities["ReadLine"]!.GetValue<string>() });
+                                continue;
+                            }
                             string prefix = Path.Combine(output, id);
-                            string script = Path.Combine(site.Tool, "Capture", "NativeStyling.ps1");
-                            string command = host.Executable + " -NoLogo -NoProfile -File \"" + script + "\" -ModulePath \""
-                                + Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1") + "\" -EvidencePath \"" + prefix + "\" -Phase " + phase;
+                            string command = commandPrefix + " -Theme " + theme + " -EvidencePath \"" + prefix + "\" -Phase " + phase;
                             if (useAll) { command += " -UseAll"; }
                             string? keys = phase == "progress" ? null : phase == "prediction" ? "\u001bOQGet-Pro" : "Get-Process -Name 'pwsh' | Select-Object -First 3";
                             if (phase == "selection") { keys += "\u001b[1;2H"; }
-                            Dictionary<string, string?> environment = PowerShellRunner.Environment(theme.ToLowerInvariant());
-                            environment["CONSOLEMONSTER_BUILD_CONFIGURATION"] = "Debug";
+                            Dictionary<string, string?> environment = CaptureEnvironment(theme);
                             List<OutputChunk> chunks = PseudoConsole.Run(command, width, 20, environment, site.Repository,
                                 TimeSpan.FromSeconds(30), inputText: keys, readyMarker: "CM_READY", capturePath: prefix + ".ansi", completionText: keys == null ? null : "\u001b[24~");
                             using MemoryStream bytes = new MemoryStream();
                             foreach (OutputChunk chunk in chunks) { bytes.Write(chunk.Data); }
                             byte[] raw = bytes.ToArray();
                             File.WriteAllBytes(prefix + ".ansi", raw);
+                            JsonNode receipt = JsonNode.Parse(File.ReadAllText(prefix + ".json"))!;
+                            if (receipt["ResolvedTheme"]!.GetValue<string>() != theme) { throw new InvalidOperationException("Wrong resolved native theme: " + id); }
                             string text = Encoding.UTF8.GetString(raw);
                             int marker = text.IndexOf("\u001b]0;CM_FRAME\a", StringComparison.Ordinal);
                             if (marker < 0) { throw new InvalidOperationException("Missing native frame marker: " + id); }
@@ -49,7 +59,9 @@ namespace SiteFrames.Capture {
                             File.WriteAllText(prefix + ".html", ConsoleExporter.ToHtml(frame, options));
                             File.WriteAllText(prefix + ".txt", ConsoleExporter.ToText(frame));
                             evidence.Add(new JsonObject { ["id"] = id, ["runtime"] = host.Label, ["theme"] = theme,
-                                ["width"] = width, ["phase"] = phase, ["bytes"] = raw.Length, ["all"] = useAll });
+                                ["width"] = width, ["phase"] = phase, ["bytes"] = raw.Length, ["all"] = useAll,
+                                ["resolvedTheme"] = receipt["ResolvedTheme"]!.GetValue<string>(),
+                                ["readLine"] = receipt["ReadLine"]!.GetValue<string>(), ["readLinePath"] = receipt["ReadLinePath"]!.GetValue<string>() });
                             Console.WriteLine("Native styling: " + id);
                         }
                     }
@@ -57,6 +69,12 @@ namespace SiteFrames.Capture {
             }
             File.WriteAllText(Path.Combine(output, "evidence.json"), evidence.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
             return 0;
+        }
+
+        private static Dictionary<string, string?> CaptureEnvironment(string theme) {
+            Dictionary<string, string?> environment = PowerShellRunner.Environment(theme == "Light" ? "light" : "dark");
+            environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
+            return environment;
         }
     }
 }

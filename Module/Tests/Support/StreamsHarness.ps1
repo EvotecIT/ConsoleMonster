@@ -7,6 +7,7 @@ function Get-StreamsProperties {
         foreach ($name in 'Warning', 'Verbose', 'Debug', 'Error') { $PSStyle.Formatting.PSObject.Properties[$name] }
         $PSStyle.Progress.PSObject.Properties['Style']
     } else {
+        if ($null -eq $Host.PrivateData) { return }
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Progress') {
             foreach ($suffix in 'ForegroundColor', 'BackgroundColor') {
                 $property = $Host.PrivateData.PSObject.Properties[$stream + $suffix]
@@ -58,6 +59,7 @@ function Get-StreamsExpected {
     $roles = @{ Warning = 'Warn'; Verbose = 'Info'; Debug = 'Muted'; Error = 'Fail'; Progress = 'Running' }
     $theme = [ConsoleMonster.Terminal]::Theme
     $expected = Get-StreamsState
+    if ($expected.Count -eq 0) { return $expected }
     if ($PSVersionTable.PSVersion -ge [version] '7.2') {
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Error') {
             $style = $theme.Resolve([ConsoleMonster.Styling.ThemeToken] $roles[$stream], 'TrueColor')

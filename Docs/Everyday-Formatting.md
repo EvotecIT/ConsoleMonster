@@ -50,7 +50,7 @@ PowerShell 7.2 and later use `$PSStyle.Formatting.Warning`, `.Verbose`, `.Debug`
 
 `Write-Warning`, `Write-Verbose`, `Write-Debug`, `Write-Information` and `Write-Progress` remain native cmdlets with Streams. Their records, preferences, `3>`, `-WarningVariable`, compiled-cmdlet warnings and transcripts retain PowerShell's behavior. The `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes remain. Use `Write-ConsoleStatus` or `Write-ConsoleLog` for rich messages in your own scripts.
 
-The original values are saved once per enabled interval. Disable or module removal restores exactly the properties ConsoleMonster successfully set, even if you edited those properties while Streams was enabled. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in `-Feature All`.
+The original values are saved once for each native object and property while any installation owns it. If runspaces share a native preference, the most recently applied installation supplies its color. Disabling or removing that owner restores the latest surviving installation's color; removing an older owner leaves the current one active. The last owner restores the exact original value, including after user edits. Independent host objects retain their own baselines. Other settings are untouched. Streams alone does not install an `Out-Default` function, and it is included in `-Feature All`.
 
 ## Command-line editor and native progress
 
@@ -71,7 +71,7 @@ Disable-ConsoleFormatting -Feature ReadLine, Streams
 
 `Streams` also sets `$PSStyle.Progress.Style` on PowerShell 7.2 and later, keeping `View`, width and other progress preferences as you set them. On Windows PowerShell 5.1 it sets the host's available progress foreground/background colors. Unsupported or unwritable properties are skipped. `Write-Progress` keeps native records, preferences and completion behavior. The separate legacy `Progress` feature installs the existing `Write-ConsoleProgress` alias; selecting only `ReadLine` and `Streams` installs neither that alias nor an `Out-Default` function.
 
-Re-enable either feature after choosing a new theme. Each feature keeps its first baseline until disabled or the module is removed, then restores exactly the colors it successfully set, including owned colors edited while enabled. Editing mode, key bindings, prediction source and prediction view stay yours. Features can be disabled independently. The profile snippet only prints configuration lines.
+Re-enable either feature after choosing a new theme. Reapplying makes that installation the current owner of its native colors. Shared PSReadLine options follow the same ownership order as native stream and progress colors, retaining the first baseline until the last owner disables or removes the module. Editing mode, key bindings, prediction source and prediction view stay yours. Features can be disabled independently. The profile snippet only prints configuration lines.
 
 For a .NET host, theme colors come from the same shared theme and encoder. Installing native PowerShell stream preferences belongs to its PowerShell runspace.
 
