@@ -67,7 +67,17 @@ try {
         if ($snapshot.Sections[0].IsPending) {
             $snapshot.Sections[0].Items.Count | Should -Be 0
         } else {
-            @($snapshot.Sections[0].Items | Where-Object Label -eq CPU).Count | Should -Be 1
+            $cpu = @($snapshot.Sections[0].Items | Where-Object Label -eq CPU)
+            if ($PSVersionTable.PSEdition -eq 'Core' -and $IsMacOS) {
+                # Darwin can return cached counters, which have no interval from which to calculate usage.
+                $cpu.Count | Should -BeLessOrEqual 1
+            } else {
+                $cpu.Count | Should -Be 1
+            }
+            foreach ($item in $cpu) {
+                $item.Percentage | Should -BeGreaterOrEqual 0
+                $item.Percentage | Should -BeLessOrEqual 100
+            }
             @($snapshot.Sections[0].Items | Where-Object Label -eq Memory).Count | Should -Be 1
         }
     }

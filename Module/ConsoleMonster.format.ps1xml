@@ -25,6 +25,7 @@
       <Name>ConsoleMonster.Widget</Name>
       <ViewSelectedBy>
         <TypeName>ConsoleMonster.Changes.ChangeView</TypeName>
+        <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
         <TypeName>ConsoleMonster.Layout.Align</TypeName>
         <TypeName>ConsoleMonster.Layout.Columns</TypeName>
         <TypeName>ConsoleMonster.Layout.CultureScope</TypeName>

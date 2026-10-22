@@ -53,8 +53,14 @@ namespace SiteFrames {
                     return Readme.Sync(new Site(website));
                 case "review-overview":
                     return OverviewFigures.Review(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-overview"));
+                case "review-text":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return TextDiffFigures.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text|review-overview [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -115,6 +121,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "docs") || Wants(only, "text-diff")) {
+                TextDiffFigures.Capture(site);
+            }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }
@@ -128,6 +137,7 @@ namespace SiteFrames {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
             OverviewFigures.Render(site);
+            TextDiffFigures.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);
@@ -136,7 +146,6 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
-            Guarantees.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);

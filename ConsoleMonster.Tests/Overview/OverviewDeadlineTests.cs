@@ -12,11 +12,13 @@ namespace ConsoleMonster.Tests.Overview {
         public async Task RepeatedDeadlinesReleaseCompletedData() {
             TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> exited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             List<WeakReference> observations = new List<WeakReference>();
             int busyCalls = 0;
             OverviewSectionRegistry registry = new OverviewSectionRegistry()
                 .Register("Busy", "Busy", async _ => {
                     Interlocked.Increment(ref busyCalls);
+                    entered.TrySetResult(true);
                     try { await release.Task.ConfigureAwait(false); return new OverviewSection("Busy", "Busy", new[] { new OverviewItem("Result", "Synthetic") }); }
                     finally { exited.TrySetResult(true); }
                 })
@@ -26,7 +28,9 @@ namespace ConsoleMonster.Tests.Overview {
                     return Task.FromResult<OverviewSection?>(new OverviewSection("Fast", "Fast", new[] { item }));
                 });
             OverviewCollector collector = new OverviewCollector(registry);
+            Task<OverviewSection?> flight = registry.Select(new[] { "Busy" }).Single().Start(TimeSpan.FromSeconds(2));
             try {
+                await entered.Task;
                 for (int i = 0; i < 16; i++) {
                     OverviewSnapshot snapshot = await collector.CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(15) });
                     Assert.True(snapshot.Sections.Single(section => section.Name == "Busy").IsPending);
@@ -42,7 +46,8 @@ namespace ConsoleMonster.Tests.Overview {
                 }
             } finally {
                 release.TrySetResult(true);
-                Assert.Same(exited.Task, await Task.WhenAny(exited.Task, Task.Delay(2000)));
+                await flight;
+                Assert.True(exited.Task.IsCompleted);
             }
         }
 
@@ -62,10 +67,11 @@ namespace ConsoleMonster.Tests.Overview {
                 } finally { exited.TrySetResult(true); }
             });
             OverviewCollector collector = new OverviewCollector(registry);
+            Task<OverviewSection?> flight = registry.Select(null).Single().Start(TimeSpan.FromSeconds(2));
             try {
                 using (CancellationTokenSource stop = new CancellationTokenSource()) {
                     Task<OverviewSnapshot> cancelled = collector.CollectAsync(cancellationToken: stop.Token);
-                    Assert.Same(entered.Task, await Task.WhenAny(entered.Task, Task.Delay(2000)));
+                    await entered.Task;
                     Task<OverviewSnapshot> continuing = collector.CollectAsync();
                     stop.Cancel();
                     await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled);
@@ -77,7 +83,8 @@ namespace ConsoleMonster.Tests.Overview {
                 }
             } finally {
                 release.TrySetResult(true);
-                Assert.Same(exited.Task, await Task.WhenAny(exited.Task, Task.Delay(2000)));
+                await flight;
+                Assert.True(exited.Task.IsCompleted);
             }
         }
     }

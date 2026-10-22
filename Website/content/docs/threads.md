@@ -10,7 +10,7 @@ apis: [LiveSession, TerminalScope, Start-ConsoleDashboard -Parallel]
 summary: "Any thread can update the screen; one thread draws it."
 ---
 
-Parallel work and a console do not mix on their own: every thread that writes to the console writes over the others. ConsoleMonster gives the screen to one thread and lets every other thread send it updates, so a live view stays whole however many workers report to it, and output that is not a terminal gets whole lines in order. The [guarantees table](#guarantees-and-their-tests) at the end names the test behind each concurrency guarantee.
+Parallel work and a console do not mix on their own: every thread that writes to the console writes over the others. ConsoleMonster gives the screen to one thread and lets every other thread send it updates, so a live view stays whole however many workers report to it, and output that is not a terminal gets whole lines in order. The [guarantees](#guarantees) at the end sum up what it promises.
 
 {{< cm-demo id="threads-naive" heading="h2" >}}
 
@@ -135,8 +135,15 @@ The stress test runs 32 workers posting updates in bursts while four more thread
 
 Build a widget fully before the session starts, then change it only through handles or update commands while it runs. A handle used after the session stopped is harmless: the update is dropped and counted in `EventsDropped`.
 
-## Guarantees and their tests
+## Guarantees
 
-Each concurrency guarantee, the tests that prove it and where those tests run. The table is generated from the repository's guarantees document on every build, so the page and the document always match.
+- **Whole lines and blocks.** While a session runs, many threads writing at once never split a line, and the lines of one `Terminal.Write` never mix with another's.
+- **Order per producer.** Each thread's updates arrive in the order it sent them.
+- **Posting never waits for the screen.** Workers keep going while drawing catches up, and every accepted update is handled exactly once (applied, or counted in `EventsDropped` when its widget name does not exist).
+- **No drops under load.** A normal run ends with every posted update applied and nothing dropped, even with dozens of workers and stray console output.
+- **Clean shutdown.** When the work ends or throws, queued updates and output are written exactly once and the terminal is restored (see [Stopping](#how-it-works) for a widget callback that blocks drawing).
+- **Ctrl+C.** The first Ctrl+C stops new updates and restores the terminal and the console writers.
+- **PowerShell workers.** Host messages, warnings and progress from `Start-ConsoleDashboard -Parallel` and `ForEach-ConsoleItem -Parallel` reach the view without changing what the script returns.
+- **CI and redirected output.** Whole lines, in the order the updates were applied.
 
-{{< cm-guarantees >}}
+Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([running the tests](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md#running-the-tests)).

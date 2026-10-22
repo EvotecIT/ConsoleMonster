@@ -37,9 +37,9 @@ namespace ConsoleMonster.Overview {
             List<OverviewItem> items = new List<OverviewItem>();
             if (TryCpu(out double total, out double idle)) {
                 await Task.Delay(80, token).ConfigureAwait(false);
-                if (TryCpu(out double nextTotal, out double nextIdle) && nextTotal > total) {
-                    double used = Math.Max(0, Math.Min(100, 100 * (1 - (nextIdle - idle) / (nextTotal - total))));
-                    items.Add(new OverviewItem("CPU", Environment.ProcessorCount.ToString(CultureInfo.InvariantCulture) + " logical CPUs", used));
+                if (TryCpu(out double nextTotal, out double nextIdle)) {
+                    OverviewItem? cpu = CpuObservation(total, idle, nextTotal, nextIdle);
+                    if (cpu != null) { items.Add(cpu); }
                 }
             }
             token.ThrowIfCancellationRequested();
@@ -47,6 +47,13 @@ namespace ConsoleMonster.Overview {
                 items.Add(MemoryObservation(bytes, available));
             }
             return new OverviewSection("Resources", "CPU / memory", items);
+        }
+
+        /// <summary>Builds CPU usage only from advancing counters; cached or reset samples have no measurable interval.</summary>
+        internal static OverviewItem? CpuObservation(double total, double idle, double nextTotal, double nextIdle) {
+            if (!(nextTotal > total)) { return null; }
+            double used = Math.Max(0, Math.Min(100, 100 * (1 - (nextIdle - idle) / (nextTotal - total))));
+            return new OverviewItem("CPU", Environment.ProcessorCount.ToString(CultureInfo.InvariantCulture) + " logical CPUs", used);
         }
 
         private static bool TryCpu(out double total, out double idle) {

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,18 +32,31 @@ namespace ConsoleMonster.Tests.Overview {
         [Fact]
         public async Task SlowProbeReturnsPendingWithoutHidingCompletedDataAndIsCancelled() {
             TaskCompletionSource<bool> cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             OverviewSectionRegistry registry = new OverviewSectionRegistry()
                 .Register("Fast", "Fast", _ => Task.FromResult<OverviewSection?>(Section("Fast")))
                 .Register("Slow", "Slow", async token => {
-                    try { await Task.Delay(5000, token); return Section("Slow"); }
-                    finally { cancelled.TrySetResult(true); }
+                    using (token.Register(() => cancelled.TrySetResult(true))) {
+                        entered.TrySetResult(true);
+                        await release.Task.ConfigureAwait(false);
+                        return Section("Slow");
+                    }
                 });
-            Stopwatch elapsed = Stopwatch.StartNew();
-            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(80), ProbeTimeout = TimeSpan.FromMilliseconds(250) });
-            Assert.True(elapsed.Elapsed < TimeSpan.FromSeconds(1), "A slow probe consumed the login deadline.");
-            Assert.False(snapshot.Sections.Single(section => section.Name == "Fast").IsPending);
-            Assert.True(snapshot.Sections.Single(section => section.Name == "Slow").IsPending);
-            Assert.Same(cancelled.Task, await Task.WhenAny(cancelled.Task, Task.Delay(2000)));
+            OverviewOptions options = new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(80), ProbeTimeout = TimeSpan.FromMilliseconds(250) };
+            Task<OverviewSection?> flight = registry.Select(new[] { "Slow" }).Single().Start(options.ProbeTimeout);
+            try {
+                await entered.Task;
+                OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(options);
+                // The caller returns while the controlled provider is still blocked, irrespective of OS scheduling delay.
+                Assert.False(flight.IsCompleted);
+                Assert.False(snapshot.Sections.Single(section => section.Name == "Fast").IsPending);
+                Assert.True(snapshot.Sections.Single(section => section.Name == "Slow").IsPending);
+                await cancelled.Task;
+            } finally {
+                release.TrySetResult(true);
+                await flight;
+            }
         }
 
         [Fact]
@@ -130,11 +142,20 @@ namespace ConsoleMonster.Tests.Overview {
                 Assert.NotNull(resources);
                 Assert.False(resources.IsPending);
                 AssertResourceObservations(resources);
+                if (OverviewPlatform.Mac) {
+                    // Darwin may return cached samples; still qualify the native CPU binding without requiring a delta.
+                    Assert.True(OverviewMacNative.Cpu(out double total, out double idle));
+                    Assert.True(total > 0);
+                    Assert.InRange(idle, 0, total);
+                }
             }
         }
 
         private static void AssertResourceObservations(OverviewSection resources) {
-            Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
+            if (!OverviewPlatform.Mac) {
+                Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
+            }
+            Assert.All(resources.Items.Where(item => item.Label == "CPU"), item => Assert.InRange(item.Percentage!.Value, 0, 100));
             Assert.Contains(resources.Items, item => item.Label == "Memory" && item.Percentage >= 0 && item.Percentage <= 100);
         }
 
