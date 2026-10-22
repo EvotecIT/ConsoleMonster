@@ -222,7 +222,7 @@ namespace ConsoleMonster.Widgets {
             return edges.ToArray();
         }
 
-        private string Value(double value) => value.ToString("G17", CultureInfo.InvariantCulture) + (Unit ?? string.Empty);
+        private string Value(double value) => value.ToString("R", CultureInfo.InvariantCulture) + (Unit ?? string.Empty);
 
         private static ThemeToken Palette(int index) => (ThemeToken)((int)ThemeToken.Series1 + index % 6);
     }

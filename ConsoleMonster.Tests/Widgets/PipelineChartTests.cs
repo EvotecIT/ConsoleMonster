@@ -116,6 +116,19 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal("1.0000000000000004", histogram.EdgeFormat!(second));
         }
 
+        [Theory]
+        [InlineData(0.1, "0.1")]
+        [InlineData(0.3, "0.3")]
+        public void FractionalValuesStayReadableInTextFallbacksAndHistogramLabels(double value, string expected) {
+            PipelineChart chart = new PipelineChart() { Unit = "s" }.Add("cpu", value);
+            Assert.Equal("cpu: " + expected + "s", TestTerminal.RenderText(chart.Build(true)));
+            chart.WithType(PipelineChartType.Sparkline);
+            Assert.Equal("cpu: " + expected + "s", TestTerminal.RenderText(chart.Build(true)));
+            Histogram histogram = Assert.IsType<Histogram>(chart.WithType(PipelineChartType.Histogram).Build());
+            Assert.Equal(expected + "s", histogram.EdgeFormat!(value));
+            Assert.Contains(expected + "s", TestTerminal.RenderText(chart.Build(true)), StringComparison.Ordinal);
+        }
+
         [Fact]
         public void SignedTrendsUseExactTextRatherThanFlatteningNegatives() {
             PipelineChart chart = new PipelineChart().WithType(PipelineChartType.Sparkline).Add("delta", -2).Add("delta", 3);
