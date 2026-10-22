@@ -9,7 +9,7 @@ using Xunit;
 namespace ConsoleMonster.Tests.Overview {
     public sealed class OverviewDeadlineTests {
         [Fact]
-        public async Task RepeatedDeadlinesReleaseCompletedDataWhileCancellationLeavesOtherCallerRunning() {
+        public async Task RepeatedDeadlinesReleaseCompletedData() {
             TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> exited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             List<WeakReference> observations = new List<WeakReference>();
@@ -40,15 +40,39 @@ namespace ConsoleMonster.Tests.Overview {
                     // A hanging shared flight must not retain every completed sibling's result through per-call aggregates.
                     Assert.InRange(observations.Count(reference => reference.IsAlive), 0, 2);
                 }
+            } finally {
+                release.TrySetResult(true);
+                Assert.Same(exited.Task, await Task.WhenAny(exited.Task, Task.Delay(2000)));
+            }
+        }
+
+        [Fact]
+        public async Task CallerCancellationLeavesOtherCallerRunning() {
+            TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> exited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            int busyCalls = 0;
+            OverviewSectionRegistry registry = new OverviewSectionRegistry().Register("Busy", "Busy", async token => {
+                Interlocked.Increment(ref busyCalls);
+                entered.TrySetResult(true);
+                try {
+                    await release.Task.ConfigureAwait(false);
+                    Assert.False(token.IsCancellationRequested);
+                    return new OverviewSection("Busy", "Busy", new[] { new OverviewItem("Result", "Synthetic") });
+                } finally { exited.TrySetResult(true); }
+            });
+            OverviewCollector collector = new OverviewCollector(registry);
+            try {
                 using (CancellationTokenSource stop = new CancellationTokenSource()) {
                     Task<OverviewSnapshot> cancelled = collector.CollectAsync(cancellationToken: stop.Token);
+                    Assert.Same(entered.Task, await Task.WhenAny(entered.Task, Task.Delay(2000)));
                     Task<OverviewSnapshot> continuing = collector.CollectAsync();
                     stop.Cancel();
                     await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled);
                     Assert.False(continuing.IsCompleted);
                     release.TrySetResult(true);
                     OverviewSnapshot finished = await continuing;
-                    Assert.False(finished.Sections.Single(section => section.Name == "Busy").IsPending);
+                    Assert.False(Assert.Single(finished.Sections).IsPending);
                     Assert.Equal(1, busyCalls);
                 }
             } finally {

@@ -1,6 +1,6 @@
 ---
 title: Host overview
-description: Show a compact, read-only host summary for a terminal or SSH login.
+description: Show a compact, read-only host summary with resource bars and optional sections for a terminal or SSH login.
 slug: host-overview
 order: 14
 group: hosts
