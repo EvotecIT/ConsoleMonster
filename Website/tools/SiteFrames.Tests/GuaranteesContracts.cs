@@ -37,6 +37,8 @@ namespace SiteFrames.Tests {
         [InlineData("## Guarantees and their tests\n\nText only.\n")]
         [InlineData("## Guarantees and their tests\n\n| Requirement | Evidence |\n| --- | --- |\n| One cell |\n")]
         [InlineData("## Guarantees and their tests\n\n| Requirement | Evidence |\n| --- | --- |\n| Blocks | [`T`](../Nowhere/T.cs) |\n")]
+        [InlineData("## Guarantees and their tests\n\nPowerShell tests run on 7.\n\n| Requirement | Evidence |\n| --- | --- |\n| Blocks | `T` with no file |\n")]
+        [InlineData("## Guarantees and their tests\n\nCore tests run on net8.0.\n\n| Requirement | Evidence |\n| --- | --- |\n| Lines | [`keeps lines`](../Module/Tests/Lines.Tests.ps1) |\n")]
         public void Parse_AMissingOrBrokenSection_IsAProblem(string markdown) {
             List<string> problems = new List<string>();
             Guarantees.Parse(markdown, file => null, problems);
@@ -49,11 +51,15 @@ namespace SiteFrames.Tests {
             while (!File.Exists(Path.Combine(root, "ConsoleMonster.sln"))) {
                 root = Path.GetDirectoryName(root) ?? throw new InvalidOperationException("The repository root was not found.");
             }
+            Site site = new Site(Path.Combine(root, "Website"));
             List<string> problems = new List<string>();
-            (_, List<Guarantees.Row> rows) = Guarantees.Parse(File.ReadAllText(Path.Combine(root, "Docs", "Concurrency-Guarantees.md")), file => new[] { "x" }, problems);
+            (List<string> notes, List<Guarantees.Row> rows) = Guarantees.Parse(File.ReadAllText(Path.Combine(root, "Docs", "Concurrency-Guarantees.md")), file => Guarantees.Runtimes(site, file), problems);
             Assert.Empty(problems);
-            JsonArray generated = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "Website", "data", "guarantees.json")))!["rows"]!.AsArray();
-            Assert.Equal(rows.Select(r => r.Guarantee + "\n" + r.Evidence), generated.Select(r => r!["guarantee"]!.GetValue<string>() + "\n" + r["evidence"]!.GetValue<string>()));
+            JsonNode data = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "Website", "data", "guarantees.json")))!;
+            Assert.Equal(notes, data["notes"]!.AsArray().Select(n => n!.GetValue<string>()));
+            Assert.Equal(
+                rows.Select(r => r.Guarantee + "\n" + r.Evidence + "\n" + string.Join("|", r.Runtimes)),
+                data["rows"]!.AsArray().Select(r => r!["guarantee"]!.GetValue<string>() + "\n" + r["evidence"]!.GetValue<string>() + "\n" + string.Join("|", r["runtimes"]!.AsArray().Select(x => x!.GetValue<string>()))));
         }
     }
 }

@@ -78,7 +78,8 @@ namespace SiteFrames {
                 }
             }
             string text = string.Join(" ", paragraph);
-            string powerShell = PowerShellRuntimes.Match(text) is { Success: true } m ? m.Groups["runtimes"].Value.Trim() : "5.1 and 7";
+            Match powerShellMatch = PowerShellRuntimes.Match(text);
+            string powerShell = powerShellMatch.Success ? powerShellMatch.Groups["runtimes"].Value.Trim() : string.Empty;
             if (text.Length > 0) {
                 notes.Add(Inline(text));
             }
@@ -93,16 +94,28 @@ namespace SiteFrames {
                     problems.Add(Source + ": a guarantees row has " + cells.Length + " cells instead of 2: " + lines[i].Trim());
                     continue;
                 }
-                List<string> files = Link.Matches(cells[1]).Select(l => l.Groups["url"].Value).Where(u => !u.Contains("://", StringComparison.Ordinal)).Select(Resolve).ToList();
-                if (files.Count == 0 || cells[1].Contains("in the same file", StringComparison.Ordinal)) {
-                    files = previousFiles.Concat(files).Distinct(StringComparer.Ordinal).ToList();
+                List<string> linked = Link.Matches(cells[1]).Select(l => l.Groups["url"].Value).Where(u => !u.Contains("://", StringComparison.Ordinal)).Select(Resolve).ToList();
+                // "in the same file" means the file the row above links; anything else must link its own test file.
+                List<string> files = cells[1].Contains("in the same file", StringComparison.Ordinal)
+                    ? previousFiles.Concat(linked).Distinct(StringComparer.Ordinal).ToList()
+                    : linked;
+                if (files.Count == 0) {
+                    problems.Add(Source + ": a guarantees row links no test file and does not say \"in the same file\": " + lines[i].Trim());
+                    continue;
                 }
-                previousFiles = files;
+                if (linked.Count > 0) {
+                    previousFiles = linked;
+                }
                 List<string> where = new List<string>();
                 foreach (string file in files) {
-                    IReadOnlyList<string>? runs = file.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ? new[] { "PowerShell " + powerShell } : runtimes(file);
+                    bool script = file.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase);
+                    if (script && powerShell.Length == 0) {
+                        problems.Add(Source + ": the section no longer says where the PowerShell tests run (\"PowerShell tests run on ...\"), which " + file + " needs.");
+                        continue;
+                    }
+                    IReadOnlyList<string>? runs = script ? new[] { "PowerShell " + powerShell } : runtimes(file);
                     if (runs == null) {
-                        problems.Add(Source + ": no test project found for " + file + ".");
+                        problems.Add(Source + ": " + file + " is outside a test project, so the table cannot say where its tests run.");
                         continue;
                     }
                     foreach (string run in runs) {
@@ -172,7 +185,7 @@ namespace SiteFrames {
         }
 
         // Where a C# test file's tests run: its project's target frameworks, by name.
-        private static IReadOnlyList<string>? Runtimes(Site site, string file) {
+        internal static IReadOnlyList<string>? Runtimes(Site site, string file) {
             string? folder = Path.GetDirectoryName(Path.Combine(site.Repository, file.Replace('/', Path.DirectorySeparatorChar)));
             while (folder != null && folder.Length >= site.Repository.Length) {
                 string? project = Directory.Exists(folder) ? Directory.GetFiles(folder, "*.csproj").FirstOrDefault() : null;
