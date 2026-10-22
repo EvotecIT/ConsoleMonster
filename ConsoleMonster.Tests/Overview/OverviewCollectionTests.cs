@@ -1,0 +1,122 @@
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using ConsoleMonster.Overview;
+using Xunit;
+
+namespace ConsoleMonster.Tests.Overview {
+    public sealed class OverviewCollectionTests {
+        [Fact]
+        public async Task SelectionPreservesRequestedOrderAndHidesUnavailableSections() {
+            OverviewSectionRegistry registry = new OverviewSectionRegistry()
+                .Register("First", "First panel", _ => Task.FromResult<OverviewSection?>(Section("provider-name")))
+                .Register("Unavailable", "Unavailable", _ => Task.FromResult<OverviewSection?>(null))
+                .Register("Empty", "Empty", _ => Task.FromResult<OverviewSection?>(new OverviewSection("Empty", "Empty", Array.Empty<OverviewItem>())))
+                .Register("Last", "Last panel", _ => Task.FromResult<OverviewSection?>(Section("Last")));
+            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { Sections = new[] { "last", "First", "FIRST", "Empty", "Unavailable" } });
+            Assert.Equal(new[] { "Last", "First" }, snapshot.Sections.Select(section => section.Name));
+            Assert.Equal("First panel", snapshot.Sections[1].Title);
+            Assert.All(snapshot.Sections, section => Assert.False(section.IsPending));
+        }
+
+        [Fact]
+        public async Task UnknownSectionFailsBeforeAnyProbeStarts() {
+            int calls = 0;
+            OverviewSectionRegistry registry = new OverviewSectionRegistry().Register("One", "One", _ => { Interlocked.Increment(ref calls); return Task.FromResult<OverviewSection?>(Section("One")); });
+            await Assert.ThrowsAsync<ArgumentException>(() => new OverviewCollector(registry).CollectAsync(new OverviewOptions { Sections = new[] { "One", "Typo" } }));
+            Assert.Equal(0, calls);
+            Assert.Throws<ArgumentException>(() => registry.Register("one", "duplicate", _ => Task.FromResult<OverviewSection?>(null)));
+        }
+
+        [Fact]
+        public async Task SlowProbeReturnsPendingWithoutHidingCompletedDataAndIsCancelled() {
+            TaskCompletionSource<bool> cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            OverviewSectionRegistry registry = new OverviewSectionRegistry()
+                .Register("Fast", "Fast", _ => Task.FromResult<OverviewSection?>(Section("Fast")))
+                .Register("Slow", "Slow", async token => {
+                    try { await Task.Delay(5000, token); return Section("Slow"); }
+                    finally { cancelled.TrySetResult(true); }
+                });
+            Stopwatch elapsed = Stopwatch.StartNew();
+            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(80), ProbeTimeout = TimeSpan.FromMilliseconds(250) });
+            Assert.True(elapsed.Elapsed < TimeSpan.FromSeconds(1), "A slow probe consumed the login deadline.");
+            Assert.False(snapshot.Sections.Single(section => section.Name == "Fast").IsPending);
+            Assert.True(snapshot.Sections.Single(section => section.Name == "Slow").IsPending);
+            Assert.Same(cancelled.Task, await Task.WhenAny(cancelled.Task, Task.Delay(2000)));
+        }
+
+        [Fact]
+        public async Task RepeatedCollectionSharesSingleInFlightSynchronousProvider() {
+            using (ManualResetEventSlim release = new ManualResetEventSlim())
+            using (ManualResetEventSlim entered = new ManualResetEventSlim()) {
+                int calls = 0;
+                OverviewSectionRegistry registry = new OverviewSectionRegistry().Register("Busy", "Busy", token => {
+                    Interlocked.Increment(ref calls);
+                    entered.Set();
+                    release.Wait(token);
+                    return Task.FromResult<OverviewSection?>(Section("Busy"));
+                });
+                Task<OverviewSnapshot> first = new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(30) });
+                try {
+                    Assert.True(entered.Wait(1000));
+                    Assert.True((await first).Sections.Single().IsPending);
+                    OverviewSnapshot second = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(30) });
+                    Assert.True(second.Sections.Single().IsPending);
+                    Assert.Equal(1, calls);
+                } finally { release.Set(); }
+                // Wait for owned work to leave the synchronization primitives before disposing them.
+                OverviewSnapshot finished = await new OverviewCollector(registry).CollectAsync();
+                Assert.False(finished.Sections.Single().IsPending);
+            }
+        }
+
+        [Fact]
+        public async Task ProviderFailureIsUnavailableAndDoesNotExposeExceptionText() {
+            OverviewSectionRegistry registry = new OverviewSectionRegistry()
+                .Register("Denied", "Denied", _ => throw new UnauthorizedAccessException("synthetic-private-detail"))
+                .Register("Good", "Good", _ => Task.FromResult<OverviewSection?>(Section("Good")));
+            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync();
+            Assert.Equal("Good", Assert.Single(snapshot.Sections).Name);
+        }
+
+        [Fact]
+        public async Task CallerCancellationDoesNotWaitForProbeTimeout() {
+            using (CancellationTokenSource stop = new CancellationTokenSource()) {
+                OverviewSectionRegistry registry = new OverviewSectionRegistry().Register("Slow", "Slow", async token => {
+                    await Task.Delay(1000, token);
+                    return null;
+                });
+                stop.Cancel();
+                await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new OverviewCollector(registry).CollectAsync(cancellationToken: stop.Token));
+            }
+        }
+
+        [Fact]
+        public async Task RealCollectionUsesSupportedReadOnlyResourceProbes() {
+            Stopwatch elapsed = Stopwatch.StartNew();
+            OverviewSnapshot snapshot = await new OverviewCollector().CollectAsync(new OverviewOptions { Sections = new[] { "Resources", "Disks", "Network", "Services" }, CollectionBudget = TimeSpan.FromMilliseconds(900) });
+            Assert.True(elapsed.Elapsed < TimeSpan.FromSeconds(2), "Real collection exceeded the bounded smoke allowance.");
+            Assert.False(string.IsNullOrWhiteSpace(snapshot.HostName));
+            Assert.False(string.IsNullOrWhiteSpace(snapshot.OperatingSystem));
+            OverviewSection resources = Assert.Single(snapshot.Sections, section => section.Name == "Resources");
+            Assert.False(resources.IsPending);
+            Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
+            Assert.Contains(resources.Items, item => item.Label == "Memory" && item.Percentage >= 0 && item.Percentage <= 100);
+            // Keep actual machine identities, addresses and observations out of fixtures and test reports.
+        }
+
+        [Theory]
+        [InlineData(0, 2000)]
+        [InlineData(901, 2000)]
+        [InlineData(750, 2001)]
+        public async Task InvalidBudgetsAreRejected(int budget, int probe) {
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => new OverviewCollector(new OverviewSectionRegistry()).CollectAsync(new OverviewOptions {
+                CollectionBudget = TimeSpan.FromMilliseconds(budget), ProbeTimeout = TimeSpan.FromMilliseconds(probe)
+            }));
+        }
+
+        private static OverviewSection Section(string name) => new OverviewSection(name, name, new[] { new OverviewItem("Observation", "Synthetic") });
+    }
+}

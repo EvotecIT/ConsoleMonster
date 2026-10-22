@@ -136,6 +136,7 @@ namespace ConsoleMonster.Export {
                     runEnd++;
                 }
                 palette.Resolve(style, out string fg, out string _, out bool _);
+                shapes.Opacity = ExportPalette.ForegroundOpacity(style, fg);
                 string? cls = styles.ClassFor(style, palette, prefix);
                 string? link = style.Link != null && ExportText.IsSafeLink(style.Link) ? style.Link : null;
                 StringBuilder chars = new StringBuilder();

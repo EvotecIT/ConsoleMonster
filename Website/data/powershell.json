@@ -738,7 +738,7 @@
     },
     {
       "verb": "Show",
-      "count": 6,
+      "count": 7,
       "commands": [
         {
           "name": "Show-Console",
@@ -764,6 +764,11 @@
           "name": "Show-ConsoleMenu",
           "synopsis": "Shows a menu until the user exits.",
           "url": "/powershell/commands/show-consolemenu/"
+        },
+        {
+          "name": "Show-ConsoleOverview",
+          "synopsis": "Shows a compact, read-only summary of the local host.",
+          "url": "/powershell/commands/show-consoleoverview/"
         },
         {
           "name": "Show-ConsoleReplay",

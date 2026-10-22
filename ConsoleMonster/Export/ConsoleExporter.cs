@@ -31,7 +31,8 @@ namespace ConsoleMonster.Export {
         /// <summary>The recording player styles (a native asset, <c>player.css</c>); see <see cref="PlayerScript"/>.</summary>
         public static string PlayerStyles => _playerStyles ??= ReadAsset("player.css");
 
-        private static string ReadAsset(string name) {
+        /// <summary>Reads a native export asset embedded with the assembly.</summary>
+        internal static string ReadAsset(string name) {
             using (Stream? stream = typeof(ConsoleExporter).Assembly.GetManifestResourceStream("ConsoleMonster.Export.Assets." + name)) {
                 if (stream == null) {
                     throw new InvalidOperationException("The embedded asset " + name + " is missing.");

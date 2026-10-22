@@ -151,8 +151,8 @@ namespace ConsoleMonster.Tests.Export {
             CellBuffer frame = new CellBuffer(4, 1);
             frame.Write(0, 0, "█▄⣿─", Style.Plain);
             string html = ConsoleExporter.ToHtml(frame, new ExportOptions { Theme = ExportTheme.Dark });
-            Assert.Contains("<span class=\"b b2588\">█</span>", html);
-            Assert.Contains(".b2584{background:linear-gradient(to top,currentColor 50%,transparent 0)}", html);
+            Assert.Contains("viewBox=\"0 0 32 16\"", html);
+            Assert.Contains("M8 8h8v8h-8z", html);
             Assert.Contains(".b28ff{background:radial-gradient(", html);
             Assert.Contains("─", html);
         }
@@ -160,8 +160,9 @@ namespace ConsoleMonster.Tests.Export {
         [Fact]
         public void AutoTheme_RendersDarkAndLightForWidgetsAndVariablesForFrames() {
             string widget = ConsoleExporter.ToHtml(Scene(), new ExportOptions { Width = 40 });
-            Assert.Contains("cm-screen cm-dark", widget);
-            Assert.Contains("cm-screen cm-light", widget);
+            string[][] screens = Regex.Matches(widget, "<pre class=\"([^\"]+)\"").Cast<Match>().Select(m => m.Groups[1].Value.Split(' ')).ToArray();
+            Assert.Contains(screens, c => c.Contains("cm-screen") && c.Contains("cm-dark"));
+            Assert.Contains(screens, c => c.Contains("cm-screen") && c.Contains("cm-light"));
             string svg = ConsoleExporter.ToSvg(Scene(), new ExportOptions { Width = 40 });
             Assert.Contains("class=\"cm-layer cm-dark\"", svg);
             Assert.Contains("class=\"cm-layer cm-light\"", svg);
