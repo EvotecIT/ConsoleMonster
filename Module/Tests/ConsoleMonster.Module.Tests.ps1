@@ -27,7 +27,9 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 112
+        $commands.Count | Should -Be 113
+        $commands.Name | Should -Contain 'Compare-ConsoleText'
+        $commands.Name | Should -Contain 'Out-ConsoleChart'
         $commands.Name | Should -Contain 'Copy-ConsoleOutput'
         $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'

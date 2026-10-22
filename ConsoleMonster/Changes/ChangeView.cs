@@ -84,45 +84,17 @@ namespace ConsoleMonster.Changes {
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) => Build(context).Render(region, context);
 
-        /// <summary>A line diff of two texts (longest common subsequence over lines).</summary>
+        /// <summary>A line diff using the shared bounded, linear-space engine; object previews ignore final-newline differences.</summary>
         /// <param name="before">The old text.</param>
         /// <param name="after">The new text.</param>
         /// <returns>The lines in order.</returns>
         public static IReadOnlyList<DiffLine> TextDiff(string? before, string? after) {
-            string[] a = (before ?? string.Empty).Replace("\r\n", "\n").Split('\n');
-            string[] b = (after ?? string.Empty).Replace("\r\n", "\n").Split('\n');
-            if ((long)a.Length * b.Length > 4_000_000) {
-                // Too large for the table: old lines, then new lines.
-                return a.Select(line => new DiffLine(ChangeKind.Removed, line)).Concat(b.Select(line => new DiffLine(ChangeKind.Added, line))).ToList();
-            }
-            int[,] lcs = new int[a.Length + 1, b.Length + 1];
-            for (int i = a.Length - 1; i >= 0; i--) {
-                for (int j = b.Length - 1; j >= 0; j--) {
-                    lcs[i, j] = a[i] == b[j] ? lcs[i + 1, j + 1] + 1 : Math.Max(lcs[i + 1, j], lcs[i, j + 1]);
-                }
-            }
-            List<DiffLine> lines = new List<DiffLine>();
-            int x = 0;
-            int y = 0;
-            while (x < a.Length && y < b.Length) {
-                if (a[x] == b[y]) {
-                    lines.Add(new DiffLine(ChangeKind.Unchanged, a[x]));
-                    x++;
-                    y++;
-                } else if (lcs[x + 1, y] >= lcs[x, y + 1]) {
-                    lines.Add(new DiffLine(ChangeKind.Removed, a[x++]));
-                } else {
-                    lines.Add(new DiffLine(ChangeKind.Added, b[y++]));
-                }
-            }
-            while (x < a.Length) {
-                lines.Add(new DiffLine(ChangeKind.Removed, a[x++]));
-            }
-            while (y < b.Length) {
-                lines.Add(new DiffLine(ChangeKind.Added, b[y++]));
-            }
-            return lines;
+            return global::ConsoleMonster.Changes.TextDiff.Compare(WithFinalNewline(before), WithFinalNewline(after))
+                .Lines.Select(line => new DiffLine(line.Kind, line.Text)).ToList();
         }
+
+        private static string? WithFinalNewline(string? text) => string.IsNullOrEmpty(text) ||
+            text!.EndsWith("\n", StringComparison.Ordinal) || text.EndsWith("\r", StringComparison.Ordinal) ? text : text + "\n";
 
         private Localization.WidgetLabels _labels = Localization.WidgetLabels.Current;
 

@@ -57,8 +57,14 @@ namespace SiteFrames {
                         return 2;
                     }
                     return ChartFigures.Review(new Site(website), only);
+                case "review-text":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return TextDiffFigures.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]; review-chart [WebsiteRoot] [output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]; review-chart|review-text [WebsiteRoot] [output]");
                     return 2;
             }
         }
@@ -122,6 +128,9 @@ namespace SiteFrames {
             if (Wants(only, "charts") || Wants(only, "docs")) {
                 ChartFigures.Capture(site);
             }
+            if (Wants(only, "docs") || Wants(only, "text-diff")) {
+                TextDiffFigures.Capture(site);
+            }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }
@@ -135,6 +144,7 @@ namespace SiteFrames {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
             ChartFigures.Render(site);
+            TextDiffFigures.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);

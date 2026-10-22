@@ -35,6 +35,11 @@ Compares two sets of objects and shows what was added, removed and changed, prop
 
 Like Compare-Object, with a much better display: objects are matched by -Property (or by Id, Name, Key and similar members), then compared property by property, nested objects by path. The view shows the counts by kind and a table of the changes in the design-system tones (added in green, removed in red, changed in yellow), with line diffs of long and multi-line values; -View picks Summary, Table, SideBySide or Unified. -PassThru returns the structured changes (ConsoleMonster.Changes.ObjectChange) instead.
 
+### [Compare-ConsoleText](Compare-ConsoleText.md)
+Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.
+
+Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceName and DifferenceName override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.
+
 ### [Copy-ConsoleOutput](Copy-ConsoleOutput.md)
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
 
