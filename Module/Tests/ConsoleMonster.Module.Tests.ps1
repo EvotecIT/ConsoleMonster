@@ -1,4 +1,4 @@
-﻿Describe 'ConsoleMonster module' {
+Describe 'ConsoleMonster module' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -27,12 +27,13 @@
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 120
+        $commands.Count | Should -Be 121
         $commands.Name | Should -Contain 'Compare-ConsoleText'
         foreach ($name in 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
             'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp') {
             $commands.Name | Should -Contain $name
         }
+        $commands.Name | Should -Contain 'Out-ConsoleChart'
         $commands.Name | Should -Contain 'Copy-ConsoleOutput'
         $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'

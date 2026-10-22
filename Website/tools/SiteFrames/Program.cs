@@ -53,6 +53,12 @@ namespace SiteFrames {
                     return CaptureAll(new Site(website), only);
                 case "readme":
                     return Readme.Sync(new Site(website));
+                case "review-chart":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass the review output directory as the third argument.");
+                        return 2;
+                    }
+                    return ChartFigures.Review(new Site(website), only);
                 case "review-text":
                     if (only == null) {
                         Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
@@ -66,7 +72,7 @@ namespace SiteFrames {
                     }
                     return AppPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text|app-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|app-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -127,6 +133,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "charts") || Wants(only, "docs")) {
+                ChartFigures.Capture(site);
+            }
             if (Wants(only, "docs") || Wants(only, "text-diff")) {
                 TextDiffFigures.Capture(site);
             }
@@ -145,6 +154,7 @@ namespace SiteFrames {
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
+            ChartFigures.Render(site);
             TextDiffFigures.Render(site);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
