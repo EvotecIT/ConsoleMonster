@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- `Show-ConsoleObject` explores nested members with lazy expansion, breadcrumbs, search and keyboard selection. `-PassThru` returns the selected value, and `-PassThru Path` returns its PowerShell expression. Redirected and non-interactive sessions print the static inspector.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.
 - Hosted-service dashboard durations measure each service's lifetime with a monotonic clock and freeze at its own stop, completion or failure, preserving the result through host shutdown.
 - `Enable-ConsoleFormatting -Feature Streams` colors native warning, verbose and debug messages with the active theme, plus errors on PowerShell 7.2+. Included in `All`; disabling or removing the module restores the original settings. PowerShell keeps its stream commands, prefixes, preferences, redirection and transcripts.

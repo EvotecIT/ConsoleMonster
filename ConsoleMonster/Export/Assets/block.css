@@ -1,0 +1,4 @@
+.cm-export .cm-screen .b{position:relative}
+.cm-export .cm-screen .b svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;shape-rendering:crispEdges}
+.cm-export .cm-screen{position:relative}
+.cm-export .cm-screen>.cm-paint{position:absolute;left:__PADDING__px;top:__PADDING__px;width:calc(100% - __INSET__px);height:calc(100% - __INSET__px);overflow:visible;pointer-events:none;user-select:none;shape-rendering:crispEdges}

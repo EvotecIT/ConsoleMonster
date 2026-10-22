@@ -24,9 +24,12 @@ namespace ConsoleMonster.Export {
     /// <summary>
     /// Writes frames as HTML: a <c>pre</c> per rendering, one text line per row, styled runs as inline blocks one line tall
     /// (so backgrounds meet without gaps), and glyphs a fallback font could draw at another width (wide, braille, symbols)
-    /// in boxes exactly one or two cells wide, so the grid never drifts. Text stays selectable and copies as lines.
+    /// in boxes exactly one or two cells wide, so the grid never drifts. Blocks share SVG's geometry in one screen-wide
+    /// coordinate space, so adjacent rows snap to the same device pixels. Text stays selectable and copies as lines.
     /// </summary>
     internal static class HtmlFrameWriter {
+        private static readonly string ScreenStart = ConsoleExporter.ReadAsset("screen-start.html").TrimEnd('\r', '\n');
+
         public static string Write(IReadOnlyList<ExportLayer> layers, ExportOptions options) {
             StringBuilder body = new StringBuilder();
             HtmlStyles styles = new HtmlStyles();
@@ -40,7 +43,7 @@ namespace ConsoleMonster.Export {
                 body.Append("</span></div>");
             }
             foreach (ExportLayer layer in layers) {
-                body.Append("<pre class=\"cm-screen");
+                body.Append("<pre class=\"cm-screen ").Append(styles.ScreenHeightClass(layer.Frame.Height, options.CellHeight));
                 if (layer.Scheme != null) {
                     body.Append(" cm-").Append(layer.Scheme);
                 }
@@ -50,8 +53,10 @@ namespace ConsoleMonster.Export {
                     ExportText.AppendEscaped(body, options.Title);
                     body.Append('"');
                 }
-                body.Append('>');
+                // A non-text token preserves an initial LF that HTML's pre parser would otherwise discard.
+                body.Append('>').Append(ScreenStart);
                 AppendRows(body, layer.Frame, layer.Palette, styles, (layer.Scheme ?? "s").Substring(0, 1));
+                HtmlBlockPaint.AppendFrame(body, layer.Frame, layer.Palette);
                 body.Append("</pre>");
             }
             if (options.WindowChrome) {
@@ -111,6 +116,9 @@ namespace ConsoleMonster.Export {
             css.Append(".cm-export .cm-screen span,.cm-export .cm-screen a{display:inline-block;vertical-align:top;height:").Append(ExportText.Num(cell)).Append("px}\n");
             css.Append(".cm-export .cm-screen a{color:inherit;text-decoration:none}\n.cm-export .cm-screen a:hover{text-decoration:underline}\n");
             css.Append(".cm-export .cm-screen .n{width:1ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .w{width:2ch;text-align:center;overflow:visible}\n");
+            css.Append(ConsoleExporter.ReadAsset("block.css")
+                .Replace("__PADDING__", options.Padding.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                .Replace("__INSET__", (options.Padding * 2).ToString(System.Globalization.CultureInfo.InvariantCulture)));
             if (layers.Count > 1) {
                 css.Append(".cm-export .cm-light{display:none}\n@media (prefers-color-scheme: light){.cm-export .cm-dark{display:none}.cm-export .cm-light{display:block}}\n");
             }
@@ -122,11 +130,11 @@ namespace ConsoleMonster.Export {
                 if (y > 0) {
                     sb.Append('\n');
                 }
-                AppendRow(sb, frame, y, palette, styles, prefix);
+                AppendRow(sb, frame, y, palette, styles, prefix, false);
             }
         }
 
-        internal static void AppendRow(StringBuilder sb, CellBuffer frame, int y, ExportPalette palette, HtmlStyles styles, string prefix) {
+        internal static void AppendRow(StringBuilder sb, CellBuffer frame, int y, ExportPalette palette, HtmlStyles styles, string prefix, bool paintBlocks = true) {
             int end = ContentEnd(frame, y);
             int x = 0;
             while (x < end) {
@@ -160,11 +168,27 @@ namespace ConsoleMonster.Export {
                     }
                     string? block = styles.BlockClass(cell.Glyph);
                     if (block != null) {
-                        // Block elements are painted as cell backgrounds, so bars and charts have no seams between cells or
-                        // rows whatever the font; the character stays (invisible) for copying.
-                        sb.Append("<span class=\"b ").Append(block).Append("\">");
-                        ExportText.AppendEscaped(sb, cell.Glyph);
+                        int count = 1;
+                        if (SvgGlyphs.Stretches(cell.Glyph)) {
+                            while (i + count < runEnd && frame[i + count, y].Glyph == cell.Glyph && frame[i + count, y].Width == 1) {
+                                count++;
+                            }
+                        }
+                        // Reuse SVG's grid geometry and device-pixel edge snapping: separate CSS background boxes can
+                        // leave hairlines at fractional browser scales, even when their layout edges meet exactly.
+                        sb.Append("<span class=\"b ").Append(block);
+                        if (count > 1) {
+                            sb.Append(' ').Append(styles.BlockWidthClass(count));
+                        }
+                        sb.Append("\">");
+                        for (int j = 0; j < count; j++) {
+                            ExportText.AppendEscaped(sb, cell.Glyph);
+                        }
+                        if (paintBlocks && cell.Glyph[0] < '\u2800') {
+                            styles.AppendBlockPaint(sb, cell.Glyph, count);
+                        }
                         sb.Append("</span>");
+                        i += count - 1;
                     } else if (IsGridSafe(cell.Glyph)) {
                         ExportText.AppendEscaped(sb, cell.Glyph);
                     } else {
@@ -209,8 +233,17 @@ namespace ConsoleMonster.Export {
 
     /// <summary>CSS classes for the distinct cell styles of a page (per rendering, so dark and light can differ).</summary>
     internal sealed class HtmlStyles {
+        private static readonly string BlockTemplate = ConsoleExporter.ReadAsset("block.svg").TrimEnd('\r', '\n');
+        private static readonly string ScreenHeightTemplate = ConsoleExporter.ReadAsset("screen-height.css");
         private readonly Dictionary<string, string> _classes = new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly List<KeyValuePair<string, string>> _rules = new List<KeyValuePair<string, string>>();
+        private readonly SortedDictionary<int, double> _screenHeights = new SortedDictionary<int, double>();
+
+        /// <summary>Reserves the full frame grid even when trailing newlines have no natural line box.</summary>
+        public string ScreenHeightClass(int rows, double cellHeight) {
+            _screenHeights[rows] = rows * cellHeight;
+            return "cm-h" + rows.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
 
         /// <summary>The class for a style, or null when it looks like the default text.</summary>
         public string? ClassFor(Style style, ExportPalette palette, string prefix) {
@@ -251,10 +284,31 @@ namespace ConsoleMonster.Export {
         }
 
         private readonly SortedDictionary<char, string> _blocks = new SortedDictionary<char, string>();
+        private readonly SortedDictionary<int, string> _blockWidths = new SortedDictionary<int, string>();
+
+        /// <summary>A grid width for a continuous block run; paint and copied text cover the same number of cells.</summary>
+        public string BlockWidthClass(int cells) {
+            if (!_blockWidths.TryGetValue(cells, out string? name)) {
+                name = "bc" + cells.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                _blockWidths.Add(cells, name);
+            }
+            return name;
+        }
+
+        /// <summary>Paints a block run with the same crisp geometry as SVG exports, keeping its text selectable.</summary>
+        public void AppendBlockPaint(StringBuilder html, string glyph, int cells) {
+            SvgShapes shapes = new SvgShapes();
+            SvgGlyphs.Append(shapes, glyph, 0, 0, cells * 8, 16, "currentColor");
+            StringBuilder paths = new StringBuilder();
+            shapes.AppendTo(paths);
+            html.Append(BlockTemplate
+                .Replace("__WIDTH__", (cells * 8).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                .Replace("__SHAPES__", paths.ToString()));
+        }
 
         /// <summary>
-        /// The class that paints a block element (U+2580..U+259F) or a braille pattern (U+2801..U+28FF) as a background, or null
-        /// for other glyphs. Braille drawn by fonts varies widely (and Consolas has none), so its dots are painted on the grid.
+        /// The class for a painted block element (U+2580..U+259F) or braille pattern (U+2801..U+28FF), or null for other
+        /// glyphs. Block text is invisible under the vector paint; braille dots use the existing grid backgrounds.
         /// </summary>
         public string? BlockClass(string glyph) {
             if (glyph.Length != 1 || !((glyph[0] >= '\u2580' && glyph[0] <= '\u259F') || (glyph[0] > '\u2800' && glyph[0] <= '\u28FF'))) {
@@ -269,6 +323,10 @@ namespace ConsoleMonster.Export {
         }
 
         public void AppendCss(StringBuilder css) {
+            foreach (KeyValuePair<int, double> height in _screenHeights) {
+                css.Append(ScreenHeightTemplate.Replace("__CLASS__", "cm-h" + height.Key.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    .Replace("__HEIGHT__", ExportText.Num(height.Value)));
+            }
             foreach (KeyValuePair<string, string> rule in _rules) {
                 css.Append(".cm-export .").Append(rule.Key).Append('{').Append(rule.Value).Append("}\n");
             }
@@ -276,39 +334,16 @@ namespace ConsoleMonster.Export {
                 css.Append(".cm-export .cm-screen .b{width:1ch;-webkit-text-fill-color:transparent;background-repeat:no-repeat}\n");
             }
             foreach (KeyValuePair<char, string> block in _blocks) {
-                css.Append(".cm-export .").Append(block.Value).Append('{').Append(BlockRule(block.Key)).Append("}\n");
+                if (block.Key >= '\u2800') {
+                    css.Append(".cm-export .").Append(block.Value).Append('{').Append(BrailleRule(block.Key - 0x2800)).Append("}\n");
+                }
             }
-        }
-
-        private static string BlockRule(char c) {
-            const string Solid = "linear-gradient(currentColor,currentColor)";
-            if (c > '\u2800') {
-                return BrailleRule(c - 0x2800);
+            if (_blockWidths.Count > 0) {
+                string template = ConsoleExporter.ReadAsset("block-run.css");
+                foreach (KeyValuePair<int, string> width in _blockWidths) {
+                    css.Append(template.Replace("__CLASS__", width.Value).Replace("__CELLS__", width.Key.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+                }
             }
-            switch (c) {
-                case '\u2580': return "background:linear-gradient(currentColor 50%,transparent 0)";
-                case '\u2588': return "background:currentColor";
-                case '\u2590': return "background:linear-gradient(to left,currentColor 50%,transparent 0)";
-                case '\u2591': return "background:currentColor;opacity:.25";
-                case '\u2592': return "background:currentColor;opacity:.5";
-                case '\u2593': return "background:currentColor;opacity:.75";
-                case '\u2594': return "background:linear-gradient(currentColor 12.5%,transparent 0)";
-                case '\u2595': return "background:linear-gradient(to left,currentColor 12.5%,transparent 0)";
-            }
-            if (c >= '\u2581' && c <= '\u2587') {
-                return "background:linear-gradient(to top,currentColor " + Percent((c - '\u2580') / 8.0) + ",transparent 0)";
-            }
-            if (c >= '\u2589' && c <= '\u258F') {
-                return "background:linear-gradient(to right,currentColor " + Percent(('\u2590' - c) / 8.0) + ",transparent 0)";
-            }
-            int[] quadrants = { 4, 8, 1, 1 | 4 | 8, 1 | 8, 1 | 2 | 4, 1 | 2 | 8, 2, 2 | 4, 2 | 4 | 8 };
-            int mask = quadrants[c - '\u2596'];
-            List<string> layers = new List<string>();
-            if ((mask & 1) != 0) { layers.Add(Solid + " 0 0/50% 50%"); }
-            if ((mask & 2) != 0) { layers.Add(Solid + " 100% 0/50% 50%"); }
-            if ((mask & 4) != 0) { layers.Add(Solid + " 0 100%/50% 50%"); }
-            if ((mask & 8) != 0) { layers.Add(Solid + " 100% 100%/50% 50%"); }
-            return "background:" + string.Join(",", layers.ToArray()) + ";background-repeat:no-repeat";
         }
 
         // Dots 1-3 and 7 down the left column, 4-6 and 8 down the right, in a 2 by 4 grid (as the SVG writer draws them).
