@@ -105,7 +105,7 @@ namespace ConsoleMonster.PowerShell {
                 topic.Properties.Add(new PSNoteProperty("parameters", container));
                 return PSHelp.CreateView(topic, command, parametersOnly: true);
             }
-            return PSHelp.CreateView(help, command);
+            return PSHelp.CreateView(help, command, nativeSections: true);
         }
     }
 }

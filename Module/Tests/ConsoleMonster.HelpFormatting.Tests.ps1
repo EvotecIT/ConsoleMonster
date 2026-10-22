@@ -22,6 +22,43 @@ Describe 'Opt-in native help formatting contracts' {
         }
     }
 
+    It 'selects the native section set for <View>' -ForEach @(
+        @{ View = 'Default'; Parameters = $false; Examples = $false; Types = $false; Remarks = $true }
+        @{ View = 'Question'; Parameters = $false; Examples = $false; Types = $false; Remarks = $true }
+        @{ View = 'Detailed'; Parameters = $true; Examples = $true; Types = $false; Remarks = $true }
+        @{ View = 'Examples'; Parameters = $false; Examples = $true; Types = $false; Remarks = $false }
+        @{ View = 'Full'; Parameters = $true; Examples = $true; Types = $true; Remarks = $true }
+    ) {
+        $text = Invoke-HelpFormattingChild (@'
+$arguments = @{ Name = 'Get-HelpFormattingValue' }
+$view = '__VIEW__'
+if ($view -eq 'Question') { $help = Get-HelpFormattingValue -? }
+else {
+    if ($view -ne 'Default') { $arguments[$view] = $true }
+    $help = Microsoft.PowerShell.Core\Get-Help @arguments
+}
+$reader = (Get-Command Show-ConsoleHelp).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.PSHelp')
+$method = $reader.GetMethod('CreateView', [Reflection.BindingFlags]'Static,NonPublic')
+$command = (Get-Command Get-HelpFormattingValue).PSObject.BaseObject
+$widget = $method.Invoke($null, @($help, $command, $false, $false, $true))
+($widget | Export-ConsoleFrame -Format Text -Width 120) -join "`n"
+'@.Replace('__VIEW__', $View))
+        if ($View -eq 'Examples') {
+            $text | Should -Not -Match 'Reads a synthetic formatting value|HELP_DESCRIPTION|(?m)^Syntax\s*$|example\.invalid'
+        } else {
+            $text | Should -Match 'Reads a synthetic formatting value|HELP_DESCRIPTION'
+            $text | Should -Match '(?m)^Syntax\s*$'
+            $text | Should -Match 'example\.invalid/help-formatting'
+        }
+        if ($Parameters) { $text | Should -Match 'HELP_NAME_DESCRIPTION' }
+        else { $text | Should -Not -Match 'HELP_NAME_DESCRIPTION' }
+        if ($Examples) { $text | Should -Match 'HELP_EXAMPLE_REMARKS' }
+        else { $text | Should -Not -Match 'HELP_EXAMPLE_REMARKS' }
+        if ($Types) { $text | Should -Match '(?m)^Inputs\s*$'; $text | Should -Match 'HELP_NOTES' }
+        else { $text | Should -Not -Match '(?m)^Inputs\s*$|HELP_NOTES' }
+        if ($Remarks) { $text | Should -Match 'Get-Help Get-HelpFormattingValue -Examples / -Detailed / -Full' }
+    }
+
     It 'preserves native captures and file bytes for <Invocation>' -ForEach @(
         @{ Invocation = 'Get-Help Get-HelpFormattingValue' }
         @{ Invocation = 'Get-Help Get-HelpFormattingValue -Full' }

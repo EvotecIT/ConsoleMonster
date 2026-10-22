@@ -4,6 +4,11 @@
 explicit session choice on Windows PowerShell 5.1 and PowerShell 7. It stays out of `-Feature All`, because help objects
 are also useful script output and the interception of native formatting should be a deliberate choice.
 
+Default help and `-?` show the name, synopsis, syntax, description, links and a muted remarks hint. `-Detailed` adds
+parameters and examples; `-Examples` shows examples only; `-Full` shows every section. The pager separates its status
+from the content with a muted rule, reports the current page and total, and supports Space for next, b for back and q
+for quit.
+
 ```powershell
 Import-Module ConsoleMonster
 Enable-ConsoleFormatting -Feature Help

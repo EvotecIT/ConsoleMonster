@@ -12,7 +12,7 @@ if ($Formatted) {
     Enable-ConsoleFormatting -Feature Help
 }
 if ($Paged) {
-    $keys = [ConsoleMonster.Input.ScriptedInput]::new('wait:300 q Space')
+    $keys = [ConsoleMonster.Input.ScriptedInput]::new('wait:300 Space wait:150 b wait:150 q Space')
     $keys.RealTime = $true
     [ConsoleMonster.Input.ConsoleInput]::Override = $keys
 }
@@ -20,7 +20,7 @@ try {
     & { . $ExamplePath } | Out-Default
     if ($Paged -and ([ConsoleMonster.Input.ConsoleInput]::Override.Remaining -ne 1 -or
         [ConsoleMonster.Input.ConsoleInput]::IsAcquired)) {
-        throw 'Help pager did not quit after the first page and release input.'
+        throw 'Help pager did not navigate forward/back, quit and release input.'
     }
 } catch {
     if ($DiagnosticPath) {

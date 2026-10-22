@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
         private static readonly Regex ExampleNumber = new Regex(@"^-*\s*example\s+\d+\s*-*\s*:?\s*", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         /// <summary>Builds the one shared help view, selecting the sections requested by native Get-Help.</summary>
-        internal static Widgets.HelpView CreateView(PSObject help, CommandInfo? command, bool noExamples = false, bool parametersOnly = false) {
+        internal static Layout.IWidget CreateView(PSObject help, CommandInfo? command, bool noExamples = false, bool parametersOnly = false, bool nativeSections = false) {
             HelpTopic topic = Read(help, command);
             if (parametersOnly) {
                 topic.CommonParameters = false;
@@ -26,20 +26,29 @@ namespace ConsoleMonster.PowerShell {
                 topic.Notice = null;
             }
             if (HasView(help, "ExamplesView")) {
-                topic.Syntax.Clear();
-                topic.Description.Clear();
-                topic.Parameters.Clear();
-                topic.CommonParameters = false;
-                topic.Inputs.Clear();
-                topic.Outputs.Clear();
-                topic.Notes.Clear();
-                topic.Links.Clear();
-            } else if (HasView(help, "DetailedView")) {
+                HelpTopic examples = new HelpTopic(string.Empty);
+                foreach (HelpExample example in topic.Examples) { examples.Examples.Add(example); }
+                return new Widgets.HelpView(examples) { ShowExamples = !noExamples };
+            }
+            bool detailed = HasView(help, "DetailedView");
+            bool full = HasView(help, "FullView");
+            if (detailed || (!full && !parametersOnly)) {
                 topic.Inputs.Clear();
                 topic.Outputs.Clear();
                 topic.Notes.Clear();
             }
-            return new Widgets.HelpView(topic) { ShowExamples = !noExamples };
+            if (!detailed && !full && !parametersOnly) {
+                topic.Parameters.Clear();
+                topic.CommonParameters = false;
+                topic.Examples.Clear();
+            }
+            Widgets.HelpView view = new Widgets.HelpView(topic) { ShowExamples = !noExamples };
+            if (!nativeSections || parametersOnly) { return view; }
+            Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
+            string hint = string.Format(profile.Culture, HelpMessages.Get("MoreHelp", profile.Language), topic.Name);
+            return new Layout.Rows(view, Widgets.TextBlock.Plain(string.Empty),
+                Widgets.TextBlock.Plain(HelpMessages.Get("Remarks", profile.Language), Styling.ThemeToken.Accent),
+                new Layout.Padding(Widgets.TextBlock.Plain(hint, Styling.ThemeToken.Muted), 2, 0, 0, 0));
         }
 
         private static bool HasView(PSObject help, string view) {

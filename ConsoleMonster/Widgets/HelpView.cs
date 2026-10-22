@@ -58,7 +58,7 @@ namespace ConsoleMonster.Widgets {
             Rows rows = new Rows();
             Style title = context.Style(ThemeToken.Title).With(TextDecoration.Bold);
             List<TextSpan> head = new List<TextSpan> { new TextSpan(Topic.Name, title) };
-            rows.Add(new LineBlock(new[] { new StyledLine(head) }, 0, 0));
+            if (Topic.Name.Length > 0) { rows.Add(new LineBlock(new[] { new StyledLine(head) }, 0, 0)); }
             if (HasSynopsis()) {
                 rows.Add(Paragraph(Topic.Synopsis!, context, 0));
             }

@@ -12,9 +12,30 @@ SYNOPSIS
     font change).
     
     
-    EXAMPLE 1
+SYNTAX
+    Get-ConsoleCapability [-Refresh <SwitchParameter>] 
+    [<CommonParameters>]
     
-    Get-ConsoleCapability | Select-Object -ExpandProperty 
-    Decisions
     
-    Show the profile and the decisions[25;1H[?25h[?9001l[?1004l
+DESCRIPTION
+    Shows what ConsoleMonster detected about the current 
+    terminal.
+    
+    Returns the terminal profile: kind, mode (Interactive, 
+    Stream, Plain), colour depth, glyph tier, size, VT 
+    support, console font and the reasons behind each 
+    decision. -Refresh detects again (after a resize or 
+    font change).
+    [32;1HRELATED LINKS[?25h
+
+REMARKS
+    To see the examples, type: "get-help
+    Get-ConsoleCapability -examples".
+    For more information, type: "get-help
+    Get-ConsoleCapability -detailed".
+    For technical information, type: "get-help
+    Get-ConsoleCapability -full".
+
+
+
+[?9001l[?1004l

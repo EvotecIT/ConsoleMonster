@@ -6,6 +6,38 @@ terminal.[38;2;37;99;235m[1m[5;1HSyntax[m
   terminal.[12;1H  Returns the terminal profile: kind, mode (Interactive,
   Stream, Plain), colour depth, glyph tier, size, VT
   support, console font and the reasons behind each
-  decision. -Refresh detects again (after a resize or font
-  change).[38;2;107;114;128m
-Space next · q quit[?25h[m[19X[?9001l[?1004l
+  decision. -Refresh detects again (after a resize or font[38;2;107;114;128m
+───────────────────────────────────────────────────────────
+Page 1 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[?25h[m[42X  change).
+
+[38;2;37;99;235m[1mParameters[m[K
+  [38;2;107;114;128m1 record[K[m
+
+  [38;2;17;24;39m[1m-Refresh[m[K
+    [38;2;107;114;128mType         switch[K[m
+    [38;2;107;114;128mRequired     no[K[m
+    [38;2;107;114;128mPosition     named[K[m
+    [38;2;107;114;128mPipeline     no[K[m
+    [38;2;107;114;128mDescription  [mDetect again instead of returning the      [18;1H
+                 cached profile.
+  [38;2;107;114;128mCommon parameters: -Debug, -ErrorAction, -ErrorVariable,  [18;1H[m
+  [38;2;107;114;128m-InformationAction, -OutVariable, -Verbose,[K[m
+  [38;2;107;114;128m-WarningAction and the others (about_CommonParameters).   [18;1H[m
+[38;2;107;114;128m─────────────────────────────────────────────────────────── [18;1H[m
+[38;2;107;114;128mPage 2 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[K[m[42X[38;2;17;24;39m[1mGet-ConsoleCapability[m
+Shows what ConsoleMonster detected about the current        
+terminal.
+
+[38;2;37;99;235m[1mSyntax[m[K
+  [38;2;17;24;39m[1mGet-ConsoleCapability[m [38;2;212;212;216m[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>]     [18;1H[m
+
+[38;2;37;99;235m[1mDescription[m[K
+  Shows what ConsoleMonster detected about the current      
+  terminal.
+
+  Returns the terminal profile: kind, mode (Interactive,    
+  Stream, Plain), colour depth, glyph tier, size, VT        
+  support, console font and the reasons behind each
+  decision. -Refresh detects again (after a resize or font  
+[38;2;107;114;128m─────────────────────────────────────────────────────────── [18;1H[m
+[38;2;107;114;128mPage 1 of 3 · [38;2;37;99;235mSpace [38;2;107;114;128mnext · [38;2;37;99;235mb [38;2;107;114;128mback · [38;2;37;99;235mq [38;2;107;114;128mquit[K[m[42X[?9001l[?1004l

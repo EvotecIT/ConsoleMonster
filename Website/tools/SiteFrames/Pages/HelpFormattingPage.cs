@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Export;
+using System.Text.RegularExpressions;
 using SiteFrames.Capture;
 using SiteFrames.Frames;
 using SiteFrames.Vt;
@@ -103,22 +105,26 @@ namespace SiteFrames.Pages {
             }
         }
 
-        /// <summary>Captures real help and writes standalone HTML/text review frames, without starting a browser.</summary>
-        public static int Review(Site site, string scratch) {
+        /// <summary>Captures real help and writes standalone HTML, SVG and text review frames.</summary>
+        /// <param name="site">The site's canonical source and capture paths.</param>
+        /// <param name="scratch">The directory receiving the review exports.</param>
+        /// <param name="reuseCaptures">Uses existing captures after verifying their source fingerprints.</param>
+        /// <returns>Zero when every host and frame passes; otherwise one.</returns>
+        public static int Review(Site site, string scratch, bool reuseCaptures = false) {
             Dictionary<string, string> failures = new Dictionary<string, string>(StringComparer.Ordinal);
-            Capture(site, failures);
+            if (!reuseCaptures) { Capture(site, failures); }
             Directory.CreateDirectory(scratch);
             JsonObject evidence = new JsonObject();
-            StringBuilder index = new StringBuilder("<h1>Native host help</h1><p>Complete runnable scripts, captured through ConPTY. Before and after use Get-Help Get-ConsoleCapability -Examples.</p><ul>");
+            StringBuilder index = new StringBuilder("<h1>Native host help</h1><p>Complete runnable scripts, captured through ConPTY. Before and after use default Get-Help Get-ConsoleCapability.</p><ul>");
             foreach (PowerShellHost host in PowerShellHost.All) {
                 foreach (int width in Widths) {
                     foreach (string theme in Themes) {
                         ParityResult? parity = null;
                         if (!failures.ContainsKey(Id("show-consolehelp", host, width, theme)) && !failures.ContainsKey(Id("command-help", host, width, theme))) {
-                            parity = Parity.Compare(Frame(site, "show-consolehelp", host, width, theme), Frame(site, "command-help", host, width, theme));
+                            parity = Parity.Compare(Frame(site, "get-help", host, width, theme), Frame(site, "command-help", host, width, theme));
                         }
                         if (parity != null && !parity.Identical) {
-                            throw new InvalidOperationException(Id("command-help", host, width, theme) + " differs from Show-ConsoleHelp: " + parity.Detail);
+                            throw new InvalidOperationException(Id("command-help", host, width, theme) + " differs from default Get-Help: " + parity.Detail);
                         }
                         foreach (string example in Examples) {
                             string id = Id(example, host, width, theme);
@@ -135,6 +141,10 @@ namespace SiteFrames.Pages {
                                 + "<details><summary>" + example + ".ps1</summary><pre><code>" + WebUtility.HtmlEncode(Site.ReadText(Script(site, example))) + "</code></pre></details>";
                             site.Write(Path.Combine(scratch, id + ".html"), Document(site, html, theme));
                             site.Write(Path.Combine(scratch, id + ".txt"), Parity.Describe(frame));
+                            site.Write(Path.Combine(scratch, id + ".svg"), ConsoleExporter.ToSvg(frame, new ExportOptions {
+                                Theme = theme == "dark" ? ExportTheme.Dark : ExportTheme.Light,
+                                Title = host.Label + " · " + width + " columns · " + Title(example), WindowChrome = true
+                            }));
                             index.Append("<li><a href=\"").Append(id).Append(".html\">").Append(WebUtility.HtmlEncode(id)).Append("</a></li>");
                             evidence[id] = new JsonObject {
                                 ["capture"] = Path.GetRelativePath(site.Website, CapturePath(site, id)).Replace('\\', '/'),
@@ -162,16 +172,14 @@ namespace SiteFrames.Pages {
             string? stale = Stamps.Check(site, path, Fingerprint(site, example, width, theme), "help-formatting");
             if (stale != null) { throw new InvalidOperationException(stale); }
             string vt = File.ReadAllText(path, Encoding.UTF8);
+            CellBuffer frame;
             if (example == "help") {
-                // The real pager erases its footer on q. Replay only what it emitted up to the first hint.
-                const string end = " q quit";
-                int footer = vt.IndexOf(end, StringComparison.Ordinal);
-                if (footer < 0) { throw new InvalidOperationException(id + " did not emit its real pager footer."); }
-                vt = vt.Substring(0, footer + end.Length);
+                frame = FirstPage(vt, id, width);
+            } else {
+                VtScreen screen = new VtScreen(width, Height(example));
+                screen.Feed(vt);
+                frame = Parity.Trim(screen.Transcript());
             }
-            VtScreen screen = new VtScreen(width, Height(example));
-            screen.Feed(vt);
-            CellBuffer frame = Parity.Trim(screen.Transcript());
             string text = Parity.Describe(frame);
             if (!text.Contains("Get-ConsoleCapability", StringComparison.Ordinal) || text.Contains("HelpFormatting.ps1:", StringComparison.Ordinal)) {
                 throw new InvalidOperationException(id + " did not capture clean installed-module help.");
@@ -179,11 +187,34 @@ namespace SiteFrames.Pages {
             return frame;
         }
 
+        // ConPTY may update just the page number; replay the cells instead of matching repeated raw strings.
+        private static CellBuffer FirstPage(string vt, string id, int width) {
+            VtScreen replay = new VtScreen(width, Height("help"));
+            List<string> pages = new List<string>();
+            CellBuffer? first = null;
+            foreach (char character in vt) {
+                replay.Feed(character.ToString());
+                if (first == null && character == 't') {
+                    CellBuffer candidate = replay.Transcript();
+                    if (Parity.Describe(candidate).Contains("q quit", StringComparison.Ordinal)) { first = Parity.Trim(candidate); }
+                }
+                if (!char.IsDigit(character)) { continue; }
+                MatchCollection matches = Regex.Matches(Parity.Describe(replay.Transcript()), @"Page ([0-9]+) of ([0-9]+)");
+                if (matches.Count == 0) { continue; }
+                string page = matches[matches.Count - 1].Groups[1].Value;
+                if (pages.Count == 0 || pages[pages.Count - 1] != page) { pages.Add(page); }
+            }
+            if (string.Join(",", pages) != "1,2,1") {
+                throw new InvalidOperationException(id + " did not navigate page 1, page 2, then back to page 1: " + string.Join(",", pages));
+            }
+            return first ?? throw new InvalidOperationException(id + " did not draw its first-page status line.");
+        }
+
         private static string Title(string example) => example switch {
             "native" => "Native Get-Help",
             "get-help" => "Get-Help with Help formatting",
             "command-help" => "Native -? with Help formatting",
-            "help" => "help -Full · first page · Space next · q quit",
+            "help" => "help -Full · page position · Space next · b back · q quit",
             _ => "Show-ConsoleHelp"
         };
 

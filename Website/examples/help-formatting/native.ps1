@@ -1,3 +1,3 @@
 ﻿Import-Module ConsoleMonster
 
-Get-Help Get-ConsoleCapability -Examples
+Get-Help Get-ConsoleCapability
