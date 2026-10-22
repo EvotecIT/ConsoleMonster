@@ -329,7 +329,8 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
   .cm-prose .cm-guarantees td { padding: 3px 0; border: 0; }
   .cm-guarantees td::before { content: attr(data-label); display: block; font: 600 12px/1.4 var(--cm-mono); color: var(--cm-muted); }
   .cm-guarantees__runs span { display: inline-block; }
-  .cm-guarantees__runs span + span::before { content: " · "; }
+  .cm-guarantees__runs span + span { margin-left: .45em; }
+  .cm-guarantees__runs span + span::before { content: "· "; }
 }
 .cm-prose .cm-guarantees + .cm-guarantees__note { margin-top: -0.8em; color: var(--cm-muted); font-size: 14px; }
 .cm-prose blockquote { margin: 1.4em 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--cm-accent); color: var(--cm-ink-2); }
