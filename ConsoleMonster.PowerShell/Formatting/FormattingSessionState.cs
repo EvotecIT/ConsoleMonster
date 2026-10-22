@@ -19,6 +19,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal bool TakeOverBuiltIns { get; set; } = true;
         internal ConsoleFormattingFeature Features { get; set; }
+        internal bool DetailedErrors { get; set; }
         internal ScriptBlock? SavedOutDefault { get; set; }
         internal string? SavedWriteProgressAlias { get; set; }
         internal bool ProgressEnabled { get; set; }
@@ -37,6 +38,7 @@ namespace ConsoleMonster.PowerShell {
             Streams.Restore();
             SessionProgress.Reset(Progress);
             Features = ConsoleFormattingFeature.None;
+            DetailedErrors = false;
             ProgressEnabled = false;
             TakeOverBuiltIns = true;
             SavedOutDefault = null;

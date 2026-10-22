@@ -40,13 +40,13 @@ Keep the views, go back to PowerShell's progress
 ## PARAMETERS
 
 ### -Feature
-What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.
+What to turn off: Output, ErrorView, Progress, Streams, FormatCommands, Errors or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands and Errors. Explicit All retains those separate opt-ins.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All
+Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All, Errors
 
 Required: False
 Position: named

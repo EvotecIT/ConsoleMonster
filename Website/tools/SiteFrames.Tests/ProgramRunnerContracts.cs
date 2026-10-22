@@ -4,6 +4,7 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 using SiteFrames;
 using SiteFrames.Capture;
+using SiteFrames.Pages;
 using Xunit;
 
 namespace SiteFrames.Tests {
@@ -19,6 +20,25 @@ namespace SiteFrames.Tests {
             string path = Path.Combine(_folder, name + ".cs");
             File.WriteAllText(path, code);
             return path;
+        }
+
+        [Fact]
+        public void CompactErrorProgramCompilesAndExportsAllReviewSizesAndThemes() {
+            // CSharpRunner temporarily owns process-wide console writers. Keep its executable-example proofs in this
+            // existing class so xUnit does not run another renderer against those same writers and compiler cache.
+            string directory = Path.Combine(_folder, "error-frames");
+            Site site = new Site(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../..")));
+            ErrorFigures.ExportReview(site, directory);
+            Assert.Equal(4, Directory.GetFiles(directory, "*.html").Length);
+            foreach (int width in new[] { 60, 120 }) {
+                string text = ErrorFigures.Run(site, width, Theme.Dark).ToPlainText();
+                Assert.StartsWith("Error: Cannot load the inventory", text, StringComparison.Ordinal);
+                Assert.Contains("deploy.ps1:12:1", text, StringComparison.Ordinal);
+                Assert.Contains("+2 inner exceptions", text, StringComparison.Ordinal);
+                Assert.Contains("ObjectNotFound", text, StringComparison.Ordinal);
+                Assert.Contains("./inventory.json", text, StringComparison.Ordinal);
+                Assert.DoesNotContain("Caused by", text, StringComparison.Ordinal);
+            }
         }
 
         [Fact]

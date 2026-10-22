@@ -36,8 +36,26 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The PowerShell position message ("At C:\x.ps1:12 char:5" with the line and the marker), or null.</summary>
         public string? PositionMessage { get; set; }
 
+        /// <summary>The original invocation line, without the host's position-message prefixes.</summary>
+        public string? SourceLine { get; set; }
+
+        /// <summary>The invocation's script path, when known.</summary>
+        public string? ScriptPath { get; set; }
+
+        /// <summary>The one-based source line number, or zero when unavailable.</summary>
+        public int LineNumber { get; set; }
+
+        /// <summary>The one-based UTF-16 offset of the failing expression, or zero when unavailable.</summary>
+        public int ColumnNumber { get; set; }
+
+        /// <summary>The failing expression's length in UTF-16 characters (default one).</summary>
+        public int ErrorLength { get; set; } = 1;
+
         /// <summary>The PowerShell category and reason, for example "ObjectNotFound (C:\missing:String)", or null.</summary>
         public string? Category { get; set; }
+
+        /// <summary>The PowerShell error target, when supplied by the producer.</summary>
+        public string? Target { get; set; }
 
         /// <summary>The PowerShell error id, for example "PathNotFound,Microsoft.PowerShell.Commands.GetItemCommand", or null.</summary>
         public string? ErrorId { get; set; }

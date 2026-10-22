@@ -30,6 +30,60 @@ Get-Process | Format-Table Name, Id > ./processes.txt
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 
+## Compact host errors
+
+`Errors` is a separate opt-in for a message-first error view. It is excluded from `All` because changing an everyday
+error display should be an explicit session choice. Error-producing commands remain native.
+
+```powershell
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting -Feature Errors
+
+# At the prompt, errors use the compact view.
+try { [int]::Parse('production') } catch { $_ | Format-ConsoleError -Compact }
+
+# Include script and .NET stacks in subsequent host errors.
+Enable-ConsoleFormatting -Feature Errors -Detailed
+Disable-ConsoleFormatting -Feature Errors
+```
+
+The message comes first. Only its label uses the error tone; the invocation line uses the PowerShell highlighter and a
+caret marks the failing expression. The script, line and column come from `InvocationInfo`. Category and target stay
+visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Get-Error for details` hint. `-Detailed`
+includes stacks and causes. `Format-ConsoleError -Compact` provides the same view explicitly, including `-AsWidget`
+and exports.
+
+`$ErrorView` is never changed: `NormalView` and `ConciseView` remain available after disabling the feature;
+`CategoryView` retains its native rendering even while Errors is enabled. `Get-Error` retains its native detailed view.
+Records, `$Error`, `-ErrorVariable`, `2>`, `try`/`catch`, `$?` and `$ErrorActionPreference` keep PowerShell's behavior.
+Pipelines, variables, files, jobs, remoting, CI, transcripts and unknown output routes retain native rendering.
+An existing `Out-Default` function requires `-Force` and is restored exactly on disable or module removal.
+
+The shared .NET view accepts structured invocation data from any host:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var error = new ExceptionInfo("FormatException", "The inventory number is invalid.") {
+    SourceLine = "[int]::Parse('production')",
+    ScriptPath = "deploy.ps1",
+    LineNumber = 12,
+    ColumnNumber = 1,
+    ErrorLength = 26
+};
+Terminal.Write(new ExceptionView(error) { Compact = true, ShowStack = false });
+```
+
+| Guarantee | Proof |
+| --- | --- |
+| Captures and file bytes stay native | `ConsoleMonster.ErrorFormatting.Tests.ps1`: “keeps records, continuation, Out-String, Out-File and redirection byte-for-byte native”; the same snapshot runs in `Assert-ErrorFormattingHost.ps1` with an attached console. |
+| Records, preferences and error accounting stay native | “keeps error records, ErrorVariable, preferences, catch and success status native”. |
+| Jobs stay native | “leaves job output native when Errors is enabled inside the job”. |
+| Explicit installation and exact restoration | “excludes Errors from All and prints its explicit Detailed profile snippet”; “restores the original Out-Default exactly on disable and module removal”. |
+| Shared cells and transcript fallback at the actual prompt | `Assert-ErrorFormattingHost.ps1`, separate prompt pipelines on Windows PowerShell 5.1 and PowerShell 7. |
+| Layout, source marker and tones | `CompactExceptionViewTests`: `CompactMessageInvocationAndFoldedCausesFitTheBudget`, `InvocationMarkerUsesTerminalCellsInsteadOfUtf16Offsets`, `CompactLabelAloneUsesFailureToneAndProfileLanguage`. |
+
 ## Native stream colors
 
 Use `Streams` to give PowerShell's own messages the active theme's warning, information, muted and failure tones. Choose the theme before enabling it, or re-enable `Streams` to apply a new theme.

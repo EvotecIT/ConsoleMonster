@@ -13,7 +13,7 @@ Takes ErrorRecords (from $Error, $_ in a catch block, -ErrorVariable) and .NET e
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleError [[-InputObject] <Object>] [-AsWidget] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
+Format-ConsoleError [[-InputObject] <Object>] [-AsWidget] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -73,6 +73,22 @@ Accept wildcard characters: False
 
 ### -AsWidget
 Returns the views instead of writing them.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Compact
+Uses the message-first everyday error layout, highlighted invocation and folded inner exceptions. Stacks remain hidden unless -ShowFrameworkFrames is requested.
 
 ```yaml
 Type: SwitchParameter

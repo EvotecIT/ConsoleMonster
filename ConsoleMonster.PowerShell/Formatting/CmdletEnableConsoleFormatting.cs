@@ -23,9 +23,14 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</para>
     ///   <code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</code>
     /// </example>
+    /// <example>
+    ///   <para>Compact errors at the prompt; use -Detailed to include stacks. All does not enable this feature.</para>
+    ///   <code>Enable-ConsoleFormatting -Feature Errors; Enable-ConsoleFormatting -Feature Errors -Detailed -ProfileSnippet</code>
+    /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting")]
     public sealed class CmdletEnableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <summary><para type="description">What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), Errors (explicit compact host errors; -Detailed includes stacks; excluded from All), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.</para></summary>
+        /// <remarks>Errors is a separate opt-in for message-first errors on a direct, local, non-transcribed console. It preserves $ErrorView, CategoryView and Get-Error; -Detailed adds stacks. It never replaces an error-producing cmdlet or changes error records, preferences or redirection.</remarks>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
@@ -41,6 +46,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter ProfileSnippet { get; set; }
 
+        /// <summary><para type="description">Includes script and .NET stack frames in the opt-in Errors layout. Used only with -Feature Errors; the default layout folds inner exceptions and hides stacks.</para></summary>
+        [Parameter]
+        public SwitchParameter Detailed { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             ConsoleFormattingFeature wanted = ConsoleFormattingFeature.None;
@@ -49,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
             }
             if (ProfileSnippet.IsPresent) {
                 foreach (string line in ConsoleFormatting.ProfileSnippet(Convert.ToString(SessionState.PSVariable.GetValue("PROFILE"), System.Globalization.CultureInfo.InvariantCulture), NoBuiltIn.IsPresent, Force.IsPresent, wanted)) {
-                    WriteObject(line);
+                    WriteObject(Detailed.IsPresent && line.StartsWith("Enable-ConsoleFormatting", StringComparison.Ordinal) ? line + " -Detailed" : line);
                 }
                 return;
             }
@@ -91,6 +100,9 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.Streams.Apply(this);
             }
             ConsoleFormatting.Features |= wanted;
+            if ((wanted & ConsoleFormattingFeature.Errors) != 0) {
+                FormattingSessionState.Current.DetailedErrors = Detailed.IsPresent;
+            }
             if (!ours) {
                 SessionState.InvokeProvider.Item.Set("function:global:Out-Default", ScriptBlock.Create(ConsoleFormatting.ShimScript));
             }
@@ -133,14 +145,14 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting")]
     public sealed class CmdletDisableConsoleFormatting : PSCmdlet {
-        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.</para></summary>
+        /// <summary><para type="description">What to turn off: Output, ErrorView, Progress, Streams, FormatCommands, Errors or All (Output, ErrorView, Progress and Streams). Streams restores exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands and Errors. Explicit All retains those separate opt-ins.</para></summary>
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
             ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.FormatCommands }) {
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.FormatCommands | ConsoleFormattingFeature.Errors }) {
                 off |= feature;
             }
             if ((off & ConsoleFormattingFeature.Progress) != 0) {
@@ -153,6 +165,7 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.Streams.Restore();
             }
             ConsoleFormatting.Features &= ~off;
+            if ((off & ConsoleFormattingFeature.Errors) != 0) { FormattingSessionState.Current.DetailedErrors = false; }
             if ((ConsoleFormatting.Features & ~ConsoleFormattingFeature.Streams) != ConsoleFormattingFeature.None) {
                 return;
             }

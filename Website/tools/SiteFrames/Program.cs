@@ -45,6 +45,9 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "review-errors":
+                    ErrorFigures.ExportReview(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-errors-review"));
+                    return 0;
                 case "render":
                     return Render(new Site(website), only);
                 case "capture":

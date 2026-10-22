@@ -11,6 +11,20 @@ namespace ConsoleMonster.Localization {
     /// <see cref="For"/>. Format strings take <c>{0}</c>, <c>{1}</c> placeholders.
     /// </summary>
     public sealed class WidgetLabels {
+        /// <summary>The compact error label; only this label uses the failure tone.</summary>
+        public string ErrorLabel { get; set; } = "Error";
+
+        /// <summary>A source location without a script file.</summary>
+        public string CommandLine { get; set; } = "command line";
+
+        /// <summary>The folded inner-exception count.</summary>
+        public string InnerErrorCount { get; set; } = "+{0} inner exceptions";
+
+        /// <summary>The folded count for one inner exception.</summary>
+        public string OneInnerError { get; set; } = "+1 inner exception";
+
+        /// <summary>A PowerShell 7 next-step hint below compact errors.</summary>
+        public string GetErrorDetails { get; set; } = "Get-Error for details";
         private static readonly System.Reflection.PropertyInfo[] LabelProperties = typeof(WidgetLabels).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
         [ThreadStatic]

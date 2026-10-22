@@ -13,7 +13,7 @@ Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Servic
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Enable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [-Force] [-NoBuiltIn] [-ProfileSnippet] [<CommonParameters>]
+Enable-ConsoleFormatting [-Feature <ConsoleFormattingFeature[]>] [-Force] [-NoBuiltIn] [-ProfileSnippet] [-Detailed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,16 +51,39 @@ Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning
 
 Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour
 
+### EXAMPLE 5
+```powershell
+Enable-ConsoleFormatting -Feature Errors; Enable-ConsoleFormatting -Feature Errors -Detailed -ProfileSnippet
+```
+
+Compact errors at the prompt; use -Detailed to include stacks. All does not enable this feature.
+
 ## PARAMETERS
 
+### -Detailed
+Includes script and .NET stack frames in the opt-in Errors layout. Used only with -Feature Errors; the default layout folds inner exceptions and hides stacks.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Feature
-What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.
+Errors is a separate opt-in for message-first errors on a direct, local, non-transcribed console. It preserves $ErrorView, CategoryView and Get-Error; -Detailed adds stacks. It never replaces an error-producing cmdlet or changes error records, preferences or redirection.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All
+Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All, Errors
 
 Required: False
 Position: named

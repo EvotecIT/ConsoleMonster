@@ -29,14 +29,20 @@ namespace ConsoleMonster.PowerShell {
                 if (command == null || !string.Equals(command.Name, "Out-Default", StringComparison.OrdinalIgnoreCase) || (!native && !shim)) {
                     return false;
                 }
-                // Require readable transcription state. An engine change must fall back to native output, never guess.
-                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
-                object? transcripts = Member(data, "Transcripts");
-                object? system = Member(data, "SystemTranscript");
-                return transcripts is ICollection list && list.Count == 0 && system == null;
+                return IsUnrecordedHost(cmdlet);
             } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
                 return false;
             }
+        }
+
+        // Shared by host-only formatting surfaces. Unknown transcription state must retain native rendering.
+        internal static bool IsUnrecordedHost(PSCmdlet cmdlet) {
+            if (!ConsoleFormatting.Displayed(cmdlet) || Terminal.GetCurrentProfile().IsContinuousIntegration) { return false; }
+            try {
+                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
+                object? transcripts = Member(data, "Transcripts");
+                return transcripts is ICollection list && list.Count == 0 && Member(data, "SystemTranscript") == null;
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) { return false; }
         }
 
         private static object? Member(object? value, string name) {

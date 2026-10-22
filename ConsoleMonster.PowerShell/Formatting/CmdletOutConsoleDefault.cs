@@ -55,6 +55,7 @@ namespace ConsoleMonster.PowerShell {
 
         private bool _types = true;
         private bool _errors;
+        private bool _compactErrors;
         private bool _progress;
 
         /// <inheritdoc />
@@ -71,7 +72,10 @@ namespace ConsoleMonster.PowerShell {
             if (Shim.IsPresent) {
                 ConsoleFormattingFeature features = ConsoleFormatting.Features;
                 _types = (features & ConsoleFormattingFeature.Output) != 0;
-                _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (Force.IsPresent || !ErrorRedirected());
+                _errors = _active && (features & ConsoleFormattingFeature.ErrorView) != 0 && (features & ConsoleFormattingFeature.Errors) == 0
+                    && (Force.IsPresent || !ErrorRedirected());
+                _compactErrors = _active && (features & ConsoleFormattingFeature.Errors) != 0 && TopLevel.IsPresent
+                    && !Transcript.IsPresent && !ErrorRedirected() && FormatCommandRouter.IsUnrecordedHost(this);
                 _progress = (features & ConsoleFormattingFeature.Progress) != 0;
                 if (_progress && TopLevel.IsPresent) {
                     // A new pipeline: an area left by an interrupted one (Ctrl+C) goes.
@@ -102,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             // Get-Error's detailed records (PSExtendedError) keep PowerShell's view.
-            if (_errors && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
+            if ((_errors || _compactErrors) && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
                 return;
             }
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, As != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
@@ -153,7 +157,13 @@ namespace ConsoleMonster.PowerShell {
                 return false;
             }
             Flush();
-            ExceptionView widget = new ExceptionView(PSErrors.Describe(record)) { ShowStack = string.Equals(view, "DetailedView", StringComparison.OrdinalIgnoreCase) };
+            ExceptionView widget = new ExceptionView(PSErrors.Describe(record, _compactErrors)) {
+                Compact = _compactErrors,
+                ShowStack = _compactErrors ? FormattingSessionState.Current.DetailedErrors : string.Equals(view, "DetailedView", StringComparison.OrdinalIgnoreCase),
+                BasePath = SessionState.Path.CurrentFileSystemLocation.ProviderPath,
+                DetailsHint = _compactErrors && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null
+                    ? Localization.WidgetLabels.For(Terminal.GetCurrentProfile().Language).GetErrorDetails : null
+            };
             // Through PowerShell's Out-Default as a rendering (drawn by ConsoleMonster's out-of-band view), so it stays in
             // order with the table rows PowerShell may still be holding.
             _inner!.Process(PSObject.AsPSObject(new ConsoleRendering(widget, 0, null) { DisplayOnly = true }));

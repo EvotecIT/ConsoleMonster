@@ -14,7 +14,7 @@ namespace ConsoleMonster.Widgets {
     /// error id and position message, the script stack, the .NET frames as "Type.Method()" with shortened paths and
     /// file:line as links, framework frames collapsed into "+n framework frames", and the inner errors as "Caused by".
     /// </summary>
-    public sealed class ExceptionView : IWidget {
+    public sealed partial class ExceptionView : IWidget {
         private readonly ExceptionInfo _info;
 
         /// <summary>Creates the view of an error description.</summary>
@@ -65,6 +65,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="context">The render context.</param>
         /// <returns>The lines.</returns>
         public List<StyledLine> Lines(int width, RenderContext context) {
+            if (Compact) { return CompactLines(width, context); }
             List<StyledLine> lines = new List<StyledLine>();
             ExceptionInfo? info = _info;
             int indent = 0;
