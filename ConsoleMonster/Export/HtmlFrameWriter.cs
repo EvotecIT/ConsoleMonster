@@ -38,9 +38,7 @@ namespace ConsoleMonster.Export {
                 width = Math.Max(width, layer.Frame.Width);
             }
             if (options.WindowChrome) {
-                body.Append("<div class=\"cm-window\"><div class=\"cm-titlebar\"><span class=\"cm-dots\"><i></i><i></i><i></i></span><span class=\"cm-title\">");
-                ExportText.AppendEscaped(body, options.Title ?? string.Empty);
-                body.Append("</span></div>");
+                body.Append(WindowChrome.HtmlStart(options.Title));
             }
             foreach (ExportLayer layer in layers) {
                 body.Append("<pre class=\"cm-screen ").Append(styles.ScreenHeightClass(layer.Frame.Height, options.CellHeight));
@@ -110,6 +108,9 @@ namespace ConsoleMonster.Export {
             css.Append(".cm-export .cm-titlebar{position:relative;height:30px;line-height:30px;background:var(--cm-chrome);color:var(--cm-chrome-fg);font:13px system-ui,-apple-system,'Segoe UI',sans-serif;text-align:center}\n");
             css.Append(".cm-export .cm-dots{position:absolute;left:12px;top:0}\n.cm-export .cm-dots i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle;background:#ff5f57}\n");
             css.Append(".cm-export .cm-dots i+i{background:#febc2e}\n.cm-export .cm-dots i+i+i{background:#28c840}\n");
+            if (options.WindowChrome) {
+                css.Append(ConsoleExporter.ReadAsset("window-chrome.css"));
+            }
             css.Append(".cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:").Append(options.Padding).Append("px;width:").Append(columns).Append("ch;")
                 .Append("font-family:").Append(font).Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;line-height:").Append(ExportText.Num(cell)).Append("px;")
                 .Append("color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}\n");

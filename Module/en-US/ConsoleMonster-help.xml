@@ -17047,6 +17047,379 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Out-ConsoleChart</command:name>
+      <command:verb>Out</command:verb>
+      <command:noun>ConsoleChart</command:noun>
+      <maml:description>
+        <maml:para>Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.</maml:para>
+        <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.&#xD;
+Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;&#xD;
+samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every&#xD;
+valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean&#xD;
+and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.&#xD;
+No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text&#xD;
+because the existing sparkline renderer scales from zero. Output uses the normal ConsoleMonster formatting route.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.</maml:para>
+      <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.&#xD;
+Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;&#xD;
+samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every&#xD;
+valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean&#xD;
+and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.&#xD;
+No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text&#xD;
+because the existing sparkline renderer scales from zero. Output uses the normal ConsoleMonster formatting route.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Out-ConsoleChart</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>AsString</maml:name>
+          <maml:description>
+            <maml:para>Return one plain-text string for reliable assignment and redirection on every supported PowerShell version. Cannot be combined with AsWidget.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>AsWidget</maml:name>
+          <maml:description>
+            <maml:para>Return the PipelineChart widget for layout composition or frame export. Cannot be combined with AsString.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Bins</maml:name>
+          <maml:description>
+            <maml:para>Requested histogram bucket count, 1 through 128 (default 10). Small integral ranges and identical values use fewer buckets to avoid fractional or repeated edges.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+          <dev:type>
+            <maml:name>PSObject</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>A property name or calculated-property hashtable for bar labels and sparkline group names. Defaults to Name, then row number for bars or one unnamed trend for scalars. Labels are literal text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Property</maml:name>
+          <maml:description>
+            <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Sort</maml:name>
+          <maml:description>
+            <maml:para>None (default), Ascending or Descending by numeric value; trends use the latest sample. Ties retain input order. Ignored for Histogram.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PipelineChartSort</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Ascending</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Descending</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>PipelineChartSort</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Top</maml:name>
+          <maml:description>
+            <maml:para>Show this many bars or sparkline groups after sorting. Zero (default) shows all. Histogram always uses every valid sample.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Type</maml:name>
+          <maml:description>
+            <maml:para>Bar (default), Histogram or Sparkline. Each sparkline group is one line and preserves sample arrival order.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PipelineChartType</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>PipelineChartType</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Unit</maml:name>
+          <maml:description>
+            <maml:para>Unit suffix appended to numerical values and histogram edges, for example ' ms'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Width</maml:name>
+          <maml:description>
+            <maml:para>Layout width in terminal cells; zero uses the current terminal width.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>AsString</maml:name>
+        <maml:description>
+          <maml:para>Return one plain-text string for reliable assignment and redirection on every supported PowerShell version. Cannot be combined with AsWidget.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>AsWidget</maml:name>
+        <maml:description>
+          <maml:para>Return the PipelineChart widget for layout composition or frame export. Cannot be combined with AsString.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Bins</maml:name>
+        <maml:description>
+          <maml:para>Requested histogram bucket count, 1 through 128 (default 10). Small integral ranges and identical values use fewer buckets to avoid fractional or repeated edges.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Numbers or objects containing the numeric property, supplied directly or through the pipeline. Explicit null samples produce a non-terminating invalid-data error; no input produces no output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+        <dev:type>
+          <maml:name>PSObject</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>A property name or calculated-property hashtable for bar labels and sparkline group names. Defaults to Name, then row number for bars or one unnamed trend for scalars. Labels are literal text.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Property</maml:name>
+        <maml:description>
+          <maml:para>One numeric property name, wildcard matching one property, or calculated-property hashtable. Uses the raw numeric expression result regardless of FormatString. Defaults to Value for scalar input.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Sort</maml:name>
+        <maml:description>
+          <maml:para>None (default), Ascending or Descending by numeric value; trends use the latest sample. Ties retain input order. Ignored for Histogram.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PipelineChartSort</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Ascending</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Descending</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>PipelineChartSort</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Top</maml:name>
+        <maml:description>
+          <maml:para>Show this many bars or sparkline groups after sorting. Zero (default) shows all. Histogram always uses every valid sample.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Type</maml:name>
+        <maml:description>
+          <maml:para>Bar (default), Histogram or Sparkline. Each sparkline group is one line and preserves sample arrival order.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PipelineChartType</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Bar</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Histogram</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Sparkline</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>PipelineChartType</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Unit</maml:name>
+        <maml:description>
+          <maml:para>Unit suffix appended to numerical values and histogram edges, for example ' ms'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Width</maml:name>
+        <maml:description>
+          <maml:para>Layout width in terminal cells; zero uses the current terminal width.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.PipelineChart</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Get-Process | Out-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10</dev:code>
+        <dev:remarks>
+          <maml:para>The ten busiest processes, highest CPU first</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Get-ChildItem -File | Out-ConsoleChart -Property @{ Name = 'KB'; Expression = { $_.Length / 1KB } } -Type Histogram -Bins 8</dev:code>
+        <dev:remarks>
+          <maml:para>Distribution of file sizes with a calculated property</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>$samples | Sort-Object Time | Out-ConsoleChart -Property Latency -Label Server -Type Sparkline</dev:code>
+        <dev:remarks>
+          <maml:para>One trend per server, in timestamp order</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>1, 3, 2, 5 | Out-ConsoleChart -Type Histogram -Bins 4 -AsString</dev:code>
+        <dev:remarks>
+          <maml:para>Capture a chart as plain text on Windows PowerShell 5.1 or PowerShell 7</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Out-ConsoleDefault</command:name>
       <command:verb>Out</command:verb>
       <command:noun>ConsoleDefault</command:noun>

@@ -1,4 +1,4 @@
-﻿Describe 'ConsoleMonster module' {
+Describe 'ConsoleMonster module' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -30,6 +30,7 @@
         $commands.Count | Should -Be 113
         $commands.Name | Should -Contain 'Compare-ConsoleText'
         $commands.Name | Should -Contain 'Watch-ConsoleLog'
+        $commands.Name | Should -Contain 'Out-ConsoleChart'
         $commands.Name | Should -Contain 'Copy-ConsoleOutput'
         $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'

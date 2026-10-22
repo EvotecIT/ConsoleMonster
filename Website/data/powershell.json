@@ -904,8 +904,13 @@
     },
     {
       "verb": "Out",
-      "count": 2,
+      "count": 3,
       "commands": [
+        {
+          "name": "Out-ConsoleChart",
+          "synopsis": "Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.",
+          "url": "/powershell/commands/out-consolechart/"
+        },
         {
           "name": "Out-ConsoleDefault",
           "synopsis": "Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.",

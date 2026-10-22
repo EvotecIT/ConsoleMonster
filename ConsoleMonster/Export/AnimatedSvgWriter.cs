@@ -19,7 +19,7 @@ namespace ConsoleMonster.Export {
             Dictionary<string, string> rowIds = new Dictionary<string, string>(StringComparer.Ordinal);
             StringBuilder defs = new StringBuilder();
             StringBuilder strip = new StringBuilder();
-            double frameWidth = g.GridWidth + (2 * options.Padding);
+            double frameWidth = g.Width;
             for (int f = 0; f < frames.Count; f++) {
                 CellBuffer frame = frames[f].Frame;
                 strip.Append("<g transform=\"translate(").Append(ExportText.Num(f * frameWidth)).Append(" 0)\">");
