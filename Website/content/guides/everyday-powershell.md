@@ -40,6 +40,30 @@ Disable-ConsoleFormatting -Feature FormatCommands       # just this one off agai
 
 {{< cm-demo id="format-commands" heading="h3" >}}
 
+## Out-GridView without a desktop
+
+```powershell
+Enable-ConsoleFormatting -Feature GridView
+Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+Disable-ConsoleFormatting -Feature GridView
+```
+
+`GridView` is excluded from `All`. A working native `Out-GridView` is always kept. Where it is unavailable, the session function uses `Show-ConsoleGrid`: the same keyboard filtering, sorting and selection, with `-Title`, `-PassThru`, `-OutputMode None|Single|Multiple` and `-Wait`. Browse mode returns nothing; selection returns the original objects. The terminal view is synchronous, so it waits until closed even without `-Wait`.
+
+{{< cm-frame ids="gridview-fallback-120,gridview-fallback-60" script="true" >}}
+
+Without an interactive console, the grid prints its existing table fallback with a warning and returns no selections. Existing functions and aliases need `-Force`; disabling or removing the module restores them. A working desktop command and its captures, jobs and transcripts keep PowerShell's behavior.
+
+The .NET equivalent uses `Grid`, the renderer behind `Show-ConsoleGrid`:
+
+```csharp
+using ConsoleMonster.Interactive;
+
+Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+grid.AddColumn("Name").AddRow("api-east", "api-east");
+GridResult selected = grid.Show();
+```
+
 ## Views that ship with a module
 
 A module can describe how its objects look without depending on ConsoleMonster: a `<ModuleName>.consoleviews.psd1` file beside its manifest names the columns, their presenters and the grouping, as plain data. ConsoleMonster reads it for loaded modules when formatting is on, and `Format-ConsoleTable` and the exports use the same columns.

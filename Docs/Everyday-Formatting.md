@@ -64,6 +64,35 @@ var warning = Terminal.Theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor);
 string warningSgr = SgrEncoder.Encode(warning, ColorDepth.TrueColor);
 ```
 
+## Out-GridView where the desktop grid is unavailable
+
+`GridView` is an explicit opt-in and is excluded from `All`:
+
+```powershell
+Enable-ConsoleFormatting -Feature GridView
+Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+Disable-ConsoleFormatting -Feature GridView
+```
+
+A working native `Out-GridView` stays in charge, including on Windows PowerShell 5.1. The feature checks command availability and explicit SSH, remoting and desktop-less Windows contexts; it does not assume every PowerShell 7 session lacks the desktop command. When the command is unavailable, a session function delegates to the existing `Show-ConsoleGrid`. No dependency is installed.
+
+The fallback maps `-Title`, `-PassThru` (multiple selection), and `-OutputMode None|Single|Multiple`. Without an output option it browses and returns nothing. A terminal grid runs synchronously; both ordinary browse mode and `-Wait` return when you close it. It cannot leave a separate window running after the command ends. `-Wait`, `-PassThru` and `-OutputMode` retain their mutually exclusive native parameter sets.
+
+The grid keeps its normal keys: type to filter, arrows to move, Space to mark rows, F10 or Ctrl+Enter to accept, and Esc to cancel. Selection returns the original objects, so assignment, `-OutVariable` and a downstream command receive objects rather than screen text. A working native command's pipeline, file, job and transcript behavior is unchanged. Without interactivity the existing `Show-ConsoleGrid` fallback prints a table with a warning and returns no selections.
+
+Existing functions and aliases are kept unless you pass `-Force` while the native grid is unavailable. Disable or module removal restores the saved function and alias, including their options and descriptions. A command you replace after enabling belongs to you and is kept. `-Force` never replaces a working native grid.
+
+For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
+
+```csharp
+using ConsoleMonster.Interactive;
+
+Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+grid.AddColumn("Name").AddColumn("Region");
+grid.AddRow("api-east", "api-east", "eu-west");
+GridResult selected = grid.Show();
+```
+
 ## Parameter mapping
 
 The proxies use the parameter metadata of the current PowerShell runtime. On the direct-host route they retain the native property expressions' raw values while the native formatter supplies labels, grouping and layout records. Those values pass through the same shaping budgets and presenters as `Format-ConsoleTable` and `Format-ConsoleList`: status glyphs and tones, byte units, dates, durations and joined collections. Calculated expressions and getters are read once. Conditional table views keep their selected row expressions.

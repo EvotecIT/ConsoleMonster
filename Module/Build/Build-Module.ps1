@@ -94,7 +94,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     $newConfigurationBuildSplat = @{
         Enable                               = $true
         SignModule                           = $SignModule
-        MergeModuleOnBuild                   = $true
+        MergeModuleOnBuild                   = $false
         MergeFunctionsFromApprovedModules    = $true
         CertificateThumbprint                = '92E95FB58EFFA6A4A75E77A33CDD6BFE6DD30F1A'
         ResolveBinaryConflicts               = $true

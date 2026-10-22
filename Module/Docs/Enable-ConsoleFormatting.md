@@ -25,26 +25,33 @@ Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Servic
 
 ### EXAMPLE 1
 ```powershell
+Enable-ConsoleFormatting -Feature GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+```
+
+Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged
+
+### EXAMPLE 2
+```powershell
 Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10
 ```
 
 Turn it on for the session
 
-### EXAMPLE 2
+### EXAMPLE 3
 ```powershell
 Enable-ConsoleFormatting -ProfileSnippet
 ```
 
 The lines to keep it on in every session (printed, never written to the profile)
 
-### EXAMPLE 3
+### EXAMPLE 4
 ```powershell
 Enable-ConsoleFormatting -Feature All
 ```
 
 Default output, the error view, progress and native stream colours
 
-### EXAMPLE 4
+### EXAMPLE 5
 ```powershell
 Set-ConsoleTheme Light; Enable-ConsoleFormatting -Feature Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose
 ```
@@ -54,13 +61,13 @@ Use the active theme for native stream messages, keeping PowerShell's prefixes a
 ## PARAMETERS
 
 ### -Feature
-What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.
+What to turn on: Output (the default: registered and built-in types as ConsoleMonster views), ErrorView (errors that reach the console in ConsoleMonster's error view, following $ErrorView: DetailedView adds the stack, CategoryView keeps PowerShell's), Progress (Write-Progress drawn as ConsoleMonster's progress area; Write-Progress becomes an alias of Write-ConsoleProgress), Streams (native stream colours), or All (Output, ErrorView, Progress and Streams). Streams sets PSStyle.Formatting Warning, Verbose, Debug and Error on PowerShell 7.2+, or available Host.PrivateData warning, verbose and debug foreground/background colours on older hosts. PowerShell keeps its prefixes, records, preferences, redirection and transcript behaviour. No Write-* stream command is replaced. Re-enable Streams after changing themes; Disable restores the original values of only the properties ConsoleMonster set, including later user edits. Use Write-ConsoleStatus or Write-ConsoleLog for rich script messages. GridView (excluded from All) installs an Out-GridView fallback only where the native command is unavailable, delegating Title, PassThru, OutputMode None/Single/Multiple and Wait to Show-ConsoleGrid. The terminal view is synchronous, including browse mode; without interactivity it prints the existing table fallback with a warning and returns nothing. Native desktop commands stay unchanged, even with Force. Disable or module removal restores saved commands exactly. FormatCommands explicitly opts Format-Table, Format-List and Format-Wide into direct-host-only rendering, preserving native captures, jobs, remoting and transcripts; it is excluded from All. Features add up across calls; Disable-ConsoleFormatting turns them off.
 
 ```yaml
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All
+Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All, Help, Errors, ReadLine, GridView, Prompt
 
 Required: False
 Position: named
@@ -70,7 +77,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's (Disable-ConsoleFormatting puts it back).
+Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept.
 
 ```yaml
 Type: SwitchParameter
