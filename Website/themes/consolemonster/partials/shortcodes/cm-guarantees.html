@@ -7,7 +7,7 @@
 <thead><tr><th>Guarantee</th><th>Proved by</th><th>Runs on</th></tr></thead>
 <tbody>
 {{~ for row in g.rows ~}}
-<tr><td>{{ row.guarantee }}</td><td class="cm-guarantees__tests">{{ row.evidence }}</td><td class="cm-guarantees__runs">{{ for run in row.runtimes }}<span>{{ run | html.escape }}</span>{{ end }}</td></tr>
+<tr><td data-label="Guarantee">{{ row.guarantee }}</td><td class="cm-guarantees__tests" data-label="Proved by">{{ row.evidence }}</td><td class="cm-guarantees__runs" data-label="Runs on">{{ for run in row.runtimes }}<span>{{ run | html.escape }}</span>{{ end }}</td></tr>
 {{~ end ~}}
 </tbody>
 </table>
