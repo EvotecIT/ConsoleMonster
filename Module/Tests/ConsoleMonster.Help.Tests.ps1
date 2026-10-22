@@ -3,15 +3,27 @@ Describe 'Show-ConsoleHelp' {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+        $script:HelpStepsPath = Join-Path $TestDrive 'help-child-steps.txt'
 
         # A child process with redirected output (plain text), en-US culture and a function with comment-based help.
         function Invoke-HelpChild {
             param([Parameter(Mandatory)][string] $Script)
             $lines = @(
+                # Native wildcard help searches available modules too; this fixture owns only its runtime's catalog.
+                "`$env:PSModulePath = Join-Path `$PSHOME 'Modules'"
+                "`$helpStepsPath = '$($script:HelpStepsPath.Replace("'", "''"))'"
+                @'
+function Write-HelpStep {
+    param([string] $Step)
+    [IO.File]::AppendAllText($helpStepsPath, [DateTimeOffset]::Now.ToString('o') + " PID=$PID $Step" + [Environment]::NewLine)
+}
+Write-HelpStep 'module import begin'
+'@
                 "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_LANGUAGE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'COLUMNS') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
                 "[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
                 "[System.Threading.Thread]::CurrentThread.CurrentUICulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
                 "Import-Module '$($script:ModulePath)' -Force"
+                "Write-HelpStep 'module import end'"
                 @'
 function Get-Thing {
     <#
@@ -35,8 +47,15 @@ function Get-Thing {
 }
 '@
                 $Script
+                "Write-HelpStep 'script end'"
             )
-            $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
+            [IO.File]::WriteAllText($script:HelpStepsPath, '')
+            try {
+                $output = Invoke-TestChild -Runtime $script:Runtime -Script ($lines -join "`n")
+            } catch {
+                $step = Get-Content -LiteralPath $script:HelpStepsPath -Tail 1 -ErrorAction SilentlyContinue
+                throw "$($_.Exception.Message) Last Help child step: $step (markers: $script:HelpStepsPath)."
+            }
             (($output | ForEach-Object { "$_" }) -join "`n") -replace "$([char] 27)\[[0-9;]*m", ''
         }
     }
@@ -63,40 +82,79 @@ function Get-Thing {
         ($text -split 'Syntax')[0] | Should -Not -Match '\[-Path\]'
     }
 
-    It 'lists wildcard matches, reads a script''s help by path and points programs to their own help' {
+    It 'lists single and multiple wildcard matches without literal command discovery' {
         $text = Invoke-HelpChild @'
 $script:literalWildcardLookups = 0
 $ExecutionContext.InvokeCommand.CommandNotFoundAction = {
     param($name, $eventArgs)
     if ($name -eq 'Get-Thin*') { $script:literalWildcardLookups++ }
 }
-'== list'
+Write-HelpStep 'wildcard single begin'
 Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Write-HelpStep 'wildcard single end'
 function Get-Thinner { <# .SYNOPSIS
 Makes things thinner. #> param() }
+Write-HelpStep 'wildcard multiple begin'
 Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Write-HelpStep 'wildcard multiple end'
 $ExecutionContext.InvokeCommand.CommandNotFoundAction = $null
 "WILDCARD_LOOKUPS=$script:literalWildcardLookups"
-'== script'
+'@
+        $text | Should -Match 'Gets things from a store\.'
+        $text | Should -Match 'Get-Thinner\s+\S\s+Function\s+\S\s+Makes things thinner\.'
+        $text | Should -Match 'WILDCARD_LOOKUPS=0'
+    }
+
+    It 'reads a script''s help by path' {
+        $text = Invoke-HelpChild @'
+Write-HelpStep 'script path begin'
 $path = Join-Path ([IO.Path]::GetTempPath()) "cm-help-$PID.ps1"
 Set-Content -LiteralPath $path -Value "<#`n.SYNOPSIS`nCleans the cache.`n.EXAMPLE`nPS C:\> .\clean.ps1 -Days 7`n#>`nparam([int] `$Days = 30)"
 Show-ConsoleHelp $path -Width 100 -AsString
 Remove-Item -LiteralPath $path
-'== program'
+Write-HelpStep 'script path end'
+'@
+        $text | Should -Match 'Cleans the cache\.'
+        $text | Should -Match '-Days\s+\S\s+Int32'
+        $text | Should -Match '(?m)^\s+\.\\clean\.ps1 -Days 7'
+        $text | Should -Not -Match 'PS C:\\>'
+    }
+
+    It 'points programs to their own help' {
+        $text = Invoke-HelpChild @'
+Write-HelpStep 'program begin'
 $exe = if ($IsLinux -or $IsMacOS) { 'ls' } else { 'whoami' }
 Show-ConsoleHelp $exe -ErrorVariable e -ErrorAction SilentlyContinue
 "PROGRAM=$($e[0].FullyQualifiedErrorId -like 'ProgramHasNoHelp*')"
+Write-HelpStep 'program end'
 '@
-        $list = ($text -split '== script')[0]
-        $list | Should -Match 'Gets things from a store\.'
-        $list | Should -Match 'Get-Thinner\s+\S\s+Function\s+\S\s+Makes things thinner\.'
-        $list | Should -Match 'WILDCARD_LOOKUPS=0'
-        $script = (($text -split '== script')[1] -split '== program')[0]
-        $script | Should -Match 'Cleans the cache\.'
-        $script | Should -Match '-Days\s+\S\s+Int32'
-        $script | Should -Match '(?m)^\s+\.\\clean\.ps1 -Days 7'
-        $script | Should -Not -Match 'PS C:\\>'
         $text | Should -Match 'PROGRAM=True'
+    }
+
+    It 'keeps the child help search independent of the inherited module catalog' {
+        $modulePath = $env:PSModulePath
+        try {
+            $catalog = Join-Path $PSScriptRoot 'Fixtures\HelpCatalog'
+            $env:PSModulePath = $catalog + [IO.Path]::PathSeparator + $modulePath
+            $text = Invoke-HelpChild @'
+Write-HelpStep 'foreign catalog single begin'
+'== single'
+Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Write-HelpStep 'foreign catalog single end'
+function Get-Thinner { <# .SYNOPSIS
+Makes things thinner. #> param() }
+Write-HelpStep 'foreign catalog multiple begin'
+'== multiple'
+Show-ConsoleHelp 'Get-Thin*' -Width 100 -AsString
+Write-HelpStep 'foreign catalog multiple end'
+'@
+        } finally {
+            $env:PSModulePath = $modulePath
+        }
+        $text | Should -Match 'Gets things from a store\.'
+        ($text -split '== multiple')[0] | Should -Match 'Syntax'
+        ($text -split '== multiple')[1] | Should -Match 'Get-Thinner\s+\S\s+Function\s+\S\s+Makes things thinner\.'
+        $text | Should -Not -Match 'Get-ThinOutside'
     }
 
     It 'writes plain lines into a pipeline and fails for an unknown command' {
