@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- `Out-ConsoleChart` draws horizontal bars, histograms and grouped sparklines from pipeline values or selected properties. Stable value sorting and Top limits, signed bars, whole-number histogram edges and numerical text fallback share the core `PipelineChart` API.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.
 - Hosted-service dashboard durations measure each service's lifetime with a monotonic clock and freeze at its own stop, completion or failure, preserving the result through host shutdown.
 - `Enable-ConsoleFormatting -Feature Streams` colors native warning, verbose and debug messages with the active theme, plus errors on PowerShell 7.2+. Included in `All`; disabling or removing the module restores the original settings. PowerShell keeps its stream commands, prefixes, preferences, redirection and transcripts.

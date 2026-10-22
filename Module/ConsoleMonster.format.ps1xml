@@ -57,6 +57,7 @@
         <TypeName>ConsoleMonster.Widgets.LogRegion</TypeName>
         <TypeName>ConsoleMonster.Widgets.Logo</TypeName>
         <TypeName>ConsoleMonster.Widgets.Phases</TypeName>
+        <TypeName>ConsoleMonster.Widgets.PipelineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Rule</TypeName>

@@ -1,4 +1,4 @@
-source 29b8e62ac27121e7e426549ebc756b7b
+source 29b8e62ac27121e7bd8cf46d15c07689
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -13,7 +13,7 @@ source 29b8e62ac27121e7e426549ebc756b7b
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keys2113a637de16b8ee
+  ↑↓ move  enter select  esc cancel  f1 keys689ea6a497c7fc6e
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -28,7 +28,7 @@ source 29b8e62ac27121e7e426549ebc756b7b
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keysdd2a631e60e243ee
+  ↑↓ move  enter select  esc cancel  f1 keys6be44f4ec53c22cf
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -43,7 +43,7 @@ source 29b8e62ac27121e7e426549ebc756b7b
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keys9c5f727c26eb655e
+  ↑↓ move  enter select  esc cancel  f1 keyse8ca37112c654705
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › w
@@ -53,14 +53,14 @@ source 29b8e62ac27121e7e426549ebc756b7b
     FS02  · Warsaw                   File
     SQL01  · Warsaw              Database
 
-  ↑↓ move  enter select  esc clear filter  f1 keysdca73f378b071315
+  ↑↓ move  enter select  esc clear filter  f1 keys5bb0a356beb0bfdc
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › we
   ▌ WEB01  · Warsaw                   Web
     WEB11  · Berlin                   Web
 
-  ↑↓ move  enter select  esc clear filter  f1 keys05073d810b743cff
+  ↑↓ move  enter select  esc clear filter  f1 keysaf681edb77b0e1dc
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › we
