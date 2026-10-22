@@ -70,7 +70,11 @@ namespace ConsoleMonster.Tests.Interactive {
         public void ShortViewportDoesNotMaterializeAnInvisiblePreview() {
             var rows = new[] { new { A = 1 }, new { A = 2 }, new { A = 3 } };
             ObjectExplorer explorer = new ObjectExplorer(rows, Options(5));
-            TestTerminal.RenderText(explorer.Snapshot(), 80, 8);
+            var snapshot = explorer.Snapshot();
+            // The root and three rows consume four nodes, leaving exactly one for later navigation.
+            Assert.Equal(1, explorer.Root.RemainingNodes);
+            TestTerminal.RenderText(snapshot, 80, 8);
+            Assert.Equal(1, explorer.Root.RemainingNodes);
             Assert.Equal(3, Assert.Single(explorer.Root.Children.Last().Children).Value);
         }
 

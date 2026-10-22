@@ -98,7 +98,14 @@ namespace ConsoleMonster.Tests.Interactive {
 
         [Fact]
         public void EmptySearch_CannotAcceptTheRoot() {
-            Assert.Null(Show(new ObjectExplorer(new { Name = "web-01" }), "/ \"absent\" Enter F10 Escape", out _));
+            Assert.Null(Show(new ObjectExplorer(new { Name = "web-01" }), "/ \"absent\" Enter Enter F10 Escape", out _));
+        }
+
+        [Fact]
+        public void EmptySearch_DrillDoesNotAddNavigationHistory() {
+            ObjectExplorer explorer = new ObjectExplorer(new { Parent = new { Child = new { Name = "web-01" } } });
+            ExplorerNode? selected = Show(explorer, "Enter / \"absent\" Enter Enter Backspace F10", out _);
+            Assert.Equal("$x.Parent", selected!.Path);
         }
 
         [Fact]

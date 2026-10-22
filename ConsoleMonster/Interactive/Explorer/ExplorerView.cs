@@ -130,7 +130,7 @@ namespace ConsoleMonster.Interactive {
             Refresh();
         }
         private void Drill() {
-            if (!Selected.CanExpand) { return; }
+            if (_visible.Count == 0 || !Selected.CanExpand) { return; }
             _history.Push((_root, _cursor));
             _root = Selected;
             _cursor = 0;
