@@ -6,7 +6,8 @@ using System.Text;
 namespace ConsoleMonster.Serialization {
     /// <summary>
     /// A small JSON reader and writer for presets and remembered choices: objects, arrays, strings, booleans, null and
-    /// numbers (kept as strings). Zero dependencies; malformed input raises <see cref="FormatException"/>.
+    /// numbers (kept as strings by default; typed numbers for schema validation). Zero dependencies;
+    /// malformed input raises <see cref="FormatException"/>.
     /// </summary>
     internal static class MiniJson {
         public static string Write(object? value) {
@@ -15,10 +16,10 @@ namespace ConsoleMonster.Serialization {
             return sb.ToString();
         }
 
-        public static object? Read(string text) {
+        public static object? Read(string text, bool preserveNumberTypes = false) {
             if (text == null) { throw new ArgumentNullException(nameof(text)); }
             int index = 0;
-            object? value = ReadValue(text, ref index, 0);
+            object? value = ReadValue(text, ref index, 0, preserveNumberTypes);
             SkipWhite(text, ref index);
             if (index != text.Length) {
                 throw new FormatException("Unexpected text after the JSON value at " + index.ToString(CultureInfo.InvariantCulture) + ".");
@@ -106,7 +107,7 @@ namespace ConsoleMonster.Serialization {
             sb.Append('"');
         }
 
-        private static object? ReadValue(string text, ref int i, int depth) {
+        private static object? ReadValue(string text, ref int i, int depth, bool preserveNumberTypes) {
             if (depth > 64) { throw new FormatException("JSON nesting exceeds 64 levels."); }
             SkipWhite(text, ref i);
             if (i >= text.Length) {
@@ -127,7 +128,7 @@ namespace ConsoleMonster.Serialization {
                     SkipWhite(text, ref i);
                     Expect(text, ref i, ':');
                     if (map.ContainsKey(key)) { throw new FormatException("Duplicate JSON key '" + key + "'."); }
-                    map.Add(key, ReadValue(text, ref i, depth + 1));
+                    map.Add(key, ReadValue(text, ref i, depth + 1, preserveNumberTypes));
                     SkipWhite(text, ref i);
                     if (i < text.Length && text[i] == ',') {
                         i++;
@@ -146,7 +147,7 @@ namespace ConsoleMonster.Serialization {
                     return list;
                 }
                 while (true) {
-                    list.Add(ReadValue(text, ref i, depth + 1));
+                    list.Add(ReadValue(text, ref i, depth + 1, preserveNumberTypes));
                     SkipWhite(text, ref i);
                     if (i < text.Length && text[i] == ',') {
                         i++;
@@ -171,10 +172,10 @@ namespace ConsoleMonster.Serialization {
                 i += 4;
                 return null;
             }
-            return ReadNumber(text, ref i);
+            return ReadNumber(text, ref i, preserveNumberTypes);
         }
 
-        private static string ReadNumber(string text, ref int i) {
+        private static object ReadNumber(string text, ref int i, bool preserveNumberTypes) {
             int start = i;
             if (i < text.Length && text[i] == '-') { i++; }
             if (i < text.Length && text[i] == '0') { i++; }
@@ -188,7 +189,11 @@ namespace ConsoleMonster.Serialization {
                 if (i < text.Length && (text[i] == '+' || text[i] == '-')) { i++; }
                 Digits(text, ref i);
             }
-            return text.Substring(start, i - start);
+            string literal = text.Substring(start, i - start);
+            if (!preserveNumberTypes) { return literal; }
+            if (long.TryParse(literal, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out long integer)) { return integer; }
+            if (decimal.TryParse(literal, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal number)) { return number; }
+            throw new FormatException("JSON number is outside the supported numeric range.");
         }
 
         private static void Digits(string text, ref int i) {

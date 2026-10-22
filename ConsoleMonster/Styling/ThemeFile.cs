@@ -49,7 +49,7 @@ namespace ConsoleMonster.Styling {
         /// <returns>A validated document.</returns>
         /// <exception cref="FormatException">The JSON or theme data is invalid.</exception>
         public static ThemeFile Parse(string json) {
-            object? value = MiniJson.Read(json);
+            object? value = MiniJson.Read(json, preserveNumberTypes: true);
             if (!(value is IDictionary data)) { throw Error("Theme", "must be an object"); }
             return Import(data);
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
@@ -9,6 +10,18 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Themes {
     public sealed class AccessibleThemeTests {
+        /// <summary>Automatic chart traces and full-block stacked segments retain separate foregrounds at each colour tier.</summary>
+        [Theory]
+        [InlineData(ColorDepth.TrueColor)]
+        [InlineData(ColorDepth.Ansi256)]
+        [InlineData(ColorDepth.Ansi16)]
+        public void ColorBlindSafe_ChartSeriesHaveDistinctForegrounds(ColorDepth depth) {
+            ThemeToken[] series = { ThemeToken.Series1, ThemeToken.Series2, ThemeToken.Series3, ThemeToken.Series4, ThemeToken.Series5, ThemeToken.Series6 };
+            Color[] colours = series.Select(token => Theme.ColorBlindSafe.Resolve(token, depth).Foreground).ToArray();
+            Assert.All(colours, colour => Assert.False(colour.IsDefault));
+            Assert.Equal(series.Length, colours.Distinct().Count());
+        }
+
         [Theory]
         [InlineData(ColorDepth.TrueColor)]
         [InlineData(ColorDepth.Ansi256)]

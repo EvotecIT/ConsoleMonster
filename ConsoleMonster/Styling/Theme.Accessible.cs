@@ -2,7 +2,7 @@ namespace ConsoleMonster.Styling {
     public sealed partial class Theme {
         private static Theme BuildColorBlindSafe() {
             ThemeColor blue = ThemeColor.Hex("#56b4e9", 14, 74);
-            ThemeColor orange = ThemeColor.Hex("#e69f00", 13, 172);
+            ThemeColor orange = ThemeColor.Hex("#e69f00", 9, 172);
             ThemeColor yellow = ThemeColor.Hex("#f0e442", 11, 221);
             ThemeColor purple = ThemeColor.Hex("#cc79a7", 13, 175);
             ThemeColor teal = ThemeColor.Hex("#5ed5bf", 10, 79);

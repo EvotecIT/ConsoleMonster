@@ -59,6 +59,16 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Equal(TextDecoration.Bold, theme.Get(ThemeToken.Pass).Decoration);
         }
 
+        /// <summary>JSON preserves scalar types before applying the same string validation as PSD1 data dictionaries.</summary>
+        [Theory]
+        [InlineData("{\"Name\":123,\"Tokens\":{}}", "Name")]
+        [InlineData("{\"Name\":\"Team\",\"Tokens\":{\"Accent\":{\"Foreground\":208}}}", "Tokens.Accent.Foreground")]
+        [InlineData("{\"Name\":\"Team\",\"Tokens\":{\"Accent\":{\"Foreground\":{\"TrueColor\":208}}}}", "Tokens.Accent.Foreground.TrueColor")]
+        [InlineData("{\"Name\":\"Team\",\"Tokens\":{\"Accent\":{\"Decoration\":1}}}", "Tokens.Accent.Decoration")]
+        public void Parse_RejectsNumericValuesInStringFields(string json, string location) {
+            Assert.Contains(location, Assert.Throws<FormatException>(() => ThemeFile.Parse(json)).Message);
+        }
+
         [Theory]
         [InlineData("Tokens.Unknown", "token")]
         [InlineData("Tokens.Pass.Colour", "key")]
