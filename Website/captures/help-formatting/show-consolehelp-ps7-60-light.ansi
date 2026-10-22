@@ -1,0 +1,31 @@
+[?9001h[?1004h[?25l[2J[m[38;2;17;24;39m[1m[HGet-ConsoleCapability[m
+Shows what ConsoleMonster detected about the current
+terminal.[38;2;37;99;235m[1m[5;1HSyntax[m
+[38;2;17;24;39m[1m[2CGet-ConsoleCapability[m[38;2;212;212;216m[1C[[38;2;124;58;237m-Refresh[38;2;212;212;216m] [<CommonParameters>][38;2;37;99;235m[1m[8;1HDescription[m
+  Shows what ConsoleMonster detected about the current
+  terminal.[12;1H  Returns the terminal profile: kind, mode (Interactive,
+  Stream, Plain), colour depth, glyph tier, size, VT
+  support, console font and the reasons behind each
+  decision. -Refresh detects again (after a resize or font
+  change).[38;2;37;99;235m[1m[18;1HParameters[m
+[38;2;107;114;128m[2C1 record[m[21;1H[38;2;17;24;39m[1m[2C-Refresh[m
+[38;2;107;114;128m[4CType         switch[m
+[38;2;107;114;128m[4CRequired     no[m
+[38;2;107;114;128m[4CPosition     named[m
+[38;2;107;114;128m[4CPipeline     no[m
+[38;2;107;114;128m[4CDescription  [mDetect again instead of returning the
+                 cached profile.
+[38;2;107;114;128m[2CCommon parameters: -Debug, -ErrorAction, -ErrorVariable,[m
+[38;2;107;114;128m[2C-InformationAction, -OutVariable, -Verbose,[m
+[38;2;107;114;128m[2C-WarningAction and the others (about_CommonParameters).[38;2;37;99;235m[1m[32;1HExamples]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[m
+  [1mExample 1[22m[K
+     [38;2;13;148;136mGet-ConsoleCapability [m| [38;2;13;148;136mSelect-Object [38;2;37;99;235m-ExpandProperty… [32;1H[m
+     Show the profile and the decisions
+
+[38;2;37;99;235m[1mInputs[m[K
+  [38;2;124;58;237mNone[K[m
+
+[38;2;37;99;235m[1mOutputs[m[K
+  [38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile[K[m
+
+[?9001l[?1004l

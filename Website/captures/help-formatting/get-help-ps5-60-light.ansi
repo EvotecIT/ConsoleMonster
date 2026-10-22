@@ -1,0 +1,6 @@
+[?9001h[?1004h[?25l[2J[m[38;2;17;24;39m[1m[HGet-ConsoleCapability[m
+Shows what ConsoleMonster detected about the current
+terminal.[38;2;37;99;235m[1m[5;1HExamples[m
+[1m[2CExample 1[22m
+[38;2;13;148;136m[5CGet-ConsoleCapability [m|[38;2;13;148;136m[1CSelect-Object [38;2;37;99;235m-ExpandProperty…[m
+     Show the profile and the decisions[10;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l

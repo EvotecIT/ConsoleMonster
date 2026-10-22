@@ -57,6 +57,8 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "help-review":
+                    return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;
@@ -128,6 +130,9 @@ namespace SiteFrames {
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }
+            if (Wants(only, "help-formatting")) {
+                HelpFormattingPage.Capture(site);
+            }
             return 0;
         }
 
@@ -143,6 +148,7 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            HelpFormattingPage.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);

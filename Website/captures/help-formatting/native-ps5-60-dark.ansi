@@ -1,0 +1,21 @@
+[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25hNAME
+    Get-ConsoleCapability
+    
+SYNOPSIS
+    Shows what ConsoleMonster detected about the current 
+    terminal.
+    
+    Returns the terminal profile: kind, mode (Interactive, 
+    Stream, Plain), colour depth, glyph tier, size, VT 
+    support, console font and the reasons behind each 
+    decision. -Refresh detects again (after a resize or 
+    font change).
+    
+    
+    EXAMPLE 1
+    
+    Get-ConsoleCapability | Select-Object -ExpandProperty 
+    Decisions
+    
+[?25l    Show the profile and the decisions[24;1H[?25h
+[?9001l[?1004l
