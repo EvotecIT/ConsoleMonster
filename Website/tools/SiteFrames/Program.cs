@@ -57,6 +57,12 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "builtins":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Review(new Site(website), Path.GetFullPath(only));
+                case "builtins-proof":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Verify(new Site(website), Path.GetFullPath(only));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;
