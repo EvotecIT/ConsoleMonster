@@ -24,7 +24,7 @@ namespace ConsoleMonster.Export {
                     content.Append(" cm-").Append(layer.Scheme);
                 }
                 content.Append("\" transform=\"translate(").Append(ExportText.Num(g.ScreenX)).Append(' ').Append(ExportText.Num(g.ScreenY)).Append(")\">");
-                content.Append("<rect width=\"").Append(ExportText.Num(g.GridWidth + (2 * options.Padding))).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
+                content.Append("<rect width=\"").Append(ExportText.Num(g.Width)).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
                     .Append("\" x=\"").Append(-options.Padding).Append("\" y=\"").Append(-options.Padding).Append('"');
                 ExportText.AppendPaint(content, "fill", layer.Palette.Background);
                 content.Append("/>");
@@ -76,14 +76,7 @@ namespace ConsoleMonster.Export {
             if (!options.WindowChrome) {
                 return;
             }
-            svg.Append("<rect width=\"").Append(ExportText.Num(g.Width)).Append("\" height=\"").Append(ExportText.Num(g.Height)).Append("\" rx=\"10\" style=\"fill:var(--cm-chrome)\"/>");
-            svg.Append("<circle cx=\"18\" cy=\"15\" r=\"6\" fill=\"#ff5f57\"/><circle cx=\"38\" cy=\"15\" r=\"6\" fill=\"#febc2e\"/><circle cx=\"58\" cy=\"15\" r=\"6\" fill=\"#28c840\"/>");
-            if (!string.IsNullOrEmpty(options.Title)) {
-                svg.Append("<text class=\"cm-title\" x=\"").Append(ExportText.Num(g.Width / 2)).Append("\" y=\"15\">");
-                ExportText.AppendEscaped(svg, options.Title);
-                svg.Append("</text>");
-            }
-            svg.Append('\n');
+            WindowChrome.AppendSvg(svg, g.Width, g.Height, options.Title);
         }
 
         /// <summary>Appends a frame's rows at the origin of the current group.</summary>
@@ -245,6 +238,9 @@ namespace ConsoleMonster.Export {
             g.ScreenX = options.Padding;
             g.ScreenY = options.Padding + chrome;
             g.Width = g.GridWidth + (2 * options.Padding);
+            if (options.WindowChrome) {
+                g.Width = Math.Max(g.Width, WindowChrome.MinimumWidth);
+            }
             g.Height = g.GridHeight + (2 * options.Padding) + chrome;
             return g;
         }
