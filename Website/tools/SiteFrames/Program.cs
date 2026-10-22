@@ -133,7 +133,6 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
-            Guarantees.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);
