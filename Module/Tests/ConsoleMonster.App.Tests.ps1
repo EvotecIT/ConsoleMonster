@@ -4,6 +4,17 @@ Describe 'Native console applications' {
         Import-Module $script:AppModulePath -Force
     }
 
+    It 'reports invalid native state keys with the application diagnostic and releases its input' {
+        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
+        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"x" Escape')
+        {
+            Show-ConsoleApp {
+                New-ConsoleTextInput -Name Query -OnChange { $State[17] = 'invalid' }
+            } -InputSource $inputSource -Capture $capture -ErrorAction Stop
+        } | Should -Throw -ExpectedMessage '*Application state keys must be strings*'
+        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+    }
+
     It 'calls back once per committed edit before the next read and returns one ordinary hashtable' {
         $edits = [System.Collections.Generic.List[object]]::new()
         $thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId
