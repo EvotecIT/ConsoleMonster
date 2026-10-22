@@ -1,5 +1,7 @@
 ### Unreleased - the everyday path
 #### What's new
+- HTML and SVG frame titles reserve space after the window dots, truncate with an ellipsis and retain the full title as a tooltip. Very narrow frames keep all three dots visible and hide titles that cannot fit.
+- `Out-ConsoleChart` draws horizontal bars, histograms and grouped sparklines from pipeline values or selected properties. Stable value sorting and Top limits, signed bars, whole-number histogram edges and numerical text fallback share the core `PipelineChart` API.
 - `Compare-ConsoleText` compares strings or files with line numbers, word highlights and collapsed unchanged ranges. It uses side-by-side output from 120 columns, inline output below that, `-Context`, `-IgnoreWhitespace` and plain unified text with `-AsUnified`. The shared text engine uses linear auxiliary memory and bounded alignment work.
 - `Enable-ConsoleFormatting -Feature ReadLine` themes loaded PSReadLine syntax, selection and available inline predictions; `Streams` also styles native progress while preserving its view. Shared native preferences follow the latest applied installation across runspaces; the last owner restores the first exact baseline, including after user edits. ReadLine is included in All. All keeps Write-* cmdlets native and excludes the legacy Progress alias feature.
 - Windows-style form command lines preserve quoted paths with trailing backslashes and values containing embedded quotes using native Windows argument-quoting rules.
