@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
-using System.Threading;
 using System.Xml;
 using ConsoleMonster.Data;
 using ConsoleMonster.Testing;
@@ -47,14 +46,18 @@ namespace ConsoleMonster.Tests.Values {
             public Node? Parent { get; set; }
         }
 
-        public sealed class Slow {
-            public int A { get { Thread.Sleep(120); return 1; } }
+        private sealed class Slow {
+            private readonly Action<string> _read;
 
-            public int B { get { Thread.Sleep(120); return 2; } }
+            public Slow(Action<string> read) { _read = read; }
 
-            public int C { get { Thread.Sleep(120); return 3; } }
+            public int A { get { _read(nameof(A)); return 1; } }
 
-            public int D { get { Thread.Sleep(120); return 4; } }
+            public int B { get { _read(nameof(B)); return 2; } }
+
+            public int C { get { _read(nameof(C)); return 3; } }
+
+            public int D { get { _read(nameof(D)); return 4; } }
         }
 
         private static SecureString Secret() {
@@ -245,18 +248,73 @@ namespace ConsoleMonster.Tests.Values {
 
         [Fact]
         public void Budget_SlowGetters_StopReadingInsteadOfStalling() {
-            ShapeOptions options = new ShapeOptions { TimeBudget = TimeSpan.FromMilliseconds(150) };
-            ShapeBudget budget = ShapeBudget.For(options);
-            System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
-            List<object?> values = ValueShaper.Fields(new Slow(), options).Select(field => ValueShaper.Read(field, budget)).ToList();
-            Assert.True(clock.ElapsedMilliseconds < 2000);
-            Assert.Contains(values, value => value is BudgetExceeded);
+            TimeSpan elapsed = TimeSpan.Zero;
+            List<string> reads = new List<string>();
+            Slow record = new Slow(name => { reads.Add(name); elapsed += TimeSpan.FromMilliseconds(120); });
+            ShapeBudget budget = new ShapeBudget(TimeSpan.FromMilliseconds(150), int.MaxValue, () => elapsed);
+            IReadOnlyList<InspectMember> fields = ValueShaper.Fields(record);
+            Assert.Empty(reads);
+
+            List<object?> values = fields.Select(field => ValueShaper.Read(field, budget)).ToList();
+
+            Assert.Equal(new object?[] { 1, 2, BudgetExceeded.Instance, BudgetExceeded.Instance }, values);
+            Assert.Equal(new[] { "A", "B" }, reads);
+            Assert.Equal(TimeSpan.FromMilliseconds(240), elapsed);
+            Assert.True(budget.WasExceeded);
+        }
+
+        [Theory]
+        [InlineData(149, true)]
+        [InlineData(150, true)]
+        [InlineData(151, false)]
+        public void Budget_Deadline_AllowsReadsThroughExactLimit(int milliseconds, bool allowed) {
+            TimeSpan elapsed = TimeSpan.Zero;
+            ShapeBudget budget = new ShapeBudget(TimeSpan.FromMilliseconds(150), 10, () => elapsed);
+            int reads = 0;
+            InspectMember field = new InspectMember("Value", () => { reads++; return 42; });
+            elapsed = TimeSpan.FromMilliseconds(milliseconds);
+
+            object? result = ValueShaper.Read(field, budget);
+
+            Assert.Equal(allowed ? 1 : 0, reads);
+            if (allowed) {
+                Assert.Equal(42, result);
+            } else {
+                Assert.Same(BudgetExceeded.Instance, result);
+            }
+            Assert.Equal(!allowed, budget.WasExceeded);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Budget_NonpositiveTime_StillEnforcesNodeLimit(int milliseconds) {
+            ShapeBudget budget = new ShapeBudget(TimeSpan.FromMilliseconds(milliseconds), 1, () => TimeSpan.FromDays(1));
+            int reads = 0;
+            InspectMember field = new InspectMember("Value", () => { reads++; return 42; });
+
+            Assert.Equal(42, ValueShaper.Read(field, budget));
+            Assert.False(budget.WasExceeded);
+            Assert.Same(BudgetExceeded.Instance, ValueShaper.Read(field, budget));
+            Assert.Equal(1, reads);
             Assert.True(budget.WasExceeded);
         }
 
         [Fact]
         public void Inspector_TimeBudget_StopsWithAMarker() {
-            InspectNode root = ObjectInspector.Inspect(new[] { new Slow(), new Slow(), new Slow() }, new InspectorOptions { TimeBudget = TimeSpan.FromMilliseconds(150) });
+            TimeSpan elapsed = TimeSpan.Zero;
+            List<string> reads = new List<string>();
+            Slow Record() => new Slow(name => { reads.Add(name); elapsed += TimeSpan.FromMilliseconds(120); });
+            InspectorOptions options = new InspectorOptions { TimeBudget = TimeSpan.FromMilliseconds(150) };
+            ShapeBudget budget = new ShapeBudget(options.TimeBudget, int.MaxValue, () => elapsed);
+            InspectCollection root = Assert.IsType<InspectCollection>(ObjectInspector.InspectWithBudget(new[] { Record(), Record(), Record() }, options, budget));
+
+            Assert.Equal(new[] { "A", "B" }, reads);
+            Assert.Equal(TimeSpan.FromMilliseconds(240), elapsed);
+            Assert.Equal(3, root.Items.Count);
+            InspectObject first = Assert.IsType<InspectObject>(root.Items[0]);
+            Assert.Equal(1, Assert.IsType<InspectScalar>(first.Members[0]).Value);
+            Assert.All(root.Items.Skip(1), item => Assert.IsType<InspectLimit>(item));
             List<InspectLimit> limits = new List<InspectLimit>();
             void Walk(InspectNode node) {
                 if (node is InspectLimit limit) {

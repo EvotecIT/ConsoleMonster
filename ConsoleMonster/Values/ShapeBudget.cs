@@ -8,16 +8,25 @@ namespace ConsoleMonster.Values {
     /// "…" instead of stalling the output.
     /// </summary>
     public sealed class ShapeBudget {
-        private readonly Stopwatch _clock = Stopwatch.StartNew();
+        private readonly Func<TimeSpan> _elapsed;
         private readonly TimeSpan _time;
         private int _nodes;
 
         /// <summary>Creates a budget.</summary>
         /// <param name="time">How long the pass may take.</param>
         /// <param name="maxNodes">How many values it may read.</param>
-        public ShapeBudget(TimeSpan time, int maxNodes) {
+        public ShapeBudget(TimeSpan time, int maxNodes) : this(time, maxNodes, StartClock()) { }
+
+        // One elapsed clock per pass; the public constructor always uses a running monotonic Stopwatch.
+        internal ShapeBudget(TimeSpan time, int maxNodes, Func<TimeSpan> elapsed) {
+            _elapsed = elapsed ?? throw new ArgumentNullException(nameof(elapsed));
             _time = time;
             MaxNodes = Math.Max(1, maxNodes);
+        }
+
+        private static Func<TimeSpan> StartClock() {
+            Stopwatch clock = Stopwatch.StartNew();
+            return () => clock.Elapsed;
         }
 
         /// <summary>A budget from options.</summary>
@@ -32,7 +41,7 @@ namespace ConsoleMonster.Values {
         public int MaxNodes { get; }
 
         /// <summary>Whether the allowance is spent (time or nodes).</summary>
-        public bool Exhausted => _nodes >= MaxNodes || (_time > TimeSpan.Zero && _clock.Elapsed > _time);
+        public bool Exhausted => _nodes >= MaxNodes || (_time > TimeSpan.Zero && _elapsed() > _time);
 
         /// <summary>Whether the pass stopped reading at some point.</summary>
         public bool WasExceeded { get; private set; }
