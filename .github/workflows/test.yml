@@ -22,6 +22,8 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TEST_VERBOSITY: minimal
+  # Match the version qualified locally on Windows PowerShell 5.1 and PowerShell 7.
+  PESTER_VERSION: '6.1.0'
 
 jobs:
   dotnet-windows:
@@ -105,14 +107,19 @@ jobs:
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
       - name: Install Pester
+        timeout-minutes: 5
         run: |
+          $ErrorActionPreference = 'Stop'
           Write-Host "PowerShell $($PSVersionTable.PSVersion)"
           [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository -Default -ErrorAction Stop
+          }
+          Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
 
       - name: Run Pester
         run: |
-          Import-Module Pester -MinimumVersion 5.5.0
+          Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests'
@@ -267,10 +274,17 @@ jobs:
           tr -d '\r' < select.log | sed -r 's/\x1b\[[0-9;?]*[ -/]*[@-~]//g' | tail -n 5
           tr -d '\r' < select.log | grep -q 'RESULT=b'
       - name: Install Pester
-        run: Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+        timeout-minutes: 5
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository -Default -ErrorAction Stop
+          }
+          Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
       - name: Run Pester
         run: |
-          Import-Module Pester -MinimumVersion 5.5.0
+          Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests'
           $configuration.Run.Exit = $true
@@ -308,10 +322,17 @@ jobs:
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install Pester
-        run: Install-Module -Name Pester -MinimumVersion 5.5.0 -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+        timeout-minutes: 5
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository -Default -ErrorAction Stop
+          }
+          Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
       - name: Run Pester
         run: |
-          Import-Module Pester -MinimumVersion 5.5.0
+          Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests'
           $configuration.Run.Exit = $true
