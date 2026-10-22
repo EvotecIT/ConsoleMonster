@@ -1,0 +1,13 @@
+[?9001h[?1004h[?25l[2J[m[HCPU time - highest first
+jobs: 72 s
+web: 34 s
+api: 18 s[6;1HResponse-time distribution
+[12 ms, 26 ms): 3
+[26 ms, 40 ms): 3
+[40 ms, 54 ms): 0
+[54 ms, 68 ms): 1
+[68 ms, 82 ms): 2
+[82 ms, 96 ms]: 3[14;1HLatency over time (ms) - one line per host
+api-west: 12, 18, 16, 22, 19, 25, 24, 28
+api-east: 8, 9, 12, 10, 15, 14, 13, 18
+]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?9001l[?1004l

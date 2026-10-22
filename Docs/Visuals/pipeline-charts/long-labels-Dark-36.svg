@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="326.4" height="87.6" viewBox="0 0 326.4 87.6" role="img" aria-label="Long labels / 36 columns">
+<title>Long labels / 36 columns</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}
+.s0{fill:#cccccc;font-weight:bold;}
+</style>
+<rect width="326.4" height="87.6" rx="10" style="fill:var(--cm-chrome)"/>
+<circle cx="18" cy="15" r="6" fill="#ff5f57"/><circle cx="38" cy="15" r="6" fill="#febc2e"/><circle cx="58" cy="15" r="6" fill="#28c840"/>
+<svg class="cm-title-area" x="76" y="0" width="238.4" height="30" overflow="hidden"><text class="cm-title" x="119.2" y="15" textLength="192" lengthAdjust="spacingAndGlyphs" style="font-family:monospace"><title>Long labels / 36 columns</title>Long labels / 36 columns</text></svg>
+<g class="cm-layer" transform="translate(12 42)"><rect width="326.4" height="57.6" x="-12" y="-12" fill="#0c0c0c"/><path class="cm-s" d="M226.8 10.5h8.4v6.3h-8.4zM235.2 6.3h8.4v10.5h-8.4zM243.6 0h8.4v16.8h-8.4z" fill="#60a5fa"/><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 138.6 147 155.4 163.8 172.2 180.6 189 197.4 205.8 214.2" y="8.4" fill="#8b8f9a">long-host-name.example.org</text><text class="cm-t s0" x="264.6" y="8.4">3</text><path class="cm-s" d="M226.8 25.2h8.4v8.4h-8.4zM235.2 21h8.4v12.6h-8.4zM243.6 16.8h8.4v16.8h-8.4z" fill="#4ade80"/><text class="cm-t" x="8.4 25.2 42 58.8 75.6 92.4 109.2 126 142.8 159.6" y="25.2" fill="#8b8f9a">日本語の長いホスト名</text><text class="cm-t s0" x="264.6" y="25.2">4</text></g>
+</svg>

@@ -43,12 +43,17 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             CommandInfo? command = null;
-            try {
-                command = InvokeCommand.GetCommand(Name, CommandTypes.All);
-            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
-                command = null;
+            bool wildcard = WildcardPattern.ContainsWildcardCharacters(Name);
+            bool topic = Name.StartsWith("about_", StringComparison.OrdinalIgnoreCase) || wildcard;
+            if (!topic) {
+                try {
+                    command = InvokeCommand.GetCommand(Name, CommandTypes.All);
+                } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                    command = null;
+                }
             }
-            bool topic = Name.StartsWith("about_", StringComparison.OrdinalIgnoreCase) || WildcardPattern.ContainsWildcardCharacters(Name);
+            // Patterns and about topics belong to Get-Help. Looking them up as literal commands first invokes
+            // missing-command discovery and module analysis before Get-Help's own search.
             if (command is ApplicationInfo) {
                 // A program has no PowerShell help; Get-Help would search every help file first.
                 WriteError(new ErrorRecord(new ItemNotFoundException("'" + Name + "' is a program; try " + Name + " /? or " + Name + " --help."), "ProgramHasNoHelp", ErrorCategory.ObjectNotFound, Name));
