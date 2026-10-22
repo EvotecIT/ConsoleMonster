@@ -14,10 +14,14 @@ namespace ConsoleMonster.Tests.Overview {
                 .Register("Unavailable", "Unavailable", _ => Task.FromResult<OverviewSection?>(null))
                 .Register("Empty", "Empty", _ => Task.FromResult<OverviewSection?>(new OverviewSection("Empty", "Empty", Array.Empty<OverviewItem>())))
                 .Register("Last", "Last panel", _ => Task.FromResult<OverviewSection?>(Section("Last")));
-            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync(new OverviewOptions { Sections = new[] { "last", "First", "FIRST", "Empty", "Unavailable" } });
-            Assert.Equal(new[] { "Last", "First" }, snapshot.Sections.Select(section => section.Name));
-            Assert.Equal("First panel", snapshot.Sections[1].Title);
-            Assert.All(snapshot.Sections, section => Assert.False(section.IsPending));
+            OverviewProbe[] probes = registry.Select(new[] { "last", "First", "FIRST", "Empty", "Unavailable" });
+            Task<OverviewSection?>[] flights = probes.Select(probe => probe.Start(TimeSpan.FromSeconds(2))).ToArray();
+            await Task.WhenAll(flights);
+            // Selection is about completed observations, independently of the caller's short wait budget.
+            var sections = OverviewCollector.AvailableSections(probes, flights);
+            Assert.Equal(new[] { "Last", "First" }, sections.Select(section => section.Name));
+            Assert.Equal("First panel", sections[1].Title);
+            Assert.All(sections, section => Assert.False(section.IsPending));
         }
 
         [Fact]
@@ -125,8 +129,11 @@ namespace ConsoleMonster.Tests.Overview {
             OverviewSectionRegistry registry = new OverviewSectionRegistry()
                 .Register("Denied", "Denied", _ => throw new UnauthorizedAccessException("synthetic-private-detail"))
                 .Register("Good", "Good", _ => Task.FromResult<OverviewSection?>(Section("Good")));
-            OverviewSnapshot snapshot = await new OverviewCollector(registry).CollectAsync();
-            Assert.Equal("Good", Assert.Single(snapshot.Sections).Name);
+            OverviewProbe[] probes = registry.Select(null);
+            Task<OverviewSection?>[] flights = probes.Select(probe => probe.Start(TimeSpan.FromSeconds(2))).ToArray();
+            await Task.WhenAll(flights);
+            var sections = OverviewCollector.AvailableSections(probes, flights);
+            Assert.Equal("Good", Assert.Single(sections).Name);
         }
 
         [Fact]
