@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   verify-site:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@87e7665bb3df2f9d8c96b66fc21eb39d70754c9c
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@a59da372d66af663a6591a9e7d4d9aa3abc4547c
     with:
       website_root: Website
       dotnet_version: |
@@ -104,6 +104,11 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
+      # PowerForge renders the required social cards with ImageMagick on Linux; the engine's own setup script installs and checks it.
+      - name: Prepare the social card renderer
+        if: steps.changes.outputs.website == 'true'
+        shell: pwsh
+        run: ./_powerforge/.github/scripts/Install-WebsiteSocialCardDependencies.ps1 -Enabled $true
       - name: Build the site
         if: steps.changes.outputs.website == 'true'
         shell: pwsh

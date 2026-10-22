@@ -42,7 +42,7 @@
       "config": "./site.json",
       "out": "./_site",
       "clean": true,
-      "socialCardsRequired": false
+      "socialCardsRequired": true
     },
     {
       "task": "exec",
@@ -76,7 +76,7 @@
       "socialCardPath": "/site/social/api",
       "socialCardTheme": "cm-api",
       "socialCardTitle": "name",
-      "socialCardsRequired": false,
+      "socialCardsRequired": true,
       "css": "/themes/consolemonster/assets/tokens.css,/themes/consolemonster/assets/base.css,/themes/consolemonster/assets/api-base.css,/themes/consolemonster/assets/api.css",
       "sourceRoot": "..",
       "sourceUrl": "https://github.com/EvotecIT/ConsoleMonster/blob/master/{root}/{pathNoRoot}#L{line}",
@@ -108,7 +108,7 @@
       "socialCardPath": "/site/social/api",
       "socialCardTheme": "cm-api",
       "socialCardTitle": "name",
-      "socialCardsRequired": false,
+      "socialCardsRequired": true,
       "css": "/themes/consolemonster/assets/tokens.css,/themes/consolemonster/assets/base.css,/themes/consolemonster/assets/api-base.css,/themes/consolemonster/assets/api.css",
       "injectCriticalCss": true,
       "criticalCssPath": "./themes/consolemonster/critical.css",
