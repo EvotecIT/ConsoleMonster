@@ -9,8 +9,12 @@ param([Parameter(Mandatory)][string] $ResultPath)
 
 $ErrorActionPreference = 'Stop'
 if ([Console]::IsOutputRedirected -or $Host.Name -ne 'ConsoleHost') { throw 'An actual local ConsoleHost is required.' }
-Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')
-Import-Module (Join-Path $PSScriptRoot '../Fixtures/HelpFormatting/HelpFormatting.psd1')
+if (-not (Get-Module ConsoleMonster)) {
+    Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')
+}
+# Use the loaded module's root so PS5.1 sees one path to the fixture's about topic,
+# including when the native site runner imports through its module junction.
+Import-Module (Join-Path (Get-Module ConsoleMonster).ModuleBase 'Tests/Fixtures/HelpFormatting/HelpFormatting.psd1')
 . (Join-Path $PSScriptRoot 'Get-HelpFormattingCapture.ps1')
 . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
 $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
@@ -23,12 +27,12 @@ $nativeGetHelp = Get-Command Get-Help
 $checks = [Collections.Generic.List[string]]::new()
 
 function Assert-HelpFrame {
-    param([string] $Expected)
+    param([string] $Expected, [string] $Case)
     $expected = ($Expected -replace "`r", '').TrimEnd("`n") + "`n"
     $lines = @($expected.TrimEnd("`n") -split "`n").Count
     $width = @($expected.TrimEnd("`n") -split "`n" | ForEach-Object Length | Measure-Object -Maximum).Maximum
     $actual = [ConsoleMonsterTestConsoleFrame]::LastFrame($lines, $width)
-    if ($actual -cne $expected) { throw "Help frame differs.`nExpected:`n$expected`nActual:`n$actual" }
+    if ($actual -cne $expected) { throw "Help frame differs for $Case.`nExpected:`n$expected`nActual:`n$actual" }
 }
 
 try {
@@ -57,12 +61,15 @@ try {
     # The nested producer has no following command; this is the same pipe connection as the interactive prompt.
     $width = [Console]::BufferWidth
     [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 200, 'None')
-    $expected = Show-ConsoleHelp Get-HelpFormattingShort -Width $width -AsString
-    & { Get-Help Get-HelpFormattingShort -Full } | Out-Default
-    Assert-HelpFrame $expected
+    $native = Microsoft.PowerShell.Core\Get-Help Get-HelpFormattingShort
+    $factory = [ConsoleMonster.PowerShell.ConsoleViewRegistration].Assembly.GetType('ConsoleMonster.PowerShell.PSHelp').GetMethod('CreateView', [Reflection.BindingFlags]'Static,NonPublic')
+    $view = $factory.Invoke($null, @($native, (Get-Command Get-HelpFormattingShort).PSObject.BaseObject, $false, $false, $true))
+    $expected = $view | Export-ConsoleFrame -Format Text -Width $width
+    & { Get-Help Get-HelpFormattingShort } | Out-Default
+    Assert-HelpFrame $expected 'Get-Help default'
     & { Get-HelpFormattingShort -? } | Out-Default
-    Assert-HelpFrame $expected
-    $checks.Add('Get-Help and -? actual console cells equal canonical Show-ConsoleHelp')
+    Assert-HelpFrame $expected '-? default'
+    $checks.Add('Default Get-Help and -? actual console cells equal the selected native help view')
 
     foreach ($paged in $false, $true) {
         Clear-Host
@@ -100,7 +107,7 @@ try {
     Clear-Host
     & { Get-Help about_ConsoleMonsterHelpFormatting } | Out-Default
     $frame = [ConsoleMonsterTestConsoleFrame]::LastFrame(18, $width)
-    if ($frame -cnotmatch '\[brackets\], <angle brackets>' -or $frame -notmatch 'HELP_ABOUT_LITERAL') { throw 'About topic did not stay literal' }
+    if ($frame -cnotmatch '\[brackets\], <angle brackets>' -or $frame -notmatch 'HELP_ABOUT_LITERAL') { throw "About topic did not stay literal: $frame" }
     $checks.Add('About topic stays literal on the actual host')
 
     # Captured results, identity pipelines and job results have no connected native producer.
@@ -128,20 +135,24 @@ try {
     $checks.Add('Transcript help body equals native text exactly')
 
     # A short help topic needs no input or footer.
+    # PowerShell's help function selects Full for its default AllUsersView.
+    $full = Microsoft.PowerShell.Core\Get-Help Get-HelpFormattingShort -Full
+    $pagedView = $factory.Invoke($null, @($full, (Get-Command Get-HelpFormattingShort).PSObject.BaseObject, $false, $false, $true))
+    $pagedExpected = $pagedView | Export-ConsoleFrame -Format Text -Width $width
     $input = [ConsoleMonster.Input.ScriptedInput]::new('q')
     [ConsoleMonster.Input.ConsoleInput]::Override = $input
     & { help Get-HelpFormattingShort } | Out-Default
-    Assert-HelpFrame $expected
+    Assert-HelpFrame $pagedExpected 'short help pager'
     if ($input.Remaining -ne 1 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'Short help consumed input' }
     $checks.Add('Short help skips pager and leaves input alone')
 
-    # Space advances; q exits. A remaining key proves early quit rather than consuming the whole topic.
+    # Space advances, b returns, q exits. A remaining key proves early quit.
     [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 10, 'None')
-    $input = [ConsoleMonster.Input.ScriptedInput]::new('Space q Space')
+    $input = [ConsoleMonster.Input.ScriptedInput]::new('Space b q Space')
     [ConsoleMonster.Input.ConsoleInput]::Override = $input
     & { help Get-HelpFormattingValue -Full } | Out-Default
     if ($input.Remaining -ne 1 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'Pager did not advance/quit/release input' }
-    $checks.Add('Paged help advances with Space, quits with q, releases input')
+    $checks.Add('Paged help advances with Space, returns with b, quits with q, releases input')
 
     $input = [ConsoleMonster.Input.ScriptedInput]::new('q Space')
     [ConsoleMonster.Input.ConsoleInput]::Override = $input

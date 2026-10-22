@@ -59,6 +59,8 @@ namespace SiteFrames {
                     return TextDiffFigures.Review(new Site(website), only);
                 case "help-review":
                     return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"), args.Length > 3 && args[3] == "--reuse-captures");
+                case "help-proof":
+                    return HelpFormattingPage.Verify(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-proof [WebsiteRoot] [scratch]"));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;

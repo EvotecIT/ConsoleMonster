@@ -28,6 +28,25 @@ namespace SiteFrames.Pages {
 
         private static string CapturePath(Site site, string id) => Path.Combine(site.Captures, "help-formatting", id + ".ansi");
 
+        /// <summary>Runs the native host routing, section, transcript and pager contracts on both PowerShell runtimes.</summary>
+        /// <param name="site">The site and repository paths.</param>
+        /// <param name="output">The directory receiving native captures and contract receipts.</param>
+        /// <returns>Zero after both native hosts pass.</returns>
+        public static int Verify(Site site, string output) {
+            Directory.CreateDirectory(output);
+            foreach (PowerShellHost host in PowerShellHost.All) {
+                string result = Path.Combine(output, host.Id + ".json");
+                string script = Path.Combine(site.Repository, "Module", "Tests", "Support", "Assert-HelpFormattingHost.ps1");
+                byte[] bytes = PowerShellRunner.Bytes(PowerShellRunner.Run(site, host, script, 120, 100,
+                    PowerShellRunner.Environment("dark"), arguments: "-ResultPath '" + result.Replace("'", "''") + "'",
+                    setup: "trap { $_ | Out-String | Set-Content -LiteralPath '" + (result + ".failure.txt").Replace("'", "''") + "'; exit 1 }"));
+                File.WriteAllBytes(Path.Combine(output, host.Id + ".ansi"), bytes);
+                if (!File.Exists(result)) { throw new InvalidOperationException("Help host contracts failed on " + host.Id + "; inspect " + output); }
+                Console.WriteLine("Help host contracts passed " + host.Id);
+            }
+            return 0;
+        }
+
         private static Dictionary<string, string?> CaptureEnvironment(string theme) {
             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme);
             environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
