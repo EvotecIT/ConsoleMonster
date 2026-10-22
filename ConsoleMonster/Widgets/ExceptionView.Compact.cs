@@ -34,6 +34,7 @@ namespace ConsoleMonster.Widgets {
                 facts = Join(facts, _info.Target, context);
             }
             AddCompactWrapped(lines, facts, width, muted);
+            string? footer = DetailsHint;
             if (ShowStack) {
                 AddFrames(lines, _info.ScriptFrames, string.Empty, width, context);
                 AddFrames(lines, _info.Frames, string.Empty, width, context);
@@ -44,9 +45,12 @@ namespace ConsoleMonster.Widgets {
             } else {
                 int count = 0;
                 for (ExceptionInfo? inner = _info.Inner; inner != null; inner = inner.Inner) { count++; }
-                if (count > 0) { AddCompactWrapped(lines, count == 1 ? context.Labels.OneInnerError : WidgetLabels.Format(context.Labels.InnerErrorCount, count.ToString(CultureInfo.InvariantCulture)), width, muted); }
+                if (count > 0) {
+                    string causes = count == 1 ? context.Labels.OneInnerError : WidgetLabels.Format(context.Labels.InnerErrorCount, count.ToString(CultureInfo.InvariantCulture));
+                    footer = Join(causes, DetailsHint, context);
+                }
             }
-            AddCompactWrapped(lines, DetailsHint, width, muted);
+            AddCompactWrapped(lines, footer, width, muted);
             return lines;
         }
 
@@ -80,7 +84,7 @@ namespace ConsoleMonster.Widgets {
             lines.Add(visible);
             int caret = Math.Max(0, start - skipped);
             int carets = Math.Max(1, Math.Min(span, Math.Max(1, width - caret)));
-            lines.Add(StyledLine.From(new string(' ', caret) + new string('^', carets), muted));
+            lines.Add(StyledLine.From(new string(' ', caret) + new string('^', carets), context.Style(ThemeToken.Fail).With(TextDecoration.Dim)));
         }
 
         private static void AddCompactWrapped(List<StyledLine> lines, string? value, int width, Style style) {

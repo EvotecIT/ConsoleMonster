@@ -11,7 +11,7 @@ namespace ConsoleMonster.Localization {
     /// <see cref="For"/>. Format strings take <c>{0}</c>, <c>{1}</c> placeholders.
     /// </summary>
     public sealed class WidgetLabels {
-        /// <summary>The compact error label; only this label uses the failure tone.</summary>
+        /// <summary>The compact error label.</summary>
         public string ErrorLabel { get; set; } = "Error";
 
         /// <summary>A source location without a script file.</summary>

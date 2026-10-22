@@ -100,6 +100,10 @@ $text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Testing.T
 if ($text -notmatch '^Error: Exception calling' -or $text -notmatch '\^+' -or $text -notmatch '\[int\]::Parse') { throw 'Missing compact invocation.' }
 if ($text -notmatch '\+1 inner exception' -or $text -match 'Caused by') { throw 'Causes were not folded.' }
 if ($widget.ShowStack) { throw 'Compact default exposed stacks.' }
+if ($widget.DetailsHint) {
+    $footer = '+1 inner exception ' + [char]0x00b7 + ' ' + $widget.DetailsHint
+    if (-not $text.EndsWith($footer)) { throw 'Folded cause and available details hint were not combined.' }
+} elseif (-not $text.EndsWith('+1 inner exception')) { throw 'Folded cause changed without a details command.' }
 'SHARED_VIEW_OK'
 '@
         $text | Should -Match 'SHARED_VIEW_OK'

@@ -1,0 +1,6 @@
+Error: Cannot load the inventory: the source file is missing.
+deploy.ps1:12:1
+Get-Item -LiteralPath './inventory.json'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ObjectNotFound · PathNotFound · ./inventory.json
++2 inner exceptions · Get-Error for details

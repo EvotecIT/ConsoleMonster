@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Xml.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 using SiteFrames;
@@ -30,11 +31,20 @@ namespace SiteFrames.Tests {
             Site site = new Site(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../..")));
             ErrorFigures.ExportReview(site, directory);
             Assert.Equal(4, Directory.GetFiles(directory, "*.html").Length);
+            Assert.Equal(4, Directory.GetFiles(directory, "*.txt").Length);
+            string[] exported = Directory.GetFiles(directory, "*.svg");
+            Assert.Equal(4, exported.Length);
+            foreach (string file in exported) {
+                XDocument svg = XDocument.Load(file);
+                XNamespace ns = "http://www.w3.org/2000/svg";
+                Assert.Equal(ns + "svg", svg.Root!.Name);
+                Assert.Contains(svg.Descendants(ns + "text"), text => text.Value.Contains("^^"));
+            }
             foreach (int width in new[] { 60, 120 }) {
                 string text = ErrorFigures.Run(site, width, Theme.Dark).ToPlainText();
                 Assert.StartsWith("Error: Cannot load the inventory", text, StringComparison.Ordinal);
                 Assert.Contains("deploy.ps1:12:1", text, StringComparison.Ordinal);
-                Assert.Contains("+2 inner exceptions", text, StringComparison.Ordinal);
+                Assert.Contains("+2 inner exceptions · Get-Error for details", text, StringComparison.Ordinal);
                 Assert.Contains("ObjectNotFound", text, StringComparison.Ordinal);
                 Assert.Contains("./inventory.json", text, StringComparison.Ordinal);
                 Assert.DoesNotContain("Caused by", text, StringComparison.Ordinal);

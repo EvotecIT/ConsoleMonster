@@ -33,6 +33,7 @@ namespace SiteFrames.Pages {
                     string path = Path.Combine(directory, "errors-" + width + "-" + name);
                     ExportOptions options = new ExportOptions { Width = width, Theme = export, Title = "Compact PowerShell errors", WindowChrome = true };
                     File.WriteAllText(path + ".html", ConsoleExporter.ToHtml(frame, options));
+                    File.WriteAllText(path + ".svg", ConsoleExporter.ToSvg(frame, options));
                     File.WriteAllText(path + ".txt", frame.ToPlainText());
                 }
             }
