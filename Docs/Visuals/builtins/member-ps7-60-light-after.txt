@@ -1,31 +1,31 @@
  TypeName: System.String
 ╭───────────┬────────────┬─────────────────────────────────╮
 │ Name      │ MemberType │ Definition                      │
-├───────────┼────────────┼─────────────────────────────────┤
-│ Method  1                                                │
+├───────────┴────────────┴─────────────────────────────────┤
+│ Method · 1                                               │
 │ Substring │ Method     │ string Substring(int            │
 │           │            │ startIndex), string             │
 │           │            │ Substring(int startIndex, int   │
 │           │            │ length)                         │
-│ Property  1                                              │
+│ Property · 1                                             │
 │ Length    │ Property   │ int Length {get;}               │
 ╰───────────┴────────────┴─────────────────────────────────╯
 
  TypeName: System.ComponentModel.BackgroundWorker
 ╭────────────────┬────────────┬────────────────────────────╮
 │ Name           │ MemberType │ Definition                 │
-├────────────────┼────────────┼────────────────────────────┤
-│ Event  1                                                 │
+├────────────────┴────────────┴────────────────────────────┤
+│ Event · 1                                                │
 │ DoWork         │ Event      │ System.ComponentModel.     │
 │                │            │ DoWorkEventHandler         │
 │                │            │ DoWork(System.Object,      │
 │                │            │ System.ComponentModel.     │
 │                │            │ DoWorkEventArgs)           │
-│ Method  1                                                │
+│ Method · 1                                               │
 │ RunWorkerAsync │ Method     │ void RunWorkerAsync(),     │
 │                │            │ void                       │
 │                │            │ RunWorkerAsync(System.     │
 │                │            │ Object argument)           │
-│ Property  1                                              │
+│ Property · 1                                             │
 │ IsBusy         │ Property   │ bool IsBusy {get;}         │
 ╰────────────────┴────────────┴────────────────────────────╯

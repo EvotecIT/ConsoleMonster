@@ -122,7 +122,7 @@ namespace ConsoleMonster.Widgets {
             }
             CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
             Region region = new Region(buffer);
-            DrawHead(region, 0, layout, context, merge);
+            DrawHead(region, 0, layout, context, merge, first);
             DrawRows(region, headHeight, layout, first, end, context, merge && !ShowHeader);
             for (int i = first; i < end; i++) {
                 layout.Rows[i].Lines = null;
@@ -150,23 +150,25 @@ namespace ConsoleMonster.Widgets {
             return height;
         }
 
-        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup) {
+        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup, int firstRow = 0) {
             Style border = context.Style(ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
+            bool section = GroupHeadersAsRows && firstRow < layout.Rows.Count && layout.Rows[firstRow].Kind == TableRowKind.Group;
             if (!string.IsNullOrEmpty(Title)) {
                 StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
                 region.Write(boxed ? 1 : 0, y++, title);
             }
             if (boxed && !(mergeFirstGroup && !ShowHeader)) {
-                DrawRule(region, y++, layout, box.TopLeft, box.TopJoint, box.TopRight, box.Horizontal, border);
+                DrawRule(region, y++, layout, box.TopLeft, section && !ShowHeader ? box.Horizontal : box.TopJoint, box.TopRight, box.Horizontal, border);
             }
             if (ShowHeader) {
                 y = DrawCells(region, y, layout, layout.HeaderLines, null, null, layout.HeaderHeight, box, border, context);
                 if (!HeaderSeparator || mergeFirstGroup) {
                     // The underlined header carries the separation, or the first group heading is drawn as the separator.
                 } else if (boxed) {
-                    DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
+                    // Close header columns above a spanning section; a cross would leave downward stubs.
+                    DrawRule(region, y++, layout, box.LeftJoint, section ? box.BottomJoint : box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if (Border == TableBorder.Minimal) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }

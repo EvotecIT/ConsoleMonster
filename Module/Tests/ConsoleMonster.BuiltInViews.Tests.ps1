@@ -52,12 +52,13 @@
             foreach ($widget in $widgets) {
                 $widget.GroupHeadersAsRows | Should -BeTrue
                 $text = $widget | Export-ConsoleFrame -Format Text -Width $width
-                $groups = @($text -split "`n" | Where-Object { $_ -match '(Method|Property)  [0-9]+' })
+                $groups = @($text -split "`n" | Where-Object { $_ -match '(Method|Property) · [0-9]+' })
                 $groups.Count | Should -Be 2
                 foreach ($group in $groups) {
                     ([regex]::Matches($group, '│')).Count | Should -Be 2
                     $group | Should -Not -Match '┼|─'
                 }
+                $text | Should -Not -Match '┼'
             }
             $native = Convert-TestNativeView -Rows $script:members
             $nativeText = $native | Export-ConsoleFrame -Format Text -Width $width

@@ -89,7 +89,7 @@ The direct-host routing check supports PowerShell 5.1 and 7. It reads the engine
 
 ## Everyday built-in views
 
-Member tables show `TypeName: ...` above each type. Within a type, full-width section rows separate methods, properties and events and show each group's member count. Column borders resume beneath each section row, including at narrow widths.
+Member tables show `TypeName: ...` above each type. Within a type, full-width section rows separate methods, properties and events. Labels use the accent colour, followed by a subdued count, such as `Property · 1`. Header column lines stop above a section row without stubs and resume on the next data row, including at narrow widths.
 
 Enable default formatting to use the registered views for members, commands, modules and history. Add `FormatCommands` when you also want ConsoleMonster to render explicit `Format-Table` and `Format-List` commands at the host.
 

@@ -114,7 +114,7 @@ namespace ConsoleMonster.Widgets {
             foreach (TextSpan span in presenter.Render.Markup(_groups[group]).Lines[0].WithBaseStyle(presenter.Render.Style(GroupHeadersAsRows ? ThemeToken.Accent : ThemeToken.Header).With(TextDecoration.Bold))) {
                 spans.Add(span);
             }
-            string separator = GroupHeadersAsRows ? "  " : presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
+            string separator = presenter.Render.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " - " : " · ";
             string count = shown < total
                 ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, shown.ToString("N0", presenter.Culture), total.ToString("N0", presenter.Culture))
                 : total.ToString("N0", presenter.Culture);
