@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="WindowsRequired" xml:space="preserve"><value>Windows event-log tails require Windows. Use -Path for a file on this platform.</value></data>
+  <data name="FileSystemRequired" xml:space="preserve"><value>Log files must use the FileSystem provider.</value></data>
+  <data name="MissingEventMessage" xml:space="preserve"><value>The event provider did not supply a message.</value></data>
+</root>

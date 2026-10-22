@@ -10,7 +10,7 @@ namespace ConsoleMonster.Localization {
     /// built in. Assign <see cref="Override"/> to replace them everywhere, or change a property on a copy from
     /// <see cref="For"/>. Format strings take <c>{0}</c>, <c>{1}</c> placeholders.
     /// </summary>
-    public sealed class WidgetLabels {
+    public sealed partial class WidgetLabels {
         private static readonly System.Reflection.PropertyInfo[] LabelProperties = typeof(WidgetLabels).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
         [ThreadStatic]

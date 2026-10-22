@@ -20,7 +20,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.TestHost {
     // A separate executable is required: Terminal uses OS stdout, and a real Ctrl+C must never reach the test runner.
-    public static class Program {
+    public static partial class Program {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
@@ -28,6 +28,7 @@ namespace ConsoleMonster.TestHost {
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;
                     case "host": return LaunchHidden(args.Skip(1));
+                    case "native-modes": return NativeModes(args[1], args[2]);
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
                     default: throw new ArgumentException("Unknown process contract.");

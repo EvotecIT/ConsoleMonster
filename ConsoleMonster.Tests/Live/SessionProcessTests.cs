@@ -8,7 +8,7 @@ using ConsoleMonster.Interactive;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
-    public sealed class SessionProcessTests {
+    public sealed partial class SessionProcessTests {
         [Theory]
         [InlineData("summary-locks")]
         [InlineData("frame-locks")]

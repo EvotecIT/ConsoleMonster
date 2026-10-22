@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Interop;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -24,6 +25,7 @@ namespace ConsoleMonster.Rendering {
         private int _drawnWidth;
         private bool _invalidated = true;
         private bool _live;
+        private WindowsOutputModeScope? _outputMode;
 
         /// <summary>Creates an inline output.</summary>
         /// <param name="writer">The terminal writer.</param>
@@ -84,8 +86,15 @@ namespace ConsoleMonster.Rendering {
             }
             _live = true;
             _invalidated = true;
-            _writer.Write(Esc + "?25l");
-            _writer.Flush();
+            _outputMode = WindowsOutputModeScope.Activate(_writer);
+            try {
+                _writer.Write(Esc + "?25l");
+                _writer.Flush();
+            } catch {
+                // A partial cursor update still needs cleanup; preserve the original writer failure.
+                try { EndLive(); } catch (Exception) { }
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -147,14 +156,18 @@ namespace ConsoleMonster.Rendering {
             ClearArea();
             _sb.Append(Esc).Append("0m").Append(Esc).Append("?25h");
             _previous = null;
-            Emit();
+            try { Emit(); }
+            finally {
+                _outputMode?.Dispose();
+                _outputMode = null;
+            }
         }
 
         /// <inheritdoc />
         public void Dispose() {
-            EndLive();
-            if (_ownsWriter) {
-                _writer.Dispose();
+            try { EndLive(); }
+            finally {
+                if (_ownsWriter) { _writer.Dispose(); }
             }
         }
 
@@ -243,9 +256,11 @@ namespace ConsoleMonster.Rendering {
             if (_sb.Length == 0) {
                 return;
             }
-            _writer.Write(_sb.ToString());
-            _writer.Flush();
-            _sb.Clear();
+            using (WindowsOutputModeScope? mode = WindowsOutputModeScope.Activate(_writer)) {
+                _writer.Write(_sb.ToString());
+                _writer.Flush();
+                _sb.Clear();
+            }
         }
     }
 }
