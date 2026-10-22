@@ -22,7 +22,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TEST_VERBOSITY: minimal
-  # Match the version qualified locally on Windows PowerShell 5.1 and PowerShell 7.
+  # Use the same exact Pester package on every supported host.
   PESTER_VERSION: '6.1.0'
 
 jobs:
@@ -105,6 +105,9 @@ jobs:
 
       - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
+
+      - name: Build the native console test host (Debug, net472)
+        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net472 -warnaserror
 
       - name: Install Pester
         timeout-minutes: 5
