@@ -62,7 +62,7 @@ namespace ConsoleMonster.Widgets {
                 && (path.Length == home.Length || path[home.Length] == '/' || path[home.Length] == '\\')) {
                 path = "~" + path.Substring(home.Length);
             }
-            path = Shorten(path, Math.Max(0, budget - Cells(branch, context)), context);
+            path = DisplayPath.Fit(path, Math.Max(0, budget - Cells(branch, context)), context.Profile.WidthProfile, context.Ellipsis);
             List<TextSpan> spans = new List<TextSpan> {
                 new TextSpan(path, context.Style(ThemeToken.Accent)),
                 new TextSpan(branch + duration, context.Style(ThemeToken.Muted)),

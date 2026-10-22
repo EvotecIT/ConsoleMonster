@@ -54,6 +54,20 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void NarrowPromptElidesWholeFoldersAcrossCommandStates() {
+            foreach (bool succeeded in new[] { true, false }) {
+                ShellPrompt prompt = new ShellPrompt {
+                    Path = @"C:\Users\Alex\src\Operations\Deployment\Scripts", Home = @"C:\Users\Alex",
+                    Branch = "feature/themed-prompt", Dirty = true, Succeeded = succeeded,
+                    Duration = succeeded ? TimeSpan.Zero : TimeSpan.FromSeconds(3.4)
+                };
+                string text = prompt.ToAnsi(Context(ColorDepth.None, GlyphTier.Full), 60);
+                Assert.StartsWith(succeeded ? @"~\src\…\Deployment\Scripts " : @"~\src\…\Scripts ", text, StringComparison.Ordinal);
+                Assert.True(DisplayWidth.Measure(text) <= 60);
+            }
+        }
+
+        [Fact]
         public void ActiveThemeAndGlyphsStyleTheSamePromptWithoutChangingTerminalState() {
             ShellPrompt prompt = new ShellPrompt { Path = "~/src", Branch = "main", Dirty = true, Succeeded = false };
             RenderContext context = Context(ColorDepth.TrueColor, GlyphTier.Full);

@@ -69,6 +69,36 @@ namespace ConsoleMonster.Text {
             return folder.Length == 0 || (folder.Length == 2 && folder[1] == ':') ? trimmed.Substring(last + 1) : folder + separator + trimmed.Substring(last + 1);
         }
 
+        /// <summary>Fits a display path by eliding whole middle segments before shortening an oversized final segment.</summary>
+        internal static string Fit(string path, int width, TerminalWidthProfile profile, string ellipsis) {
+            if (width <= 0) { return string.Empty; }
+            if (DisplayWidth.Measure(path, profile) <= width) { return path; }
+            char separator = path.IndexOf('\\') >= 0 ? '\\' : '/';
+            string normalized = Normalize(path, separator);
+            string[] segments = normalized.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0) { return TextWrapper.Truncate(path, width, profile, ellipsis); }
+            string last = segments[segments.Length - 1];
+            if (DisplayWidth.Measure(last, profile) > width) {
+                return TextWrapper.TruncateMiddle(last, width, profile, ellipsis);
+            }
+            string root = normalized[0] == separator ? (normalized.Length > 1 && normalized[1] == separator
+                ? new string(separator, 2) : separator.ToString()) : string.Empty;
+            // A drive, home marker or UNC authority belongs with the first directory when space permits.
+            int prefix = Math.Max(0, Math.Min(segments.Length - 2, segments[0] == "~" || segments[0].EndsWith(":", StringComparison.Ordinal)
+                || root.Length == 2 ? 2 : 1));
+            int suffix = segments.Length - 1;
+            string Candidate(int first, int end) => (first > 0 ? root + string.Join(separator.ToString(), segments, 0, first)
+                + separator : string.Empty) + ellipsis + separator
+                + string.Join(separator.ToString(), segments, end, segments.Length - end);
+            while (prefix > 0 && DisplayWidth.Measure(Candidate(prefix, suffix), profile) > width) { prefix--; }
+            string result = Candidate(prefix, suffix);
+            if (DisplayWidth.Measure(result, profile) > width) { return last; }
+            // Prefer nearby parent folders, then spend remaining room on the beginning, without splitting either.
+            while (suffix > prefix + 1 && DisplayWidth.Measure(Candidate(prefix, suffix - 1), profile) <= width) { suffix--; }
+            while (prefix + 1 < suffix && DisplayWidth.Measure(Candidate(prefix + 1, suffix), profile) <= width) { prefix++; }
+            return Candidate(prefix, suffix);
+        }
+
         private static string Normalize(string path, char separator) => path.Replace(separator == '\\' ? '/' : '\\', separator);
 
         private static bool IsWindowsRooted(string path) =>
