@@ -10,7 +10,7 @@ apis: [LiveSession, TerminalScope, Start-ConsoleDashboard -Parallel]
 summary: "Any thread can update the screen; one thread draws it."
 ---
 
-Parallel work and a console do not mix on their own: every thread that writes to the console writes over the others. ConsoleMonster gives the screen to one thread and lets every other thread send it updates, so a live view stays whole however many workers report to it, and output that is not a terminal gets whole lines in order. The [guarantees table](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Concurrency-Guarantees.md#guarantees-and-their-tests) names the test behind each concurrency guarantee.
+Parallel work and a console do not mix on their own: every thread that writes to the console writes over the others. ConsoleMonster gives the screen to one thread and lets every other thread send it updates, so a live view stays whole however many workers report to it, and output that is not a terminal gets whole lines in order. The [guarantees table](#guarantees-and-their-tests) at the end names the test behind each concurrency guarantee.
 
 {{< cm-demo id="threads-naive" heading="h2" >}}
 
@@ -137,4 +137,6 @@ Build a widget fully before the session starts, then change it only through hand
 
 ## Guarantees and their tests
 
-The [guarantees table](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Concurrency-Guarantees.md#guarantees-and-their-tests) in the repository names the test behind each guarantee: whole blocks and lines under many producers, per-producer order, posting while applying is blocked, exactly-once fallback writes at shutdown, later posts rejected and the terminal restored after Ctrl+C, and zero drops under the stress test. The core tests run on .NET Framework 4.7.2, .NET 8 and .NET 10, the PowerShell tests in Windows PowerShell 5.1 and PowerShell 7.
+Each concurrency guarantee, the tests that prove it and where those tests run. The table is generated from the repository's guarantees document on every build, so the page and the document always match.
+
+{{< cm-guarantees >}}

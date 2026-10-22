@@ -5,6 +5,7 @@ on:
     paths:
       - "Website/**"
       - "README.md"
+      - "Docs/Concurrency-Guarantees.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
@@ -17,6 +18,7 @@ on:
     paths:
       - "Website/**"
       - "README.md"
+      - "Docs/Concurrency-Guarantees.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
       - "ConsoleMonster.Generators/**"
