@@ -336,14 +336,14 @@ jobs:
         timeout-minutes: 5
         run: |
           $ErrorActionPreference = 'Stop'
-          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-          try {
-            $null = Get-PSRepository -Name PSGallery -ErrorAction Stop
-          } catch {
-            if ($_.FullyQualifiedErrorId -notmatch '^(SourceNotFound|RepositoryNotFound),') { throw }
-            Register-PSRepository -Default
-          }
-          Install-Module -Name Pester -RequiredVersion $env:PESTER_VERSION -Repository PSGallery -Force -SkipPublisherCheck -Scope CurrentUser
+          # Use PowerShell's bundled client instead of legacy NuGet source probing on macOS.
+          Import-Module Microsoft.PowerShell.PSResourceGet -ErrorAction Stop
+          Write-Host "PowerShell $($PSVersionTable.PSVersion); PSResourceGet $((Get-Module Microsoft.PowerShell.PSResourceGet).Version)"
+          $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
+          $null = New-Item -ItemType Directory -Path $moduleRoot -Force
+          Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
+          $modulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
+          "PSModulePath=$modulePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Run Pester
         run: |
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
