@@ -71,6 +71,10 @@ namespace SiteFrames.Pages {
                     site.Write(Path.Combine(folder, name), FrameMinimap.Svg(offer.Frame, ColorDepth.TrueColor, screen, Columns, Rows));
                     entry[offer.Only != null ? "src" : screen.Name] = "/site/cards/" + name;
                 }
+                if (offer.Only == null) {
+                    // Social card artwork has one stable URL, independent of the catalogue's theme selection.
+                    site.Write(Path.Combine(folder, id + ".svg"), FrameMinimap.Svg(offer.Frame, ColorDepth.TrueColor, Screen.Dark, Columns, Rows));
+                }
                 cards[id] = entry;
             }
             WidgetsPage.Report(problems, "docs");

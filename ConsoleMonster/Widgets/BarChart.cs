@@ -23,7 +23,10 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The items.</summary>
         public IReadOnlyList<ChartItem> Items => _items;
 
-        /// <summary>The value of a full bar, or <c>null</c> for the largest item.</summary>
+        /// <summary>
+        /// The value of a full bar, or <c>null</c> for the largest item. Non-finite maxima use the largest finite item;
+        /// a negative maximum is treated as zero, so signed bars always include their zero baseline.
+        /// </summary>
         public double? Max { get; set; }
 
         /// <summary>The default bar colour (default <see cref="ThemeToken.Series1"/>).</summary>
@@ -31,6 +34,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Whether values are shown after the bars (default true).</summary>
         public bool ShowValues { get; set; } = true;
+
+        /// <summary>Draws negative values to the left of a shared zero baseline; default false preserves zero-based bars.</summary>
+        public bool Signed { get; set; }
 
         /// <summary>The bar shape: <see cref="BarShape.Block"/> (default, solid three-quarter-height bars that keep a gap between rows) or <see cref="BarShape.Line"/>.</summary>
         public BarShape Shape { get; set; } = BarShape.Block;
@@ -133,17 +139,20 @@ namespace ConsoleMonster.Widgets {
             }
             int labelWidth = 0;
             int valueWidth = 0;
-            double max = Max ?? 0;
+            bool fixedMax = Max.HasValue && NumberFormat.IsFinite(Max.Value);
+            double max = fixedMax ? Math.Max(0, Max!.Value) : 0;
+            double min = 0;
             foreach (ChartItem item in _items) {
                 labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Label));
                 valueWidth = Math.Max(valueWidth, DisplayWidth.Measure(ValueText(item, context)));
-                if (!Max.HasValue && NumberFormat.IsFinite(item.Value)) {
+                if (!fixedMax && NumberFormat.IsFinite(item.Value)) {
                     max = Math.Max(max, item.Value);
                 }
+                if (Signed && NumberFormat.IsFinite(item.Value)) { min = Math.Min(min, item.Value); }
             }
             labelWidth = Math.Min(labelWidth, Math.Max(4, region.Width / 3));
             if (ShowValues) {
-                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), Max.HasValue ? DisplayWidth.Measure(FormatValue(Max.Value)) : 0);
+                valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Max!.Value)) : 0);
             }
             int barX = labelWidth + 1;
             int barWidth = region.Width - barX - (ShowValues ? valueWidth + 1 : 0);
@@ -154,7 +163,18 @@ namespace ConsoleMonster.Widgets {
                 double fraction = max <= 0 || !NumberFormat.IsFinite(item.Value) ? 0 : item.Value / max;
                 StatusKind? reached = item.Token.HasValue ? null : Threshold(item.Value);
                 ThemeToken token = item.Token ?? (reached.HasValue ? reached.Value.ToToken() : BarToken);
-                BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(token), context, false, Shape);
+                if (min < 0 && barWidth > 1) {
+                    double scale = Math.Max(Math.Abs(min), Math.Abs(max));
+                    double span = max / scale - min / scale;
+                    int zero = (int)Math.Round((-min / scale) / span * (barWidth - 1));
+                    int length = NumberFormat.IsFinite(item.Value) ? Math.Max(0, (int)Math.Round(Math.Min(1, Math.Abs(item.Value / scale) / span) * (barWidth - 1))) : 0;
+                    length = Math.Min(length, item.Value < 0 ? zero : barWidth - zero - 1);
+                    int start = item.Value < 0 ? barX + zero - length : barX + zero + 1;
+                    BarDrawer.Draw(region, start, i, length, 1, context.Style(token), context, false, Shape);
+                    region.Write(barX + zero, i, "|", context.Style(ThemeToken.Border));
+                } else {
+                    BarDrawer.Draw(region, barX, i, barWidth, fraction, context.Style(token), context, false, Shape);
+                }
                 if (ShowValues) {
                     StatColumn.Write(region, region.Width - valueWidth, i, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : muted, ValueColumn.Alignment, context.Ellipsis);
                 }

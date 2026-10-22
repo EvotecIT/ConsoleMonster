@@ -94,6 +94,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     $newConfigurationBuildSplat = @{
         Enable                               = $true
         SignModule                           = $SignModule
+        # This compiled module has no script functions to merge; PowerForge generates its binary bootstrapper.
         MergeModuleOnBuild                   = $false
         MergeFunctionsFromApprovedModules    = $true
         CertificateThumbprint                = '92E95FB58EFFA6A4A75E77A33CDD6BFE6DD30F1A'
