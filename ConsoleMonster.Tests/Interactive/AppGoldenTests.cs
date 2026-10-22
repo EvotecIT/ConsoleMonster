@@ -26,6 +26,13 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("2 of 6 hosts", capture.LastFrame.ToPlainText());
             Assert.Contains("SQL01", capture.LastFrame.ToPlainText());
             Assert.DoesNotContain("WEB01", capture.LastFrame.ToPlainText());
+            // The inventory stays content-sized, even when the surrounding input fills the viewport.
+            foreach (string row in capture.Frames[0].ToPlainText().Split('\n')) {
+                if (row.Contains("WEB01")) { Assert.InRange(row.TrimEnd().Length, 1, 59); }
+            }
+            foreach (string row in capture.LastFrame.ToPlainText().Split('\n')) {
+                if (row.Contains("SQL01")) { Assert.InRange(row.TrimEnd().Length, 1, 59); }
+            }
         }
 
         /// <summary>Focus uses the active theme's accent at both supported colour tiers, and marks the caret independently.</summary>
@@ -39,6 +46,10 @@ namespace ConsoleMonster.Tests.Interactive {
             ScreenCapture capture = Capture(60, GlyphTier.Full, depth, theme);
             Assert.Equal(theme.Resolve(ThemeToken.Accent, depth).Foreground, capture.LastFrame![0, 2].Style.Foreground);
             Assert.True((capture.LastFrame[5, 3].Style.Decoration & TextDecoration.Reverse) != 0);
+            Assert.Equal(" ", capture.Frames[0][2, 3].Glyph);
+            Assert.True((capture.Frames[0][2, 3].Style.Decoration & TextDecoration.Reverse) != 0);
+            Assert.Equal("H", capture.Frames[0][3, 3].Glyph);
+            Assert.Contains("Host, role, site or status", capture.Frames[0].ToPlainText());
         }
 
         private static ScreenCapture Capture(int width, GlyphTier tier, ColorDepth depth, ITheme theme) {

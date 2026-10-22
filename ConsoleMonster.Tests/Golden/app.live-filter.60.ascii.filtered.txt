@@ -5,11 +5,11 @@ Host inventory · synthetic data
 +----------------------------------------------------------+
 
 2 of 6 hosts
-+-------+----------+-------+-------------------------------+
-| Host  | Role     | Site  | Status                        |
-| SQL01 | Database | North | [PASS] Pass                   |
-| SQL02 | Database | West  | [FAIL] Fail                   |
-+-------+----------+-------+-------------------------------+
++-------+----------+-------+-------------+
+| Host  | Role     | Site  | Status      |
+| SQL01 | Database | North | [PASS] Pass |
+| SQL02 | Database | West  | [FAIL] Fail |
++-------+----------+-------+-------------+
 
 
 

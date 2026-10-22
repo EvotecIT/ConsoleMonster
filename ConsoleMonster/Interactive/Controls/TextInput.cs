@@ -13,6 +13,7 @@ namespace ConsoleMonster.Interactive {
     public sealed class TextInput : InputControl {
         private readonly LineEditor _editor;
         private readonly CaretSlot? _caret;
+        private readonly bool _reservePlaceholderCell;
 
         /// <summary>Creates a named, focusable single-line input using the shared line editor.</summary>
         /// <param name="name">The application-state key.</param>
@@ -20,6 +21,7 @@ namespace ConsoleMonster.Interactive {
         public TextInput(string name, string? value = null) : base(name) {
             _editor = new LineEditor(value);
             _caret = new CaretSlot();
+            _reservePlaceholderCell = true;
         }
 
         internal TextInput(LineEditor editor, CaretSlot? caret) : base(nameof(TextInput), false) {
@@ -62,7 +64,9 @@ namespace ConsoleMonster.Interactive {
             int width = region.Width;
             Style style = context.Style(Token);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
-                region.Write(0, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
+                // Public controls paint their own caret; existing prompt compositions own its surrounding space.
+                int placeholderColumn = Focused && _reservePlaceholderCell ? 1 : 0;
+                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
                 if (Focused) {
                     _caret?.Set(region.Bounds.X, region.Bounds.Y);
                 }

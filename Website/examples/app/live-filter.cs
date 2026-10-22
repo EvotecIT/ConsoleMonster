@@ -28,7 +28,6 @@ IWidget Results(string query) {
         .Column("Role", host => host.Role)
         .Column("Site", host => host.Site)
         .Column("Status", host => host.Status, column => column.Presenter = CellPresenters.StatusWord);
-    table.Expand = true;
     table.HeaderSeparator = false;
     if (matches.Length == 0) {
         return new Rows(count, table, new TextBlock("[muted]No matching hosts. Backspace to broaden the query.[/]"));

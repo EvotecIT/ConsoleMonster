@@ -48,7 +48,7 @@ Show-ConsoleApp {
             param($State)
             $matches = @(& $matchingHosts $State)
             "[bold]$($matches.Count)[/] of $($hosts.Count) hosts"
-            $matches | New-ConsoleTable -Property Host, Role, Site, Status -StatusProperty Status -Expand -NoHeaderSeparator
+            $matches | New-ConsoleTable -Property Host, Role, Site, Status -StatusProperty Status -NoHeaderSeparator
             if ($matches.Count -eq 0) {
                 '[muted]No matching hosts. Backspace to broaden the query.[/]'
             }

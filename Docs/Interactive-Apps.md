@@ -7,7 +7,7 @@ and its matching count without waiting for Enter.
 The [live-filter C# example](../ConsoleMonster.Examples/Showcases/LiveFilterApp.cs) demonstrates this with six synthetic
 hosts. The query matches literal text in the host name, role, site or status, ignoring case. Type `sql` to reduce the
 inventory to SQL01 and SQL02. Backspace broadens the result again. The count and table stay below the input at both
-120 and 60 columns.
+120 and 60 columns. The input fills the available width while the table keeps its content width.
 
 ## PowerShell
 

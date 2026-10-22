@@ -178,7 +178,7 @@ namespace SiteFrames.Pages {
         }
 
         /// <summary>
-        /// Writes eight standalone exporter HTML pages and text frames to a caller-selected review folder. This path
+        /// Writes eight standalone exporter HTML, SVG and text frames to a caller-selected review folder. This path
         /// does not regenerate website assets or require saved PowerShell captures.
         /// </summary>
         /// <param name="site">The checkout supplying the published program.</param>
@@ -194,11 +194,13 @@ namespace SiteFrames.Pages {
                         CellBuffer frame = Pick(capture, state);
                         string name = Id + "-" + state + "-" + width.ToString(Site.Culture) + "-" + theme;
                         site.Write(Path.Combine(output, name + ".txt"), ConsoleExporter.ToText(frame));
-                        site.Write(Path.Combine(output, name + ".html"), ConsoleExporter.ToHtml(frame, new ExportOptions {
+                        ExportOptions options = new ExportOptions {
                             Theme = theme == "dark" ? ExportTheme.Dark : ExportTheme.Light,
                             Title = "Host inventory · " + state + " · " + width.ToString(Site.Culture) + " columns",
                             WindowChrome = true
-                        }));
+                        };
+                        site.Write(Path.Combine(output, name + ".html"), ConsoleExporter.ToHtml(frame, options));
+                        site.Write(Path.Combine(output, name + ".svg"), ConsoleExporter.ToSvg(frame, options));
                         artifacts.Add(new JsonObject {
                             ["name"] = name,
                             ["width"] = width,
@@ -206,7 +208,8 @@ namespace SiteFrames.Pages {
                             ["theme"] = theme,
                             ["query"] = state == "initial" ? string.Empty : "sql",
                             ["text"] = name + ".txt",
-                            ["html"] = name + ".html"
+                            ["html"] = name + ".html",
+                            ["svg"] = name + ".svg"
                         });
                     }
                 }

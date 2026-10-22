@@ -64,7 +64,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         /// <summary>No-colour focus markers preserve placeholders, typed text and wide graphemes.</summary>
         [Theory]
-        [InlineData("", "Search hosts", "|Search hosts")]
+        [InlineData("", "Search hosts", "| Search hosts")]
         [InlineData("server", "", "|server")]
         [InlineData("界a", "", "|界a")]
         public void PlainCaret_InsertsVisibleMarkerWithoutReplacingText(string value, string placeholder, string expected) {
