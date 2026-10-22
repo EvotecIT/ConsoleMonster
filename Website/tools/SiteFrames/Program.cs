@@ -16,6 +16,8 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
+    /// <item><c>app-review [Website] [ScratchOutputDirectory]</c>: exports the compiled live-filter app's initial and final
+    /// frames as text and HTML, in both themes at widths 120 and 60, without regenerating website assets.</item>
     /// </list>
     /// </summary>
     public static class Program {
@@ -57,8 +59,14 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "app-review":
+                    if (only == null) {
+                        Console.Error.WriteLine("Usage: SiteFrames app-review [WebsiteRoot] [ScratchOutputDirectory]");
+                        return 2;
+                    }
+                    return AppPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text|app-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -128,6 +136,9 @@ namespace SiteFrames {
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }
+            if (Wants(only, "app")) {
+                AppPage.Capture(site);
+            }
             return 0;
         }
 
@@ -140,6 +151,7 @@ namespace SiteFrames {
             DemosPage.Render(site);
             TablesPage.Render(site);
             InteractivePage.Render(site);
+            AppPage.Render(site, hosts);
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);

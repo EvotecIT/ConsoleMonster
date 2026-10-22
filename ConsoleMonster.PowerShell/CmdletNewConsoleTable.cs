@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
@@ -11,14 +12,22 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Services as a table with a status column</para>
     ///   <code>Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Write-ConsoleWidget</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleTable")]
-    [OutputType(typeof(Table))]
+    /// <example>
+    ///   <para>Filter objects from current application state.</para>
+    ///   <code>Show-ConsoleApp { New-ConsoleTextInput -Name Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }</code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects")]
+    [OutputType(typeof(Table), typeof(AppBinding))]
     public class CmdletNewConsoleTable : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
 
         /// <summary><para type="description">The objects to show, one row each.</para></summary>
-        [Parameter(ValueFromPipeline = true, Position = 0)]
+        [Parameter(ValueFromPipeline = true, Position = 0, ParameterSetName = "Objects")]
         public PSObject[]? InputObject { get; set; }
+
+        /// <summary><para type="description">Application-dependent object producer. Receives param($State) and injected $State as a native hashtable on the owning input thread. Emit objects, not widgets; columns and formatting use the same builder as ordinary tables.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Bind")]
+        public ScriptBlock? Bind { get; set; }
 
         /// <summary><para type="description">Properties to show, in order.</para></summary>
         [Parameter]
@@ -57,17 +66,29 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (Bind != null) {
+                if (this is CmdletWriteConsoleTable) {
+                    ThrowTerminatingError(new ErrorRecord(new System.InvalidOperationException(
+                        "Use New-ConsoleTable -Bind inside Show-ConsoleApp to create a dependent table."),
+                        "AppBindingRequiresFactory", ErrorCategory.InvalidArgument, Bind));
+                }
+                PSAppScript script = new PSAppScript(Bind);
+                WriteObject(script.CreateBinding(state => BuildTable(script.Invoke(state), script.Cmdlet)));
+                return;
+            }
             Emit(BuildTable());
         }
 
         /// <summary>Builds the table from the collected input.</summary>
         /// <returns>The table.</returns>
-        protected Table BuildTable() {
+        protected Table BuildTable() => BuildTable(_items);
+
+        private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null) {
             // The same columns and cell values as Format-ConsoleTable (registered views, PowerShell's table views, data keys,
             // shared value rules); -StatusProperty shows that column as status markers.
             object[]? property = Property != null && Property.Length > 0 ? Property : null;
             Values.ShapeOptions shape = Binding.PSShaping.Options();
-            Table table = PSFormatting.BuildTable(PSFormatting.Expand(_items, shape), property, null, new TableBuildOptions { Cmdlet = this }, shape);
+            Table table = PSFormatting.BuildTable(PSFormatting.Expand(items, shape), property, null, new TableBuildOptions { Cmdlet = cmdlet ?? this }, shape);
             if (StatusProperty != null) {
                 foreach (TableColumn column in table.Columns) {
                     if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase) || string.Equals(Text.Markup.Strip(column.Header), StatusProperty, System.StringComparison.OrdinalIgnoreCase)) {

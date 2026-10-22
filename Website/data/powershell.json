@@ -399,7 +399,7 @@
     },
     {
       "verb": "New",
-      "count": 44,
+      "count": 51,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -420,6 +420,16 @@
           "name": "New-ConsoleBarItem",
           "synopsis": "Creates one bar of a bar chart, or one segment of a stacked bar, with its own tone.",
           "url": "/powershell/commands/new-consolebaritem/"
+        },
+        {
+          "name": "New-ConsoleBinding",
+          "synopsis": "Creates a display rebuilt from application state on the owning PowerShell input thread.",
+          "url": "/powershell/commands/new-consolebinding/"
+        },
+        {
+          "name": "New-ConsoleButton",
+          "synopsis": "Creates a named action button for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consolebutton/"
         },
         {
           "name": "New-ConsoleCellMap",
@@ -532,6 +542,11 @@
           "url": "/powershell/commands/new-consolemenupreset/"
         },
         {
+          "name": "New-ConsoleMultiSelect",
+          "synopsis": "Creates a named multiselect input for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consolemultiselect/"
+        },
+        {
           "name": "New-ConsolePadding",
           "synopsis": "Adds empty space around console widgets.",
           "url": "/powershell/commands/new-consolepadding/"
@@ -572,6 +587,11 @@
           "url": "/powershell/commands/new-consolerunresult/"
         },
         {
+          "name": "New-ConsoleSelect",
+          "synopsis": "Creates a named select input for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoleselect/"
+        },
+        {
           "name": "New-ConsoleSparkline",
           "synopsis": "Creates a sparkline: a compact trend of recent values.",
           "url": "/powershell/commands/new-consolesparkline/"
@@ -610,6 +630,21 @@
           "name": "New-ConsoleText",
           "synopsis": "Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.",
           "url": "/powershell/commands/new-consoletext/"
+        },
+        {
+          "name": "New-ConsoleTextArea",
+          "synopsis": "Creates a named multiline text input for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoletextarea/"
+        },
+        {
+          "name": "New-ConsoleTextInput",
+          "synopsis": "Creates a named single-line text input for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoletextinput/"
+        },
+        {
+          "name": "New-ConsoleToggle",
+          "synopsis": "Creates a named Boolean toggle for Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consoletoggle/"
         },
         {
           "name": "New-ConsoleTree",
@@ -738,12 +773,17 @@
     },
     {
       "verb": "Show",
-      "count": 6,
+      "count": 7,
       "commands": [
         {
           "name": "Show-Console",
           "synopsis": "Shows pipeline input in the view that fits it best.",
           "url": "/powershell/commands/show-console/"
+        },
+        {
+          "name": "Show-ConsoleApp",
+          "synopsis": "Runs native input controls and dependent displays in a console application.",
+          "url": "/powershell/commands/show-consoleapp/"
         },
         {
           "name": "Show-ConsoleChanges",

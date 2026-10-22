@@ -123,6 +123,8 @@
 .cm-screen .k0037da{background-color:#0037da}
 .cm-screen .k1f2a3c{background-color:#1f2a3c}
 .cm-screen .k243b5e{background-color:#243b5e}
+.cm-screen .k6b7280{background-color:#6b7280}
+.cm-screen .k8b8f9a{background-color:#8b8f9a}
 .cm-screen .kf87171{background-color:#f87171}
 .cm-screen .c1{width:0.6em}
 .cm-screen .c2{width:1.2em}
@@ -233,6 +235,7 @@
 .cm-screen .c110{width:66em}
 .cm-screen .c111{width:66.6em}
 .cm-screen .c112{width:67.2em}
+.cm-screen .c113{width:67.8em}
 .cm-screen .c118{width:70.8em}
 .cm-screen .g2500{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light)}
 .cm-screen .g2501{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy)}

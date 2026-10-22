@@ -11,9 +11,14 @@ Creates a console table from pipeline objects.
 Columns come from -Property or from the first object's properties (or hashtable keys). Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
 
 ## SYNTAX
-### __AllParameterSets
+### Objects (Default)
 ```powershell
 New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
+```
+
+### Bind
+```powershell
+New-ConsoleTable -Bind <scriptblock> [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,14 +35,37 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable 
 
 Services as a table with a status column
 
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp { New-ConsoleTextInput -Name Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }
+```
+
+Filter objects from current application state.
+
 ## PARAMETERS
+
+### -Bind
+Application-dependent object producer. Receives param($State) and injected $State as a native hashtable on the owning input thread. Emit objects, not widgets; columns and formatting use the same builder as ordinary tables.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: Bind
+Aliases: None
+Possible values:
+
+Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Border
 Border: Rounded, Square, Double, Minimal or None.
 
 ```yaml
 Type: TableBorder
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values: Rounded, Square, Double, Minimal, None
 
@@ -53,7 +81,7 @@ A muted caption below the table.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -69,7 +97,7 @@ Fill the available width (spare width goes to the widest text column).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -85,7 +113,7 @@ The objects to show, one row each.
 
 ```yaml
 Type: PSObject[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects
 Aliases: None
 Possible values:
 
@@ -101,7 +129,7 @@ Underline the header instead of drawing a separator row under it.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -117,7 +145,7 @@ Properties to show, in order.
 
 ```yaml
 Type: String[]
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -133,7 +161,7 @@ A property whose values are statuses (pass/fail/warn/skip/running).
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -149,7 +177,7 @@ A title above the table.
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
+Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:
 
@@ -170,6 +198,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `ConsoleMonster.Widgets.Table`
+- `ConsoleMonster.Interactive.AppBinding`
 
 ## RELATED LINKS
 
