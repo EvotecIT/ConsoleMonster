@@ -1,6 +1,6 @@
-[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h
+[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25l
 Name   : ConsoleMonster.2.0.0.nupkg
-[?25lKind   : NuGet
+Kind   : NuGet
 Length : 1482113
 Time   : 00:00:48.2000000
 Signed : True
