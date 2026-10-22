@@ -110,6 +110,16 @@ function Assert-PromptFallback {
                 Caught = $caughtId
                 Variable = @($variable | ForEach-Object { $_.FullyQualifiedErrorId }) -join "`n"
                 OutputVariable = $outputVariable -join "`n"
+                FileBytes = if ($Route -eq 'File') { [Convert]::ToBase64String([IO.File]::ReadAllBytes($file)) } else { $null }
+                ErrorLocations = @($observed | Where-Object { $_ -is [Management.Automation.ErrorRecord] } | ForEach-Object {
+                    [pscustomobject]@{
+                        ScriptName = $_.InvocationInfo.ScriptName
+                        Line = $_.InvocationInfo.ScriptLineNumber
+                        Column = $_.InvocationInfo.OffsetInLine
+                        Statement = $_.InvocationInfo.Statement
+                        Position = $_.InvocationInfo.PositionMessage
+                    }
+                })
             }
         }
         if (($results[0] | ConvertTo-Json -Compress) -cne ($results[1] | ConvertTo-Json -Compress)) {
