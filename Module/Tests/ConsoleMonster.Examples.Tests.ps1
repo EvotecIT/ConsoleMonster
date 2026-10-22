@@ -1,4 +1,6 @@
-﻿BeforeDiscovery {
+﻿param([string[]] $ExampleName)
+
+BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 
     # Every script example: the website gallery and demos, and the module's own examples.
@@ -14,7 +16,9 @@
     # named after the script and the run (its settings are in ExampleCases under that name).
     $script:ExampleRuns = @($script:ExampleScripts) + @(
         $script:ExampleScripts | Where-Object Name -EQ 'Module/Examples/Example-FleetHealth.ps1' | ForEach-Object { @{ Path = $_.Path; Name = $_.Name + ' (Inline)' } }
+        $script:ExampleScripts | Where-Object Name -EQ 'Website/examples/interactive/gridview-fallback.ps1' | ForEach-Object { @{ Path = $_.Path; Name = $_.Name + ' (60 columns)' } }
     )
+    if ($ExampleName) { $script:ExampleRuns = @($script:ExampleRuns | Where-Object Name -In $ExampleName) }
 
     # Documents whose PowerShell snippets must use the cmdlet form.
     $script:DocumentFiles = @(
@@ -183,7 +187,19 @@ BeforeAll {
         'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
+        # This example deliberately keeps a working native desktop grid. Its headless run exercises the unavailable
+        # command namespace instead, with the same scripted selection as the site frames, so no native window opens.
+        'Website/examples/interactive/gridview-fallback.ps1' = @{
+            UnavailableGridView = $true
+            Input = 'Space Down Space F10'
+            Paced = $true
+            Screen = '120x20'
+            Expect = @('Choose nodes', 'api-east', 'worker-west', 'ctrl+enter', 'esc')
+            Selection = @('api-east', 'worker-west')
+        }
     }
+    $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1 (60 columns)'] = @{} + $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1']
+    $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1 (60 columns)'].Screen = '60x20'
     # The site's prompt stories answer with the keys the site records them with (data/interactive.json, written by the site
     # tool from the same story list), on a captured screen of the story's size.
     $interactive = Get-Content -LiteralPath (Join-Path $script:RepositoryRoot 'Website\data\interactive.json') -Raw | ConvertFrom-Json
@@ -237,6 +253,11 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $paced = if ($case['Paced']) { '$true' } else { '$false' }
         $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
+        $invoke = "& '$Path' $arguments | Out-String | Out-Null"
+        if ($case['Selection']) {
+            $names = ($case['Selection'] -join ',').Replace("'", "''")
+            $invoke = "`$selected = @(& '$Path' $arguments); if ((`$selected.Name -join ',') -ne '$names') { throw 'The full example returned an unexpected selection.' }"
+        }
         # A case with a Screen draws the rich layouts on a fixed screen captured in memory, whose frames the Expect phrases
         # are looked up in afterwards.
         $screen = ''
@@ -257,7 +278,7 @@ $keys
 $screen
 Set-Location -LiteralPath '$(Split-Path -Parent $Path)'
 try {
-    & '$Path' $arguments | Out-String | Out-Null
+    $invoke
     'EXAMPLE-DONE'
 } catch {
     'EXAMPLE-FAILED: ' + `$_
@@ -267,6 +288,13 @@ $expect
 foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
 "@
         $timeout = if ($case['TimeoutSeconds']) { $case['TimeoutSeconds'] } else { 120 }
+        if ($case['UnavailableGridView']) {
+            $helper = Join-Path $script:RepositoryRoot 'Module/Tests/Support/Invoke-GridViewSession.ps1'
+            $manifest = Join-Path $script:ModuleLinkRoot 'ConsoleMonster/ConsoleMonster.psd1'
+            # Resolve the public name and the isolated-session manifest through the same supported module identity.
+            $script = $script.Replace('Import-Module ConsoleMonster -Force', '')
+            $script = "`$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath`nImport-Module ConsoleMonster`n. '$($helper.Replace("'", "''"))'`nInvoke-GridViewSession -ModulePath '$($manifest.Replace("'", "''"))' -Script '$($script.Replace("'", "''"))'"
+        }
         $lines = @(Invoke-ExampleChild -Script $script -TimeoutSeconds $timeout)
         # Terminal control sequences (cursor show and hide, line clears) can share a line with the markers.
         $escape = [string][char]27
