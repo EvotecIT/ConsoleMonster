@@ -133,6 +133,7 @@ BeforeAll {
 
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
+        'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
         'Module/Examples/Example-InlineProgress.ps1' = @{ Arguments = '-Delay 5' }
         'Module/Examples/Example-InlinePrompts.ps1'  = @{ Arguments = "-Environment Staging -Component web -Release '2026.10' -Force" }
         'Module/Examples/Example-LoginOverview.ps1'  = @{ Arguments = '-Sample' }

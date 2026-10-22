@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 #if !NETFRAMEWORK
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
@@ -14,10 +15,11 @@ namespace ConsoleMonster.TestHost {
 #if NETFRAMEWORK
             throw new PlatformNotSupportedException();
 #else
-static void Report(object value) => Console.Error.WriteLine(JsonSerializer.Serialize(value));
+TextWriter report = Console.Error;
+void Report(object value) { report.WriteLine(JsonSerializer.Serialize(value)); report.Flush(); }
 static object Describe(InputEvent e) => new {
     kind = e.Kind.ToString(), key = e.Key.ToString(), character = (int)e.Char,
-    modifiers = (int)e.Modifiers, column = e.Column, row = e.Row,
+    modifiers = (int)e.Modifiers, text = e.Text, column = e.Column, row = e.Row,
     button = e.MouseButton, pressed = e.MousePressed
 };
 
@@ -54,10 +56,22 @@ try {
         ("sgr_middle_alt", new[] { InputEvent.Mouse(42, 16, 2, true, KeyModifiers.Alt),
             InputEvent.Mouse(42, 16, 2, false, KeyModifiers.Alt), InputEvent.Character('z') }),
         ("sgr_right_control", new[] { InputEvent.Mouse(6, 8, 3, true, KeyModifiers.Control),
-            InputEvent.Mouse(6, 8, 3, false, KeyModifiers.Control), InputEvent.Character('z') })
+            InputEvent.Mouse(6, 8, 3, false, KeyModifiers.Control), InputEvent.Character('z') }),
+        ("idle_mouse", new[] { InputEvent.Character('z') }),
+        ("idle_overlong", new[] { InputEvent.Character('z') }),
+        ("idle_paste", new[] { InputEvent.Paste("p"), InputEvent.Character('z') })
     };
     foreach (var test in cases) {
         Report(new { phase = "ready", name = test.Name, count = test.Expected.Length });
+        if (test.Name.StartsWith("idle_", StringComparison.Ordinal)) {
+            // Both reads must return while the VT parser deliberately retains an unfinished state.
+            // The parent watchdog protects a hung reader; this makes no hosted-runner latency assertion.
+            for (int i = 0; i < 2; i++) {
+                if (lease.Source.Read(TimeSpan.FromMilliseconds(250), CancellationToken.None) != null)
+                    throw new InvalidOperationException(test.Name + " emitted an unfinished sequence.");
+            }
+            Report(new { phase = "ready_tail", name = test.Name });
+        }
         foreach (var expected in test.Expected) {
             InputEvent? actual;
             do { actual = lease.Source.Read(TimeSpan.FromMilliseconds(250), CancellationToken.None); }
@@ -69,6 +83,9 @@ try {
         }
         Report(new { phase = "pass", name = test.Name, count = test.Expected.Length });
     }
+    lease.Dispose();
+    lease = null;
+    UnixMenuProbe.Run(Report);
 } catch (Exception ex) {
     result = 1;
     Report(new { phase = "failure", error = ex.ToString() });

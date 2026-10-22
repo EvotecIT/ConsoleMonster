@@ -24,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Capture a scripted run without a physical console.</para>
-    /// <code>$capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
+    /// <code># Using the object directly
+    /// $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
     /// $keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')
     /// Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $keys -Capture $capture -PassThru</code>
     /// </example>
@@ -71,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ITheme? Theme { get; set; }
 
-        /// <summary><para type="description">Optional live rendering settings, passed directly to the core runner.</para></summary>
+        /// <summary><para type="description">Optional full-screen live rendering settings, passed directly to the core runner. Inline mode is rejected before input or state initialization.</para></summary>
         [Parameter]
         public LiveSessionOptions? Live { get; set; }
 

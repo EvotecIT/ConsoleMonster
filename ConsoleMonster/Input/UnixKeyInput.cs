@@ -15,7 +15,7 @@ namespace ConsoleMonster.Input {
         private readonly byte[] _bytes = new byte[512];
         private readonly char[] _chars = new char[Encoding.UTF8.GetMaxCharCount(512)];
         private readonly List<InputEvent> _events = new List<InputEvent>();
-        private readonly VtInputDecoder _decoder = new VtInputDecoder();
+        private VtInputDecoder _decoder = new VtInputDecoder();
         private readonly Stopwatch _quiet = new Stopwatch();
         private bool _active;
         private bool _disposed;
@@ -38,6 +38,7 @@ namespace ConsoleMonster.Input {
             if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
             if (!_active) { Activate(); }
             Stopwatch wait = Stopwatch.StartNew();
+            bool polled = false;
             do {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (_events.Count > 0) {
@@ -45,6 +46,8 @@ namespace ConsoleMonster.Input {
                     _events.RemoveAt(0);
                     return next;
                 }
+                if (polled && wait.Elapsed >= timeout) { return null; }
+                polled = true;
                 if (UnixInputNative.Ready(_descriptor)) {
                     long count = UnixInputNative.Read(_descriptor, _bytes, new UIntPtr((uint)_bytes.Length)).ToInt64();
                     if (count == 0) { throw new InputClosedException(ClosedMessage()); }
@@ -57,13 +60,30 @@ namespace ConsoleMonster.Input {
                     _quiet.Restart();
                     continue;
                 }
-                if (_decoder.HasPending && _quiet.ElapsedMilliseconds >= 50) { _decoder.Flush(_events); continue; }
+                if (_decoder.HasPending && _quiet.ElapsedMilliseconds >= 50) {
+                    _decoder.Flush(_events);
+                    if (_events.Count > 0) { continue; }
+                }
                 if (wait.Elapsed >= timeout) { return null; }
                 cancellationToken.WaitHandle.WaitOne(10);
             } while (true);
         }
 
-        private void Activate() {
+        internal void Suspend() {
+            if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
+            if (_active) { Restore(); _active = false; }
+        }
+
+        internal void Resume() {
+            if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
+            _events.Clear();
+            _decoder = new VtInputDecoder();
+            _utf8.Reset();
+            _quiet.Reset();
+            Activate(true);
+        }
+
+        private void Activate(bool discardInput = false) {
             IntPtr raw = Marshal.AllocHGlobal(UnixInputNative.AttributesCapacity);
             try {
                 byte[] attributes = new byte[UnixInputNative.AttributesCapacity];
@@ -74,21 +94,27 @@ namespace ConsoleMonster.Input {
                 int outputOffset = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 8 : 4;
                 int outputSize = outputOffset;
                 for (int i = 0; i < outputSize; i++) { Marshal.WriteByte(raw, outputOffset + i, attributes[outputOffset + i]); }
-                if (UnixInputNative.SetAttributes(_descriptor, 0, raw) != 0) { throw new InputClosedException(ClosedMessage()); }
+                // TCSAFLUSH is 2 on both supported ABIs: resume discards input typed while work owned the console.
+                if (UnixInputNative.SetAttributes(_descriptor, discardInput ? 2 : 0, raw) != 0) { throw new InputClosedException(ClosedMessage()); }
                 _active = true;
             } finally { Marshal.FreeHGlobal(raw); }
         }
 
         private static string ClosedMessage() => Localization.LabelText.Get("Input.Closed");
 
+        private void Restore() {
+            int result;
+            do { result = UnixInputNative.SetAttributes(_descriptor, 0, _saved); }
+            while (result != 0 && Marshal.GetLastWin32Error() == 4);
+            if (result != 0) { throw new InputClosedException(ClosedMessage()); }
+        }
+
         public void Dispose() {
             if (_disposed) { return; }
             _disposed = true;
             try {
                 if (_active) {
-                    int result;
-                    do { result = UnixInputNative.SetAttributes(_descriptor, 0, _saved); }
-                    while (result != 0 && Marshal.GetLastWin32Error() == 4);
+                    Restore();
                 }
             } finally {
                 Marshal.FreeHGlobal(_saved);

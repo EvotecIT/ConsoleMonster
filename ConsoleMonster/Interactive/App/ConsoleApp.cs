@@ -20,10 +20,12 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The final state, including every named input's committed value.</returns>
         /// <exception cref="PromptUnavailableException">Interactive input is unavailable and a static snapshot was not requested.</exception>
         /// <exception cref="OperationCanceledException">Cancellation was requested.</exception>
+        /// <exception cref="ArgumentException">Inline live mode was requested; interactive apps require a stable full-screen origin.</exception>
         public static AppState Run(IWidget layout, AppState? state = null, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) {
             if (layout == null) { throw new ArgumentNullException(nameof(layout)); }
             ConsoleAppOptions settings = options ?? new ConsoleAppOptions();
             if (settings.ReflowBelow < 1) { throw new ArgumentOutOfRangeException(nameof(options), AppMessages.Get("ReflowWidth")); }
+            if (settings.Live?.Mode == LiveMode.Inline) { throw new ArgumentException(AppMessages.Get("FullScreen"), nameof(options)); }
             InteractiveOptions interactive = settings.Interactive ?? InteractiveOptions.Default;
             TerminalProfile profile = interactive.ResolveProfile();
             if (!settings.StaticSnapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }

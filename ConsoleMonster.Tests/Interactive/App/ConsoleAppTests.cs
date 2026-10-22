@@ -218,6 +218,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(1, input.Remaining);
         }
 
+        /// <summary>Inline output is rejected before callbacks or input can use a moving screen origin.</summary>
+        [Fact]
+        public void Run_RejectsInlineBeforeInitializingStateOrInput() {
+            ConsoleAppOptions options = AppTestHarness.Options("Escape", out ScreenCapture capture);
+            options.Live = new LiveSessionOptions { Mode = LiveMode.Inline };
+            AppState state = new AppState();
+            int callbacks = 0;
+            AppBinding binding = new AppBinding(_ => { callbacks++; return new ConsoleMonster.Widgets.TextBlock("value"); });
+            Assert.Throws<ArgumentException>(() => ConsoleApp.Run(new Rows(new TextInput("query"), binding), state, options));
+            Assert.Empty(state);
+            Assert.Empty(capture.Frames);
+            Assert.Equal(0, callbacks);
+            Assert.False(ConsoleInput.IsAcquired);
+        }
+
         private static void WithGlobalInput(string script, Action run) {
             IInputSource? previous = ConsoleInput.Override;
             using (ScriptedInput input = new ScriptedInput(script)) {

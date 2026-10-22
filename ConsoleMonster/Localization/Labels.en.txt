@@ -7,4 +7,5 @@ App.EmptyBinding = A binding must return a display widget.
 App.ControlName = An input needs a non-empty name.
 App.Unavailable = An interactive app needs an input source; request a static snapshot for redirected output or CI.
 App.ReflowWidth = The reflow width must be positive.
+App.FullScreen = Interactive apps require full-screen live mode.
 Input.Closed = The terminal input is closed or its mode cannot be changed.

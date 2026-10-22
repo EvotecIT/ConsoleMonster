@@ -24,7 +24,11 @@ CASES = {
     "sgr_all_modifiers": b"\x1b[<28;120;40M\x1b[<28;120;40mz",
     "sgr_middle_alt": b"\x1b[<9;43;17M\x1b[<9;43;17mz",
     "sgr_right_control": b"\x1b[<18;7;9M\x1b[<18;7;9mz",
+    "idle_mouse": b"\x1b[<0;12;",
+    "idle_overlong": b"\x1b[" + b"1" * 80,
+    "idle_paste": b"\x1b[200~p",
 }
+TAILS = {"idle_mouse": b"6Mz", "idle_overlong": b"Mz", "idle_paste": b"\x1b[201~z"}
 
 
 def attrs(fd):
@@ -50,7 +54,7 @@ def main():
                str(options.dll.resolve()), "unix-input-probe", str(control_r)]
     receipt = {"command": command, "harness_pid": os.getpid(), "pty": os.ttyname(slave),
                "term": "xterm-256color", "watchdog_seconds": options.watchdog,
-               "termios_before": before, "sent": [], "passed": [], "errors": [],
+               "termios_before": before, "sent": [], "passed": [], "errors": [], "phases": [],
                "assembly_sha256": hashlib.sha256(options.dll.read_bytes()).hexdigest(),
                "core_assembly_sha256": hashlib.sha256(
                    (options.dll.parent / "ConsoleMonster.dll").read_bytes()).hexdigest()}
@@ -106,6 +110,7 @@ def main():
                     line, _, pending = pending.partition(b"\n")
                     event = json.loads(line)
                     phase = event["phase"]
+                    receipt["phases"].append(phase)
                     if phase == "ready":
                         name = event["name"]
                         payload = CASES[name]
@@ -115,6 +120,20 @@ def main():
                         receipt["sent"].append({"name": name, "hex": payload.hex()})
                     elif phase == "pass":
                         receipt["passed"].append(event["name"])
+                    elif phase == "ready_tail":
+                        os.write(master, TAILS[event["name"]])
+                    elif phase == "menu_ready":
+                        os.write(master, b"\r")
+                    elif phase == "signal_ready":
+                        receipt["signals_enabled_during_work"] = bool(attrs(slave)[3] & termios.ISIG)
+                        os.write(master, b"\x03")
+                    elif phase == "menu_resumed":
+                        receipt["keyboard_cancelled_work"] = event["cancelled"]
+                        receipt["raw_mode_resumed"] = not bool(attrs(slave)[3] & termios.ICANON)
+                        # The menu's global Ctrl+Q binding proves that raw-key navigation resumed after live work.
+                        os.write(master, b"\x11")
+                    elif phase == "menu_pass":
+                        receipt["menu_navigation_after_work"] = True
                     elif phase == "failure":
                         receipt["errors"].append(event["error"])
                     elif phase == "disposed":
@@ -175,6 +194,11 @@ def main():
                               and receipt["passed"] == list(CASES)
                               and receipt.get("restored_while_child_alive") is True
                               and receipt.get("lease_released") is True and finished)
+        receipt["success"] = (receipt["success"]
+                              and receipt.get("signals_enabled_during_work") is True
+                              and receipt.get("keyboard_cancelled_work") is True
+                              and receipt.get("raw_mode_resumed") is True
+                              and receipt.get("menu_navigation_after_work") is True)
         (options.output / "probe.jsonl").write_bytes(report_bytes)
         (options.output / "terminal.bin").write_bytes(raw_terminal)
         (options.output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

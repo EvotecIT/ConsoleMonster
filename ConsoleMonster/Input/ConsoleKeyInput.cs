@@ -9,7 +9,7 @@ namespace ConsoleMonster.Input {
     /// terminal mode restored on disposal. Other platforms use <see cref="Console.ReadKey(bool)"/> and normalize its keys.
     /// Resizes are detected by polling the window size.
     /// </summary>
-    public sealed class ConsoleKeyInput : IInputSource {
+    public sealed class ConsoleKeyInput : IInputSource, IConsoleInputMode {
         private readonly UnixKeyInput? _unix;
         private int _width;
         private int _height;
@@ -22,6 +22,10 @@ namespace ConsoleMonster.Input {
 
         /// <inheritdoc />
         public string Name => "console keys";
+
+        void IConsoleInputMode.Suspend() => _unix?.Suspend();
+
+        void IConsoleInputMode.Resume() => _unix?.Resume();
 
         /// <inheritdoc />
         public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {

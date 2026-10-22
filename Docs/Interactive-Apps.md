@@ -114,6 +114,10 @@ For one initialized frame in CI or redirected output, pass `StaticSnapshot = tru
 `Show-ConsoleApp -StaticSnapshot` in PowerShell. This draws once without reading input. A running interactive application
 requires interactive input or an explicitly supplied input source.
 
+Applications use a full-screen live session. `ConsoleAppOptions.Live` and `Show-ConsoleApp -Live` accept full-screen
+settings; inline mode is rejected before state initialization or input acquisition because its moving screen origin
+cannot provide reliable click coordinates.
+
 ## Website frames
 
 The site generator compiles and calls `LiveFilterApp.Run`; it does not maintain a separate mock screen. It writes
