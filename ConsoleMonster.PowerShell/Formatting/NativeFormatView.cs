@@ -66,6 +66,8 @@ namespace ConsoleMonster.PowerShell {
                             }
                         } else if (entryType == "TableRowEntry" && Get(shape, "tableColumnInfoList") != null) {
                             table ??= TableFor(shape, title, Bool(entry, "multiLine"));
+                            // A valid native wildcard can match no properties. Preserve its native empty shape.
+                            if (table.Columns.Count == 0) { return false; }
                             if (capture != null && capture.Columns.Count > 0 && rowIndex < capture.Rows.Count) {
                                 object?[] values = shapedRows[rowIndex];
                                 List<object> fields = new List<object>();

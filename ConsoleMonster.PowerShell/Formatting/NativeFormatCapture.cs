@@ -35,14 +35,28 @@ namespace ConsoleMonster.PowerShell {
         public Hashtable Prepare(PSObject first) {
             Hashtable parameters = new Hashtable(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry entry in _parameters) { parameters[entry.Key] = entry.Value; }
-            NativeFormatDefinition? definition = _definition = NativeFormatDefinition.Resolve(_cmdlet, _kind, first, _parameters);
+            ConsoleViewRegistration? view = ConsoleFormatting.Find(first, ConsoleFormatting.TakeOverBuiltIns);
+            bool decorate = view?.NativePresentation == true && !parameters.ContainsKey("Property") && !parameters.ContainsKey("View");
+            if (decorate && !parameters.ContainsKey("GroupBy") && view!.GroupBy != null) { parameters["GroupBy"] = view.GroupBy; }
+            NativeFormatDefinition? definition = _definition = NativeFormatDefinition.Resolve(_cmdlet, _kind, first, parameters);
             if (definition == null) { return parameters; }
+            IReadOnlyList<BoundColumn>? presentation = decorate ? PropertyBinder.Bind(new[] { first }, view!.Property) : null;
             List<object> properties = new List<object>();
             foreach (IDictionary original in definition.Columns) {
                 Hashtable column = new Hashtable(StringComparer.OrdinalIgnoreCase);
                 foreach (DictionaryEntry entry in original) { column[entry.Key] = entry.Value; }
                 // Bind before replacing the expression; native formatting still owns the FormatString text.
                 BoundColumn bound = PropertyBinder.Bind(new[] { first }, new object[] { original })[0];
+                if (presentation != null) {
+                    foreach (BoundColumn candidate in presentation) {
+                        string? source = bound.SourceProperty(first);
+                        if (string.Equals(bound.Name, candidate.Name, StringComparison.OrdinalIgnoreCase)
+                            || (source != null && string.Equals(source, candidate.SourceProperty(first), StringComparison.OrdinalIgnoreCase))) {
+                            bound.Column.Presenter = candidate.Column.Presenter;
+                            break;
+                        }
+                    }
+                }
                 Formatted.Add(!string.IsNullOrEmpty(bound.FormatString));
                 bound.FormatString = null;
                 _columns.Add(bound);

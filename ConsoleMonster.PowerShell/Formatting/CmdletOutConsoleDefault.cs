@@ -67,7 +67,7 @@ namespace ConsoleMonster.PowerShell {
                 _active = true;
                 return;
             }
-            _active = Force.IsPresent || ConsoleFormatting.Displayed(this);
+            _active = Force.IsPresent || (!Transcript.IsPresent && ConsoleFormatting.Displayed(this) && FormatCommandRouter.IsUntranscribed(this));
             if (Shim.IsPresent) {
                 ConsoleFormattingFeature features = ConsoleFormatting.Features;
                 _types = (features & ConsoleFormattingFeature.Output) != 0;
@@ -202,6 +202,7 @@ namespace ConsoleMonster.PowerShell {
                     // The same columns, titles and cell values as Format-ConsoleTable: the registered view is found again
                     // by the column resolver, so its columns, its title ("Directory: ...") and its grouping apply.
                     List<IWidget> tables = PSFormatting.BuildTables(_batch, null, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = this }, table => {
+                        if (_batchView.NativePresentation) { table.RecordViewRows = 0; }
                         if (cards) {
                             table.AlwaysCards = true;
                         }
