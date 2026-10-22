@@ -42,6 +42,9 @@ namespace ConsoleMonster.Overview {
         }
 
         /// <summary>Preserves completed observations and marks flights still unfinished when the caller stops waiting.</summary>
+        /// <param name="probes">Selected probes in the requested display order.</param>
+        /// <param name="tasks">One collection flight per probe, in the same order.</param>
+        /// <returns>Completed observations and pending markers, omitting unavailable and empty completed sections.</returns>
         internal static List<OverviewSection> AvailableSections(OverviewProbe[] probes, Task<OverviewSection?>[] tasks) {
             List<OverviewSection> sections = new List<OverviewSection>();
             for (int i = 0; i < probes.Length; i++) {
