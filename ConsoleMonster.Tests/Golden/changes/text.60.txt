@@ -1,0 +1,10 @@
+Before -> After
++2 added  -2 removed
+… 1 unchanged line (1-1 / 1-1)
+ 2  2   server=web01
+ 3    - port=80
+ 4    - mode=legacy
+    3 + port=443
+    4 + mode=secure
+ 5  5   keep=one
+… 4 unchanged lines (6-9 / 6-9)

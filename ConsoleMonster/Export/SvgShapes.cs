@@ -13,24 +13,27 @@ namespace ConsoleMonster.Export {
 
         public bool IsEmpty => _order.Count == 0;
 
+        /// <summary>Effective style opacity for subsequent shapes, multiplied by intrinsic glyph/shade opacity.</summary>
+        public double Opacity { get; set; } = 1;
+
         public void Rect(double x, double y, double w, double h, string fill, double opacity = 1) {
             if (w <= 0 || h <= 0) {
                 return;
             }
-            Fill(fill, opacity).Append('M').Append(ExportText.Num(x)).Append(' ').Append(ExportText.Num(y))
+            Fill(fill, opacity * Opacity).Append('M').Append(ExportText.Num(x)).Append(' ').Append(ExportText.Num(y))
                 .Append('h').Append(ExportText.Num(w)).Append('v').Append(ExportText.Num(h)).Append('h').Append(ExportText.Num(-w)).Append('z');
         }
 
         public void Circle(double cx, double cy, double r, string fill) {
             string d = ExportText.Num(r * 2);
             string rr = ExportText.Num(r);
-            Fill(fill, 1).Append('M').Append(ExportText.Num(cx - r)).Append(' ').Append(ExportText.Num(cy))
+            Fill(fill, Opacity).Append('M').Append(ExportText.Num(cx - r)).Append(' ').Append(ExportText.Num(cy))
                 .Append('a').Append(rr).Append(' ').Append(rr).Append(" 0 1 0 ").Append(d).Append(" 0")
                 .Append('a').Append(rr).Append(' ').Append(rr).Append(" 0 1 0 -").Append(d).Append(" 0z");
         }
 
         public void Stroke(string data, string color, double width) {
-            string key = color + "|" + ExportText.Num(width);
+            string key = color + "|" + ExportText.Num(width) + "|" + Alpha(Opacity);
             if (!_strokes.TryGetValue(key, out StringBuilder? sb)) {
                 sb = new StringBuilder();
                 _strokes.Add(key, sb);
@@ -40,7 +43,7 @@ namespace ConsoleMonster.Export {
         }
 
         private StringBuilder Fill(string color, double opacity) {
-            string key = color + "|" + ExportText.Num(opacity);
+            string key = color + "|" + Alpha(opacity);
             if (!_fills.TryGetValue(key, out StringBuilder? sb)) {
                 sb = new StringBuilder();
                 _fills.Add(key, sb);
@@ -48,6 +51,8 @@ namespace ConsoleMonster.Export {
             }
             return sb;
         }
+
+        private static string Alpha(double opacity) => opacity.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
 
         public void AppendTo(StringBuilder sb) {
             foreach (string entry in _order) {
@@ -62,8 +67,14 @@ namespace ConsoleMonster.Export {
                         sb.Append(" fill-opacity=\"").Append(amount).Append('"');
                     }
                 } else {
-                    sb.Append("<path d=\"").Append(_strokes[key]).Append("\" fill=\"none\" stroke-width=\"").Append(amount).Append('"');
+                    int separator = color.LastIndexOf('|');
+                    string width = color.Substring(separator + 1);
+                    color = color.Substring(0, separator);
+                    sb.Append("<path d=\"").Append(_strokes[key]).Append("\" fill=\"none\" stroke-width=\"").Append(width).Append('"');
                     ExportText.AppendPaint(sb, "stroke", color);
+                    if (amount != "1") {
+                        sb.Append(" stroke-opacity=\"").Append(amount).Append('"');
+                    }
                 }
                 sb.Append("/>");
             }

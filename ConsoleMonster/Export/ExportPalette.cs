@@ -61,6 +61,10 @@ namespace ConsoleMonster.Export {
             }
         }
 
+        /// <summary>Dim uses alpha when a resolved foreground is a CSS variable; concrete colours are already mixed.</summary>
+        public static double ForegroundOpacity(Style style, string foreground) =>
+            (style.Decoration & TextDecoration.Dim) != 0 && foreground.StartsWith("var(", StringComparison.Ordinal) ? 0.65 : 1;
+
         /// <summary>A colour as #rrggbb, or null for the terminal default.</summary>
         public static string? ToCss(Color color) {
             if (color.IsDefault) {

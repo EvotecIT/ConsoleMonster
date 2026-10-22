@@ -101,6 +101,9 @@
     "template": {
       "src": "/site/cards/template.svg"
     },
+    "text-diff-120": {
+      "src": "/site/cards/text-diff-120.svg"
+    },
     "theme-dark": {
       "src": "/site/cards/theme-dark.svg"
     },
