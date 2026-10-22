@@ -10,7 +10,7 @@ using SiteFrames.Vt;
 namespace SiteFrames.Capture {
     /// <summary>Captures the native editor and progress renderer, then exports their real cells through the site generator.</summary>
     internal static class NativeStylingReview {
-        internal static int Run(Site site, string output) {
+        internal static int Run(Site site, string output, bool useAll = false) {
             Directory.CreateDirectory(output);
             JsonArray evidence = new JsonArray();
             foreach (PowerShellHost host in PowerShellHost.All) {
@@ -24,6 +24,7 @@ namespace SiteFrames.Capture {
                             string script = Path.Combine(site.Tool, "Capture", "NativeStyling.ps1");
                             string command = host.Executable + " -NoLogo -NoProfile -File \"" + script + "\" -ModulePath \""
                                 + Path.Combine(site.Repository, "Module", "ConsoleMonster.psd1") + "\" -EvidencePath \"" + prefix + "\" -Phase " + phase;
+                            if (useAll) { command += " -UseAll"; }
                             string? keys = phase == "progress" ? null : phase == "prediction" ? "\u001bOQGet-Pro" : "Get-Process -Name 'pwsh' | Select-Object -First 3";
                             if (phase == "selection") { keys += "\u001b[1;2H"; }
                             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme.ToLowerInvariant());
@@ -48,7 +49,7 @@ namespace SiteFrames.Capture {
                             File.WriteAllText(prefix + ".html", ConsoleExporter.ToHtml(frame, options));
                             File.WriteAllText(prefix + ".txt", ConsoleExporter.ToText(frame));
                             evidence.Add(new JsonObject { ["id"] = id, ["runtime"] = host.Label, ["theme"] = theme,
-                                ["width"] = width, ["phase"] = phase, ["bytes"] = raw.Length });
+                                ["width"] = width, ["phase"] = phase, ["bytes"] = raw.Length, ["all"] = useAll });
                             Console.WriteLine("Native styling: " + id);
                         }
                     }

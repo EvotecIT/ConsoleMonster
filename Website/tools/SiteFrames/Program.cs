@@ -60,6 +60,8 @@ namespace SiteFrames {
                     return TextDiffFigures.Review(new Site(website), only);
                 case "native-styling":
                     return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."));
+                case "native-styling-all":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."), useAll: true);
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-text [WebsiteRoot] [area|output]");
                     return 2;

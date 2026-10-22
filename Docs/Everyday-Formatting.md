@@ -26,7 +26,7 @@ Get-Process | Format-Table Name, Id | Out-File ./processes.txt
 Get-Process | Format-Table Name, Id > ./processes.txt
 ```
 
-`-Feature All` enables default object views, errors, legacy progress, native stream colors and ReadLine colors. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains the separate `FormatCommands` opt-in.
+`-Feature All` enables default object views, errors, native stream/progress colors and ReadLine colors. All keeps Write-Progress native; the separate legacy Progress alias feature requires explicit opt-in and is excluded from All. It deliberately excludes `FormatCommands`: overriding commands used in scripts requires a separate opt-in. Features add up, so use `Enable-ConsoleFormatting -Feature All, FormatCommands` when you want both. `Disable-ConsoleFormatting` removes all installed features. `Disable-ConsoleFormatting -Feature FormatCommands` restores only the three formatter functions; explicit `-Feature All` retains separately enabled `Progress` and `FormatCommands` features.
 
 Custom functions are preserved unless `-Force` is supplied, then restored on disable or module removal. A custom alias named `Format-Table`, `Format-List` or `Format-Wide` prevents installation; remove it explicitly first. Aliases such as `ft`, `fl` and `fw` continue to resolve their normal command names.
 

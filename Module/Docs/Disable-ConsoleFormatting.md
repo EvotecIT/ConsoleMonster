@@ -40,7 +40,7 @@ Keep the views, go back to PowerShell's progress
 ## PARAMETERS
 
 ### -Feature
-What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands or All (Output, ErrorView, Progress, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including FormatCommands.
+What to turn off: Output, ErrorView, Progress, Streams, ReadLine, FormatCommands or All (Output, ErrorView, Streams and ReadLine). Streams and ReadLine restore exactly the saved native colour properties, even if they were edited while enabled; other properties stay untouched. Without -Feature every enabled feature is removed, including explicit Progress and FormatCommands.
 
 ```yaml
 Type: ConsoleFormattingFeature[]

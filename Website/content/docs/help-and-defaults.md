@@ -22,7 +22,8 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting -Feature ErrorView  # errors that reach the console
    Enable-ConsoleFormatting -Feature Progress   # Write-Progress drawn by ConsoleMonster
    Enable-ConsoleFormatting -Feature Streams    # warning, verbose and debug messages in the theme's colours
-   Enable-ConsoleFormatting -Feature All        # all four
+   Enable-ConsoleFormatting -Feature ReadLine   # colors for the already loaded command-line editor
+   Enable-ConsoleFormatting -Feature All        # output, errors, native stream/progress colors and ReadLine
    Enable-ConsoleFormatting -Feature FormatCommands  # Format-Table, Format-List and Format-Wide too (never part of All)
    ```
 
@@ -47,7 +48,7 @@ With `-Feature ErrorView`, errors that reach the console use the same view as `F
 
 {{< cm-demo id="progress" heading="h2" >}}
 
-With `-Feature Progress`, `Write-Progress` becomes an alias of `Write-ConsoleProgress` for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
+The legacy `Progress` feature is excluded from `All`: All keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With an explicit `-Feature Progress`, `Write-Progress` becomes an alias of `Write-ConsoleProgress` for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
 
 ## Warning, verbose and debug colours
 

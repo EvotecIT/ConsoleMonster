@@ -144,11 +144,54 @@ Assert-StreamsState $streamBaseline
 Assert-NativeCommands
 Enable-ConsoleFormatting -Feature All
 Assert-ReadLineTheme
+Assert-NativeCommands -AllowOutputShim
 Disable-ConsoleFormatting -Feature All
 Assert-NativeState $baseline (Get-ReadLineState)
 Assert-StreamsState $streamBaseline
 'ALL_AND_SNIPPET_OK'
 '@.Replace('__FEATURE__', $FeatureName)) | Should -Match 'ALL_AND_SNIPPET_OK'
+    }
+
+    It 'keeps every loaded Write cmdlet native with All and restores exact progress colors without changing View' {
+        Invoke-NativeStylingChild @'
+$native = @(Get-Command -Name Write-* -CommandType Cmdlet -ListImported)
+if ($native.Count -lt 8) { throw 'The native command oracle is incomplete.' }
+$baseline = Get-ReadLineState
+Set-StreamsBaseline
+$streams = Get-StreamsState
+if ($PSVersionTable.PSVersion -ge [version] '7.2') { $PSStyle.Progress.View = 'Classic' }
+Enable-ConsoleFormatting -Feature All
+Assert-NativeCommands -AllowOutputShim
+foreach ($command in $native) {
+    $after = Get-Command $command.Name
+    if ($after.CommandType -ne 'Cmdlet' -or $after.ImplementingType -ne $command.ImplementingType) { throw "All replaced $($command.Name)." }
+}
+Assert-StreamsState (Get-StreamsExpected)
+if ($PSVersionTable.PSVersion -ge [version] '7.2') {
+    if ($PSStyle.Progress.View -ne 'Classic') { throw 'All changed native progress View.' }
+    $PSStyle.Progress.View = 'Minimal'
+}
+Set-StreamsBaseline -Variant 2
+Set-ReadLineBaseline -Variant 2
+Disable-ConsoleFormatting -Feature All
+Assert-NativeState $baseline (Get-ReadLineState)
+Assert-StreamsState $streams
+if ($PSVersionTable.PSVersion -ge [version] '7.2' -and $PSStyle.Progress.View -ne 'Minimal') { throw 'Disable All restored an unowned View.' }
+Assert-NativeCommands
+'ALL_NATIVE_COMMANDS_AND_PROGRESS_OK'
+'@ | Should -Match 'ALL_NATIVE_COMMANDS_AND_PROGRESS_OK'
+    }
+
+    It 'keeps explicit legacy progress outside All and unqualified Disable still removes it' {
+        Invoke-NativeStylingChild @'
+Enable-ConsoleFormatting -Feature Progress
+if ((Get-Command Write-Progress).CommandType -ne 'Alias') { throw 'Explicit legacy Progress did not install its alias.' }
+Disable-ConsoleFormatting -Feature All
+if ((Get-Command Write-Progress).Definition -cne 'Write-ConsoleProgress') { throw 'Disable All removed the separate explicit Progress feature.' }
+Disable-ConsoleFormatting
+Assert-NativeCommands
+'EXPLICIT_PROGRESS_OUTSIDE_ALL_OK'
+'@ | Should -Match 'EXPLICIT_PROGRESS_OUTSIDE_ALL_OK'
     }
 
     It 'keeps a custom Out-Default while both cosmetic features are enabled' {

@@ -65,8 +65,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Syntax, selection and inline prediction colours for already loaded PSReadLine; editing behaviour stays native.</summary>
         ReadLine = 128,
 
-        /// <summary>Default output, errors, legacy progress, native stream and ReadLine colours. FormatCommands requires a separate explicit opt-in.</summary>
-        All = Output | ErrorView | Progress | Streams | ReadLine
+        /// <summary>Default output, errors, native stream/progress and ReadLine colours. Legacy Progress and FormatCommands require separate explicit opt-ins.</summary>
+        All = Output | ErrorView | Streams | ReadLine
     }
 
     /// <summary>

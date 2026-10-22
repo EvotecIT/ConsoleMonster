@@ -54,7 +54,7 @@ Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
 Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
-ReadLine is included in `All`. On disable or module removal, each cosmetic feature restores its original owned colors exactly, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. The separate legacy `Progress` feature continues to opt into the `Write-ConsoleProgress` alias.
+ReadLine is included in `All`. On disable or module removal, each cosmetic feature restores its original owned colors exactly, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
 
 ## Views that ship with a module
 
@@ -83,6 +83,6 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 ## More from the same switch
 
-- `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` turns on all of them and default output.
+- `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` adds default output, the error view, native stream/progress colors and ReadLine colors. The legacy `Progress` alias feature requires a separate opt-in.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
 - `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).

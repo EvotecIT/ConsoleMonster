@@ -1,14 +1,15 @@
 param(
     [Parameter(Mandatory)][string] $ModulePath,
     [Parameter(Mandatory)][string] $EvidencePath,
-    [ValidateSet('syntax', 'selection', 'prediction', 'progress')][string] $Phase = 'syntax'
+    [ValidateSet('syntax', 'selection', 'prediction', 'progress')][string] $Phase = 'syntax',
+    [switch] $UseAll
 )
 $ErrorActionPreference = 'Stop'
 $Host.UI.RawUI.BackgroundColor = if ($env:CONSOLEMONSTER_THEME -eq 'light') { 'White' } else { 'Black' }
 $Host.UI.RawUI.ForegroundColor = if ($env:CONSOLEMONSTER_THEME -eq 'light') { 'Black' } else { 'Gray' }
 Import-Module $ModulePath -ErrorAction Stop
 Import-Module PSReadLine -ErrorAction Stop
-Set-PSReadLineOption -HistorySaveStyle SaveNothing -EditMode Windows -BellStyle None
+Set-PSReadLineOption -HistorySaveStyle SaveNothing -HistorySavePath ($EvidencePath + '.history.txt') -EditMode Windows -BellStyle None
 if ((Get-PSReadLineOption).PSObject.Properties['PredictionSource']) {
     Set-PSReadLineOption -PredictionSource History -PredictionViewStyle InlineView
 }
@@ -25,9 +26,15 @@ $progressBaseline = if ($PSVersionTable.PSVersion -ge [version] '7.2') {
 @{ ReadLine = $baseline; Progress = $progressBaseline } | Export-Clixml ($EvidencePath + '.baseline.clixml')
 $null = Start-Transcript -LiteralPath ($EvidencePath + '.transcript.txt') -Force
 try {
-    Enable-ConsoleFormatting -Feature ReadLine, Streams
-    if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Write-Progress is not native.' }
-    if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'Cosmetic styling installed Out-Default.' }
+    $native = @(Get-Command -Name Write-* -CommandType Cmdlet -ListImported)
+    if ($UseAll) { Enable-ConsoleFormatting -Feature All }
+    else { Enable-ConsoleFormatting -Feature ReadLine, Streams }
+    foreach ($command in $native) {
+        $after = Get-Command $command.Name
+        if ($after.CommandType -ne 'Cmdlet' -or $after.ImplementingType -ne $command.ImplementingType) { throw "Styling replaced $($command.Name)." }
+    }
+    if (-not $UseAll -and (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) { throw 'Cosmetic styling installed Out-Default.' }
+    if ($PSVersionTable.PSVersion -ge [version] '7.2' -and $PSStyle.Progress.View -ne $progressBaseline.View) { throw 'Enabling changed progress View.' }
     Clear-Host
     if ($Phase -eq 'progress') {
         $ProgressPreference = 'Continue'
@@ -76,7 +83,7 @@ try {
     } elseif ($Host.PrivateData.ProgressForegroundColor -ne $progressBaseline.Foreground -or $Host.PrivateData.ProgressBackgroundColor -ne $progressBaseline.Background) {
         throw 'Native host progress colours were not restored.'
     }
-    @{ Runtime = $PSVersionTable.PSVersion.ToString(); ReadLine = (Get-Module PSReadLine).Version.ToString(); Phase = $Phase; Restored = $true; NativeCommands = $true } |
+    @{ Runtime = $PSVersionTable.PSVersion.ToString(); ReadLine = (Get-Module PSReadLine).Version.ToString(); Phase = $Phase; Restored = $true; NativeCommands = $true; All = [bool] $UseAll; WriteCmdlets = $native.Count } |
         ConvertTo-Json | Set-Content -LiteralPath ($EvidencePath + '.json')
 } finally {
     Disable-ConsoleFormatting

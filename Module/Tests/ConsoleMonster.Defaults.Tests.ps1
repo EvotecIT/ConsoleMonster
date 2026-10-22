@@ -19,7 +19,7 @@
         }
     }
 
-    It 'restores only the current runspace commands when formatting is disabled' {
+    It 'restores only the current runspace commands when explicitly enabled legacy progress is disabled' {
         $text = Invoke-DefaultsChild @'
 $first = [powershell]::Create()
 $second = [powershell]::Create()
@@ -29,7 +29,7 @@ try {
         Import-Module $modulePath
         Set-Item function:global:Out-Default ([scriptblock]::Create("'$label'"))
         Set-Alias Write-Progress $alias -Scope Global
-        Enable-ConsoleFormatting -Feature All -Force
+        Enable-ConsoleFormatting -Feature All, Progress -Force
     }
     $null = $first.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('FIRST').AddArgument('Write-Output').Invoke()
     $null = $second.AddScript($setup.ToString()).AddArgument((Get-Module ConsoleMonster).Path).AddArgument('SECOND').AddArgument('Write-Host').Invoke()

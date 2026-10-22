@@ -74,11 +74,12 @@ function Assert-NativeCommands {
     <# .SYNOPSIS
     Verifies that cosmetic features keep real Write cmdlets and install no default-output shim.
     #>
+    param([switch] $AllowOutputShim)
     foreach ($name in 'Write-Progress', 'Write-Warning', 'Write-Verbose', 'Write-Debug', 'Write-Information', 'Write-Error', 'Write-Output', 'Write-Host') {
         $command = Get-Command $name
         if ($command.CommandType -ne 'Cmdlet' -or $command.ModuleName -cne 'Microsoft.PowerShell.Utility') {
             throw "Cosmetic formatting replaced $name."
         }
     }
-    if (Get-Command Out-Default -CommandType Function -ErrorAction Ignore) { throw 'Cosmetic formatting installed Out-Default.' }
+    if (-not $AllowOutputShim -and (Get-Command Out-Default -CommandType Function -ErrorAction Ignore)) { throw 'Cosmetic formatting installed Out-Default.' }
 }
