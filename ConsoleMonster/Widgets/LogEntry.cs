@@ -20,11 +20,25 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The level.</summary>
         public string Level { get; }
 
-        /// <summary>The text (the plain text of <see cref="RichText"/> when the entry is rich).</summary>
+        /// <summary>The logical line's plain text, without markup.</summary>
         public string Text { get; }
 
-        /// <summary>A multicolour line, or null for literal <see cref="Text"/>.</summary>
+        /// <summary>The rich source, or null for literal <see cref="Text"/>. Select <see cref="LineIndex"/> after rendering the source.</summary>
         public RichText? RichText { get; }
+
+        /// <summary>Zero-based line in <see cref="RichText"/> represented by this entry; zero for single-line or literal entries.</summary>
+        public int LineIndex { get; }
+
+        internal bool IsLineSlice { get; }
+
+        internal LogEntry(TimeSpan time, string level, RichText source, string text, int lineIndex) {
+            Time = time;
+            Level = level;
+            RichText = source;
+            Text = text;
+            LineIndex = lineIndex;
+            IsLineSlice = true;
+        }
 
         /// <summary>Creates a multicolour entry.</summary>
         /// <param name="time">Session time of the entry.</param>
