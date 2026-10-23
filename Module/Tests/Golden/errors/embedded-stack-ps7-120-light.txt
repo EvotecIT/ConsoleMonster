@@ -1,6 +1,6 @@
-Error: Runspace execution failed.
+Test-SyntheticErrorShape: Runspace execution failed.
 Invoke-SyntheticInventory.ps1:4:8
 $x = @(& $command @arguments)
        ^^^^^^^^^^^^^^^^^^^^^
-NotSpecified · System.InvalidOperationException
+System.InvalidOperationException
 20 stack lines hidden · Get-Error for details

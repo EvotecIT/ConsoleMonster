@@ -82,12 +82,17 @@ Terminal.Write(new ExceptionView(error) { Compact = true, ShowStack = false });
 | Jobs stay native | “leaves job output native when Errors is enabled inside the job”. |
 | Explicit installation and exact restoration | “excludes Errors from All and prints its explicit Detailed profile snippet”; “restores the original Out-Default exactly on disable and module removal”. |
 | Shared cells and transcript fallback at the actual prompt | `Assert-ErrorFormattingHost.ps1`, separate prompt pipelines on Windows PowerShell 5.1 and PowerShell 7. |
-| Layout, source marker and tones | `CompactExceptionViewTests`: `CompactMessageInvocationAndFoldedCausesFitTheBudget`, `InvocationMarkerUsesTerminalCellsInsteadOfUtf16Offsets`, `CompactLabelAloneUsesFailureToneAndProfileLanguage`. |
+| Layout, source marker and tones | `CompactExceptionViewTests`: `CompactMessageInvocationAndFoldedCausesFitTheBudget`, `InvocationMarkerUsesTerminalCellsInsteadOfUtf16Offsets`, `CompactLabelUsesFailureToneAndProfileLanguage`. |
+| Command identity, useful categories and fitted source | `CompactErrorContextTests`: `CommandHeader_UsesFailureToneAndHangsTheMessageUnderItsPrefix`, `CompactFacts_UsesMeaningfulCategoryOrTypePlusTarget`, `SourceWindow_DedentsAndElidesAroundTheFailingExtentWithAlignedCarets`. |
 
 Compact errors preserve the failing expression from PowerShell's invocation extent. For a compiled command invoked
 as `$x = @(& $command @arguments)`, the marker covers only `& $command @arguments`; the assignment and enclosing
 parenthesis are not marked. Long messages wrap under the message text. A missing `InvocationInfo` omits the source
-location and marker rather than adding blank position lines.
+location and marker rather than adding blank position lines. The header identifies the failing command when
+PowerShell supplies it; detached records and script-level throws use `Error:`. The facts line shows a meaningful
+category and target, or the exception type when the category is `NotSpecified`. Source excerpts drop leading
+indentation and use ellipses around the failing extent when the original line is wider than the console. File,
+line and column coordinates still refer to the original source.
 
 Repeated outer/inner messages appear once, with the inner exception's type in the folded count. When the cause has
 a different message, a dim `cause:` line shows the innermost distinct reason. Runtime-shaped `at System.…()` lines

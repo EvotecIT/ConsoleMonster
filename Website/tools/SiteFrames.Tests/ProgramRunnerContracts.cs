@@ -42,7 +42,7 @@ namespace SiteFrames.Tests {
             }
             foreach (int width in new[] { 60, 120 }) {
                 string text = ErrorFigures.Run(site, width, Theme.Dark).ToPlainText();
-                Assert.StartsWith("Error: Cannot load the inventory", text, StringComparison.Ordinal);
+                Assert.StartsWith("Get-Item: Cannot load the inventory", text, StringComparison.Ordinal);
                 Assert.Contains("deploy.ps1:12:1", text, StringComparison.Ordinal);
                 Assert.Contains("+2 inner exceptions · Get-Error for details", text, StringComparison.Ordinal);
                 Assert.Contains("ObjectNotFound", text, StringComparison.Ordinal);

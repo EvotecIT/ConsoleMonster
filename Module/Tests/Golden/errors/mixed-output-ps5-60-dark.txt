@@ -1,13 +1,13 @@
 before error
-Error: First synthetic failure.
-Invoke-SyntheticOutput.ps1:4:1
-& $command @arguments
-^^^^^^^^^^^^^^^^^^^^^
-ReadError · FirstFailure
+Test-SyntheticErrorShape: First synthetic failure.
+Invoke-SyntheticOutput.ps1:2:1
+Test-SyntheticErrorShape -Shape mixed-output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ReadError
 between errors
-Error: Second synthetic failure.
-Invoke-SyntheticOutput.ps1:4:1
-& $command @arguments
-^^^^^^^^^^^^^^^^^^^^^
-ReadError · SecondFailure
+Test-SyntheticErrorShape: Second synthetic failure.
+Invoke-SyntheticOutput.ps1:2:1
+Test-SyntheticErrorShape -Shape mixed-output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ReadError
 after errors

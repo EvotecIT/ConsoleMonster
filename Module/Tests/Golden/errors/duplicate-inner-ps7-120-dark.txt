@@ -2,5 +2,5 @@ Error: Object reference not set to an instance of an object
 Invoke-SyntheticInventory.ps1:4:8
 $x = @(& $command @arguments)
        ^^^^^^^^^^^^^^^^^^^^^
-NotSpecified
+System.Management.Automation.CmdletInvocationException
 +1 inner exception (NullReferenceException) · Get-Error for details

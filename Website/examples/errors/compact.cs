@@ -2,6 +2,7 @@ using ConsoleMonster;
 using ConsoleMonster.Widgets;
 
 ExceptionInfo error = new("ItemNotFoundException", "Cannot load the inventory: the source file is missing.") {
+    CommandName = "Get-Item",
     SourceLine = "Get-Item -LiteralPath './inventory.json'",
     ScriptPath = "deploy.ps1",
     LineNumber = 12,

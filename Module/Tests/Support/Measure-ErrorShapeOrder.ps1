@@ -21,7 +21,7 @@ try {
             if ($position -le $last) { throw "Live output order changed with enabled=$enabled`: $token`n$text" }
             $last = $position
         }
-        if ($enabled -and $text -notmatch 'Error: First synthetic failure\.') { throw 'Compact error routing did not activate.' }
+        if ($enabled -and $text -notmatch 'Test-SyntheticErrorShape: First synthetic failure\.') { throw 'Compact error routing did not activate.' }
     }
     @{Passed=$true; Width=$Width; Runtime=$PSVersionTable.PSVersion.ToString()} | ConvertTo-Json | Set-Content $ReceiptPath
 } catch {

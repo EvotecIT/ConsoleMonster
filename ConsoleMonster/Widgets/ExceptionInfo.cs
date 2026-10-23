@@ -27,6 +27,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The message.</summary>
         public string Message { get; }
 
+        /// <summary>The failing command's name, or null for an error without a command invocation.</summary>
+        public string? CommandName { get; set; }
+
         /// <summary>The .NET stack frames, innermost call first, as the runtime lists them.</summary>
         public List<ExceptionFrame> Frames { get; } = new List<ExceptionFrame>();
 

@@ -1,4 +1,4 @@
 Error: A detached worker could not read the synthetic
        inventory.
-ReadError · DetachedFailure
+ReadError
 Get-Error for details

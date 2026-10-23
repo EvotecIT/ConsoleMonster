@@ -25,9 +25,10 @@ function New-ErrorShapeFixture {
     )
     $name = 'Invoke-SyntheticInventory.ps1'
     if ($MixedOutput) {
-        $lines[2] = '$arguments = @{ Shape = $Shape; ErrorAction = "Continue" }'
-        $lines[3] = '& $command @arguments'
-        $lines[4] = '# The command streams its own success and error records.'
+        $lines = @(
+            '$ErrorActionPreference = "Continue"',
+            'Test-SyntheticErrorShape -Shape mixed-output'
+        )
         $name = 'Invoke-SyntheticOutput.ps1'
     }
     [IO.File]::WriteAllLines($source, $lines, [Text.UTF8Encoding]::new($false))

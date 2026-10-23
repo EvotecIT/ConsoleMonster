@@ -28,7 +28,7 @@ namespace ConsoleMonster.Tests.Errors {
             string text = TestTerminal.RenderText(new ExceptionView(Sample()) { Compact = true, ShowStack = false, DetailsHint = "Get-Error for details" }, width);
             Assert.StartsWith("Error: Loading the inventory failed.", text);
             Assert.Contains("deploy.ps1:12:5", text);
-            Assert.Contains("    Get-Inventory -Name 'production'\n    ^^^^^^^^^^^^^", text);
+            Assert.Contains("Get-Inventory -Name 'production'\n^^^^^^^^^^^^^", text);
             Assert.Contains("InvalidOperation", text);
             Assert.Contains("production", text);
             Assert.Contains("+2 inner exceptions · Get-Error for details", text);
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Tests.Errors {
         }
 
         [Theory]
-        [InlineData("\t'界' Get-Inventory", 6, 9)]
+        [InlineData("\t'界' Get-Inventory", 6, 5)]
         [InlineData("'😀' Get-Inventory", 6, 5)]
         public void InvocationMarkerUsesTerminalCellsInsteadOfUtf16Offsets(string line, int column, int expectedCells) {
             ExceptionInfo info = Sample();

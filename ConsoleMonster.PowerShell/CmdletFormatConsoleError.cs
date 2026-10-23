@@ -138,11 +138,15 @@ namespace ConsoleMonster.PowerShell {
         private static ExceptionInfo FromRecord(ErrorRecord record, bool compact) {
             ExceptionInfo inner = ExceptionInfo.FromException(record.Exception);
             string message = record.ErrorDetails?.Message is string details && details.Length > 0 ? details : record.Exception.Message;
-            ExceptionInfo info = new ExceptionInfo(inner.Type, message) { Inner = inner.Inner };
+            ExceptionInfo info = new ExceptionInfo(compact ? record.Exception.GetType().FullName ?? inner.Type : inner.Type, message) { Inner = inner.Inner };
             info.Frames.AddRange(inner.Frames);
             info.ScriptFrames.AddRange(ExceptionInfo.ParseScriptStackTrace(record.ScriptStackTrace));
             info.PositionMessage = record.InvocationInfo?.PositionMessage is string position && position.Length > 0 ? position : null;
             InvocationInfo? invocation = record.InvocationInfo;
+            CommandInfo? command = invocation?.MyCommand;
+            if (command != null && (command.CommandType == CommandTypes.Cmdlet || command.CommandType == CommandTypes.Function || command.CommandType == CommandTypes.Filter)) {
+                info.CommandName = command.Name;
+            }
             info.SourceLine = invocation?.Line;
             info.ScriptPath = invocation?.ScriptName;
             info.LineNumber = invocation?.ScriptLineNumber ?? 0;
@@ -152,10 +156,10 @@ namespace ConsoleMonster.PowerShell {
             info.Target = category?.TargetName;
             // The category only when it adds something: not "NotSpecified", not "OperationStopped" for a plain throw, and
             // without a target the message already names (the missing path).
-            if (category != null && (compact || (category.Category != ErrorCategory.NotSpecified
-                && !(category.Category == ErrorCategory.OperationStopped && (string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0))))) {
+            if (category != null && category.Category != ErrorCategory.NotSpecified
+                && (compact || !(category.Category == ErrorCategory.OperationStopped && (string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0)))) {
                 bool targetKnown = string.IsNullOrEmpty(category.TargetName) || message.IndexOf(category.TargetName, StringComparison.OrdinalIgnoreCase) >= 0;
-                info.Category = category.Category + (targetKnown ? string.Empty : " (" + category.TargetName + ")");
+                info.Category = category.Category + (compact || targetKnown ? string.Empty : " (" + category.TargetName + ")");
             }
             info.ErrorId = string.IsNullOrEmpty(record.FullyQualifiedErrorId) ? null : record.FullyQualifiedErrorId;
             return info;

@@ -19,6 +19,14 @@ Describe 'Synthetic compact error shapes' {
     }
     AfterAll { [ConsoleMonster.Terminal]::Profile = $script:SavedProfile; $global:ErrorView = $script:SavedErrorView; Disable-ConsoleFormatting }
 
+    It 'uses the fallback header for a script-level throw without inventing a command name' {
+        $record = try { & { throw 'Synthetic script-level failure.' } } catch { $_ }
+        $widget = $record | Format-ConsoleError -Compact -AsWidget
+        $text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Terminal]::Profile, [ConsoleMonster.Styling.Theme]::Dark)
+        $text | Should -Match '^Error: Synthetic script-level failure\.'
+        $text | Should -Not -Match 'NotSpecified'
+    }
+
     It 'preserves useful <Shape> details at <Width> columns in <Theme>' -ForEach $shapeCases {
         $invocation = if ($Shape -eq 'mixed-output') { $script:ShapeMixedInvocation } else { $script:ShapeInvocation }
         $records = @(Get-ErrorShapeRecords -Shape $Shape -Invocation $invocation)
@@ -47,8 +55,10 @@ Describe 'Synthetic compact error shapes' {
                 $sourceIndex = [array]::IndexOf($lines, '$x = @(& $command @arguments)')
                 $sourceIndex | Should -BeGreaterOrEqual 0
                 $lines[$sourceIndex + 1] | Should -BeExactly ('       ' + ('^' * 21))
-                $message = @($lines | Select-Object -First $sourceIndex | Where-Object { $_ -match '^(Error: |       )' })
-                ($message | Select-Object -Skip 1 | Where-Object { -not $_.StartsWith('       ') }).Count | Should -Be 0
+                $text | Should -Match '^Test-SyntheticErrorShape: '
+                $prefix = 'Test-SyntheticErrorShape: '
+                $message = @($lines | Select-Object -First ($sourceIndex - 1))
+                ($message | Select-Object -Skip 1 | Where-Object { -not $_.StartsWith((' ' * $prefix.Length)) }).Count | Should -Be 0
             }
             'duplicate-inner' {
                 $records[0].Exception | Should -BeOfType ([Management.Automation.CmdletInvocationException])
@@ -60,6 +70,7 @@ Describe 'Synthetic compact error shapes' {
             'distinct-cause' { $text | Should -Match 'cause: The synthetic inventory cache is locked'; ($text -replace '\s+', ' ') | Should -Match 'by another writer\.' }
             'embedded-stack' { $text | Should -Match '20 stack lines hidden'; $text | Should -Not -Match 'System\.Synthetic'; ($text -split "`n").Count | Should -BeLessThan 12 }
             'detached-record' {
+                $text | Should -Match '^Error: '
                 $records[0].InvocationInfo | Should -BeNullOrEmpty
                 $text | Should -Not -Match 'command line|\^|:\d+:\d+'
                 @($text -split "`n" | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count | Should -Be 0
@@ -72,11 +83,26 @@ Describe 'Synthetic compact error shapes' {
                 $writtenText | Should -Not -Match '(?m)^\s*:\d+'
             }
             'mixed-output' {
+                $records[1].InvocationInfo.Line.Trim() | Should -BeExactly 'Test-SyntheticErrorShape -Shape mixed-output'
+                $records[1].InvocationInfo.MyCommand.Name | Should -BeExactly 'Test-SyntheticErrorShape'
+                $text | Should -Match '(?m)^Test-SyntheticErrorShape: First synthetic failure\.'
+                $text | Should -Match '(?m)^Test-SyntheticErrorShape -Shape mixed-output$'
+                $text | Should -Not -Match 'Out-ConsoleDefault|TopLevel|2>&1|Shim'
                 $records.Count | Should -Be 5
                 $order = @('before error', 'First synthetic failure.', 'between errors', 'Second synthetic failure.', 'after errors')
                 $position = -1
                 foreach ($value in $order) { $next = $text.IndexOf($value, [StringComparison]::Ordinal); $next | Should -BeGreaterThan $position; $position = $next }
             }
+        }
+        $text | Should -Not -Match 'NotSpecified'
+        if ($Shape -in @('distinct-cause', 'embedded-stack')) {
+            $text | Should -Match '^Test-SyntheticErrorShape: '
+            if ($Shape -eq 'distinct-cause') { $text | Should -Match 'System.InvalidOperationException' }
+        }
+        if ($Shape -eq 'duplicate-inner') {
+            # PowerShell deliberately exposes no command metadata for this wrapped CmdletInvocationException.
+            $records[0].InvocationInfo.MyCommand | Should -BeNullOrEmpty
+            $text | Should -Match '^Error: '
         }
         $path = Join-Path $PSScriptRoot "Golden/errors/$Shape-$script:RuntimeName-$Width-$Theme.txt"
         if ($env:CONSOLEMONSTER_UPDATE_GOLDEN -eq '1') {
