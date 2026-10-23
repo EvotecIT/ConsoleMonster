@@ -12,12 +12,16 @@ namespace ConsoleMonster.PowerShell {
         private readonly NativeFormattingProperties _properties = new NativeFormattingProperties();
 
         internal void Apply(PSCmdlet cmdlet) {
+            TerminalProfile profile = Terminal.GetCurrentProfile();
+            if (profile.ColorDepth == ColorDepth.None || string.Equals(
+                NativeFormattingProperties.ReadObject(cmdlet.SessionState.PSVariable.GetValue("PSStyle"), "OutputRendering")?.BaseObject.ToString(),
+                "PlainText", System.StringComparison.OrdinalIgnoreCase)) { return; }
             string script;
             using (Stream stream = typeof(ReadLineFormattingInstallation).Assembly.GetManifestResourceStream(
                 "ConsoleMonster.PowerShell.Formatting.ReadLineOptions.ps1")!)
             using (StreamReader reader = new StreamReader(stream)) { script = reader.ReadToEnd(); }
             foreach (PSObject options in cmdlet.InvokeCommand.InvokeScript(script)) {
-                RenderContext context = new RenderContext(Terminal.GetCurrentProfile().WithColorDepth(ColorDepth.TrueColor), Terminal.Theme);
+                RenderContext context = new RenderContext(profile, Terminal.Theme);
                 Set(options, "Command", HighlightStyles.For(HighlightRole.Identifier, context));
                 Set(options, "Parameter", HighlightStyles.For(HighlightRole.Key, context));
                 Set(options, "String", HighlightStyles.For(HighlightRole.String, context));
@@ -36,6 +40,6 @@ namespace ConsoleMonster.PowerShell {
         internal void Restore() => _properties.Restore();
 
         private void Set(PSObject options, string name, Style style) =>
-            _properties.Set(options, name + "Color", SgrEncoder.Encode(style, ColorDepth.TrueColor));
+            _properties.Set(options, name + "Color", SgrEncoder.Encode(style, Terminal.GetCurrentProfile().ColorDepth));
     }
 }

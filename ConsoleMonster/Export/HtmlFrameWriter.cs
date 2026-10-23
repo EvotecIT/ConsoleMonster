@@ -17,7 +17,7 @@ namespace ConsoleMonster.Export {
 
         public ExportPalette Palette { get; }
 
-        /// <summary>A uniform blank terminal row supplies the native background outside the cell grid too.</summary>
+        /// <summary>A blank terminal row supplies the outer background only when every cell has an explicit background.</summary>
         public string ScreenBackground {
             get {
                 if (Frame.Width == 0 || Frame.Height == 0) { return Palette.Background; }
@@ -28,6 +28,12 @@ namespace ConsoleMonster.Export {
                     if ((!string.IsNullOrEmpty(cell.Glyph) && cell.Glyph != " ") || cell.IsContinuation
                         || cell.Style.Decoration != TextDecoration.None || cell.Style.Background != background) {
                         return Palette.Background;
+                    }
+                }
+                // A footer cannot redefine terminal-default backgrounds elsewhere in the frame.
+                for (int y = 0; y < Frame.Height; y++) {
+                    for (int x = 0; x < Frame.Width; x++) {
+                        if (Frame[x, y].Style.Background.IsDefault) { return Palette.Background; }
                     }
                 }
                 return ExportPalette.ToCss(background)!;

@@ -9,6 +9,9 @@ Describe 'ReadLine and native progress styling contracts' {
             param([string] $Body, [switch] $WithoutReadLine)
             $setup = @(
                 '$ErrorActionPreference = ''Stop'''
+                '$env:CONSOLEMONSTER_COLOR = ''truecolor'''
+                '$env:CONSOLEMONSTER_MODE = ''stream'''
+                'if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering = ''Ansi'' }'
                 "Import-Module '$($script:NativeModule.Replace("'", "''"))' -ErrorAction Stop"
                 ". '$($script:NativeSupport.Replace("'", "''"))'"
                 ". '$($script:StreamSupport.Replace("'", "''"))'"

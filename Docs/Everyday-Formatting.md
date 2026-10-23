@@ -54,7 +54,7 @@ The original values are saved once for each native object and property while any
 
 ## Command-line editor and native progress
 
-`ReadLine` applies the active theme to the already loaded PSReadLine editor: commands, parameters, strings, variables, numbers, operators, comments, keywords, types, errors, selected text and available inline predictions. It uses the same syntax roles as ConsoleMonster's code highlighter, a contrasting selection background and muted prediction text. It is included in `All`. If PSReadLine is absent, the feature does nothing; it does not import the module or enable predictions.
+`ReadLine` applies the active theme to the already loaded PSReadLine editor: commands, parameters, strings, variables, numbers, operators, comments, keywords, types, errors, selected text and available inline predictions. It uses the same syntax roles as ConsoleMonster's code highlighter, a contrasting selection background and muted prediction text. It is included in `All`. If PSReadLine is absent, the feature does nothing; it does not import the module or enable predictions. The terminal profile controls colour depth; explicit no-colour or plain-text settings keep the editor's colours unchanged. Closing or disposing an owning runspace releases its editor and native stream/progress colours, restoring the latest surviving owner or the original baseline.
 
 ```powershell
 Import-Module ConsoleMonster

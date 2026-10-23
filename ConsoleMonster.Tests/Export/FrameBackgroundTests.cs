@@ -7,6 +7,27 @@ using Xunit;
 namespace ConsoleMonster.Tests.Export {
     public sealed class FrameBackgroundTests {
         [Theory]
+        [InlineData(ExportTheme.Dark, false)]
+        [InlineData(ExportTheme.Light, false)]
+        [InlineData(ExportTheme.Dark, true)]
+        [InlineData(ExportTheme.Light, true)]
+        public void ColouredFooter_PreservesDefaultBackgroundsElsewhere(ExportTheme theme, bool blankBody) {
+            CellBuffer frame = new CellBuffer(8, 3);
+            if (!blankBody) { frame.Write(0, 0, "text", Style.Plain); }
+            Style footer = new Style(default, Color.FromRgb(0, 255, 255));
+            for (int x = 0; x < frame.Width; x++) { frame.Set(x, 2, " ", footer); }
+            ExportOptions options = new ExportOptions { Theme = theme, Padding = 12 };
+            XDocument svg = XDocument.Parse(ConsoleExporter.ToSvg(frame, options));
+            XNamespace ns = "http://www.w3.org/2000/svg";
+            XElement body = Assert.Single(svg.Root!.Elements(ns + "g")).Element(ns + "rect")!;
+            Assert.Equal(theme == ExportTheme.Dark ? "#0c0c0c" : "#ffffff", (string?)body.Attribute("fill"));
+            Assert.Contains("#00ffff", svg.ToString());
+            string html = ConsoleExporter.ToHtml(frame, options);
+            Assert.DoesNotContain(".cm-export .cm-screen{background:#00ffff}", html);
+            Assert.Contains("#00ffff", html);
+        }
+
+        [Theory]
         [InlineData(ExportTheme.Light, 60)]
         [InlineData(ExportTheme.Light, 120)]
         [InlineData(ExportTheme.Dark, 60)]

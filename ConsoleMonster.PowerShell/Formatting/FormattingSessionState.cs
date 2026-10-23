@@ -15,6 +15,15 @@ namespace ConsoleMonster.PowerShell {
 
         private FormattingSessionState(Runspace owner) {
             Progress = new RunspaceProgressState(owner);
+            owner.StateChanged += OnOwnerStateChanged;
+        }
+
+        // Use the captured installations: a Closed/Broken callback need not have a default runspace.
+        private void OnOwnerStateChanged(object? sender, RunspaceStateEventArgs args) {
+            if (args.RunspaceStateInfo.State != RunspaceState.Closed && args.RunspaceStateInfo.State != RunspaceState.Broken) { return; }
+            Streams.Restore();
+            ReadLine.Restore();
+            if (sender is Runspace owner) { owner.StateChanged -= OnOwnerStateChanged; }
         }
 
         internal bool TakeOverBuiltIns { get; set; } = true;
