@@ -1,0 +1,61 @@
+source ed23709373195ed189be7dbdcb0d2a5c
+ Server configuration                                                                                         4 members
+$server
+╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ >   Name      web-01                                                                                                 │
+│   + Owner     OwnerInfo                                                                                              │
+│   + Services  2 items                                                                                                │
+│     Enabled   yes                                                                                                    │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys44355eee9ebc0441
+ Server configuration                                                                                         4 members
+$server
+╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│     Name      web-01                                                                                                 │
+│ > + Owner     OwnerInfo                                                                                              │
+│   + Services  2 items                                                                                                │
+│     Enabled   yes                                                                                                    │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keysf41a9246bc1b1e1d
+ Server configuration                                                                                         6 members
+$server
+╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│     Name      web-01                                                                                                 │
+│ > - Owner     OwnerInfo                                                                                              │
+│       Name    Ada                                                                                                    │
+│     + Groups  2 items                                                                                                │
+│   + Services  2 items                                                                                                │
+│     Enabled   yes                                                                                                    │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys
