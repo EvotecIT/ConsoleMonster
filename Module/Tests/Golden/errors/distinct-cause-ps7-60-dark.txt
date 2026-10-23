@@ -1,0 +1,8 @@
+Error: An error occurred while creating the pipeline.
+Invoke-SyntheticInventory.ps1:4:8
+$x = @(& $command @arguments)
+       ^^^^^^^^^^^^^^^^^^^^^
+NotSpecified · System.InvalidOperationException
+cause: The synthetic inventory cache is locked by another
+       writer.
++1 inner exception · Get-Error for details

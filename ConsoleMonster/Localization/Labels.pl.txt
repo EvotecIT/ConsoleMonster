@@ -245,3 +245,6 @@ Widget.InnerErrorCount = +{0} wyjątków wewnętrznych
 Widget.OneInnerError = +1 wyjątek wewnętrzny
 Widget.GetErrorDetails = Szczegóły: Get-Error
 Widget.ChangesConfirm = Zastosować te zmiany?
+Widget.ErrorCause = przyczyna:
+Widget.HiddenStackLines = ukryto {0} wierszy stosu
+Widget.HiddenStackLine = ukryto 1 wiersz stosu

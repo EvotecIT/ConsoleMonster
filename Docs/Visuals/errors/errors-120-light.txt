@@ -3,4 +3,5 @@ deploy.ps1:12:1
 Get-Item -LiteralPath './inventory.json'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ObjectNotFound · PathNotFound · ./inventory.json
+cause: The source was removed.
 +2 inner exceptions · Get-Error for details

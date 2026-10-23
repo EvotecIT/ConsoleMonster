@@ -22,7 +22,8 @@ namespace ConsoleMonster.Widgets {
             string label = context.Labels.ErrorLabel + ": ";
             int bodyWidth = Math.Max(1, width - DisplayWidth.Measure(label));
             bool first = true;
-            foreach (string paragraph in _info.Message.Replace("\r\n", "\n").Split('\n')) {
+            string message = CompactMessage(_info.Message, !ShowStack, out int hiddenStack);
+            foreach (string paragraph in message.Split('\n')) {
                 foreach (StyledLine part in TextWrapper.Wrap(StyledLine.From(paragraph, text), bodyWidth)) {
                     lines.Add(new StyledLine(new[] { new TextSpan(first ? label : new string(' ', DisplayWidth.Measure(label)), context.Style(ThemeToken.Fail).With(TextDecoration.Bold)), new TextSpan(part.PlainText, text) }));
                     first = false;
@@ -46,9 +47,20 @@ namespace ConsoleMonster.Widgets {
                 int count = 0;
                 for (ExceptionInfo? inner = _info.Inner; inner != null; inner = inner.Inner) { count++; }
                 if (count > 0) {
+                    ExceptionInfo? cause = DistinctCause(message);
+                    if (cause != null) {
+                        string causeText = CompactMessage(cause.Message, true, out _);
+                        AddCompactCause(lines, context.Labels.ErrorCause + " ", causeText, width, muted);
+                    }
                     string causes = count == 1 ? context.Labels.OneInnerError : WidgetLabels.Format(context.Labels.InnerErrorCount, count.ToString(CultureInfo.InvariantCulture));
+                    if (cause == null && _info.Inner != null) { causes += " (" + _info.Inner.Type + ")"; }
                     footer = Join(causes, DetailsHint, context);
                 }
+            }
+            if (hiddenStack > 0) {
+                string hidden = hiddenStack == 1 ? context.Labels.HiddenStackLine
+                    : WidgetLabels.Format(context.Labels.HiddenStackLines, hiddenStack.ToString(CultureInfo.InvariantCulture));
+                footer = Join(hidden, footer, context);
             }
             AddCompactWrapped(lines, footer, width, muted);
             return lines;
@@ -91,6 +103,17 @@ namespace ConsoleMonster.Widgets {
             if (string.IsNullOrEmpty(value)) { return; }
             foreach (string paragraph in value!.Replace("\r\n", "\n").Split('\n')) {
                 lines.AddRange(TextWrapper.Wrap(StyledLine.From(paragraph, style), Math.Max(1, width)));
+            }
+        }
+
+        private static void AddCompactCause(List<StyledLine> lines, string prefix, string message, int width, Style style) {
+            int indent = DisplayWidth.Measure(prefix);
+            bool first = true;
+            foreach (string paragraph in message.Split('\n')) {
+                foreach (StyledLine part in TextWrapper.Wrap(StyledLine.From(paragraph, style), Math.Max(1, width - indent))) {
+                    lines.Add(StyledLine.From((first ? prefix : new string(' ', indent)) + part.PlainText, style));
+                    first = false;
+                }
             }
         }
     }

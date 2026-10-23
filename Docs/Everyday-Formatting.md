@@ -53,7 +53,7 @@ visible; inner exceptions fold into a muted count. PowerShell 7 adds a muted `Ge
 includes stacks and causes. `Format-ConsoleError -Compact` provides the same view explicitly, including `-AsWidget`
 and exports.
 
-`$ErrorView` is never changed: `NormalView` and `ConciseView` remain available after disabling the feature;
+`$ErrorView` is never changed: disabling the feature returns display control to PowerShell;
 `CategoryView` retains its native rendering even while Errors is enabled. `Get-Error` retains its native detailed view.
 Records, `$Error`, `-ErrorVariable`, `2>`, `try`/`catch`, `$?` and `$ErrorActionPreference` keep PowerShell's behavior.
 Pipelines, variables, files, jobs, remoting, CI, transcripts and unknown output routes retain native rendering.
@@ -83,6 +83,34 @@ Terminal.Write(new ExceptionView(error) { Compact = true, ShowStack = false });
 | Explicit installation and exact restoration | “excludes Errors from All and prints its explicit Detailed profile snippet”; “restores the original Out-Default exactly on disable and module removal”. |
 | Shared cells and transcript fallback at the actual prompt | `Assert-ErrorFormattingHost.ps1`, separate prompt pipelines on Windows PowerShell 5.1 and PowerShell 7. |
 | Layout, source marker and tones | `CompactExceptionViewTests`: `CompactMessageInvocationAndFoldedCausesFitTheBudget`, `InvocationMarkerUsesTerminalCellsInsteadOfUtf16Offsets`, `CompactLabelAloneUsesFailureToneAndProfileLanguage`. |
+
+Compact errors preserve the failing expression from PowerShell's invocation extent. For a compiled command invoked
+as `$x = @(& $command @arguments)`, the marker covers only `& $command @arguments`; the assignment and enclosing
+parenthesis are not marked. Long messages wrap under the message text. A missing `InvocationInfo` omits the source
+location and marker rather than adding blank position lines.
+
+Repeated outer/inner messages appear once, with the inner exception's type in the folded count. When the cause has
+a different message, a dim `cause:` line shows the innermost distinct reason. Runtime-shaped `at System.…()` lines
+embedded in an exception's `Message` are counted and hidden in compact mode; other multiline prose is retained.
+Detailed mode and the original error record retain the full text. `Get-Error` remains available on PowerShell 7;
+on Windows PowerShell 5.1 inspect `$Error[0] | Format-List * -Force`.
+
+`ConsoleMonster.ErrorShapes.Tests.ps1` covers six synthetic compiled-command, wrapped-cause, embedded-stack,
+detached-record and mixed-output scenarios, with golden frames on both runtimes at 120/60 columns in light/dark.
+The native comparison uses PowerShell 7's `ConciseView`. Windows PowerShell 5.1 has no `ConciseView`, so its comparison
+uses the actual native `NormalView`. Non-terminating `WriteError` records remain in order with normal output.
+
+Process aborts are outside this feature. Text such as `Unhandled exception. System.…`, followed by exit code 134
+or `0xe0434352`, comes from the .NET runtime while the process dies. No in-process formatter can restyle that output.
+
+To regenerate the native and compact review frames through the site's console runner:
+
+```powershell
+dotnet run --project Website/tools/SiteFrames -- review-error-shapes Website ./artifacts/error-shapes
+```
+
+The output includes a `review-index.md` pairing native and compact HTML exports, plus SVG, text and original ANSI
+captures for each of the six shapes and eight runtime/width/theme combinations.
 
 ## Native stream colors
 

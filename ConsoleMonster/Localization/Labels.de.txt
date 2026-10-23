@@ -245,3 +245,6 @@ Widget.InnerErrorCount = +{0} innere Ausnahmen
 Widget.OneInnerError = +1 innere Ausnahme
 Widget.GetErrorDetails = Details mit Get-Error
 Widget.ChangesConfirm = Diese Änderungen anwenden?
+Widget.ErrorCause = Ursache:
+Widget.HiddenStackLines = {0} Stapelzeilen ausgeblendet
+Widget.HiddenStackLine = 1 Stapelzeile ausgeblendet

@@ -25,6 +25,15 @@ namespace ConsoleMonster.Localization {
 
         /// <summary>A PowerShell 7 next-step hint below compact errors.</summary>
         public string GetErrorDetails { get; set; } = "Get-Error for details";
+
+        /// <summary>Prefix for the innermost distinct message in a compact error.</summary>
+        public string ErrorCause { get; set; } = "cause:";
+
+        /// <summary>Number of runtime stack lines omitted from an exception message.</summary>
+        public string HiddenStackLines { get; set; } = "{0} stack lines hidden";
+
+        /// <summary>One runtime stack line omitted from an exception message.</summary>
+        public string HiddenStackLine { get; set; } = "1 stack line hidden";
         private static readonly System.Reflection.PropertyInfo[] LabelProperties = typeof(WidgetLabels).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
 
         [ThreadStatic]

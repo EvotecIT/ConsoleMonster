@@ -45,6 +45,10 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "review-error-shapes":
+                    if (only == null) { throw new ArgumentException("Pass the review output directory as the third argument."); }
+                    ErrorShapeReview.Run(new Site(website), only);
+                    return 0;
                 case "review-errors":
                     ErrorFigures.ExportReview(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-errors-review"));
                     return 0;

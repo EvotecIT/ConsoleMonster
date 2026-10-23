@@ -1,0 +1,15 @@
+before error
+Error: First synthetic failure.
+Invoke-SyntheticOutput.ps1:4:1
+& $command @arguments
+^^^^^^^^^^^^^^^^^^^^^
+ReadError · FirstFailure
+Get-Error for details
+between errors
+Error: Second synthetic failure.
+Invoke-SyntheticOutput.ps1:4:1
+& $command @arguments
+^^^^^^^^^^^^^^^^^^^^^
+ReadError · SecondFailure
+Get-Error for details
+after errors

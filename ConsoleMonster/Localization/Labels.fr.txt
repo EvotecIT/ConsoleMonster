@@ -245,3 +245,6 @@ Widget.InnerErrorCount = +{0} exceptions internes
 Widget.OneInnerError = +1 exception interne
 Widget.GetErrorDetails = Get-Error pour les détails
 Widget.ChangesConfirm = Appliquer ces changements ?
+Widget.ErrorCause = cause :
+Widget.HiddenStackLines = {0} lignes de pile masquées
+Widget.HiddenStackLine = 1 ligne de pile masquée
