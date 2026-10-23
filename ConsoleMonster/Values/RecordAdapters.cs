@@ -166,10 +166,13 @@ namespace ConsoleMonster.Values {
 
         public string GetTypeName(object value) => "JsonObject";
 
-        public IEnumerable<InspectMember> GetMembers(object value) {
+        public IEnumerable<InspectMember> GetMembers(object value) => GetMembers(value, false);
+
+        // Explorers retain the original value and normalize only its bounded presentation, never a whole JSON array.
+        internal IEnumerable<InspectMember> GetMembers(object value, bool preserveValues) {
             foreach (KeyValuePair<string, System.Text.Json.Nodes.JsonNode?> property in (System.Text.Json.Nodes.JsonObject)value) {
                 System.Text.Json.Nodes.JsonNode? node = property.Value;
-                yield return new InspectMember(property.Key, () => ValueOf(node));
+                yield return new InspectMember(property.Key, () => preserveValues ? node : ValueOf(node));
             }
         }
 

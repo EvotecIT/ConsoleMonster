@@ -21,9 +21,10 @@ namespace SiteFrames.Pages {
     /// the program's.
     /// </summary>
     internal static class InteractivePage {
-        private sealed class Story {
+        internal sealed class Story {
             public Story(string id, string title, string summary, string keys, int width, int height, bool inline, bool realTime, string[]? pick = null) {
                 Id = id;
+                ExampleId = id;
                 Title = title;
                 Summary = summary;
                 Keys = keys;
@@ -43,6 +44,11 @@ namespace SiteFrames.Pages {
             public bool Inline { get; }
             public bool RealTime { get; }
             public string[]? Pick { get; }
+            public string Area { get; set; } = "interactive";
+            public string ExampleId { get; set; }
+            public ITheme? Theme { get; set; }
+            public ColorDepth Depth { get; set; } = ColorDepth.TrueColor;
+            public GlyphTier Glyphs { get; set; } = GlyphTier.Full;
         }
 
         private static IEnumerable<Story> Stories() {
@@ -62,14 +68,14 @@ namespace SiteFrames.Pages {
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }
 
-        private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", "interactive", story.Id + ".cs");
+        private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".cs");
 
-        private static string ScriptPath(Site site, Story story) => Path.Combine(site.Website, "examples", "interactive", story.Id + ".ps1");
+        private static string ScriptPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".ps1");
 
-        private static string CapturePath(Site site, Story story) => Path.Combine(site.Captures, "interactive", story.Id + ".ps7.txt");
+        private static string CapturePath(Site site, Story story, PowerShellHost? host = null) => Path.Combine(site.Captures, "interactive", story.Id + "." + (host ?? PowerShellHost.Core).Id + ".txt");
 
         private static TerminalProfile Profile(Story story) =>
-            TerminalProfile.Fixed(story.Width, story.Height, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(Site.Culture).WithLanguage(Site.Culture);
+            TerminalProfile.Fixed(story.Width, story.Height, story.Depth, story.Glyphs).WithCulture(Site.Culture).WithLanguage(Site.Culture);
 
         // The driver: the scripted keys and the capture, set as the process defaults the shown program's prompts pick up. The
         // run gets a fresh, empty temporary folder (a program may keep state there, such as the menu's presets), and every key
@@ -81,7 +87,7 @@ namespace SiteFrames.Pages {
                 Mode = InteractionMode.Rich,
                 Input = keys,
                 Capture = capture,
-                Theme = theme ?? Theme.Dark,
+                Theme = theme ?? story.Theme ?? Theme.Dark,
                 Labels = new PromptLabels(),
                 Profile = Profile(story)
             };
@@ -93,7 +99,7 @@ namespace SiteFrames.Pages {
                 Environment.SetEnvironmentVariable("TMP", fresh);
                 Environment.SetEnvironmentVariable("TEMP", fresh);
                 Environment.SetEnvironmentVariable("TMPDIR", fresh);
-                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? Theme.Dark, options);
+                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? story.Theme ?? Theme.Dark, options);
             } finally {
                 Environment.SetEnvironmentVariable("TMP", tmp);
                 Environment.SetEnvironmentVariable("TEMP", temp);
@@ -109,7 +115,23 @@ namespace SiteFrames.Pages {
         // What a story's capture must have been made from: the twin script, the keys and the screen.
         private static string Fingerprint(Site site, Story story) {
             string source = Site.ReadText(ScriptPath(site, story)) + "\n" + story.Keys + "\n" + story.Width + "x" + story.Height + (story.Inline ? " inline" : " screen") + (story.RealTime ? " realtime" : string.Empty);
+            if (story.Area != "interactive") { source += "\n" + ThemeName(story) + " " + story.Depth + " " + story.Glyphs + " Release"; }
             return Hash(source);
+        }
+
+        private static string ThemeName(Story story) => ReferenceEquals(story.Theme, Theme.Light) ? "Light" : "Dark";
+
+        /// <summary>Captures a shown interactive example using the same scripted driver as the interactive gallery.</summary>
+        internal static void CaptureExample(Site site, Story story) {
+            foreach (PowerShellHost host in PowerShellHost.All) { CaptureTwin(site, story, host); }
+        }
+
+        /// <summary>Requires the shown example's current source and every styled screen to match its C# twin.</summary>
+        internal static bool CheckExample(Site site, Story story, List<string> problems) {
+            ScreenCapture capture = Capture(site, story);
+            bool same = true;
+            foreach (PowerShellHost host in PowerShellHost.All) { same = Parity(site, story, capture, problems, host) && same; }
+            return same;
         }
 
         private static string Hash(string text) {
@@ -124,47 +146,52 @@ namespace SiteFrames.Pages {
 
         /// <summary>Runs each PowerShell twin on PowerShell 7 with the same keys and saves the text of the screens it drew.</summary>
         public static void Capture(Site site) {
-            foreach (Story story in Stories()) {
-                string script = ScriptPath(site, story);
-                if (!File.Exists(script)) {
-                    continue;
-                }
-                string output = CapturePath(site, story);
-                Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-                if (File.Exists(output)) {
-                    File.Delete(output);
-                }
-                string q(string text) => "'" + text.Replace("'", "''") + "'";
-                string driver =
-                    "$cmCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
-                    "$cmKeys = [ConsoleMonster.Input.ScriptedInput]::new(" + q(story.Keys) + ")\n" +
-                    "$cmKeys.Paced = $true\n$cmKeys.RealTime = $" + (story.RealTime ? "true" : "false") + "\n" +
-                    "$cmOptions = [ConsoleMonster.Interactive.InteractiveOptions]::Default\n" +
-                    "$cmOptions.Mode = 'Rich'\n$cmOptions.Input = $cmKeys\n$cmOptions.Capture = $cmCapture\n" +
-                    "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::Dark\n$cmOptions.Labels = [ConsoleMonster.Interactive.PromptLabels]::new()\n" +
-                    "$cmCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n" +
-                    "$cmOptions.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(" + story.Width + ", " + story.Height + ", 'TrueColor', 'Full').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
-                    ". " + q(script) + "\n" +
-                    "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
-                    "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
-                    "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
-                    "    $cmHtml = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($cmFrame)\n" +
-                    "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
-                    "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
-                    "}\n" +
-                    "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
-                string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + ".ps1");
-                File.WriteAllText(wrapper, driver, new System.Text.UTF8Encoding(true));
-                try {
-                    PowerShellRunner.Run(site, PowerShellHost.Core, wrapper, story.Width, story.Height, PowerShellRunner.Environment("dark"), Path.GetDirectoryName(script), interactive: true);
-                } finally {
-                    File.Delete(wrapper);
-                }
-                if (!File.Exists(output)) {
-                    throw new InvalidOperationException(story.Id + ".ps1 did not finish; nothing was captured.");
-                }
-                Console.WriteLine("captured " + Path.GetRelativePath(site.Website, output));
+            foreach (Story story in Stories()) { CaptureTwin(site, story); }
+        }
+
+        private static void CaptureTwin(Site site, Story story, PowerShellHost? host = null) {
+            string script = ScriptPath(site, story);
+            if (!File.Exists(script)) {
+                return;
             }
+            string output = CapturePath(site, story, host);
+            Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+            if (File.Exists(output)) {
+                File.Delete(output);
+            }
+            string q(string text) => "'" + text.Replace("'", "''") + "'";
+            string driver =
+                "$cmCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
+                "$cmKeys = [ConsoleMonster.Input.ScriptedInput]::new(" + q(story.Keys) + ")\n" +
+                "$cmKeys.Paced = $true\n$cmKeys.RealTime = $" + (story.RealTime ? "true" : "false") + "\n" +
+                "$cmOptions = [ConsoleMonster.Interactive.InteractiveOptions]::Default\n" +
+                "$cmOptions.Mode = 'Rich'\n$cmOptions.Input = $cmKeys\n$cmOptions.Capture = $cmCapture\n" +
+                "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::" + ThemeName(story) + "\n$cmOptions.Labels = [ConsoleMonster.Interactive.PromptLabels]::new()\n" +
+                "$cmCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n" +
+                "$cmOptions.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(" + story.Width + ", " + story.Height + ", '" + story.Depth + "', '" + story.Glyphs + "').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
+                ". " + q(script) + "\n" +
+                "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
+                "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
+                "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
+                "    $cmHtml = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($cmFrame)\n" +
+                "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
+                "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                "}\n" +
+                "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
+            string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + "-" + (host ?? PowerShellHost.Core).Id + ".ps1");
+            File.WriteAllText(wrapper, driver, new System.Text.UTF8Encoding(true));
+            try {
+                Dictionary<string, string?> environment = PowerShellRunner.Environment(ThemeName(story).ToLowerInvariant(),
+                    story.Depth == ColorDepth.None ? "none" : story.Depth == ColorDepth.Ansi16 ? "16" : "truecolor", story.Glyphs.ToString().ToLowerInvariant());
+                if (story.Area != "interactive") { environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release"; }
+                PowerShellRunner.Run(site, host ?? PowerShellHost.Core, wrapper, story.Width, story.Height, environment, Path.GetDirectoryName(script), interactive: true);
+            } finally {
+                File.Delete(wrapper);
+            }
+            if (!File.Exists(output)) {
+                throw new InvalidOperationException(story.Id + ".ps1 did not finish; nothing was captured.");
+            }
+            Console.WriteLine("captured " + Path.GetRelativePath(site.Website, output));
         }
 
         // Each distinct screen, in order (a screen repeated by the next frame counts once).
@@ -231,8 +258,8 @@ namespace SiteFrames.Pages {
         }
 
         // Whether the PowerShell twin drew the same screens (by their text) as the C# program for the same keys.
-        private static bool Parity(Site site, Story story, ScreenCapture capture, List<string> problems) {
-            string path = CapturePath(site, story);
+        private static bool Parity(Site site, Story story, ScreenCapture capture, List<string> problems, PowerShellHost? host = null) {
+            string path = CapturePath(site, story, host);
             if (!File.Exists(path)) {
                 problems.Add(story.Id + " has no PowerShell capture; run the capture command for the interactive area.");
                 return false;

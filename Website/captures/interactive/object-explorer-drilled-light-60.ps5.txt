@@ -1,0 +1,81 @@
+source 26d7fdffa1e405083a62d58da3e69ccc
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│ >   Name      web-01                                     │
+│   + Owner     OwnerInfo                                  │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys56a21e88e19ab541
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│     Name      web-01                                     │
+│ > + Owner     OwnerInfo                                  │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys1701772530b4ffef
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│     Name      web-01                                     │
+│   + Owner     OwnerInfo                                  │
+│ > + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys5a3266f7b15f49e7
+ Server configuration                             2 members
+$server.Services
+╭─ Members ────────────────────────────────────────────────╮
+│ > + [0]  web                                             │
+│   + [1]  metrics                                         │
+│                                                          │
+│ Name     Status   Port                                   │
+│ ───────  ───────  ────                                   │
+│ web      Running  443                                    │
+│ metrics  Running  9090                                   │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys

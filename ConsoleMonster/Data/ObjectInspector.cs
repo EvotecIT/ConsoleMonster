@@ -216,7 +216,7 @@ namespace ConsoleMonster.Data {
             string typeName =
                 FindSource(current, options)?.GetTypeName(current)
                 ?? FriendlyTypeName(current.GetType());
-            if (TryDescribePending(current, out string? pending))
+            if (TryDescribePending(options.Identity?.Invoke(current) ?? current, out string? pending))
                 // An incomplete Task/ValueTask or an uncreated Lazy<T>: reading Result or Value would block or force it.
                 return new InspectScalar(name, typeName, path, pending);
             object identity = options.Identity?.Invoke(current) ?? current;
@@ -377,7 +377,7 @@ namespace ConsoleMonster.Data {
             );
         }
 
-        private static bool TryGetEnumerable(object value, out IEnumerable? enumerable) {
+        internal static bool TryGetEnumerable(object value, out IEnumerable? enumerable) {
 #if NET8_0_OR_GREATER
             if (value is JsonElement json && json.ValueKind == JsonValueKind.Array) {
                 enumerable = JsonMemberSource.ArrayValues(json);
@@ -442,7 +442,7 @@ namespace ConsoleMonster.Data {
             || ex.GetType().FullName == "System.Management.Automation.PipelineStoppedException";
 
         // Task<T>.Result, ValueTask<T>.Result and Lazy<T>.Value block or force evaluation; only completed values are read.
-        private static bool TryDescribePending(object value, out string? description) {
+        internal static bool TryDescribePending(object value, out string? description) {
             description = null;
             if (value is System.Threading.Tasks.Task task) {
                 if (task.IsCompleted)
