@@ -27,9 +27,11 @@ namespace ConsoleMonster.Sessions {
         private int _savedX;
         private int _savedY;
         private bool _savedWrap;
+        private bool _savedOrigin;
         private int _mainX;
         private int _mainY;
         private bool _mainWrap;
+        private bool _mainOrigin;
         private bool _origin;
         private bool _pendingWrap;
         private bool _autowrap = true;
@@ -260,11 +262,13 @@ namespace ConsoleMonster.Sessions {
                     _savedX = _x;
                     _savedY = _y;
                     _savedWrap = _pendingWrap;
+                    _savedOrigin = _origin;
                     return;
                 case '8':
                     _x = _savedX;
                     _y = _savedY;
                     _pendingWrap = _savedWrap;
+                    _origin = _savedOrigin;
                     return;
                 case 'M':
                     if (_y == _top) {
@@ -294,6 +298,7 @@ namespace ConsoleMonster.Sessions {
             _origin = false;
             _pendingWrap = false;
             _savedWrap = _mainWrap = false;
+            _savedOrigin = _mainOrigin = false;
             _autowrap = true;
             _style = Style.Plain;
             _top = 0;
@@ -464,11 +469,13 @@ namespace ConsoleMonster.Sessions {
                     _savedX = _x;
                     _savedY = _y;
                     _savedWrap = _pendingWrap;
+                    _savedOrigin = _origin;
                     return;
                 case 'u':
                     _x = _savedX;
                     _y = _savedY;
                     _pendingWrap = _savedWrap;
+                    _origin = _savedOrigin;
                     return;
                 case 'h':
                 case 'l':
@@ -506,6 +513,7 @@ namespace ConsoleMonster.Sessions {
                                 _mainX = _x;
                                 _mainY = _y;
                                 _mainWrap = _pendingWrap;
+                                _mainOrigin = _origin;
                                 _pendingWrap = false;
                             }
                             _onAlternate = true;
@@ -516,6 +524,7 @@ namespace ConsoleMonster.Sessions {
                                 _x = _mainX;
                                 _y = _mainY;
                                 _pendingWrap = _mainWrap;
+                                _origin = _mainOrigin;
                             }
                         }
                         break;

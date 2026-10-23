@@ -15,7 +15,9 @@ namespace ConsoleMonster.Sessions {
                 string joined = previous.Glyph + glyph;
                 // Use the canonical grapheme segmenter even when a cluster spans UTF-8 reads or cast events.
                 foreach (TextCluster cluster in DisplayWidth.Clusters(joined)) {
-                    if (cluster.Length == joined.Length) {
+                    // A cell stores at most two columns. Keep a wider logical cluster in adjacent cell groups
+                    // (Indic consonants or split ZWJ emoji), without inserting padding into its text.
+                    if (cluster.Length == joined.Length && cluster.Width <= 2) {
                         if (joined.Length > 4096) { throw new FormatException("The terminal grapheme exceeds the playback input limit."); }
                         glyph = joined;
                         style = previous.Style;

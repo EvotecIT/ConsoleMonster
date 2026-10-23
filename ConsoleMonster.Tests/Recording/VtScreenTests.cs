@@ -3,10 +3,55 @@ using System.IO;
 using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Text;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
+    [Collection("Live sessions")]
     public sealed class VtScreenTests {
+        [Theory]
+        [InlineData("\u001b7", "\u001b8", true)]
+        [InlineData("\u001b[s", "\u001b[u", true)]
+        [InlineData("\u001b[?1049h", "\u001b[?1049l", true)]
+        [InlineData("\u001b7", "\u001b8", false)]
+        [InlineData("\u001b[s", "\u001b[u", false)]
+        [InlineData("\u001b[?1049h", "\u001b[?1049l", false)]
+        public void CursorSavesRestoreOriginModeBeforeSubsequentPositioning(string save, string restore, bool origin) {
+            foreach (string command in new[] { "H", "f", "d" }) {
+                VtScreen screen = new VtScreen(12, 6);
+                screen.Feed("\x1b[3;5r\x1b[?6" + (origin ? "h" : "l") + save
+                    + "\x1b[?6" + (origin ? "l" : "h") + restore + "\x1b[1;1" + command + "X");
+                Assert.Equal("X", screen.Snapshot()[0, origin ? 2 : 0].Glyph);
+                Assert.Equal(" ", screen.Snapshot()[0, origin ? 0 : 2].Glyph);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void WiderClustersPreserveTextAndCursorAcrossCastEvents(bool fragmented) {
+            TerminalWidthProfile original = DisplayWidth.Profile;
+            try {
+                foreach (var sample in new[] {
+                    new { Glyph = "\u0915\u094d\u0937\u094d\u092e\u093f", Profile = TerminalWidthProfile.Standard },
+                    new { Glyph = "\U0001f468\u200d\U0001f469\u200d\U0001f467", Profile = TerminalWidthProfile.Standard.WithZwjSequences(ZwjRendering.Split) },
+                    new { Glyph = "\U0001f1f5\U0001f1f1", Profile = TerminalWidthProfile.Standard.WithFlagWidth(4) }
+                }) {
+                    DisplayWidth.Profile = sample.Profile;
+                    StringBuilder cast = new StringBuilder("{\"version\":2,\"width\":12,\"height\":6}\n");
+                    string text = sample.Glyph + "!";
+                    for (int at = 0; at < text.Length;) {
+                        int length = fragmented ? (char.IsHighSurrogate(text[at]) ? 2 : 1) : text.Length;
+                        cast.Append("[0,\"o\",").Append(SessionCastWriter.Json(text.Substring(at, length))).Append("]\n");
+                        at += length;
+                    }
+                    CellBuffer frame = SessionRecording.Read(new StringReader(cast.ToString())).FinalFrame();
+                    Assert.Equal(text, frame.GetRowText(0).TrimEnd());
+                    Assert.Equal("!", frame[DisplayWidth.Measure(sample.Glyph, sample.Profile), 0].Glyph);
+                }
+            } finally { DisplayWidth.Profile = original; }
+        }
+
         [Theory]
         [InlineData("H")]
         [InlineData("f")]
