@@ -50,3 +50,7 @@ Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, 
 - ConsoleColor names render as PowerShell shows them: `DarkRed` is ANSI red and `Red` is bright red, so a script looks the same as with `Write-Host -ForegroundColor`.
 
 For a line that updates in place, use `Write-ConsoleStatus 'Copying ', $file -Color Gray, Cyan -Spinner -ShowElapsed` and end it with `-Complete`. Outside a real console it writes plain lines.
+
+## Related
+
+More rich text, from status lines to gradients, is on the [PowerShell page](/powershell/). The roles `-Role` accepts are listed under [themes](/docs/themes/).

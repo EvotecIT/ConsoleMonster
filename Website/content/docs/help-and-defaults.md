@@ -138,16 +138,10 @@ Only the top-level local console prompt is themed. Assigned, piped, redirected, 
 
 ### The same renderer in .NET
 
-The following frames use fixed illustrative path, branch and completed-command data. This complete C# program calls the renderer used by the PowerShell prompt; the PowerShell feature collects the live session data.
+This complete C# program calls the renderer the PowerShell prompt uses, with a fixed illustrative path, branch and finished commands; the PowerShell feature collects the live session's data instead.
 
-```bash
-dotnet new console -n PromptExample
-cd PromptExample
-dotnet add package ConsoleMonster
-# Replace Program.cs with the complete program below, then run it.
-dotnet run
-```
+{{< cm-try key="prompt" ids="shell-prompt-120,shell-prompt-60" project="PromptExample" caption="Success first, then a failed 3.4-second command, at 120 and 60 columns. Switch the site theme to compare light and dark." >}}
 
-{{< cm-frame ids="shell-prompt-120,shell-prompt-60" caption="Fixed illustrative data: success first, then a failed 3.4-second command. Switch themes to compare light and dark." >}}
+## Related
 
-Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).
+[Choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

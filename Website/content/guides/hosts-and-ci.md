@@ -61,3 +61,7 @@ Text that reaches stream and plain output is sanitised: escape sequences and con
 - Windows Terminal does not expose its colour scheme, so its light schemes need `CONSOLEMONSTER_THEME=light`.
 - Output that was already printed cannot re-flow on a later resize. Use `-Width` or a fixed profile when output must fit a known width.
 - Transcript detection, and transcript writing on 5.1, use guarded reflection into PowerShell internals; it does nothing if a future version renames those members.
+
+## Related
+
+To pin any of these decisions, use the [environment overrides](/docs/environment/); [capability detection](/docs/capabilities/) explains how each one is made.

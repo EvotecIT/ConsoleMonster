@@ -10,24 +10,21 @@ apis: [Out-ConsoleChart, PipelineChart]
 summary: Numeric pipeline properties as bars, distributions and grouped trends.
 ---
 
-`Out-ConsoleChart` turns numbers or a numeric property into a chart. Start with horizontal bars, with the values beside them and colours from the current theme:
+`Out-ConsoleChart` turns numbers, or a numeric property of the objects you pipe, into horizontal bars, a distribution or one trend per group, with the values beside them and colours from the current theme.
 
-Install and import the module in PowerShell 5.1 or 7 before running the examples:
+## Try it
 
-```powershell
-Install-Module ConsoleMonster -Scope CurrentUser
-Import-Module ConsoleMonster
-```
+{{< cm-try key="charts" ids="pipeline-charts-120" project="PipelineCharts" caption="Bars, a distribution and grouped trends from fixed illustrative samples." >}}
+
+## Bars
+
+On real data it is one pipeline:
 
 ```powershell
 Get-Process | Out-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10 -Unit ' s'
 ```
 
-`-Sort Ascending` or `-Sort Descending` orders bars by value before `-Top` takes the first N. Ties retain input order. Without `-Sort`, bars keep input order. The label defaults to `Name`, then the row number; `-Label` selects another property. Repeated labels remain separate observations. Negative bars extend to the left of a shared zero baseline.
-
-{{< cm-frame id="pipeline-charts-120" script="true" >}}
-
-The figure uses fixed illustrative samples. Compose a chart with other widgets using `-AsWidget` inside a script block:
+`-Sort Ascending` or `-Sort Descending` orders bars by value before `-Top` takes the first N; ties keep their input order, and without `-Sort` bars keep input order. The label defaults to `Name`, then the row number; `-Label` picks another property. Repeated labels stay separate observations, and negative bars extend to the left of a shared zero baseline. With `-AsWidget` the chart composes with other widgets:
 
 ```powershell
 New-ConsolePanel -Title 'CPU time' {
@@ -66,7 +63,7 @@ $samples | Sort-Object Time |
 
 Without a label property, scalar values form one unnamed trend. `-Sort` orders groups by their latest value; `-Top` then limits the number of groups. Neither option changes the order of samples inside a group. The existing sparkline renderer scales from zero, so a group containing negative values is shown as numerical text to preserve its signs.
 
-{{< cm-frame id="pipeline-charts-60" >}}
+{{< cm-frame id="pipeline-charts-60" script="false" caption="The same samples at 60 columns." >}}
 
 ## Plain text and invalid values
 
@@ -107,4 +104,6 @@ Terminal.Write(histogram);
 
 `Add` accepts finite doubles and rejects NaN or infinity. `TryNumber` checks numeric primitives, decimals and invariant numeric strings before adding them. `Build()` returns the existing bar, histogram or sparkline widgets for composition; `Build(textOnly: true)` returns their numerical fallback. Rendering the `PipelineChart` itself chooses that fallback from terminal capabilities.
 
-Next, [compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Out-ConsoleChart reference](/powershell/commands/out-consolechart/).
+## Related
+
+[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Out-ConsoleChart reference](/powershell/commands/out-consolechart/).

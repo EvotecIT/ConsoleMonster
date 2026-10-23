@@ -10,44 +10,21 @@ chips: [Files, Logs, PowerShell]
 summary: "Follow files and local Windows event logs; pause on scroll and resume with End."
 ---
 
-`Watch-ConsoleLog` follows completed log lines with level colours and a source timestamp column. Up, PgUp and Home pause following so you can read older entries. End returns to the newest entries. Accent keys and muted descriptions keep `q quit · PgUp history · End follow` readable. The warning-colored paused state counts new lines as they are applied; End resets that counter. Discarded history appears only when nonzero.
+`Watch-ConsoleLog` follows a log file or a Windows event log as lines complete, with level colours, a source timestamp column and a history you can scroll back through while new lines keep arriving.
 
-Source timestamps use `HH:mm:ss` at both 60 and 120 columns, adding `yyyy-MM-dd` when retained history spans source calendar days. Use `-TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz'` for an explicit invariant .NET format. The C# equivalents are `LogTailOptions.TimestampFormat` and `LogTailView.TimestampFormat`. Unknown source timestamps stay blank, and plain output keeps the original lines.
+## Try it
 
-## Run the synthetic example
+Save the [synthetic log](/examples/tails/synthetic.log) (16 invented entries, no real service data) next to the program. Both programs read it for one poll and stop, so they also run headless; drop `-Count` (or `Count`) to keep following.
 
-1. Install and import the module.
+{{< cm-try key="tails" scenarios="Follow a file:tails-following-120|Pause and resume:tails-paused-120,tails-resumed-120" project="LogTail" file="file.ps1" caption="Following: the newest entries with the footer keys. Pause and resume: PgUp pauses on older entries, End returns to the newest. Windows PowerShell 5.1 and PowerShell 7 run the same script and are checked against the C# result." >}}
 
-   ```powershell
-   Install-Module ConsoleMonster -Scope CurrentUser
-   Import-Module ConsoleMonster
-   ```
+## How it works
 
-2. Save the [synthetic log](/examples/tails/synthetic.log) and [file.ps1](/examples/tails/file.ps1) in the same folder. The log contains 16 invented entries and no real service data.
+The tail reads only completed lines, recognises each line's timestamp and level, and posts the entries to a live view; the original lines are kept for filtering and plain output.
 
-3. Run the script. It ends after one source poll, which processes all 16 completed lines. To follow later appends, run the command below without `-Count`.
-
-   ```powershell
-   ./file.ps1
-   Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Highlight database
-   ```
-
-The finite script and its complete C# equivalent produce these frames. PowerShell 5.1 and 7 are captured from the same native script and checked against the C# result.
-
-{{< cm-frame ids="tails-following-120,tails-following-60" caption="The same synthetic file at 120 and 60 columns. Long messages are clipped to the terminal width." >}}
-
-For C#, create an application, save [file.cs](/examples/tails/file.cs) as `Program.cs`, and put `synthetic.log` in the working directory. Then run it:
-
-```text
-dotnet new console -n LogTail
-cd LogTail
-dotnet add package ConsoleMonster
-dotnet run
-```
-
-The shown C# program uses `Count = 1`, so it is finite in a headless process too. Omit `Count` to follow until quit or cancellation. Redirected output uses plain original lines.
-
-## Pause, inspect and resume
+- **Columns.** The live view shows the timestamp and level once, then the message, without the leading timestamp and level fields. Source timestamps use `HH:mm:ss`, with `yyyy-MM-dd` added when the retained history spans calendar days; `-TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz'` (`LogTailOptions.TimestampFormat` and `LogTailView.TimestampFormat` in C#) sets an explicit format. An unknown source timestamp stays blank: no current time is invented.
+- **Pausing.** Up, PgUp and Home pause following so you can read older entries. The footer turns to the warning colour and counts the lines that arrive meanwhile; End resets the count and returns to the newest entries. Discarded history appears only when there is some. Long messages are clipped to the terminal width.
+- **In your own view.** The Pause and resume program embeds `LogTailView` in a `LiveSession`: it polls the file, passes keys through `Navigate`, and `Post` queues entries for the render thread. On this page the keys (PgUp, End, q) are scripted; when you run it, they are yours.
 
 | Key | Action |
 | --- | --- |
@@ -55,14 +32,6 @@ The shown C# program uses `Count = 1`, so it is finite in a headless process too
 | Down / PgDn | Move toward newer history; reaching the newest resumes following. |
 | End | Resume following at the newest entries. |
 | q / Escape / Ctrl+C | Quit and restore the terminal. |
-
-The complete program below embeds `LogTailView` in a `LiveSession`. It polls the file and passes input through `Navigate`; `Post` queues entries for the render thread. The capture tool supplies PgUp, then End, then q. Normal use reads your keyboard.
-
-{{< cm-frame ids="tails-paused-120,tails-paused-60" caption="PgUp moves to older rows and changes the footer to Paused. New entries continue to be retained." >}}
-
-{{< cm-frame ids="tails-resumed-120,tails-resumed-60" script="false" caption="End restores the newest rows and the Following state." >}}
-
-Save [navigate.cs](/examples/tails/navigate.cs) as `Program.cs` in the same application to try the embedded view. The public examples need no recording harness.
 
 ## Select and highlight literal text
 
@@ -109,4 +78,6 @@ Partial lines wait for their terminator and can use unbounded memory. Observed r
 
 Initialization scans the current file to find the requested completed history and retain any partial line, including with `-Tail 0`. Initial work grows with file size. Reads run synchronously, so cancellation is observed after an in-progress source read returns.
 
-Next, put a tail beside other widgets in a [live session](/docs/live-sessions/), or use [logging integration](/docs/logging/) to send application events directly to a dashboard.
+## Related
+
+Put a tail beside other widgets in a [live session](/docs/live-sessions/), or use the [logging provider](/docs/logging/) to send application events straight to a dashboard.

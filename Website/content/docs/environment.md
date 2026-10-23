@@ -89,3 +89,7 @@ Terminal.Write(facts, Terminal.Profile.WithMode(OutputMode.Plain));
 ```
 
 In PowerShell, `Get-ConsoleCapability` shows the profile these variables produced, with the reason for each value.
+
+## Related
+
+What each variable overrides is explained in [capability detection](/docs/capabilities/). Without any of them, [hosts, CI and transcripts](/guides/hosts-and-ci/) shows what each environment gets.

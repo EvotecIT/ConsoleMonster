@@ -9,7 +9,9 @@ chips: [Generic host]
 summary: "A live dashboard for .NET generic host applications."
 ---
 
-```bash
+Add the dashboard and the logging provider to an existing host:
+
+```terminal
 dotnet add package ConsoleMonster.Hosting
 dotnet add package ConsoleMonster.Extensions.Logging
 ```
@@ -40,3 +42,7 @@ With `Mode = Auto` (the default) the dashboard draws only on an interactive term
 | `LogHeight` | `8` | Rows of the log region. |
 | `KeepFinalState` | `true` | Leaves the last frame in the scrollback. |
 | `ServiceName` | type name | Names a hosted service from its type. |
+
+## Related
+
+The [logging provider](/docs/logging/) writes into the dashboard's log region, the [dotnet new template](/docs/template/) starts an app with both wired up, and [threads and concurrency](/docs/threads/) explains how updates reach the screen.

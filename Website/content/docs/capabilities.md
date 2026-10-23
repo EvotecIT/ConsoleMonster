@@ -67,3 +67,7 @@ Terminal.Write(rule, TerminalProfile.Fixed(40, 10, ColorDepth.Ansi16, GlyphTier.
 ## Fonts and resizing during a session
 
 In conhost, the console font is polled about once a second; a new face or size re-derives the glyph tier and the emoji and ambiguous widths. In Windows Terminal, widths are measured again after every resize, which also covers zooming with Ctrl+= and Ctrl+0. Print-once output reads the window size on every write, so output printed after a resize uses the new width.
+
+## Related
+
+Every variable is listed in [environment overrides](/docs/environment/). For the light and dark choice see [themes](/docs/themes/), and for the output each host gets, [hosts, CI and transcripts](/guides/hosts-and-ci/).
