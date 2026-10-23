@@ -113,9 +113,10 @@ The site is set in the medium it documents: a terminal cell grid.
   poster without JavaScript; `assets/frames.js` only mounts the engine player near the viewport, picks the phone
   rendering, opens it at the poster's moment (the player's `start` option) and moves the player's screen into the site
   window. A replay marked to play (`autoplay`) starts when it is in view (not with reduced motion): from the poster,
-  or, when the poster is the final screen, after holding it four seconds from `hero` (the first frame with a third of the fullest frame's rows), so a
-  window never opens on an empty prompt. Others show their poster until Play. Nothing may schedule timers while
-  nothing plays: looping uses one timeout per round and none out of view (`build/perf/budget.json` measures it). A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
+  or, when the poster is the final screen, after holding it six seconds from `hero` (the first frame with a third of the fullest frame's rows), so a
+  window never opens on an empty prompt. It plays once and stops on its final screen; Play runs it again. Others show their poster
+  until Play. Nothing may schedule timers while nothing plays; `player_loop` (one timeout per round, none out of view)
+  is for a page that explicitly asks for it (`build/perf/budget.json` measures it). A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
   window and its controls are always one width. Engine gaps go in the PR's
   engine notes, not into a fork of the player.
 - **Spacing.** One scale in `tokens.css` (`--cm-space-1` to `--cm-space-8`) and one rhythm between sections

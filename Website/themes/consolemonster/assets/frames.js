@@ -193,14 +193,15 @@
   // starts at the poster's moment, and puts the player's screen in the site's window where the poster was.
   // A replay marked to play (data-autoplay: the home page's first path, a demo with autoplay="true") starts when it is in
   // view, from the poster the reader is already looking at: a poster in the middle of a run plays on from there; a poster
-  // that is the final screen stays four seconds, then the run plays from its first full screen (data-hero, from the site
-  // tool) instead of an empty prompt. Every other replay shows its poster until the reader presses Play. A replay marked
-  // data-loop goes round again after holding its final screen, with one timeout per round and none while it is out of
-  // view. Nothing is scheduled while nothing plays, nothing moves when the reader prefers reduced motion, and a reader who
+  // that is the final screen stays six seconds, then the run plays from its first full screen (data-hero, from the site
+  // tool) instead of an empty prompt, plays once and stops on its final screen; Play runs it again. Every other replay
+  // shows its poster until the reader presses Play. Only a page that asks for it (data-loop, which nothing sets by
+  // default) goes round again after holding its final screen, with one timeout per round and none out of view. Nothing is scheduled while nothing plays, nothing moves when the reader prefers reduced motion, and a reader who
   // has used the player's controls decides from then on.
   var reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  // The final screen holds as long before the first run as between rounds: long enough to read the result.
-  var HOLD = 4000, LOOP_HOLD = 4000;
+  // The final screen holds six seconds before the run: the result first, then how it got there. A page that loops holds
+  // its end four seconds between rounds.
+  var HOLD = 6000, LOOP_HOLD = 4000;
   function autoplay(replay, player, hero) {
     var touched = false, seen = false, visible = false, held = 0, round = 0, view = null;
     var looping = replay.hasAttribute('data-loop');
