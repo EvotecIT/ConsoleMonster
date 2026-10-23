@@ -9,6 +9,7 @@
 .cm-screen .f0369a1{color:#0369a1}
 .cm-screen .f075985{color:#075985}
 .cm-screen .f0c0c0c{color:#0c0c0c}
+.cm-screen .f0d9488{color:#0d9488}
 .cm-screen .f0f172a{color:#0f172a}
 .cm-screen .f111827{color:#111827}
 .cm-screen .f121212{color:#121212}
@@ -252,6 +253,7 @@
 .cm-screen .c112{width:67.2em}
 .cm-screen .c113{width:67.8em}
 .cm-screen .c118{width:70.8em}
+.cm-screen .c119{width:71.4em}
 .cm-screen .g2500{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light)}
 .cm-screen .g2501{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy)}
 .cm-screen .g2502{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:50% 0,50% 100%;background-size:var(--cm-light) calc(50% + calc(var(--cm-light) / 2)),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}

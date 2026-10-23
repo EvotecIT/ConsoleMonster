@@ -62,7 +62,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Native warning, verbose, debug and (PowerShell 7.2+) error colours from the active theme; stream commands and records stay native.</summary>
         Streams = 16,
 
-        /// <summary>Default output, errors, progress and stream colours. FormatCommands requires a separate explicit opt-in.</summary>
+        /// <summary>Native command help displayed through HelpView only on a direct local host route. Excluded from All.</summary>
+        Help = 32,
+
+        /// <summary>Default output, errors, progress and stream colours. FormatCommands and Help require separate explicit opt-ins.</summary>
         All = Output | ErrorView | Progress | Streams
     }
 
@@ -163,7 +166,7 @@ namespace ConsoleMonster.PowerShell {
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); state.Reset(); }));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -177,7 +180,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }
@@ -187,17 +190,7 @@ namespace ConsoleMonster.PowerShell {
 
         // The Out-Default shim: everything goes through Out-ConsoleDefault while ConsoleMonster is loaded, and straight to
         // PowerShell's Out-Default if the module was removed.
-        internal const string ShimScript = @"
-    [CmdletBinding()]
-    param([switch] $Transcript, [Parameter(ValueFromPipeline = $true)] [psobject] $InputObject)
-    begin {
-        $cmTarget = if (Get-Command -Name 'ConsoleMonster\Out-ConsoleDefault' -CommandType Cmdlet -ErrorAction Ignore) { { ConsoleMonster\Out-ConsoleDefault -Transcript:$Transcript -Shim -TopLevel:($MyInvocation.CommandOrigin -eq 'Runspace') } } else { { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript } }
-        $cmPipeline = $cmTarget.GetSteppablePipeline($MyInvocation.CommandOrigin)
-        $cmPipeline.Begin($PSCmdlet)
-    }
-    process { $cmPipeline.Process($InputObject) }
-    end { $cmPipeline.End() }
-";
+        internal static string ShimScript => FormatCommandInstallation.ReadResource("Formatting.OutDefaultProxy.ps1");
 
         internal static IReadOnlyCollection<ConsoleViewRegistration> Registrations {
             get {

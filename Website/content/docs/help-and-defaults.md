@@ -41,6 +41,31 @@ These features change how PowerShell's own output looks for the session, never w
 
 `Show-ConsoleHelp` reads the help PowerShell has for a command (`Get-Help -Full`): cmdlet help files, comment-based help of functions and scripts, or the syntax PowerShell generates when there is none. It shows the synopsis, the syntax of each parameter set with optional parts told apart, the description, a parameter table, highlighted examples, inputs, outputs and links. Piped to `more`, `Out-Host -Paging` or a file, it writes plain lines.
 
+### Use the view for native help
+
+```powershell
+Enable-ConsoleFormatting -Feature Help
+Get-Help Get-Process -Full
+Get-Process -?
+help Get-Process -Examples
+Disable-ConsoleFormatting -Feature Help
+```
+
+This opt-in feature uses the same view when native help goes straight to the console. `help` keeps paging, with
+**Space next · q quit** in the footer. `-Full`, `-Detailed`, `-Examples` and `-Parameter` select the corresponding
+sections; `-Online` and `-ShowWindow` keep PowerShell's behavior. About topics stay literal until Markdown support
+ships. Help is excluded from `-Feature All`.
+
+Pipelines, assignments, output variables, redirection, jobs, remoting, CI and transcripts keep PowerShell's own help
+objects and bytes. For example, `Get-Help Get-Process | Out-String` remains native while the feature is enabled.
+Disabling restores the previous help and output adapters. The
+[contract suite](https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Tests/ConsoleMonster.HelpFormatting.Tests.ps1)
+records the proof for Windows PowerShell 5.1 and PowerShell 7.
+
+{{< cm-frame ids="help-formatting-native-ps7-120,help-formatting-get-help-ps7-120,help-formatting-get-help-ps7-60" caption="Native help before and after the opt-in, captured on PowerShell 7 at 120 and 60 columns." >}}
+
+{{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="The first page of help, with the Space/q footer, at both widths." >}}
+
 {{< cm-demo id="errors" heading="h2" >}}
 
 With `-Feature ErrorView`, errors that reach the console use the same view as `Format-ConsoleError`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.

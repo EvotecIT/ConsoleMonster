@@ -21,6 +21,143 @@ namespace SiteFrames {
                         Console.Error.WriteLine("Usage: SiteFrames app-review [WebsiteRoot] [ScratchOutputDirectory]");
                         return 2;
                     }
-                    return AppPage.Review(new Site(website), only);
+                    return ExplorerFigures.Review(new Site(website), only);
+                case "review-chart":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass the review output directory as the third argument.");
+                        return 2;
+                    }
+                    return ChartFigures.Review(new Site(website), only);
+                case "review-text":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-text [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return TextDiffFigures.Review(new Site(website), only);
+                case "help-review":
+                    return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"), args.Length > 3 && args[3] == "--reuse-captures");
+                case "help-proof":
+                    return HelpFormattingPage.Verify(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-proof [WebsiteRoot] [scratch]"));
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|app-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");
+                    return 2;
+            }
+        }
+
+        // Pages fetch frame bundles, replays, recordings and Prism components by fixed URLs at run time, which asset
+        // hashing cannot rename. Their combined content hash goes into data/assets.json; the pages carry it and the scripts
+        // add it to those URLs (?v=), so a browser never pairs a new page with an old cached replay or frame bundle.
+        // Line endings are normalised so every checkout computes the same value.
+        private static void WriteRuntimeVersion(Site site) {
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) {
+                List<string> files = new List<string>();
+                foreach (string folder in new[] { "frames", "replays", "recordings", Path.Combine("assets", "prism") }) {
+                    string root = site.Static(folder.Replace(Path.DirectorySeparatorChar, '/'));
+                    if (Directory.Exists(root)) {
+                        files.AddRange(Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories));
+                    }
+                }
+                string staticRoot = site.Static(string.Empty);
+                files.Sort((x, y) => string.CompareOrdinal(Path.GetRelativePath(staticRoot, x).Replace('\\', '/'), Path.GetRelativePath(staticRoot, y).Replace('\\', '/')));
+                foreach (string file in files) {
+                    byte[] name = System.Text.Encoding.UTF8.GetBytes(Path.GetRelativePath(staticRoot, file).Replace('\\', '/') + "\n");
+                    sha.TransformBlock(name, 0, name.Length, null, 0);
+                    byte[] content = File.ReadAllBytes(file);
+                    string extension = Path.GetExtension(file).ToLowerInvariant();
+                    if (extension == ".json" || extension == ".jsonl" || extension == ".js" || extension == ".css" || extension == ".txt") {
+                        content = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(content).Replace("\r\n", "\n"));
+                    }
+                    sha.TransformBlock(content, 0, content.Length, null, 0);
+                }
+                sha.TransformFinalBlock(new byte[0], 0, 0);
+                string version = Convert.ToHexString(sha.Hash!).Substring(0, 12).ToLowerInvariant();
+                site.WriteJson(site.Data("assets"), new JsonObject { ["runtime"] = version });
+            }
+        }
+        private static bool Wants(string? only, string area) => only == null || string.Equals(only, area, StringComparison.OrdinalIgnoreCase);
+
+        private static int CaptureAll(Site site, string? only) {
+            JsonObject hosts = new JsonObject();
+            foreach (PowerShellHost host in PowerShellHost.All) {
+                hosts[host.Id] = PowerShellRunner.Version(host);
+            }
+            site.WriteJson(Path.Combine(site.Captures, "hosts.json"), hosts);
+            if (Wants(only, "widgets")) {
+                WidgetsPage.Capture(site);
+            }
+            if (Wants(only, "live")) {
+                LivePage.Capture(site);
+            }
+            if (Wants(only, "home")) {
+                HomePage.Capture(site);
+            }
+            if (Wants(only, "powershell")) {
+                PowerShellPage.Capture(site);
+            }
+            if (Wants(only, "benchmarks")) {
+                BenchmarksPage.Capture(site);
+            }
+            if (Wants(only, "docs")) {
+                DocsPage.Capture(site);
+            }
+            if (Wants(only, "objects") || Wants(only, "docs")) {
+                ExplorerFigures.Capture(site);
+            }
+            if (Wants(only, "charts") || Wants(only, "docs")) {
+                ChartFigures.Capture(site);
+            }
+            if (Wants(only, "docs") || Wants(only, "text-diff")) {
+                TextDiffFigures.Capture(site);
+            }
+            if (Wants(only, "interactive")) {
+                InteractivePage.Capture(site);
+            }
+            if (Wants(only, "demos")) {
+                DemosPage.Capture(site);
+            }
+            if (Wants(only, "help-formatting")) {
+                HelpFormattingPage.Capture(site);
+            }
+            return 0;
+        }
+
+        private static int Render(Site site, string? only) {
+            JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
+            Figures.Render(site);
+            ChartFigures.Render(site);
+            TextDiffFigures.Render(site);
+            WidgetsPage.Render(site, hosts);
+            LivePage.Render(site);
+            DemosPage.Render(site);
+            TablesPage.Render(site);
+            InteractivePage.Render(site);
+            PowerShellPage.Render(site, hosts);
+            BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
+            DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            HelpFormattingPage.Render(site);
+            ExplorerFigures.Render(site);
+            HomePage.Render(site, hosts);
+            Visuals.Render(site);
+            Figures.Write(site);
+            site.Write(site.Static("css/frames.css"), site.Styles.Css());
+            // The replay player is the engine's own (ConsoleExporter.PlayerScript and PlayerStyles), copied on every render.
+            const string generated = "Generated by Website/tools/SiteFrames render from ConsoleMonster's ConsoleExporter.{0}; do not edit. The source is ConsoleMonster/Export/Assets/{1}.";
+            site.Write(site.Static("assets/player/player.js"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerScript", "player.js") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerScript);
+            site.Write(site.Static("assets/player/player.css"), "/* " + string.Format(System.Globalization.CultureInfo.InvariantCulture, generated, "PlayerStyles", "player.css") + " */\n" + ConsoleMonster.Export.ConsoleExporter.PlayerStyles);
+            SiteImages.Render(site);
+            WriteRuntimeVersion(site);
+            CodeGuard.Check(site);
+            FrameSources.Check(site);
+            Readme.Check(site);
+            string glyphs = string.Join("\n", site.Styles.Glyphs.Where(g => !string.IsNullOrWhiteSpace(g)));
+            site.Write(Path.Combine(site.Tool, "glyphs.txt"), glyphs.Length == 0 ? string.Empty : glyphs + "\n");
+            Console.WriteLine("Wrote " + site.Written.Count + " files.");
+            if (Failures > 0) {
+                Console.Error.WriteLine(Failures + " problem(s); see above.");
+                return 1;
+            }
+            return 0;
+        }
+    }
+}

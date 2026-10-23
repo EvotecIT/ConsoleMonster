@@ -1,0 +1,40 @@
+
+NAME
+    Get-ConsoleCapability
+
+SYNOPSIS
+    Shows what ConsoleMonster detected about the current
+    terminal.
+
+    Returns the terminal profile: kind, mode (Interactive,
+    Stream, Plain), colour depth, glyph tier, size, VT
+    support, console font and the reasons behind each
+    decision. -Refresh detects again (after a resize or
+    font change).
+
+
+SYNTAX
+    Get-ConsoleCapability [-Refresh <SwitchParameter>]
+    [<CommonParameters>]
+
+
+DESCRIPTION
+    Shows what ConsoleMonster detected about the current
+    terminal.
+
+    Returns the terminal profile: kind, mode (Interactive,
+    Stream, Plain), colour depth, glyph tier, size, VT
+    support, console font and the reasons behind each
+    decision. -Refresh detects again (after a resize or
+    font change).
+
+
+RELATED LINKS
+
+REMARKS
+    To see the examples, type: "Get-Help
+    Get-ConsoleCapability -Examples"
+    For more information, type: "Get-Help
+    Get-ConsoleCapability -Detailed"
+    For technical information, type: "Get-Help
+    Get-ConsoleCapability -Full"

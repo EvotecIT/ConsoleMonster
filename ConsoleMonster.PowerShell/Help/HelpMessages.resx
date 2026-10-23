@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PagerHint" xml:space="preserve"><value>Page {0} of {1} · [accent]Space[/] next · [accent]b[/] back · [accent]q[/] quit</value></data>
+  <data name="Remarks" xml:space="preserve"><value>Remarks</value></data>
+  <data name="MoreHelp" xml:space="preserve"><value>Get-Help {0} -Examples / -Detailed / -Full</value></data>
+  <data name="AdapterNotInstalled" xml:space="preserve"><value>The Help formatting adapter is not installed in this runspace.</value></data>
+</root>

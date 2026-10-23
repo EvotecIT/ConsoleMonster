@@ -1,4 +1,4 @@
-﻿BeforeDiscovery {
+BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 
     # Every script example: the website gallery and demos, and the module's own examples.
@@ -134,6 +134,8 @@ BeforeAll {
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
         'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
+        # Keep native help's external-pager choice independent of the launcher's PAGER setting in headless runs.
+        'Website/examples/help-formatting/help.ps1' = @{ NoNativePager = $true }
         'Module/Examples/Example-InlineProgress.ps1' = @{ Arguments = '-Delay 5' }
         'Module/Examples/Example-InlinePrompts.ps1'  = @{ Arguments = "-Environment Staging -Component web -Release '2026.10' -Force" }
         'Module/Examples/Example-LoginOverview.ps1'  = @{ Arguments = '-Sample' }
@@ -238,6 +240,7 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $paced = if ($case['Paced']) { '$true' } else { '$false' }
         $keys = if ($case['Input']) { "`$scriptedKeys = [ConsoleMonster.Input.ScriptedInput]::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
+        $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         # A case with a Screen draws the rich layouts on a fixed screen captured in memory, whose frames the Expect phrases
         # are looked up in afterwards.
         $screen = ''
@@ -256,6 +259,7 @@ Import-Module ConsoleMonster -Force
 if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Write-ConsoleWidget).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $keys
 $screen
+$pager
 Set-Location -LiteralPath '$(Split-Path -Parent $Path)'
 try {
     & '$Path' $arguments | Out-String | Out-Null
