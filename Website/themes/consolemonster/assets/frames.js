@@ -191,60 +191,81 @@
   // motion. This glue only does what is site-specific: it mounts a replay when it comes near the viewport (so pages
   // fetch only the replays a reader reaches), picks the phone rendering when the narrow poster is the one showing,
   // starts at the poster's moment, and puts the player's screen in the site's window where the poster was.
-  // Playback starts when a replay comes into view, from the poster the reader is already looking at: a poster in the
-  // middle of a run plays on from there; a poster that is the final screen stays a moment, then the run plays from its
-  // first full screen (data-hero, from the site tool) instead of an empty prompt. A replay marked data-loop goes round
-  // again after holding its final screen. Every replay does this (the older data-autoplay mark is no longer needed).
-  // Nothing moves when the reader prefers reduced motion, and a reader who has used the player's controls decides from
-  // then on.
+  // A replay marked to play (data-autoplay: the home page's first path, a demo with autoplay="true") starts when it is in
+  // view, from the poster the reader is already looking at: a poster in the middle of a run plays on from there; a poster
+  // that is the final screen stays four seconds, then the run plays from its first full screen (data-hero, from the site
+  // tool) instead of an empty prompt. Every other replay shows its poster until the reader presses Play. A replay marked
+  // data-loop goes round again after holding its final screen, with one timeout per round and none while it is out of
+  // view. Nothing is scheduled while nothing plays, nothing moves when the reader prefers reduced motion, and a reader who
+  // has used the player's controls decides from then on.
   var reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  var HOLD = 1600, LOOP_HOLD = 4000;
+  // The final screen holds as long before the first run as between rounds: long enough to read the result.
+  var HOLD = 4000, LOOP_HOLD = 4000;
   function autoplay(replay, player, hero) {
-    var touched = false, held = 0, endedAt = 0, seen = false, loop = 0;
-    var stop = function () { touched = true; clearTimeout(held); clearInterval(loop); };
-    // Using the player's controls (or its keys) hands playback to the reader; a swipe across the window does not.
-    replay.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('button, input, select')) stop(); }, true);
-    replay.addEventListener('keydown', stop, true);
+    var touched = false, seen = false, visible = false, held = 0, round = 0, view = null;
+    var looping = replay.hasAttribute('data-loop');
+    // Nothing runs for a replay the reader controls, with reduced motion, in a hidden tab, or once it has been replaced
+    // (the phone and desktop renderings swap when the window crosses the breakpoint).
+    var gone = function () { return replay.cmCancelled || !replay.isConnected; };
+    var still = function () { return touched || (reduceMotion && reduceMotion.matches) || document.hidden || gone(); };
     var atEnd = function () { var s = player.state(); return s.time >= s.duration - 1; };
+    // Leaving the view during the hold puts the replay back where it was: it holds again when it returns.
+    var clear = function () { if (held) seen = false; clearTimeout(held); clearTimeout(round); held = round = 0; };
+    // The next round: when the run should end, plus the hold. Rechecked then, never polled.
+    var next = function () {
+      clearTimeout(round);
+      round = 0;
+      if (!looping || !visible || still()) return;
+      var s = player.state();
+      round = setTimeout(function () {
+        round = 0;
+        if (gone() && view) view.disconnect();
+        if (!visible || still() || replay.closest('[hidden]')) return;
+        if (player.state().wanted) next();
+        else if (atEnd()) run();
+      }, (s.wanted ? Math.max(0, s.duration - s.time) : 0) + LOOP_HOLD);
+    };
     var run = function () {
       if (atEnd()) player.seek(hero);
       player.play();
+      next();
     };
+    var stop = function () { touched = true; clear(); if (view) view.disconnect(); };
+    // Using the player's controls (or its keys) hands playback to the reader; a swipe across the window does not.
+    replay.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('button, input, select')) stop(); }, true);
+    replay.addEventListener('keydown', stop, true);
     // The home page's path switch plays the chosen path the same way (site.js).
-    replay.cmPlay = function () { seen = true; clearTimeout(held); run(); };
-    if (replay.hasAttribute('data-cm-play')) { replay.cmPlay(); return; }
-    if (reduceMotion && reduceMotion.matches) return;
-    var start = function () {
-      if (seen || touched) return;
+    replay.cmPlay = function () { seen = true; clearTimeout(held); held = 0; run(); };
+    var wanted = replay.hasAttribute('data-autoplay') || replay.hasAttribute('data-cm-play');
+    if (!wanted && !looping) return;
+    var begin = function () {
+      if (seen || still()) return;
       seen = true;
-      if (atEnd()) held = setTimeout(function () { if (!touched && !player.state().wanted) run(); }, HOLD);
+      if (replay.hasAttribute('data-cm-play')) run();
+      else if (atEnd()) held = setTimeout(function () { held = 0; if (visible && !still() && !player.state().wanted) run(); if ((!looping || gone()) && view) view.disconnect(); }, HOLD);
       else run();
     };
-    if ('IntersectionObserver' in window) {
-      var view = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          // A hidden panel (the home page's other path) is never in view; its switch plays it.
-          // Half of the window, or half of the screen for a window taller than that.
-          var enough = entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= (window.innerHeight || 800) / 2;
-          if (entry.isIntersecting && enough) { view.disconnect(); start(); }
-        });
-      }, { threshold: [0, 0.25, 0.5] });
-      view.observe(replay);
-    } else {
-      start();
-    }
-    if (replay.hasAttribute('data-loop')) {
-      loop = setInterval(function () {
-        if (touched || replay.cmCancelled || !replay.isConnected || (reduceMotion && reduceMotion.matches)) { clearInterval(loop); return; }
-        var s = player.state();
-        if (s.wanted || !seen || replay.closest('[hidden]')) { endedAt = 0; return; }
-        if (!atEnd()) { endedAt = 0; return; }
-        if (!endedAt) endedAt = Date.now();
-        else if (Date.now() - endedAt >= LOOP_HOLD) { endedAt = 0; run(); }
-      }, 500);
-    }
+    if (!('IntersectionObserver' in window)) { visible = true; if (wanted) begin(); return; }
+    view = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        // Half of the window, or half of the screen for a window taller than that. A hidden panel (the home page's
+        // other path) is never in view.
+        visible = entry.isIntersecting && (entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= (window.innerHeight || 800) / 2);
+        if (!visible) { clear(); return; }
+        if (!seen) { if (wanted) begin(); }
+        else if (!held) next();
+        if (seen && !looping && !held) view.disconnect();
+      });
+    }, { threshold: [0, 0.25, 0.5] });
+    view.observe(replay);
+    // A hidden tab pauses the player; the next round waits for the tab to come back.
+    var onTab = function () {
+      if (gone() || touched) { clear(); view.disconnect(); document.removeEventListener('visibilitychange', onTab); return; }
+      if (document.hidden) { clearTimeout(round); round = 0; }
+      else if (seen && visible && !held) next();
+    };
+    document.addEventListener('visibilitychange', onTab);
   }
-
   function mountReplay(replay) {
     if (replay.cmMounting || !window.ConsoleMonsterPlayer) return;
     replay.cmMounting = true;

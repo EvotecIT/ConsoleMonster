@@ -1,8 +1,8 @@
 {{~ ## A replay, played by ConsoleMonster's own player (player.js and player.css, copied from the engine at build time).
      Without JavaScript the window shows the poster: a frame from the middle of the run, or its final screen. When the
      replay comes near the viewport, frames.js mounts the engine player on this element, starts it at the poster's moment
-     and puts its screen where the poster was; the player's controls follow the window. It plays once it is in view, from
-     the poster, or from player_data.hero (the run's first full screen) when the poster is the final screen. Set
+     and puts its screen where the poster was; the player's controls follow the window. With player_autoplay it plays once it
+     is in view, from the poster, or from player_data.hero (the run's first full screen) when the poster is the final screen. Set
      player_data (an object with url, w, h, poster, start and hero), player_title, player_meta, player_label,
      player_autoplay, player_loop (go round again after holding the end), player_max (largest font size), player_class,
      and for a phone rendering player_compact (its data URL) with player_alt (its poster, start and hero). ## ~}}

@@ -68,7 +68,7 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   `render` writes `static/replays/demo-*.json` and `data/demos.json` with the sources read from those
   same files; `#region more` folds setup into the full program and `#region hidden` hides presentation lines (an echoed
   prompt) from the short form. Captures strip window titles and build with `ContinuousIntegrationBuild` so no local path
-  is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`; every replay plays once in view, so `autoplay` is no longer needed); its words come from
+  is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`, `autoplay` for the one demo on a page that plays by itself); its words come from
   `data/copy.json` (`demos`), and `demos.<id>.try` (`install`, `run`, `project`, `packages`, `note`) gives its
   source the Try-it install and Run lines.
 - Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`, `demos.json`,
@@ -112,9 +112,10 @@ The site is set in the medium it documents: a terminal cell grid.
   format for pseudo-console runs and storyboards, which are not event recordings). `partials/player.html` shows a mid-run
   poster without JavaScript; `assets/frames.js` only mounts the engine player near the viewport, picks the phone
   rendering, opens it at the poster's moment (the player's `start` option) and moves the player's screen into the site
-  window. Playback starts when a replay is in view (not with reduced motion): from the poster, or, when the poster is
-  the final screen, after a short hold from `hero` (the first frame with a third of the fullest frame's rows), so a
-  window never opens on an empty prompt. A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
+  window. A replay marked to play (`autoplay`) starts when it is in view (not with reduced motion): from the poster,
+  or, when the poster is the final screen, after holding it four seconds from `hero` (the first frame with a third of the fullest frame's rows), so a
+  window never opens on an empty prompt. Others show their poster until Play. Nothing may schedule timers while
+  nothing plays: looping uses one timeout per round and none out of view (`build/perf/budget.json` measures it). A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
   window and its controls are always one width. Engine gaps go in the PR's
   engine notes, not into a fork of the player.
 - **Spacing.** One scale in `tokens.css` (`--cm-space-1` to `--cm-space-8`) and one rhythm between sections

@@ -2,8 +2,8 @@
      exact source that recorded it (a PowerShell | C# switch where both exist, each with Copy and the full program one
      click away, with the install and run lines), and how to adopt it. The recording and the source come from data/demos.json, which the site tool
      writes from the same files the capture ran; the words come from data/copy.json (demos). Set demo_id, and optionally
-     demo_heading (h2 or h3, default h3). Every replay plays when it comes into view (frames.js); demo_autoplay is kept
-     for older pages and changes nothing. ## ~}}
+     demo_autoplay = true (the one demo on a page that plays by itself once in view; the others show their poster until
+     Play) and demo_heading (h2 or h3, default h3). ## ~}}
 {{~ d = data.demos[demo_id]; c = data.copy.demos[demo_id]; dh = demo_heading ?? "h3" ~}}
 {{~ if d ~}}
 <section class="cm-demo" id="demo-{{ demo_id }}" aria-labelledby="demo-{{ demo_id }}-title">
