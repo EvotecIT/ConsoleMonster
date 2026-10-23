@@ -42,3 +42,7 @@ In C#, `ConsoleRun.ForEachAsync` runs the same view around any async work, and `
 {{< cm-demo id="pester" heading="h2" >}}
 
 `Invoke-ConsolePester` takes Pester's own parameters (`-Path`, `-TagFilter`, `-Configuration`...) and shows the run as it happens: a file list with progress, one cell per test, the test running now and each failure with its expected and actual values. It returns Pester's result object with `-PassThru`. When the run ends, a table of results by file, the failures and the totals are written; in redirected output and CI they are plain text.
+
+## Related
+
+To build a view of your own around running work, start with [live sessions](/docs/live-sessions/). Runspaces and parallel workers are covered in [threads and concurrency](/docs/threads/).

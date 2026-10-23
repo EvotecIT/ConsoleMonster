@@ -68,8 +68,9 @@ pwsh Website/build/Render-SiteImages.ps1                                       #
   `render` writes `static/replays/demo-*.json` and `data/demos.json` with the sources read from those
   same files; `#region more` folds setup into the full program and `#region hidden` hides presentation lines (an echoed
   prompt) from the short form. Captures strip window titles and build with `ContinuousIntegrationBuild` so no local path
-  is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`, `autoplay`); its words and the
-  install line come from `data/copy.json` (`demos`).
+  is committed. Pages embed a demo with the `cm-demo` shortcode (`id`, `heading`, `autoplay` for the one demo on a page that plays by itself); its words come from
+  `data/copy.json` (`demos`), and `demos.<id>.try` (`install`, `run`, `project`, `packages`, `note`) gives its
+  source the Try-it install and Run lines.
 - Generated, never hand-edited: `data/widgets.json`, `tables.json`, `live.json`, `interactive.json`, `powershell.json`, `demos.json`,
   `figures.json`, `home.json`, `benchmarks.json`, `visuals.json`; `static/frames/**`, `static/replays/**`,
   `static/recordings/**`, `static/site/**`, `static/css/frames.css`, `static/assets/player/**`, `static/apple-touch-icon.png`,
@@ -100,7 +101,9 @@ The site is set in the medium it documents: a terminal cell grid.
   output beside or under the title. Docs and guides open with `partials/masthead.html`. No eyebrow labels above either.
 - **Screens.** Every frame uses `partials/screen.html`: a window bar with the real terminal profile as chips, then the
   frame. Static frames have a dark and a light rendering and follow the site theme; replays, stage art and captured
-  PowerShell output stay dark. A frame scales to fit its column down to 9 px (5.5 px on phones, so a 100-column frame
+  PowerShell output stay dark. A docs program shown at a wide and a narrow width keeps the narrow width (it demonstrates
+  that width) and is cut to the columns it uses at 100 columns or more (`Site.FrameAt`); recordings are cut to the rows
+  and columns any frame uses (`Replay/ReplayFit.cs`). A frame scales to fit its column down to 9 px (5.5 px on phones, so a 100-column frame
   fits a 400 px screen) and then scrolls inside its window, which then shows a scroll hint in its bar, so the page never
   scrolls sideways. Replays can carry chapter marks (`markers` in the player data) under the position bar.
 - **Players.** Replays play in ConsoleMonster's own player: `render` copies `ConsoleExporter.PlayerScript` and
@@ -109,7 +112,11 @@ The site is set in the medium it documents: a terminal cell grid.
   format for pseudo-console runs and storyboards, which are not event recordings). `partials/player.html` shows a mid-run
   poster without JavaScript; `assets/frames.js` only mounts the engine player near the viewport, picks the phone
   rendering, opens it at the poster's moment (the player's `start` option) and moves the player's screen into the site
-  window. A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
+  window. A replay marked to play (`autoplay`) starts when it is in view (not with reduced motion): from the poster,
+  or, when the poster is the final screen, after holding it six seconds from `hero` (the first frame with a third of the fullest frame's rows), so a
+  window never opens on an empty prompt. It plays once and stops on its final screen; Play runs it again. Others show their poster
+  until Play. Nothing may schedule timers while nothing plays; `player_loop` (one timeout per round, none out of view)
+  is for a page that explicitly asks for it (`build/perf/budget.json` measures it). A player is as wide as its terminal at its largest font (`--cols` and `--cm-max-font` on `.cm-replay`), so the
   window and its controls are always one width. Engine gaps go in the PR's
   engine notes, not into a fork of the player.
 - **Spacing.** One scale in `tokens.css` (`--cm-space-1` to `--cm-space-8`) and one rhythm between sections
@@ -178,6 +185,14 @@ to run.
 - `content/docs/` and `content/guides/`: reference topics and migration guides. Frames go in with the `cm-frame`
   shortcode, which reads `data/figures.json` (`id`, `ids` for several, `script="true"` to add the PowerShell that
   produced it).
+- A page that walks through a program has one **Try it** block (`cm-try` shortcode, `partials/try.html`): `ids` for
+  one example or `scenarios="Label:id,id|Label:id"` for several (real scenarios only), `project` for the C# project
+  name. It shows the PowerShell | C# switch (the reader's choice, kept in `<html data-lang>` and localStorage), the
+  install line, the program with Copy and Download, a muted Run line and the output under the code. Pages follow
+  lead, Try it, how it works (quote the 3 to 8 lines that matter, never the whole program again), variations, related.
+  The same lines in both languages go in `<div class="cm-lang" data-lang="powershell">` and its `csharp` twin, which
+  site.js puts under one switch. Fence `dotnet` commands (and the `cd` beside them) as `terminal` (labelled Terminal); a block that
+  holds only a run command fails the render (`CodeGuard.Presentation`).
 - The docs catalogue (`layouts/docsindex.html`) is built from the docs pages: `content/docs/_index.md` is a section, so
   the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in
   `data/copy.json`), a `summary`, `apis` (shown as code) and `chips` (topics), and a `card`: a figure or demo id whose

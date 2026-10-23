@@ -28,7 +28,7 @@ namespace SiteFrames.Pages {
                         ["scriptFull"] = scriptFull,
                         ["powershellRepo"] = "Website/examples/themes/theme-files.ps1",
                         ["csharpRepo"] = "Website/examples/themes/report.cs",
-                        ["frame"] = site.Frame(Frame(site, width, after, false), Frame(site, width, after, true))
+                        ["frame"] = site.FrameAt(width, Frame(site, width, after, false), Frame(site, width, after, true))
                     }, Path.Combine(sources, "report.cs")));
                 }
             }
@@ -60,7 +60,7 @@ namespace SiteFrames.Pages {
                         ["title"] = after ? "After: team files" : "Before: built-in themes",
                         ["label"] = "Compiled .NET build report; " + width + " columns",
                         ["csharpRepo"] = "Website/examples/themes/report.cs",
-                        ["frame"] = site.Frame(darkFrame, lightFrame)
+                        ["frame"] = site.FrameAt(width, darkFrame, lightFrame)
                     };
                     WriteFrame(site, output, files, stage + "-dark-" + width, darkFrame, ExportTheme.Dark);
                     WriteFrame(site, output, files, stage + "-light-" + width, lightFrame, ExportTheme.Light);

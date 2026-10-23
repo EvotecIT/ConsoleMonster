@@ -9,7 +9,9 @@ apis: [ILogger]
 summary: "A Microsoft.Extensions.Logging provider with ConsoleMonster's level tags."
 ---
 
-```bash
+Add the provider to an existing project:
+
+```terminal
 dotnet add package ConsoleMonster.Extensions.Logging
 ```
 
@@ -39,3 +41,7 @@ The provider depends only on `Microsoft.Extensions.Logging.Abstractions` and Con
 | `LogRegion` | `$log` | The live log region to write into while one runs; null always prints. |
 
 Without dependency injection, use `loggerFactory.AddConsoleMonster()`. The provider is added once: a second `AddConsoleMonster` keeps the first call's options. It is thread-safe.
+
+## Related
+
+Show the same entries inside a [hosting dashboard](/docs/hosting/), or follow a log file with [live log tails](/docs/live-tails/).

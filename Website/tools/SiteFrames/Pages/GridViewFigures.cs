@@ -34,7 +34,7 @@ namespace SiteFrames.Pages {
                     ["label"] = copy["label"]!.GetValue<string>(),
                     ["script"] = Site.ReadText(Path.Combine(site.Website, "examples", "interactive", "gridview-fallback.ps1")),
                     ["csharp"] = Site.ReadText(Path.Combine(site.Website, "examples", "interactive", "gridview-fallback.cs")),
-                    ["frame"] = site.Frame(Capture(site, width, Theme.Dark).Frames[3], Capture(site, width, Theme.Light).Frames[3])
+                    ["frame"] = site.FrameAt(width, Capture(site, width, Theme.Dark).Frames[3], Capture(site, width, Theme.Light).Frames[3])
                 });
             }
         }

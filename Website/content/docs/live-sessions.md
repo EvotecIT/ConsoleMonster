@@ -30,6 +30,18 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 
 `Lanes` and `ProgressBar` take a column model. Without `Columns` they keep the classic layout: label, bar, percentage, pass, fail and warning counts, and the detail.
 
+<div class="cm-lang" data-lang="powershell">
+
+```powershell
+Import-Module ConsoleMonster
+
+New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted | Write-ConsoleWidget
+New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Write-ConsoleWidget
+```
+
+</div>
+<div class="cm-lang" data-lang="csharp">
+
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Widgets;
@@ -43,12 +55,8 @@ lanes.Add("dc01", "DC01", 40);
 lanes.Add("dc02", "DC02", 40);
 Terminal.Write(lanes);
 ```
-```powershell
-Import-Module ConsoleMonster
 
-New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted | Write-ConsoleWidget
-New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Write-ConsoleWidget
-```
+</div>
 
 Rate and remaining time are smoothed over a moving window (10 seconds by default), so a stalled task's rate falls instead of freezing. When the region is too narrow, the lowest-priority columns go first, and in stream mode the heartbeat line summarises the running lanes through the same columns.
 
@@ -88,3 +96,7 @@ A size change clears the screen and redraws it; while a window is dragged, redra
 ## Without a console
 
 In CI, with redirected output and in stream mode, a session narrates append-only lines instead of redrawing, with `[mm:ss]` prefixes when a CI system is detected. Plain mode does the same in ASCII without colour, and text that reaches stream and plain output is stripped of escape sequences and control characters.
+
+## Related
+
+[Threads and concurrency](/docs/threads/) explains what is safe from which thread, [recording and replay](/docs/recording/) saves a session's updates, and the [live dashboards page](/live/) shows larger programs.

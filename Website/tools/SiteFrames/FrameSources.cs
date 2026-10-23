@@ -13,7 +13,7 @@ namespace SiteFrames {
     /// <c>powershell</c>, <c>source</c>, <c>code</c> or <c>program</c>), a <c>*Repo</c> link to the repository program a
     /// page tells the reader to run, or <c>sourceOf</c> naming a sibling entry that does. On docs pages, a
     /// <c>cm-frame</c> with <c>script="false"</c> must have its code shown elsewhere on the same page: in another figure
-    /// or in a code block.
+    /// or in a code block. A <c>cm-try</c> block shows the code of each example's first figure.
     /// </summary>
     internal static class FrameSources {
         private static readonly HashSet<string> SourceKeys = new HashSet<string>(StringComparer.Ordinal) {
@@ -21,7 +21,7 @@ namespace SiteFrames {
         };
 
         // Attribute values may contain > (a caption with 6>&1), so quoted values are read whole.
-        private static readonly Regex Shortcode = new Regex(@"\{\{<\s*cm-frame\s+(?<attrs>(?:""[^""]*""|[^"">])*?)\s*>\}\}", RegexOptions.CultureInvariant);
+        private static readonly Regex Shortcode = new Regex(@"\{\{<\s*cm-(?<kind>frame|try)\s+(?<attrs>(?:""[^""]*""|[^"">])*?)\s*>\}\}", RegexOptions.CultureInvariant);
 
         private static readonly Regex LiveShortcode = new Regex(@"\{\{<\s*cm-live\s+[^>]*?\bid=""(?<id>[^""]*)""", RegexOptions.CultureInvariant);
 
@@ -138,9 +138,27 @@ namespace SiteFrames {
             foreach (Match match in Shortcode.Matches(markdown)) {
                 Dictionary<string, string> attrs = Attribute.Matches(match.Groups["attrs"].Value).ToDictionary(m => m.Groups["name"].Value, m => m.Groups["value"].Value, StringComparer.Ordinal);
                 string ids = attrs.TryGetValue("ids", out string? list) ? list : attrs.TryGetValue("id", out string? one) ? one : string.Empty;
-                bool hidden = attrs.TryGetValue("script", out string? script) && script == "false";
+                bool hidden = match.Groups["kind"].Value == "frame" && attrs.TryGetValue("script", out string? script) && script == "false";
+                if (match.Groups["kind"].Value == "try") {
+                    // A Try-it block shows the code of each example's first figure; the other frames of that example are
+                    // shown without code of their own, like script="false".
+                    string[] examples = attrs.TryGetValue("scenarios", out string? named) ? named.Split('|') : new[] { ids };
+                    foreach (string example in examples) {
+                        string figuresOf = example.Contains(':') ? example.Substring(example.IndexOf(':') + 1) : example;
+                        string[] each = figuresOf.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                        for (int i = 0; i < each.Length; i++) {
+                            shown.Add((each[i], i > 0));
+                        }
+                    }
+                    continue;
+                }
                 foreach (string id in ids.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) {
                     shown.Add((id, hidden));
+                }
+            }
+            foreach ((string id, bool _) in shown) {
+                if (figures[id] is not JsonObject) {
+                    yield return page + ": figure " + id + " is not in data/figures.json.";
                 }
             }
             string fences = string.Join("\n", CodeGuard.Fences(markdown).Select(f => f.Code.Trim()));

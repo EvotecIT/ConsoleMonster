@@ -20,7 +20,7 @@ namespace SiteFrames.Pages {
                     ["title"] = "dotnet run",
                     ["label"] = "Illustrative host data rendered by OverviewWidget",
                     ["meta"] = new JsonArray(width + "×" + dark.Height, "24-bit", "Full"),
-                    ["frame"] = site.Frame(dark, light)
+                    ["frame"] = site.FrameAt(width, dark, light)
                 }, program);
                 DocCards.Offer("host-overview-" + width, dark, null);
                 Figures.Add("host-overview-" + width, figure);

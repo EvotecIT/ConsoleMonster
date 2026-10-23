@@ -209,31 +209,6 @@ namespace SiteFrames.Pages {
             };
         }
 
-        // Inline views draw at the top of the pseudo console and leave the rows below empty: every frame is cut to the
-        // lowest row any frame uses, so the player is as tall as the run, not the console.
-        private static List<TimedFrame> TrimRows(List<TimedFrame> frames) {
-            int used = 1;
-            foreach (TimedFrame frame in frames) {
-                for (int y = frame.Frame.Height - 1; y >= used; y--) {
-                    if (frame.Frame.GetRowText(y).Trim().Length > 0) {
-                        used = y + 1;
-                        break;
-                    }
-                }
-            }
-            List<TimedFrame> trimmed = new List<TimedFrame>(frames.Count);
-            foreach (TimedFrame frame in frames) {
-                if (frame.Frame.Height <= used) {
-                    trimmed.Add(frame);
-                    continue;
-                }
-                CellBuffer cut = new CellBuffer(frame.Frame.Width, used);
-                cut.Blit(frame.Frame, 0, 0, frame.Frame.Width, used, 0, 0);
-                trimmed.Add(new TimedFrame(frame.Time, cut));
-            }
-            return trimmed;
-        }
-
         private static bool Shows(CellBuffer frame, string text) {
             for (int y = 0; y < frame.Height; y++) {
                 if (frame.GetRowText(y).Contains(text, StringComparison.Ordinal)) {
@@ -397,7 +372,7 @@ namespace SiteFrames.Pages {
                 if (expected != null && Replays.Source(cast) != Replays.Fingerprint(expected)) {
                     problems.Add("demo " + demo.Id + ": the recording was made from another version of its script or program; run the capture command for the demos area (SITEFRAMES_DEMOS=" + demo.Id + ").");
                 }
-                List<TimedFrame> frames = TrimRows(Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height));
+                List<TimedFrame> frames = Replays.FromCast(cast, demo.Fps, false, out CellBuffer scrollback, out int width, out int height);
                 if (!demo.Static && frames.Count == 0) {
                     problems.Add("demo " + demo.Id + ": the capture has no replay frames; record a non-empty run.");
                 }
@@ -409,8 +384,11 @@ namespace SiteFrames.Pages {
                         frames.RemoveRange(last + 1, frames.Count - last - 1);
                     }
                 }
+                // Cut to what the frames that are played use, after the ones past the closing screen are gone.
+                frames = ReplayFit.Trim(frames);
                 if (frames.Count > 0) {
                     height = frames[0].Frame.Height;
+                    width = frames[0].Frame.Width;
                     // A replay that ends on an empty console stops on nothing: a reader who lets it play sees a blank window.
                     if (!demo.Static && Blank(frames[frames.Count - 1].Frame) && frames.Exists(f => !Blank(f.Frame))) {
                         problems.Add("demo " + demo.Id + ": the replay ends on an empty screen; set EndsOn to the screen it should stop on.");
@@ -420,7 +398,9 @@ namespace SiteFrames.Pages {
                     ["id"] = demo.Id,
                     ["title"] = demo.Title,
                     ["w"] = width,
-                    ["h"] = height
+                    ["h"] = height,
+                    // The terminal the run had, for the window's chips; w and h are the part of it the frames use.
+                    ["terminal"] = demo.Width.ToString(CultureInfo.InvariantCulture) + "×" + demo.Height.ToString(CultureInfo.InvariantCulture)
                 };
                 if (demo.Static || frames.Count == 0) {
                     CellBuffer still = Site.Crop(scrollback);
@@ -444,9 +424,9 @@ namespace SiteFrames.Pages {
                     site.Write(site.Static("replays/demo-" + demo.Id + ".json"), data);
                     long posterTime = LivePage.Poster(site, frames, demo.EndsOn != null ? 1 : demo.PosterShare, out string poster, out CellBuffer posterFrame);
                     DocCards.Offer(demo.Id, posterFrame, Frames.Screen.Dark);
-                    // A replay that ends on its result opens there, at its end, so the player shows that screen and Play
+                    // A replay that ends on its result (or whose poster is its final screen) opens there, at its end, so the player shows that screen and Play
                     // starts again from the beginning.
-                    if (demo.EndsOn != null) {
+                    if (demo.EndsOn != null || demo.PosterShare >= 1) {
                         posterTime = duration;
                     }
                     entry["url"] = "/replays/demo-" + demo.Id + ".json";
@@ -454,6 +434,8 @@ namespace SiteFrames.Pages {
                     entry["duration"] = duration;
                     entry["fps"] = demo.Fps;
                     entry["start"] = posterTime;
+                    // A player that opens on the final screen plays from the first full screen, not from an empty prompt.
+                    entry["hero"] = ReplayFit.Hero(frames);
                     entry["bytes"] = System.Text.Encoding.UTF8.GetByteCount(data);
                     entry["poster"] = new JsonObject { ["w"] = width, ["h"] = height, ["dark"] = poster };
                 }

@@ -28,7 +28,7 @@
       <div class="cm-quick" data-cm-tabs>
         <div class="cm-seg cm-quick__switch" role="tablist" aria-label="{{ copy.quick.label }}">
           {{~ for q in copy.quick.items ~}}
-          <button type="button" role="tab" id="cm-quick-{{ q.id }}-tab" aria-controls="cm-quick-{{ q.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ q.key }})">{{ q.tab }}</button>
+          <button type="button" role="tab" id="cm-quick-{{ q.id }}-tab" aria-controls="cm-quick-{{ q.id }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} data-cm-lang="{{ if q.lang == "powershell" }}powershell{{ else }}csharp{{ end }}" style="--key: var(--cm-s{{ q.key }})">{{ q.tab }}</button>
           {{~ end ~}}
         </div>
         {{~ for q in copy.quick.items ~}}
@@ -61,7 +61,7 @@
           {{~ end ~}}
         </div>
         <div class="cm-hero__stage">
-          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.w + "×" + pd.h, "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 18; player_class = "cm-window--fill" ~}}
+          {{~ player_data = pd; player_title = pd.title; player_meta = [pd.terminal ?? (pd.w + "×" + pd.h), "24-bit", "Full"]; player_label = data.copy.demos[path.demo].label; player_autoplay = for.first; player_loop = path.loop; player_max = 18; player_class = "cm-window--fill" ~}}
           {{ include "player" }}
           <p class="cm-hero__note">{{ path.note }}</p>
         </div>
@@ -77,9 +77,11 @@
           </div>
           <div class="cm-hero__code" data-cm-tabs>
             <h2 class="cm-hero__take-title">{{ path.codeTitle }}</h2>
+            {{~ ## Code tabs that are the two languages of one program follow the reader's language (site.js). ## ~}}
+            {{~ both_langs = false; for t in path.code; if t.source == "csharp"; both_langs = true; end; end ~}}
             <div class="cm-seg" role="tablist" aria-label="{{ path.codeTitle }}">
               {{~ for t in path.code ~}}
-              <button type="button" role="tab" id="cm-code-{{ path.id }}-{{ for.index }}-tab" aria-controls="cm-code-{{ path.id }}-{{ for.index }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }} style="--key: var(--cm-s{{ for.index + 3 }})">{{ t.tab }}</button>
+              <button type="button" role="tab" id="cm-code-{{ path.id }}-{{ for.index }}-tab" aria-controls="cm-code-{{ path.id }}-{{ for.index }}" aria-selected="{{ if for.first }}true{{ else }}false{{ end }}"{{ if !for.first }} tabindex="-1"{{ end }}{{ if both_langs && t.source }} data-cm-lang="{{ t.source }}"{{ end }} style="--key: var(--cm-s{{ for.index + 3 }})">{{ t.tab }}</button>
               {{~ end ~}}
             </div>
             {{~ for t in path.code ~}}

@@ -90,7 +90,20 @@ namespace SiteFrames {
             while (first < lines.Length && (lines[first].StartsWith("using ", StringComparison.Ordinal) || lines[first].Trim() == "Import-Module ConsoleMonster" || lines[first].Trim().Length == 0)) {
                 first++;
             }
-            return (string.Join("\n", lines, first, lines.Length - first), full);
+            List<string> shown = new List<string>(lines.Length - first);
+            // A script's comment-based help (a <# … #> block at the top) is folded to one line in the short form, so the
+            // sample leads with what the script does; the full program keeps it.
+            if (first < lines.Length && lines[first].TrimStart().StartsWith("<#", StringComparison.Ordinal)) {
+                int close = Array.FindIndex(lines, first, l => l.Contains("#>", StringComparison.Ordinal));
+                if (close > first + 1) {
+                    shown.Add("# … " + (close - first + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " lines of help in the full program");
+                    first = close + 1;
+                }
+            }
+            for (int i = first; i < lines.Length; i++) {
+                shown.Add(lines[i]);
+            }
+            return (string.Join("\n", shown), full);
         }
 
         // PowerShell accepts #Region and #EndRegion in any case; markers compare in lower case.

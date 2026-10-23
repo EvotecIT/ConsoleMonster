@@ -12,20 +12,20 @@ The benchmark program and the large-table example live in the repository, so the
 
 1. Get the source:
 
-   ```bash
+   ```terminal
    git clone https://github.com/EvotecIT/ConsoleMonster.git
    cd ConsoleMonster
    ```
 
 2. Measure 600 frames; this prints the per-frame figures above:
 
-   ```bash
+   ```terminal
    dotnet run --project ConsoleMonster.Benchmarks -c Release -- 600
    ```
 
 3. Print a long table in blocks and measure it:
 
-   ```bash
+   ```terminal
    dotnet run --project ConsoleMonster.Examples -c Release -f net8.0 -- large-table 50000
    ```
 

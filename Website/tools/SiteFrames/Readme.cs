@@ -152,7 +152,9 @@ html,body{margin:0;width:").Append(width).Append("px;height:").Append(height).Ap
                 if (index < 1 || index > blocks.Count) {
                     throw new InvalidOperationException("README example source " + source + " names code block " + index + " of " + blocks.Count + ".");
                 }
-                return (blocks[index - 1].Code.TrimEnd('\n'), blocks[index - 1].Language);
+                // GitHub has no terminal grammar: a docs page's Terminal block is a bash block in the README.
+                string fence = blocks[index - 1].Language == "terminal" ? "bash" : blocks[index - 1].Language;
+                return (blocks[index - 1].Code.TrimEnd('\n'), fence);
             }
             string language = Path.GetExtension(path) == ".cs" ? "csharp" : "powershell";
             return (SourceSnippets.Program(Site.ReadText(path)).Full.TrimEnd('\n'), language);

@@ -59,3 +59,7 @@ Every write, live session, prompt and status helper goes to an `ITerminalTarget`
 ## Testing output
 
 The helpers ConsoleMonster's own tests use are public: `TestTerminal.RenderText(widget, width: 80, glyphs: GlyphTier.Ascii)` renders at a fixed size, tier and culture, `GoldenFile.Match` compares with a golden file and shows the first differing line, and `ScreenCapture` with scripted keys captures prompts, menus and forms. In Pester, `Assert-ConsoleOutput -GoldenPath` does the same.
+
+## Related
+
+To see a long recording played back, open the [live dashboards page](/live/). [Live sessions](/docs/live-sessions/) explain what a recording captures; the [Export-ConsoleRecording reference](/powershell/commands/export-consolerecording/) lists the formats.

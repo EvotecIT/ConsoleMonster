@@ -147,3 +147,7 @@ Build a widget fully before the session starts, then change it only through hand
 - **CI and redirected output.** Whole lines, in the order the updates were applied.
 
 Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([running the tests](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md#running-the-tests)).
+
+## Related
+
+For parallel work without building a view yourself, use [live runs](/docs/live-runs/). What a frame costs is on the [benchmarks](/benchmarks/) page, and the rest of a session's duties are in [live sessions](/docs/live-sessions/).

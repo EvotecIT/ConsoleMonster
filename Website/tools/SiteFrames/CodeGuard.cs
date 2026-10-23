@@ -11,7 +11,8 @@ namespace SiteFrames {
     /// relative path into the repository (<c>&amp; ../../Module/Examples/X.ps1</c>), a path built from <c>$PSScriptRoot</c> and
     /// <c>..</c>, any <c>../</c> path, a folder of this repository (<c>Module/Examples</c>, <c>Website/</c>,
     /// <c>ConsoleMonster.Examples</c>, <c>tools/SiteFrames</c>), or the site's old shared data file <c>artifacts.ps1</c>.
-    /// The code a page shows is the code that made its frame, complete, so it never depends on the repository.
+    /// The code a page shows is the code that made its frame, complete, so it never depends on the repository. It also fails
+    /// a code block that holds only a run command or labels dotnet commands as anything but Terminal (<see cref="Presentation"/>).
     /// <para>
     /// Checked: every string in <c>data/*.json</c> except rendered frames (HTML) and links, and every fenced code block in
     /// <c>content/**/*.md</c>.
@@ -58,6 +59,11 @@ namespace SiteFrames {
                 string name = Path.GetRelativePath(site.Website, page).Replace('\\', '/');
                 foreach ((int line, string language, string code) in Blocks(Site.ReadText(page))) {
                     Inspect(code, name + ":" + line, problems);
+                    // Docs and guides walk a reader through a program, so a run command stands on its own line under it.
+                    bool walkthrough = name.StartsWith("content/docs/", StringComparison.Ordinal) || name.StartsWith("content/guides/", StringComparison.Ordinal);
+                    foreach (string problem in Presentation(language, code, walkthrough)) {
+                        problems.Add(name + ":" + line + " " + problem);
+                    }
                     if (PowerShellLanguages.Contains(language)) {
                         powershell.Add((name, line, code));
                     }
@@ -72,10 +78,65 @@ namespace SiteFrames {
                 }
             }
             problems.AddRange(Capture.PowerShellSyntax.Check(powershell));
+            CopyBlocks(JsonNode.Parse(File.ReadAllText(site.Data("copy")))?["demos"], "data/copy.json.demos", problems);
             WidgetsPage.Report(problems, "code");
         }
 
         private static readonly HashSet<string> PowerShellLanguages = new HashSet<string>(StringComparer.Ordinal) { "powershell", "pwsh", "ps1", "ps" };
+
+        // A line that only starts a program: dotnet run, a script by its path (run or dot-sourced), or pwsh/powershell with
+        // a script file. It belongs on the Run line under the program (cm-try), never in a code block of its own.
+        private static readonly Regex RunCommand = new Regex(@"^(?:dotnet\s+run\b.*|(?:pwsh|powershell)(?:\.exe)?\s+(?:-\w+\s+)*(?:-File\s+)?(?:\.{1,2}[\\/])?[\w./\\~-]+\.ps1\b.*|(?:[&.]\s+)?(?:\.{1,2}|~)[\\/][\w./\\-]+\.ps1\b.*)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+
+        private static readonly Regex DotnetCommand = new Regex(@"(?m)^\s*dotnet\s+\w", RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// How a block is presented: one that holds only a run command (<c>dotnet run</c>, <c>./script.ps1</c>) gives a
+        /// one-line step the weight of a program, and <c>dotnet</c> commands are fenced as <c>terminal</c> (labelled
+        /// Terminal), not as a shell, Text or PowerShell.
+        /// </summary>
+        /// <param name="language">The fence's language, or the block's label for page data.</param>
+        /// <param name="code">The code.</param>
+        /// <param name="runOnly">Whether a block holding only a run command is a problem (docs, guides and demo steps).</param>
+        internal static IEnumerable<string> Presentation(string language, string code, bool runOnly = true) {
+            List<string> lines = new List<string>();
+            foreach (string raw in code.Replace("\r\n", "\n").Split('\n')) {
+                string line = raw.Trim();
+                if (line.Length > 0 && !line.StartsWith("#", StringComparison.Ordinal) && !line.StartsWith("//", StringComparison.Ordinal)) {
+                    lines.Add(line);
+                }
+            }
+            if (runOnly && lines.Count > 0 && lines.TrueForAll(l => RunCommand.IsMatch(l))) {
+                yield return "holds only a run command (" + lines[0] + "): put it on the Run line under its program (cm-try), or in the step it belongs to.";
+            }
+            if (DotnetCommand.IsMatch(code) && !string.Equals(language, "terminal", StringComparison.OrdinalIgnoreCase)) {
+                yield return "has dotnet commands labelled \"" + (language.Length == 0 ? "text" : language) + "\": fence them as terminal, labelled Terminal.";
+            }
+        }
+
+        // Code blocks in copy.json demos (install blocks and step code): the same presentation rules, with the label as shown.
+        private static void CopyBlocks(JsonNode? node, string where, List<string> problems) {
+            switch (node) {
+                case JsonObject obj:
+                    string? label = obj["label"] is JsonValue l && l.TryGetValue(out string? shown) ? shown : null;
+                    foreach (KeyValuePair<string, JsonNode?> property in obj) {
+                        string path = where + "." + property.Key;
+                        if ((property.Key == "install" || property.Key == "text" && obj.ContainsKey("lang")) && property.Value is JsonValue value && value.TryGetValue(out string? code)) {
+                            foreach (string problem in Presentation(label ?? string.Empty, code!)) {
+                                problems.Add(path + " " + problem);
+                            }
+                        } else if (property.Value is not JsonValue) {
+                            CopyBlocks(property.Value, path, problems);
+                        }
+                    }
+                    break;
+                case JsonArray array:
+                    for (int i = 0; i < array.Count; i++) {
+                        CopyBlocks(array[i], where + "[" + i + "]", problems);
+                    }
+                    break;
+            }
+        }
 
         /// <summary>
         /// The PowerShell in copy.json that pages show as code: install blocks and step code whose language is PowerShell (the

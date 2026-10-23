@@ -10,84 +10,52 @@ chips: [Files, Unified diff]
 card: text-diff-120
 ---
 
-`Compare-ConsoleText` shows what changed between two strings or files. Removed lines use a minus marker and the failure tone; added lines use a plus marker and the success tone. Within a replacement line, the changed words are highlighted while shared words keep their normal appearance.
+`Compare-ConsoleText` shows what changed between two strings or files: removed lines with a minus marker in the failure tone, added lines with a plus marker in the success tone, and inside a replaced line only the words that changed are highlighted.
 
-1. Install the module for your user account:
+## Try it
 
-   ```powershell
-   Install-Module ConsoleMonster -Scope CurrentUser
-   ```
+{{< cm-try key="text-diff" ids="text-diff-120" project="TextComparison" caption="Two versions of a small configuration, compared with one line of context. At 120 columns the two sides stand next to each other." >}}
 
-2. Import it and compare the two configuration strings:
+## How it works
+
+`-ReferenceText` and `-DifferenceText` (or `TextDiff.Compare` in C#) take the two versions; the comparison is line by line, then word by word inside lines that were replaced. Text comparisons are headed `Before` and `After`.
+
+- **Layout follows the width.** At 120 columns or more, the two sides appear side by side. Narrower terminals show the removed lines followed by the added lines, with both original line numbers in the gutter. The minus and plus markers stay visible without colour.
+- **Context.** `-Context` sets how many unchanged lines are kept before and after each change. It defaults to three; zero shows only the changed lines. Longer unchanged runs collapse to a count with the reference and difference line ranges.
+- **Long lines** wrap at the available width instead of being cut.
+
+{{< cm-frame id="text-diff-60" script="false" caption="The same comparison at 60 columns: removed lines first, then added lines, with both line numbers." >}}
+
+## Files
+
+Compare files with normal PowerShell paths, including relative paths, filesystem drives and provider-qualified paths. Each path must resolve to exactly one readable file; wildcards that match several files, directories, missing files and other providers are errors. Files are read as UTF-8 with byte order mark detection.
 
 ```powershell
-Import-Module ConsoleMonster
-$before = @'
-host=web-01
-port=80
-protocol=http
-workers=4
-'@
-$after = @'
-host=web-01
-port=443
-protocol=https
-workers=4
-'@
-Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1
+Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf
+Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -IgnoreWhitespace
+Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -ReferenceName 'Deployed' -DifferenceName 'Proposed'
 ```
 
-Text comparisons use `Before` and `After` headings. At 120 columns or more, they appear side by side. Narrower terminals show removed lines followed by added lines, with both original line numbers in the gutter. The minus and plus markers remain visible in no-colour output.
+File comparisons are headed with the resolved file names, such as `before.conf` and `after.conf`; `-ReferenceName` and `-DifferenceName` override either heading, for files or text. `-IgnoreWhitespace` ignores Unicode whitespace within each line. It does not join lines or ignore a missing final newline. CRLF, LF and CR line endings compare equally, and empty text is an empty document rather than a blank line.
 
-{{< cm-frame id="text-diff-120" script="true" >}}
+## Unified output and capture
 
-`-Context` sets the number of unchanged lines retained before and after each change. It defaults to three; zero shows only changed lines. Longer unchanged regions collapse to a count with the reference and difference line ranges. Wrapped content stays visible at the available width.
-
-{{< cm-frame id="text-diff-60" >}}
-
-Use a script block with `Use-ConsoleTarget` to capture the rendered comparison at a fixed width:
+For a string you can save or process, use `-AsUnified`. To keep the rendered view at a fixed width, capture it with `Use-ConsoleTarget`:
 
 ```powershell
+$diff = Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1 -AsUnified
+$diff | Set-Content .\changes.diff
+
 $report = Use-ConsoleTarget -Width 120 {
     Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1
 }
 ```
 
-Compare files using normal PowerShell paths, including relative paths, filesystem drives and provider-qualified paths:
+The unified string has reference and difference headers, hunk ranges and `-`/`+` lines, with LF separators and a marker for a missing final newline. Equal inputs return an empty string, and no terminal styling or markup is added. Normal rendering writes to the host and returns no comparison objects.
 
-```powershell
-Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf
-Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -IgnoreWhitespace
-```
+## In a C# layout
 
-Each path must resolve to exactly one readable FileSystem file. Wildcards that match several files, directories, missing files and other providers produce errors. Files use UTF-8 with BOM detection.
-
-File comparisons use the resolved filenames as headings, such as `before.conf` and `after.conf`. Use `-ReferenceName` and `-DifferenceName` to override either heading for files or text. The same names appear in unified output:
-
-```powershell
-Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -ReferenceName 'Deployed' -DifferenceName 'Proposed'
-```
-
-`-IgnoreWhitespace` ignores Unicode whitespace within each line. It does not join lines or ignore a missing final newline. CRLF, LF and CR line endings compare equally. Empty text is an empty document rather than a blank line.
-
-For a string you can save or process, use `-AsUnified`:
-
-```powershell
-$diff = Compare-ConsoleText -ReferenceText $before -DifferenceText $after -Context 1 -AsUnified
-$diff | Set-Content .\changes.diff
-```
-
-The string contains reference and difference headers, hunk ranges and `-`/`+` lines, with LF separators and a marker for a missing final newline. Equal inputs return an empty string. Normal rendering writes to the host and returns no comparison objects. No terminal styling or ConsoleMonster markup is added to unified output.
-
-For C#, create a console project and add the package:
-
-```powershell
-dotnet new console -n TextComparison
-Set-Location TextComparison
-dotnet add package ConsoleMonster
-```
-
-The figure's C# tab contains a complete `Program.cs` that prints the same comparison. Paste the full program into `Program.cs`, then run `dotnet run`. To compose a comparison with the fluent panel layout instead, use this complete program:
+`TextDiffView` is an ordinary widget, so a comparison composes with the rest of a layout. This complete program puts it in a panel with its own headings:
 
 ```csharp
 using ConsoleMonster;
@@ -108,4 +76,6 @@ Terminal.Write(view);
 
 `TextDiffResult.Lines` exposes the original line text, change kind, source line numbers and final-newline state. Comparison uses linear auxiliary memory and a bounded amount of alignment work. If a large changed region exceeds that budget, it is emitted as removals and additions; the result still describes the change, but it may contain more edits than a minimal diff.
 
-Try [the PowerShell command reference](/powershell/commands/compare-consoletext/) for parameter details, or [PowerShell conventions](/docs/powershell-conventions/) for composing ConsoleMonster output. Use `Compare-ConsoleObject` for matching object collections and comparing properties.
+## Related
+
+The [Compare-ConsoleText reference](/powershell/commands/compare-consoletext/) lists every parameter, [PowerShell conventions](/docs/powershell-conventions/) covers composing ConsoleMonster output, and `Compare-ConsoleObject` compares object collections property by property.

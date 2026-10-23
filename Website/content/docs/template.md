@@ -10,29 +10,25 @@ chips: [Native AOT]
 summary: "A console app with a menu, logging, the dashboard and native AOT."
 ---
 
-1. Install the template (the .NET 8 SDK or later):
+`dotnet new consolemonster` creates a console app with a menu, a status report, logging, the hosting dashboard and native AOT publishing, ready to change into your own tool.
 
-   ```bash
+1. Install the template (it needs the .NET 8 SDK or later):
+
+   ```terminal
    dotnet new install ConsoleMonster.Templates
    ```
 
-2. Create an app from it:
+2. Create an app and start it. `dotnet run` opens the menu; `dotnet run -- serve` starts the service with its dashboard, and Ctrl+C stops it.
 
-   ```bash
+   ```terminal
    dotnet new consolemonster -o MyTool
    cd MyTool
-   ```
-
-3. Run it: the menu first, then the service with its dashboard (Ctrl+C stops it):
-
-   ```bash
    dotnet run
-   dotnet run -- serve
    ```
 
-4. Publish one native executable (native AOT, which needs the C++ build tools: on Windows, Visual Studio's "Desktop development with C++" workload):
+3. Publish one native executable. Native AOT needs the C++ build tools: on Windows, Visual Studio's "Desktop development with C++" workload.
 
-   ```bash
+   ```terminal
    dotnet publish -c Release -r win-x64
    ```
 
@@ -47,3 +43,7 @@ The recording runs the template's own `Program.cs`, built against the ConsoleMon
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
 
 The app uses a `Menu` with pages, a `Table` with status cells, [logging](/docs/logging/) through `ConsoleMonster.Extensions.Logging` and the [hosting dashboard](/docs/hosting/).
+
+## Related
+
+The app uses two packages: [logging](/docs/logging/) and the [hosting dashboard](/docs/hosting/). For what else a menu can open, see [menus, forms and apps](/interactive/).

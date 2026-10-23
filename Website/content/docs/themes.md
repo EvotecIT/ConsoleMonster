@@ -19,7 +19,9 @@ Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Acc
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
 
-In PowerShell, for this session:
+To switch for the rest of the session in PowerShell, or for every write that follows in C#:
+
+<div class="cm-lang" data-lang="powershell">
 
 ```powershell
 Import-Module ConsoleMonster
@@ -28,14 +30,8 @@ Set-ConsoleTheme Light
 Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
 ```
 
-For every new session, set the variable before ConsoleMonster first draws in that session, since detection reads it once then. Your profile (`$PROFILE`) is the easy place:
-
-```powershell
-$env:CONSOLEMONSTER_THEME = 'light'
-Import-Module ConsoleMonster
-```
-
-In C#, for every write that follows:
+</div>
+<div class="cm-lang" data-lang="csharp">
 
 ```csharp
 using ConsoleMonster;
@@ -47,6 +43,16 @@ Terminal.Write(new TextBlock("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/] 
 Terminal.Theme = Theme.HighContrast;
 Terminal.Write(new Rule("[bold]High contrast[/]"));
 ```
+
+</div>
+
+For every new PowerShell session, set the variable before ConsoleMonster first draws, since detection reads it once. Your profile (`$PROFILE`) is the easy place:
+
+```powershell
+$env:CONSOLEMONSTER_THEME = 'light'
+Import-Module ConsoleMonster
+```
+
 The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background that could not be detected, because titles, headers and highlights use the terminal's own foreground in bold.
 
 ## Markup and roles
@@ -109,46 +115,15 @@ palette order: `Ansi16` is `0`–`15` (`-1` uses the terminal default), while
 resolve inheritance and include every token. Unknown keys, tokens and invalid
 values are rejected before application.
 
-### Try the same report before and after
+### Try it: the same report before and after
 
-1. Save [theme-files.ps1](/examples/themes/theme-files.ps1),
-   [team-dark.json](/examples/themes/team-dark.json) and
-   [team-light.json](/examples/themes/team-light.json) together in your own folder.
-2. Use the background that matches your terminal and run the sample:
+Save [team-dark.json](/examples/themes/team-dark.json) and [team-light.json](/examples/themes/team-light.json) next to the program. The script builds a status list, a table and a log with native PowerShell cmdlets, then draws the same widgets with the built-in palette and with the team file.
 
-```powershell
-./theme-files.ps1 -BaseTheme Dark -Width 120
-# On a light terminal, compare the compact layout:
-./theme-files.ps1 -BaseTheme Light -Width 60
-```
+{{< cm-try key="theme-files" ids="theme-files-before-120,theme-files-after-120" project="ThemeReport" file="theme-files.ps1" run="pwsh ./theme-files.ps1 -BaseTheme Dark -Width 120" csrun="dotnet run -- ./team-dark.json" caption="The same report at 120 columns, before and after loading the team file. Switch the site theme to see the matching light palette." >}}
 
-The script builds a status list, a table and a log with native PowerShell
-cmdlets, then draws those same widgets with the built-in and team palettes. It
-leaves the team theme active. Add `-ExportDirectory ./presets` to write starting
-JSON files for all four presets. Restore a built-in with
-`Set-ConsoleTheme -Name Dark` or `Set-ConsoleTheme -Name Light`.
+On a light terminal use `-BaseTheme Light` and `team-light.json`. The script leaves the team theme active; `Set-ConsoleTheme -Name Dark` or `-Name Light` restores a built-in, and `-ExportDirectory ./presets` writes starting files for all four presets. Without an argument the C# program uses the current terminal theme; with a file it scopes the loaded palette to the report's output target with `Terminal.Use` and restores the target when the report finishes.
 
-{{< cm-frame ids="theme-files-before-120,theme-files-after-120" caption="The same report at 120 columns, before and after loading the team files. Switch the site theme to see the matching dark or light palette. The complete PowerShell script and C# program are below the frames." >}}
-
-{{< cm-frame ids="theme-files-before-60,theme-files-after-60" script="false" caption="The same programs at 60 columns. Status symbols, words and log levels remain visible in both palettes." >}}
-
-To run the C# report, save [report.cs](/examples/themes/report.cs) as `Program.cs`
-in a new console project, with the same two JSON files beside it:
-
-```powershell
-dotnet new console -n ThemeReport
-cd ThemeReport
-dotnet add package ConsoleMonster
-# Save report.cs as Program.cs and the two team JSON files in this folder.
-dotnet run
-dotnet run -- ./team-dark.json
-# For a light terminal:
-dotnet run -- ./team-light.json
-```
-
-Without an argument the program uses the current terminal theme. A file argument
-scopes the loaded palette to the report's existing output target with `Terminal.Use`,
-then restores that target when the report finishes.
+{{< cm-frame ids="theme-files-before-60,theme-files-after-60" script="false" caption="The same programs at 60 columns. Status symbols, words and log levels stay visible in both palettes." >}}
 
 ### Load JSON in .NET
 
@@ -171,5 +146,7 @@ dictionary. `ToJson` returns complete JSON. Loading and saving do not select a
 theme; assigning `Terminal.Theme` does. The same palette can instead be supplied
 to `LiveSessionOptions.Theme` for one session.
 
-Try [PowerShell rich text](/powershell/) for role-based text and the
-[widget gallery](/widgets/) to see the roles at each colour tier.
+## Related
+
+[PowerShell rich text](/powershell/) shows role-based text, and the [widget gallery](/widgets/) shows the roles at each
+colour tier.

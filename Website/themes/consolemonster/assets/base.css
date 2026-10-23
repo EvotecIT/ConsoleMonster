@@ -128,6 +128,9 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-seg [aria-selected="true"], .cm-seg [aria-checked="true"], .cm-seg [aria-pressed="true"], .cm-seg [aria-current="true"] { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 700; }
 .cm-seg [aria-selected="true"]::before, .cm-seg [aria-checked="true"]::before, .cm-seg [aria-pressed="true"]::before, .cm-seg [aria-current="true"]::before { content: "›"; width: auto; height: auto; margin-top: 0; background: none; opacity: 1; transform: translateY(-50%); color: var(--key, var(--cm-accent)); font-weight: 800; left: 7px; }
 .cm-seg__count { color: var(--cm-muted); font-weight: 400; }
+/* An option the current content does not have (a Try it example in one language): visible, but not a choice. */
+.cm-seg button:disabled { opacity: .45; cursor: not-allowed; }
+.cm-seg button:disabled:hover { background: transparent; color: var(--cm-ink-2); }
 .cm-tone-dark .cm-seg { background: #121925; border-color: var(--cm-stage-line); }
 
 /* Terminal windows: a title bar with the real terminal profile, then the frame. */
@@ -227,10 +230,15 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code__repo { margin-left: auto; color: var(--cm-muted); font: 500 11.5px/1 var(--cm-mono); white-space: nowrap; text-decoration: underline; text-decoration-color: var(--cm-line); text-underline-offset: 3px; }
 .cm-code__repo:hover { color: var(--cm-ink); text-decoration-color: currentColor; }
 .cm-code__repo + .cm-code__copy { margin-left: 0; }
+/* A quiet Download beside Copy (partials/code.html code_download): the file is built from the code on the page. */
+.cm-code__download { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+.cm-code__download:hover { background: var(--cm-hover); color: var(--cm-ink); }
+.cm-code__download:not([hidden]) + .cm-code__copy, .cm-code__repo + .cm-code__download { margin-left: 0; }
 .cm-code pre { margin: 0; padding: 14px 16px 16px; overflow: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre; overflow-wrap: normal; word-break: normal; }
 /* A block whose lines run past its width says so in its bar (frames.js marks it), in the words a terminal window uses. */
 .cm-code.is-wide .cm-code__bar::after { content: "scroll sideways" / ""; order: 1; margin-left: auto; color: var(--cm-muted); font: 500 11.5px/1 var(--cm-mono); white-space: nowrap; }
-.cm-code.is-wide .cm-code__copy { order: 2; margin-left: 0; }
+.cm-code.is-wide .cm-code__copy { order: 3; margin-left: 0; }
+.cm-code.is-wide .cm-code__download { order: 2; margin-left: 0; }
 .cm-code.is-wide .cm-code__repo { order: 1; }
 .cm-code.is-wide:has(.cm-code__repo) .cm-code__bar::after { margin-left: 0; }
 @media (max-width: 480px) { .cm-code.is-wide .cm-code__bar::after { content: "scroll \2192" / ""; } }

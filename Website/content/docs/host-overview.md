@@ -10,58 +10,57 @@ apis: [Show-ConsoleOverview, OverviewCollector, OverviewWidget]
 summary: A read-only login summary with resource bars, optional sections and a snapshot for scripts.
 ---
 
-`Show-ConsoleOverview` prints a host summary with CPU and memory bars, local disks, network addresses and the optional information your account can read. It runs once, without elevating or changing the machine.
+`Show-ConsoleOverview` prints a host summary with CPU and memory bars, local disks, network addresses and the optional information your account can read. It runs once, without elevating or changing the machine, so it suits a terminal profile or an SSH login.
 
-1. Install the module for your user account:
+## Try it
 
-   ```powershell
-   Install-Module ConsoleMonster -Scope CurrentUser
-   ```
-
-2. Import it and print the overview:
+On your own machine it takes two lines:
 
 ```powershell
-Import-Module ConsoleMonster
+Install-Module ConsoleMonster -Scope CurrentUser
 Show-ConsoleOverview
 ```
 
-The title shows the host, OS and version, uptime and local time. Panels use two columns at 80 columns or more, fitting within 120 columns and 24 rows. Below 80 columns they stack at their natural height so every volume bar and the three login rows remain visible; the terminal can scroll. Disk bars turn amber at 80% used and red at 90%; the words `high` and `critical` keep those states readable without colour. Large sections in the wide view show `+N more`; clipped disk sections keep the fullest volumes first. Select fewer sections to give each more room.
+The frame below comes from a C# program with fixed illustrative data (reserved example addresses and synthetic users), drawn by the same `OverviewWidget` the command uses, so it looks the same everywhere:
 
-These frames use fixed illustrative data, including reserved example addresses and synthetic users. The complete C# program beside the frame defines those values and renders them with the same `OverviewWidget` used by the command. The PowerShell command collects values from your own host.
+{{< cm-try key="overview" ids="host-overview-120" project="HostOverview" >}}
 
-{{< cm-frame id="host-overview-120" script="true" >}}
+## How it reads
 
-Pick the sections you want in their display order:
+The title shows the host, OS and version, uptime and local time. Panels use two columns at 80 columns or more, fitting within 120 columns and 24 rows. Below 80 columns they stack at their natural height, so every volume bar and the three login rows stay visible and the terminal scrolls. Disk bars turn amber at 80% used and red at 90%; the words `high` and `critical` keep those states readable without colour. Large sections in the wide view show `+N more`, and clipped disk sections keep the fullest volumes first.
+
+## Choose sections
+
+Name the sections you want, in the order you want them. Fewer sections give each more room:
 
 ```powershell
 Show-ConsoleOverview -Section Resources,Disks,Network
 Show-ConsoleOverview -Section Services,Updates -Width 60
 ```
 
-The built-in keys are `Resources`, `Disks`, `Network`, `Services`, `Updates` and `Security`. Unknown keys produce an error. Unavailable sections disappear; they do not fill the screen with placeholders.
+The built-in keys are `Resources`, `Disks`, `Network`, `Services`, `Updates` and `Security`. Unknown keys are an error. Sections that are unavailable on a host disappear instead of filling the screen with placeholders.
 
-{{< cm-frame id="host-overview-60" script="false" >}}
+{{< cm-frame id="host-overview-60" script="false" caption="The same data below 80 columns: the panels stack at their natural height." >}}
 
-Use `-AsObject` to inspect the snapshot or use the data in another report. `-AsString` captures the rendered plain text on PowerShell 5.1 and 7:
+## Use the data, or keep it out of the way
+
+`-AsObject` returns the snapshot for another report, and `-AsString` the rendered plain text, on PowerShell 5.1 and 7. In a terminal profile, keep collection inside an interactive-session check:
 
 ```powershell
 $snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject
 $snapshot.Sections | ForEach-Object {
     $_.Items | Select-Object Label,Value,Percentage
 }
+Show-ConsoleOverview -Width 80 -AsString | Set-Content -Path ./host-summary.txt
 
-$text = Show-ConsoleOverview -Width 80 -AsString
-$text | Set-Content -Path ./host-summary.txt
-```
-
-For a terminal profile, keep collection inside an interactive-session check:
-
-```powershell
+# In $PROFILE: only for an interactive session whose output is not redirected.
 if ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected) {
     Import-Module ConsoleMonster
     Show-ConsoleOverview -Section Resources,Disks,Network -BudgetMilliseconds 500
 }
 ```
+
+## What it reads, and how long it may take
 
 The default collection budget is 750 ms; `-BudgetMilliseconds` accepts 1–900 ms. A section still collecting at the deadline shows `…` (`...` in ASCII). Each probe receives a cancellation token with a timeout of at most two seconds. The waiting budget excludes OS scheduling and terminal rendering. Built-ins launch no child processes. Repeated calls share any in-flight provider, so a blocked native call cannot create another copy on each login.
 
@@ -71,15 +70,9 @@ Linux reads `/proc` CPU and memory counters. Where the operating system already 
 
 macOS uses native CPU counters and estimates available memory from free and inactive pages. Optional service, update and security panels are hidden. Local fixed volumes and active interface addresses use the framework's platform facilities on all three systems; disconnected network and removable disks are skipped. Native platform calls cannot be forcibly aborted by managed cancellation, so an unexpectedly blocked call retains its single registry slot until it returns.
 
-For C#, create a console app and add the package, then replace `Program.cs` with one of the complete programs below:
+## In your own application
 
-```powershell
-dotnet new console -n HostOverview
-Set-Location HostOverview
-dotnet add package ConsoleMonster
-```
-
-Collect and render through the same core API:
+In the project from Try it, replace `Program.cs` with the collector to show the real host through the same core API:
 
 ```csharp
 using ConsoleMonster;
@@ -92,7 +85,7 @@ var snapshot = await new OverviewCollector().CollectAsync(new OverviewOptions {
 Terminal.Write(new OverviewWidget(snapshot));
 ```
 
-Register application sections with the fluent registry API. A private registry collects only its providers; registering on `OverviewSectionRegistry.Default` also makes the section available to `Show-ConsoleOverview -Section` in that process:
+Register sections of your own with the fluent registry API. A private registry collects only its providers; registering on `OverviewSectionRegistry.Default` also makes the section available to `Show-ConsoleOverview -Section` in that process:
 
 ```csharp
 using ConsoleMonster;
@@ -110,6 +103,8 @@ var snapshot = await new OverviewCollector(registry).CollectAsync();
 Terminal.Write(new OverviewWidget(snapshot));
 ```
 
-Providers return `null` when unavailable, honor cancellation, release their resources and keep collection read-only. Text is displayed literally. Providers execute on worker threads; PowerShell script-block callbacks that require the caller's runspace are not supported as probe delegates.
+Providers return `null` when unavailable, honour cancellation, release their resources and keep collection read-only. Text is displayed literally. Providers run on worker threads, so PowerShell script blocks that need the caller's runspace cannot be probe delegates.
 
-Next, [choose a theme](/docs/themes/), [pin a terminal profile](/docs/capabilities/) or browse the [PowerShell command reference](/powershell/commands/).
+## Related
+
+[Choose a theme](/docs/themes/), [pin a terminal profile](/docs/capabilities/), show it [at an SSH login](/docs/linux-and-ssh/), or browse the [PowerShell command reference](/powershell/commands/).

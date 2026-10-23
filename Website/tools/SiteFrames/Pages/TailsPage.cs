@@ -74,7 +74,7 @@ namespace SiteFrames.Pages {
                         ["title"] = state == "following" ? "Following" : state == "paused" ? "PgUp · paused" : "End · following",
                         ["label"] = "Synthetic file tail, " + state + ", " + width + " columns",
                         ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
-                        ["frame"] = site.Frame(dark[state], light[state])
+                        ["frame"] = site.FrameAt(width, dark[state], light[state])
                     }, program);
                     if (state == "following") {
                         (string shortForm, string full) = SourceSnippets.Program(Site.ReadText(Example(site, "file.ps1")));

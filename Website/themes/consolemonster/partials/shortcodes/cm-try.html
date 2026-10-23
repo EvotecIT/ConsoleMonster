@@ -1,0 +1,21 @@
+{{~ ## "Try it" in docs and guides (partials/try.html). Attributes: key (unique on the page), ids="a,b" (one example and
+     its frames) or scenarios="Label:a,b|Other label:c" (one tab per example), project (the C# project name), and
+     optionally packages="ConsoleMonster,ConsoleMonster.Hosting", install, file, run, csrun, caption and frame="false".
+     The output is one line, with its newlines written as character references, so the Markdown around it passes it
+     through as one HTML block and the code inside keeps its blank lines and indentation. ## ~}}
+{{~ a = shortcode.attrs; try_key = a.key ?? "example"; try_scenarios = []
+    if a.scenarios
+      for part in (a.scenarios | string.split "|")
+        bits = part | string.split ":"
+        ids = []; for id in (bits[1] | string.split ","); ids = ids | array.add (id | string.strip); end
+        try_scenarios = try_scenarios | array.add { label: (bits[0] | string.strip), ids: ids }
+      end
+    else
+      ids = []; for id in ((a.ids ?? a.id) | string.split ","); ids = ids | array.add (id | string.strip); end
+      try_scenarios = [{ label: "", ids: ids }]
+    end
+    if a.packages; try_packages = []; for k in (a.packages | string.split ","); try_packages = try_packages | array.add (k | string.strip); end; end
+    try_project = a.project; try_install = a.install; try_file = a.file; try_run = a.run; try_csrun = a.csrun; try_caption = a.caption
+    try_frames = a.frame != "false" ~}}
+{{~ capture try_html ~}}{{ include "try" }}{{~ end ~}}
+{{ try_html | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

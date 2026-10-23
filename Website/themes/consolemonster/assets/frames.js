@@ -191,6 +191,102 @@
   // motion. This glue only does what is site-specific: it mounts a replay when it comes near the viewport (so pages
   // fetch only the replays a reader reaches), picks the phone rendering when the narrow poster is the one showing,
   // starts at the poster's moment, and puts the player's screen in the site's window where the poster was.
+  // A replay marked to play (data-autoplay: the home page's first path, a demo with autoplay="true") starts when it is in
+  // view, from the poster the reader is already looking at: a poster in the middle of a run plays on from there; a poster
+  // that is the final screen stays six seconds, then the run plays from its first full screen (data-hero, from the site
+  // tool) instead of an empty prompt, plays once and stops on its final screen; Play runs it again. Every other replay
+  // shows its poster until the reader presses Play. Only a page that asks for it (data-loop, which nothing sets by
+  // default) goes round again after holding its final screen, with one timeout per round and none out of view. Nothing is scheduled while nothing plays, nothing moves when the reader prefers reduced motion, and a reader who
+  // has used the player's controls decides from then on.
+  var reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  // The final screen holds six seconds before the run: the result first, then how it got there. A page that loops holds
+  // its end four seconds between rounds.
+  var HOLD = 6000, LOOP_HOLD = 4000;
+  function autoplay(replay, player, hero) {
+    var touched = false, started = false, visible = false, held = 0, round = 0, view = null;
+    var looping = replay.hasAttribute('data-loop');
+    // Asked to play: by the page (data-autoplay), or by the home page's path switch, before the replay mounted
+    // (data-cm-play) or after (cmPlay). A switch asks for the run now; the page's own request first holds a final poster.
+    var asked = replay.hasAttribute('data-autoplay') || replay.hasAttribute('data-cm-play');
+    var now = replay.hasAttribute('data-cm-play');
+    // Nothing runs for a replay the reader controls, with reduced motion, in a hidden tab, or once it has been replaced
+    // (the phone and desktop renderings swap when the window crosses the breakpoint). Every deferred start checks again.
+    var gone = function () { return replay.cmCancelled || !replay.isConnected; };
+    var still = function () { return touched || (reduceMotion && reduceMotion.matches) || document.hidden || gone(); };
+    var atEnd = function () { var s = player.state(); return s.time >= s.duration - 1; };
+    // Leaving the view, or the tab, during the hold puts the replay back where it was: it holds again when it returns.
+    var clear = function () { if (held) started = false; clearTimeout(held); clearTimeout(round); held = round = 0; };
+    // The next round of a replay that loops (only a page that asks for it): when the run should end, plus the hold.
+    var next = function () {
+      clearTimeout(round);
+      round = 0;
+      if (!looping || !visible || still()) return;
+      var s = player.state();
+      round = setTimeout(function () {
+        round = 0;
+        if (!visible || still() || replay.closest('[hidden]')) return;
+        if (player.state().wanted) next();
+        else if (atEnd()) run();
+      }, (s.wanted ? Math.max(0, s.duration - s.time) : 0) + LOOP_HOLD);
+    };
+    var run = function () {
+      if (still()) return;
+      if (atEnd()) player.seek(hero);
+      player.play();
+      next();
+    };
+    var begin = function () {
+      if (started || !visible || still()) return;
+      started = true;
+      if (!now && atEnd()) held = setTimeout(function () { held = 0; run(); }, HOLD);
+      else run();
+    };
+    var stop = function () {
+      touched = true;
+      clear();
+      if (view) view.disconnect();
+      document.removeEventListener('visibilitychange', onTab);
+    };
+    // A hidden tab pauses the player and cancels a pending start or round; they resume when the tab comes back.
+    var onTab = function () {
+      if (gone()) { stop(); return; }
+      if (document.hidden) { clear(); return; }
+      if (asked && !started) begin();
+      else if (started && !held) next();
+    };
+    // Only a replay asked to play watches the view: the others wait for Play and schedule nothing.
+    var watch = function () {
+      if (view || touched) return;
+      if (!('IntersectionObserver' in window)) { visible = true; begin(); return; }
+      view = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (gone()) { stop(); return; }
+          // Half of the window, or half of the screen for a window taller than that. A hidden panel (the home page's
+          // other path) is never in view.
+          visible = entry.isIntersecting && (entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= (window.innerHeight || 800) / 2);
+          if (!visible) { clear(); return; }
+          if (asked && !started) begin();
+          else if (started && !held) next();
+        });
+      }, { threshold: [0, 0.25, 0.5] });
+      view.observe(replay);
+      document.addEventListener('visibilitychange', onTab);
+    };
+    // Using the player's controls (or its keys) hands playback to the reader; a swipe across the window does not.
+    replay.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('button, input, select')) stop(); }, true);
+    // Moving through the controls with Tab is not using them.
+    replay.addEventListener('keydown', function (event) { if (event.key !== 'Tab' && event.key !== 'Shift') stop(); }, true);
+    // The home page's path switch, once the replay has mounted: the same rules as data-cm-play.
+    replay.cmPlay = function () {
+      asked = true;
+      now = true;
+      clear();
+      started = false;
+      watch();
+      begin();
+    };
+    if (asked) watch();
+  }
   function mountReplay(replay) {
     if (replay.cmMounting || !window.ConsoleMonsterPlayer) return;
     replay.cmMounting = true;
@@ -201,13 +297,12 @@
     var start = Number(replay.getAttribute(narrow ? 'data-compact-start' : 'data-start')) || 0;
     load(url).then(function (data) {
       if (replay.cmCancelled) return;
-      if (replay.hasAttribute('data-autoplay')) replay.setAttribute('data-cm-autoplay', '');
-      if (replay.hasAttribute('data-loop')) replay.setAttribute('data-cm-loop', '');
       // The player opens at the poster's moment, so its first frame is the one the poster showed (drawn once, not the
-      // first frame and then a seek), and autoplay still applies.
+      // first frame and then a seek). Playback is this file's: see autoplay below.
       var player = window.ConsoleMonsterPlayer.mount(replay, data, { start: start });
       if (!player) return;
-      if (replay.hasAttribute('data-cm-play')) player.play();
+      var hero = Number(replay.getAttribute(narrow ? 'data-compact-hero' : 'data-hero')) || 0;
+      autoplay(replay, player, hero);
       var screen = replay.querySelector('.cm-player > pre.cm-screen');
       if (screen && poster) {
         screen.className = poster.className.replace(/\s*cm-screen--(wide|narrow)\b/g, '');

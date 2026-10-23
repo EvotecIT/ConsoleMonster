@@ -1,8 +1,9 @@
 {{~ ## One demo: the recording, played by ConsoleMonster's own player (a static frame for demos printed once), beside the
-     exact source that recorded it (PowerShell and C# tabs where both exist, each with Copy and the full program one click
-     away), and what to install to use it. The recording and the source come from data/demos.json, which the site tool
+     exact source that recorded it (a PowerShell | C# switch where both exist, each with Copy and the full program one
+     click away, with the install and run lines), and how to adopt it. The recording and the source come from data/demos.json, which the site tool
      writes from the same files the capture ran; the words come from data/copy.json (demos). Set demo_id, and optionally
-     demo_autoplay = true (one per page) and demo_heading (h2 or h3, default h3). ## ~}}
+     demo_autoplay = true (the one demo on a page that plays by itself once in view; the others show their poster until
+     Play) and demo_heading (h2 or h3, default h3). ## ~}}
 {{~ d = data.demos[demo_id]; c = data.copy.demos[demo_id]; dh = demo_heading ?? "h3" ~}}
 {{~ if d ~}}
 <section class="cm-demo" id="demo-{{ demo_id }}" aria-labelledby="demo-{{ demo_id }}-title">
@@ -13,55 +14,72 @@
   <div class="cm-demo__body">
     <div class="cm-demo__screen">
       {{~ if d.url ~}}
-      {{~ player_data = d; player_title = d.title; player_meta = [d.w + "×" + d.h, "24-bit", "Full"]; player_label = c.label ?? c.title; player_autoplay = demo_autoplay; player_max = 14 ~}}
+      {{~ player_data = d; player_title = d.title; player_meta = [d.terminal ?? (d.w + "×" + d.h), "24-bit", "Full"]; player_label = c.label ?? c.title; player_autoplay = demo_autoplay; player_max = 14 ~}}
       {{ include "player" }}
       {{~ else ~}}
       {{~ screen_frame = d.frame; screen_title = d.title; screen_meta = [d.frame.w + "×" + d.frame.h, "24-bit", "Full"]; screen_dark = true; screen_label = c.label ?? c.title; screen_max = 14 ~}}
       {{ include "screen" }}
       {{~ end ~}}
     </div>
-    <div class="cm-demo__source">
-      {{~ if d.powershell && d.csharp ~}}
-      <div data-cm-tabs class="cm-tabset">
-        <div class="cm-seg" role="tablist" aria-label="Source of the {{ c.title }} demo">
-          <button type="button" role="tab" id="demo-{{ demo_id }}-ps-tab" aria-controls="demo-{{ demo_id }}-ps" aria-selected="true" style="--key: var(--cm-s3)">PowerShell</button>
-          <button type="button" role="tab" id="demo-{{ demo_id }}-cs-tab" aria-controls="demo-{{ demo_id }}-cs" aria-selected="false" tabindex="-1" style="--key: var(--cm-s5)">C#</button>
-        </div>
-        <div id="demo-{{ demo_id }}-ps" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-ps-tab">
-          {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
-          {{ include "code" }}
-          {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
-        </div>
-        <div id="demo-{{ demo_id }}-cs" role="tabpanel" aria-labelledby="demo-{{ demo_id }}-cs-tab" hidden>
-          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
-          {{ include "code" }}
-          {{~ if d.csharpNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpNote }}</p>{{~ end ~}}
-          {{~ for k in d.csharpFiles ~}}
-          <details class="cm-source">
-            <summary>{{ k.file }}</summary>
-            {{~ code_lang = "csharp"; code_label = "C#"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
-            {{ include "code" }}
-          </details>
-          {{~ end ~}}
+    {{~ ## The source in the Try-it layout (partials/try.html): a PowerShell | C# switch where both exist, the install line,
+         the program with Copy, Download and the full program one click away, and the Run line, from copy.json
+         demos.<id>.try (install, run, project, packages, csrun). Without a try entry the code stands alone and the "use"
+         block below says how to adopt it. ## ~}}
+    {{~ tr = c.try; both = d.powershell && d.csharp ~}}
+    <div class="cm-demo__source cm-try">
+      {{~ if both ~}}
+      <div class="cm-try__bar">
+        <div class="cm-seg cm-try__lang" role="radiogroup" aria-label="Language of the {{ c.title }} source" data-cm-lang-switch hidden>
+          <button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>
+          <button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button>
         </div>
       </div>
-      {{~ else if d.powershell ~}}
-      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull ~}}
-      {{ include "code" }}
-      {{~ for k in d.companions ~}}
-      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code ~}}
-      {{ include "code" }}
       {{~ end ~}}
-      {{~ else if d.csharp ~}}
-      {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull ~}}
-      {{ include "code" }}
+      {{~ if d.powershell ~}}
+      <div class="cm-try__code"{{ if both }} data-lang="powershell"{{ end }}>
+        {{~ if tr ~}}
+        <div class="cm-code cm-try__cmd" data-lang="powershell" data-prompt="PS&gt;">
+          <pre><code class="language-powershell">{{ (tr.install ?? "Install-Module ConsoleMonster -Scope CurrentUser") | html.escape | string.replace "\n" "&#10;" }}</code></pre>
+          <button type="button" class="cm-code__copy" data-cm-copy aria-live="polite" aria-label="Copy the install command">Copy</button>
+        </div>
+        {{~ end ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_repo = d.powershellRepo; code_text = d.powershell; code_full = d.powershellFull; code_download = tr != null ~}}
+        {{ include "code" }}
+        {{~ for k in d.companions ~}}
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = k.file; code_text = k.code; code_download = tr != null ~}}
+        {{ include "code" }}
+        {{~ end ~}}
+        {{~ if tr && tr.run ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ tr.run | html.escape }}</code>{{ if tr.runNote }} <span class="cm-try__note">· {{ tr.runNote }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ if d.powershellNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.powershellNote }}</p>{{~ end ~}}
+      </div>
       {{~ end ~}}
-      {{~ ## How to use it yourself: either one install block, or numbered steps (copy.json demos.<id>.use.steps), each a
+      {{~ if d.csharp ~}}
+      <div class="cm-try__code"{{ if both }} data-lang="csharp"{{ end }}>
+        {{~ if tr && tr.project
+              setup = "dotnet new console -n " + tr.project + "\ncd " + tr.project
+              for k in (tr.packages ?? ["ConsoleMonster"]); setup = setup + "\ndotnet add package " + k; end ~}}
+        {{~ code_lang = "bash"; code_label = "Terminal"; code_text = setup ~}}
+        {{ include "code" }}
+        {{~ end ~}}
+        {{~ code_lang = "csharp"; code_label = "C#"; code_repo = d.csharpRepo; code_file = d.csharpFile; code_text = d.csharp; code_full = d.csharpFull; code_download = tr != null && d.csharpFiles == null ~}}
+        {{ include "code" }}
+        {{~ for k in d.csharpFiles ~}}
+        <details class="cm-source">
+          <summary>{{ k.file }}</summary>
+          {{~ code_lang = "csharp"; code_label = "C#"; code_repo = k.codeRepo; code_file = k.file; code_text = k.code ~}}
+          {{ include "code" }}
+        </details>
+        {{~ end ~}}
+        {{~ if tr && tr.project ~}}<p class="cm-try__run"><span>Run:</span> <code>{{ (tr.csrun ?? "dotnet run") | html.escape }}</code>{{ if tr.note }} <span class="cm-try__note">· {{ tr.note }}</span>{{ end }}</p>{{~ end ~}}
+        {{~ if d.csharpNote ~}}<p class="cm-demo__refs cm-demo__refs--quiet">{{ d.csharpNote }}</p>{{~ end ~}}
+      </div>
+      {{~ end ~}}
+      {{~ ## How to adopt it: either one block (an install line and what turns it on), or numbered steps (copy.json demos.<id>.use.steps), each a
            sentence and the code to paste. Reference links point at pages on this site; a GitHub link is only ever the
            secondary "View on GitHub". ## ~}}
       {{~ if c.use ~}}
-      <div class="cm-demo__use">
-        <p class="cm-demo__use-title">{{ c.use.title }}</p>
+      <div class="cm-demo__use{{ if !c.use.title }} cm-demo__use--links{{ end }}">
+        {{~ if c.use.title ~}}<p class="cm-demo__use-title">{{ c.use.title }}</p>{{~ end ~}}
         {{~ if c.use.steps ~}}
         <ol class="cm-demo__steps">
           {{~ for s in c.use.steps ~}}
@@ -74,7 +92,7 @@
           </li>
           {{~ end ~}}
         </ol>
-        {{~ else ~}}
+        {{~ else if c.use.install ~}}
         {{~ code_lang = c.use.lang ?? "powershell"; code_label = c.use.label; code_text = c.use.install ~}}
         {{ include "code" }}
         {{~ end ~}}

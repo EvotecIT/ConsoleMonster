@@ -31,3 +31,7 @@ Output that is not a terminal (`scp`, `rsync`, `ssh host command`) is skipped by
 ## Known limit: start-up time
 
 Each login that runs the overview starts PowerShell and imports the module before anything prints, which takes noticeably longer than a shell script. Measure it on your servers with `Measure-Command { pwsh -NoProfile -File ~/bin/Example-LoginOverview.ps1 }` before turning it on for everyone, keep the collectors cheap, and keep it to interactive sessions as above. A .NET tool published with native AOT starts faster when that matters.
+
+## Related
+
+For a ready-made login summary, use the [host overview](/docs/host-overview/). Any decision detection makes can be pinned with an [environment override](/docs/environment/).

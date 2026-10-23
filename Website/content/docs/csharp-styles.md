@@ -10,35 +10,17 @@ apis: [Table.For, DashboardBuilder, Ui]
 summary: "Fluent, objects or Ui factories: the same widgets, three ways."
 ---
 
-Every widget can be written in three styles. They build the same objects, so they print the same output: the three programs on this page ran for it, and each printed the frame below cell for cell. Use whichever reads best for the case, and mix them freely in one program.
+Every widget can be written in three styles. They build the same objects, so they print the same output: the three programs below each printed this frame, cell for cell. Use whichever reads best for the case, and mix them freely in one program.
 
-To run one, make a console project and replace its `Program.cs`:
+## Try it
 
-```bash
-dotnet new console -n Servers
-cd Servers
-dotnet add package ConsoleMonster
-# Replace Program.cs with one of the programs below.
-dotnet run
-```
+{{< cm-try key="styles" scenarios="Fluent:three-fluent|Object initializers:three-objects|Ui factories:three-composed" project="Servers" caption="Each tab is a complete Program.cs; all three print the same frame." >}}
 
-## Fluent
+## How each style reads
 
-A `With...` method for every settable property and `Add...` methods for every collection, plus typed tables: `Table.For(items)` reads each column's header from its expression. The whole layout is one expression that reads top to bottom. The docs and the gallery use this style.
-
-{{< cm-frame id="three-fluent" >}}
-
-## Object initializers
-
-The canonical model: each widget is a variable, set with properties (`new Table { ShowTotals = true }`) and filled with `Add` calls. It reads best when you set many options at once, fill rows in a loop, or keep a widget to change later.
-
-{{< cm-frame id="three-objects" frame="false" caption="Prints the frame above." >}}
-
-## Ui factories
-
-`using static ConsoleMonster.Ui;` brings short factories (`Rows`, `Columns`, `Panel`, `Table`, `KeyValue`, `Text`, `Sparkline` and others), so the code has the shape of the screen. The `With...` methods are extension methods in each widget's own namespace, so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines. With the factories, write `Table(items)` rather than `Table.For(items)`, because the factory takes the name `Table`.
-
-{{< cm-frame id="three-composed" frame="false" caption="Prints the frame above." >}}
+- **Fluent.** A `With...` method for every settable property and `Add...` methods for every collection, plus typed tables: `Table.For(items)` reads each column's header from its expression. The whole layout is one expression that reads top to bottom. The docs and the gallery use this style.
+- **Object initializers.** The canonical model: each widget is a variable, set with properties (`new Table { ShowTotals = true }`) and filled with `Add` calls. It reads best when you set many options at once, fill rows in a loop, or keep a widget to change later.
+- **Ui factories.** `using static ConsoleMonster.Ui;` brings short factories (`Rows`, `Columns`, `Panel`, `Table`, `KeyValue`, `Text`, `Sparkline` and others), so the code has the shape of the screen. The `With...` methods are extension methods in each widget's own namespace, so `ConsoleMonster.Layout` and `ConsoleMonster.Widgets` stay among the `using` lines. With the factories, write `Table(items)` rather than `Table.For(items)`, because the factory takes the name `Table`.
 
 ## When to use which
 
@@ -48,3 +30,7 @@ The canonical model: each widget is a variable, set with properties (`new Table 
 - **A live dashboard:** `DashboardBuilder`, which hands each live widget back through an `out` parameter for its typed handle (see [Live sessions](/docs/live-sessions/)).
 
 The fluent methods are generated at build time from each widget's public properties and compiled into `ConsoleMonster.dll`, so every property has one, on every target framework, with nothing generated or reflected at run time.
+
+## Related
+
+The [widget gallery](/widgets/) shows every widget in the fluent style with its PowerShell twin, and [live sessions](/docs/live-sessions/) build dashboards with `DashboardBuilder`.

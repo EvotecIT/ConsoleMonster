@@ -68,7 +68,6 @@ records the proof for Windows PowerShell 5.1 and PowerShell 7.
 {{< cm-frame ids="help-formatting-native-ps7-120,help-formatting-get-help-ps7-120,help-formatting-get-help-ps7-60" caption="Native help before and after the opt-in, captured on PowerShell 7 at 120 and 60 columns." >}}
 
 {{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="The first page of help, with the Space/q footer, at both widths." >}}
-
 ## Compact everyday errors
 
 Enable the compact layout explicitly:
@@ -139,17 +138,9 @@ Only the top-level local console prompt is themed. Assigned, piped, redirected, 
 
 ### The same renderer in .NET
 
-The following frames use fixed illustrative path, branch and completed-command data. This complete C# program calls the renderer used by the PowerShell prompt; the PowerShell feature collects the live session data.
+This complete C# program calls the renderer the PowerShell prompt uses, with a fixed illustrative path, branch and finished commands; the PowerShell feature collects the live session's data instead.
 
-```bash
-dotnet new console -n PromptExample
-cd PromptExample
-dotnet add package ConsoleMonster
-# Replace Program.cs with the complete program below, then run it.
-dotnet run
-```
-
-{{< cm-frame ids="shell-prompt-120,shell-prompt-60" caption="Fixed illustrative data: success first, then a failed 3.4-second command. Switch themes to compare light and dark." >}}
+{{< cm-try key="prompt" ids="shell-prompt-120,shell-prompt-60" project="PromptExample" caption="Success first, then a failed 3.4-second command, at 120 and 60 columns. Switch the site theme to compare light and dark." >}}
 
 ## Command-line help for .NET hosts
 
@@ -170,4 +161,6 @@ such as `-o` are literal. Labels follow the render profile's language; set `Valu
 
 {{< cm-frame ids="cli-help-120,cli-help-60" caption="The complete .NET example compiles against ConsoleMonster and renders at 120 and 60 columns in both themes." >}}
 
-Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).
+## Related
+
+[Choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

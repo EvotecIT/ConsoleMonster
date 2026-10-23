@@ -109,3 +109,7 @@ ConsoleMonster also has forms, menus and a grid; the [interactive page](/interac
 
 - **Spectre.Console.Cli** parses command lines and maps them to commands. ConsoleMonster has no command-line parser and can be used next to one.
 - **Testing.** Spectre.Console.Testing provides a `TestConsole`. ConsoleMonster renders to a fixed profile in memory: `TerminalProfile.Fixed` with `ConsoleExporter.ToText`, and `ScreenCapture` with scripted keys for prompts.
+
+## Related
+
+Every widget is in the [widget gallery](/widgets/) with its source. The fluent, object and `Ui` styles are compared in [three ways to write it in C#](/docs/csharp-styles/).

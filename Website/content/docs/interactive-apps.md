@@ -10,60 +10,58 @@ chips: [Inputs, Live filtering]
 summary: "Named inputs update shared state and redraw dependent widgets after every edit."
 ---
 
-A named input and a binding turn an ordinary layout into an interactive application. This example filters six synthetic hosts: type `sql` in Query and the count and status table update to show SQL01 and SQL02. Matching is literal and case-insensitive across host, role, site and status. No machines or services are queried.
+A named input and a binding turn an ordinary layout into an interactive application. This one filters six synthetic hosts: type `sql` in Query and the count and table narrow to SQL01 and SQL02. Nothing is queried.
 
-## Run the filter
+## Try it
 
-1. Install ConsoleMonster for PowerShell:
+{{< cm-try key="live-filter" ids="app-live-filter-initial-60,app-live-filter-filtered-60" project="HostFilter" caption="The program before typing and after `sql`, at 60 columns. The count drops from six hosts to two." >}}
 
-   ```powershell
-   Install-Module ConsoleMonster -Scope CurrentUser
-   ```
+Query has focus when the application opens. Type to filter, Backspace broadens the query and Escape quits. Matching is literal and case-insensitive across host, role, site and status; a query with no matches keeps the column headers and explains why the table is empty. Tab and Shift+Tab move between controls when a layout has more than one input.
 
-2. Copy the full PowerShell script below into `live-filter.ps1`, then run it in an interactive terminal:
+## How it works
 
-   ```powershell
-   ./live-filter.ps1
-   ```
+The input has a name, and that name is the key in the application's state. The binding runs after every edit, reads the current value and builds the widgets that depend on it:
 
-3. For C#, create a console project and add the ConsoleMonster package:
+<div class="cm-lang" data-lang="powershell">
 
-   ```shell
-   dotnet new console -n HostFilter
-   cd HostFilter
-   dotnet add package ConsoleMonster
-   ```
+```powershell
+New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'
+New-ConsoleBinding {
+    param($State)
+    $matches = @(& $matchingHosts $State)
+    "[bold]$($matches.Count)[/] of $($hosts.Count) hosts"
+    $matches | New-ConsoleTable -Property Host, Role, Site, Status -StatusProperty Status -NoHeaderSeparator
+}
+```
 
-4. Replace `Program.cs` with the full C# program below and run it:
+</div>
+<div class="cm-lang" data-lang="csharp">
 
-   ```shell
-   dotnet run
-   ```
+```csharp
+new TextInput("Query") {
+    Label = "Query",
+    Placeholder = "Host, role, site or status"
+},
+new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))
+```
 
-Query has focus when the application opens. Type to filter, use Backspace to broaden the query, and press Escape to quit. Tab and Shift+Tab move between controls in layouts with more than one input. A query with no matches keeps the column headers and shows an explanation beneath the empty table.
+</div>
 
-{{< cm-frame ids="app-live-filter-initial-120,app-live-filter-filtered-120" caption="The same program at 120 columns, before typing and after `sql`. The count changes from six hosts to two. Full program includes the synthetic inventory and all setup code." >}}
+- **State.** `New-ConsoleTextInput -Name Query` stores the text in `$State.Query`; in C#, `TextInput("Query")` writes it to `AppState`, and `state.Get<string>("Query", string.Empty)` reads it.
+- **Dependent widgets.** The count and the table come from one snapshot of the query, so they always agree. The input stays where it is while the binding rebuilds what is below it, and the Status column uses the built-in status presenter.
+- **The loop.** `Show-ConsoleApp` and `ConsoleApp.Run` drive the existing live renderer: keys go to the focused control, the binding runs, the screen redraws only the cells that changed. The layout itself is ordinary composition (`New-ConsoleRows` or `Rows`).
+- **The result.** `ConsoleApp.Run` returns the final state when the application ends; in PowerShell, `Show-ConsoleApp -PassThru` returns the named values.
 
-## State and dependent widgets
+## On a wide terminal
 
-In PowerShell, `New-ConsoleTextInput -Name Query` stores the current text in `$State.Query`. `New-ConsoleBinding` runs after each edit and builds the matching count and table from that value. The layout remains native PowerShell: `New-ConsoleRows`, the text input and `New-ConsoleTable` compose the screen inside `Show-ConsoleApp`.
+The input stretches to the width of the terminal; the table keeps its natural width. This is the same program at 120 columns:
 
-In C#, `TextInput("Query")` writes to `AppState`, and `AppBinding` reads it with `state.Get<string>("Query", string.Empty)`. `ConsoleApp.Run` drives the existing live renderer and returns the final state when the application ends. Use `Show-ConsoleApp -PassThru` when a PowerShell caller needs the final named values.
-
-The input stays in place while the binding rebuilds its dependent widgets. The count and table use the same query snapshot, and the status column uses the built-in status presenter.
-
-## At 60 columns
-
-{{< cm-frame ids="app-live-filter-initial-60,app-live-filter-filtered-60" caption="The same inventory and query at 60 columns. Both widths are rendered in light and dark themes, and the saved Windows PowerShell 5.1 and PowerShell 7 output is checked against the C# program cell by cell." >}}
+{{< cm-frame ids="app-live-filter-initial-120,app-live-filter-filtered-120" script="false" caption="The same program at 120 columns. Both widths are rendered in light and dark, and the saved Windows PowerShell 5.1 and PowerShell 7 output is checked against the C# program cell by cell." >}}
 
 ## Redirected output and CI
 
-An interactive application needs input. Without an interactive terminal, `ConsoleApp.Run` and `Show-ConsoleApp` report that prompting is unavailable unless the caller explicitly requests a static snapshot. To print the initial PowerShell layout without reading keys, run the same script with its snapshot option:
+An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. The script passes its `-AppOptions` to `Show-ConsoleApp`, so `./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }` prints the first screen once and exits. In C#, pass `new ConsoleAppOptions { StaticSnapshot = true }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.
 
-```powershell
-./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }
-```
+## Related
 
-For a C# snapshot, pass `new ConsoleAppOptions { StaticSnapshot = true }` as the `options` argument to `ConsoleApp.Run`. A snapshot initializes the layout once; it does not read a query.
-
-Try [interactive prompts](/interactive/) for one answer at a time, [live sessions](/docs/live-sessions/) for dashboards updated by running work, or [threads and concurrency](/docs/threads/) for the live engine's threading rules.
+[Interactive prompts](/interactive/) ask for one answer at a time, [live sessions](/docs/live-sessions/) show dashboards updated by running work, and [threads and concurrency](/docs/threads/) explains the live engine's threading rules.
