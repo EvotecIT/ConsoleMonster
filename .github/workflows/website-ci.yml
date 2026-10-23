@@ -55,7 +55,8 @@ jobs:
   # engine-only change is covered by verify-site), and skips the checks verify-site already runs.
   render-budget:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Renderer/browser downloads exhausted 30 minutes before measurement; keep the performance budgets unchanged.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:

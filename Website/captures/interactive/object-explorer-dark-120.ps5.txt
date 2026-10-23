@@ -1,0 +1,21 @@
+source 89eb88f34e4be2fe4850c7c60cf87d21
+ Server configuration                                                                                         4 members
+$server
+╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ >   Name      web-01                                                                                                 │
+│   + Owner     OwnerInfo                                                                                              │
+│   + Services  2 items                                                                                                │
+│     Enabled   yes                                                                                                    │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys

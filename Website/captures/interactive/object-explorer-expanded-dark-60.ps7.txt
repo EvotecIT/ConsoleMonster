@@ -1,0 +1,61 @@
+source 6780a31b044d7963956b0466c59c8ae4
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│ >   Name      web-01                                     │
+│   + Owner     OwnerInfo                                  │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keysb69d91ced3e0c131
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│     Name      web-01                                     │
+│ > + Owner     OwnerInfo                                  │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys53ef5a77f3c1630e
+ Server configuration                             6 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│     Name      web-01                                     │
+│ > - Owner     OwnerInfo                                  │
+│       Name    Ada                                        │
+│     + Groups  2 items                                    │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys

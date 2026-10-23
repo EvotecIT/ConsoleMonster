@@ -51,6 +51,12 @@ namespace SiteFrames {
                     return CaptureAll(new Site(website), only);
                 case "readme":
                     return Readme.Sync(new Site(website));
+                case "review-object":
+                    if (only == null) {
+                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-object [WebsiteRoot] [OutputDirectory]");
+                        return 2;
+                    }
+                    return ExplorerFigures.Review(new Site(website), only);
                 case "review-chart":
                     if (only == null) {
                         Console.Error.WriteLine("Pass the review output directory as the third argument.");
@@ -66,7 +72,8 @@ namespace SiteFrames {
                 case "review-prompt":
                     return PromptFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the review output directory."));
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]; review-chart|review-text [WebsiteRoot] [output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
+                    Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");
                     return 2;
             }
         }
@@ -127,6 +134,9 @@ namespace SiteFrames {
             if (Wants(only, "docs")) {
                 DocsPage.Capture(site);
             }
+            if (Wants(only, "objects") || Wants(only, "docs")) {
+                ExplorerFigures.Capture(site);
+            }
             if (Wants(only, "charts") || Wants(only, "docs")) {
                 ChartFigures.Capture(site);
             }
@@ -156,6 +166,7 @@ namespace SiteFrames {
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
             PromptFigures.Render(site);
+            ExplorerFigures.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);
             Figures.Write(site);
