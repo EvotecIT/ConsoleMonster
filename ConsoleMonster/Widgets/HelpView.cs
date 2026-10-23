@@ -13,9 +13,12 @@ namespace ConsoleMonster.Widgets {
     /// pipeline input, default, description), the examples with highlighted code, inputs, outputs, notes and related links.
     /// Everything is printed as it grows, so it reads well through a pager. Show-ConsoleHelp is the PowerShell face.
     /// </summary>
-    public sealed class HelpView : IWidget {
+    public sealed partial class HelpView : IWidget {
         private Rows? _built;
         private int _builtWidth = -1;
+        private RenderContext? _builtContext;
+        private bool _builtExamples;
+        private bool _builtParameters;
 
         /// <summary>Creates the view.</summary>
         /// <param name="topic">The help.</param>
@@ -52,7 +55,16 @@ namespace ConsoleMonster.Widgets {
         }
 
         private Rows Build(int width, RenderContext context) {
-            if (_built != null && _builtWidth == width) {
+            if (_built != null && _builtWidth == width && ReferenceEquals(_builtContext, context)
+                && _builtExamples == ShowExamples && _builtParameters == ShowParameters) {
+                return _built;
+            }
+            _builtContext = context;
+            _builtExamples = ShowExamples;
+            _builtParameters = ShowParameters;
+            if (Topic.CommandLine != null) {
+                _built = BuildCommandLine(width, context);
+                _builtWidth = width;
                 return _built;
             }
             Rows rows = new Rows();
@@ -201,14 +213,16 @@ namespace ConsoleMonster.Widgets {
                 if (optional) {
                     unit.Add(new TextSpan("[", bracket));
                 }
-                if (parameter.Positional && hasValue) {
+                if (!parameter.Named) {
+                    unit.Add(new TextSpan("<" + parameter.Name + ">", type));
+                } else if (parameter.Positional && hasValue) {
                     unit.Add(new TextSpan("[", bracket));
                     unit.Add(new TextSpan("-" + parameter.Name, name));
                     unit.Add(new TextSpan("]", bracket));
                 } else {
                     unit.Add(new TextSpan("-" + parameter.Name, name));
                 }
-                if (hasValue) {
+                if (hasValue && parameter.Named) {
                     unit.Add(new TextSpan(" <" + parameter.Type + ">", type));
                 }
                 if (optional) {
@@ -244,7 +258,7 @@ namespace ConsoleMonster.Widgets {
                 table.AddColumn(new TableColumn("Description") { MaxLines = TableColumn.Unlimited });
             }
             foreach (HelpParameter parameter in Topic.Parameters) {
-                string label = "[accent2]-" + Text.Markup.Escape(parameter.Name) + "[/]";
+                string label = "[accent2]" + (parameter.Named ? "-" : string.Empty) + Text.Markup.Escape(parameter.Name) + "[/]";
                 if (parameter.Aliases.Count > 0) {
                     label += "\n[muted]" + (parameter.Aliases.Count == 1 ? "alias " : "aliases ") + Text.Markup.Escape(string.Join(", ", parameter.Aliases)) + "[/]";
                 }

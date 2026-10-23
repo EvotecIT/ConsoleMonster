@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- Parser-independent command-line help metadata supports grouped commands, positional values, option defaults and notes, with localized labels. Shared CLI integrations can grow run totals, preserve narrow table columns and tree labels, and apply scoped profile policies without replacing their terminal target.
 - `Show-ConsoleOverview` collects a read-only host snapshot with CPU/memory and disk bars, network addresses and safely available service, update/reboot and security observations. Select sections or return the snapshot with `-AsObject`; applications can register their own probes. Wide output fits one screen, while narrow layouts stack without hiding volume or login rows.
 - `Show-ConsoleObject` explores nested members with lazy expansion, breadcrumbs, search and keyboard selection. `-PassThru` returns the selected value, and `-PassThru Path` returns its PowerShell expression. Redirected and non-interactive sessions print the static inspector.
 - HTML and SVG frame titles reserve space after the window dots, truncate with an ellipsis and retain the full title as a tooltip. Very narrow frames keep all three dots visible and hide titles that cannot fit.

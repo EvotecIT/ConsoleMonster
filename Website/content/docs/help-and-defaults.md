@@ -142,6 +142,25 @@ This complete C# program calls the renderer the PowerShell prompt uses, with a f
 
 {{< cm-try key="prompt" ids="shell-prompt-120,shell-prompt-60" project="PromptExample" caption="Success first, then a failed 3.4-second command, at 120 and 60 columns. Switch the site theme to compare light and dark." >}}
 
+## Command-line help for .NET hosts
+
+In PowerShell, use the native command surface first:
+
+```powershell
+Show-ConsoleHelp Get-ChildItem
+```
+
+A .NET command-line host can project its parser metadata into `HelpTopic.CommandLine` and render it with `HelpView`.
+ConsoleMonster owns presentation; the host keeps argument parsing, command selection and execution. No parser package
+is required by ConsoleMonster.
+
+`HelpCommand` describes commands and optional groups. `HelpValue` describes literal value IDs, descriptions and optional
+muted notes. `HelpSyntaxParameter.Named = false` and `HelpParameter.Named = false` describe positional arguments.
+The existing parameter convention omits one renderer-added dash: use `Name = "-output"` for `--output`, while aliases
+such as `-o` are literal. Labels follow the render profile's language; set `ValuesHeading` only for a custom heading.
+
+{{< cm-frame ids="cli-help-120,cli-help-60" caption="The complete .NET example compiles against ConsoleMonster and renders at 120 and 60 columns in both themes." >}}
+
 ## Related
 
 [Choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

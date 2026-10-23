@@ -38,6 +38,9 @@ namespace ConsoleMonster.Interactive {
         /// <inheritdoc />
         public override string Describe(decimal value) => Format(value);
 
+        /// <summary>Full precision for the editor and stepping, independent of compact hints.</summary>
+        internal string FormatInput(decimal value) => DecimalInput.Format(value, WholeNumber, EffectiveCulture);
+
         internal string Format(decimal value) => value.ToString(WholeNumber ? "0" : "0.############", EffectiveCulture);
 
         internal string? Parse(string text, PromptLabels labels, out decimal value) {
@@ -50,8 +53,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 return labels.Required;
             }
-            NumberStyles styles = WholeNumber ? NumberStyles.Integer | NumberStyles.AllowThousands : NumberStyles.Number;
-            if (!decimal.TryParse(trimmed, styles, EffectiveCulture, out value) && !decimal.TryParse(trimmed, styles, CultureInfo.InvariantCulture, out value)) {
+            if (!DecimalInput.TryParse(trimmed, WholeNumber, EffectiveCulture, out value)) {
                 return WholeNumber ? labels.NotAWholeNumber : labels.NotANumber;
             }
             if (WholeNumber && decimal.Truncate(value) != value) {
@@ -97,7 +99,7 @@ namespace ConsoleMonster.Interactive {
         private sealed class NumberView : EntryView<decimal> {
             private readonly NumberPrompt _prompt;
 
-            public NumberView(NumberPrompt prompt, PromptLabels labels) : base(prompt, labels, prompt.HasDefault ? prompt.Format(prompt.Default) : null) {
+            public NumberView(NumberPrompt prompt, PromptLabels labels) : base(prompt, labels, prompt.HasDefault ? prompt.FormatInput(prompt.Default) : null) {
                 _prompt = prompt;
             }
 
@@ -125,7 +127,7 @@ namespace ConsoleMonster.Interactive {
                 if (_prompt.Maximum.HasValue && next > _prompt.Maximum.Value) {
                     next = _prompt.Maximum.Value;
                 }
-                Editor.Text = _prompt.Format(next);
+                Editor.Text = _prompt.FormatInput(next);
                 Error = null;
             }
 

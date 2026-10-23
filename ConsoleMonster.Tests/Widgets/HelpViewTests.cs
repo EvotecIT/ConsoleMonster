@@ -10,6 +10,156 @@ using Xunit;
 namespace ConsoleMonster.Tests.HelpViews {
     /// <summary>A command's help: syntax wrapping, the parameter table's columns, synopsis and examples.</summary>
     public sealed class HelpViewTests {
+        [Theory]
+        [InlineData(45, false)]
+        [InlineData(120, false)]
+        [InlineData(45, true)]
+        [InlineData(120, true)]
+        public void CommandLine_EveryLaterGroup_HasOneBlankSeparatorIncludingInputOnlyGroups(int width, bool values) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report [options]" } };
+            string[] groups = { "Directory", "Group Policy", "Group membership", "File SID", "SID history" };
+            for (int i = 0; i < groups.Length; i++) {
+                string name = "type-" + i;
+                if (values) topic.CommandLine.Values.Add(new HelpValue(name, "Authored evidence", groups[i]) { Note = i >= 2 ? "(needs --input)" : null });
+                else topic.CommandLine.Commands.Add(new HelpCommand(name, "Inspect evidence", groups[i]));
+            }
+            string[] lines = Text(new HelpView(topic), width).Replace("\r", "").Split('\n');
+            int first = Array.FindIndex(lines, line => line.Trim() == groups[0]);
+            Assert.True(first > 0);
+            Assert.Equal(values ? "Values" : "Commands", lines[first - 1].Trim());
+            for (int i = 1; i < groups.Length; i++) {
+                int heading = Array.FindIndex(lines, line => line.Trim() == groups[i]);
+                Assert.True(heading >= 2);
+                Assert.True(string.IsNullOrWhiteSpace(lines[heading - 1]), groups[i]);
+                Assert.False(string.IsNullOrWhiteSpace(lines[heading - 2]), groups[i]);
+            }
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_ValueNotes_AlignAfterDescriptionsAndWrapSeparately(int width) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report [options]" } };
+            topic.CommandLine.Values.Add(new HelpValue("first", "Authored evidence.", "Reports") { Note = "(needs --input)" });
+            topic.CommandLine.Values.Add(new HelpValue("second", "Different authored evidence that wraps within its own column.", "Reports") { Note = "(needs --input)" });
+            string[] lines = Text(new HelpView(topic), width).Replace("\r", "").Split('\n');
+            int first = Array.FindIndex(lines, line => line.Contains("Authored evidence."));
+            int second = Array.FindIndex(lines, line => line.Contains("Different authored"));
+            int firstNote = Array.FindIndex(lines, line => line.Contains("(needs --input)"));
+            int secondNote = Array.FindIndex(lines, firstNote + 1, line => line.Contains("(needs --input)"));
+            Assert.True(first >= 0 && second > first && firstNote >= first && secondNote >= second);
+            if (width == 120) {
+                Assert.Equal(first, firstNote);
+                Assert.Equal(second, secondNote);
+                Assert.Equal(lines[firstNote].IndexOf("(needs --input)", StringComparison.Ordinal), lines[secondNote].IndexOf("(needs --input)", StringComparison.Ordinal));
+            } else {
+                Assert.True(firstNote > first && secondNote > second);
+                Assert.StartsWith(new string(' ', 10), lines[firstNote]);
+            }
+            Assert.All(lines, line => Assert.True(line.Length <= width));
+        }
+
+        [Fact]
+        public void CommandLine_ValueNote_UsesMutedToneWithoutChangingDescriptionTone() {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp { Usage = "tool report" } };
+            topic.CommandLine.Values.Add(new HelpValue("saved", "Authored description.") { Note = "(needs --input)" });
+            HelpView widget = new HelpView(topic);
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 100, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            Size size = widget.Measure(new Constraints(120, 100), context);
+            CellBuffer buffer = new CellBuffer(120, size.Height);
+            widget.Render(new Region(buffer), context);
+            string[] lines = buffer.ToPlainText().Replace("\r", "").Split('\n');
+            int y = Array.FindIndex(lines, line => line.Contains("Authored description."));
+            Assert.True(y >= 0);
+            Assert.Equal(context.Style(ThemeToken.Text), buffer[lines[y].IndexOf("Authored", StringComparison.Ordinal), y].Style);
+            Assert.Equal(context.Style(ThemeToken.Muted), buffer[lines[y].IndexOf("(needs", StringComparison.Ordinal), y].Style);
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_ValueCatalog_KeepsLiteralIdsAndOwnDescriptionColumns(int width) {
+            HelpTopic topic = new HelpTopic("tool report") { CommandLine = new CommandLineHelp {
+                Usage = "tool report [<type>...] [options]", ValuesHeading = "Report types"
+            } };
+            topic.CommandLine.Values.Add(new HelpValue("group-policy", "Policy consistency and permissions with a sufficiently long description to wrap at narrow widths.", "Directory"));
+            topic.CommandLine.Values.Add(new HelpValue("group-members", "Saved membership evidence [offline].", "Directory"));
+            string text = Text(new HelpView(topic), width);
+            Assert.Contains("Report types", text);
+            Assert.Contains("group-policy", text);
+            Assert.Contains("group-members", text);
+            Assert.Contains("[offline]", text);
+            Assert.DoesNotContain("Commands", text);
+            if (width == 45) {
+                string[] lines = text.Replace("\r", "").Split('\n');
+                int row = Array.FindIndex(lines, line => line.Contains("group-policy"));
+                Assert.StartsWith(new string(' ', 17), lines[row + 1]);
+            }
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_ColumnsPreserveSyntaxAndWrapDescriptionsIndependently(int width) {
+            HelpTopic topic = new HelpTopic("tool") {
+                Synopsis = "Inspect saved findings.",
+                CommandLine = new CommandLineHelp { Usage = "tool [command] [options]" }
+            };
+            topic.CommandLine.Commands.Add(new HelpCommand("inspect", "Inspect findings saved by a previous discovery run.", "Discovery"));
+            topic.Parameters.Add(new HelpParameter("-output") { Type = "path", Required = true, Description = "Write the resulting report to this destination.", Default = "report.html" });
+            topic.Parameters[0].Aliases.Add("-o");
+            topic.Parameters.Add(new HelpParameter("-an-unusually-long-option") { Type = "path", Description = "Keep the complete syntax." });
+            topic.Examples.Add(new HelpExample(null, "tool inspect --output report.html"));
+
+            string text = Text(new HelpView(topic), width);
+            Assert.Contains("tool [command] [options]", text);
+            Assert.Contains("Discovery", text);
+            Assert.Contains("-o, --output <path>", text);
+            Assert.Equal(1, text.Split(new[] { "Required." }, StringSplitOptions.None).Length - 1);
+            Assert.Contains("--an-unusually-long-option <path>", text);
+            Assert.Contains("[default: report.html]", System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " "));
+            Assert.Contains("Examples", text);
+            string[] lines = text.Replace("\r", "").Split('\n');
+            int command = Array.FindIndex(lines, l => l.Contains("inspect") && l.Contains("Inspect findings"));
+            Assert.True(command >= 0);
+            if (width == 45) Assert.StartsWith(new string(' ', 11), lines[command + 1]);
+        }
+
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void CommandLine_GroupsShareDescriptionColumnAndSeparateHeadings(int width) {
+            HelpTopic topic = new HelpTopic("tool") { CommandLine = new CommandLineHelp { Usage = "tool [command] [options]" } };
+            topic.CommandLine.Commands.Add(new HelpCommand("long-command", "First description", "First group"));
+            topic.CommandLine.Commands.Add(new HelpCommand("short", "Second description", "Second group"));
+            topic.Parameters.Add(new HelpParameter("-quiet") { Description = "Hide details", Default = "no" });
+            topic.Parameters.Add(new HelpParameter("-output") { Description = "Write output", Type = "path", Default = "report.html" });
+            string text = Text(new HelpView(topic), width);
+            string[] lines = text.Replace("\r", "").Split('\n');
+            string first = Array.Find(lines, line => line.Contains("First description"))!;
+            string second = Array.Find(lines, line => line.Contains("Second description"))!;
+            Assert.Equal(first.IndexOf("First description", StringComparison.Ordinal), second.IndexOf("Second description", StringComparison.Ordinal));
+            int group = Array.FindIndex(lines, line => line.Contains("Second group"));
+            Assert.True(string.IsNullOrWhiteSpace(lines[group - 1]));
+            Assert.DoesNotContain("[default: no]", text);
+            Assert.Contains("[default: report.html]", System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " "));
+        }
+
+        [Fact]
+        public void Table_ExplicitTitleIndent_AlignsSectionTitleWithoutChangingDefault() {
+            Table table = new Table { Title = "Per-CA", TitleIndent = 0 };
+            table.AddColumn("CA");
+            table.AddValues("Issuing CA");
+            Assert.StartsWith("Per-CA", Text(table, 45));
+            table.TitleIndent = null;
+            Assert.StartsWith(" Per-CA", Text(table, 45));
+            table.Title = "01234567890123456789";
+            table.TitleIndent = 4;
+            string firstLine = Text(table, 20).Replace("\r", "").Split('\n')[0].TrimEnd();
+            Assert.StartsWith("    0123456789", firstLine);
+            Assert.EndsWith("\u2026", firstLine);
+        }
+
         private static string Text(IWidget widget, int width) {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(width, 200, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             Size size = widget.Measure(new Constraints(width, 200), context);
@@ -31,6 +181,23 @@ namespace ConsoleMonster.Tests.HelpViews {
             topic.Examples.Add(new HelpExample(null, "Copy-Thing a b") { Remarks = "Copies a to b." });
             topic.Examples.Add(new HelpExample("Everything at once", "Copy-Thing * c -Force"));
             return topic;
+        }
+
+        [Fact]
+        public void Syntax_CommandLineArguments_RenderWithoutInventedOptionNames() {
+            HelpTopic topic = new HelpTopic("tool export");
+            HelpSyntax syntax = new HelpSyntax("tool export");
+            syntax.Parameters.Add(new HelpSyntaxParameter("path") { Named = false, Required = true });
+            syntax.Parameters.Add(new HelpSyntaxParameter("command") { Named = false });
+            syntax.Parameters.Add(new HelpSyntaxParameter("-format") { Type = "string" });
+            topic.Syntax.Add(syntax);
+            topic.Parameters.Add(new HelpParameter("path") { Named = false, Required = true, Type = "string", Position = "0" });
+
+            string text = Text(new HelpView(topic), 120);
+
+            Assert.Contains("tool export <path> [<command>] [--format <string>]", text);
+            Assert.DoesNotContain("-path", text);
+            Assert.DoesNotContain("-command", text);
         }
 
         [Fact]

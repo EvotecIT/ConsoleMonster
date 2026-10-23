@@ -258,3 +258,13 @@ Widget.TailReaderReturnedNull = Der Protokollleser hat null zurückgegeben.
 Widget.TailReaderReturnedNullEntry = Der Protokollleser hat einen null-Eintrag zurückgegeben.
 Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = {0} neue Zeilen
+
+Widget.OneWarningCount = {0} Warnung
+
+Widget.HelpUsage = Verwendung
+Widget.HelpCommands = Befehle
+Widget.HelpValues = Werte
+Widget.HelpOptions = Optionen
+Widget.HelpExamples = Beispiele
+Widget.HelpRequired = Erforderlich.
+Widget.HelpDefault = [Standard: {0}]

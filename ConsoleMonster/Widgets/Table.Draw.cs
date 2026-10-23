@@ -31,10 +31,16 @@ namespace ConsoleMonster.Widgets {
         /// <summary>
         /// Renders a long table in blocks of about <paramref name="chunkLines"/> rows: the head (title, top rule, header),
         /// then the body rows a block at a time, then the tail (total, bottom rule, footers). Column widths are computed once,
-        /// so every block lines up, and only one block of cells exists at a time.
+        /// so every block lines up, and only one block of cells exists at a time. An indivisible row may exceed the target.
         /// </summary>
         internal IEnumerable<CellBuffer> RenderChunks(int width, RenderContext context, int chunkLines) {
             TableLayout layout = ComputeLayout(width, context, true);
+            if (layout.Bands != null) {
+                foreach (Table band in layout.Bands) {
+                    foreach (CellBuffer chunk in band.RenderChunks(width, context, chunkLines)) yield return chunk;
+                }
+                yield break;
+            }
             if (layout.Record != null) {
                 Size size = layout.Record.Measure(new Constraints(width), context);
                 CellBuffer record = new CellBuffer(width, size.Height);
@@ -59,6 +65,8 @@ namespace ConsoleMonster.Widgets {
                         row.Cells = Present(_rows[row.Source], contexts);
                     }
                     FitRow(row, layout, context);
+                    // Do not let a following group or wrapped row push an existing block past its target.
+                    if (end > index && lines + row.Height > chunkLines) break;
                     lines += layout.Rows[end].Height;
                     end++;
                 }
@@ -156,8 +164,9 @@ namespace ConsoleMonster.Widgets {
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
             bool section = GroupHeadersAsRows && firstRow < layout.Rows.Count && layout.Rows[firstRow].Kind == TableRowKind.Group;
             if (!string.IsNullOrEmpty(Title)) {
-                StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
-                region.Write(boxed ? 1 : 0, y++, title);
+                int indent = Math.Max(0, Math.Min(region.Width - 1, TitleIndent ?? (boxed ? 1 : 0)));
+                StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), Math.Max(0, region.Width - indent), context.Ellipsis);
+                region.Write(indent, y++, title);
             }
             if (boxed && !(mergeFirstGroup && !ShowHeader)) {
                 DrawRule(region, y++, layout, box.TopLeft, section && !ShowHeader ? box.Horizontal : box.TopJoint, box.TopRight, box.Horizontal, border);

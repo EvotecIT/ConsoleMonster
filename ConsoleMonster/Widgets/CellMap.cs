@@ -145,7 +145,7 @@ namespace ConsoleMonster.Widgets {
                 case StatusKind.Pending:
                     return Localization.WidgetLabels.Format(labels.QueuedCount, number);
                 case StatusKind.Warn:
-                    return Localization.WidgetLabels.Format(labels.WarningCount, number);
+                    return Localization.WidgetLabels.Format(labels.Warnings(count), number);
                 default:
                     return number + " " + labels.StatusWord(state).ToLower(context.Culture);
             }

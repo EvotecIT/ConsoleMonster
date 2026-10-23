@@ -11,7 +11,7 @@ namespace ConsoleMonster.Widgets {
     /// A hierarchy with guide lines (<c>├──</c>, <c>└──</c>, <c>│</c> on Full/Basic; <c>|--</c> on Ascii). Guides use the
     /// border colour so the labels carry the attention. Long labels are truncated with an ellipsis.
     /// </summary>
-    public sealed class Tree : IWidget {
+    public sealed partial class Tree : IWidget {
         /// <summary>Creates a tree.</summary>
         /// <param name="rootLabel">The root label (markup), or <c>null</c> to show only the children as top-level nodes.</param>
         public Tree(string? rootLabel = null) {
@@ -24,6 +24,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Whether the root label is shown.</summary>
         public bool ShowRoot { get; set; }
+
+        /// <summary>Wrap labels, values and notes with a hanging indent instead of shortening them (default false).</summary>
+        public bool WrapLabels { get; set; }
 
         /// <summary>Adds a top-level node.</summary>
         /// <param name="label">The label (markup).</param>
@@ -41,6 +44,10 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
+            if (WrapLabels) {
+                int wrappedHeight = WrappedLines(constraints.MaxWidth, context).Count;
+                return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? wrappedHeight : Math.Min(wrappedHeight, constraints.MaxHeight));
+            }
             List<TreeRow> rows = Flatten(context);
             Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             int width = 0;
@@ -53,6 +60,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
+            if (WrapLabels) {
+                List<StyledLine> wrapped = WrappedLines(region.Width, context);
+                for (int y = 0; y < wrapped.Count && y < region.Height; y++) region.Write(0, y, wrapped[y]);
+                return;
+            }
             List<TreeRow> rows = Flatten(context);
             Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             Style guide = context.Style(ThemeToken.Border);

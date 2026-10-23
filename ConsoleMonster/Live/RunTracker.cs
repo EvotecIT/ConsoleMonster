@@ -110,7 +110,7 @@ namespace ConsoleMonster.Live {
     /// </summary>
     public sealed class RunTracker {
         private readonly object _gate = new object();
-        private readonly StatusKind[] _states;
+        private readonly List<StatusKind> _states;
         private readonly Dictionary<int, RunActivity> _running = new Dictionary<int, RunActivity>();
         private readonly List<RunFailure> _failures = new List<RunFailure>();
         private readonly Func<TimeSpan> _clock;
@@ -120,7 +120,7 @@ namespace ConsoleMonster.Live {
         /// <param name="total">The number of items.</param>
         /// <param name="clock">The run clock, or null for a stopwatch started now.</param>
         public RunTracker(int total, Func<TimeSpan>? clock = null) {
-            _states = new StatusKind[Math.Max(0, total)];
+            _states = new List<StatusKind>(new StatusKind[Math.Max(0, total)]);
             if (clock == null) {
                 Stopwatch watch = Stopwatch.StartNew();
                 clock = () => watch.Elapsed;
@@ -129,14 +129,28 @@ namespace ConsoleMonster.Live {
         }
 
         /// <summary>The number of items.</summary>
-        public int Total => _states.Length;
+        public int Total { get { lock (_gate) { return _states.Count; } } }
+
+        /// <summary>Adds a pending item to a run whose work is discovered incrementally.</summary>
+        /// <returns>The new item's zero-based index.</returns>
+        /// <exception cref="InvalidOperationException">The run has already finished.</exception>
+        public int Add() {
+            lock (_gate) {
+                if (_finished.HasValue) {
+                    throw new InvalidOperationException("Cannot add items to a completed run.");
+                }
+                int index = _states.Count;
+                _states.Add(StatusKind.Pending);
+                return index;
+            }
+        }
 
         /// <summary>An item started.</summary>
         /// <param name="index">The item's position (0-based).</param>
         /// <param name="label">Its label.</param>
         public void Started(int index, string label) {
             lock (_gate) {
-                if (index < 0 || index >= _states.Length) {
+                if (index < 0 || index >= _states.Count) {
                     return;
                 }
                 _states[index] = StatusKind.Running;
@@ -152,7 +166,7 @@ namespace ConsoleMonster.Live {
         /// <param name="timedOut">Whether it ran out of time.</param>
         public void Finished(int index, StatusKind outcome, string label, string? message = null, bool timedOut = false) {
             lock (_gate) {
-                if (index < 0 || index >= _states.Length) {
+                if (index < 0 || index >= _states.Count) {
                     return;
                 }
                 _states[index] = outcome;
@@ -166,7 +180,7 @@ namespace ConsoleMonster.Live {
         /// <summary>The run ended: items never started count as skipped and the clock stops.</summary>
         public void Complete() {
             lock (_gate) {
-                for (int i = 0; i < _states.Length; i++) {
+                for (int i = 0; i < _states.Count; i++) {
                     if (_states[i] == StatusKind.Pending || _states[i] == StatusKind.Running) {
                         _states[i] = StatusKind.Skip;
                     }
@@ -182,7 +196,7 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 List<RunActivity> running = new List<RunActivity>(_running.Values);
                 running.Sort((a, b) => a.Started.CompareTo(b.Started));
-                return new RunSnapshot((StatusKind[])_states.Clone(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue);
+                return new RunSnapshot(_states.ToArray(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue);
             }
         }
     }

@@ -170,7 +170,7 @@ namespace ConsoleMonster.Live {
                 Localization.WidgetLabels.Format(labels.FailedCount, snapshot.Failed.ToString(CultureInfo.InvariantCulture))
             };
             if (snapshot.Warned > 0) {
-                parts.Add(Localization.WidgetLabels.Format(labels.WarningCount, snapshot.Warned.ToString(CultureInfo.InvariantCulture)));
+                parts.Add(Localization.WidgetLabels.Format(labels.Warnings(snapshot.Warned), snapshot.Warned.ToString(CultureInfo.InvariantCulture)));
             }
             if (snapshot.Skipped > 0) {
                 parts.Add(Localization.WidgetLabels.Format(labels.SkippedCount, snapshot.Skipped.ToString(CultureInfo.InvariantCulture)));

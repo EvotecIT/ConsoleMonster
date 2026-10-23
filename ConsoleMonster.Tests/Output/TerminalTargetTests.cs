@@ -15,6 +15,27 @@ using Xunit;
 namespace ConsoleMonster.Tests.Output {
     /// <summary>Targets: scoped and explicit output, live sessions, prompts and status helpers.</summary>
     public sealed class TerminalTargetTests {
+        [Fact]
+        public void UseProfilePolicy_PreservesTargetPromptCaptureAndDynamicSize() {
+            RecordingTarget target = new RecordingTarget(TerminalProfile.Fixed(45, 20, ColorDepth.TrueColor, GlyphTier.Full), "End Enter");
+            using (Terminal.Use(target)) {
+                using (Terminal.UseProfilePolicy(p => TerminalProfile.Fixed(p.Width, p.Height, ColorDepth.None, p.Glyphs))) {
+                    Assert.Same(target, Terminal.Target);
+                    Assert.Equal(ColorDepth.None, Terminal.GetCurrentProfile().ColorDepth);
+                    int width = 60;
+                    using (Terminal.UseProfilePolicy(p => p.WithSize(width, p.Height))) {
+                        Assert.Equal(60, Terminal.GetCurrentProfile().Width);
+                        width = 90;
+                        Assert.Equal(90, Terminal.GetCurrentProfile().Width);
+                    }
+                    Assert.Equal(45, Terminal.GetCurrentProfile().Width);
+                    Assert.Equal("second", new SelectPrompt<string>("Choose", new[] { "first", "second" }).Show());
+                    Assert.NotNull(target.Screens.LastFrame);
+                }
+                Assert.Equal(ColorDepth.TrueColor, Terminal.GetCurrentProfile().ColorDepth);
+            }
+        }
+
         private static Table Servers() {
             return new Table().AddColumn("Server").AddColumn("State").AddValues("SRV01", StatusKind.Pass).AddValues("SRV02", StatusKind.Fail);
         }

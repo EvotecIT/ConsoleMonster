@@ -16,6 +16,9 @@ namespace ConsoleMonster.Widgets {
         private TableLayout ComputeLayout(int maxWidth, RenderContext context, bool deferFit = false) {
             Prepare();
             PresenterContext presenter = Presentation.CreateContext(context);
+            if (AlwaysCards && _rows.Count > 0) {
+                return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
+            }
             if (RecordViewRows > 0 && _rows.Count > 0 && _rows.Count <= RecordViewRows && _columns.Count > 2) {
                 return new TableLayout(TableMode.Record) { Record = BuildRecordView(presenter) };
             }
@@ -54,7 +57,13 @@ namespace ConsoleMonster.Widgets {
             for (int c = 0; c < count; c++) {
                 visible.Add(c);
             }
-            if (_rows.Count > 0 && (AlwaysCards || (CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth))) {
+            if (KeepAllColumns && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
+                List<Table> bands = BuildColumnBands(maxWidth, minimum, gap);
+                Rows widgets = new Rows();
+                foreach (Table band in bands) widgets.Add(band);
+                return new TableLayout(TableMode.Grid) { Record = widgets, Bands = bands };
+            }
+            if (_rows.Count > 0 && CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
             // Hide columns by ascending priority (ties: rightmost first) until the minimums fit; the key column stays.
@@ -92,7 +101,7 @@ namespace ConsoleMonster.Widgets {
             for (int v = 0; v < visible.Count; v++) {
                 int c = visible[v];
                 layout.Alignments[v] = _columns[c].Alignment ?? (stats != null ? stats.Alignment(c) ?? AutomaticAlignment(c, rows) : AutomaticAlignment(c, rows));
-                layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
+                layout.HeaderLines[v] = ShowHeader ? Fit(new List<StyledLine> { headers[c] }, widths[v], WrapHeaders ? ColumnOverflow.Wrap : ColumnOverflow.Truncate, 0, context) : new List<StyledLine>();
                 layout.HeaderHeight = Math.Max(layout.HeaderHeight, layout.HeaderLines[v].Count);
             }
             foreach (TableLayoutRow row in rows) {

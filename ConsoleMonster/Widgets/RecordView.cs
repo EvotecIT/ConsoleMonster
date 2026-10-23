@@ -68,6 +68,16 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>Adds a strongly typed raw value, preserving literal strings instead of implicitly converting them to markup cells.</summary>
+        /// <typeparam name="T">The value type.</typeparam>
+        /// <param name="label">The label (plain text).</param>
+        /// <param name="value">The raw value.</param>
+        /// <param name="presenter">The presenter, or null for automatic.</param>
+        /// <param name="rules">Tone rules, or null.</param>
+        /// <returns>This instance.</returns>
+        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) =>
+            AddField(label, (object?)value, presenter, rules);
+
         /// <summary>Adds a field with a raw value, formatted by a presenter.</summary>
         /// <param name="label">The label (plain text).</param>
         /// <param name="value">The value.</param>

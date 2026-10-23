@@ -48,6 +48,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A title shown above the table (markup).</summary>
         public string? Title { get; set; }
 
+        /// <summary>Optional grid-title indentation in cells; null retains the border-aligned default. Record and card views retain their own title layout.</summary>
+        public int? TitleIndent { get; set; }
+
         /// <summary>A caption shown below the table (markup, muted).</summary>
         public string? Caption { get; set; }
 
@@ -56,6 +59,12 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Whether the header row is shown (default true).</summary>
         public bool ShowHeader { get; set; } = true;
+
+        /// <summary>Wrap column headings instead of shortening them (default false).</summary>
+        public bool WrapHeaders { get; set; }
+
+        /// <summary>Keep all columns by rendering consecutive grids with the key repeated when the full grid cannot fit.</summary>
+        public bool KeepAllColumns { get; set; }
 
         /// <summary>
         /// Whether a separator row is drawn under the header (default true). When false the header is underlined instead,

@@ -18,6 +18,9 @@ namespace ConsoleMonster.Help {
         /// <summary>The one-line summary, or null.</summary>
         public string? Synopsis { get; set; }
 
+        /// <summary>Optional compact command-line layout; null retains the PowerShell help layout.</summary>
+        public CommandLineHelp? CommandLine { get; set; }
+
         /// <summary>A note shown muted under the name (for example that only partial help is installed), or null.</summary>
         public string? Notice { get; set; }
 
@@ -73,12 +76,12 @@ namespace ConsoleMonster.Help {
     /// <summary>A parameter as it appears in a syntax line.</summary>
     public sealed class HelpSyntaxParameter {
         /// <summary>Creates a syntax parameter.</summary>
-        /// <param name="name">The name without the dash.</param>
+        /// <param name="name">The supplied name. With Named enabled the renderer adds one dash; use <c>-output</c> to display <c>--output</c>.</param>
         public HelpSyntaxParameter(string name) {
             Name = name ?? string.Empty;
         }
 
-        /// <summary>The name without the dash.</summary>
+        /// <summary>The supplied name. With Named enabled the renderer adds one dash; use <c>-output</c> to display <c>--output</c>.</summary>
         public string Name { get; }
 
         /// <summary>The value type (for example <c>string[]</c>), or null for a switch.</summary>
@@ -89,18 +92,24 @@ namespace ConsoleMonster.Help {
 
         /// <summary>Whether its name may be left out (a position is given).</summary>
         public bool Positional { get; set; }
+
+        /// <summary>Whether the syntax includes a name with one renderer-added dash (default true). Supply <c>-output</c> for <c>--output</c>. False renders only the positional value placeholder.</summary>
+        public bool Named { get; set; } = true;
     }
 
     /// <summary>A parameter's details for the parameter table.</summary>
     public sealed class HelpParameter {
         /// <summary>Creates a parameter.</summary>
-        /// <param name="name">The name without the dash.</param>
+        /// <param name="name">The supplied name. With Named enabled the renderer adds one dash; use <c>-output</c> to display <c>--output</c>.</param>
         public HelpParameter(string name) {
             Name = name ?? string.Empty;
         }
 
-        /// <summary>The name without the dash.</summary>
+        /// <summary>The supplied name. With Named enabled the renderer adds one dash; use <c>-output</c> to display <c>--output</c>.</summary>
         public string Name { get; }
+
+        /// <summary>Whether the renderer adds one dash (default true). Supply <c>-output</c> for <c>--output</c>; false keeps a command-line positional argument unprefixed.</summary>
+        public bool Named { get; set; } = true;
 
         /// <summary>The type, or null.</summary>
         public string? Type { get; set; }
