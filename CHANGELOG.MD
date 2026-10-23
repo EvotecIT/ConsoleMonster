@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- `Show-ConsoleObject` explores nested members with lazy expansion, breadcrumbs, search and keyboard selection. `-PassThru` returns the selected value, and `-PassThru Path` returns its PowerShell expression. Redirected and non-interactive sessions print the static inspector.
 - HTML and SVG frame titles reserve space after the window dots, truncate with an ellipsis and retain the full title as a tooltip. Very narrow frames keep all three dots visible and hide titles that cannot fit.
 - `Out-ConsoleChart` draws horizontal bars, histograms and grouped sparklines from pipeline values or selected properties. Stable value sorting and Top limits, signed bars, whole-number histogram edges and numerical text fallback share the core `PipelineChart` API.
 - Live tails highlight navigation keys, show a warning-colored paused-history state with applied new-line counts, and hide zero discarded-history counts. Source timestamps use the same compact time column at every width, include dates across retained source days, and accept an explicit `Watch-ConsoleLog -TimestampFormat` or core option.
