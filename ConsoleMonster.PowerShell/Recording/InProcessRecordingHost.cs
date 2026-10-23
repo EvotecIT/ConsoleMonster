@@ -15,6 +15,7 @@ namespace ConsoleMonster.PowerShell {
         private readonly SessionRecorder _recorder;
         private readonly RecordingUi _ui;
         private bool _exit;
+        private int _exitCode;
         private InProcessRecordingHost(PSHost parent, SessionRecorder recorder) {
             _parent = parent; _recorder = recorder; _ui = new RecordingUi(parent.UI, recorder);
         }
@@ -43,7 +44,12 @@ namespace ConsoleMonster.PowerShell {
                         }
                     }
                 }
+                recorder.Stop();
                 if (recorder.LimitReached) { command.Host.UI.WriteWarningLine("The recording reached MaxBytes."); }
+                if (host._exitCode != 0) {
+                    command.WriteError(new ErrorRecord(new InvalidOperationException("The recorded child exited with code " + host._exitCode + "."),
+                        "ConsoleRecordingChildFailed", ErrorCategory.OperationStopped, recorder.Path));
+                }
                 return recorder.Path;
             }
         }
@@ -69,7 +75,7 @@ namespace ConsoleMonster.PowerShell {
         public override PSHostUserInterface UI => _ui;
         public override CultureInfo CurrentCulture => _parent.CurrentCulture;
         public override CultureInfo CurrentUICulture => _parent.CurrentUICulture;
-        public override void SetShouldExit(int exitCode) { _exit = true; }
+        public override void SetShouldExit(int exitCode) { _exitCode = exitCode; _exit = true; }
         public override void EnterNestedPrompt() { throw new NotSupportedException("Nested prompts are unavailable in the recording fallback."); }
         public override void ExitNestedPrompt() { _exit = true; }
         public override void NotifyBeginApplication() { }

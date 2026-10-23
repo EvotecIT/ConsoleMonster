@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Common PowerShell argument translation and terminal relay for recording commands.</summary>
     public abstract class ConsoleRecordingCommand : PSCmdlet, IDisposable {
         private SessionRecorder? _recorder;
+        private RecordingOutputRelay? _relay;
         private volatile bool _stopping;
         /// <summary>Whether PowerShell cancelled this command.</summary>
         protected bool IsStopping => _stopping;
@@ -60,22 +61,25 @@ namespace ConsoleMonster.PowerShell {
         }
         /// <summary>Runs a PTY and drains host output on the pipeline thread.</summary>
         protected string Run(SessionRecordingOptions options, bool interactive) {
-            ConcurrentQueue<string> output = new ConcurrentQueue<string>();
+            RecordingOutputRelay output = _relay = new RecordingOutputRelay();
+            Task? completion = null;
             string? title = null;
             TerminalInputRelay? input = null;
             try {
                 try { title = Host.UI.RawUI.WindowTitle; Host.UI.RawUI.WindowTitle = "● REC " + options.Name; } catch (Exception error) when (error is IOException || error is NotSupportedException || error is NotImplementedException) { }
                 if (interactive && Console.IsInputRedirected) { throw new InvalidOperationException("Interactive recording needs a terminal. Use Invoke-ConsoleRecording for scripts."); }
-                _recorder = SessionRecorder.Start(options, text => output.Enqueue(text));
+                _recorder = SessionRecorder.Start(options, output.Receive);
+                // Finalization joins the reader. Keep the pipeline draining while that reader can be backpressured.
+                completion = Task.Run(() => _recorder.WaitForExit(output.Token));
                 if (interactive) { input = new TerminalInputRelay(); }
                 int width = options.Width, height = options.Height;
                 bool warned = false;
                 System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
-                while (!_recorder.HasExited && !_stopping) {
+                while (!completion.IsCompleted && !_stopping) {
                     if (clock.Elapsed > options.Timeout) { throw new TimeoutException("The recorded child exceeded TimeoutSeconds."); }
-                    Drain(output);
+                    output.Drain(Host.UI.Write);
                     if (title != null) { Host.UI.RawUI.WindowTitle = "● REC " + options.Name; }
-                    if (interactive) {
+                    if (interactive && !_recorder.HasExited) {
                         string bytes = input!.ReadAvailable();
                         if (bytes.Length > 0) { _recorder.SendInput(bytes); }
                         int newWidth = Console.WindowWidth, newHeight = Console.WindowHeight;
@@ -84,23 +88,27 @@ namespace ConsoleMonster.PowerShell {
                     if (_recorder.LimitReached && !warned) { WriteWarning("The recording reached MaxBytes. The child is still running; further output is not recorded."); warned = true; }
                     Thread.Sleep(20);
                 }
-                if (_stopping) { _recorder.Stop(); } else { _recorder.WaitForExit(); }
-                Drain(output);
+                if (_stopping) { output.Stop(); _recorder.Stop(); }
+                try { completion.GetAwaiter().GetResult(); }
+                catch (OperationCanceledException) when (_stopping) { }
+                while (output.Drain(Host.UI.Write)) { }
                 if (_recorder.LimitReached && !warned) { WriteWarning("The recording reached MaxBytes and was finalized at the cap."); }
                 if (_recorder.ExitCode != 0 && !_stopping) { WriteError(new ErrorRecord(new InvalidOperationException("The recorded child exited with code " + _recorder.ExitCode + "."), "ConsoleRecordingChildFailed", ErrorCategory.OperationStopped, _recorder.Path)); }
                 return _recorder.Path;
             } finally {
+                output.Stop();
                 _recorder?.Dispose();
+                // Observe the worker after releasing a blocked producer, including when host writes fail.
+                if (completion != null) { try { completion.GetAwaiter().GetResult(); } catch (Exception) { /* Original pipeline error or cancellation is already being propagated. */ } }
+                _relay = null;
+                output.Dispose();
                 input?.Dispose();
                 if (title != null) { try { Host.UI.RawUI.WindowTitle = title; } catch (IOException) { } }
             }
         }
-        private void Drain(ConcurrentQueue<string> output) {
-            while (output.TryDequeue(out string? text)) { Host.UI.Write(text); }
-        }
         /// <inheritdoc/>
-        protected override void StopProcessing() { _stopping = true; _recorder?.Stop(); }
+        protected override void StopProcessing() { _stopping = true; _relay?.Stop(); _recorder?.Stop(); }
         /// <summary>Releases this command's recorder, including after cancellation.</summary>
-        public void Dispose() { _recorder?.Dispose(); }
+        public void Dispose() { _relay?.Stop(); _recorder?.Dispose(); }
     }
 }
