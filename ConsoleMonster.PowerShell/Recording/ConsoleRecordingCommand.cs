@@ -74,9 +74,8 @@ namespace ConsoleMonster.PowerShell {
                 if (interactive) { input = new TerminalInputRelay(); }
                 int width = options.Width, height = options.Height;
                 bool warned = false;
-                System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
                 while (!completion.IsCompleted && !_stopping) {
-                    if (clock.Elapsed > options.Timeout) { throw new TimeoutException("The recorded child exceeded TimeoutSeconds."); }
+                    // The worker enforces child lifetime; this loop must also drain after a successful exit.
                     output.Drain(Host.UI.Write);
                     if (title != null) { Host.UI.RawUI.WindowTitle = "● REC " + options.Name; }
                     if (interactive && !_recorder.HasExited) {
