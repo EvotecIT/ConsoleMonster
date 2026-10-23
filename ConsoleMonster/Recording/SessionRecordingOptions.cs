@@ -29,6 +29,8 @@ namespace ConsoleMonster.Sessions {
         public TimeSpan Timeout { get; set; } = TimeSpan.FromHours(24);
         /// <summary>Additional regular expressions, applied before any recording data is written.</summary>
         public IList<string> Redact { get; } = new List<string>();
+        /// <summary>Visible replacement for matched output. The default is [REDACTED]; control characters are not allowed.</summary>
+        public string RedactionText { get; set; } = "[REDACTED]";
         /// <summary>Child working directory.</summary>
         public string WorkingDirectory { get; set; } = System.Environment.CurrentDirectory;
         /// <summary>Explicitly use the limited in-process PowerShell capture adapter.</summary>
@@ -40,6 +42,8 @@ namespace ConsoleMonster.Sessions {
             }
             if (MaxBytes < 1024) { throw new ArgumentOutOfRangeException(nameof(MaxBytes)); }
             if (IdleLimit < TimeSpan.Zero || Timeout <= TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(Timeout)); }
+            if (string.IsNullOrEmpty(RedactionText) || RedactionText.Length > 128) { throw new ArgumentException("RedactionText must contain 1 to 128 visible characters.", nameof(RedactionText)); }
+            foreach (char value in RedactionText) { if (char.IsControl(value)) { throw new ArgumentException("RedactionText cannot contain control characters.", nameof(RedactionText)); } }
             if (!Directory.Exists(WorkingDirectory)) { throw new DirectoryNotFoundException(WorkingDirectory); }
             if (Shell != null && Shell.IndexOf('\0') >= 0) { throw new ArgumentException("Shell contains a NUL character."); }
             foreach (string argument in Arguments) { if (argument == null || argument.IndexOf('\0') >= 0) { throw new ArgumentException("Child arguments cannot contain NUL characters."); } }

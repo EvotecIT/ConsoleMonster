@@ -13,7 +13,7 @@ Runs the script in an isolated child process. Caller variables and functions are
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-Path <string>] [-Folder <string>] [-Name <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-MaxBytes <long>] [-IdleLimit <double>] [-InProcess] [-TimeoutSeconds <int>] [<CommonParameters>]
+Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-Path <string>] [-Folder <string>] [-Name <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-RedactionText <string>] [-MaxBytes <long>] [-IdleLimit <double>] [-InProcess] [-TimeoutSeconds <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -204,6 +204,22 @@ Possible values:
 Required: False
 Position: named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RedactionText
+Visible replacement for matched output (default [REDACTED]). No control characters.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: '[REDACTED]'
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

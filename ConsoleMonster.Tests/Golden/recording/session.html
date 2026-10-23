@@ -9,29 +9,54 @@
 <style>
 html,body{margin:0;background:#3a3a3f}
 body{padding:20px}
-/* ConsoleMonster recording player: controls and screen rows. The screen grid, theme variables and cell styles come
-   with each recording's data (scoped to its player). */
-.cm-export.cm-player-host{display:inline-block;max-width:100%;outline:none}
-.cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-chrome-fg)}
+/* Screen colours and cell metrics come from the recording's scoped export theme. */
+.cm-export.cm-player-host{--cm-player-ink:var(--cm-fg,var(--cm-ink,var(--cm-chrome-fg)));--cm-player-bg:var(--cm-bg,var(--cm-surface,#fff));display:inline-block;max-width:100%;outline:none}
+.cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-player-ink)}
 .cm-export .cm-screen .cm-line{display:inline;height:auto;vertical-align:baseline}
-.cm-export .cm-controls{display:flex;align-items:center;gap:10px;padding:6px 12px 10px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg);background:var(--cm-bg)}
-.cm-export .cm-controls button{font:inherit;min-width:64px;padding:3px 10px;border-radius:6px;border:1px solid var(--cm-chrome-fg);background:transparent;color:inherit;cursor:pointer}
-.cm-export .cm-controls .cm-track{position:relative;display:flex;align-items:center;flex:1;min-width:80px}
-.cm-export .cm-controls input[type=range]{flex:1;min-width:0;width:100%}
-.cm-export .cm-controls.cm-has-marks{padding-bottom:26px}
-.cm-export .cm-marks{position:absolute;left:0;right:0;top:100%;height:18px}
-.cm-export .cm-controls .cm-mark{position:absolute;top:2px;min-width:0;padding:1px 5px;border:0;border-left:2px solid var(--cm-chrome-fg);border-radius:0;font-size:11px;line-height:1.2;white-space:nowrap}
-.cm-export .cm-controls .cm-mark.cm-mark--end{transform:translateX(-100%);border-left:0;border-right:2px solid var(--cm-chrome-fg)}
-.cm-export .cm-controls select{font:inherit;background:transparent;color:inherit;border:1px solid var(--cm-chrome-fg);border-radius:6px}
-.cm-export .cm-controls option{color:#000}
-.cm-export .cm-time{font-variant-numeric:tabular-nums;min-width:90px;text-align:right}
-.cm-export .cm-error{padding:12px;font:13px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg)}
-.cm-export .cm-controls{flex-wrap:wrap}
-.cm-export .cm-controls .cm-chapters{max-width:160px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px 12px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-player-ink);background:var(--cm-player-bg)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{display:flex;align-items:center;gap:8px;min-width:0}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:1 1 200px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{flex:none;margin-left:auto}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 button,.cm-export.cm-player-host .cm-controls.cm-controls-v2 summary,.cm-export.cm-player-host .cm-controls.cm-controls-v2 select{box-sizing:border-box;font:inherit;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;cursor:pointer}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 button,.cm-export.cm-player-host .cm-controls.cm-controls-v2 summary{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:30px;height:30px;padding:3px 7px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-play{flex:none;font-size:14px!important}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-track{position:relative;display:flex;align-items:center;flex:1;min-width:70px;height:30px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 input[type=range]{margin:0;width:100%;min-width:0;accent-color:var(--cm-player-ink)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-marks{position:absolute;inset:0 8px;display:block;height:30px;margin:0;pointer-events:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark.cm-mark--end{position:absolute;top:7px;width:12px;min-width:0;min-height:0;height:16px;margin:0;padding:0;transform:translateX(-50%);border:0;background:transparent;border-radius:2px;pointer-events:auto}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark::before{content:'';width:2px;height:12px;background:var(--cm-player-ink);box-shadow:0 0 0 1px var(--cm-player-bg)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tool{position:relative}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:10;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);padding:6px 8px;border:1px solid currentColor;border-radius:5px;background:var(--cm-player-bg);color:var(--cm-player-ink);font:12px/1.3 system-ui,sans-serif;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:hover::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:focus-visible::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:focus-within::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-feedback::after{opacity:1;visibility:visible}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark:first-child::after{left:0;transform:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark--end::after{left:auto;right:0;transform:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 select{height:30px;padding:3px 4px;max-width:130px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 option{color:#111;background:#fff;font-size:12px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-time{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-tool{display:inline-flex;align-items:center}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-icon{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help{position:relative}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary{list-style:none;font-weight:700}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary::-webkit-details-marker{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body{position:absolute;z-index:11;right:0;bottom:calc(100% + 8px);width:240px;padding:12px;border:1px solid currentColor;border-radius:8px;line-height:1.9;background:var(--cm-player-bg);color:var(--cm-player-ink);box-shadow:0 4px 18px #0003}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body kbd{font:11.5px monospace;padding:1px 3px;border:1px solid currentColor;border-radius:3px}
+.cm-export .cm-error{padding:12px;font:13px system-ui,sans-serif;color:var(--cm-player-ink)}
 .cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
 .cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
-.cm-export .cm-controls .cm-mark{width:8px;height:8px;overflow:hidden;color:transparent;padding:0;border-left-color:var(--cm-chrome-fg);border-right-color:var(--cm-chrome-fg)}
-@media(max-width:600px){.cm-export .cm-controls .cm-track{flex-basis:55%}.cm-export .cm-marks{display:none}.cm-export .cm-controls.cm-has-marks{padding-bottom:10px}}
+@media(max-width:600px){
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2{flex-direction:column;align-items:stretch;gap:4px;padding:8px 10px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:auto;width:100%}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{justify-content:flex-end;width:100%}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-time{margin-right:auto}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tool-label{display:none}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-tool{justify-content:center;width:30px;height:30px;border:1px solid currentColor;border-radius:6px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-icon{display:block;font-size:20px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapters{position:absolute;inset:0;width:100%;opacity:0}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body{width:230px}
+}
+
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help[open] summary::after{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary::after{left:auto;right:0;transform:none}
 </style>
 </head>
 <body>
@@ -153,11 +178,12 @@ body{padding:20px}
             lines.push(el('span', 'cm-line', screen));
             current.push(-1);
         }
-        var controls = el('div', 'cm-controls', frame);
-        var play = el('button', 'cm-play', controls);
+        var controls = el('div', 'cm-controls cm-controls-v2', frame);
+        var transport = el('div', 'cm-transport', controls);
+        var play = el('button', 'cm-play cm-tool', transport);
         play.type = 'button';
-        play.textContent = 'Play';
-        var track = el('span', 'cm-track', controls);
+        playLabel(false);
+        var track = el('span', 'cm-track', transport);
         var seek = el('input', 'cm-seek', track);
         seek.type = 'range';
         seek.min = '0';
@@ -165,7 +191,7 @@ body{padding:20px}
         seek.step = '10';
         seek.value = '0';
         seek.setAttribute('aria-label', 'Position');
-        // Chapter marks: a labelled button per marker under the position bar, placed at its share of the recording.
+        // Chapter ticks overlay the range track; names appear on hover and keyboard focus.
         var marks = data.markers && data.markers.length ? el('span', 'cm-marks', track) : null;
         if (marks) {
             controls.classList.add('cm-has-marks');
@@ -174,18 +200,20 @@ body{padding:20px}
                 var share = total > 0 ? at / total : 0;
                 var mark = el('button', 'cm-mark', marks);
                 mark.type = 'button';
-                mark.textContent = String(marker[1] || '');
-                mark.setAttribute('aria-label', 'Go to ' + mark.textContent);
+                mark.setAttribute('data-tooltip', String(marker[1] || 'Chapter'));
+                mark.setAttribute('aria-label', 'Go to ' + (marker[1] || 'Chapter'));
                 mark.style.left = (share * 100).toFixed(2) + '%';
-                // The tick is the label's left edge, at the marker's moment; near the end the label hangs left of a right-hand tick.
+                // End tooltips hang inward so they stay inside a narrow player.
                 if (share > 0.85) {
                     mark.className += ' cm-mark--end';
                 }
                 mark.addEventListener('click', function () { self.seek(at); });
             });
         }
-        var time = el('span', 'cm-time', controls);
-        var rate = el('select', 'cm-speed', controls);
+        var tools = el('div', 'cm-tools', controls);
+        var time = el('span', 'cm-time', tools);
+        var rate = el('select', 'cm-speed', tools);
+        rate.title = 'Playback speed';
         rate.setAttribute('aria-label', 'Speed');
         [0.5, 1, 2, 4].forEach(function (value) {
             var option = el('option', null, rate);
@@ -194,7 +222,12 @@ body{padding:20px}
             option.selected = value === 1;
         });
         if (data.markers && data.markers.length) {
-            var chapters = el('select', 'cm-chapters', controls);
+            var chapterTool = el('span', 'cm-chapter-tool cm-tool', tools);
+            chapterTool.setAttribute('data-tooltip', 'Chapters');
+            var chapterIcon = el('span', 'cm-chapter-icon', chapterTool);
+            chapterIcon.textContent = '\u2637';
+            chapterIcon.setAttribute('aria-hidden', 'true');
+            var chapters = el('select', 'cm-chapters', chapterTool);
             chapters.setAttribute('aria-label', 'Chapters');
             var heading = el('option', null, chapters);
             heading.textContent = 'Chapters';
@@ -208,22 +241,52 @@ body{padding:20px}
                 if (chapters.value !== '') { self.seek(+chapters.value); }
             });
         }
-        var copy = el('button', 'cm-copy', controls);
+        var copy = el('button', 'cm-copy cm-tool', tools);
         copy.type = 'button';
-        copy.textContent = 'Copy text';
+        var copyTimer = 0;
+        copyLabel('Copy');
         copy.addEventListener('click', function () {
             var text = screen.textContent || '';
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(function () { copy.textContent = 'Copied'; }, selectText);
+                navigator.clipboard.writeText(text).then(function () { copied('Copied'); }, selectText);
             } else { selectText(); }
         });
+        function copyLabel(label) {
+            copy.innerHTML = '<span aria-hidden="true">\u2398</span><span class="cm-tool-label"></span>';
+            copy.lastChild.textContent = label;
+            copy.setAttribute('aria-label', label);
+            copy.setAttribute('data-tooltip', label);
+        }
+        function copied(label) {
+            if (destroyed) { return; }
+            window.clearTimeout(copyTimer);
+            copyLabel(label);
+            copy.classList.add('cm-feedback');
+            copyTimer = window.setTimeout(function () {
+                copyLabel('Copy'); copy.classList.remove('cm-feedback'); copyTimer = 0;
+            }, 1600);
+        }
         function selectText() {
             var range = document.createRange();
             range.selectNodeContents(screen);
             var selection = window.getSelection();
             if (selection) { selection.removeAllRanges(); selection.addRange(range); }
-            copy.textContent = 'Text selected';
+            copied('Text selected');
         }
+        function playLabel(paused) {
+            play.textContent = paused ? '\u2161' : '\u25b6';
+            play.setAttribute('aria-label', paused ? 'Pause' : 'Play');
+            play.setAttribute('data-tooltip', paused ? 'Pause' : 'Play');
+        }
+        var help = el('details', 'cm-help', tools);
+        var helpToggle = el('summary', 'cm-tool', help);
+        helpToggle.textContent = '?';
+        helpToggle.setAttribute('aria-label', 'Keyboard shortcuts');
+        helpToggle.setAttribute('data-tooltip', 'Keyboard shortcuts');
+        var helpBody = el('div', 'cm-help-body', help);
+        helpBody.innerHTML = '<strong>Keyboard shortcuts</strong><br><kbd>Space</kbd> Play / pause<br>' +
+            '<kbd>\u2190</kbd> <kbd>\u2192</kbd> Back / forward 5 seconds<br><kbd>1</kbd>\u2013<kbd>9</kbd> Jump to chapter<br>' +
+            '<kbd>Home</kbd> <kbd>End</kbd> Start / finish<br><kbd>Esc</kbd> Close help';
 
         function at(ms) {
             var lo = 0, hi = frames.length - 1;
@@ -301,7 +364,7 @@ body{padding:20px}
                 want = false;
                 stopTimer();
                 playing = false;
-                play.textContent = 'Play';
+                playLabel(false);
                 return;
             }
             if (now - lastLabel >= 1000) {
@@ -323,7 +386,7 @@ body{padding:20px}
             }
             playing = true;
             last = performance.now();
-            play.textContent = 'Pause';
+            playLabel(true);
             schedule(last);
         }
 
@@ -345,14 +408,14 @@ body{padding:20px}
                 draw();
             }
             want = true;
-            play.textContent = 'Pause';
+            playLabel(true);
             resume();
         };
 
         self.pause = function () {
             want = false;
             suspend();
-            play.textContent = 'Play';
+            playLabel(false);
         };
 
         self.seek = function (ms) {
@@ -400,6 +463,7 @@ body{padding:20px}
         self.destroy = function () {
             if (destroyed) { return; }
             destroyed = true;
+            window.clearTimeout(copyTimer);
             want = false;
             suspend();
             if (observer) {
@@ -449,7 +513,8 @@ body{padding:20px}
             }
         });
         function onKeyDown(e) {
-            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select'))) {
+            if (e.key === 'Escape') { help.open = false; return; }
+            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select,summary'))) {
                 return;
             }
             if (e.key === ' ' || e.key === 'k') {
@@ -458,6 +523,9 @@ body{padding:20px}
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 self.seek(t + (e.key === 'ArrowLeft' ? -5000 : 5000));
+            } else if (/^[1-9]$/.test(e.key) && data.markers && data.markers[+e.key - 1]) {
+                e.preventDefault();
+                self.seek(+data.markers[+e.key - 1][0]);
             } else if (e.key === 'Home' || e.key === 'End') {
                 e.preventDefault();
                 self.seek(e.key === 'Home' ? 0 : total);

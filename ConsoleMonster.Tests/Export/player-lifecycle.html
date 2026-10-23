@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><title>Player lifecycle regression checks</title>
 <style>body{font:16px system-ui;max-width:900px;margin:32px auto}li{padding:6px}.pass{color:green}.fail{color:#b00}</style>
+<link rel="stylesheet" href="../../ConsoleMonster/Export/Assets/player.css">
+<link rel="stylesheet" href="../../Website/themes/consolemonster/assets/pages.css">
 <h1>Player lifecycle regression checks</h1><ul id="results"></ul><div id="fixture"></div>
 <script src="../../ConsoleMonster/Export/Assets/player.js"></script>
 <script>
@@ -18,9 +20,9 @@
     const old=api.mount(host,data); old.setVisible(true); old.destroy();
     const current=api.mount(host,data); current.setVisible(true);
     host.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true}));
-    assert(api.players.length===1 && host.querySelectorAll('.cm-controls').length===1 && host.querySelector('.cm-play').textContent==='Pause','destroy/remount keeps one player and one keyboard handler');
+    assert(api.players.length===1 && host.querySelectorAll('.cm-controls').length===1 && host.querySelector('.cm-play').getAttribute('aria-label')==='Pause','destroy/remount keeps one player and one keyboard handler');
     current.pause(); old.play();
-    assert(host.querySelector('.cm-play').textContent==='Play','a destroyed instance cannot restart');
+    assert(host.querySelector('.cm-play').getAttribute('aria-label')==='Play','a destroyed instance cannot restart');
     current.destroy();
     const source=document.createElement('script'); source.type='application/json'; source.id='recording'; source.textContent=JSON.stringify(data); fixture.appendChild(source);
     host.setAttribute('data-cm-recording','#recording');
@@ -60,7 +62,7 @@
       tick(800);
       assert(host.querySelector('.cm-screen').textContent==='middle','4x playback displays the intermediate sparse frame on time');
       tick(2000);
-      assert(host.querySelector('.cm-screen').textContent==='last' && host.querySelector('.cm-play').textContent==='Play','4x playback reaches the final frame and stops at the scaled duration');
+      assert(host.querySelector('.cm-screen').textContent==='last' && host.querySelector('.cm-play').getAttribute('aria-label')==='Play','4x playback reaches the final frame and stops at the scaled duration');
       fast.destroy();
       host.setAttribute('data-cm-autoplay','');
       autoplay=api.mount(host,data,{start:data.duration});autoplay.setVisible(true);
@@ -83,6 +85,41 @@
       host.removeAttribute('data-cm-autoplay');host.removeAttribute('data-cm-start');
       window.setTimeout=realTimeout;window.clearTimeout=realClearTimeout;performance.now=realNow;
     }
+    const chapters=api.mount(host,{...data,duration:20000,markers:[[1000,'Inspect'],[8000,'Build'],[15000,'Report']]});
+    const choose=host.querySelector('.cm-chapters');
+    choose.value='8000';choose.dispatchEvent(new Event('change'));
+    assert(chapters.state().time===8000,'chapter select seeks to the named chapter');
+    host.dispatchEvent(new KeyboardEvent('keydown',{key:'3',bubbles:true}));
+    assert(chapters.state().time===15000,'number keys seek to the corresponding chapter');
+    host.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));
+    assert(chapters.state().time===10000,'arrow keys move five seconds');
+    const marks=host.querySelectorAll('.cm-mark');marks[0].click();
+    assert(chapters.state().time===1000 && marks[0].getAttribute('data-tooltip')==='Inspect' && marks[0].getAttribute('aria-label')==='Go to Inspect','track ticks seek and expose accessible chapter names');
+    const help=host.querySelector('.cm-help');
+    const helpSpace=new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true});
+    help.querySelector('summary').dispatchEvent(helpSpace);
+    assert(!helpSpace.defaultPrevented && !chapters.state().wanted,'help retains native Space activation without toggling playback');
+    help.open=true;
+    host.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    assert(!help.open && help.textContent.includes('Jump to chapter'),'keyboard help names chapter shortcuts and closes with Escape');
+    const clipboard=Object.getOwnPropertyDescriptor(navigator,'clipboard');
+    Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>Promise.resolve()}});
+    try {
+      host.querySelector('.cm-copy').click();await Promise.resolve();
+      assert(host.querySelector('.cm-copy').getAttribute('aria-label')==='Copied','copy confirms successful clipboard write');
+      await new Promise(resolve=>setTimeout(resolve,1700));
+      assert(host.querySelector('.cm-copy').getAttribute('aria-label')==='Copy' && !host.querySelector('.cm-copy').classList.contains('cm-feedback'),'copy confirmation resets to Copy');
+    } finally {
+      if(clipboard) Object.defineProperty(navigator,'clipboard',clipboard);else delete navigator.clipboard;
+      chapters.destroy();
+    }
+    host.classList.add('cm-replay');host.style.width='350px';
+    const embedded=api.mount(host,{...data,duration:20000,markers:[[1000,'Inspect'],[19000,'Report']]});
+    try {
+      const track=host.querySelector('.cm-track').getBoundingClientRect();
+      const ticks=[...host.querySelectorAll('.cm-mark')];
+      assert(ticks.every(mark=>{const rect=mark.getBoundingClientRect();return getComputedStyle(mark).position==='absolute' && Math.abs(rect.top+rect.height/2-track.top-track.height/2)<1;}) && getComputedStyle(host.querySelector('.cm-marks')).marginTop==='0px','chapter ticks stay on the scrubber when embedded in legacy replay styles');
+    } finally { embedded.destroy();host.classList.remove('cm-replay');host.style.removeProperty('width'); }
     document.title='PASS: Player lifecycle regression checks';
   } catch(error) { document.title='FAIL: Player lifecycle regression checks'; console.error(error); }
 })();

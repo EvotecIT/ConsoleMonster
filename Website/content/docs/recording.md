@@ -2,6 +2,7 @@
 title: Recording and replay
 description: Record a whole terminal session, including native commands, to asciicast v2 and export an HTML player, animated SVG, text, Markdown or a final frame.
 slug: recording
+toc: false
 order: 8
 group: live
 card: app
@@ -13,7 +14,20 @@ Record a whole terminal session with `Start-ConsoleRecording`, or make a demo fr
 
 {{< cm-session-recording >}}
 
-This is a real run of the [complete recording script](/examples/recording/record-session.ps1), made with `Invoke-ConsoleRecording`. The machine name is redacted, and the sample API key becomes `[REDACTED]` before the cast is written. Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). Nothing is uploaded by the recorder.
+This is a real PowerShell session made with `Invoke-ConsoleRecording`: inspect a synthetic Git repository, build with live progress, then show a ConsoleMonster table, a failing command and a redacted token. The **Inspect**, **Build** and **Report** chapters jump to each part. Hover or focus a tick on the scrubber to see its name; **?** shows keyboard shortcuts.
+
+The [recording script](/examples/recording/record-session.ps1) uses a small [typing driver](/examples/recording/TypedSession.cs) to send paced input to a real child terminal. PowerShell draws the prompt and echoes each key. The prompt uses the fixed demo label `PS C:\demo>`; all repository data lives under the output folder. The token is synthetic and becomes `API_TOKEN=••••••• (redacted)` before the cast is written.
+
+To reproduce it, install Git and ConsoleMonster, then download both files into an empty folder:
+
+```powershell
+Install-Module ConsoleMonster -Scope CurrentUser
+Invoke-WebRequest https://consolemonster.dev/examples/recording/record-session.ps1 -OutFile ./record-session.ps1
+Invoke-WebRequest https://consolemonster.dev/examples/recording/TypedSession.cs -OutFile ./TypedSession.cs
+./record-session.ps1 -OutputDirectory ./session-demo
+```
+
+Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). Nothing is uploaded by the recorder.
 
 ## Record a shell
 
@@ -76,6 +90,8 @@ Invoke-ConsoleRecording {
 ```
 
 Redaction runs before writing the cast or its chapter metadata. Patterns apply to complete output records, including secrets split across reads or colour codes. A record ends at a newline, carriage return or recording control. Records longer than 64 KiB without a boundary are suppressed; a pattern timeout masks the record. Patterns cannot recognize every possible secret, so review a recording before sharing it.
+
+`-RedactionText` chooses a visible replacement, such as seven bullets. The default is `[REDACTED]`. Match only the value with `-Redact` when you want surrounding context to stay visible. Replacement text cannot contain control characters. In C#, set `SessionRecordingOptions.RedactionText`.
 
 `-IdleLimit` compresses longer gaps; zero keeps original timing. `-MaxBytes` caps the cast, including its header. At the cap the cast stays valid and a warning appears; the child keeps running while further output is omitted. `-TimeoutSeconds` stops the recorded child after the specified time. All files stay local.
 

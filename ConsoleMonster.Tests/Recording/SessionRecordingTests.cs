@@ -15,6 +15,35 @@ namespace ConsoleMonster.Tests.Sessions {
         private SessionRecordingOptions Options(string name = "session") => new SessionRecordingOptions { Path = System.IO.Path.Combine(_folder, name + ".cast"), Width = 30, Height = 6, InProcess = true };
 
         [Fact]
+        public void Redaction_CustomLabelPreservesContextAndStyles() {
+            SessionRecordingOptions options = Options("label");
+            options.Width = 60;
+            options.RedactionText = "•••••••";
+            options.Redact.Add("synthetic-value");
+            using (SessionRecorder recorder = SessionRecorder.Start(options)) {
+                recorder.CapturePowerShellOutput("\u001b[90mAPI_TOKEN=synthetic-");
+                Thread.Sleep(30);
+                recorder.CapturePowerShellOutput("value (redacted)\u001b[0m\r\n");
+                recorder.AddMarker("Report");
+            }
+            SessionRecording recording = SessionRecording.Read(options.Path!);
+            Assert.DoesNotContain("synthetic-", File.ReadAllText(options.Path!));
+            Assert.Contains("API_TOKEN=••••••• (redacted)", recording.Export(ExportFormat.Text));
+            Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(8), recording.FinalFrame()[0, 0].Style.Foreground);
+            Assert.Contains("Report", recording.ExportPlayerData());
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("\u001b[31m")]
+        [InlineData("mask\r\n")]
+        public void Redaction_RejectsEmptyOrControlBearingLabels(string label) {
+            SessionRecordingOptions options = Options("invalid-label"); options.RedactionText = label;
+            Assert.Throws<ArgumentException>(() => SessionRecorder.Start(options));
+            Assert.False(File.Exists(options.Path!));
+        }
+
+        [Fact]
         public void Writer_AutoNamesUseTheConfiguredFolderAndDescribeTheRecording() {
             SessionRecordingOptions options = Options();
             options.Path = null;
@@ -230,7 +259,6 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecording recording = GoldenRecording();
             Golden.Match("recording/session.html", recording.Export(ExportFormat.Html, ExportOptions()));
             Golden.Match("recording/session.svg", recording.Export(ExportFormat.Svg, ExportOptions()));
-            Assert.Contains("Copy text", recording.Export(ExportFormat.Html));
             Assert.Contains("Working 50%", recording.ExportPlayerData());
             Assert.Contains("Chapters", recording.Export(ExportFormat.Html));
             Assert.DoesNotContain("</script><img", recording.ExportPlayerData());

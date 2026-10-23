@@ -30,7 +30,7 @@ namespace ConsoleMonster.Sessions {
         public SessionCastWriter(SessionRecordingOptions options, string mode) {
             options.Validate();
             _options = options;
-            _redactor = new RecordingRedactor(options.Redact);
+            _redactor = new RecordingRedactor(options.Redact, options.RedactionText);
             Mode = mode;
             Path = System.IO.Path.GetFullPath(options.Path ?? System.IO.Path.Combine(options.Folder, "ConsoleRecording-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture) + "-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".cast"));
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);

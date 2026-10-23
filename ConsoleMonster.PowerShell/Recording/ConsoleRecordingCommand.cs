@@ -35,6 +35,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] [ValidateRange(2, 1000)] public int Height { get; set; } = 30;
         /// <summary><para type="description">Additional regular expressions to redact from recorded output.</para></summary>
         [Parameter] public string[] Redact { get; set; } = Array.Empty<string>();
+        /// <summary><para type="description">Visible replacement for matched output (default [REDACTED]). No control characters.</para></summary>
+        [Parameter, PSDefaultValue(Value = "[REDACTED]")] public string RedactionText { get; set; } = "[REDACTED]";
         /// <summary><para type="description">Maximum cast bytes. At the cap recording stops with a warning.</para></summary>
         [Parameter] [ValidateRange(1024, long.MaxValue)] public long MaxBytes { get; set; } = 64 * 1024 * 1024;
         /// <summary><para type="description">Longest playback idle gap in seconds; zero keeps original timing.</para></summary>
@@ -48,7 +50,7 @@ namespace ConsoleMonster.PowerShell {
         protected SessionRecordingOptions Options() {
             SessionRecordingOptions options = new SessionRecordingOptions {
                 Path = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path),
-                Name = Name, Shell = Shell ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName,
+                Name = Name, Shell = Shell ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName, RedactionText = RedactionText,
                 Width = Width, Height = Height, MaxBytes = MaxBytes, IdleLimit = TimeSpan.FromSeconds(IdleLimit),
                 WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path, InProcess = InProcess.IsPresent, Timeout = TimeSpan.FromSeconds(TimeoutSeconds)
             };

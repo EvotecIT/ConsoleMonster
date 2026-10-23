@@ -6090,6 +6090,18 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RedactionText</maml:name>
+          <maml:description>
+            <maml:para>Visible replacement for matched output (default [REDACTED]). No control characters.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>'[REDACTED]'</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>ScriptBlock</maml:name>
           <maml:description>
@@ -6307,6 +6319,18 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>RedactionText</maml:name>
+        <maml:description>
+          <maml:para>Visible replacement for matched output (default [REDACTED]). No control characters.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>'[REDACTED]'</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>ScriptBlock</maml:name>
@@ -27606,6 +27630,18 @@ Read-ConsoleForm $form</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>RedactionText</maml:name>
+          <maml:description>
+            <maml:para>Visible replacement for matched output (default [REDACTED]). No control characters.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>'[REDACTED]'</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shell</maml:name>
           <maml:description>
             <maml:para>Shell executable. The default is the current PowerShell executable.</maml:para>
@@ -27739,6 +27775,18 @@ Read-ConsoleForm $form</dev:code>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>RedactionText</maml:name>
+        <maml:description>
+          <maml:para>Visible replacement for matched output (default [REDACTED]). No control characters.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>'[REDACTED]'</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shell</maml:name>

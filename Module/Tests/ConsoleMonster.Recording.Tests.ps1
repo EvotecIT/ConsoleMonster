@@ -3,6 +3,18 @@ Describe 'Whole-session recording' {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
     }
 
+    It 'uses a visible redaction label without losing surrounding text' {
+        $html = Join-Path $TestDrive 'redaction-label.html'
+        $mask = ([char] 0x2022).ToString() * 7
+        Invoke-ConsoleRecording {
+            Write-Host 'API_TOKEN=synthetic-value (redacted)' -ForegroundColor DarkGray
+        } -Destination $html -Width 60 -Height 4 -Redact 'synthetic-value' -RedactionText $mask | Out-Null
+        $cast = [IO.Path]::ChangeExtension($html, '.cast')
+        Get-Content $cast -Raw | Should -Not -Match 'synthetic-value'
+        $text = Export-ConsoleRecording -Path $cast -Format Text
+        $text | Should -Match ([regex]::Escape("API_TOKEN=$mask (redacted)"))
+    }
+
     It 'records a real child and exports every session format' {
         $html = Join-Path $TestDrive 'native.html'
         Invoke-ConsoleRecording {

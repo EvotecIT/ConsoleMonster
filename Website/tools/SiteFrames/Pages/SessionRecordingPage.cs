@@ -12,6 +12,7 @@ namespace SiteFrames.Pages {
             string cast = Path.Combine(site.Captures, "recording", "session.cast");
             if (!File.Exists(cast)) { throw new FileNotFoundException("Run Website/examples/recording/record-session.ps1 and save its cast under captures/recording.", cast); }
             SessionRecording recording = SessionRecording.Read(cast);
+            site.Write(site.Static("examples/recording/TypedSession.cs"), Site.ReadText(Path.Combine(site.Website, "examples", "recording", "TypedSession.cs")));
             site.Write(site.Static("examples/recording/record-session.ps1"), Site.ReadText(Path.Combine(site.Website, "examples", "recording", "record-session.ps1")));
             RecordingExportOptions options = new RecordingExportOptions { Theme = ExportTheme.Dark, WindowChrome = true, Title = "Console session" };
             string data = recording.ExportPlayerData(options);
