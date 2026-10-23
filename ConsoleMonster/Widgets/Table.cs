@@ -63,6 +63,9 @@ namespace ConsoleMonster.Widgets {
         /// </summary>
         public bool HeaderSeparator { get; set; } = true;
 
+        /// <summary>Whether group labels occupy full-width section rows instead of labelled border rules (default false).</summary>
+        public bool GroupHeadersAsRows { get; set; }
+
         /// <summary>Whether the table fills the available width (spare width goes to the flexible column).</summary>
         public bool Expand { get; set; }
 

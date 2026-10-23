@@ -36,6 +36,7 @@
         <EmbeddedResource Include="Formatting\OutDefaultProxy.ps1" />
         <EmbeddedResource Include="Help\HelpProxy.ps1" />
         <EmbeddedResource Include="Formatting\ReadLineOptions.ps1" />
+        <EmbeddedResource Include="Formatting\EverydayBuiltInViews.ps1" />
     </ItemGroup>
 
     <ItemGroup>

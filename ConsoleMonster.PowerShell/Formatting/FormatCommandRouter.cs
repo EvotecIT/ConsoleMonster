@@ -37,7 +37,19 @@ namespace ConsoleMonster.PowerShell {
                 if (command == null || !string.Equals(command.Name, "Out-Default", StringComparison.OrdinalIgnoreCase) || (!native && !shim)) {
                     return false;
                 }
-                return IsUnrecordedHost(cmdlet);
+                return IsUntranscribed(cmdlet);
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                return false;
+            }
+        }
+
+        /// <summary>Requires readable, inactive native transcription state before changing host presentation.</summary>
+        internal static bool IsUntranscribed(PSCmdlet cmdlet) {
+            try {
+                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
+                object? transcripts = Member(data, "Transcripts");
+                object? system = Member(data, "SystemTranscript");
+                return transcripts is ICollection list && list.Count == 0 && system == null;
             } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
                 return false;
             }

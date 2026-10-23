@@ -187,9 +187,9 @@ Get-Command Get-Item, Get-ChildItem, gci | Format-ConsoleTable -Width 120
 Get-Module ConsoleMonster | Format-ConsoleTable -Width 120
 '@
         $text | Should -Match 'CommandType\s+\S\s+Name\s+\S\s+Version\s+\S\s+Source'
-        $text | Should -Match 'Cmdlet\s+\S\s+Get-Item\s'
-        $text | Should -Match 'Alias\s+\S\s+gci -> Get-ChildItem'
-        $text | Should -Match 'ModuleType\s+\S\s+Version\s+\S\s+Name\s+\S\s+Commands'
+        $text | Should -Match '\[Cmdlet\]\s+\S\s+Get-Item\s'
+        $text | Should -Match '\[Alias\]\s+\S\s+gci -> Get-ChildItem'
+        $text | Should -Match 'ModuleType\s+\S\s+Version\s+\S\s+Name\s+\S\s+Path\s+\S\s+Commands\s+\S\s+Variables'
     }
 
     It 'shows events, addresses and volumes with the built-in views on Windows' -Skip:(-not ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop')) {

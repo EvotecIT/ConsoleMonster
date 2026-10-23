@@ -86,6 +86,12 @@ namespace SiteFrames {
                     return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."));
                 case "native-styling-all":
                     return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."), useAll: true);
+                case "builtins":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Review(new Site(website), Path.GetFullPath(only));
+                case "builtins-proof":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Verify(new Site(website), Path.GetFullPath(only));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
                     Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");

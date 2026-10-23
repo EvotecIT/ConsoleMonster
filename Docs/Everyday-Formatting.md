@@ -195,6 +195,52 @@ PowerShell's public view metadata can omit custom group headers. Named views wit
 
 The direct-host routing check supports PowerShell 5.1 and 7. It reads the engine's downstream pipe and transcription state conservatively because the public invocation length alone cannot distinguish assignment from host output.
 
+## Everyday built-in views
+
+Member tables show `TypeName: ...` above each type. Within a type, full-width section rows separate methods, properties and events. Labels use the accent colour, followed by a subdued count, such as `Property · 1`. Header column lines stop above a section row without stubs and resume on the next data row, including at narrow widths.
+
+Enable default formatting to use the registered views for members, commands, modules and history. Add `FormatCommands` when you also want ConsoleMonster to render explicit `Format-Table` and `Format-List` commands at the host.
+
+```powershell
+Import-Module ConsoleMonster
+Enable-ConsoleFormatting -Feature Output, FormatCommands
+
+'synthetic' | Get-Member -Name Length, Substring
+Get-Command Get-Date, Get-Item
+Get-Module
+Get-History -Count 5
+
+# Explicit selections still choose their own columns, labels and values.
+Get-Command Get-Date | Format-Table Name, @{ Label = 'Origin'; Expression = { $_.Source } }
+Disable-ConsoleFormatting
+```
+
+The default member view groups by `MemberType`. Signatures keep their complete text, with types muted and method names highlighted. Commands group by `ModuleName`; their command type is a bracketed chip, including without colour. Modules show their version, path, exported command count and exported variable count. Paths use the shared OSC 8 link presenter where the terminal supports links, with literal text elsewhere. History shows the id, elapsed duration, execution status and highlighted PowerShell command text. The objects and their properties remain unchanged.
+
+With `FormatCommands`, PowerShell continues to choose its native columns and labels. For example, a native module table keeps `ExportedCommands` rather than acquiring the default ConsoleMonster view's `Path`, `Commands` and `Variables` columns. The built-in presentation decorates those native-selected fields and supplies member/module grouping when no explicit properties or named view were requested. Explicit `-Property`, `-GroupBy`, calculated labels and `FormatString` values remain authoritative. A wildcard matching no properties keeps PowerShell's native empty shape. Wide output keeps its existing native layout.
+
+`Register-ConsoleView` can override any built-in registration. `-NoBuiltIn` excludes built-ins from default output. Disabling formatting restores native display; piped, assigned, redirected, recorded formatting records, jobs and transcripts retain native output while formatting is enabled.
+
+For .NET programs, use the same shared presenters on ordinary widgets:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Presenters;
+using ConsoleMonster.Widgets;
+
+var commands = new Table { RecordViewRows = 0 };
+commands.AddColumn(new TableColumn("CommandType") { Presenter = CellPresenters.Chip });
+commands.AddColumn("Name");
+commands.AddValues("Function", "Get-DemoItem");
+Terminal.Write(commands);
+
+var members = new Table { RecordViewRows = 0 };
+members.AddColumn("Name");
+members.AddColumn(new TableColumn("Definition") { Presenter = CellPresenters.MemberSignature });
+members.AddValues("Substring", "string Substring(int startIndex)");
+Terminal.Write(members);
+```
+
 ## Export a native view explicitly
 
 Use the same adapter independently of session formatting when you need a widget for export or composition.

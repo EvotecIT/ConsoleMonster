@@ -6,7 +6,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false) {
+        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -14,7 +14,15 @@ namespace ConsoleMonster.PowerShell {
             Group = group;
             Title = title;
             IsBuiltIn = builtIn;
+            NativePresentation = nativePresentation;
+            GroupHeadersAsRows = groupHeadersAsRows;
         }
+
+        // These registrations also decorate native-selected columns; user property/view overrides stay engine-owned.
+        internal bool NativePresentation { get; }
+
+        /// <summary>Uses the table's full-width group section rows.</summary>
+        internal bool GroupHeadersAsRows { get; }
 
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }
@@ -80,7 +88,7 @@ namespace ConsoleMonster.PowerShell {
     /// reach the host to Out-ConsoleDefault, which shows registered types through ConsoleMonster and passes everything else
     /// to PowerShell's own Out-Default. Only output that would be displayed on the console is affected.
     /// </summary>
-    internal static class ConsoleFormatting {
+    internal static partial class ConsoleFormatting {
         private static readonly object Gate = new object();
         private static Dictionary<string, ConsoleViewRegistration> Views => FormattingSessionState.Current.Views;
         private static readonly Dictionary<string, ConsoleViewRegistration> BuiltIns = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
@@ -248,18 +256,7 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
-            // Get-Command: every kind of command in one table.
-            object[] commands = { Hashtable("CommandType", ScriptBlock.Create("[string] $_.CommandType"), null), Hashtable("Name", ScriptBlock.Create("if ($_.CommandType -eq 'Alias') { $_.DisplayName } else { $_.Name }"), null), Hashtable("Version", ScriptBlock.Create("if ($_.Version -and $_.Version -ne [version] '0.0') { [string] $_.Version }"), null), "Source" };
-            foreach (string type in new[] { "System.Management.Automation.CmdletInfo", "System.Management.Automation.FunctionInfo", "System.Management.Automation.FilterInfo", "System.Management.Automation.AliasInfo", "System.Management.Automation.ApplicationInfo", "System.Management.Automation.ExternalScriptInfo", "System.Management.Automation.ConfigurationInfo" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, commands, null, "Command", null, true));
-            }
-            // Get-Module: the version and how many commands each module exports.
-            AddBuiltIn(new ConsoleViewRegistration("System.Management.Automation.PSModuleInfo", ConsoleViewKind.Table, new object[] {
-                Hashtable("ModuleType", ScriptBlock.Create("[string] $_.ModuleType"), null),
-                Hashtable("Version", ScriptBlock.Create("[string] $_.Version"), null),
-                "Name",
-                Hashtable("Commands", ScriptBlock.Create("$_.ExportedCommands.Count"), null)
-            }, null, "Module", null, true));
+            RegisterEverydayBuiltIns();
             // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
             AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
                 Hashtable("TimeCreated", ScriptBlock.Create("$_.TimeCreated"), "Date"),

@@ -103,7 +103,10 @@ namespace ConsoleMonster.PowerShell.Binding {
             }
             ConsoleViewRegistration? view = ConsoleFormatting.Find(item);
             if (view != null) {
-                return "view:" + view.Group;
+                string key = "view:" + view.Group;
+                // A named table can contain its own row groups; a different title starts the next table.
+                return view.Title != null && view.GroupBy != null
+                    ? key + "\n" + PSFormatting.SharedTitle(new[] { item }, view.Title) : key;
             }
             object? prepared = ValueShaper.Prepare(item, options);
             if (prepared is System.Collections.IDictionary) {
