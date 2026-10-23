@@ -30,6 +30,7 @@ and themes. Omitting `HelpTopic.CommandLine` retains the normal PowerShell-style
   keyboard input, recording and changing console dimensions remain available. As with other terminal scopes,
   dispose nested scopes in reverse order within the flow that created them.
 - Raw `RecordView.AddField` values remain literal and use shared presenters. Use explicit markup cells when markup
-  is intended. Numeric form defaults accept the same numeric values as submitted form values.
+  is intended. Numeric form defaults preserve their precision when submitted unchanged. Whole-number fields accept
+  integer grouping in the current culture and reject fractional input.
 
 No host-specific command names, parser dependencies or execution adapters are built into these APIs.

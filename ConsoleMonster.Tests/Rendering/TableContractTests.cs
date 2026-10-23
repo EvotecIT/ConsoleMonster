@@ -128,7 +128,8 @@ namespace ConsoleMonster.Tests.Rendering {
             Table table = new Table { Title = "Per-CA" };
             table.AddColumn("CA");
             table.AddColumn("Issued");
-            table.AddValues("CA[1]", 42);
+            table.AddColumn("Pending");
+            table.AddValues("CA[1]", 42, 3);
 
             string text = Render(table, 100);
 

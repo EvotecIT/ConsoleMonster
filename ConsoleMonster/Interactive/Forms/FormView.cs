@@ -865,7 +865,7 @@ namespace ConsoleMonster.Interactive {
                     return;
                 }
                 if (Field is NumberField number) {
-                    Editor.Text = ConsoleMonster.Interactive.Field.Normalize(Field.Value) is decimal d ? number.Format(d) : string.Empty;
+                    Editor.Text = ConsoleMonster.Interactive.Field.Normalize(Field.Value) is decimal d ? number.FormatInput(d) : string.Empty;
                 } else {
                     Editor.Text = Field.Value as string ?? string.Empty;
                 }

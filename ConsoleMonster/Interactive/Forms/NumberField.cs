@@ -30,6 +30,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The step of Up and Down.</summary>
         public decimal Step { get; set; } = 1;
 
+        /// <summary>Lossless editable text; compact display formatting must never change a submitted value.</summary>
+        internal string FormatInput(decimal value) => DecimalInput.Format(value, WholeNumber, CultureInfo.CurrentCulture);
+
         internal string Format(decimal value) => value.ToString(WholeNumber ? "0" : "0.############", CultureInfo.CurrentCulture);
 
         /// <inheritdoc />
@@ -41,8 +44,7 @@ namespace ConsoleMonster.Interactive {
             if (trimmed.Length == 0) {
                 return null;
             }
-            NumberStyles styles = WholeNumber ? NumberStyles.Integer | NumberStyles.AllowThousands : NumberStyles.Number;
-            if (!decimal.TryParse(trimmed, styles, CultureInfo.CurrentCulture, out decimal parsed) && !decimal.TryParse(trimmed, styles, CultureInfo.InvariantCulture, out parsed)) {
+            if (!DecimalInput.TryParse(trimmed, WholeNumber, CultureInfo.CurrentCulture, out decimal parsed)) {
                 return WholeNumber ? labels.NotAWholeNumber : labels.NotANumber;
             }
             value = parsed;

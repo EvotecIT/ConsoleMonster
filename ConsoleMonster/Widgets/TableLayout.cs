@@ -50,6 +50,9 @@ namespace ConsoleMonster.Widgets {
 
         internal IWidget? Record { get; set; }
 
+        /// <summary>Column grids rendered separately so streaming never buffers the whole band container.</summary>
+        internal IReadOnlyList<Table>? Bands { get; set; }
+
         internal int Gap { get; set; }
 
         /// <summary>

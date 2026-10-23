@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Widgets {
     public partial class Table {
-        private IWidget BuildColumnBands(int width, int[] minimum, int gap) {
-            Rows bands = new Rows();
+        private List<Table> BuildColumnBands(int width, int[] minimum, int gap) {
+            List<Table> bands = new List<Table>();
             int key = KeyColumn;
             List<int> columns = new List<int> { key };
             for (int c = 0; c < _columns.Count; c++) {
@@ -12,17 +11,18 @@ namespace ConsoleMonster.Widgets {
                 columns.Add(c);
                 if (columns.Count > 2 && SumOf(minimum, columns) + Overhead(columns.Count, gap) > width) {
                     columns.RemoveAt(columns.Count - 1);
-                    bands.Add(ColumnBand(columns, bands.Children.Count == 0, width, minimum, gap));
+                    bands.Add(ColumnBand(columns, bands.Count == 0, width, minimum, gap));
                     columns = new List<int> { key, c };
                 }
             }
-            if (columns.Count > 1) bands.Add(ColumnBand(columns, bands.Children.Count == 0, width, minimum, gap));
+            if (columns.Count > 1) bands.Add(ColumnBand(columns, bands.Count == 0, width, minimum, gap));
+            if (bands.Count > 0) bands[bands.Count - 1].Caption = Caption;
             return bands;
         }
 
         private Table ColumnBand(List<int> columns, bool first, int width, int[] minimum, int gap) {
             Table band = new Table {
-                Title = first ? Title : null, TitleIndent = TitleIndent, Caption = first ? Caption : null,
+                Title = first ? Title : null, TitleIndent = TitleIndent,
                 RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders,
                 Border = Border, ShowHeader = ShowHeader, HeaderSeparator = HeaderSeparator,
                 GroupHeadersAsRows = GroupHeadersAsRows,

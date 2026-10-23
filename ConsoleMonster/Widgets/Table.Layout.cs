@@ -16,6 +16,9 @@ namespace ConsoleMonster.Widgets {
         private TableLayout ComputeLayout(int maxWidth, RenderContext context, bool deferFit = false) {
             Prepare();
             PresenterContext presenter = Presentation.CreateContext(context);
+            if (AlwaysCards && _rows.Count > 0) {
+                return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
+            }
             if (RecordViewRows > 0 && _rows.Count > 0 && _rows.Count <= RecordViewRows && _columns.Count > 2) {
                 return new TableLayout(TableMode.Record) { Record = BuildRecordView(presenter) };
             }
@@ -55,9 +58,12 @@ namespace ConsoleMonster.Widgets {
                 visible.Add(c);
             }
             if (KeepAllColumns && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
-                return new TableLayout(TableMode.Grid) { Record = BuildColumnBands(maxWidth, minimum, gap) };
+                List<Table> bands = BuildColumnBands(maxWidth, minimum, gap);
+                Rows widgets = new Rows();
+                foreach (Table band in bands) widgets.Add(band);
+                return new TableLayout(TableMode.Grid) { Record = widgets, Bands = bands };
             }
-            if (_rows.Count > 0 && (AlwaysCards || (CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth))) {
+            if (_rows.Count > 0 && CardsBelow > 0 && maxWidth < CardsBelow && count > 1 && SumOf(minimum, visible) + Overhead(count, gap) > maxWidth) {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
             // Hide columns by ascending priority (ties: rightmost first) until the minimums fit; the key column stays.
