@@ -13,6 +13,7 @@ namespace ConsoleMonster.Tests.Overview {
             TaskCompletionSource<bool> release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> exited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> fastRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             List<WeakReference> observations = new List<WeakReference>();
             int busyCalls = 0;
             OverviewSectionRegistry registry = new OverviewSectionRegistry()
@@ -22,25 +23,36 @@ namespace ConsoleMonster.Tests.Overview {
                     try { await release.Task.ConfigureAwait(false); return new OverviewSection("Busy", "Busy", new[] { new OverviewItem("Result", "Synthetic") }); }
                     finally { exited.TrySetResult(true); }
                 })
-                .Register("Fast", "Fast", _ => {
+                .Register("Fast", "Fast", async _ => {
+                    await fastRelease.Task.ConfigureAwait(false);
                     OverviewItem item = new OverviewItem("Transient", "Synthetic");
                     lock (observations) { observations.Add(new WeakReference(item)); }
-                    return Task.FromResult<OverviewSection?>(new OverviewSection("Fast", "Fast", new[] { item }));
+                    return new OverviewSection("Fast", "Fast", new[] { item });
                 });
             OverviewCollector collector = new OverviewCollector(registry);
-            Task<OverviewSection?> flight = registry.Select(new[] { "Busy" }).Single().Start(TimeSpan.FromSeconds(2));
+            // Controlled flights qualify retention independently of the native probe timeout and runner scheduling.
+            Task<OverviewSection?> flight = registry.Select(new[] { "Busy" }).Single().Start(Timeout.InfiniteTimeSpan);
+            OverviewProbe fast = registry.Select(new[] { "Fast" }).Single();
             try {
                 await entered.Task;
                 for (int i = 0; i < 16; i++) {
-                    OverviewSnapshot snapshot = await collector.CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(15) });
-                    Assert.True(snapshot.Sections.Single(section => section.Name == "Busy").IsPending);
+                    fastRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    Task<OverviewSection?> observation = fast.Start(Timeout.InfiniteTimeSpan);
+                    try {
+                        OverviewSnapshot snapshot = await collector.CollectAsync(new OverviewOptions { CollectionBudget = TimeSpan.FromMilliseconds(15) });
+                        Assert.True(snapshot.Sections.Single(section => section.Name == "Busy").IsPending);
+                    } finally {
+                        // Complete each sibling explicitly after the deadline; none need win a 15 ms scheduling race.
+                        fastRelease.TrySetResult(true);
+                        await observation;
+                    }
                 }
                 Assert.Equal(1, busyCalls);
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 lock (observations) {
-                    Assert.InRange(observations.Count, 8, 16);
+                    Assert.Equal(16, observations.Count);
                     // A hanging shared flight must not retain every completed sibling's result through per-call aggregates.
                     Assert.InRange(observations.Count(reference => reference.IsAlive), 0, 2);
                 }
