@@ -44,27 +44,26 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Requires readable, inactive native transcription state before changing host presentation.</summary>
-        internal static bool IsUntranscribed(PSCmdlet cmdlet) {
-            try {
-                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
-                object? transcripts = Member(data, "Transcripts");
-                object? system = Member(data, "SystemTranscript");
-                return !(transcripts is ICollection list && list.Count == 0 && system == null);
-            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
-                return true;
-            }
-        }
+        internal static bool IsUntranscribed(PSCmdlet cmdlet) => IsUnrecorded(cmdlet.Host);
 
-        internal static bool IsTranscribing(PSCmdlet cmdlet) => !IsUntranscribed(cmdlet);
+        internal static bool IsTranscribing(PSCmdlet cmdlet) => !IsUnrecorded(cmdlet.Host);
 
-        // Shared by host-only formatting surfaces. Unknown transcription state must retain native rendering.
-        internal static bool IsUnrecordedHost(PSCmdlet cmdlet) {
-            if (!ConsoleFormatting.Displayed(cmdlet) || Terminal.GetCurrentProfile().IsContinuousIntegration) { return false; }
+        internal static bool IsUnrecordedHost(PSCmdlet cmdlet) => ConsoleFormatting.Displayed(cmdlet)
+            && !Terminal.GetCurrentProfile().IsContinuousIntegration && IsUnrecorded(cmdlet.Host);
+
+        /// <summary>Unknown transcription state retains native output.</summary>
+        internal static bool IsUnrecorded(PSHost host) {
             try {
-                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
+                object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(host.UI, null);
                 object? transcripts = Member(data, "Transcripts");
                 return transcripts is ICollection list && list.Count == 0 && Member(data, "SystemTranscript") == null;
-            } catch (Exception ex) when (!(ex is PipelineStoppedException)) { return false; }
+            } catch (Exception error) when (!(error is PipelineStoppedException)) { return false; }
         }
 
         internal static object? Member(object? value, string name) {
+            if (value == null) { return null; }
+            Type type = value.GetType();
+            return type.GetProperty(name, Flags)?.GetValue(value, null) ?? type.GetField(name, Flags)?.GetValue(value);
+        }
+    }
+}

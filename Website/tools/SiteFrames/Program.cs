@@ -16,7 +16,8 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
-                case "app-review":
+    /// <item><c>app-review [Website] [OutputDirectory]</c>: exports the live-filter application at both widths and themes.</item>
+    /// <item><c>theme-files-review [Website] [OutputDirectory]</c>: exports the portable theme examples.</item>
     /// <item><c>native-styling Website Output</c>: captures real PSReadLine and native progress at both review widths and exports their cells and restoration evidence.</item>
     /// </list>
     /// </summary>
@@ -64,11 +65,15 @@ namespace SiteFrames {
                     return Render(new Site(website), only);
                 case "capture":
                     return CaptureAll(new Site(website), only);
+                case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
+                    return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
+                case "app-review" when only != null:
+                    return AppPage.Review(new Site(website), only);
                 case "readme":
                     return Readme.Sync(new Site(website));
                 case "review-object":
                     if (only == null) {
-                        Console.Error.WriteLine("Usage: SiteFrames app-review [WebsiteRoot] [ScratchOutputDirectory]");
+                        Console.Error.WriteLine("Usage: SiteFrames review-object [WebsiteRoot] [ScratchOutputDirectory]");
                         return 2;
                     }
                     return ExplorerFigures.Review(new Site(website), only);
@@ -103,7 +108,7 @@ namespace SiteFrames {
                 case "tails-review" when only != null:
                     return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|tails-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -182,6 +187,7 @@ namespace SiteFrames {
             if (Wants(only, "help-formatting")) {
                 HelpFormattingPage.Capture(site);
             }
+            if (Wants(only, "app")) { AppPage.Capture(site); }
             if (Wants(only, "tails")) {
                 TailsPage.Capture(site);
             }
@@ -193,6 +199,8 @@ namespace SiteFrames {
             Figures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
+            ThemeFilesPage.Render(site);
+            AppPage.Render(site, hosts);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);

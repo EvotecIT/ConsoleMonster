@@ -118,10 +118,5 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
-        private sealed class WindowsTheoryAttribute : TheoryAttribute {
-            public WindowsTheoryAttribute() {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { Skip = "An isolated native Windows console is required for output-mode restoration."; }
-            }
-        }
     }
 }

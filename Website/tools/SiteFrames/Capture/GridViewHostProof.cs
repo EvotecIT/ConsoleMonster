@@ -20,7 +20,7 @@ namespace SiteFrames.Capture {
                     var environment = PowerShellRunner.Environment("dark");
                     environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Debug";
                     var chunks = PseudoConsole.Run(command, 80, 25, environment, site.Repository, TimeSpan.FromSeconds(45),
-                        readyText: name == "Captures" ? null : "GRIDVIEW_READY", keys: name == "Captures" ? null : keys);
+                        readyText: name == "Captures" ? null : "GRIDVIEW_READY", inputKeys: name == "Captures" ? null : keys);
                     string text = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray());
                     File.WriteAllText(Path.Combine(output, host.Id + "-" + name + ".ansi"), text);
                     if (!text.Contains("HOST_OK", StringComparison.Ordinal)) { throw new InvalidOperationException(host.Id + " " + name + ": receipt missing."); }
