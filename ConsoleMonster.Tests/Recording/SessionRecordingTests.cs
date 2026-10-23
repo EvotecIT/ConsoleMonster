@@ -278,6 +278,20 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
+        public void Export_StandaloneUsesTheRequestedFontForWindowAndCells() {
+            SessionRecording recording = SessionRecording.Read(new StringReader(
+                "{\"version\":2,\"width\":88,\"height\":4}\n[0,\"o\",\"\\u001b[41m████\\u001b[0m\\r\\nplain\"]\n"));
+            RecordingExportOptions options = new RecordingExportOptions { FontSize = 8 };
+            string html = recording.Export(ExportFormat.Html, options);
+            var font = System.Text.RegularExpressions.Regex.Match(html, @"\.cm-export\.cm-standalone\{[^}]*font-size:(\d+(?:\.\d+)?)px");
+            Assert.True(font.Success, "The standalone window must size itself in the configured terminal font.");
+            Assert.Equal("8", font.Groups[1].Value);
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData(options))!;
+            Assert.Contains("font-size:8px", (string)data["css"]!);
+            Assert.Contains("height:9.6px", (string)data["css"]!);
+        }
+
+        [Fact]
         public void Reader_InvalidHeaderOrEventFailsWithoutRendering() {
             foreach (string cast in new[] {
                 "{\"version\":3,\"width\":12,\"height\":4}",

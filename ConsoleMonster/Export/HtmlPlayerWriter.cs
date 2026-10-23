@@ -101,11 +101,11 @@ namespace ConsoleMonster.Export {
             html.Append(ConsoleExporter.PlayerStyles);
             // Size in the terminal's font, not the controls' system font or the host's shrink-to-fit width.
             html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)
-                .Append(";font-size:").Append(ExportText.Num(Math.Max(13, options.FontSize))).Append("px;width:calc(")
+                .Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;width:calc(")
                 .Append(recording.Width).Append("ch + ").Append(options.Padding * 2).Append("px)}")
                 .Append(".cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}")
                 .Append(".cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:")
-                .Append(ExportText.Num(Math.Max(13, options.FontSize) * options.LineHeight)).Append("px}</style>\n</head>\n<body>\n");
+                .Append(ExportText.Num(options.FontSize * options.LineHeight)).Append("px}</style>\n</head>\n<body>\n");
             html.Append("<div class=\"cm-recording cm-standalone\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
             html.Append("<script type=\"application/json\" id=\"cm-data\">").Append(data).Append("</script>\n");
             html.Append("<script>\n").Append(ConsoleExporter.PlayerScript.Replace("</script", "<\\/script")).Append("\n</script>\n</body>\n</html>\n");
