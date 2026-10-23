@@ -63,9 +63,10 @@
             $native = Convert-TestNativeView -Rows $script:members
             $nativeText = $native | Export-ConsoleFrame -Format Text -Width $width
             $nativeText | Should -Match 'TypeName: System.String'
-            $native.GroupHeadersAsRows | Should -BeTrue
-            $nativeText | Should -Match 'Method.*1'
-            $nativeText | Should -Match 'Property.*1'
+            # Format-Table keeps the selected native view's TypeName group, while Format-ConsoleTable above uses sections.
+            $native.GroupHeadersAsRows | Should -BeFalse
+            $nativeText | Should -Match 'Substring'
+            $nativeText | Should -Match 'Length'
         }
     }
 

@@ -39,10 +39,12 @@ namespace ConsoleMonster.PowerShell {
             foreach (DictionaryEntry entry in _parameters) { parameters[entry.Key] = entry.Value; }
             ConsoleViewRegistration? view = ConsoleFormatting.Find(first, ConsoleFormatting.TakeOverBuiltIns);
             bool decorate = view?.NativePresentation == true && !parameters.ContainsKey("Property") && !parameters.ContainsKey("View");
-            Presentation = decorate && _kind == "Table" ? view : null;
-            if (decorate && !parameters.ContainsKey("GroupBy") && view!.GroupBy != null) { parameters["GroupBy"] = view.GroupBy; }
+            // Resolve the selected native view before adding defaults. Its own grouping (including custom headers)
+            // must retain the native route unless the caller explicitly supplied -GroupBy.
             NativeFormatDefinition? definition = _definition = NativeFormatDefinition.Resolve(_cmdlet, _kind, first, parameters);
             if (definition == null) { return parameters; }
+            Presentation = decorate && _kind == "Table" ? view : null;
+            if (decorate && !parameters.ContainsKey("GroupBy") && view!.GroupBy != null) { parameters["GroupBy"] = view.GroupBy; }
             IReadOnlyList<BoundColumn>? presentation = decorate ? PropertyBinder.Bind(new[] { first }, view!.Property) : null;
             List<object> properties = new List<object>();
             foreach (IDictionary original in definition.Columns) {
