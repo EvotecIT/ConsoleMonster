@@ -18,6 +18,7 @@ namespace SiteFrames.Tests {
             string[] lines = File.ReadAllLines(path);
             JsonObject header = (JsonObject)JsonNode.Parse(lines[0])!;
             Assert.Equal(2, header["version"]!.GetValue<int>());
+            Assert.InRange(header["width"]!.GetValue<int>(), 100, 120);
             Assert.Contains(header["consolemonster"]!["mode"]!.GetValue<string>(), new[] { "ConPTY", "openpty" });
             JsonArray[] events = lines.Skip(1).Select(line => (JsonArray)JsonNode.Parse(line)!).ToArray();
             Assert.InRange(events.Last()[0]!.GetValue<double>(), 20, 30);
@@ -34,6 +35,11 @@ namespace SiteFrames.Tests {
             Assert.DoesNotContain("demo-session-only-value", raw);
             Assert.DoesNotContain("D:\\Dev\\", raw);
             string transcript = SessionRecording.Read(path).Export(ExportFormat.Text);
+            string[] transcriptLines = transcript.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            Assert.Contains("Build report", transcriptLines);
+            Assert.Contains("PS C:\\demo> git log --oneline --graph --color -5", transcriptLines);
+            Assert.Contains("Get-Item: Cannot find path 'C:\\demo\\missing.json' because it does not exist.", transcriptLines);
+            foreach (string result in new[] { "✓ Passed", "✓ 24 passed", "✓ Ready" }) { Assert.Contains(result, transcript); }
             foreach (string expected in new[] { "PS C:\\demo>", "git log --oneline --graph --color -5", "Document local recording", "Build report", "24 passed", "Cannot find path", "Show-DemoToken $env:API_TOKEN", "API_TOKEN=••••••• (redacted)" }) {
                 Assert.Contains(expected, transcript);
             }

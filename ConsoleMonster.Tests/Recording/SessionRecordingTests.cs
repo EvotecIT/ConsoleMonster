@@ -262,6 +262,31 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Contains("next", player);
         }
 
+        [Theory]
+        [InlineData(8)]
+        [InlineData(12)]
+        public void Player_WrapsLongLinesAtTheRecordedWidthBeforeAndAfterResize(int width) {
+            string before = new string('a', width), after = new string('c', width + 4);
+            SessionRecording recording = SessionRecording.Read(new StringReader(
+                "{\"version\":2,\"width\":" + width + ",\"height\":6}\n"
+                + "[0,\"o\",\"" + before + "tail\"]\n"
+                + "[0.1,\"r\",\"" + (width + 4) + "x6\"]\n"
+                + "[0.2,\"o\",\"\\r\\n" + after + "end\"]\n"));
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            var rows = (List<object?>)data["rows"]!;
+            var frames = (List<object?>)data["frames"]!;
+            var last = (List<object?>)frames[frames.Count - 1]!;
+            var indexes = (List<object?>)last[1]!;
+            string[] expected = { before, "tail", after, "end" };
+            Assert.Equal(expected.Length, indexes.Count);
+            for (int y = 0; y < expected.Length; y++) {
+                string html = (string)rows[int.Parse((string)indexes[y]!, System.Globalization.CultureInfo.InvariantCulture)]!;
+                string text = System.Net.WebUtility.HtmlDecode(System.Text.RegularExpressions.Regex.Replace(html, "<[^>]*>", ""));
+                Assert.Equal(expected[y], text.TrimEnd());
+            }
+            Assert.Equal((width + 4).ToString(System.Globalization.CultureInfo.InvariantCulture), data["width"]);
+        }
+
         [Fact]
         public void Export_TrimsOnlyUnusedBottomRowsAcrossAllPlaybackFrames() {
             SessionRecording recording = SessionRecording.Read(new StringReader(

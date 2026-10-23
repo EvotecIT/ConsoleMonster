@@ -66,7 +66,13 @@ async function verifyRecordingPlayer(options = {}) {
         maxScrollWidth = Math.max(maxScrollWidth, screen.scrollWidth);
     }
     if (options.fullWidth) assert(fullWidthLines > 0, 'Fixture must contain a full-width recorded line ending in Z');
-    else assert(progressFrames > 0, 'Real demo must exercise its full-width progress line');
+    else if (options.expectedRows) {
+        player.seek(data.duration);
+        await paint();
+        const actual = Array.from(screen.querySelectorAll('.cm-line'), line => line.textContent.trimEnd());
+        assert(JSON.stringify(actual) === JSON.stringify(options.expectedRows),
+            `Recorded-width wrapping/resize mismatch: ${JSON.stringify(actual)}`);
+    } else assert(progressFrames > 0, 'Real demo must exercise its full-width progress line');
     return {
         frames: data.frames.length, rightmostCells, fullWidthLines, progressFrames, tallestRows: tallest,
         font: css.fontSize, terminalWidth: screen.clientWidth, maxScrollWidth, terminalHeight: screen.clientHeight,

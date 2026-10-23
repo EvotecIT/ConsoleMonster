@@ -1,10 +1,10 @@
 ```text
 PS C:\demo> git log --oneline --graph --color -5
-* 9d407ba (HEAD -> main) Document local recording
-* 707fa26 Track build progress
-* 70cd2ed Render report table
-* 1a7ed3d Add synthetic fixtures
-* c84ca6d Start sample app
+* c5a0005 (HEAD -> main) Document local recording
+* ed6e38c Track build progress
+* 6d56a12 Render report table
+* 5272ee2 Add synthetic fixtures
+* 1471238 Start sample app
 PS C:\demo> Invoke-DemoBuild
 Build succeeded. 24 tests passed.
 PS C:\demo> Show-DemoReport

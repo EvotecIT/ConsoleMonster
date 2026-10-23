@@ -88,7 +88,7 @@ try {
         $options.Path = Join-Path $env:CM_DEMO_ROOT 'typing.cast'
         $options.Shell = (Get-Process -Id $PID).Path
         $options.WorkingDirectory = $demo
-        $options.Width = 88; $options.Height = 28
+        $options.Width = 100; $options.Height = 28
         $options.Redact.Add('demo-session-only-value')
         $options.Environment['CONSOLEMONSTER_MODE'] = 'interactive'
         $options.Environment['CONSOLEMONSTER_COLOR'] = 'truecolor'
@@ -122,7 +122,7 @@ try {
             $terminal.WaitForExit()
         } finally { $terminal.Dispose() }
 
-    } -Destination (Join-Path $OutputDirectory 'session.html') -Width 88 -Height 28 `
+    } -Destination (Join-Path $OutputDirectory 'session.html') -Width 100 -Height 28 `
         -Name ('Inspect {0} Build {0} Report' -f [char] 0xB7) -IdleLimit 0 -RedactionText (([char] 0x2022).ToString() * 7) `
         -Redact 'demo-session-only-value', ([regex]::Escape([Environment]::MachineName))
 } finally {
