@@ -76,16 +76,30 @@ namespace ConsoleMonster.Sessions {
             Marshal.WriteIntPtr(array, values.Count * IntPtr.Size, IntPtr.Zero);
             return array;
         }
-        public int Read(byte[] bytes) {
+        public int Read(byte[] bytes) => ReadUntilOutputOrExit(WaitReadable, () => HasExited, () => ReadNative(bytes));
+        // Keep ordering separate from the native calls so the empty-poll/child-exit race is deterministic to test.
+        internal static int ReadUntilOutputOrExit(Func<int, bool> waitReadable, Func<bool> hasExited, Func<int> readOutput) {
+            bool exited = false;
+            while (true) {
+                if (waitReadable(exited ? 0 : 20)) { return readOutput(); }
+                // Only an empty readiness observation after exit proves the queue has been drained.
+                if (exited) { return 0; }
+                exited = hasExited();
+            }
+        }
+        private bool WaitReadable(int timeout) {
             while (true) {
                 PollFd descriptor = new PollFd { File = _master, Events = 1 };
-                int ready = poll(ref descriptor, (UIntPtr)1, 20);
+                int ready = poll(ref descriptor, (UIntPtr)1, timeout);
                 if (ready < 0) {
                     if (Marshal.GetLastWin32Error() == 4) { continue; }
                     throw Error();
                 }
-                // The parent's replica prevents EOF; after child exit, drain readability before ending the stream.
-                if (ready == 0) { if (HasExited) { return 0; } continue; }
+                return ready > 0;
+            }
+        }
+        private int ReadNative(byte[] bytes) {
+            while (true) {
                 long count = read(_master, bytes, (UIntPtr)bytes.Length).ToInt64();
                 if (count >= 0) { return (int)count; }
                 int error = Marshal.GetLastWin32Error();
@@ -125,15 +139,19 @@ namespace ConsoleMonster.Sessions {
                         int flags = 1 | 4 | (_mac ? 0x20 : 0x01000000); // WNOHANG | WEXITED | WNOWAIT
                         int result = waitid(1, _pid, info, flags);
                         if (result != 0 && Marshal.GetLastWin32Error() != 4) { throw Error(); }
-                        if (result == 0 && BitConverter.ToInt32(info, _mac ? 12 : 16) == _pid) {
-                            int code = BitConverter.ToInt32(info, 8), status = BitConverter.ToInt32(info, _mac ? 20 : 24);
-                            _exitCode = code == 1 ? status : 128 + status;
-                            _exited = true;
-                        }
+                        if (result == 0) { _exited = TryGetExitCode(info, _mac, IntPtr.Size, _pid, out _exitCode); }
                     }
                     return _exited;
                 }
             }
+        }
+        internal static bool TryGetExitCode(byte[] info, bool mac, int pointerSize, int pid, out int exitCode) {
+            exitCode = 0;
+            int pidOffset = mac || pointerSize == 4 ? 12 : 16;
+            if (BitConverter.ToInt32(info, pidOffset) != pid) { return false; }
+            int code = BitConverter.ToInt32(info, 8), status = BitConverter.ToInt32(info, pidOffset + 8);
+            exitCode = code == 1 ? status : 128 + status;
+            return true;
         }
         public int ExitCode => _exitCode;
         public void Stop() { lock (_processGate) { if (_pid > 0) { kill(-_pid, 15); kill(_pid, 15); } } }
