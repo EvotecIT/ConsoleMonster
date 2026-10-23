@@ -67,6 +67,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
+        /// <summary>The unavailable Out-GridView adapter requests unattended display in jobs, transcripts and redirected sessions.</summary>
+        [Parameter(DontShow = true)]
+        public SwitchParameter UnavailableFallback { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -79,6 +83,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
+            // Shaping and input routing can touch Terminal before Grid.Show; keep the same outer operation boundary.
+            using Output.TerminalGuard outputMode = new Output.TerminalGuard(() => { }, false);
             // The same columns and cell values as Format-ConsoleTable (shared value rules); a collection passed as one object is its items.
             Values.ShapeOptions shape = PSShaping.Options(Culture);
             Values.ShapeBudget budget = Values.ShapeBudget.For(shape);
@@ -103,6 +109,13 @@ namespace ConsoleMonster.PowerShell {
                 grid.AddRow(item, values);
             }
             GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
+            if (UnavailableFallback.IsPresent && options.Interactive.Input == null && options.Interactive.Capture == null
+                && (!ConsoleFormatting.Displayed(this) || FormatCommandRouter.IsTranscribing(this))) {
+                // A background job's host can offer line prompts by blocking the job. An unavailable-command fallback
+                // must print the existing table instead; recording a session must likewise never open a rich screen.
+                options.Interactive.Mode = null;
+                options.Interactive.NonInteractive = true;
+            }
             for (int c = 0; c < columns.Count; c++) {
                 string header = Markup.Strip(columns[c].Column.Header);
                 if (SortBy != null && (string.Equals(columns[c].Name, SortBy, StringComparison.OrdinalIgnoreCase) || string.Equals(header, SortBy, StringComparison.OrdinalIgnoreCase))) {

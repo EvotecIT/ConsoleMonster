@@ -38,6 +38,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal FormatCommandInstallation? FormatCommands { get; set; }
         internal FormatCommandInstallation? Help { get; set; }
+        internal GridViewInstallation? GridView { get; set; }
         internal StreamFormattingInstallation Streams { get; } = new StreamFormattingInstallation();
         internal ReadLineFormattingInstallation ReadLine { get; } = new ReadLineFormattingInstallation();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -43,7 +44,7 @@ namespace SiteFrames.Vt {
         /// Runs a command line and returns its output. <paramref name="interrupt"/> presses Ctrl+C in the console after that
         /// long, the way a reader stops a program that runs until it is told to stop (a host).
         /// </summary>
-        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null, string? inputText = null, string? readyMarker = null, string? capturePath = null, string? completionText = null) {
+        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null, string? inputText = null, string? readyMarker = null, string? capturePath = null, string? completionText = null, string? readyText = null, string? inputKeys = null) {
             if (!OperatingSystem.IsWindows()) {
                 throw new PlatformNotSupportedException("Captures run in a Windows pseudo console.");
             }
@@ -116,6 +117,25 @@ namespace SiteFrames.Vt {
                 if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, ExtendedStartupInfoPresent | UnicodeEnvironment, block, workingDirectory, ref startup, out info)) {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
+                if (readyText != null && inputKeys != null) {
+                    Console.WriteLine("Owned ConPTY child PID " + info.dwProcessId);
+                    while (true) {
+                        string output;
+                        lock (chunks) { output = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
+                        if (output.Contains(readyText, StringComparison.Ordinal)) { break; }
+                        if (Wait(info.hProcess, TimeSpan.FromMilliseconds(25)) == 0) {
+                            throw new InvalidOperationException("Capture exited before its input-ready marker: " + output);
+                        }
+                        if (clock.Elapsed > timeout) {
+                            TerminateProcess(info.hProcess, 1);
+                            throw new TimeoutException("Capture did not reach its input-ready marker.");
+                        }
+                    }
+                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
+                    byte[] bytes = Encoding.UTF8.GetBytes(inputKeys);
+                    input.Write(bytes, 0, bytes.Length);
+                    input.Flush();
+                }
                 uint wait;
                 if (inputText != null) {
                     if (!ready.Wait(timeout)) {
@@ -158,7 +178,9 @@ namespace SiteFrames.Vt {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
                 if (exitCode != 0) {
-                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine);
+                    string diagnostic;
+                    lock (chunks) { diagnostic = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
+                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine + "\n" + diagnostic);
                 }
                 // Give ConPTY a moment to paint the last frame before the console closes.
                 Thread.Sleep(400);

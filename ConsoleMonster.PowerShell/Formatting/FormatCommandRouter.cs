@@ -49,11 +49,13 @@ namespace ConsoleMonster.PowerShell {
                 object? data = typeof(PSHostUserInterface).GetProperty("TranscriptionData", Flags)?.GetValue(cmdlet.Host.UI, null);
                 object? transcripts = Member(data, "Transcripts");
                 object? system = Member(data, "SystemTranscript");
-                return transcripts is ICollection list && list.Count == 0 && system == null;
+                return !(transcripts is ICollection list && list.Count == 0 && system == null);
             } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
-                return false;
+                return true;
             }
         }
+
+        internal static bool IsTranscribing(PSCmdlet cmdlet) => !IsUntranscribed(cmdlet);
 
         // Shared by host-only formatting surfaces. Unknown transcription state must retain native rendering.
         internal static bool IsUnrecordedHost(PSCmdlet cmdlet) {

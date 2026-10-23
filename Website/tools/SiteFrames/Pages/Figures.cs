@@ -46,6 +46,7 @@ namespace SiteFrames.Pages {
 
         public static void Render(Site site) {
             ErrorFigures.Render(site);
+            GridViewFigures.Render(site);
             JsonArray tiers = new JsonArray();
             (ColorDepth depth, GlyphTier glyphs)[] profiles = {
                 (ColorDepth.TrueColor, GlyphTier.Full),

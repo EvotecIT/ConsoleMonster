@@ -70,6 +70,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Native stream and progress colours from the active theme; commands, records and progress view stay native.</summary>
         Streams = 16,
 
+        /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable; excluded from All.</summary>
+        GridView = 256,
+
         /// <summary>Native command help displayed through HelpView only on a direct local host route. Excluded from All.</summary>
         Help = 32,
 
@@ -180,7 +183,7 @@ namespace ConsoleMonster.PowerShell {
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -194,7 +197,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }

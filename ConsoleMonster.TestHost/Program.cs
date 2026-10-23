@@ -29,6 +29,7 @@ namespace ConsoleMonster.TestHost {
                     case "cancel-child": Cancellation(args[1]); break;
                     case "app-mode": return LaunchAppMode(args[1], args[2], args.Length > 3 ? args[3] : null);
                     case "app-mode-child": AppOutputModeProbe.Run(args[1], args[2]); break;
+                    case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
                     case "host": return LaunchHidden(args.Skip(1));
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
@@ -37,7 +38,7 @@ namespace ConsoleMonster.TestHost {
                 }
                 return 0;
             } catch (Exception error) {
-                if (args.Length > 2 && args[0] == "app-mode-child") { File.WriteAllText(args[2], error.ToString()); }
+                if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
                 else if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;

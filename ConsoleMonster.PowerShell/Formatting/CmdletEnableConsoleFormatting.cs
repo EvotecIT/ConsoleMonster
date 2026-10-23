@@ -12,6 +12,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Enable-ConsoleFormatting -Feature Output, FormatCommands; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</code>
     /// </example>
     /// <example>
+    ///   <para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</para>
+    ///   <code>Enable-ConsoleFormatting -Feature GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
+    /// </example>
+    /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
     /// </example>
@@ -37,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public ConsoleFormattingFeature[]? Feature { get; set; }
 
-        /// <summary><para type="description">Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's (Disable-ConsoleFormatting puts it back).</para></summary>
+        /// <summary><para type="description">Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept.</para></summary>
         [Parameter]
         public SwitchParameter Force { get; set; }
 
@@ -67,6 +71,14 @@ namespace ConsoleMonster.PowerShell {
             }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
+            }
+            if ((wanted & ConsoleFormattingFeature.GridView) != 0) {
+                if (GridViewInstallation.Install(this, Force.IsPresent)) {
+                    ConsoleFormatting.Features |= ConsoleFormattingFeature.GridView;
+                    ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
+                }
+                wanted &= ~ConsoleFormattingFeature.GridView;
+                if (wanted == ConsoleFormattingFeature.None) { return; }
             }
             const ConsoleFormattingFeature cosmetic = ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine;
             if ((wanted & ~cosmetic) == ConsoleFormattingFeature.None) {
@@ -164,8 +176,11 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             ConsoleFormattingFeature off = ConsoleFormattingFeature.None;
-            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.Progress | ConsoleFormattingFeature.FormatCommands }) {
+            foreach (ConsoleFormattingFeature feature in Feature ?? new[] { ConsoleFormattingFeature.All | ConsoleFormattingFeature.Progress | ConsoleFormattingFeature.FormatCommands | ConsoleFormattingFeature.GridView }) {
                 off |= feature;
+            }
+            if ((off & ConsoleFormattingFeature.GridView) != 0) {
+                GridViewInstallation.Remove(FormattingSessionState.Current);
             }
             if ((off & ConsoleFormattingFeature.Progress) != 0) {
                 ConsoleFormatting.RemoveProgressAlias(InvokeCommand);
@@ -183,7 +198,7 @@ namespace ConsoleMonster.PowerShell {
                 FormattingSessionState.Current.ReadLine.Restore();
             }
             ConsoleFormatting.Features &= ~off;
-            if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine)) != ConsoleFormattingFeature.None) {
+            if ((ConsoleFormatting.Features & ~(ConsoleFormattingFeature.Streams | ConsoleFormattingFeature.ReadLine | ConsoleFormattingFeature.GridView)) != ConsoleFormattingFeature.None) {
                 return;
             }
             ScriptBlock? existing = FormatCommandInstallation.GlobalFunction(SessionState, "Out-Default");

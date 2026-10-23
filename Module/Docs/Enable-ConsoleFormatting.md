@@ -77,7 +77,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Replaces an existing Out-Default function or Write-Progress alias that is not ConsoleMonster's (Disable-ConsoleFormatting puts it back).
+Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept.
 
 ```yaml
 Type: SwitchParameter

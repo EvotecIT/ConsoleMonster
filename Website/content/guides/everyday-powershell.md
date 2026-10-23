@@ -55,6 +55,29 @@ Disable-ConsoleFormatting -Feature ReadLine, Streams
 ```
 
 ReadLine is included in `All`. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
+## Out-GridView without a desktop
+
+```powershell
+Enable-ConsoleFormatting -Feature GridView
+Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+Disable-ConsoleFormatting -Feature GridView
+```
+
+`GridView` is excluded from `All`. A working native `Out-GridView` is always kept. Where it is unavailable, the session function uses `Show-ConsoleGrid`: the same keyboard filtering, sorting and selection, with `-Title`, `-PassThru`, `-OutputMode None|Single|Multiple` and `-Wait`. Browse mode returns nothing; selection returns the original objects. The terminal view is synchronous, so it waits until closed even without `-Wait`.
+
+{{< cm-frame ids="gridview-fallback-120,gridview-fallback-60" script="true" >}}
+
+Without an interactive console, the grid prints its existing table fallback with a warning and returns no selections. Existing functions and aliases need `-Force`; disabling or removing the module restores them. Constants, `AllScope` aliases and caller-local aliases that cannot be replaced safely are kept with a warning even with `-Force`. Remove or rename them in their defining scope first if you want the fallback. A working desktop command and its captures, jobs and transcripts keep PowerShell's behavior.
+
+The .NET equivalent uses `Grid`, the renderer behind `Show-ConsoleGrid`:
+
+```csharp
+using ConsoleMonster.Interactive;
+
+Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+grid.AddColumn("Name").AddRow("api-east", "api-east");
+GridResult selected = grid.Show();
+```
 
 ## Views that ship with a module
 

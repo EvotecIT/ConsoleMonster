@@ -42,6 +42,12 @@ namespace SiteFrames {
             string command = args.Length > 0 ? args[0] : "render";
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;
+            if (command == "verify-gridview") {
+                return GridViewHostProof.Run(new Site(website), only ?? throw new ArgumentException("A proof output directory is required."));
+            }
+            if (command == "review-gridview") {
+                return GridViewFigures.Review(new Site(website), only ?? throw new ArgumentException("A review output directory is required."));
+            }
             if (command == "render" && only != null) {
                 Console.Error.WriteLine("Render regenerates all areas together because they share styles and thumbnails. Use: SiteFrames render [WebsiteRoot]");
                 return 2;

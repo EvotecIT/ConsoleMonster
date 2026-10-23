@@ -1,4 +1,9 @@
 {
+  "gridViewFallback": {
+    "title": "Out-GridView in the terminal",
+    "label": "Choose nodes with the existing grid; working native Out-GridView commands stay unchanged.",
+    "caption": "Choose nodes"
+  },
   "home": {
     "title": "Everyday output in one line. The monster when you need it.",
     "lede": "ConsoleMonster makes the output of the commands you already run readable, and draws tables, trees, charts, live runs, dashboards, menus and forms when you need more. One engine for .NET and PowerShell 5.1 and 7, with no package dependencies and plain lines when the output is a log.",
