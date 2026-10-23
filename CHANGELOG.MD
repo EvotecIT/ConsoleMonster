@@ -1,5 +1,6 @@
 ### Unreleased - the everyday path
 #### What's new
+- `Show-ConsoleObject` explores nested members with lazy expansion, breadcrumbs, search and keyboard selection. `-PassThru` returns the selected value, and `-PassThru Path` returns its PowerShell expression. Redirected and non-interactive sessions print the static inspector.
 - HTML and SVG frame titles reserve space after the window dots, truncate with an ellipsis and retain the full title as a tooltip. Very narrow frames keep all three dots visible and hide titles that cannot fit.
 - `Out-ConsoleChart` draws horizontal bars, histograms and grouped sparklines from pipeline values or selected properties. Stable value sorting and Top limits, signed bars, whole-number histogram edges and numerical text fallback share the core `PipelineChart` API.
 - Everyday Get-Member views show each type name above its table and use full-width member-group sections with counts, preserving native column overrides and script-safe output.
