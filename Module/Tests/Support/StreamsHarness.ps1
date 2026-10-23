@@ -5,9 +5,14 @@ function Get-StreamsProperties {
     #>
     if ($PSVersionTable.PSVersion -ge [version] '7.2') {
         foreach ($name in 'Warning', 'Verbose', 'Debug', 'Error') { $PSStyle.Formatting.PSObject.Properties[$name] }
+        $PSStyle.Progress.PSObject.Properties['Style']
     } else {
-        foreach ($stream in 'Warning', 'Verbose', 'Debug') {
-            foreach ($suffix in 'ForegroundColor', 'BackgroundColor') { $Host.PrivateData.PSObject.Properties[$stream + $suffix] }
+        if ($null -eq $Host.PrivateData) { return }
+        foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Progress') {
+            foreach ($suffix in 'ForegroundColor', 'BackgroundColor') {
+                $property = $Host.PrivateData.PSObject.Properties[$stream + $suffix]
+                if ($property) { $property }
+            }
         }
     }
 }
@@ -51,27 +56,29 @@ function Get-StreamsExpected {
     <# .SYNOPSIS
     Resolves expectations through the public theme, SGR encoder and console colour map.
     #>
-    $roles = @{ Warning = 'Warn'; Verbose = 'Info'; Debug = 'Muted'; Error = 'Fail' }
+    $roles = @{ Warning = 'Warn'; Verbose = 'Info'; Debug = 'Muted'; Error = 'Fail'; Progress = 'Running' }
     $theme = [ConsoleMonster.Terminal]::Theme
     $expected = Get-StreamsState
+    if ($expected.Count -eq 0) { return $expected }
     if ($PSVersionTable.PSVersion -ge [version] '7.2') {
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Error') {
             $style = $theme.Resolve([ConsoleMonster.Styling.ThemeToken] $roles[$stream], 'TrueColor')
             $expected[$stream] = [ConsoleMonster.Rendering.SgrEncoder]::Encode($style, 'TrueColor')
         }
+        $expected.Style = [ConsoleMonster.Rendering.SgrEncoder]::Encode($theme.Resolve('Running', 'TrueColor'), 'TrueColor')
     } else {
         $profile = [ConsoleMonster.Terminal]::Profile.WithColorDepth('Ansi16')
         $context = [ConsoleMonster.Canvas.RenderContext]::new($profile, $theme, $null, 0, [timespan]::Zero)
         $map = [ConsoleMonster.Styling.ConsoleColorMap]::new($context)
-        foreach ($stream in 'Warning', 'Verbose', 'Debug') {
+        foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Progress') {
             $style = $context.Style([ConsoleMonster.Styling.ThemeToken] $roles[$stream])
             # Stream preferences need concrete palette colours, including colours shared with text-like roles.
-            $expected[$stream + 'ForegroundColor'] = $map.Background($style.Foreground)
+            if ($expected.ContainsKey($stream + 'ForegroundColor')) { $expected[$stream + 'ForegroundColor'] = $map.Background($style.Foreground) }
             $background = $map.Background($style.Background)
             if ($null -eq $background) {
                 try { $background = $Host.UI.RawUI.BackgroundColor } catch [System.NotSupportedException] { }
             }
-            if ($null -ne $background) { $expected[$stream + 'BackgroundColor'] = $background }
+            if ($null -ne $background -and $expected.ContainsKey($stream + 'BackgroundColor')) { $expected[$stream + 'BackgroundColor'] = $background }
         }
     }
     $expected
@@ -84,12 +91,15 @@ function Get-StreamsUnownedState {
     $state = @{ ErrorView = [string] $ErrorView }
     foreach ($property in $Host.PrivateData.PSObject.Properties) {
         if ($property.Name -notmatch 'Color$') { continue }
-        if ($PSVersionTable.PSVersion -lt [version] '7.2' -and $property.Name -match '^(Warning|Verbose|Debug)') { continue }
+        if ($PSVersionTable.PSVersion -lt [version] '7.2' -and $property.Name -match '^(Warning|Verbose|Debug|Progress)') { continue }
         $state['Host.' + $property.Name] = $property.Value
     }
     if ($PSVersionTable.PSVersion -ge [version] '7.2') {
         foreach ($name in 'TableHeader', 'ErrorAccent', 'FormatAccent') { $state[$name] = $PSStyle.Formatting.$name }
         $state.OutputRendering = $PSStyle.OutputRendering
+        foreach ($property in $PSStyle.Progress.PSObject.Properties) {
+            if ($property.Name -ne 'Style') { $state['Progress.' + $property.Name] = $property.Value }
+        }
     }
     $state
 }

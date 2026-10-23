@@ -31,6 +31,15 @@
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
         <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />
+        <EmbeddedResource Update="Interactive\App\PSAppMessages.resx" LogicalName="ConsoleMonster.PowerShell.Interactive.App.PSAppMessages.resources" />
+        <EmbeddedResource Update="Help\HelpMessages.resx" LogicalName="ConsoleMonster.PowerShell.Help.HelpMessages.resources" />
+        <EmbeddedResource Include="Formatting\OutDefaultProxy.ps1" />
+        <EmbeddedResource Include="Help\HelpProxy.ps1" />
+        <EmbeddedResource Include="Formatting\ReadLineOptions.ps1" />
+        <EmbeddedResource Include="Formatting\EverydayBuiltInViews.ps1" />
+        <EmbeddedResource Include="Formatting\GridViewFallback.ps1;Formatting\GridViewLifecycle.ps1;Formatting\GridViewMessages.txt" />
+        <EmbeddedResource Include="Formatting\PromptFunction.ps1" />
+        <EmbeddedResource Update="Tails\PSLogTailMessages.resx" LogicalName="ConsoleMonster.PowerShell.Tails.PSLogTailMessages.resources" />
     </ItemGroup>
 
     <ItemGroup>

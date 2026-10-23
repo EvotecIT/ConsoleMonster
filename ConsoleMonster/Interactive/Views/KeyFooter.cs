@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -43,9 +44,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 shown.Add(b);
             }
-            shown.Sort((a, b) => a.Order.CompareTo(b.Order));
             FooterBar bar = new FooterBar { Indent = Indent, Right = Right, KeepLast = help != null };
-            foreach (KeyBinding b in shown) {
+            foreach (KeyBinding b in shown.OrderBy(binding => binding.Order)) {
                 bar.Hints.Add(new KeyHint(b.DisplayKeys(), b.Label));
             }
             if (help != null) {

@@ -6,7 +6,7 @@ using ConsoleMonster.Input;
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A single-line text editor: insert, delete, word-wise movement and deletion, paste (line breaks become spaces), an
-    /// optional length limit and history. Pure state; the widget that draws it is <see cref="TextInputWidget"/>.
+    /// optional length limit and history. Pure state; the widget that draws it is <see cref="TextInput"/>.
     /// </summary>
     internal sealed class LineEditor {
         private readonly StringBuilder _text = new StringBuilder();

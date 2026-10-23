@@ -102,7 +102,7 @@ namespace ConsoleMonster.Widgets {
                 layout.Rows.Add(row);
             }
             // A first group heading takes the place of the header separator, or of a boxed table's top rule without a header.
-            layout.MergeFirstGroup = layout.Rows.Count > 0 && layout.Rows[0].Kind == TableRowKind.Group
+            layout.MergeFirstGroup = !GroupHeadersAsRows && layout.Rows.Count > 0 && layout.Rows[0].Kind == TableRowKind.Group
                 && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
             if (total != null) {
                 FitRow(total, layout, context);
@@ -394,7 +394,7 @@ namespace ConsoleMonster.Widgets {
             if (free <= 0) {
                 return;
             }
-            bool ruled = IsBoxed || Border == TableBorder.Minimal;
+            bool ruled = !GroupHeadersAsRows && (IsBoxed || Border == TableBorder.Minimal);
             if (ruled) {
                 // Boxed "├─ label ─┼": the label, a space either side and a rule glyph either side; Minimal "─ label ─ ".
                 int want = label + (IsBoxed ? 2 : 4);
@@ -407,7 +407,7 @@ namespace ConsoleMonster.Widgets {
                     return;
                 }
             }
-            int needed = label + (IsBoxed ? 6 : ruled ? 3 : 0);
+            int needed = label + (IsBoxed ? GroupHeadersAsRows ? 4 : 6 : ruled ? 3 : 0);
             int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible.Count, gap)), free);
             if (extra <= 0) {
                 return;

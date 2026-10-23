@@ -16,7 +16,9 @@ namespace SiteFrames {
     /// and the committed captures. Deterministic: rerun it after a renderer change and commit what changed.</item>
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
-    /// <item><c>theme-files-review [Website] [OutputDirectory] [--powershell]</c>: writes offline theme comparison exports outside the repository.</item>
+    /// <item><c>app-review [Website] [OutputDirectory]</c>: exports the live-filter application at both widths and themes.</item>
+    /// <item><c>theme-files-review [Website] [OutputDirectory]</c>: exports the portable theme examples.</item>
+    /// <item><c>native-styling Website Output</c>: captures real PSReadLine and native progress at both review widths and exports their cells and restoration evidence.</item>
     /// </list>
     /// </summary>
     public static class Program {
@@ -41,20 +43,39 @@ namespace SiteFrames {
             string command = args.Length > 0 ? args[0] : "render";
             string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
             string? only = args.Length > 2 ? args[2] : null;
+            if (command == "verify-gridview") {
+                return GridViewHostProof.Run(new Site(website), only ?? throw new ArgumentException("A proof output directory is required."));
+            }
+            if (command == "review-gridview") {
+                return GridViewFigures.Review(new Site(website), only ?? throw new ArgumentException("A review output directory is required."));
+            }
             if (command == "render" && only != null) {
                 Console.Error.WriteLine("Render regenerates all areas together because they share styles and thumbnails. Use: SiteFrames render [WebsiteRoot]");
                 return 2;
             }
             switch (command) {
+                case "review-error-shapes":
+                    if (only == null) { throw new ArgumentException("Pass the review output directory as the third argument."); }
+                    ErrorShapeReview.Run(new Site(website), only);
+                    return 0;
+                case "review-errors":
+                    ErrorFigures.ExportReview(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-errors-review"));
+                    return 0;
                 case "render":
                     return Render(new Site(website), only);
                 case "capture":
                     return CaptureAll(new Site(website), only);
+                case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
+                    return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
+                case "app-review" when only != null:
+                    return AppPage.Review(new Site(website), only);
+                case "review-overview":
+                    return OverviewFigures.Review(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-overview"));
                 case "readme":
                     return Readme.Sync(new Site(website));
                 case "review-object":
                     if (only == null) {
-                        Console.Error.WriteLine("Pass an output directory: SiteFrames review-object [WebsiteRoot] [OutputDirectory]");
+                        Console.Error.WriteLine("Usage: SiteFrames review-object [WebsiteRoot] [ScratchOutputDirectory]");
                         return 2;
                     }
                     return ExplorerFigures.Review(new Site(website), only);
@@ -70,10 +91,26 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
-                case "theme-files-review" when !string.IsNullOrWhiteSpace(only):
-                    return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
+                case "help-review":
+                    return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"), args.Length > 3 && args[3] == "--reuse-captures");
+                case "help-proof":
+                    return HelpFormattingPage.Verify(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-proof [WebsiteRoot] [scratch]"));
+                case "native-styling":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."));
+                case "native-styling-all":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."), useAll: true);
+                case "builtins":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Review(new Site(website), Path.GetFullPath(only));
+                case "builtins-proof":
+                    if (only == null) { return 2; }
+                    return BuiltInViews.Verify(new Site(website), Path.GetFullPath(only));
+                case "review-prompt":
+                    return PromptFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the review output directory."));
+                case "tails-review" when only != null:
+                    return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|theme-files-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -149,15 +186,24 @@ namespace SiteFrames {
             if (Wants(only, "demos")) {
                 DemosPage.Capture(site);
             }
+            if (Wants(only, "help-formatting")) {
+                HelpFormattingPage.Capture(site);
+            }
+            if (Wants(only, "app")) { AppPage.Capture(site); }
+            if (Wants(only, "tails")) {
+                TailsPage.Capture(site);
+            }
             return 0;
         }
 
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
+            OverviewFigures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
             ThemeFilesPage.Render(site);
+            AppPage.Render(site, hosts);
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);
@@ -166,8 +212,11 @@ namespace SiteFrames {
             PowerShellPage.Render(site, hosts);
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
+            HelpFormattingPage.Render(site);
+            PromptFigures.Render(site);
             ExplorerFigures.Render(site);
             HomePage.Render(site, hosts);
+            TailsPage.Render(site);
             Visuals.Render(site);
             Figures.Write(site);
             site.Write(site.Static("css/frames.css"), site.Styles.Css());

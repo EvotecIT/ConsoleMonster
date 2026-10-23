@@ -1,0 +1,9 @@
+TOPIC
+    about_ConsoleMonsterHelpFormatting
+
+SHORT DESCRIPTION
+    Literal about-topic proof for Help formatting.
+
+LONG DESCRIPTION
+    Keep [brackets], <angle brackets>, spaces and PowerShell's own topic text.
+    HELP_ABOUT_LITERAL is never interpreted as Markdown or ConsoleMonster markup.

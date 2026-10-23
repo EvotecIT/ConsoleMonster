@@ -162,21 +162,8 @@ namespace ConsoleMonster.Output {
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is NotSupportedException || ex is System.Security.SecurityException || ex is ArgumentException) {
                 return null;
             }
-            if (read >= 4 && head[0] == 0xFF && head[1] == 0xFE && head[2] == 0 && head[3] == 0) {
-                return new UTF32Encoding(false, true);
-            }
-            if (read >= 4 && head[0] == 0 && head[1] == 0 && head[2] == 0xFE && head[3] == 0xFF) {
-                return new UTF32Encoding(true, true);
-            }
-            if (read >= 3 && head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF) {
-                return new UTF8Encoding(true);
-            }
-            if (read >= 2 && head[0] == 0xFF && head[1] == 0xFE) {
-                return new UnicodeEncoding(false, true);
-            }
-            if (read >= 2 && head[0] == 0xFE && head[1] == 0xFF) {
-                return new UnicodeEncoding(true, true);
-            }
+            LogEncodingPreamble.TrySelect(head, read, true, out Encoding? detected, out _);
+            if (detected != null) { return detected; }
             // UTF-16 text without a byte order mark: zero high bytes at odd (LE) or even (BE) positions, none at the other.
             if (read >= 4) {
                 int pairs = read / 2;

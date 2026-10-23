@@ -1,0 +1,20 @@
+ Choose nodes                      3 of 3 rows · 2 selected
+
+ › type to filter
+╭──────────────────────────────────────────────────────────╮
+│    Name         Region    Version                        │
+│ ─  ───────────  ────────  ───────                        │
+│ ✓  api-east     eu-west   2.4.1                          │
+│ ✓  worker-west  eu-west   2.4.0                          │
+│    build-north  eu-north  2.4.1                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel

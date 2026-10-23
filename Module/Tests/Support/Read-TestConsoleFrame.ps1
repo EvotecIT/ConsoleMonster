@@ -8,6 +8,12 @@ using System.Text;
 public static class ConsoleMonsterTestConsoleFrame {
     [StructLayout(LayoutKind.Sequential)] private struct Coord { public short X; public short Y; }
     [DllImport("kernel32.dll")] private static extern IntPtr GetStdHandle(int id);
+    [DllImport("kernel32.dll", SetLastError=true)] private static extern bool GetConsoleMode(IntPtr handle, out uint mode);
+    public static uint InputMode() {
+        uint mode;
+        if (!GetConsoleMode(GetStdHandle(-10), out mode)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
+        return mode;
+    }
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     private static extern bool ReadConsoleOutputCharacterW(IntPtr handle, [Out] char[] buffer, uint length, Coord start, out uint read);
     public static string LastFrame(int lines, int width) {

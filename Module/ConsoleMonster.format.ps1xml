@@ -26,6 +26,13 @@
       <ViewSelectedBy>
         <TypeName>ConsoleMonster.Changes.ChangeView</TypeName>
         <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
+        <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Button</TypeName>
+        <TypeName>ConsoleMonster.Interactive.MultiSelect</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Select</TypeName>
+        <TypeName>ConsoleMonster.Interactive.TextArea</TypeName>
+        <TypeName>ConsoleMonster.Interactive.TextInput</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Toggle</TypeName>
         <TypeName>ConsoleMonster.Layout.Align</TypeName>
         <TypeName>ConsoleMonster.Layout.Columns</TypeName>
         <TypeName>ConsoleMonster.Layout.CultureScope</TypeName>
@@ -36,7 +43,9 @@
         <TypeName>ConsoleMonster.Layout.Rows</TypeName>
         <TypeName>ConsoleMonster.Layout.Sized</TypeName>
         <TypeName>ConsoleMonster.Layout.Stack</TypeName>
+        <TypeName>ConsoleMonster.Live.Tails.LogTailView</TypeName>
         <TypeName>ConsoleMonster.Live.WatchFrame</TypeName>
+        <TypeName>ConsoleMonster.Overview.OverviewWidget</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunSummary</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunView</TypeName>
         <TypeName>ConsoleMonster.Text.RichText</TypeName>
@@ -63,6 +72,7 @@
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Rule</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Slot</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
         <TypeName>ConsoleMonster.Widgets.Spinner</TypeName>

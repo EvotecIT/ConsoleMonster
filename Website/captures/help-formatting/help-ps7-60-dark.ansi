@@ -1,0 +1,43 @@
+[?9001h[?1004h[?25l[2J[m[1m[HGet-ConsoleCapability
+]0;C:\Program Files\PowerShell\7\pwsh.exe[?25h[?25l[22mShows what ConsoleMonster detected about the current
+terminal.[38;2;96;165;250m[1m[5;1HSyntax[m
+  [1mGet-ConsoleCapability[22m [38;2;58;61;69m[[38;2;192;132;252m-Refresh[38;2;58;61;69m] [<CommonParameters>][38;2;96;165;250m[1m[8;1HDescription[m
+  Shows what ConsoleMonster detected about the current
+  terminal.[12;1H  Returns the terminal profile: kind, mode (Interactive,
+  Stream, Plain), colour depth, glyph tier, size, VT
+  support, console font and the reasons behind each
+  decision. -Refresh detects again (after a resize or font[38;2;139;143;154m
+───────────────────────────────────────────────────────────
+Page 1 of 3 · [38;2;96;165;250mSpace [38;2;139;143;154mnext · [38;2;96;165;250mb [38;2;139;143;154mback · [38;2;96;165;250mq [38;2;139;143;154mquit[?25h[m[42X  change).
+
+[38;2;96;165;250m[1mParameters[m[K
+  [38;2;139;143;154m1 record[K[m
+
+  [1m-Refresh[22m[K
+    [38;2;139;143;154mType         switch[K[m
+    [38;2;139;143;154mRequired     no[K[m
+    [38;2;139;143;154mPosition     named[K[m
+    [38;2;139;143;154mPipeline     no[K[m
+    [38;2;139;143;154mDescription  [mDetect again instead of returning the      [18;1H
+                 cached profile.
+  [38;2;139;143;154mCommon parameters: -Debug, -ErrorAction, -ErrorVariable,  [18;1H[m
+  [38;2;139;143;154m-InformationAction, -OutVariable, -Verbose,[K[m
+  [38;2;139;143;154m-WarningAction and the others (about_CommonParameters).   [18;1H[m
+[38;2;139;143;154m─────────────────────────────────────────────────────────── [18;1H[m
+[38;2;139;143;154mPage 2 of 3 · [38;2;96;165;250mSpace [38;2;139;143;154mnext · [38;2;96;165;250mb [38;2;139;143;154mback · [38;2;96;165;250mq [38;2;139;143;154mquit[K[m[42X[1mGet-ConsoleCapability[22m
+Shows what ConsoleMonster detected about the current        
+terminal.
+
+[38;2;96;165;250m[1mSyntax[m[K
+  [1mGet-ConsoleCapability[22m [38;2;58;61;69m[[38;2;192;132;252m-Refresh[38;2;58;61;69m] [<CommonParameters>]     [18;1H[m
+
+[38;2;96;165;250m[1mDescription[m[K
+  Shows what ConsoleMonster detected about the current      
+  terminal.
+
+  Returns the terminal profile: kind, mode (Interactive,    
+  Stream, Plain), colour depth, glyph tier, size, VT        
+  support, console font and the reasons behind each
+  decision. -Refresh detects again (after a resize or font  
+[38;2;139;143;154m─────────────────────────────────────────────────────────── [18;1H[m
+[38;2;139;143;154mPage 1 of 3 · [38;2;96;165;250mSpace [38;2;139;143;154mnext · [38;2;96;165;250mb [38;2;139;143;154mback · [38;2;96;165;250mq [38;2;139;143;154mquit[K[m[42X[?9001l[?1004l

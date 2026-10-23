@@ -1,0 +1,2 @@
+Native backup progress
+Backup [Copying archive.zip                                                                                        9s]

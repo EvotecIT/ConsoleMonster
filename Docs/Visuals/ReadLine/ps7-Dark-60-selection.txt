@@ -1,0 +1,2 @@
+PS C:\Admin> Get-Process -Name 'pwsh' | Select-Object -First
+ 3

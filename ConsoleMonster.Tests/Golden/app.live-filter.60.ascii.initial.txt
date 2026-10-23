@@ -1,0 +1,24 @@
+Host inventory · synthetic data
+
++- > Query ------------------------------------------------+
+| | Host, role, site or status                             |
++----------------------------------------------------------+
+
+6 of 6 hosts
++-------+----------+-------+----------------+
+| Host  | Role     | Site  | Status         |
+| WEB01 | Web      | North | [PASS] Pass    |
+| WEB02 | Web      | West  | [WARN] Warn    |
+| SQL01 | Database | North | [PASS] Pass    |
+| SQL02 | Database | West  | [FAIL] Fail    |
+| FS01  | Files    | North | [PASS] Pass    |
+| JOB01 | Worker   | West  | [PASS] Running |
++-------+----------+-------+----------------+
+
+
+
+
+
+
+
+ tab next  shift+tab back  esc quit

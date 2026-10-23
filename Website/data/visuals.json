@@ -77,17 +77,27 @@
     "help": {
       "src": "/site/cards/help.svg"
     },
+    "host-overview-120": {
+      "dark": "/site/cards/host-overview-120-dark.svg",
+      "light": "/site/cards/host-overview-120-light.svg"
+    },
     "hosting": {
       "src": "/site/cards/hosting.svg"
     },
     "formatting": {
       "src": "/site/cards/formatting.svg"
     },
+    "app-live-filter-filtered-60": {
+      "src": "/site/cards/app-live-filter-filtered-60.svg"
+    },
     "login": {
       "src": "/site/cards/login.svg"
     },
     "parallel": {
       "src": "/site/cards/parallel.svg"
+    },
+    "tails-following-120": {
+      "src": "/site/cards/tails-following-120.svg"
     },
     "logging": {
       "src": "/site/cards/logging.svg"

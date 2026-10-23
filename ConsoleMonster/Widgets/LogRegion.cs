@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -29,6 +30,28 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether entries show their session time (default true).</summary>
         public bool ShowTime { get; set; } = true;
 
+        /// <summary>Entries skipped from the newest end while scrolling; zero follows the newest entries.</summary>
+        public int ScrollOffset { get; set; }
+
+        /// <summary>Shows source timestamps instead of session time; missing timestamps reserve a blank aligned cell.</summary>
+        public bool ShowTimestamp { get; set; }
+
+        /// <summary>Source timestamp format, using invariant culture (default ISO date, time, milliseconds and offset).</summary>
+        public string TimestampFormat {
+            get => _timestampFormat;
+            set {
+                if (!string.Equals(value, _timestampFormat, StringComparison.Ordinal)) { _timestampColumn.Reset(); }
+                _timestampFormat = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        /// <summary>Literal ordinal case-insensitive substring to emphasize in plain-text entries; null or empty disables it.</summary>
+        public string? HighlightText { get; set; }
+
+        private readonly StatColumn _timestampColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
+        private string _timestampFormat = "yyyy-MM-dd HH:mm:ss.fff zzz";
+        private int _timestampWidth;
+
         /// <summary>
         /// Whether long entries continue on further rows, aligned under the message, instead of being truncated (default
         /// false). Lines break after spaces, then after separators, as everywhere else.
@@ -49,13 +72,10 @@ namespace ConsoleMonster.Widgets {
         /// <param name="level">The level.</param>
         /// <param name="time">Session time.</param>
         public void Write(string text, string level = "info", TimeSpan time = default) {
-            string[] lines = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-            foreach (string line in lines) {
-                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    ")));
-            }
+            WriteLiteral(text, level, time, null);
         }
 
-        /// <summary>Appends an entry, preserving its selected rich line, level and time. Caller-created multiline entries expand into lines.</summary>
+        /// <summary>Appends an entry, preserving its selected rich line, level, session time and source timestamp. Caller-created multiline entries expand into lines.</summary>
         /// <param name="entry">An existing log entry or a new message entry.</param>
         /// <exception cref="ArgumentNullException">The entry is null.</exception>
         public void Write(LogEntry entry) {
@@ -65,7 +85,21 @@ namespace ConsoleMonster.Widgets {
             } else if (entry.RichText != null) {
                 Write(entry.RichText, entry.Level, entry.Time);
             } else {
-                Write(entry.Text, entry.Level, entry.Time);
+                WriteLiteral(entry.Text, entry.Level, entry.Time, entry.Timestamp);
+            }
+        }
+
+        /// <summary>Appends literal text with an optional source timestamp; no session time is invented.</summary>
+        /// <param name="text">The original text; line breaks create several entries.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="timestamp">The source timestamp, or null when unknown.</param>
+        public void WriteTimestamped(string text, string level, DateTimeOffset? timestamp) {
+            WriteLiteral(text, level, TimeSpan.Zero, timestamp);
+        }
+
+        private void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp) {
+            foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
+                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp));
             }
         }
 
@@ -170,19 +204,27 @@ namespace ConsoleMonster.Widgets {
             }
             Style muted = context.Style(ThemeToken.Muted);
             LogEntry[] all = _entries.ToArray();
-            int count = Math.Min(all.Length, region.Height);
+            int end = all.Length - Math.Max(0, Math.Min(ScrollOffset, Math.Max(0, all.Length - region.Height)));
+            int count = Math.Min(end, region.Height);
+            _timestampWidth = 0;
+            if (ShowTimestamp) {
+                foreach (LogEntry entry in all) {
+                    _timestampWidth = Math.Max(_timestampWidth, DisplayWidth.Measure(SourceTime(entry)));
+                }
+                _timestampWidth = _timestampColumn.Resolve(_timestampWidth);
+            }
             int startRow = 0;
             int levelWidth = 0;
             for (int i = 0; i < count; i++) {
-                levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[all.Length - count + i].Level, context)));
+                levelWidth = Math.Max(levelWidth, DisplayWidth.Measure(Tag(all[end - count + i].Level, context)));
             }
-            levelWidth = levelWidth > 0 ? _levelColumn.Resolve(levelWidth) : 0;
+            levelWidth = _levelColumn.Resolve(levelWidth);
             if (Wrap) {
-                RenderWrapped(region, context, all, count, levelWidth, muted);
+                RenderWrapped(region, context, all, end, count, levelWidth, muted);
                 return;
             }
             for (int i = 0; i < count; i++) {
-                LogEntry entry = all[all.Length - count + i];
+                LogEntry entry = all[end - count + i];
                 int y = startRow + i;
                 int x = WritePrefix(region, y, entry, levelWidth, muted, context);
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
@@ -193,7 +235,12 @@ namespace ConsoleMonster.Widgets {
 
         private int WritePrefix(Region region, int y, LogEntry entry, int levelWidth, Style muted, RenderContext context) {
             int x = 0;
-            if (ShowTime) {
+            if (ShowTimestamp) {
+                if (_timestampWidth > 0) {
+                    region.Write(0, y, SourceTime(entry), muted, _timestampWidth);
+                    x = _timestampWidth + 1;
+                }
+            } else if (ShowTime) {
                 x = region.Write(0, y, NumberFormat.Clock(entry.Time, true), muted) + 1;
             }
             if (levelWidth > 0) {
@@ -204,15 +251,15 @@ namespace ConsoleMonster.Widgets {
         }
 
         private int PrefixWidth(LogEntry entry, int levelWidth) {
-            int x = ShowTime ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
+            int x = ShowTimestamp ? (_timestampWidth > 0 ? _timestampWidth + 1 : 0) : ShowTime ? DisplayWidth.Measure(NumberFormat.Clock(entry.Time, true)) + 1 : 0;
             return levelWidth > 0 ? x + levelWidth + 1 : x;
         }
 
         // Newest entries that fit as whole entries, rows filling from the top; the newest entry alone may be cut at the bottom.
-        private void RenderWrapped(Region region, RenderContext context, LogEntry[] all, int count, int levelWidth, Style muted) {
+        private void RenderWrapped(Region region, RenderContext context, LogEntry[] all, int end, int count, int levelWidth, Style muted) {
             List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>> shown = new List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>>();
             int rows = 0;
-            for (int i = all.Length - 1; i >= all.Length - count; i--) {
+            for (int i = end - 1; i >= end - count; i--) {
                 LogEntry entry = all[i];
                 Style textStyle = IsQuiet(entry.Level) ? muted : context.Style(ThemeToken.Text);
                 IReadOnlyList<StyledLine> lines = WrapEntry(entry, textStyle, Math.Max(1, region.Width - PrefixWidth(entry, levelWidth)), context);
@@ -259,10 +306,28 @@ namespace ConsoleMonster.Widgets {
             kept.Add(new StyledLine(spans));
             return kept;
         }
+        private StyledLine EntryLine(LogEntry entry, Style style, RenderContext context) {
+            if (entry.RichText != null) {
+                return entry.RichText.ToStyledText(context).Lines[entry.LineIndex].WithBaseStyle(style);
+            }
+            string? needle = HighlightText;
+            if (needle == null || needle.Length == 0) {
+                return StyledLine.From(entry.Text, style);
+            }
+            List<TextSpan> spans = new List<TextSpan>();
+            Style emphasis = context.Style(ThemeToken.Highlight).With(TextDecoration.Bold | TextDecoration.Underline);
+            int start = 0;
+            while (start < entry.Text.Length) {
+                int match = entry.Text.IndexOf(needle, start, StringComparison.OrdinalIgnoreCase);
+                if (match < 0) { spans.Add(new TextSpan(entry.Text.Substring(start), style)); break; }
+                if (match > start) { spans.Add(new TextSpan(entry.Text.Substring(start, match - start), style)); }
+                spans.Add(new TextSpan(entry.Text.Substring(match, needle.Length), emphasis));
+                start = match + needle.Length;
+            }
+            return new StyledLine(spans);
+        }
 
-        private static StyledLine EntryLine(LogEntry entry, Style style, RenderContext context) => entry.RichText == null
-            ? StyledLine.From(entry.Text, style)
-            : entry.RichText.ToStyledText(context).Lines[entry.LineIndex].WithBaseStyle(style);
+        private string SourceTime(LogEntry entry) => entry.Timestamp?.ToString(TimestampFormat, CultureInfo.InvariantCulture) ?? string.Empty;
 
         private static string Level(string level) => LogTags.Normalize(level);
 

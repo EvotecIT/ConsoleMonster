@@ -1,0 +1,109 @@
+{
+  "id": "live-filter",
+  "title": "Filter hosts as you type",
+  "summary": "A Query input updates the matching count and table after every edit. All hosts are synthetic.",
+  "bundle": "/frames/app/live-filter.json",
+  "keys": "\"sql\" Escape",
+  "csharp": "var hosts = new[] {\n// … 7 more lines in the full program\n\nIWidget Results(string query) {\n    var matches = hosts.Where(host =>\n        host.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Role.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Site.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Status.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();\n    TextBlock count = new TextBlock(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture) +\n        \"[/] of \" + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\");\n    Table table = Table.For(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\"Status\", host => host.Status, column => column.Presenter = CellPresenters.StatusWord);\n    table.HeaderSeparator = false;\n    if (matches.Length == 0) {\n        return new Rows(count, table, new TextBlock(\"[muted]No matching hosts. Backspace to broaden the query.[/]\"));\n    }\n    return new Rows(count, table);\n}\n\nRows layout = new Rows(\n    new TextBlock(\"[bold]Host inventory[/] [muted]· synthetic data[/]\"),\n    new TextInput(\"Query\") {\n        Label = \"Query\",\n        Placeholder = \"Host, role, site or status\"\n    },\n    new AppBinding(state => Results(state.Get<string>(\"Query\", string.Empty)))) { Gap = 1 };\n\nConsoleApp.Run(layout);",
+  "csharpFull": "using System.Globalization;\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\n\nvar hosts = new[] {\n    new { Name = \"WEB01\", Role = \"Web\", Site = \"North\", Status = \"Pass\" },\n    new { Name = \"WEB02\", Role = \"Web\", Site = \"West\", Status = \"Warn\" },\n    new { Name = \"SQL01\", Role = \"Database\", Site = \"North\", Status = \"Pass\" },\n    new { Name = \"SQL02\", Role = \"Database\", Site = \"West\", Status = \"Fail\" },\n    new { Name = \"FS01\", Role = \"Files\", Site = \"North\", Status = \"Pass\" },\n    new { Name = \"JOB01\", Role = \"Worker\", Site = \"West\", Status = \"Running\" }\n};\n\nIWidget Results(string query) {\n    var matches = hosts.Where(host =>\n        host.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Role.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Site.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0 ||\n        host.Status.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();\n    TextBlock count = new TextBlock(\"[bold]\" + matches.Length.ToString(CultureInfo.InvariantCulture) +\n        \"[/] of \" + hosts.Length.ToString(CultureInfo.InvariantCulture) + \" hosts\");\n    Table table = Table.For(matches)\n        .Column(\"Host\", host => host.Name)\n        .Column(\"Role\", host => host.Role)\n        .Column(\"Site\", host => host.Site)\n        .Column(\"Status\", host => host.Status, column => column.Presenter = CellPresenters.StatusWord);\n    table.HeaderSeparator = false;\n    if (matches.Length == 0) {\n        return new Rows(count, table, new TextBlock(\"[muted]No matching hosts. Backspace to broaden the query.[/]\"));\n    }\n    return new Rows(count, table);\n}\n\nRows layout = new Rows(\n    new TextBlock(\"[bold]Host inventory[/] [muted]· synthetic data[/]\"),\n    new TextInput(\"Query\") {\n        Label = \"Query\",\n        Placeholder = \"Host, role, site or status\"\n    },\n    new AppBinding(state => Results(state.Get<string>(\"Query\", string.Empty)))) { Gap = 1 };\n\nConsoleApp.Run(layout);",
+  "powershell": "<#\n.SYNOPSIS\nFilters a synthetic host inventory after every edit.\n.DESCRIPTION\nBuilds a native PowerShell application with a Query input, matching count and\nordinary table. Matching is literal and case-insensitive across all columns.\nImport ConsoleMonster before running this example.\n.PARAMETER AppOptions\nOptional Show-ConsoleApp parameters, such as StaticSnapshot for redirected output.\n.OUTPUTS\nNone. The application draws to the terminal or the supplied capture.\n.EXAMPLE\n./live-filter.ps1\n.EXAMPLE\n./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }\n#>\n[CmdletBinding()]\nparam([hashtable] $AppOptions = @{})\n\nImport-Module ConsoleMonster\n\n$hosts = @(\n# … 17 more lines in the full program\n\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Host inventory[/] [muted]· synthetic data[/]'\n        New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'\n        New-ConsoleBinding {\n            param($State)\n            $matches = @(& $matchingHosts $State)\n            \"[bold]$($matches.Count)[/] of $($hosts.Count) hosts\"\n            $matches | New-ConsoleTable -Property Host, Role, Site, Status -StatusProperty Status -NoHeaderSeparator\n            if ($matches.Count -eq 0) {\n                '[muted]No matching hosts. Backspace to broaden the query.[/]'\n            }\n        }\n    }\n} @AppOptions",
+  "powershellFull": "<#\n.SYNOPSIS\nFilters a synthetic host inventory after every edit.\n.DESCRIPTION\nBuilds a native PowerShell application with a Query input, matching count and\nordinary table. Matching is literal and case-insensitive across all columns.\nImport ConsoleMonster before running this example.\n.PARAMETER AppOptions\nOptional Show-ConsoleApp parameters, such as StaticSnapshot for redirected output.\n.OUTPUTS\nNone. The application draws to the terminal or the supplied capture.\n.EXAMPLE\n./live-filter.ps1\n.EXAMPLE\n./live-filter.ps1 -AppOptions @{ StaticSnapshot = $true }\n#>\n[CmdletBinding()]\nparam([hashtable] $AppOptions = @{})\n\nImport-Module ConsoleMonster\n\n$hosts = @(\n    [pscustomobject] @{ Host = 'WEB01'; Role = 'Web'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'WEB02'; Role = 'Web'; Site = 'West'; Status = 'Warn' }\n    [pscustomobject] @{ Host = 'SQL01'; Role = 'Database'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'SQL02'; Role = 'Database'; Site = 'West'; Status = 'Fail' }\n    [pscustomobject] @{ Host = 'FS01'; Role = 'Files'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'JOB01'; Role = 'Worker'; Site = 'West'; Status = 'Running' }\n)\n$matchingHosts = {\n    param($State)\n    $query = [string] $State.Query\n    $hosts | Where-Object {\n        $_.Host.IndexOf($query, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or\n        $_.Role.IndexOf($query, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or\n        $_.Site.IndexOf($query, [StringComparison]::OrdinalIgnoreCase) -ge 0 -or\n        $_.Status.IndexOf($query, [StringComparison]::OrdinalIgnoreCase) -ge 0\n    }\n}\n\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Host inventory[/] [muted]· synthetic data[/]'\n        New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'\n        New-ConsoleBinding {\n            param($State)\n            $matches = @(& $matchingHosts $State)\n            \"[bold]$($matches.Count)[/] of $($hosts.Count) hosts\"\n            $matches | New-ConsoleTable -Property Host, Role, Site, Status -StatusProperty Status -NoHeaderSeparator\n            if ($matches.Count -eq 0) {\n                '[muted]No matching hosts. Backspace to broaden the query.[/]'\n            }\n        }\n    }\n} @AppOptions",
+  "variants": [
+    {
+      "id": "initial-120",
+      "width": 120,
+      "query": "",
+      "matches": 6,
+      "parity": {
+        "dark-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "dark-ps5": {
+          "version": "5.1",
+          "identical": true
+        },
+        "light-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "light-ps5": {
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "filtered-120",
+      "width": 120,
+      "query": "sql",
+      "matches": 2,
+      "parity": {
+        "dark-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "dark-ps5": {
+          "version": "5.1",
+          "identical": true
+        },
+        "light-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "light-ps5": {
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "initial-60",
+      "width": 60,
+      "query": "",
+      "matches": 6,
+      "parity": {
+        "dark-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "dark-ps5": {
+          "version": "5.1",
+          "identical": true
+        },
+        "light-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "light-ps5": {
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "filtered-60",
+      "width": 60,
+      "query": "sql",
+      "matches": 2,
+      "parity": {
+        "dark-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "dark-ps5": {
+          "version": "5.1",
+          "identical": true
+        },
+        "light-ps7": {
+          "version": "7.6",
+          "identical": true
+        },
+        "light-ps5": {
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    }
+  ]
+}

@@ -305,7 +305,7 @@ namespace ConsoleMonster.Interactive {
                     cell.Write(cell.Width - 1, 0, "]", text);
                     cell = cell.Sub(1, 0, Math.Max(1, cell.Width - 2), 1);
                 }
-                TextInputWidget input = new TextInputWidget(editor, frame.Caret) { Placeholder = placeholder, Mask = mask, Focused = true };
+                TextInput input = new TextInput(editor, frame.Caret) { Placeholder = placeholder, Mask = mask, Focused = true };
                 input.Render(cell, context);
                 if (context.HasColor) {
                     // The editor draws on the plain background; keep the focus band behind it.

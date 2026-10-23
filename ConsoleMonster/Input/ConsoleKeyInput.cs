@@ -1,28 +1,36 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using ConsoleMonster.Output;
 
 namespace ConsoleMonster.Input {
     /// <summary>
-    /// Reads keys through <see cref="Console.ReadKey(bool)"/>, which decodes the terminal's VT input on Linux and macOS.
-    /// Used where the Windows console API is not available. Pastes arrive as single characters and focus changes are not
-    /// reported; resizes are detected by polling the window size.
+    /// Reads Unix TTY input through the shared <see cref="VtInputDecoder"/>, including SGR mouse reports, with the exact
+    /// terminal mode restored on disposal. Other platforms use <see cref="Console.ReadKey(bool)"/> and normalize its keys.
+    /// Resizes are detected by polling the window size.
     /// </summary>
-    public sealed class ConsoleKeyInput : IInputSource {
+    public sealed class ConsoleKeyInput : IInputSource, IConsoleInputMode {
+        private readonly UnixKeyInput? _unix;
         private int _width;
         private int _height;
 
         /// <summary>Creates the reader.</summary>
         public ConsoleKeyInput() {
+            _unix = UnixKeyInput.TryOpen();
             TerminalSize.TryGet(out _width, out _height);
         }
 
         /// <inheritdoc />
-        public string Name => "console keys (Console.ReadKey)";
+        public string Name => "console keys";
+
+        void IConsoleInputMode.Suspend() => _unix?.Suspend();
+
+        void IConsoleInputMode.Resume() => _unix?.Resume();
 
         /// <inheritdoc />
         public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
-            DateTime deadline = DateTime.UtcNow + (timeout < TimeSpan.Zero ? TimeSpan.Zero : timeout);
+            TimeSpan wait = timeout < TimeSpan.Zero ? TimeSpan.Zero : timeout;
+            Stopwatch elapsed = Stopwatch.StartNew();
             while (true) {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (TerminalSize.TryGet(out int width, out int height) && width > 0 && (width != _width || height != _height)) {
@@ -30,16 +38,15 @@ namespace ConsoleMonster.Input {
                     _height = height;
                     return InputEvent.Resized(width, height);
                 }
-                bool available;
+                if (_unix != null) { return _unix.Read(wait - elapsed.Elapsed, cancellationToken); }
                 try {
-                    available = Console.KeyAvailable;
+                    if (Console.KeyAvailable) {
+                        return FromKeyInfo(Console.ReadKey(true));
+                    }
                 } catch (InvalidOperationException ex) {
                     throw new InputClosedException("Keys cannot be read: " + ex.Message, ex);
                 }
-                if (available) {
-                    return FromKeyInfo(Console.ReadKey(true));
-                }
-                if (DateTime.UtcNow >= deadline) {
+                if (elapsed.Elapsed >= wait) {
                     return null;
                 }
                 Thread.Sleep(15);
@@ -70,6 +77,7 @@ namespace ConsoleMonster.Input {
 
         /// <inheritdoc />
         public void Dispose() {
+            _unix?.Dispose();
         }
     }
 }

@@ -6,7 +6,7 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>How objects of a registered type are shown by Enable-ConsoleFormatting (Register-ConsoleView).</summary>
     public sealed class ConsoleViewRegistration {
-        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false) {
+        internal ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false) {
             TypeName = typeName;
             View = view;
             Property = property;
@@ -14,7 +14,15 @@ namespace ConsoleMonster.PowerShell {
             Group = group;
             Title = title;
             IsBuiltIn = builtIn;
+            NativePresentation = nativePresentation;
+            GroupHeadersAsRows = groupHeadersAsRows;
         }
+
+        // These registrations also decorate native-selected columns; user property/view overrides stay engine-owned.
+        internal bool NativePresentation { get; }
+
+        /// <summary>Uses the table's full-width group section rows.</summary>
+        internal bool GroupHeadersAsRows { get; }
 
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }
@@ -59,11 +67,26 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Explicitly opts Format-Table, Format-List and Format-Wide into host-only rendering. Excluded from All.</summary>
         FormatCommands = 8,
 
-        /// <summary>Native warning, verbose, debug and (PowerShell 7.2+) error colours from the active theme; stream commands and records stay native.</summary>
+        /// <summary>Native stream and progress colours from the active theme; commands, records and progress view stay native.</summary>
         Streams = 16,
 
-        /// <summary>Default output, errors, progress and stream colours. FormatCommands requires a separate explicit opt-in.</summary>
-        All = Output | ErrorView | Progress | Streams
+        /// <summary>Minimal host-only shell prompt with path, cached git state, status and completed command duration. Excluded from All.</summary>
+        Prompt = 512,
+
+        /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable; excluded from All.</summary>
+        GridView = 256,
+
+        /// <summary>Native command help displayed through HelpView only on a direct local host route. Excluded from All.</summary>
+        Help = 32,
+
+        /// <summary>Compact, message-first errors only on a direct, non-recorded host route. Excluded from All.</summary>
+        Errors = 64,
+
+        /// <summary>Syntax, selection and inline prediction colours for already loaded PSReadLine; editing behaviour stays native.</summary>
+        ReadLine = 128,
+
+        /// <summary>Default output, errors, native stream/progress and ReadLine colours. Legacy Progress and FormatCommands require separate explicit opt-ins.</summary>
+        All = Output | ErrorView | Streams | ReadLine
     }
 
     /// <summary>
@@ -71,7 +94,7 @@ namespace ConsoleMonster.PowerShell {
     /// reach the host to Out-ConsoleDefault, which shows registered types through ConsoleMonster and passes everything else
     /// to PowerShell's own Out-Default. Only output that would be displayed on the console is affected.
     /// </summary>
-    internal static class ConsoleFormatting {
+    internal static partial class ConsoleFormatting {
         private static readonly object Gate = new object();
         private static Dictionary<string, ConsoleViewRegistration> Views => FormattingSessionState.Current.Views;
         private static readonly Dictionary<string, ConsoleViewRegistration> BuiltIns = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
@@ -163,7 +186,7 @@ namespace ConsoleMonster.PowerShell {
                 + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
                 + "$__cmReset.Invoke(); "
                 + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { FormatCommandInstallation.Remove(state); state.Reset(); }));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, SavedWriteProgressAlias, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -177,7 +200,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView, ConsoleFormattingFeature.Prompt }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }
@@ -187,17 +210,7 @@ namespace ConsoleMonster.PowerShell {
 
         // The Out-Default shim: everything goes through Out-ConsoleDefault while ConsoleMonster is loaded, and straight to
         // PowerShell's Out-Default if the module was removed.
-        internal const string ShimScript = @"
-    [CmdletBinding()]
-    param([switch] $Transcript, [Parameter(ValueFromPipeline = $true)] [psobject] $InputObject)
-    begin {
-        $cmTarget = if (Get-Command -Name 'ConsoleMonster\Out-ConsoleDefault' -CommandType Cmdlet -ErrorAction Ignore) { { ConsoleMonster\Out-ConsoleDefault -Transcript:$Transcript -Shim -TopLevel:($MyInvocation.CommandOrigin -eq 'Runspace') } } else { { Microsoft.PowerShell.Core\Out-Default -Transcript:$Transcript } }
-        $cmPipeline = $cmTarget.GetSteppablePipeline($MyInvocation.CommandOrigin)
-        $cmPipeline.Begin($PSCmdlet)
-    }
-    process { $cmPipeline.Process($InputObject) }
-    end { $cmPipeline.End() }
-";
+        internal static string ShimScript => FormatCommandInstallation.ReadResource("Formatting.OutDefaultProxy.ps1");
 
         internal static IReadOnlyCollection<ConsoleViewRegistration> Registrations {
             get {
@@ -249,18 +262,7 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
                 "Name", "DisplayName"
             }, null, "System.ServiceProcess.ServiceController", null, true));
-            // Get-Command: every kind of command in one table.
-            object[] commands = { Hashtable("CommandType", ScriptBlock.Create("[string] $_.CommandType"), null), Hashtable("Name", ScriptBlock.Create("if ($_.CommandType -eq 'Alias') { $_.DisplayName } else { $_.Name }"), null), Hashtable("Version", ScriptBlock.Create("if ($_.Version -and $_.Version -ne [version] '0.0') { [string] $_.Version }"), null), "Source" };
-            foreach (string type in new[] { "System.Management.Automation.CmdletInfo", "System.Management.Automation.FunctionInfo", "System.Management.Automation.FilterInfo", "System.Management.Automation.AliasInfo", "System.Management.Automation.ApplicationInfo", "System.Management.Automation.ExternalScriptInfo", "System.Management.Automation.ConfigurationInfo" }) {
-                AddBuiltIn(new ConsoleViewRegistration(type, ConsoleViewKind.Table, commands, null, "Command", null, true));
-            }
-            // Get-Module: the version and how many commands each module exports.
-            AddBuiltIn(new ConsoleViewRegistration("System.Management.Automation.PSModuleInfo", ConsoleViewKind.Table, new object[] {
-                Hashtable("ModuleType", ScriptBlock.Create("[string] $_.ModuleType"), null),
-                Hashtable("Version", ScriptBlock.Create("[string] $_.Version"), null),
-                "Name",
-                Hashtable("Commands", ScriptBlock.Create("$_.ExportedCommands.Count"), null)
-            }, null, "Module", null, true));
+            RegisterEverydayBuiltIns();
             // Get-WinEvent: time, id, the level as a status word, the source and the message's first line.
             AddBuiltIn(new ConsoleViewRegistration("System.Diagnostics.Eventing.Reader.EventLogRecord", ConsoleViewKind.Table, new object[] {
                 Hashtable("TimeCreated", ScriptBlock.Create("$_.TimeCreated"), "Date"),

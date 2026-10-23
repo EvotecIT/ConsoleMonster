@@ -73,13 +73,13 @@ namespace ConsoleMonster.Interactive {
         private sealed class TextAreaView : PromptView<string> {
             private readonly TextAreaPrompt _prompt;
             private readonly TextAreaEditor _editor;
-            private readonly TextAreaWidget _widget;
+            private readonly TextArea _widget;
             private bool _validateLive;
 
             public TextAreaView(TextAreaPrompt prompt, PromptLabels labels) : base(prompt, labels) {
                 _prompt = prompt;
                 _editor = new TextAreaEditor(prompt.HasDefault ? prompt.Default : null) { MaxLength = prompt.MaxLength, MaxLines = prompt.MaxLines };
-                _widget = new TextAreaWidget(_editor, Caret) { Height = Math.Max(2, prompt.Height), Placeholder = prompt.Placeholder };
+                _widget = new TextArea(_editor, Caret) { Height = Math.Max(2, prompt.Height), Placeholder = prompt.Placeholder };
             }
 
             protected override IWidget Build(ViewFrame frame) {

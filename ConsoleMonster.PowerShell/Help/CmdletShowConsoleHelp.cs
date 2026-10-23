@@ -93,7 +93,7 @@ namespace ConsoleMonster.PowerShell {
                 // An about topic is plain text: written as it is.
                 view = TextBlock.Plain(text);
             } else {
-                view = new HelpView(PSHelp.Read(help, command)) { ShowExamples = !NoExamples.IsPresent };
+                view = PSHelp.CreateView(help, command, NoExamples.IsPresent);
             }
             PSFormatting.Emit(this, view, Width, null, AsString.IsPresent);
         }

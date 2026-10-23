@@ -17,6 +17,29 @@ namespace ConsoleMonster.Export {
 
         public ExportPalette Palette { get; }
 
+        /// <summary>A blank terminal row supplies the outer background only when every cell has an explicit background.</summary>
+        public string ScreenBackground {
+            get {
+                if (Frame.Width == 0 || Frame.Height == 0) { return Palette.Background; }
+                Color background = Frame[0, Frame.Height - 1].Style.Background;
+                if (background.IsDefault) { return Palette.Background; }
+                for (int x = 0; x < Frame.Width; x++) {
+                    Cell cell = Frame[x, Frame.Height - 1];
+                    if ((!string.IsNullOrEmpty(cell.Glyph) && cell.Glyph != " ") || cell.IsContinuation
+                        || cell.Style.Decoration != TextDecoration.None || cell.Style.Background != background) {
+                        return Palette.Background;
+                    }
+                }
+                // A footer cannot redefine terminal-default backgrounds elsewhere in the frame.
+                for (int y = 0; y < Frame.Height; y++) {
+                    for (int x = 0; x < Frame.Width; x++) {
+                        if (Frame[x, y].Style.Background.IsDefault) { return Palette.Background; }
+                    }
+                }
+                return ExportPalette.ToCss(background)!;
+            }
+        }
+
         /// <summary>"dark" or "light" when the export carries both renderings; null for a single one.</summary>
         public string? Scheme { get; }
     }
@@ -120,6 +143,12 @@ namespace ConsoleMonster.Export {
             css.Append(ConsoleExporter.ReadAsset("block.css")
                 .Replace("__PADDING__", options.Padding.ToString(System.Globalization.CultureInfo.InvariantCulture))
                 .Replace("__INSET__", (options.Padding * 2).ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            foreach (ExportLayer layer in layers) {
+                if (layer.ScreenBackground != layer.Palette.Background) {
+                    css.Append(".cm-export .cm-screen").Append(layer.Scheme == null ? string.Empty : ".cm-" + layer.Scheme)
+                        .Append("{background:").Append(layer.ScreenBackground).Append("}\n");
+                }
+            }
             if (layers.Count > 1) {
                 css.Append(".cm-export .cm-light{display:none}\n@media (prefers-color-scheme: light){.cm-export .cm-dark{display:none}.cm-export .cm-light{display:block}}\n");
             }

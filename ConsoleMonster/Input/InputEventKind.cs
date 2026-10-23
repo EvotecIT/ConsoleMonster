@@ -14,6 +14,9 @@ namespace ConsoleMonster.Input {
         FocusGained,
 
         /// <summary>The window lost keyboard focus.</summary>
-        FocusLost
+        FocusLost,
+
+        /// <summary>A mouse button was pressed or released at a character-cell position.</summary>
+        Mouse
     }
 }

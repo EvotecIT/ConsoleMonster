@@ -103,7 +103,7 @@ namespace ConsoleMonster.Interactive {
             }
             Rows rows = new Rows();
             rows.Add(new HeaderBar(_grid.Title) { Right = right }, LayoutSize.Fixed(1));
-            TextInputWidget input = new TextInputWidget(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
+            TextInput input = new TextInput(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
             Columns filter = new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), input) { Gap = 0 };
             rows.Add(new Padding(filter, 1, 1, 1, 0), LayoutSize.Fixed(2));
             Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderToken = ThemeToken.Accent };
@@ -142,16 +142,20 @@ namespace ConsoleMonster.Interactive {
                 bindings.Add(new KeyBinding(Labels.KeySelect, ToggleMark, new KeyChord(ConsoleKey.Spacebar), new KeyChord(' ')) { KeyText = "space", Order = 15 });
                 bindings.Add(new KeyBinding(Labels.KeyAll, MarkAll, new KeyChord(ConsoleKey.A, KeyModifiers.Control)) { KeyText = "ctrl+a", Order = 16, InFooter = false });
             }
-            bindings.Add(new KeyBinding(Labels.KeyDetails, OpenDetails, new KeyChord(ConsoleKey.Enter)) { Order = 20 });
-            bindings.Add(new KeyBinding(Labels.KeySort, () => CycleSort(1), new KeyChord(ConsoleKey.F3)) { KeyText = "f3", Order = 22 });
+            bindings.Add(new KeyBinding(Labels.KeyDetails, OpenDetails, new KeyChord(ConsoleKey.Enter)) { Order = 30 });
+            bindings.Add(new KeyBinding(Labels.KeySort, () => CycleSort(1), new KeyChord(ConsoleKey.F3)) { KeyText = "f3", Order = 32 });
             bindings.Add(new KeyBinding(string.Empty, () => CycleSort(-1), new KeyChord(ConsoleKey.F3, KeyModifiers.Shift)) { InFooter = false });
-            bindings.Add(new KeyBinding(Labels.KeyOrder, ReverseSort, new KeyChord(ConsoleKey.F4)) { KeyText = "f4", Order = 23, InFooter = false });
-            bindings.Add(new KeyBinding(Labels.KeyColumns, () => ShowModal(new GridColumnsModal(this)), new KeyChord(ConsoleKey.F2)) { KeyText = "f2", Order = 24 });
+            bindings.Add(new KeyBinding(Labels.KeyOrder, ReverseSort, new KeyChord(ConsoleKey.F4)) { KeyText = "f4", Order = 33, InFooter = false });
+            bindings.Add(new KeyBinding(Labels.KeyColumns, () => ShowModal(new GridColumnsModal(this)), new KeyChord(ConsoleKey.F2)) { KeyText = "f2", Order = 34 });
             if (_grid.Selection != GridSelection.None) {
-                bindings.Add(new KeyBinding(Labels.KeyDone, Done, new KeyChord(ConsoleKey.Enter, KeyModifiers.Control), new KeyChord(ConsoleKey.F10)) { KeyText = "ctrl+enter", Order = 30 });
+                bindings.Add(new KeyBinding(Labels.KeyDone, Done, new KeyChord(ConsoleKey.Enter, KeyModifiers.Control), new KeyChord(ConsoleKey.F10)) { KeyText = "ctrl+enter", Order = 20 });
             }
-            bindings.Add(new KeyBinding(_filter.IsEmpty ? Labels.KeyCancel : Labels.KeyClearFilter, Escape, new KeyChord(ConsoleKey.Escape)) { Order = 40 });
-            bindings.Add(HelpBinding(false));
+            bindings.Add(new KeyBinding(_filter.IsEmpty ? Labels.KeyCancel : Labels.KeyClearFilter, Escape, new KeyChord(ConsoleKey.Escape)) { Order = 25 });
+            // The essential move/select/done/cancel hints fit at 60 columns. Let secondary hints, including the key-map
+            // hint, give way before these actions instead of reserving footer space for F1. F1 still opens every binding.
+            KeyBinding help = HelpBinding(false);
+            help.Order = 100;
+            bindings.Add(help);
         }
 
         protected override bool HandleUnbound(InputEvent input) {

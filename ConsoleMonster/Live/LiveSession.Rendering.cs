@@ -105,7 +105,6 @@ namespace ConsoleMonster.Live {
                 if (previousContent != null) { Detach(previousContent); }
                 foreach (IWidget child in slot.Children) { Adopt(child); }
                 ResolveLogTarget();
-                Interlocked.Exchange(ref _invalidate, 1);
             }
             if (_recorder != null) {
                 RecordApplied(target!, liveEvent);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -43,7 +44,7 @@ namespace SiteFrames.Vt {
         /// Runs a command line and returns its output. <paramref name="interrupt"/> presses Ctrl+C in the console after that
         /// long, the way a reader stops a program that runs until it is told to stop (a host).
         /// </summary>
-        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null) {
+        public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null, string? inputText = null, string? readyMarker = null, string? capturePath = null, string? completionText = null, string? readyText = null, string? inputKeys = null) {
             if (!OperatingSystem.IsWindows()) {
                 throw new PlatformNotSupportedException("Captures run in a Windows pseudo console.");
             }
@@ -59,6 +60,8 @@ namespace SiteFrames.Vt {
             outputWrite.Dispose();
 
             List<OutputChunk> chunks = new List<OutputChunk>();
+            using ManualResetEventSlim ready = new ManualResetEventSlim(readyMarker == null);
+            string tail = string.Empty;
             Stopwatch clock = Stopwatch.StartNew();
             Thread reader = new Thread(() => {
                 using (FileStream stream = new FileStream(outputRead, FileAccess.Read, 1)) {
@@ -77,6 +80,11 @@ namespace SiteFrames.Vt {
                         Buffer.BlockCopy(buffer, 0, copy, 0, read);
                         lock (chunks) {
                             chunks.Add(new OutputChunk(clock.ElapsedMilliseconds, copy));
+                        }
+                        if (readyMarker != null && !ready.IsSet) {
+                            string text = tail + Encoding.UTF8.GetString(copy);
+                            if (text.Contains(readyMarker, StringComparison.Ordinal)) { ready.Set(); }
+                            tail = text.Substring(Math.Max(0, text.Length - readyMarker.Length));
                         }
                     }
                 }
@@ -109,7 +117,45 @@ namespace SiteFrames.Vt {
                 if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, ExtendedStartupInfoPresent | UnicodeEnvironment, block, workingDirectory, ref startup, out info)) {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
+                if (readyText != null && inputKeys != null) {
+                    Console.WriteLine("Owned ConPTY child PID " + info.dwProcessId);
+                    while (true) {
+                        string output;
+                        lock (chunks) { output = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
+                        if (output.Contains(readyText, StringComparison.Ordinal)) { break; }
+                        if (Wait(info.hProcess, TimeSpan.FromMilliseconds(25)) == 0) {
+                            throw new InvalidOperationException("Capture exited before its input-ready marker: " + output);
+                        }
+                        if (clock.Elapsed > timeout) {
+                            TerminateProcess(info.hProcess, 1);
+                            throw new TimeoutException("Capture did not reach its input-ready marker.");
+                        }
+                    }
+                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
+                    byte[] bytes = Encoding.UTF8.GetBytes(inputKeys);
+                    input.Write(bytes, 0, bytes.Length);
+                    input.Flush();
+                }
                 uint wait;
+                if (inputText != null) {
+                    if (!ready.Wait(timeout)) {
+                        TerminateProcess(info.hProcess, 1);
+                        throw new TimeoutException("Capture did not reach its input marker: " + commandLine);
+                    }
+                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
+                    byte[] keys = Encoding.UTF8.GetBytes(inputText);
+                    input.Write(keys, 0, keys.Length);
+                    input.Flush();
+                    if (completionText != null) {
+                        // Let the native editor paint and finish history prediction before asking it to accept the line.
+                        if (Wait(info.hProcess, TimeSpan.FromMilliseconds(250)) == 0) {
+                            throw new InvalidOperationException("Capture exited before completing native input: " + commandLine);
+                        }
+                        keys = Encoding.UTF8.GetBytes(completionText);
+                        input.Write(keys, 0, keys.Length);
+                        input.Flush();
+                    }
+                }
                 if (interrupt != null) {
                     wait = Wait(info.hProcess, interrupt.Value);
                     // A program that is stopped with Ctrl+C must still be running when the key is pressed.
@@ -119,7 +165,7 @@ namespace SiteFrames.Vt {
                     }
                     // Ctrl+C typed into the pseudo console (ETX); the console turns it into the interrupt signal.
                     // The stream owns the pipe handle, so it stays open until the console closes (below).
-                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
+                    input ??= new FileStream(inputWrite, FileAccess.Write, 1, false);
                     input.Write(new byte[] { 3 }, 0, 1);
                     input.Flush();
                 }
@@ -132,7 +178,9 @@ namespace SiteFrames.Vt {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
                 if (exitCode != 0) {
-                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine);
+                    string diagnostic;
+                    lock (chunks) { diagnostic = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
+                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine + "\n" + diagnostic);
                 }
                 // Give ConPTY a moment to paint the last frame before the console closes.
                 Thread.Sleep(400);
@@ -153,6 +201,12 @@ namespace SiteFrames.Vt {
                 }
                 if (block != IntPtr.Zero) {
                     Marshal.FreeHGlobal(block);
+                }
+                if (capturePath != null) {
+                    using FileStream captured = File.Create(capturePath);
+                    lock (chunks) {
+                        foreach (OutputChunk chunk in chunks) { captured.Write(chunk.Data); }
+                    }
                 }
             }
             lock (chunks) {

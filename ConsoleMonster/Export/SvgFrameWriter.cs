@@ -26,7 +26,7 @@ namespace ConsoleMonster.Export {
                 content.Append("\" transform=\"translate(").Append(ExportText.Num(g.ScreenX)).Append(' ').Append(ExportText.Num(g.ScreenY)).Append(")\">");
                 content.Append("<rect width=\"").Append(ExportText.Num(g.Width)).Append("\" height=\"").Append(ExportText.Num(g.GridHeight + (2 * options.Padding)))
                     .Append("\" x=\"").Append(-options.Padding).Append("\" y=\"").Append(-options.Padding).Append('"');
-                ExportText.AppendPaint(content, "fill", layer.Palette.Background);
+                ExportText.AppendPaint(content, "fill", layer.ScreenBackground);
                 content.Append("/>");
                 AppendFrame(content, layer.Frame, layer.Palette, styles, (layer.Scheme ?? "s").Substring(0, 1), options);
                 content.Append("</g>");

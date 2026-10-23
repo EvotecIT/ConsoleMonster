@@ -1,5 +1,9 @@
+using System;
 using System.Linq;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
+using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
@@ -9,6 +13,71 @@ namespace ConsoleMonster.Tests.Rendering {
     public sealed class TableContractTests {
         private static string Render(Table table, int width) {
             return Terminal.RenderText(table, TerminalProfile.Fixed(width, 40, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+        }
+
+        /// <summary>Section groups break inner borders cleanly and keep their muted counts clear of column positions.</summary>
+        [Theory]
+        [InlineData(60, false, TableBorder.Rounded)]
+        [InlineData(120, true, TableBorder.Rounded)]
+        [InlineData(60, true, TableBorder.Square)]
+        [InlineData(120, false, TableBorder.Square)]
+        [InlineData(60, false, TableBorder.Double)]
+        [InlineData(120, true, TableBorder.Double)]
+        public void SectionGroupsSpanColumnsWithoutBorderCollisions(int width, bool light, TableBorder border) {
+            Table table = SectionTable();
+            table.Border = border;
+            RenderContext context = Terminal.CreateContext(TerminalProfile.Fixed(width, 40, ColorDepth.TrueColor, GlyphTier.Full), light ? Theme.Light : Theme.Dark);
+            CellBuffer frame = FrameComposer.RenderBlock(table, width, context);
+            BoxGlyphs box = context.Glyphs.GetBox(border == TableBorder.Double ? BoxStyle.Double : BoxStyle.Single);
+            int column = frame.GetRowText(1).IndexOf(box.Vertical, 1, StringComparison.Ordinal);
+            Assert.Equal(box.BottomJoint, frame[column, 2].Glyph);
+            Assert.DoesNotContain(box.Cross, frame.GetRowText(2));
+            foreach (string label in new[] { "Method", "Event", "Property" }) {
+                string group = label + " · 1";
+                int y = Assert.Single(Enumerable.Range(0, frame.Height), row => frame.GetRowText(row).Contains(group));
+                string line = frame.GetRowText(y);
+                Assert.Equal(2, line.Count(character => character.ToString() == box.Vertical));
+                int x = line.IndexOf(group, StringComparison.Ordinal);
+                Assert.Equal(context.Style(ThemeToken.Accent).With(TextDecoration.Bold), frame[x, y].Style);
+                int count = x + group.Length - 1;
+                Assert.NotEqual(column, count);
+                Assert.Equal(context.Style(ThemeToken.Muted), frame[count, y].Style);
+                Assert.Equal(box.Vertical, frame[column, y + 1].Glyph);
+            }
+        }
+
+        [Fact]
+        public void SectionGroupsWithoutHeadersDoNotLeaveTopRuleStubs() {
+            Table table = SectionTable();
+            table.ShowHeader = false;
+            string[] lines = Render(table, 60).Split('\n');
+            Assert.DoesNotContain('┬', lines[0]);
+            Assert.Contains("Method · 1", lines[1]);
+        }
+
+        [Fact]
+        public void SectionGroupWindowsAndChunksKeepTheSameCleanBreak() {
+            Table table = SectionTable();
+            RenderContext context = Terminal.CreateContext(TerminalProfile.Fixed(60, 40, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            CellBuffer group = table.RenderWindow(60, 2, 2, context, out int head, out _, out _);
+            Assert.Contains('┴', group.GetRowText(head - 1));
+            Assert.DoesNotContain('┼', group.GetRowText(head - 1));
+            Assert.Contains("Event · 1", group.GetRowText(head));
+            CellBuffer data = table.RenderWindow(60, 3, 1, context, out head, out _, out _);
+            Assert.Contains('┼', data.GetRowText(head - 1));
+            string chunks = string.Join("\n", table.RenderChunks(60, context, 2).Select(block => block.ToPlainText()));
+            Assert.Equal(FrameComposer.RenderBlock(table, 60, context).ToPlainText(), chunks);
+        }
+
+        private static Table SectionTable() {
+            Table table = new Table { GroupHeadersAsRows = true, RecordViewRows = 0 };
+            table.AddColumn(new TableColumn("Name") { Width = 9 });
+            table.AddColumn("Definition");
+            foreach (string label in new[] { "Method", "Event", "Property" }) {
+                table.AddGroup(label);
+                table.AddPlainRow("Member", "definition");
+            }
+            return table;
         }
 
         [Fact]

@@ -9,6 +9,7 @@
 .cm-screen .f0369a1{color:#0369a1}
 .cm-screen .f075985{color:#075985}
 .cm-screen .f0c0c0c{color:#0c0c0c}
+.cm-screen .f0d9488{color:#0d9488}
 .cm-screen .f0f172a{color:#0f172a}
 .cm-screen .f111827{color:#111827}
 .cm-screen .f121212{color:#121212}
@@ -89,6 +90,7 @@
 .cm-screen .f9596fb{color:#9596fb}
 .cm-screen .f9795fb{color:#9795fb}
 .cm-screen .f9a3412{color:#9a3412}
+.cm-screen .f9a4949{color:#9a4949}
 .cm-screen .f9c93fb{color:#9c93fb}
 .cm-screen .f9e92fb{color:#9e92fb}
 .cm-screen .fa191fb{color:#a191fb}
@@ -115,6 +117,7 @@
 .cm-screen .fcccccc{color:#cccccc}
 .cm-screen .fd0d0d0{color:#d0d0d0}
 .cm-screen .fd4d4d8{color:#d4d4d8}
+.cm-screen .fd57777{color:#d57777}
 .cm-screen .fd97706{color:#d97706}
 .cm-screen .fe2e8f0{color:#e2e8f0}
 .cm-screen .fe74856{color:#e74856}
@@ -250,7 +253,11 @@
 .cm-screen .c110{width:66em}
 .cm-screen .c111{width:66.6em}
 .cm-screen .c112{width:67.2em}
+.cm-screen .c113{width:67.8em}
+.cm-screen .c115{width:69em}
+.cm-screen .c116{width:69.6em}
 .cm-screen .c118{width:70.8em}
+.cm-screen .c119{width:71.4em}
 .cm-screen .g2500{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light)}
 .cm-screen .g2501{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy)}
 .cm-screen .g2502{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:50% 0,50% 100%;background-size:var(--cm-light) calc(50% + calc(var(--cm-light) / 2)),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}

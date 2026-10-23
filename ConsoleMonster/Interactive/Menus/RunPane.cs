@@ -125,7 +125,7 @@ namespace ConsoleMonster.Interactive {
                 o.Output = new SurfaceOutput(surface, o.Profile);
                 o.WindowSource = () => new[] { 0, 0, surface.Width, surface.Height };
             }
-            WindowsConsoleInput? raw = input as WindowsConsoleInput;
+            IConsoleInputMode? raw = input as IConsoleInputMode;
             raw?.Suspend();
             RunResult result;
             RunPane pane = new RunPane(dashboard, view.Labels);

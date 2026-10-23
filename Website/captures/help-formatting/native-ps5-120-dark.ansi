@@ -1,0 +1,23 @@
+[?9001h[?1004h[?25l[2J[m[2;1H]0;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe[?25h[?25lNAME
+    Get-ConsoleCapability
+    
+SYNOPSIS
+    Shows what ConsoleMonster detected about the current terminal.
+    
+    Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, 
+    console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+    
+    
+SYNTAX
+    Get-ConsoleCapability [-Refresh <SwitchParameter>] [<CommonParameters>]
+    
+    
+DESCRIPTION
+    Shows what ConsoleMonster detected about the current terminal.
+    
+    Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, 
+    console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
+    [23;1HRELATED LINKS[25;1HREMARKS
+    To see the examples, type: "get-help Get-ConsoleCapability -examples".
+    For more information, type: "get-help Get-ConsoleCapability -detailed".
+    For technical information, type: "get-help Get-ConsoleCapability -full".[32;1H[?25h[?9001l[?1004l

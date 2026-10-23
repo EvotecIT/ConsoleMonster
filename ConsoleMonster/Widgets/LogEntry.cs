@@ -14,6 +14,18 @@ namespace ConsoleMonster.Widgets {
             Text = text;
         }
 
+        /// <summary>Creates a literal entry with session time and an optional source timestamp.</summary>
+        /// <param name="time">Session time of the entry.</param>
+        /// <param name="timestamp">The source timestamp, or null when unknown.</param>
+        /// <param name="level">The canonical log level.</param>
+        /// <param name="text">The original literal text.</param>
+        public LogEntry(TimeSpan time, string level, string text, DateTimeOffset? timestamp) : this(time, level, text) {
+            Timestamp = timestamp;
+        }
+
+        /// <summary>The source timestamp, or null when none was supplied.</summary>
+        public DateTimeOffset? Timestamp { get; }
+
         /// <summary>Session time of the entry.</summary>
         public TimeSpan Time { get; }
 

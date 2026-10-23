@@ -20,21 +20,27 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.TestHost {
     // A separate executable is required: Terminal uses OS stdout, and a real Ctrl+C must never reach the test runner.
-    public static class Program {
+    public static partial class Program {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
                     case "fallback": Fallback(); break;
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;
+                    case "app-mode": return LaunchAppMode(args[1], args[2], args.Length > 3 ? args[3] : null);
+                    case "app-mode-child": AppOutputModeProbe.Run(args[1], args[2]); break;
+                    case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
                     case "host": return LaunchHidden(args.Skip(1));
+                    case "native-modes": return NativeModes(args[1], args[2]);
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
+                    case "unix-input-probe": return UnixInputProbe.Run(args[1]);
                     default: throw new ArgumentException("Unknown process contract.");
                 }
                 return 0;
             } catch (Exception error) {
-                if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
+                if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
+                else if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }
@@ -146,6 +152,20 @@ namespace ConsoleMonster.TestHost {
             arguments.Add(typeof(Program).Assembly.Location);
 #endif
             arguments.Add("cancel-child");
+            arguments.Add(receipt);
+            return LaunchHidden(arguments);
+        }
+
+        private static int LaunchAppMode(string scenario, string receipt, string? runtime) {
+            List<string> arguments = new List<string> { Process.GetCurrentProcess().MainModule!.FileName! };
+#if !NETFRAMEWORK
+            arguments.Add("exec");
+            arguments.Add("--runtimeconfig");
+            arguments.Add(runtime ?? throw new InvalidOperationException("No host runtime configuration."));
+            arguments.Add(typeof(Program).Assembly.Location);
+#endif
+            arguments.Add("app-mode-child");
+            arguments.Add(scenario);
             arguments.Add(receipt);
             return LaunchHidden(arguments);
         }

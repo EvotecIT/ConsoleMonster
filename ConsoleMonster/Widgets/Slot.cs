@@ -9,7 +9,7 @@ namespace ConsoleMonster.Widgets {
     /// A named place in a layout whose widget can be replaced while a live session runs: put it anywhere (inside a panel,
     /// a column, a dashboard), then swap its content with <see cref="LiveSession.Region"/> or a <see cref="SlotHandle"/>.
     /// The swap goes through the session's update queue, so it is thread-safe and lands between frames; the surrounding
-    /// layout is invalidated and the next frame is fully redrawn. Live widgets inside the new content are registered with the
+    /// layout is recomposed and the existing cell diff writes only changed cells. Live widgets inside the new content are registered with the
     /// session under their names, replacing widgets of the same name.
     /// Live operations: <c>set</c> (Payload = the new widget), <c>clear</c>.
     /// </summary>

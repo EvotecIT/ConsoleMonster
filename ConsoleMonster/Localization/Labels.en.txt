@@ -1,0 +1,22 @@
+# Application diagnostics are resource-owned; existing widget/prompt English defaults remain unchanged.
+App.InvalidChoice = The value must identify an enabled choice.
+App.InvalidChoices = Every value must identify an enabled choice.
+App.DuplicateInput = Input names must be unique (case-insensitive): {0}.
+App.BoundInputs = Declare input controls in the stable layout, outside a binding.
+App.EmptyBinding = A binding must return a display widget.
+App.ControlName = An input needs a non-empty name.
+App.Unavailable = An interactive app needs an input source; request a static snapshot for redirected output or CI.
+App.ReflowWidth = The reflow width must be positive.
+App.FullScreen = Interactive apps require full-screen live mode.
+Input.Closed = The terminal input is closed or its mode cannot be changed.
+# English fallback for live tail labels.
+Widget.TailFollowing = Following latest
+Widget.TailPaused = Paused · viewing history
+Widget.TailCounts = {0} history lines discarded
+Widget.TailKeys = [accent]q[/] [muted]quit ·[/] [accent]PgUp[/] [muted]history ·[/] [accent]End[/] [muted]follow[/]
+Widget.TailSessionFailed = The log-tail live session failed.
+Widget.TailViewFailed = The log-tail view could not be updated or rendered.
+Widget.TailReaderReturnedNull = The log-tail reader returned null.
+Widget.TailReaderReturnedNullEntry = The log-tail reader returned a null entry.
+Widget.TailPauseMarker = ⏸
+Widget.TailNewLines = {0} new lines

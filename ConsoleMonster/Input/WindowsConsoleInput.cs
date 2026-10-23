@@ -9,10 +9,10 @@ namespace ConsoleMonster.Input {
     /// <summary>
     /// Reads the Windows console input buffer with <c>ReadConsoleInputW</c>: every key with its modifiers (Ctrl and Alt
     /// combinations, Shift+Tab, function keys), Alt+numpad characters, AltGr characters, pastes (a burst of characters in one
-    /// read), window resizes and focus changes. While it is open, line input, echo and Ctrl+C processing are off, so Ctrl+C
-    /// arrives as a key; the original console mode is restored on disposal.
+    /// read), mouse button transitions, window resizes and focus changes. While it is open, Quick Edit, line input, echo
+    /// and Ctrl+C processing are off, so mouse buttons and Ctrl+C arrive as events; the original mode is restored on disposal.
     /// </summary>
-    public sealed class WindowsConsoleInput : IInputSource {
+    public sealed partial class WindowsConsoleInput : IInputSource, IConsoleInputMode {
         private const int PasteThreshold = 3;
         private readonly IntPtr _handle;
         private readonly uint _originalMode;
@@ -23,6 +23,7 @@ namespace ConsoleMonster.Input {
         private int _width;
         private int _height;
         private char _highSurrogate;
+        private uint _mouseButtons;
         private bool _disposed;
 
         private WindowsConsoleInput(IntPtr handle, uint originalMode, uint rawMode) {
@@ -46,7 +47,8 @@ namespace ConsoleMonster.Input {
                 return null;
             }
             uint raw = (mode & ~(ConsoleInputNative.EnableProcessedInput | ConsoleInputNative.EnableLineInput | ConsoleInputNative.EnableEchoInput
-                | ConsoleInputNative.EnableMouseInput | ConsoleInputNative.EnableVirtualTerminalInput)) | ConsoleInputNative.EnableWindowInput;
+                | ConsoleInputNative.EnableQuickEditMode | ConsoleInputNative.EnableVirtualTerminalInput))
+                | ConsoleInputNative.EnableWindowInput | ConsoleInputNative.EnableMouseInput | ConsoleInputNative.EnableExtendedFlags;
             if (!ConsoleInputNative.TrySetMode(handle, raw)) {
                 return null;
             }
@@ -78,7 +80,7 @@ namespace ConsoleMonster.Input {
                             throw new InputClosedException("The console input could not be read.");
                         }
                         _batch.Clear();
-                        Translate(_buffer, read, _batch, ref _highSurrogate);
+                        Translate(_buffer, read, _batch, ref _highSurrogate, ref _mouseButtons);
                         foreach (InputEvent e in _batch) {
                             if (e.Kind == InputEventKind.Resize) {
                                 CheckResize();
@@ -99,14 +101,25 @@ namespace ConsoleMonster.Input {
             }
         }
         /// <summary>
-        /// Translates console input records into events (exposed for tests). Key-up records, modifier-only keys and mouse
-        /// records are skipped; three or more characters read in one batch become a single paste.
+        /// Translates one independent batch of console input records. Key-up and modifier-only keys are skipped;
+        /// three or more consecutive characters become a paste. Use the stateful overload for successive reads.
         /// </summary>
         /// <param name="records">The records.</param>
         /// <param name="count">How many records are valid.</param>
         /// <param name="output">Receives the events.</param>
         /// <param name="highSurrogate">Carries a high surrogate between batches.</param>
         internal static void Translate(ConsoleInputRecord[] records, int count, List<InputEvent> output, ref char highSurrogate) {
+            uint mouseButtons = 0;
+            Translate(records, count, output, ref highSurrogate, ref mouseButtons);
+        }
+
+        /// <summary>Translates successive console reads, carrying surrogate and mouse button state between batches.</summary>
+        /// <param name="records">The native records.</param>
+        /// <param name="count">The number of valid records.</param>
+        /// <param name="output">Receives normalized events in record order.</param>
+        /// <param name="highSurrogate">Carries an unfinished surrogate pair.</param>
+        /// <param name="mouseButtons">Carries the last observed supported mouse button state.</param>
+        internal static void Translate(ConsoleInputRecord[] records, int count, List<InputEvent> output, ref char highSurrogate, ref uint mouseButtons) {
             List<InputEvent> keys = new List<InputEvent>(count);
             for (int i = 0; i < count; i++) {
                 ConsoleInputRecord record = records[i];
@@ -114,10 +127,14 @@ namespace ConsoleMonster.Input {
                     case ConsoleInputNative.KeyEvent:
                         TranslateKey(record, keys, ref highSurrogate);
                         break;
+                    case ConsoleInputNative.MouseEvent:
+                        TranslateMouse(record, keys, ref mouseButtons);
+                        break;
                     case ConsoleInputNative.WindowBufferSizeEvent:
                         keys.Add(InputEvent.Resized(record.SizeX, record.SizeY));
                         break;
                     case ConsoleInputNative.FocusEvent:
+                        if (record.SetFocus == 0) mouseButtons = 0;
                         keys.Add(InputEvent.Focus(record.SetFocus != 0));
                         break;
                 }
@@ -277,6 +294,7 @@ namespace ConsoleMonster.Input {
         public void Resume() {
             ConsoleInputNative.Flush(_handle);
             _pending.Clear();
+            _mouseButtons = 0;
             ConsoleInputNative.TrySetMode(_handle, _rawMode);
         }
 

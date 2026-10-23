@@ -22,8 +22,11 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting -Feature ErrorView  # errors that reach the console
    Enable-ConsoleFormatting -Feature Progress   # Write-Progress drawn by ConsoleMonster
    Enable-ConsoleFormatting -Feature Streams    # warning, verbose and debug messages in the theme's colours
-   Enable-ConsoleFormatting -Feature All        # all four
+   Enable-ConsoleFormatting -Feature ReadLine   # colors for the already loaded command-line editor
+   Enable-ConsoleFormatting -Feature All        # output, errors, native stream/progress colors and ReadLine
    Enable-ConsoleFormatting -Feature FormatCommands  # Format-Table, Format-List and Format-Wide too (never part of All)
+   Enable-ConsoleFormatting -Feature Errors      # compact host errors (never part of All)
+   Enable-ConsoleFormatting -Feature Prompt     # minimal shell prompt (never part of All)
    ```
 
 2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
@@ -41,13 +44,70 @@ These features change how PowerShell's own output looks for the session, never w
 
 `Show-ConsoleHelp` reads the help PowerShell has for a command (`Get-Help -Full`): cmdlet help files, comment-based help of functions and scripts, or the syntax PowerShell generates when there is none. It shows the synopsis, the syntax of each parameter set with optional parts told apart, the description, a parameter table, highlighted examples, inputs, outputs and links. Piped to `more`, `Out-Host -Paging` or a file, it writes plain lines.
 
+### Use the view for native help
+
+```powershell
+Enable-ConsoleFormatting -Feature Help
+Get-Help Get-Process -Full
+Get-Process -?
+help Get-Process -Examples
+Disable-ConsoleFormatting -Feature Help
+```
+
+This opt-in feature uses the same view when native help goes straight to the console. `help` keeps paging, with
+**Space next · q quit** in the footer. `-Full`, `-Detailed`, `-Examples` and `-Parameter` select the corresponding
+sections; `-Online` and `-ShowWindow` keep PowerShell's behavior. About topics stay literal until Markdown support
+ships. Help is excluded from `-Feature All`.
+
+Pipelines, assignments, output variables, redirection, jobs, remoting, CI and transcripts keep PowerShell's own help
+objects and bytes. For example, `Get-Help Get-Process | Out-String` remains native while the feature is enabled.
+Disabling restores the previous help and output adapters. The
+[contract suite](https://github.com/EvotecIT/ConsoleMonster/blob/master/Module/Tests/ConsoleMonster.HelpFormatting.Tests.ps1)
+records the proof for Windows PowerShell 5.1 and PowerShell 7.
+
+{{< cm-frame ids="help-formatting-native-ps7-120,help-formatting-get-help-ps7-120,help-formatting-get-help-ps7-60" caption="Native help before and after the opt-in, captured on PowerShell 7 at 120 and 60 columns." >}}
+
+{{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="The first page of help, with the Space/q footer, at both widths." >}}
+## Compact everyday errors
+
+Enable the compact layout explicitly:
+
+```powershell
+Enable-ConsoleFormatting -Feature Errors
+```
+
+Subsequent commands typed at the prompt use the new layout when they fail. This one deliberately produces an error:
+
+```powershell
+[int]::Parse('production')
+```
+
+The message comes first, with only its label in the error tone. The original invocation is highlighted, a caret marks
+the failing span, and the script, line and column come from `InvocationInfo`. Category and target stay visible. Inner
+exceptions fold into a muted count, and PowerShell 7 adds a `Get-Error for details` hint.
+
+{{< cm-frame ids="errors-120,errors-60" caption="The shared compact view at 120 and 60 columns. Its complete C# program compiles to produce these frames; switch the site theme for the light rendering." >}}
+
+```powershell
+Enable-ConsoleFormatting -Feature Errors -Detailed  # include stacks and causes
+Disable-ConsoleFormatting -Feature Errors
+
+# The same view on demand, including inside a catch block or an export.
+try { [int]::Parse('production') } catch { $_ | Format-ConsoleError -Compact }
+```
+
+`Errors` is excluded from `All`. Error-producing cmdlets remain native, and `$Error`, `-ErrorVariable`, `2>`,
+`try`/`catch`, `$?` and `$ErrorActionPreference` keep their PowerShell behavior. Piped, assigned, redirected, job,
+remoting, CI and transcript output retains native rendering. `$ErrorView` stays unchanged; `CategoryView` and
+`Get-Error` retain their native views. Bare `Disable-ConsoleFormatting` removes this opt-in along with the others.
+
 {{< cm-demo id="errors" heading="h2" >}}
 
 With `-Feature ErrorView`, errors that reach the console use the same view as `Format-ConsoleError`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.
 
 {{< cm-demo id="progress" heading="h2" >}}
 
-With `-Feature Progress`, `Write-Progress` becomes an alias of `Write-ConsoleProgress` for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
+The legacy `Progress` feature is excluded from `All`: All keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With an explicit `-Feature Progress`, `Write-Progress` becomes an alias of `Write-ConsoleProgress` for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
 
 ## Warning, verbose and debug colours
 
@@ -56,3 +116,38 @@ With `-Feature Streams`, PowerShell's own warning, verbose and debug messages (a
 {{< cm-frame ids="streams-ps5,streams-ps7" caption="The same script on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
 
 Only the colours change. `Write-Warning`, `Write-Verbose` and `Write-Debug` stay PowerShell's commands, with their `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes, preferences, redirection and transcripts. PowerShell 7.2 and later set `$PSStyle.Formatting`; Windows PowerShell 5.1 and PowerShell 7.0 and 7.1 set the host's `$Host.PrivateData` colours, and hosts without them (remoting, headless) are left alone. `Disable-ConsoleFormatting -Feature Streams` puts back exactly the values it changed. For rich messages in your own scripts, with status symbols and markup, use [`Write-ConsoleStatus`](/powershell/commands/write-consolestatus/) or [`Write-ConsoleLog`](/powershell/commands/write-consolelog/).
+
+## Minimal shell prompt
+
+Opt in with `Prompt`; it is excluded from `All` and does not enable default output formatting:
+
+```powershell
+Import-Module ConsoleMonster
+Set-ConsoleTheme -Name Dark  # use Light for a light terminal background
+Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet  # prints profile lines
+```
+
+The prompt shows the shortened path, git branch with `*` for index or working-tree changes, and a success or failure mark. A completed command taking **more than two seconds** also shows its duration, using PowerShell's own history timestamps. An old nonzero native exit code does not mark a later successful PowerShell command as failed. PSReadLine handlers and key bindings stay as they are.
+
+Git is optional: one asynchronous probe runs per session, with a 100 ms child-process budget and a five-second cache. The prompt never waits for it. The first prompt can omit git until the next prompt; changed state can take five seconds to appear. Missing git, an unavailable repository or an expired probe omits that segment. Submodule contents are not scanned.
+
+An existing oh-my-posh or Starship prompt is kept. Use `Enable-ConsoleFormatting -Feature Prompt -Force` to replace it explicitly. Other custom prompts are backed up, including their closure scope. `Disable-ConsoleFormatting -Feature Prompt`, disabling all enabled features without a feature argument, or `Remove-Module ConsoleMonster` restores the original. A prompt you install later is kept. `Disable-ConsoleFormatting -Feature All` leaves this explicit opt-in enabled.
+
+Only the top-level local console prompt is themed. Assigned, piped, redirected, transcribed, recorded, job, remote and nested prompt calls use the original prompt. Native output, error records, preferences, `$?` and `$LASTEXITCODE` retain their behavior. Engines whose status or transcription state cannot be checked keep native output.
+
+### The same renderer in .NET
+
+The following frames use fixed illustrative path, branch and completed-command data. This complete C# program calls the renderer used by the PowerShell prompt; the PowerShell feature collects the live session data.
+
+```bash
+dotnet new console -n PromptExample
+cd PromptExample
+dotnet add package ConsoleMonster
+# Replace Program.cs with the complete program below, then run it.
+dotnet run
+```
+
+{{< cm-frame ids="shell-prompt-120,shell-prompt-60" caption="Fixed illustrative data: success first, then a failed 3.4-second command. Switch themes to compare light and dark." >}}
+
+Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

@@ -40,6 +40,45 @@ Disable-ConsoleFormatting -Feature FormatCommands       # just this one off agai
 
 {{< cm-demo id="format-commands" heading="h3" >}}
 
+## Command-line editor and native progress
+
+`ReadLine` colors the already loaded PSReadLine editor from the active theme, including selection and available inline predictions. `Streams` also colors native progress: `$PSStyle.Progress.Style` on PowerShell 7.2+, or available host progress colors on Windows PowerShell 5.1. The user's progress view, editing mode, key bindings and prediction behavior stay as configured. Missing PSReadLine and unsupported color properties are skipped.
+
+```powershell
+Import-Module ConsoleMonster
+Set-ConsoleTheme -Name Light
+Enable-ConsoleFormatting -Feature ReadLine, Streams
+Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42
+Write-Progress -Activity 'Backup' -Completed
+Enable-ConsoleFormatting -Feature ReadLine, Streams -ProfileSnippet
+Disable-ConsoleFormatting -Feature ReadLine, Streams
+```
+
+ReadLine is included in `All`. When runspaces share native preferences, the most recently applied installation supplies the colors. Disabling or removing that owner restores the latest surviving installation's colors; the last owner restores the first exact baseline, even after user edits. Re-enable after changing themes. Selecting only `ReadLine` and `Streams` keeps native `Write-*` commands and installs no `Out-Default` function. All also keeps every Write-* cmdlet native. The separate legacy `Progress` feature is excluded from All and explicitly opts into the `Write-ConsoleProgress` alias.
+## Out-GridView without a desktop
+
+```powershell
+Enable-ConsoleFormatting -Feature GridView
+Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+Disable-ConsoleFormatting -Feature GridView
+```
+
+`GridView` is excluded from `All`. A working native `Out-GridView` is always kept. Where it is unavailable, the session function uses `Show-ConsoleGrid`: the same keyboard filtering, sorting and selection, with `-Title`, `-PassThru`, `-OutputMode None|Single|Multiple` and `-Wait`. Browse mode returns nothing; selection returns the original objects. The terminal view is synchronous, so it waits until closed even without `-Wait`.
+
+{{< cm-frame ids="gridview-fallback-120,gridview-fallback-60" script="true" >}}
+
+Without an interactive console, the grid prints its existing table fallback with a warning and returns no selections. Existing functions and aliases need `-Force`; disabling or removing the module restores them. Constants, `AllScope` aliases and caller-local aliases that cannot be replaced safely are kept with a warning even with `-Force`. Remove or rename them in their defining scope first if you want the fallback. A working desktop command and its captures, jobs and transcripts keep PowerShell's behavior.
+
+The .NET equivalent uses `Grid`, the renderer behind `Show-ConsoleGrid`:
+
+```csharp
+using ConsoleMonster.Interactive;
+
+Grid grid = new Grid("Choose nodes") { Selection = GridSelection.Single };
+grid.AddColumn("Name").AddRow("api-east", "api-east");
+GridResult selected = grid.Show();
+```
+
 ## Views that ship with a module
 
 A module can describe how its objects look without depending on ConsoleMonster: a `<ModuleName>.consoleviews.psd1` file beside its manifest names the columns, their presenters and the grouping, as plain data. ConsoleMonster reads it for loaded modules when formatting is on, and `Format-ConsoleTable` and the exports use the same columns.
@@ -67,6 +106,6 @@ Get-Service | Select-Object -First 8 Name, Status, StartType | Copy-ConsoleOutpu
 
 ## More from the same switch
 
-- `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` turns on all of them and default output.
+- `Enable-ConsoleFormatting -Feature ErrorView`, `-Feature Progress` and `-Feature Streams` add the [error view, the progress area and themed warning, verbose and debug colours](/docs/help-and-defaults/); `-Feature All` adds default output, the error view, native stream/progress colors and ReadLine colors. The legacy `Progress` alias feature requires a separate opt-in.
 - `Register-ConsoleView` adds your own types in the session, including columns computed by script blocks; `Register-ConsoleView -Path` loads a `.consoleviews.psd1` file from anywhere.
 - `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` give the same views on demand, with column options; see [Coming from Format-Table](/guides/format-table/).

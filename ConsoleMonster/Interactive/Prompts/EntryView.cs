@@ -43,7 +43,7 @@ namespace ConsoleMonster.Interactive {
             if (!string.IsNullOrEmpty(Prompt.Description)) {
                 rows.Add(new Padding(new UiParagraph(Prompt.Description!), 2, 0, 0, 0));
             }
-            TextInputWidget input = new TextInputWidget(Editor, Caret) {
+            TextInput input = new TextInput(Editor, Caret) {
                 Placeholder = Placeholder,
                 Mask = Mask(InteractiveGlyphs.For(frame.Context))
             };

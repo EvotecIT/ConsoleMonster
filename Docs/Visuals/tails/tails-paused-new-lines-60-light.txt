@@ -1,0 +1,6 @@
+23:59:59        database ready
+23:59:59 ▴ WARN database retry
+23:59:59 ▴ WARN retry scheduled
+
+⏸ Paused · viewing history · 2 new lines
+q quit · PgUp history · End follow

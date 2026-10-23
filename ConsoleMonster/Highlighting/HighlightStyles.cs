@@ -71,7 +71,17 @@ namespace ConsoleMonster.Highlighting {
         /// <param name="context">The render context.</param>
         /// <param name="maxLines">The most lines to return (0 for all).</param>
         /// <returns>The lines.</returns>
-        public static List<StyledLine> ToLines(string text, ITextHighlighter? highlighter, RenderContext context, int maxLines = 0) {
+        public static List<StyledLine> ToLines(string text, ITextHighlighter? highlighter, RenderContext context, int maxLines = 0) =>
+            ToLines(text, highlighter, context, maxLines, null);
+
+        /// <summary>Highlights literal lines with an optional tone override for type tokens.</summary>
+        /// <param name="text">The literal source text.</param>
+        /// <param name="highlighter">The language highlighter, or null for plain text.</param>
+        /// <param name="context">The theme and terminal context.</param>
+        /// <param name="maxLines">The line limit, or zero for every line.</param>
+        /// <param name="typeTone">The type-token tone, or null for the language default.</param>
+        /// <returns>The styled lines without interpreting source text as markup.</returns>
+        public static List<StyledLine> ToLines(string text, ITextHighlighter? highlighter, RenderContext context, int maxLines, ThemeToken? typeTone) {
             string source = text ?? string.Empty;
             IReadOnlyList<HighlightToken> tokens = highlighter?.Tokenize(source) ?? new HighlightToken[0];
             List<StyledLine> lines = new List<StyledLine>();
@@ -88,7 +98,7 @@ namespace ConsoleMonster.Highlighting {
                 Style style = plain;
                 if (tokenIndex < tokens.Count && i >= tokens[tokenIndex].Start && i < tokens[tokenIndex].Start + tokens[tokenIndex].Length) {
                     HighlightToken token = tokens[tokenIndex];
-                    style = For(token.Role, context);
+                    style = token.Role == HighlightRole.Type && typeTone.HasValue ? context.Style(typeTone.Value) : For(token.Role, context);
                     if (token.Link != null) {
                         style = style.WithLink(token.Link);
                     }

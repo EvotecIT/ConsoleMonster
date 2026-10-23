@@ -148,7 +148,7 @@ namespace ConsoleMonster.PowerShell {
                 rows.Add(Values(columns, item, shape, budget));
             }
             ChoosePresenters(columns, rows, options.AutoPresenters);
-            Table table = new Table();
+            Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };
             foreach (BoundColumn column in columns) {
                 table.AddColumn(column.Column);
             }
@@ -165,7 +165,8 @@ namespace ConsoleMonster.PowerShell {
                 } else {
                     grouping = view.Title;
                 }
-            } else if (view?.GroupBy != null && property == null && grouping == null) {
+            }
+            if (view?.GroupBy != null && property == null && grouping == null) {
                 grouping = view.GroupBy;
             }
             // Record and card headings: the key column's value (a name-like column picked by the title rule) with an Id
@@ -608,8 +609,10 @@ namespace ConsoleMonster.PowerShell {
         internal static object? Read(BoundColumn column, PSObject item, ShapeBudget budget, BoundColumn? budgetColumn = null) => budget.Guard(budgetColumn ?? column, () => column.GetValue(item));
 
 
-        // The title every object shares, or null when they differ.
-        private static string? SharedTitle(IReadOnlyList<PSObject> items, ScriptBlock title) {
+        /// <summary>Evaluates the registered title and returns the shared text, or null when consecutive titles differ.</summary>
+        /// <param name="items">Objects in a candidate run.</param><param name="title">The view's title expression.</param>
+        /// <returns>The common title, or null for differing titles.</returns>
+        internal static string? SharedTitle(IReadOnlyList<PSObject> items, ScriptBlock title) {
             string? shared = null;
             foreach (PSObject item in items) {
                 string text = string.Join(" ", title.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", item) }));

@@ -1,0 +1,2 @@
+Conflict=An Out-GridView function or alias already exists; it was kept. Use -Force to install the unavailable-command fallback and restore it on disable.
+Immutable=The existing Out-GridView command cannot be replaced in this scope; it was kept.

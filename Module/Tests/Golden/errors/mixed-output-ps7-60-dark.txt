@@ -1,0 +1,15 @@
+before error
+Test-SyntheticErrorShape: First synthetic failure.
+Invoke-SyntheticOutput.ps1:2:1
+Test-SyntheticErrorShape -Shape mixed-output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ReadError
+Get-Error for details
+between errors
+Test-SyntheticErrorShape: Second synthetic failure.
+Invoke-SyntheticOutput.ps1:2:1
+Test-SyntheticErrorShape -Shape mixed-output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ReadError
+Get-Error for details
+after errors

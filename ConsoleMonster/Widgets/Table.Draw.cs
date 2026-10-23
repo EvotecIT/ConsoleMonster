@@ -104,7 +104,7 @@ namespace ConsoleMonster.Widgets {
             int first = Math.Max(0, Math.Min(start, layout.Rows.Count));
             // A page that starts on a group heading draws it in place of the header separator (or of the top rule without
             // a header), as the whole table does for its first group, so two rules never stack.
-            bool merge = count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
+            bool merge = !GroupHeadersAsRows && count > 0 && first < layout.Rows.Count && layout.Rows[first].Kind == TableRowKind.Group
                 && (ShowHeader ? HeaderSeparator && (IsBoxed || Border == TableBorder.Minimal) : IsBoxed);
             headHeight = HeadHeight(layout, merge);
             rowLines = new List<int>();
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Widgets {
             }
             CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
             Region region = new Region(buffer);
-            DrawHead(region, 0, layout, context, merge);
+            DrawHead(region, 0, layout, context, merge, first);
             DrawRows(region, headHeight, layout, first, end, context, merge && !ShowHeader);
             for (int i = first; i < end; i++) {
                 layout.Rows[i].Lines = null;
@@ -150,23 +150,25 @@ namespace ConsoleMonster.Widgets {
             return height;
         }
 
-        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup) {
+        private int DrawHead(Region region, int y, TableLayout layout, RenderContext context, bool mergeFirstGroup, int firstRow = 0) {
             Style border = context.Style(ThemeToken.Border);
             bool boxed = IsBoxed;
             BoxGlyphs box = context.Glyphs.GetBox(BoxStyleFor(Border));
+            bool section = GroupHeadersAsRows && firstRow < layout.Rows.Count && layout.Rows[firstRow].Kind == TableRowKind.Group;
             if (!string.IsNullOrEmpty(Title)) {
                 StyledLine title = TextWrapper.Truncate(context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title)), region.Width, context.Ellipsis);
                 region.Write(boxed ? 1 : 0, y++, title);
             }
             if (boxed && !(mergeFirstGroup && !ShowHeader)) {
-                DrawRule(region, y++, layout, box.TopLeft, box.TopJoint, box.TopRight, box.Horizontal, border);
+                DrawRule(region, y++, layout, box.TopLeft, section && !ShowHeader ? box.Horizontal : box.TopJoint, box.TopRight, box.Horizontal, border);
             }
             if (ShowHeader) {
                 y = DrawCells(region, y, layout, layout.HeaderLines, null, null, layout.HeaderHeight, box, border, context);
                 if (!HeaderSeparator || mergeFirstGroup) {
                     // The underlined header carries the separation, or the first group heading is drawn as the separator.
                 } else if (boxed) {
-                    DrawRule(region, y++, layout, box.LeftJoint, box.Cross, box.RightJoint, box.Horizontal, border);
+                    // Close header columns above a spanning section; a cross would leave downward stubs.
+                    DrawRule(region, y++, layout, box.LeftJoint, section ? box.BottomJoint : box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if (Border == TableBorder.Minimal) {
                     DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
                 }
@@ -248,6 +250,16 @@ namespace ConsoleMonster.Widgets {
         private int DrawGroupRule(Region region, int y, TableLayout layout, StyledLine text, BoxGlyphs box, Style border, RenderContext context, bool top = false) {
             if (y >= region.Height) {
                 return y;
+            }
+            if (GroupHeadersAsRows) {
+                region.HorizontalLine(0, y, layout.TotalWidth, " ", Style.Plain);
+                if (IsBoxed) {
+                    region.Put(0, y, box.Vertical, border);
+                    region.Put(layout.TotalWidth - 1, y, box.Vertical, border);
+                }
+                int inset = IsBoxed ? 2 : 0;
+                region.Write(inset, y, TextWrapper.Truncate(text, Math.Max(0, layout.TotalWidth - 2 * inset), context.Ellipsis));
+                return y + 1;
             }
             int start;
             int room;

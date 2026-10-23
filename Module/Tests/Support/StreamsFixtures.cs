@@ -49,6 +49,8 @@ namespace ConsoleMonsterStreamsFixtures {
         public ConsoleColor WarningBackgroundColor { get; set; }
         public ConsoleColor DebugBackgroundColor { get; set; }
         public ConsoleColor ErrorForegroundColor { get; set; }
+        public ConsoleColor ProgressForegroundColor { get; set; }
+        public ConsoleColor ProgressBackgroundColor { get { return ConsoleColor.DarkRed; } }
         public ConsoleColor DebugForegroundColor { get { return ConsoleColor.Blue; } }
         public ConsoleColor VerboseForegroundColor {
             get { return verbose; }
@@ -65,6 +67,7 @@ namespace ConsoleMonsterStreamsFixtures {
             WarningBackgroundColor = ConsoleColor.DarkMagenta;
             DebugBackgroundColor = ConsoleColor.DarkBlue;
             ErrorForegroundColor = ConsoleColor.DarkGreen;
+            ProgressForegroundColor = ConsoleColor.DarkYellow;
         }
     }
 }

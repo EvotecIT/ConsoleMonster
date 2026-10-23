@@ -1,0 +1,24 @@
+Host inventory · synthetic data
+
+╭─ › Query ────────────────────────────────────────────────╮
+│ sql|                                                     │
+╰──────────────────────────────────────────────────────────╯
+
+2 of 6 hosts
+╭───────┬──────────┬───────┬────────╮
+│ Host  │ Role     │ Site  │ Status │
+│ SQL01 │ Database │ North │ ✓ Pass │
+│ SQL02 │ Database │ West  │ ✗ Fail │
+╰───────┴──────────┴───────┴────────╯
+
+
+
+
+
+
+
+
+
+
+
+ tab next  shift+tab back  esc quit

@@ -1,0 +1,12 @@
+Test-SyntheticErrorShape: The term 'Get-Command' is not
+                          recognized as a name of a cmdlet,
+                          function, script file, or
+                          executable program. Check the
+                          spelling of the name, or if a path
+                          was included, verify that the path
+                          is correct and try again.
+Invoke-SyntheticInventory.ps1:4:8
+$x = @(& $command @arguments)
+       ^^^^^^^^^^^^^^^^^^^^^
+ObjectNotFound
+Get-Error for details

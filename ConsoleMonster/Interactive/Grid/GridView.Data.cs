@@ -269,6 +269,8 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Runs a <see cref="Grid"/> on the screen, or as a numbered list in line mode.</summary>
     internal static class GridRunner {
         public static GridResult Run(Grid grid, GridOptions options, System.Threading.CancellationToken cancellationToken) {
+            // Capability discovery can enable VT. Capture the caller's output mode before resolving labels or profiles.
+            using ConsoleMonster.Output.TerminalGuard outputMode = new ConsoleMonster.Output.TerminalGuard(() => { }, false);
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             switch (interactive.ResolveMode()) {
