@@ -46,7 +46,7 @@ What to turn off: Output, ErrorView, Progress, Streams, FormatCommands or All (O
 Type: ConsoleFormattingFeature[]
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All, Help, Errors, ReadLine, GridView, Prompt
+Possible values: None, Output, ErrorView, Progress, FormatCommands, Streams, All, GridView
 
 Required: False
 Position: named

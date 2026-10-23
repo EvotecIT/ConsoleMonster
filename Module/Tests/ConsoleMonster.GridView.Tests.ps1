@@ -3,6 +3,17 @@
         . (Join-Path $PSScriptRoot 'Support/Invoke-GridViewSession.ps1')
     }
 
+    It 'restores process-wide interactive defaults after an isolated session changes or mutates them' {
+        Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')
+        $saved = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+        $nonInteractive = $saved.NonInteractive
+        Invoke-GridViewSession '[ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = -not [ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive'
+        [object]::ReferenceEquals($saved, [ConsoleMonster.Interactive.InteractiveOptions]::Default) | Should -BeTrue
+        $saved.NonInteractive | Should -Be $nonInteractive
+        { Invoke-GridViewSession '[ConsoleMonster.Interactive.InteractiveOptions]::Default = [ConsoleMonster.Interactive.InteractiveOptions]::new(); throw "synthetic failure"' } | Should -Throw '*synthetic failure*'
+        [object]::ReferenceEquals($saved, [ConsoleMonster.Interactive.InteractiveOptions]::Default) | Should -BeTrue
+    }
+
     It 'uses the terminal fallback for the Microsoft desktop stub on non-Windows hosts' -Skip:($env:OS -eq 'Windows_NT') {
         Invoke-GridViewSession -Native @'
 $native = Get-Command Out-GridView -CommandType Cmdlet
@@ -64,7 +75,7 @@ if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Snippet installed com
 '@ | Should -Be 'SNIPPET_OK'
     }
 
-    It 'recognizes an SSH context with a present Windows cmdlet without changing that cmdlet' {
+    It 'recognizes an SSH context with a present Windows cmdlet without changing that cmdlet' -Skip:($env:OS -ne 'Windows_NT') {
         $previous = [Environment]::GetEnvironmentVariable('SSH_CONNECTION')
         try {
             [Environment]::SetEnvironmentVariable('SSH_CONNECTION', '192.0.2.1 1234 192.0.2.2 22')

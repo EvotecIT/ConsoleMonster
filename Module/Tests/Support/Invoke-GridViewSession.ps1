@@ -14,7 +14,16 @@
     $ps.Runspace = $runspace
     try {
         $module = if ($ModulePath) { $ModulePath } else { [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')) }
-        $null = $ps.AddScript('param($path, $body) $ErrorActionPreference = ''Stop''; Import-Module $path; & ([scriptblock]::Create($body))').AddArgument($module).AddArgument($Script)
+        $null = $ps.AddScript(@'
+param($path, $body)
+$ErrorActionPreference = 'Stop'
+Import-Module $path
+$savedDefault = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$sessionDefault = $savedDefault.Clone()
+[ConsoleMonster.Interactive.InteractiveOptions]::Default = $sessionDefault
+try { & ([scriptblock]::Create($body)) }
+finally { [ConsoleMonster.Interactive.InteractiveOptions]::Default = $savedDefault }
+'@).AddArgument($module).AddArgument($Script)
         $result = @($ps.Invoke())
         if ($ps.HadErrors) { throw ($ps.Streams.Error | Out-String) }
         $result

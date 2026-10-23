@@ -53,7 +53,8 @@ $file = '__PATH__/empty.txt'
 [ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = $true
 $rows | Out-GridView -PassThru -WarningAction SilentlyContinue > $file
 if ((Get-Item $file).Length -ne 0) { throw 'Display leaked into file success stream.' }
-$rows | Out-GridView -PassThru -WarningAction SilentlyContinue | Out-String | Select-String alpha
+$text = $rows | Out-GridView -PassThru -WarningAction SilentlyContinue | Out-String
+if ($text) { throw 'Display text leaked into success output.' }
 Start-Transcript -LiteralPath '__PATH__/transcript.txt' | Out-Null
 [ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = $false
 try { $picked = @($rows | Out-GridView -OutputMode Single -WarningAction SilentlyContinue) }
