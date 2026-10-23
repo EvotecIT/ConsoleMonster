@@ -1,0 +1,20 @@
+ Object explorer                                                                                              3 members
+$x
+╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ > + [0]  alpha                                                                                                       │
+│   + [1]  beta                                                                                                        │
+│   + [2]  gamma                                                                                                       │
+│                                                                                                                      │
+│ Name   Payload                                                                                                       │
+│ ─────  ──────────────                                                                                                │
+│ alpha  hidden-first                                                                                                  │
+│ beta   wanted-payload                                                                                                │
+│ gamma  hidden-third                                                                                                  │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys
