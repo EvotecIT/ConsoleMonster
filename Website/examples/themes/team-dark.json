@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Team Dark",
+  "BaseTheme": "Dark",
+  "Tokens": {
+    "Accent": {
+      "Foreground": { "TrueColor": "#7dd3fc", "Ansi16": 14, "Ansi256": 117 },
+      "Decoration": "Bold"
+    },
+    "Title": {
+      "Foreground": { "TrueColor": "#7dd3fc", "Ansi16": 14, "Ansi256": 117 },
+      "Decoration": "Bold"
+    },
+    "Header": {
+      "Foreground": { "TrueColor": "#7dd3fc", "Ansi16": 14, "Ansi256": 117 },
+      "Decoration": "Bold"
+    },
+    "Pass": {
+      "Foreground": { "TrueColor": "#56b4e9", "Ansi16": 14, "Ansi256": 74 },
+      "Decoration": "Bold"
+    },
+    "Warn": {
+      "Foreground": { "TrueColor": "#f0c674", "Ansi16": 11, "Ansi256": 222 },
+      "Decoration": "Bold"
+    },
+    "Fail": {
+      "Foreground": { "TrueColor": "#f29d49", "Ansi16": 13, "Ansi256": 215 },
+      "Decoration": "Bold, Underline"
+    },
+    "Info": {
+      "Foreground": { "TrueColor": "#81cbe8", "Ansi16": 14, "Ansi256": 116 }
+    }
+  }
+}

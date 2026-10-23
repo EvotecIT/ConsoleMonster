@@ -136,8 +136,9 @@ namespace SiteFrames.Capture {
         /// Runs a program against a recording target and returns it. <paramref name="interactive"/> drives prompts with scripted
         /// keys; without it, prompts are non-interactive, so a program that asks fails instead of waiting for the build's
         /// console. The program must end on its own: running out of keys while a prompt waits is a failure.
+        /// Optional <paramref name="arguments"/> are passed verbatim to its entry point; existing callers receive an empty array.
         /// </summary>
-        public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive) {
+        public static RecordingTarget Execute(string path, TerminalProfile profile, ITheme theme, InteractiveOptions? interactive, string[]? arguments = null) {
             Assembly assembly = Compile(path);
             MethodInfo entry = assembly.EntryPoint ?? throw new InvalidOperationException(path + " has no entry point.");
             RecordingTarget target = new RecordingTarget(profile) { Theme = theme };
@@ -155,7 +156,7 @@ namespace SiteFrames.Capture {
                 Console.SetIn(TextReader.Null);
                 using (Terminal.Use(target)) {
                     // A program with top-level await still has a synchronous entry point that waits for it.
-                    entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { Array.Empty<string>() });
+                    entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { arguments ?? Array.Empty<string>() });
                 }
             } catch (TargetInvocationException ex) when (ex.InnerException != null) {
                 throw new InvalidOperationException(Path.GetFileName(path) + " failed: " + ex.InnerException.Message, ex.InnerException);

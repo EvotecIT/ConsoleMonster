@@ -39,8 +39,13 @@ namespace ConsoleMonster.Data {
             string? name = null
         ) {
             InspectorOptions actual = options ?? new InspectorOptions();
-            Walk walk = new Walk(Math.Max(1, actual.MaxNodes), actual);
-            return Build(value, name, "$", 0, actual, walk);
+            return InspectWithBudget(value, actual, new Values.ShapeBudget(actual.TimeBudget, int.MaxValue), name);
+        }
+
+        // Shares the normal traversal and deadline owner while allowing an instance clock in focused contracts.
+        internal static InspectNode InspectWithBudget(object? value, InspectorOptions options, Values.ShapeBudget budget, string? name = null) {
+            Walk walk = new Walk(Math.Max(1, options.MaxNodes), options, budget);
+            return Build(value, name, "$", 0, options, walk);
         }
 
         internal static IMemberSource? FindSource(object value, InspectorOptions options) {
@@ -483,19 +488,18 @@ namespace ConsoleMonster.Data {
         }
 
         private sealed class Walk {
-            private readonly System.Diagnostics.Stopwatch _clock = System.Diagnostics.Stopwatch.StartNew();
-            private readonly TimeSpan _budget;
+            private readonly Values.ShapeBudget _budget;
 
-            public Walk(int maxNodes, InspectorOptions options) {
+            public Walk(int maxNodes, InspectorOptions options, Values.ShapeBudget budget) {
                 Remaining = maxNodes;
-                _budget = options.TimeBudget;
+                _budget = budget;
                 Shape = new Values.ShapeOptions { UseReflection = options.UseReflection };
             }
 
             // Registered shapers and XML/JSON normalisation run on each value, as in every other view.
             public Values.ShapeOptions Shape { get; }
 
-            public bool OutOfTime => _budget > TimeSpan.Zero && _clock.Elapsed > _budget;
+            public bool OutOfTime => _budget.Exhausted;
 
             public Dictionary<object, string> Ancestors { get; } = new Dictionary<object, string>(ReferenceComparer.Instance);
 

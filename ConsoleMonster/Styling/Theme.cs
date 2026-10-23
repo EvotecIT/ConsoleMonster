@@ -32,6 +32,11 @@ namespace ConsoleMonster.Styling {
 
         private static int TokenCount => (int)ThemeToken.Focus + 1;
 
+        /// <summary>Enumerates the canonical token table without runtime enum-array generation, including on NativeAOT.</summary>
+        internal static IEnumerable<ThemeToken> AllTokens() {
+            for (int index = 0; index < TokenCount; index++) { yield return (ThemeToken)index; }
+        }
+
         /// <inheritdoc />
         public string Name { get; }
 
@@ -76,7 +81,7 @@ namespace ConsoleMonster.Styling {
             return TokenNames.TryGetValue(name.Trim(), out token);
         }
 
-        /// <summary>Returns the theme matching a name (<c>dark</c>, <c>light</c>, <c>highcontrast</c>), or <see cref="Dark"/>.</summary>
+        /// <summary>Returns a built-in theme by name (Dark, Light, HighContrast or ColorBlindSafe), or <see cref="Dark"/>.</summary>
         /// <param name="name">The name.</param>
         /// <returns>The theme.</returns>
         public static Theme FromName(string? name) {
@@ -87,6 +92,9 @@ namespace ConsoleMonster.Styling {
                 case "high-contrast":
                 case "contrast":
                     return HighContrast;
+                case "colorblindsafe":
+                case "color-blind-safe":
+                    return ColorBlindSafe;
                 default:
                     return Dark;
             }

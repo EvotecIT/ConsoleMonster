@@ -2400,6 +2400,114 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Export-ConsoleTheme</command:name>
+      <command:verb>Export</command:verb>
+      <command:noun>ConsoleTheme</command:noun>
+      <maml:description>
+        <maml:para>Exports the current ConsoleMonster theme as a starting file for a user or team.</maml:para>
+        <maml:para>Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Exports the current ConsoleMonster theme as a starting file for a user or team.</maml:para>
+      <maml:para>Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Export-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>PassThru</maml:name>
+          <maml:description>
+            <maml:para>Returns the written file as a FileInfo. Without this switch the command produces no pipeline output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>The literal .json or .psd1 destination. An existing file is replaced after validation and ShouldProcess approval.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>PassThru</maml:name>
+        <maml:description>
+          <maml:para>Returns the written file as a FileInfo. Without this switch the command produces no pipeline output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>The literal .json or .psd1 destination. An existing file is replaced after validation and ShouldProcess approval.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.IO.FileInfo</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Export-ConsoleTheme -Path ./team-theme.json&#xD;
+            Set-ConsoleTheme -Path ./team-theme.json</dev:code>
+        <dev:remarks>
+          <maml:para>Export the current theme, edit its token definitions and apply it.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Set-ConsoleTheme -Name ColorBlindSafe&#xD;
+            Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</dev:code>
+        <dev:remarks>
+          <maml:para>Create a PowerShell data file from the accessible preset and return its file information.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Format-ConsoleCode</command:name>
       <command:verb>Format</command:verb>
       <command:noun>ConsoleCode</command:noun>
@@ -21350,27 +21458,43 @@ Read-ConsoleForm $form</dev:code>
       <command:noun>ConsoleTheme</command:noun>
       <maml:description>
         <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-        <maml:para>Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colours for every colour tier. Dark suits dark terminals (the default), Light suits light backgrounds, HighContrast uses saturated primaries.</maml:para>
+        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-      <maml:para>Themes map semantic tokens (pass, fail, warn, muted, accent, border...) to colours for every colour tier. Dark suits dark terminals (the default), Light suits light backgrounds, HighContrast uses saturated primaries.</maml:para>
+      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
     </maml:description>
     <command:syntax>
-      <command:syntaxItem parameterSetName="__AllParameterSets">
+      <command:syntaxItem parameterSetName="Name">
         <maml:name>Set-ConsoleTheme</maml:name>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Name</maml:name>
           <maml:description>
-            <maml:para>The theme: Dark, Light or HighContrast.</maml:para>
+            <maml:para>The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
           </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Path">
+        <maml:name>Set-ConsoleTheme</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -21383,14 +21507,27 @@ Read-ConsoleForm $form</dev:code>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Name</maml:name>
         <maml:description>
-          <maml:para>The theme: Dark, Light or HighContrast.</maml:para>
+          <maml:para>The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
         </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -21417,6 +21554,13 @@ Read-ConsoleForm $form</dev:code>
         <dev:code>Set-ConsoleTheme -Name Light</dev:code>
         <dev:remarks>
           <maml:para>Use the light theme</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Set-ConsoleTheme -Path ./team-theme.psd1</dev:code>
+        <dev:remarks>
+          <maml:para>Load a team theme exported as JSON or a PowerShell data file.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
