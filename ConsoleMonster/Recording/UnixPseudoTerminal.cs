@@ -9,11 +9,13 @@ namespace ConsoleMonster.Sessions {
     /// <summary>openpty plus posix_spawn avoids running managed code after fork in a multithreaded CLR.</summary>
     internal sealed class UnixPseudoTerminal : IPseudoTerminal {
         private int _master = -1;
+        private int _slave = -1;
         private int _pid;
         private readonly object _processGate = new object();
         private bool _exited;
         private int _exitCode;
         private readonly bool _mac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        private readonly bool _macArm64 = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
         public UnixPseudoTerminal(SessionRecordingOptions options) {
             WinSize size = new WinSize(options.Width, options.Height);
             int slave = -1;
@@ -24,7 +26,7 @@ namespace ConsoleMonster.Sessions {
                 int opened = _mac ? OpenMac(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size) : OpenLinux(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size);
                 if (opened != 0) { throw Error(); }
                 // Both parent descriptors must close on exec; dup2 actions create the child's standard handles.
-                fcntl(_master, 2, 1); fcntl(slave, 2, 1);
+                CloseOnExec(_master); CloseOnExec(slave);
                 Check(posix_spawn_file_actions_init(actions)); actionsReady = true;
                 Check(posix_spawnattr_init(attributes)); attributesReady = true;
                 byte[] tty = new byte[1024];
@@ -49,6 +51,10 @@ namespace ConsoleMonster.Sessions {
                 Check(posix_spawn_file_actions_addchdir_np(actions, options.WorkingDirectory));
                 int result = posix_spawnp(out _pid, shell, actions, attributes, Strings(args, allocations), Strings(env, allocations));
                 Check(result);
+                // Keep the replica open until the reader drains the child. Darwin can discard unread terminal
+                // output on the last replica close, including when a fast child exits before the reader starts.
+                _slave = slave;
+                slave = -1;
             } catch {
                 if (_master >= 0) { close(_master); _master = -1; }
                 throw;
@@ -72,6 +78,14 @@ namespace ConsoleMonster.Sessions {
         }
         public int Read(byte[] bytes) {
             while (true) {
+                PollFd descriptor = new PollFd { File = _master, Events = 1 };
+                int ready = poll(ref descriptor, (UIntPtr)1, 20);
+                if (ready < 0) {
+                    if (Marshal.GetLastWin32Error() == 4) { continue; }
+                    throw Error();
+                }
+                // The parent's replica prevents EOF; after child exit, drain readability before ending the stream.
+                if (ready == 0) { if (HasExited) { return 0; } continue; }
                 long count = read(_master, bytes, (UIntPtr)bytes.Length).ToInt64();
                 if (count >= 0) { return (int)count; }
                 int error = Marshal.GetLastWin32Error();
@@ -91,7 +105,18 @@ namespace ConsoleMonster.Sessions {
             }
         }
         private static byte[] Slice(byte[] bytes, int offset) { byte[] copy = new byte[bytes.Length - offset]; Buffer.BlockCopy(bytes, offset, copy, 0, copy.Length); return copy; }
-        public void Resize(int width, int height) { WinSize size = new WinSize(width, height); if (ioctl(_master, _mac ? (UIntPtr)0x80087467 : (UIntPtr)0x5414, ref size) != 0) { throw Error(); } }
+        public void Resize(int width, int height) {
+            WinSize size = new WinSize(width, height);
+            UIntPtr request = _mac ? (UIntPtr)0x80087467 : (UIntPtr)0x5414;
+            int result = _macArm64 ? IoctlMacArm64(_master, request, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, ref size)
+                : ioctl(_master, request, ref size);
+            if (result != 0) { throw Error(); }
+        }
+        private void CloseOnExec(int descriptor) {
+            int result = _macArm64 ? FcntlMacArm64(descriptor, 2, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, 1)
+                : fcntl(descriptor, 2, 1);
+            if (result != 0) { throw Error(); }
+        }
         public bool HasExited {
             get {
                 lock (_processGate) {
@@ -100,7 +125,7 @@ namespace ConsoleMonster.Sessions {
                         int flags = 1 | 4 | (_mac ? 0x20 : 0x01000000); // WNOHANG | WEXITED | WNOWAIT
                         int result = waitid(1, _pid, info, flags);
                         if (result != 0 && Marshal.GetLastWin32Error() != 4) { throw Error(); }
-                        if (result == 0 && BitConverter.ToInt32(info, 0) != 0) {
+                        if (result == 0 && BitConverter.ToInt32(info, _mac ? 12 : 16) == _pid) {
                             int code = BitConverter.ToInt32(info, 8), status = BitConverter.ToInt32(info, _mac ? 20 : 24);
                             _exitCode = code == 1 ? status : 128 + status;
                             _exited = true;
@@ -123,6 +148,7 @@ namespace ConsoleMonster.Sessions {
                 Complete();
                 if (_pid > 0) { while (waitpid(_pid, out _, 0) < 0 && Marshal.GetLastWin32Error() == 4) { } _pid = 0; _exited = true; }
                 if (_master >= 0) { close(_master); _master = -1; }
+                if (_slave >= 0) { close(_slave); _slave = -1; }
             }
         }
         private static Win32Exception Error() => new Win32Exception(Marshal.GetLastWin32Error());
@@ -136,6 +162,12 @@ namespace ConsoleMonster.Sessions {
         [DllImport("libc", SetLastError = true)] private static extern IntPtr write(int fd, byte[] buffer, UIntPtr count);
         [DllImport("libc", SetLastError = true)] private static extern int close(int fd);
         [DllImport("libc", SetLastError = true)] private static extern int ioctl(int fd, UIntPtr request, ref WinSize size);
+        // Apple's arm64 variadic ABI reads the third argument from the stack, not x2. Six unused register
+        // slots put the real variadic value in the first stack slot without a new native shim or runtime dependency.
+        [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)] private static extern int IoctlMacArm64(int fd, UIntPtr request, IntPtr x2, IntPtr x3, IntPtr x4, IntPtr x5, IntPtr x6, IntPtr x7, ref WinSize size);
+        [DllImport("libc", EntryPoint = "fcntl", SetLastError = true)] private static extern int FcntlMacArm64(int fd, int command, IntPtr x2, IntPtr x3, IntPtr x4, IntPtr x5, IntPtr x6, IntPtr x7, int flags);
+        [StructLayout(LayoutKind.Sequential)] private struct PollFd { public int File; public short Events, Returned; }
+        [DllImport("libc", SetLastError = true)] private static extern int poll(ref PollFd descriptors, UIntPtr count, int timeout);
         [DllImport("libc", SetLastError = true)] private static extern int kill(int pid, int signal);
         [DllImport("libc", SetLastError = true)] private static extern int waitpid(int pid, out int status, int options);
         [DllImport("libc", SetLastError = true)] private static extern int waitid(int type, int pid, byte[] info, int options);

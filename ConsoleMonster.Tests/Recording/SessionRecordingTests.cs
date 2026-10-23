@@ -394,7 +394,8 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(40, recording.FinalFrame().Width);
             Assert.Contains("Finished", ConsoleExporter.ToText(recording.FinalFrame()));
             Assert.Contains("git version", recording.Export(ExportFormat.Text));
-            Assert.Contains(windows ? "Native size 40x10" : "Native rows/cols 10 40", recording.Export(ExportFormat.Text));
+            string transcript = recording.Export(ExportFormat.Text);
+            Assert.True(transcript.Contains(windows ? "Native size 40x10" : "Native rows/cols 10 40"), transcript);
             Assert.Contains("consolemonster-player", recording.Export(ExportFormat.Html));
         }
 
