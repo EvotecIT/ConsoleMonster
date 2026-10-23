@@ -69,7 +69,18 @@ namespace ConsoleMonster.Export {
                 }
                 AppendScriptString(json, rows[i]);
             }
-            json.Append("],\"frames\":").Append(frameData).Append('}');
+            json.Append("],\"frames\":").Append(frameData);
+            if (recording.Markers.Count > 0) {
+                json.Append(",\"markers\":[");
+                for (int i = 0; i < recording.Markers.Count; i++) {
+                    if (i > 0) { json.Append(','); }
+                    json.Append('[').Append(((long)recording.Markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
+                    AppendScriptString(json, recording.Markers[i].Label);
+                    json.Append(']');
+                }
+                json.Append(']');
+            }
+            json.Append('}');
             return json.ToString();
         }
 

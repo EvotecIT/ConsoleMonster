@@ -6,7 +6,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
-namespace SiteFrames.Vt {
+namespace ConsoleMonster.Sessions {
     /// <summary>
     /// A small VT/ANSI terminal model: it reads the byte stream a program wrote to a pseudo console and keeps the screen as
     /// ConsoleMonster cells, so captured output goes through the same HTML converter as frames rendered in-process.
@@ -48,9 +48,24 @@ namespace SiteFrames.Vt {
             _bottom = height - 1;
         }
 
-        public int Width { get; }
+        public int Width { get; private set; }
 
-        public int Height { get; }
+        public int Height { get; private set; }
+
+        /// <summary>Resizes both screens while preserving their overlapping cells and the parser state.</summary>
+        public void Resize(int width, int height) {
+            CellBuffer main = new CellBuffer(width, height), alternate = new CellBuffer(width, height);
+            for (int y = 0; y < Math.Min(height, Height); y++) {
+                for (int x = 0; x < Math.Min(width, Width); x++) {
+                    if (x + _main[x, y].Width <= width) { Put(main, x, y, _main[x, y]); }
+                    if (x + _alternate[x, y].Width <= width) { Put(alternate, x, y, _alternate[x, y]); }
+                }
+            }
+            _main = main; _alternate = alternate; Width = width; Height = height;
+            _x = Math.Min(_x, width - 1); _y = Math.Min(_y, height - 1);
+            _savedX = Math.Min(_savedX, width - 1); _savedY = Math.Min(_savedY, height - 1);
+            _top = 0; _bottom = height - 1; _pendingWrap = false;
+        }
 
         /// <summary>Whether the program is drawing on the alternate screen (a live dashboard).</summary>
         public bool OnAlternate => _onAlternate;
@@ -88,10 +103,12 @@ namespace SiteFrames.Vt {
         /// <summary>The main screen with everything that scrolled off its top above it (print-once output).</summary>
         public CellBuffer Transcript() {
             int rows = _scrollback.Count + Height;
-            CellBuffer all = new CellBuffer(Width, rows);
+            int width = Width;
+            foreach (Cell[] row in _scrollback) { width = Math.Max(width, row.Length); }
+            CellBuffer all = new CellBuffer(width, rows);
             for (int y = 0; y < _scrollback.Count; y++) {
                 Cell[] row = _scrollback[y];
-                for (int x = 0; x < Width; x++) {
+                for (int x = 0; x < row.Length; x++) {
                     Put(all, x, y, row[x]);
                 }
             }
@@ -120,7 +137,7 @@ namespace SiteFrames.Vt {
                     return;
                 case 2: // CSI
                     if (c >= 0x30 && c <= 0x3F) {
-                        _params.Append(c);
+                        if (_params.Length < 1024) { _params.Append(c); }
                     } else if (c >= 0x20 && c <= 0x2F) {
                         _intermediate = c;
                     } else if (c >= 0x40 && c <= 0x7E) {
@@ -137,7 +154,7 @@ namespace SiteFrames.Vt {
                     } else if (c == '\u001b') {
                         _state = 4;
                     } else {
-                        _osc.Append(c);
+                        if (_osc.Length < 8192) { _osc.Append(c); }
                     }
                     return;
                 case 4: // ESC inside OSC: expect '\' (ST)

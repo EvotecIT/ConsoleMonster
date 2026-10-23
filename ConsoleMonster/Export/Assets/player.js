@@ -147,6 +147,37 @@
             option.textContent = value + '×';
             option.selected = value === 1;
         });
+        if (data.markers && data.markers.length) {
+            var chapters = el('select', 'cm-chapters', controls);
+            chapters.setAttribute('aria-label', 'Chapters');
+            var heading = el('option', null, chapters);
+            heading.textContent = 'Chapters';
+            heading.value = '';
+            data.markers.forEach(function (marker) {
+                var chapter = el('option', null, chapters);
+                chapter.textContent = String(marker[1] || 'Chapter');
+                chapter.value = String(Math.max(0, Math.min(total, +marker[0] || 0)));
+            });
+            chapters.addEventListener('change', function () {
+                if (chapters.value !== '') { self.seek(+chapters.value); }
+            });
+        }
+        var copy = el('button', 'cm-copy', controls);
+        copy.type = 'button';
+        copy.textContent = 'Copy text';
+        copy.addEventListener('click', function () {
+            var text = screen.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () { copy.textContent = 'Copied'; }, selectText);
+            } else { selectText(); }
+        });
+        function selectText() {
+            var range = document.createRange();
+            range.selectNodeContents(screen);
+            var selection = window.getSelection();
+            if (selection) { selection.removeAllRanges(); selection.addRange(range); }
+            copy.textContent = 'Text selected';
+        }
 
         function at(ms) {
             var lo = 0, hi = frames.length - 1;

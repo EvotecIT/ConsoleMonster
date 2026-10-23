@@ -1,317 +1,98 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using Microsoft.Win32.SafeHandles;
+using System.Text;
+using ConsoleMonster.Sessions;
 
 namespace SiteFrames.Vt {
-    /// <summary>One chunk of output and when it arrived, in milliseconds from the start of the process.</summary>
+    /// <summary>One chunk of output and its arrival time in milliseconds.</summary>
     internal readonly struct OutputChunk {
-        public OutputChunk(long time, byte[] data) {
-            Time = time;
-            Data = data;
-        }
-
+        public OutputChunk(long time, byte[] data) { Time = time; Data = data; }
         public long Time { get; }
-
         public byte[] Data { get; }
     }
 
-    /// <summary>
-    /// Runs a program inside a Windows pseudo console (ConPTY) of a fixed size, so it sees a real console window and
-    /// draws exactly as it would in Windows Terminal, and records the VT byte stream it produces with timestamps.
-    /// </summary>
+    /// <summary>Site capture adapter over the library's ConPTY transport.</summary>
     internal static class PseudoConsole {
-        private const uint WaitFailed = 0xFFFFFFFF;
-
-        // Waits for the process; a failed wait ends it before raising, so nothing keeps running behind the closed console.
-        private static uint Wait(IntPtr process, TimeSpan timeout) {
-            uint wait = WaitForSingleObject(process, (uint)timeout.TotalMilliseconds);
-            if (wait == WaitFailed) {
-                int error = Marshal.GetLastWin32Error();
-                TerminateProcess(process, 1);
-                throw new Win32Exception(error);
-            }
-            return wait;
-        }
-
-        /// <summary>
-        /// Runs a command line and returns its output. <paramref name="interrupt"/> presses Ctrl+C in the console after that
-        /// long, the way a reader stops a program that runs until it is told to stop (a host).
-        /// </summary>
         public static List<OutputChunk> Run(string commandLine, int width, int height, IDictionary<string, string?> environment, string workingDirectory, TimeSpan timeout, TimeSpan? interrupt = null, string? inputText = null, string? readyMarker = null, string? capturePath = null, string? completionText = null, string? readyText = null, string? inputKeys = null) {
-            if (!OperatingSystem.IsWindows()) {
-                throw new PlatformNotSupportedException("Captures run in a Windows pseudo console.");
-            }
-            if (!CreatePipe(out SafeFileHandle inputRead, out SafeFileHandle inputWrite, IntPtr.Zero, 0)
-                || !CreatePipe(out SafeFileHandle outputRead, out SafeFileHandle outputWrite, IntPtr.Zero, 0)) {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            int hr = CreatePseudoConsole(new Coord((short)width, (short)height), inputRead, outputWrite, 0, out IntPtr pty);
-            if (hr != 0) {
-                throw new Win32Exception(hr);
-            }
-            inputRead.Dispose();
-            outputWrite.Dispose();
-
-            List<OutputChunk> chunks = new List<OutputChunk>();
-            using ManualResetEventSlim ready = new ManualResetEventSlim(readyMarker == null);
-            string tail = string.Empty;
-            Stopwatch clock = Stopwatch.StartNew();
-            Thread reader = new Thread(() => {
-                using (FileStream stream = new FileStream(outputRead, FileAccess.Read, 1)) {
+            if (!OperatingSystem.IsWindows()) { throw new PlatformNotSupportedException("Captures run in a Windows pseudo console."); }
+            SessionRecordingOptions options = new SessionRecordingOptions { Width = width, Height = height, WorkingDirectory = workingDirectory };
+            foreach (KeyValuePair<string, string?> entry in environment) { options.Environment[entry.Key] = entry.Value; }
+            using (WindowsPseudoTerminal terminal = new WindowsPseudoTerminal(options, commandLine)) {
+                List<OutputChunk> chunks = new List<OutputChunk>();
+                Stopwatch clock = Stopwatch.StartNew();
+                Exception? failure = null;
+                Thread reader = new Thread(() => {
                     byte[] buffer = new byte[65536];
-                    while (true) {
-                        int read;
-                        try {
-                            read = stream.Read(buffer, 0, buffer.Length);
-                        } catch (IOException) {
-                            break;
+                    try {
+                        int count;
+                        while ((count = terminal.Read(buffer)) > 0) {
+                            byte[] copy = new byte[count]; Buffer.BlockCopy(buffer, 0, copy, 0, count);
+                            lock (chunks) { chunks.Add(new OutputChunk(clock.ElapsedMilliseconds, copy)); }
                         }
-                        if (read <= 0) {
-                            break;
+                    } catch (IOException) { }
+                    catch (Exception error) { failure = error; }
+                }) { IsBackground = true, Name = "ConsoleMonster site capture" };
+                reader.Start();
+                int exitCode;
+                bool interrupted = false;
+                try {
+                    string CapturedText() {
+                        using (MemoryStream buffer = new MemoryStream()) {
+                            lock (chunks) { foreach (OutputChunk chunk in chunks) { buffer.Write(chunk.Data, 0, chunk.Data.Length); } }
+                            return Encoding.UTF8.GetString(buffer.ToArray());
                         }
-                        byte[] copy = new byte[read];
-                        Buffer.BlockCopy(buffer, 0, copy, 0, read);
-                        lock (chunks) {
-                            chunks.Add(new OutputChunk(clock.ElapsedMilliseconds, copy));
+                    }
+                    void WaitForText(string marker) {
+                        while (!CapturedText().Contains(marker, StringComparison.Ordinal)) {
+                            if (terminal.HasExited) { throw new InvalidOperationException("Capture exited before its input-ready marker: " + CapturedText()); }
+                            if (clock.Elapsed > timeout) { throw new TimeoutException("Capture did not reach its input-ready marker."); }
+                            Thread.Sleep(20);
                         }
-                        if (readyMarker != null && !ready.IsSet) {
-                            string text = tail + Encoding.UTF8.GetString(copy);
-                            if (text.Contains(readyMarker, StringComparison.Ordinal)) { ready.Set(); }
-                            tail = text.Substring(Math.Max(0, text.Length - readyMarker.Length));
+                    }
+                    if (readyText != null && inputKeys != null) {
+                        Console.WriteLine("ConPTY child PID " + terminal.ProcessId);
+                        WaitForText(readyText);
+                        terminal.Write(Encoding.UTF8.GetBytes(inputKeys));
+                    }
+                    if (inputText != null) {
+                        if (readyMarker != null) { WaitForText(readyMarker); }
+                        terminal.Write(Encoding.UTF8.GetBytes(inputText));
+                        if (completionText != null) {
+                            Thread.Sleep(250);
+                            if (terminal.HasExited) { throw new InvalidOperationException("Capture exited before completing native input: " + commandLine); }
+                            terminal.Write(Encoding.UTF8.GetBytes(completionText));
+                        }
+                    }
+                    while (!terminal.HasExited) {
+                        if (interrupt != null && !interrupted && clock.Elapsed >= interrupt.Value) { terminal.Write(new byte[] { 3 }); interrupted = true; }
+                        if (clock.Elapsed > timeout) { throw new TimeoutException("Capture timed out: " + commandLine); }
+                        Thread.Sleep(20);
+                    }
+                    exitCode = terminal.ExitCode;
+                    if (interrupt != null && !interrupted) { throw new InvalidOperationException("The program exited before Ctrl+C was pressed: " + commandLine); }
+                    // Preserve the site's existing capture settling interval.
+                    Thread.Sleep(400);
+                } finally {
+                    terminal.Stop(); terminal.Complete();
+                    if (!reader.Join(TimeSpan.FromSeconds(10))) { throw new IOException("The capture output reader did not finish."); }
+                    if (capturePath != null) {
+                        using (FileStream captured = File.Create(capturePath)) {
+                            lock (chunks) { foreach (OutputChunk chunk in chunks) { captured.Write(chunk.Data, 0, chunk.Data.Length); } }
                         }
                     }
                 }
-            }) { IsBackground = true };
-            reader.Start();
-
-            IntPtr attributes = IntPtr.Zero;
-            IntPtr size = IntPtr.Zero;
-            InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref size);
-            attributes = Marshal.AllocHGlobal(size);
-            ProcessInformation info = default;
-            IntPtr block = IntPtr.Zero;
-            FileStream? input = null;
-            try {
-                if (!InitializeProcThreadAttributeList(attributes, 1, 0, ref size)) {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-                if (!UpdateProcThreadAttribute(attributes, 0, (IntPtr)0x00020016, pty, (IntPtr)IntPtr.Size, IntPtr.Zero, IntPtr.Zero)) {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-                StartupInfoEx startup = new StartupInfoEx();
-                startup.StartupInfo.cb = Marshal.SizeOf<StartupInfoEx>();
-                startup.lpAttributeList = attributes;
-                // Without this the child inherits this tool's (redirected) standard handles instead of the pseudo console.
-                startup.StartupInfo.dwFlags = 0x00000100;
-                block = EnvironmentBlock(environment);
-                const uint ExtendedStartupInfoPresent = 0x00080000;
-                const uint UnicodeEnvironment = 0x00000400;
-                StringBuilder command = new StringBuilder(commandLine);
-                if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, ExtendedStartupInfoPresent | UnicodeEnvironment, block, workingDirectory, ref startup, out info)) {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-                if (readyText != null && inputKeys != null) {
-                    Console.WriteLine("Owned ConPTY child PID " + info.dwProcessId);
-                    while (true) {
-                        string output;
-                        lock (chunks) { output = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
-                        if (output.Contains(readyText, StringComparison.Ordinal)) { break; }
-                        if (Wait(info.hProcess, TimeSpan.FromMilliseconds(25)) == 0) {
-                            throw new InvalidOperationException("Capture exited before its input-ready marker: " + output);
-                        }
-                        if (clock.Elapsed > timeout) {
-                            TerminateProcess(info.hProcess, 1);
-                            throw new TimeoutException("Capture did not reach its input-ready marker.");
-                        }
-                    }
-                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
-                    byte[] bytes = Encoding.UTF8.GetBytes(inputKeys);
-                    input.Write(bytes, 0, bytes.Length);
-                    input.Flush();
-                }
-                uint wait;
-                if (inputText != null) {
-                    if (!ready.Wait(timeout)) {
-                        TerminateProcess(info.hProcess, 1);
-                        throw new TimeoutException("Capture did not reach its input marker: " + commandLine);
-                    }
-                    input = new FileStream(inputWrite, FileAccess.Write, 1, false);
-                    byte[] keys = Encoding.UTF8.GetBytes(inputText);
-                    input.Write(keys, 0, keys.Length);
-                    input.Flush();
-                    if (completionText != null) {
-                        // Let the native editor paint and finish history prediction before asking it to accept the line.
-                        if (Wait(info.hProcess, TimeSpan.FromMilliseconds(250)) == 0) {
-                            throw new InvalidOperationException("Capture exited before completing native input: " + commandLine);
-                        }
-                        keys = Encoding.UTF8.GetBytes(completionText);
-                        input.Write(keys, 0, keys.Length);
-                        input.Flush();
-                    }
-                }
-                if (interrupt != null) {
-                    wait = Wait(info.hProcess, interrupt.Value);
-                    // A program that is stopped with Ctrl+C must still be running when the key is pressed.
-                    if (wait == 0) {
-                        GetExitCodeProcess(info.hProcess, out uint early);
-                        throw new InvalidOperationException("The program exited with code " + early + " before Ctrl+C was pressed at " + interrupt.Value.TotalSeconds + " s: " + commandLine);
-                    }
-                    // Ctrl+C typed into the pseudo console (ETX); the console turns it into the interrupt signal.
-                    // The stream owns the pipe handle, so it stays open until the console closes (below).
-                    input ??= new FileStream(inputWrite, FileAccess.Write, 1, false);
-                    input.Write(new byte[] { 3 }, 0, 1);
-                    input.Flush();
-                }
-                wait = Wait(info.hProcess, timeout);
-                if (wait != 0) {
-                    TerminateProcess(info.hProcess, 1);
-                    throw new TimeoutException("Capture timed out: " + commandLine);
-                }
-                if (!GetExitCodeProcess(info.hProcess, out uint exitCode)) {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
+                if (failure != null) { throw new IOException("Reading site capture output failed.", failure); }
                 if (exitCode != 0) {
-                    string diagnostic;
-                    lock (chunks) { diagnostic = Encoding.UTF8.GetString(chunks.SelectMany(chunk => chunk.Data).ToArray()); }
-                    throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine + "\n" + diagnostic);
-                }
-                // Give ConPTY a moment to paint the last frame before the console closes.
-                Thread.Sleep(400);
-            } finally {
-                ClosePseudoConsole(pty);
-                reader.Join(TimeSpan.FromSeconds(10));
-                input?.Dispose();
-                inputWrite.Dispose();
-                if (info.hProcess != IntPtr.Zero) {
-                    CloseHandle(info.hProcess);
-                }
-                if (info.hThread != IntPtr.Zero) {
-                    CloseHandle(info.hThread);
-                }
-                if (attributes != IntPtr.Zero) {
-                    DeleteProcThreadAttributeList(attributes);
-                    Marshal.FreeHGlobal(attributes);
-                }
-                if (block != IntPtr.Zero) {
-                    Marshal.FreeHGlobal(block);
-                }
-                if (capturePath != null) {
-                    using FileStream captured = File.Create(capturePath);
-                    lock (chunks) {
-                        foreach (OutputChunk chunk in chunks) { captured.Write(chunk.Data); }
+                    using (MemoryStream captured = new MemoryStream()) {
+                        lock (chunks) { foreach (OutputChunk chunk in chunks) { captured.Write(chunk.Data, 0, chunk.Data.Length); } }
+                        throw new InvalidOperationException("Capture process exited with code " + exitCode + ": " + commandLine + "\n" + Encoding.UTF8.GetString(captured.ToArray()));
                     }
                 }
-            }
-            lock (chunks) {
-                return new List<OutputChunk>(chunks);
+                lock (chunks) { return new List<OutputChunk>(chunks); }
             }
         }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool GetExitCodeProcess(IntPtr process, out uint exitCode);
-
-        private static IntPtr EnvironmentBlock(IDictionary<string, string?> overrides) {
-            SortedDictionary<string, string> env = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (System.Collections.DictionaryEntry entry in Environment.GetEnvironmentVariables()) {
-                env[(string)entry.Key] = (string?)entry.Value ?? string.Empty;
-            }
-            foreach (KeyValuePair<string, string?> pair in overrides) {
-                if (pair.Value == null) {
-                    env.Remove(pair.Key);
-                } else {
-                    env[pair.Key] = pair.Value;
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, string> pair in env) {
-                sb.Append(pair.Key).Append('=').Append(pair.Value).Append('\0');
-            }
-            sb.Append('\0');
-            return Marshal.StringToHGlobalUni(sb.ToString());
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct Coord {
-            public Coord(short x, short y) {
-                X = x;
-                Y = y;
-            }
-
-            public short X;
-            public short Y;
-        }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        private struct StartupInfo {
-            public int cb;
-            public string? lpReserved;
-            public string? lpDesktop;
-            public string? lpTitle;
-            public int dwX;
-            public int dwY;
-            public int dwXSize;
-            public int dwYSize;
-            public int dwXCountChars;
-            public int dwYCountChars;
-            public int dwFillAttribute;
-            public int dwFlags;
-            public short wShowWindow;
-            public short cbReserved2;
-            public IntPtr lpReserved2;
-            public IntPtr hStdInput;
-            public IntPtr hStdOutput;
-            public IntPtr hStdError;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct StartupInfoEx {
-            public StartupInfo StartupInfo;
-            public IntPtr lpAttributeList;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct ProcessInformation {
-            public IntPtr hProcess;
-            public IntPtr hThread;
-            public int dwProcessId;
-            public int dwThreadId;
-        }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool CreatePipe(out SafeFileHandle read, out SafeFileHandle write, IntPtr attributes, int size);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern int CreatePseudoConsole(Coord size, SafeFileHandle input, SafeFileHandle output, uint flags, out IntPtr pty);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern void ClosePseudoConsole(IntPtr pty);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool InitializeProcThreadAttributeList(IntPtr list, int count, int flags, ref IntPtr size);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool UpdateProcThreadAttribute(IntPtr list, uint flags, IntPtr attribute, IntPtr value, IntPtr size, IntPtr previous, IntPtr returnSize);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern void DeleteProcThreadAttributeList(IntPtr list);
-
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern bool CreateProcessW(string? application, StringBuilder commandLine, IntPtr processAttributes, IntPtr threadAttributes, bool inherit, uint flags, IntPtr environment, string? directory, ref StartupInfoEx startup, out ProcessInformation info);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern uint WaitForSingleObject(IntPtr handle, uint milliseconds);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool TerminateProcess(IntPtr handle, uint code);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool CloseHandle(IntPtr handle);
     }
 }

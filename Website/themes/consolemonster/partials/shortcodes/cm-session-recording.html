@@ -1,0 +1,5 @@
+{{~ player_data = data["session-recording"].session; player_title = player_data.title; player_label = "A real terminal session recorded with Invoke-ConsoleRecording"; player_meta = ["60 columns", "Native output", "asciicast v2"]; player_autoplay = false; player_loop = false; player_max = 15 ~}}
+{{~ capture recording_html ~}}
+{{ include "player" }}
+{{~ end ~}}
+{{ recording_html | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

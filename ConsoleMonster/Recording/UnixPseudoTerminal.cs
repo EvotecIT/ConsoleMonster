@@ -1,0 +1,153 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace ConsoleMonster.Sessions {
+    /// <summary>openpty plus posix_spawn avoids running managed code after fork in a multithreaded CLR.</summary>
+    internal sealed class UnixPseudoTerminal : IPseudoTerminal {
+        private int _master = -1;
+        private int _pid;
+        private readonly object _processGate = new object();
+        private bool _exited;
+        private int _exitCode;
+        private readonly bool _mac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public UnixPseudoTerminal(SessionRecordingOptions options) {
+            WinSize size = new WinSize(options.Width, options.Height);
+            int slave = -1;
+            IntPtr actions = Marshal.AllocHGlobal(1024), attributes = Marshal.AllocHGlobal(1024);
+            bool actionsReady = false, attributesReady = false;
+            List<IntPtr> allocations = new List<IntPtr>();
+            try {
+                int opened = _mac ? OpenMac(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size) : OpenLinux(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size);
+                if (opened != 0) { throw Error(); }
+                // Both parent descriptors must close on exec; dup2 actions create the child's standard handles.
+                fcntl(_master, 2, 1); fcntl(slave, 2, 1);
+                Check(posix_spawn_file_actions_init(actions)); actionsReady = true;
+                Check(posix_spawnattr_init(attributes)); attributesReady = true;
+                byte[] tty = new byte[1024];
+                Check(ttyname_r(slave, tty, (UIntPtr)tty.Length));
+                string ttyPath = Encoding.UTF8.GetString(tty, 0, Array.IndexOf(tty, (byte)0));
+                // Open after setsid, inside the child file actions, to acquire a controlling terminal.
+                Check(posix_spawn_file_actions_addopen(actions, 0, ttyPath, 2, 0));
+                for (int fd = 1; fd <= 2; fd++) { Check(posix_spawn_file_actions_adddup2(actions, 0, fd)); }
+                Check(posix_spawn_file_actions_addclose(actions, _master));
+                Check(posix_spawn_file_actions_addclose(actions, slave));
+                Check(posix_spawnattr_setflags(attributes, (short)(_mac ? 0x400 : 0x80))); // POSIX_SPAWN_SETSID
+                string shell = options.Shell ?? "/bin/bash";
+                List<string> args = new List<string> { shell };
+                foreach (string arg in options.Arguments) { args.Add(arg); }
+                List<string> env = new List<string>();
+                foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables()) {
+                    if (!string.Equals((string)entry.Key, "TERM", StringComparison.Ordinal) && !options.Environment.ContainsKey((string)entry.Key)) { env.Add(entry.Key + "=" + entry.Value); }
+                }
+                if (!options.Environment.ContainsKey("TERM")) { env.Add("TERM=xterm-256color"); }
+                foreach (KeyValuePair<string, string?> entry in options.Environment) { if (entry.Value != null) { env.Add(entry.Key + "=" + entry.Value); } }
+                // chdir is a child-only spawn action; never changes the process-wide working directory.
+                Check(posix_spawn_file_actions_addchdir_np(actions, options.WorkingDirectory));
+                int result = posix_spawnp(out _pid, shell, actions, attributes, Strings(args, allocations), Strings(env, allocations));
+                Check(result);
+            } catch {
+                if (_master >= 0) { close(_master); _master = -1; }
+                throw;
+            } finally {
+                if (slave >= 0) { close(slave); }
+                if (actionsReady) { posix_spawn_file_actions_destroy(actions); }
+                if (attributesReady) { posix_spawnattr_destroy(attributes); }
+                Marshal.FreeHGlobal(actions); Marshal.FreeHGlobal(attributes);
+                foreach (IntPtr pointer in allocations) { Marshal.FreeHGlobal(pointer); }
+            }
+        }
+        private static IntPtr Strings(IList<string> values, List<IntPtr> allocations) {
+            IntPtr array = Marshal.AllocHGlobal((values.Count + 1) * IntPtr.Size); allocations.Add(array);
+            for (int i = 0; i < values.Count; i++) {
+                byte[] bytes = Encoding.UTF8.GetBytes(values[i] + "\0");
+                IntPtr value = Marshal.AllocHGlobal(bytes.Length); allocations.Add(value);
+                Marshal.Copy(bytes, 0, value, bytes.Length); Marshal.WriteIntPtr(array, i * IntPtr.Size, value);
+            }
+            Marshal.WriteIntPtr(array, values.Count * IntPtr.Size, IntPtr.Zero);
+            return array;
+        }
+        public int Read(byte[] bytes) {
+            while (true) {
+                long count = read(_master, bytes, (UIntPtr)bytes.Length).ToInt64();
+                if (count >= 0) { return (int)count; }
+                int error = Marshal.GetLastWin32Error();
+                if (error == 4) { continue; }
+                if (error == 5 || error == 9) { return 0; } // terminal EOF / closed
+                throw Error();
+            }
+        }
+        public void Write(byte[] bytes) {
+            int offset = 0;
+            while (offset < bytes.Length) {
+                byte[] remaining = offset == 0 ? bytes : Slice(bytes, offset);
+                long count = write(_master, remaining, (UIntPtr)remaining.Length).ToInt64();
+                if (count < 0 && Marshal.GetLastWin32Error() == 4) { continue; }
+                if (count <= 0) { throw Error(); }
+                offset += (int)count;
+            }
+        }
+        private static byte[] Slice(byte[] bytes, int offset) { byte[] copy = new byte[bytes.Length - offset]; Buffer.BlockCopy(bytes, offset, copy, 0, copy.Length); return copy; }
+        public void Resize(int width, int height) { WinSize size = new WinSize(width, height); if (ioctl(_master, _mac ? (UIntPtr)0x80087467 : (UIntPtr)0x5414, ref size) != 0) { throw Error(); } }
+        public bool HasExited {
+            get {
+                lock (_processGate) {
+                    if (!_exited && _pid > 0) {
+                        byte[] info = new byte[128];
+                        int flags = 1 | 4 | (_mac ? 0x20 : 0x01000000); // WNOHANG | WEXITED | WNOWAIT
+                        int result = waitid(1, _pid, info, flags);
+                        if (result != 0 && Marshal.GetLastWin32Error() != 4) { throw Error(); }
+                        if (result == 0 && BitConverter.ToInt32(info, 0) != 0) {
+                            int code = BitConverter.ToInt32(info, 8), status = BitConverter.ToInt32(info, _mac ? 20 : 24);
+                            _exitCode = code == 1 ? status : 128 + status;
+                            _exited = true;
+                        }
+                    }
+                    return _exited;
+                }
+            }
+        }
+        public int ExitCode => _exitCode;
+        public void Stop() { lock (_processGate) { if (_pid > 0) { kill(-_pid, 15); kill(_pid, 15); } } }
+        public void Complete() {
+            lock (_processGate) {
+                // WNOWAIT reserves the leader PID until teardown, so this process-group identity cannot be reused.
+                if (_pid > 0) { kill(-_pid, 9); kill(_pid, 9); }
+            }
+        }
+        public void Dispose() {
+            lock (_processGate) {
+                Complete();
+                if (_pid > 0) { while (waitpid(_pid, out _, 0) < 0 && Marshal.GetLastWin32Error() == 4) { } _pid = 0; _exited = true; }
+                if (_master >= 0) { close(_master); _master = -1; }
+            }
+        }
+        private static Win32Exception Error() => new Win32Exception(Marshal.GetLastWin32Error());
+        private static void Check(int error) { if (error != 0) { throw new Win32Exception(error); } }
+        [StructLayout(LayoutKind.Sequential)] private struct WinSize { public ushort Rows, Columns, X, Y; public WinSize(int width, int height) { Rows = (ushort)height; Columns = (ushort)width; X = Y = 0; } }
+        [DllImport("libutil.so.1", EntryPoint = "openpty", SetLastError = true)] private static extern int OpenLinux(out int master, out int slave, IntPtr name, IntPtr termios, ref WinSize size);
+        [DllImport("/usr/lib/libSystem.B.dylib", EntryPoint = "openpty", SetLastError = true)] private static extern int OpenMac(out int master, out int slave, IntPtr name, IntPtr termios, ref WinSize size);
+        [DllImport("libc", SetLastError = true)] private static extern int fcntl(int fd, int command, int value);
+        [DllImport("libc")] private static extern int ttyname_r(int fd, byte[] name, UIntPtr size);
+        [DllImport("libc", SetLastError = true)] private static extern IntPtr read(int fd, byte[] buffer, UIntPtr count);
+        [DllImport("libc", SetLastError = true)] private static extern IntPtr write(int fd, byte[] buffer, UIntPtr count);
+        [DllImport("libc", SetLastError = true)] private static extern int close(int fd);
+        [DllImport("libc", SetLastError = true)] private static extern int ioctl(int fd, UIntPtr request, ref WinSize size);
+        [DllImport("libc", SetLastError = true)] private static extern int kill(int pid, int signal);
+        [DllImport("libc", SetLastError = true)] private static extern int waitpid(int pid, out int status, int options);
+        [DllImport("libc", SetLastError = true)] private static extern int waitid(int type, int pid, byte[] info, int options);
+        [DllImport("libc")] private static extern int posix_spawn_file_actions_init(IntPtr actions);
+        [DllImport("libc")] private static extern int posix_spawn_file_actions_destroy(IntPtr actions);
+        [DllImport("libc")] private static extern int posix_spawn_file_actions_adddup2(IntPtr actions, int fd, int newFd);
+        [DllImport("libc", CharSet = CharSet.Ansi)] private static extern int posix_spawn_file_actions_addopen(IntPtr actions, int fd, string path, int flags, uint mode);
+        [DllImport("libc")] private static extern int posix_spawn_file_actions_addclose(IntPtr actions, int fd);
+        [DllImport("libc", CharSet = CharSet.Ansi)] private static extern int posix_spawn_file_actions_addchdir_np(IntPtr actions, string directory);
+        [DllImport("libc")] private static extern int posix_spawnattr_init(IntPtr attributes);
+        [DllImport("libc")] private static extern int posix_spawnattr_destroy(IntPtr attributes);
+        [DllImport("libc")] private static extern int posix_spawnattr_setflags(IntPtr attributes, short flags);
+        [DllImport("libc", CharSet = CharSet.Ansi)] private static extern int posix_spawnp(out int pid, string file, IntPtr actions, IntPtr attributes, IntPtr args, IntPtr environment);
+    }
+}

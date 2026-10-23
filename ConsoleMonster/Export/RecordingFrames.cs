@@ -11,6 +11,8 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Export {
     /// <summary>How a recording is exported: screen size, frame rate, speed, theme, font and window frame.</summary>
     public sealed class RecordingExportOptions {
+        /// <summary>Chapter labels and playback times, displayed by the HTML player.</summary>
+        public IList<RecordingMarker> Markers { get; } = new List<RecordingMarker>();
         /// <summary>Screen width in cells (default 100).</summary>
         public int Width { get; set; } = 100;
 
@@ -104,6 +106,16 @@ namespace ConsoleMonster.Export {
         internal RenderContext? Context { get; set; }
 
         internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
+    }
+
+    /// <summary>A labelled chapter in a recording's playback timeline.</summary>
+    public sealed class RecordingMarker {
+        /// <summary>Creates a chapter at a playback time.</summary>
+        public RecordingMarker(TimeSpan time, string label) { Time = time; Label = label ?? throw new ArgumentNullException(nameof(label)); }
+        /// <summary>Time from the start of playback.</summary>
+        public TimeSpan Time { get; }
+        /// <summary>Chapter label.</summary>
+        public string Label { get; }
     }
 
     /// <summary>One distinct screen of a recording and how long it stays (after speed scaling).</summary>

@@ -16,3 +16,9 @@
 .cm-export .cm-controls option{color:#000}
 .cm-export .cm-time{font-variant-numeric:tabular-nums;min-width:90px;text-align:right}
 .cm-export .cm-error{padding:12px;font:13px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg)}
+.cm-export .cm-controls{flex-wrap:wrap}
+.cm-export .cm-controls .cm-chapters{max-width:160px}
+.cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
+.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
+.cm-export .cm-controls .cm-mark{width:8px;height:8px;overflow:hidden;color:transparent;padding:0;border-left-color:var(--cm-chrome-fg);border-right-color:var(--cm-chrome-fg)}
+@media(max-width:600px){.cm-export .cm-controls .cm-track{flex-basis:55%}.cm-export .cm-marks{display:none}.cm-export .cm-controls.cm-has-marks{padding-bottom:10px}}

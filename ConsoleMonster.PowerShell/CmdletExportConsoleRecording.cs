@@ -3,11 +3,12 @@ using System.Management.Automation;
 using System.Text;
 using ConsoleMonster.Export;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Exports a dashboard recording to an HTML player, an animated SVG or asciicast.</para>
-    /// <para type="description">Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.</para>
+    /// <para type="synopsis">Exports a terminal session or dashboard recording to a player, SVG or asciicast.</para>
+    /// <para type="description">Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
@@ -15,24 +16,26 @@ namespace ConsoleMonster.PowerShell {
     /// Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
     /// Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36</code>
     /// </example>
-    [Cmdlet(VerbsData.Export, "ConsoleRecording")]
+    [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session")]
     [OutputType(typeof(string), typeof(FileInfo))]
     public sealed class CmdletExportConsoleRecording : PSCmdlet {
         /// <summary><para type="description">The dashboard (or widget tree) the recording was made with.</para></summary>
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Dashboard")]
         public IWidget Dashboard { get; set; } = null!;
 
-        /// <summary><para type="description">The recording (.jsonl).</para></summary>
-        [Parameter(Mandatory = true, Position = 1)]
+        /// <summary><para type="description">Session .cast file, or dashboard .jsonl with -Dashboard.</para></summary>
+        [Parameter(Mandatory = true, Position = 1, ParameterSetName = "Dashboard")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Session")]
         public string Path { get; set; } = string.Empty;
 
-        /// <summary><para type="description">Html, Svg, Asciicast or PlayerData (default: from the -Destination extension, .json for PlayerData, else Html). PlayerData is the JSON the native player script plays, for sites that include the script once (see ConsoleExporter.PlayerScript).</para></summary>
+        /// <summary><para type="description">Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData")]
+        [ValidateSet("Html", "Svg", "Asciicast", "PlayerData", "Text", "Markdown", "FencedText")]
         public string? Format { get; set; }
 
         /// <summary><para type="description">The file to write. Without it the document goes to the pipeline.</para></summary>
-        [Parameter(Position = 2)]
+        [Parameter(Position = 2, ParameterSetName = "Dashboard")]
+        [Parameter(Position = 1, ParameterSetName = "Session")]
         [Alias("OutFile")]
         public string? Destination { get; set; }
 
@@ -72,15 +75,23 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter PassThru { get; set; }
 
+        /// <summary><para type="description">With a session cast, exports the final visible frame as static SVG.</para></summary>
+        [Parameter(ParameterSetName = "Session")]
+        public SwitchParameter FinalFrame { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+            if (FinalFrame.IsPresent && ((Format != null && !string.Equals(Format, "Svg", System.StringComparison.OrdinalIgnoreCase))
+                || (Destination != null && !string.Equals(System.IO.Path.GetExtension(Destination), ".svg", System.StringComparison.OrdinalIgnoreCase)))) {
+                throw new System.ArgumentException("FinalFrame writes SVG; use -Format Svg or an .svg destination.");
+            }
             bool playerData = string.Equals(Format, "PlayerData", System.StringComparison.OrdinalIgnoreCase)
                 || (Format == null && Destination != null && string.Equals(System.IO.Path.GetExtension(Destination), ".json", System.StringComparison.OrdinalIgnoreCase));
             ExportFormat format = playerData ? ExportFormat.Html : Format != null
                 ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
                 : Destination != null ? ConsoleExporter.FormatFor(Destination) : ExportFormat.Html;
-            if (format == ExportFormat.Text || format == ExportFormat.Markdown) {
+            if (ParameterSetName == "Dashboard" && (format == ExportFormat.Text || format == ExportFormat.Markdown)) {
                 format = ExportFormat.Html;
             }
             RecordingExportOptions options = new RecordingExportOptions {
@@ -94,7 +105,13 @@ namespace ConsoleMonster.PowerShell {
             };
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
-                document = playerData ? Recording.ExportPlayerData(Dashboard, reader, options) : Recording.Export(Dashboard, reader, format, options);
+                if (ParameterSetName == "Session") {
+                    SessionRecording session = SessionRecording.Read(reader);
+                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Title, WindowChrome = WindowChrome.IsPresent })
+                        : playerData ? session.ExportPlayerData(options) : session.Export(format, options);
+                } else {
+                    document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options) : Export.Recording.Export(Dashboard, reader, format, options);
+                }
             }
             if (Destination == null) {
                 WriteObject(document);

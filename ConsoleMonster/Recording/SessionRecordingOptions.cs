@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace ConsoleMonster.Sessions {
+    /// <summary>Local terminal recording settings. Input bytes are never recorded.</summary>
+    public sealed class SessionRecordingOptions {
+        /// <summary>Native asciicast v2 output. Null creates a timestamped name in <see cref="Folder"/>.</summary>
+        public string? Path { get; set; }
+        /// <summary>Folder used for automatic recording names.</summary>
+        public string Folder { get; set; } = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "ConsoleMonster", "Recordings");
+        /// <summary>Human-readable recording title.</summary>
+        public string Name { get; set; } = "Console session";
+        /// <summary>Child executable. Null selects the platform shell.</summary>
+        public string? Shell { get; set; }
+        /// <summary>Individual child arguments, quoted by the transport.</summary>
+        public IList<string> Arguments { get; } = new List<string>();
+        /// <summary>Named child environment overrides. Null removes a variable; values are never written to metadata.</summary>
+        public IDictionary<string, string?> Environment { get; } = new Dictionary<string, string?>(StringComparer.Ordinal);
+        /// <summary>Initial terminal width.</summary>
+        public int Width { get; set; } = 100;
+        /// <summary>Initial terminal height.</summary>
+        public int Height { get; set; } = 30;
+        /// <summary>Maximum cast bytes, including its header. Capture stops at the limit; the child keeps running.</summary>
+        public long MaxBytes { get; set; } = 64 * 1024 * 1024;
+        /// <summary>Longest playback gap. Zero preserves original timing.</summary>
+        public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
+        /// <summary>Maximum child lifetime, including interactive sessions.</summary>
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromHours(24);
+        /// <summary>Additional regular expressions, applied before any recording data is written.</summary>
+        public IList<string> Redact { get; } = new List<string>();
+        /// <summary>Child working directory.</summary>
+        public string WorkingDirectory { get; set; } = System.Environment.CurrentDirectory;
+        /// <summary>Explicitly use the limited in-process PowerShell capture adapter.</summary>
+        public bool InProcess { get; set; }
+
+        internal void Validate() {
+            if (Width < 2 || Width > 1000 || Height < 2 || Height > 1000 || (long)Width * Height > 250000) {
+                throw new ArgumentOutOfRangeException(nameof(Width), "Use 2–1000 cells per dimension and at most 250000 cells.");
+            }
+            if (MaxBytes < 1024) { throw new ArgumentOutOfRangeException(nameof(MaxBytes)); }
+            if (IdleLimit < TimeSpan.Zero || Timeout <= TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(Timeout)); }
+            if (!Directory.Exists(WorkingDirectory)) { throw new DirectoryNotFoundException(WorkingDirectory); }
+            if (Shell != null && Shell.IndexOf('\0') >= 0) { throw new ArgumentException("Shell contains a NUL character."); }
+            foreach (string argument in Arguments) { if (argument == null || argument.IndexOf('\0') >= 0) { throw new ArgumentException("Child arguments cannot contain NUL characters."); } }
+            foreach (KeyValuePair<string, string?> variable in Environment) {
+                if (variable.Key.Length == 0 || variable.Key.IndexOfAny(new[] { '=', '\0' }) >= 0 || (variable.Value != null && variable.Value.IndexOf('\0') >= 0)) { throw new ArgumentException("Invalid child environment override."); }
+            }
+        }
+    }
+}

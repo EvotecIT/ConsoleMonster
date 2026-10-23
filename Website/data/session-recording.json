@@ -1,0 +1,13 @@
+{
+  "session": {
+    "title": "Console session",
+    "url": "/replays/session-recording.json",
+    "start": 4695,
+    "poster": {
+      "w": 60,
+      "h": 12,
+      "dark": "<span class=\"f3a96dd B\">CONSOLE SESSION</span>\nNative commands, progress and chapters\n\n<span class=f3a96dd>&gt; git --version</span>\ngit version 2.55.0.windows.5\n<span class=f3a96dd>&gt; dotnet --version</span>\n10.0.402\n\n<span class=fc19c00>Build [########] 8/8</span>\n\n[REDACTED]\n<span class=f13a10e>Build finished. Recording stays local.</span>"
+    },
+    "powershellRepo": "Website/examples/recording/record-session.ps1"
+  }
+}
