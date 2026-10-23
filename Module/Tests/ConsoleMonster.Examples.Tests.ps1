@@ -186,6 +186,7 @@ BeforeAll {
         'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
+        'Website/examples/errors/compact.ps1'         = @{ ExpectErrors = $true }
     }
     # The site's prompt stories answer with the keys the site records them with (data/interactive.json, written by the site
     # tool from the same story list), on a captured screen of the story's size.

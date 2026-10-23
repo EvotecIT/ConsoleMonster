@@ -24,6 +24,7 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting -Feature Streams    # warning, verbose and debug messages in the theme's colours
    Enable-ConsoleFormatting -Feature All        # all four
    Enable-ConsoleFormatting -Feature FormatCommands  # Format-Table, Format-List and Format-Wide too (never part of All)
+   Enable-ConsoleFormatting -Feature Errors      # compact host errors (never part of All)
    ```
 
 2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
@@ -65,6 +66,38 @@ records the proof for Windows PowerShell 5.1 and PowerShell 7.
 {{< cm-frame ids="help-formatting-native-ps7-120,help-formatting-get-help-ps7-120,help-formatting-get-help-ps7-60" caption="Native help before and after the opt-in, captured on PowerShell 7 at 120 and 60 columns." >}}
 
 {{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="The first page of help, with the Space/q footer, at both widths." >}}
+## Compact everyday errors
+
+Enable the compact layout explicitly:
+
+```powershell
+Enable-ConsoleFormatting -Feature Errors
+```
+
+Subsequent commands typed at the prompt use the new layout when they fail. This one deliberately produces an error:
+
+```powershell
+[int]::Parse('production')
+```
+
+The message comes first, with only its label in the error tone. The original invocation is highlighted, a caret marks
+the failing span, and the script, line and column come from `InvocationInfo`. Category and target stay visible. Inner
+exceptions fold into a muted count, and PowerShell 7 adds a `Get-Error for details` hint.
+
+{{< cm-frame ids="errors-120,errors-60" caption="The shared compact view at 120 and 60 columns. Its complete C# program compiles to produce these frames; switch the site theme for the light rendering." >}}
+
+```powershell
+Enable-ConsoleFormatting -Feature Errors -Detailed  # include stacks and causes
+Disable-ConsoleFormatting -Feature Errors
+
+# The same view on demand, including inside a catch block or an export.
+try { [int]::Parse('production') } catch { $_ | Format-ConsoleError -Compact }
+```
+
+`Errors` is excluded from `All`. Error-producing cmdlets remain native, and `$Error`, `-ErrorVariable`, `2>`,
+`try`/`catch`, `$?` and `$ErrorActionPreference` keep their PowerShell behavior. Piped, assigned, redirected, job,
+remoting, CI and transcript output retains native rendering. `$ErrorView` stays unchanged; `CategoryView` and
+`Get-Error` retain their native views. Bare `Disable-ConsoleFormatting` removes this opt-in along with the others.
 
 {{< cm-demo id="errors" heading="h2" >}}
 

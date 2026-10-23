@@ -13,7 +13,7 @@ The same view as Format-ConsoleError: type, message, position, script stack, fra
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleException [[-InputObject] <Object>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
+Write-ConsoleException [[-InputObject] <Object>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -50,6 +50,22 @@ Accept wildcard characters: False
 
 ### -AsString
 Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Compact
+Uses the message-first everyday error layout, highlighted invocation and folded inner exceptions. Stacks remain hidden unless -ShowFrameworkFrames is requested.
 
 ```yaml
 Type: SwitchParameter

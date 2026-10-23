@@ -17,6 +17,49 @@ namespace SiteFrames {
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
                 case "app-review":
+    /// </list>
+    /// </summary>
+    public static class Program {
+        internal static int Failures;
+
+        public static int Main(string[] args) {
+            CultureInfo culture = Site.Culture;
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+            // Frames must not depend on the build machine (or a CI runner): the variables ConsoleMonster reads are cleared and the label
+            // language is pinned (some widgets read it from the process, not from the profile).
+            foreach (System.Collections.DictionaryEntry variable in Environment.GetEnvironmentVariables()) {
+                string name = (string)variable.Key;
+                if (name.StartsWith("CONSOLEMONSTER_", StringComparison.OrdinalIgnoreCase) || name == "NO_COLOR" || name == "COLORFGBG" || name == "CI" || name == "GITHUB_ACTIONS" || name == "TF_BUILD" || name == "BUILD_BUILDID" || name == "JENKINS_URL" || name == "GITLAB_CI" || name == "TEAMCITY_VERSION") {
+                    Environment.SetEnvironmentVariable(name, null);
+                }
+            }
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", "en");
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_CULTURE", "en-US");
+            string command = args.Length > 0 ? args[0] : "render";
+            string website = args.Length > 1 ? args[1] : Path.Combine("..", "..");
+            string? only = args.Length > 2 ? args[2] : null;
+            if (command == "render" && only != null) {
+                Console.Error.WriteLine("Render regenerates all areas together because they share styles and thumbnails. Use: SiteFrames render [WebsiteRoot]");
+                return 2;
+            }
+            switch (command) {
+                case "review-error-shapes":
+                    if (only == null) { throw new ArgumentException("Pass the review output directory as the third argument."); }
+                    ErrorShapeReview.Run(new Site(website), only);
+                    return 0;
+                case "review-errors":
+                    ErrorFigures.ExportReview(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-errors-review"));
+                    return 0;
+                case "render":
+                    return Render(new Site(website), only);
+                case "capture":
+                    return CaptureAll(new Site(website), only);
+                case "readme":
+                    return Readme.Sync(new Site(website));
+                case "review-object":
                     if (only == null) {
                         Console.Error.WriteLine("Usage: SiteFrames app-review [WebsiteRoot] [ScratchOutputDirectory]");
                         return 2;
