@@ -47,7 +47,7 @@ namespace SiteFrames.Pages {
                     ["title"] = "Show-ConsoleObject",
                     ["label"] = "Browse members without expanding the entire object",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
-                    ["frame"] = site.Frame(dark, light)
+                    ["frame"] = site.FrameAt(width, dark, light)
                 }, ExplorerExamples.ProgramPath(site));
                 figure["script"] = File.ReadAllText(Path.Combine(site.Website, "examples", "docs", "object-explorer.ps1"));
                 figure["parity"] = new JsonObject { ["dark"] = Check(site, width, "dark"), ["light"] = Check(site, width, "light") };

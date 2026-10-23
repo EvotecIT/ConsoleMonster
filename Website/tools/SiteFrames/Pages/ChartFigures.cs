@@ -59,7 +59,7 @@ namespace SiteFrames.Pages {
                     ["file"] = "pipeline-charts.ps1",
                     ["label"] = "Bars, a distribution and grouped trends from numeric samples",
                     ["meta"] = new JsonArray(width + " columns", "24-bit", "Full"),
-                    ["frame"] = site.Frame(dark, light),
+                    ["frame"] = site.FrameAt(width, dark, light),
                     ["script"] = script,
                     ["scriptFull"] = scriptFull
                 }, program));

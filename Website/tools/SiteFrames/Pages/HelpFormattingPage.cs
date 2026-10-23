@@ -114,7 +114,7 @@ namespace SiteFrames.Pages {
                             ["label"] = host.Label + ": " + Title(example),
                             ["file"] = example + ".ps1",
                             ["meta"] = new JsonArray(host.Label, width + " columns", example == "help" ? "First page" : "Native command"),
-                            ["frame"] = site.Frame(dark, light),
+                            ["frame"] = site.FrameAt(width, dark, light),
                             ["script"] = script,
                             ["scriptFull"] = script
                         });

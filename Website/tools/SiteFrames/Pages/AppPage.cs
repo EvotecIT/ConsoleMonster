@@ -18,7 +18,8 @@ namespace SiteFrames.Pages {
     /// </summary>
     internal static class AppPage {
         private const string Id = "live-filter";
-        private const int Height = 24;
+        // The tallest state (all six hosts) uses 16 rows; the key hints sit on the last row, one empty row below it.
+        private const int Height = 18;
         private static readonly int[] Widths = { 120, 60 };
         private static readonly string[] States = { "initial", "filtered" };
         private static readonly string[] Themes = { "dark", "light" };
@@ -82,6 +83,7 @@ namespace SiteFrames.Pages {
                             Dictionary<string, string?> environment = PowerShellRunner.Environment(theme);
                             environment["CM_SITE_APP_STATE"] = state;
                             environment["CM_SITE_APP_WIDTH"] = width.ToString(Site.Culture);
+                            environment["CM_SITE_APP_HEIGHT"] = Height.ToString(Site.Culture);
                             byte[] vt = PowerShellRunner.Bytes(PowerShellRunner.Run(site, host,
                                 Path.Combine(site.Website, "tools", "SiteFrames", "Capture", "AppCapture.ps1"), width, Height + 4, environment));
                             string path = CapturePath(site, width, theme, state, host);
@@ -112,7 +114,7 @@ namespace SiteFrames.Pages {
                     CellBuffer darkFrame = Pick(dark, state);
                     CellBuffer lightFrame = Pick(light, state);
                     string key = state + "-" + width.ToString(Site.Culture);
-                    frames[key] = site.Frame(darkFrame, lightFrame);
+                    frames[key] = site.FrameAt(width, darkFrame, lightFrame);
                     string figureId = "app-" + Id + "-" + key;
                     Figures.Add(figureId, new JsonObject {
                         ["title"] = state == "initial" ? "Host inventory · initial" : "Host inventory · sql",

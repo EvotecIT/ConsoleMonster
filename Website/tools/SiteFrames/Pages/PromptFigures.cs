@@ -20,7 +20,7 @@ namespace SiteFrames.Pages {
                 Figures.Add("shell-prompt-" + width, Figures.WithProgram(new JsonObject {
                     ["title"] = "Shell prompt · " + width + " columns",
                     ["label"] = "Illustrative path, dirty branch, success and failure; only the slow command has a duration.",
-                    ["frame"] = site.Frame(dark, light)
+                    ["frame"] = site.FrameAt(width, dark, light)
                 }, program));
             }
         }

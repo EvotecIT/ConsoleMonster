@@ -39,7 +39,7 @@ Enable-ConsoleFormatting
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-dark.png">
-  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="868" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
+  <img alt="Get-ChildItem and a hashtable after Enable-ConsoleFormatting" width="734" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/formatting-light.png">
 </picture>
 
 To keep it in every session, add the lines `-ProfileSnippet` prints to your profile:
@@ -120,7 +120,7 @@ $results = $servers | ForEach-ConsoleItem @run -ErrorAction SilentlyContinue {
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/parallel-dark.png">
-  <img alt="A parallel run of forty servers: the summary bar, a cell per server and the failures" width="868" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/parallel-light.png">
+  <img alt="A parallel run of forty servers: the summary bar, a cell per server and the failures" width="717" src="https://raw.githubusercontent.com/EvotecIT/ConsoleMonster/master/Website/static/readme/parallel-light.png">
 </picture>
 
 [Live runs](https://consolemonster.dev/docs/live-runs/) · [Live dashboards](https://consolemonster.dev/live/)

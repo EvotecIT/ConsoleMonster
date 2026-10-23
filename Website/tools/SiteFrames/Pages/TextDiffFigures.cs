@@ -55,7 +55,7 @@ namespace SiteFrames.Pages {
                     ["file"] = "text-diff.ps1",
                     ["label"] = "Before and After with numbered changes, word highlights and collapsed context",
                     ["meta"] = new JsonArray(width + "×" + dark.Height, "24-bit", "Full"),
-                    ["frame"] = site.Frame(dark, light)
+                    ["frame"] = site.FrameAt(width, dark, light)
                 }, TextDiffExamples.ProgramPath(site));
                 (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(Path.Combine(site.Website, "examples", "docs", "text-diff.ps1")));
                 figure["script"] = script;

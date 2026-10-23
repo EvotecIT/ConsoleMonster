@@ -125,10 +125,42 @@ namespace SiteFrames {
             return frame;
         }
 
+        /// <summary>
+        /// A frame from a program shown at a wide and a narrow width on a docs page. The narrow rendering is there to show
+        /// what that width does, so it keeps its declared width; the wide one (100 columns or more) is cut to the columns its
+        /// output uses, because a program rarely fills a 120-column terminal and an empty window only shrinks the text.
+        /// </summary>
+        /// <param name="width">The terminal width the program ran at.</param>
+        /// <param name="dark">The dark rendering.</param>
+        /// <param name="light">The light rendering, or null.</param>
+        public JsonObject FrameAt(int width, CellBuffer dark, CellBuffer? light) {
+            if (width < FitFrom) {
+                return Frame(dark, light);
+            }
+            (CellBuffer fitDark, CellBuffer? fitLight) = Fit(dark, light);
+            return Frame(fitDark, fitLight);
+        }
+
+        /// <summary>The narrowest terminal width whose frames are cut to their content by <see cref="FrameAt"/>.</summary>
+        internal const int FitFrom = 100;
+
+        /// <summary>
+        /// Both renderings cut to the columns either of them uses. They keep one width, so the page does not shift when the
+        /// theme changes. Rows need no cutting: trailing empty rows are left out when a frame is written.
+        /// </summary>
+        internal static (CellBuffer Dark, CellBuffer? Light) Fit(CellBuffer dark, CellBuffer? light) {
+            int width = ContentWidth(dark);
+            if (light != null) {
+                width = Math.Max(width, ContentWidth(light));
+            }
+            return (CropTo(dark, width), light == null ? null : CropTo(light, width));
+        }
+
         /// <summary>A copy of a captured frame cut to the columns that show anything, so the page can draw it larger.</summary>
         public static CellBuffer Crop(CellBuffer frame) => CropTo(frame, ContentWidth(frame));
 
-        private static int ContentWidth(CellBuffer frame) {
+        /// <summary>The column after the last one any row of the frame uses (text, a background or a decoration).</summary>
+        internal static int ContentWidth(CellBuffer frame) {
             int width = 1;
             for (int y = 0; y < frame.Height; y++) {
                 width = Math.Max(width, FrameHtml.ContentEnd(frame, y, ColorDepth.TrueColor));
@@ -136,7 +168,7 @@ namespace SiteFrames {
             return width;
         }
 
-        private static CellBuffer CropTo(CellBuffer frame, int width) {
+        internal static CellBuffer CropTo(CellBuffer frame, int width) {
             if (width >= frame.Width) {
                 return frame;
             }
