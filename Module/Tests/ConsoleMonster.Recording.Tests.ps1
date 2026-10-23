@@ -1,6 +1,13 @@
 Describe 'Whole-session recording' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
+        if (-not ('RecordingOutputObserver' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'Support/RecordingOutputObserver.cs') }
+        if (-not ('RecordingRelayProbe' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'Support/RecordingRelayProbe.cs') }
+    }
+
+    It 'bounds a slow live relay, yields between drain passes and releases blocked output on cancellation' {
+        $assembly = (Get-Command Start-ConsoleRecording).ImplementingType.Assembly
+        { [RecordingRelayProbe]::Validate($assembly.GetType('ConsoleMonster.PowerShell.RecordingOutputRelay', $true)) } | Should -Not -Throw
     }
 
     It 'keeps the recording title on a final frame and honors an explicit override' {
@@ -101,27 +108,54 @@ Describe 'Whole-session recording' {
         $runtime = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
         $inner = Join-Path $TestDrive 'interactive.cast'
         $outer = Join-Path $TestDrive 'interactive-host.cast'
-        $script = "Import-Module '$($module.Replace("'", "''"))'; Start-ConsoleRecording -Path '$($inner.Replace("'", "''"))' -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
+        $windows = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
+        # A headless Unix PTY has no emulator to answer ConsoleHost/PSReadLine cursor-position queries.
+        $shell = if ($windows) { '' } else { " -Shell '/bin/sh'" }
+        $script = "Import-Module '$($module.Replace("'", "''"))'; Start-ConsoleRecording -Path '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
         $options = [ConsoleMonster.Sessions.SessionRecordingOptions]::new()
         $options.Path = $outer
         $options.Shell = $runtime
         $options.Width = 50
         $options.Height = 10
         $options.Timeout = [TimeSpan]::FromSeconds(30)
+        $options.Environment['PS1'] = 'CM-READY> '
         $options.Arguments.Add('-NoProfile')
         $options.Arguments.Add('-EncodedCommand')
         $options.Arguments.Add([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script)))
-        $recorder = [ConsoleMonster.Sessions.SessionRecorder]::Start($options)
+        $observer = [RecordingOutputObserver]::new()
+        $relay = [Delegate]::CreateDelegate([Action[string]], $observer, 'Receive')
+        $recorder = [ConsoleMonster.Sessions.SessionRecorder]::Start($options, $relay)
         try {
-            Start-Sleep -Milliseconds 1200
-            $recorder.SendInput("[Console]::WriteLine('INTERACTIVE-CHECK'); Add-ConsoleRecordingMarker 'Interactive'; Stop-ConsoleRecording`r")
+            # Wait for the nested shell to finish startup rather than typing into its input-mode setup.
+            $prompt = if ($windows) { '>' } else { 'CM-READY> ' }
+            $observer.WaitFor($prompt, [TimeSpan]::FromSeconds(20)) | Should -BeTrue -Because $observer.Text
+            if ($windows) {
+                $commands = @(
+                    @{ Text = "[Console]::WriteLine(); [Console]::WriteLine(('INTERACTIVE' + '-CHECK'))"; Output = 'INTERACTIVE-CHECK' },
+                    @{ Text = "Add-ConsoleRecordingMarker 'Interactive'; Stop-ConsoleRecording"; Output = $null }
+                )
+                foreach ($command in $commands) {
+                    foreach ($key in $command.Text.ToCharArray()) {
+                        $recorder.SendInput([string] $key)
+                        Start-Sleep -Milliseconds 10
+                    }
+                    $recorder.SendInput("`r")
+                    # Command echo cannot satisfy this: the expected token is assembled only during execution.
+                    # Stop after ConPTY has painted the result, rather than terminating it in the same command.
+                    if ($command.Output) { $observer.WaitFor($command.Output, [TimeSpan]::FromSeconds(20)) | Should -BeTrue -Because $observer.Text }
+                }
+            } else {
+                $label = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('Interactive'))
+                $recorder.SendInput("printf '\033]777;ConsoleMonster;marker;$label\007'; printf '\r\nINTERACTIVE-CHECK\r\n'; exit`r")
+            }
             $recorder.WaitForExit()
         } finally {
             $recorder.Dispose()
         }
         $recorder.ExitCode | Should -Be 0
+        Export-ConsoleRecording -Path $outer -Format Text | Should -Match 'OUTER-DONE'
         $text = Export-ConsoleRecording -Path $inner -Format Text
-        $text | Should -Match 'INTERACTIVE-CHECK'
+        $text | Should -Match 'INTERACTIVE-CHECK' -Because ([IO.File]::ReadAllText($inner))
         $text | Should -Not -Match 'OUTER-DONE'
         (Export-ConsoleRecording -Path $inner -Format PlayerData | ConvertFrom-Json).markers[0][1] | Should -Be 'Interactive'
     }
@@ -132,14 +166,61 @@ Describe 'Whole-session recording' {
         Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Failure recorded'
     }
 
+    It 'surfaces a fallback script failure and retains its recording' {
+        $cast = Join-Path $TestDrive 'fallback-failed.cast'
+        { Invoke-ConsoleRecording { throw 'Fallback failure recorded' } -Destination $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*Fallback failure recorded*'
+        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Fallback failure recorded'
+    }
+
+    It 'surfaces a fallback nonzero exit after finalizing its recording' {
+        $cast = Join-Path $TestDrive 'fallback-exit.cast'
+        { Invoke-ConsoleRecording { Write-Host 'Before fallback exit'; exit 7 } -Destination $cast -InProcess -WarningAction SilentlyContinue -ErrorAction Stop } | Should -Throw '*code 7*'
+        Test-Path -LiteralPath ($cast + '.json') | Should -BeTrue
+        Export-ConsoleRecording -Path $cast -Format Text | Should -Match 'Before fallback exit'
+    }
+
+    It 'stops a fallback script cleanly without recording later output' {
+        $cast = Join-Path $TestDrive 'fallback-stop.cast'
+        Invoke-ConsoleRecording {
+            Write-Host 'Before fallback stop'
+            Stop-ConsoleRecording
+            Start-Sleep -Seconds 20
+            throw 'After fallback stop'
+        } -Destination $cast -InProcess -TimeoutSeconds 5 -WarningAction SilentlyContinue -ErrorAction Stop | Out-Null
+        $text = Export-ConsoleRecording -Path $cast -Format Text
+        $text | Should -Match 'Before fallback stop'
+        $text | Should -Not -Match 'After fallback stop'
+    }
+
     It 'applies custom redaction and the byte cap' {
         $cast = Join-Path $TestDrive 'capped.cast'
         Invoke-ConsoleRecording {
             Write-Host 'private-sample'
             Write-Host ('x' * 3000)
-        } -Destination $cast -MaxBytes 1024 -Redact 'private-sample' -WarningAction SilentlyContinue | Out-Null
+            Start-Sleep -Milliseconds 100
+            Stop-ConsoleRecording
+            Start-Sleep -Seconds 60
+            throw 'Stop after cap failed'
+        } -Destination $cast -MaxBytes 1024 -Redact 'private-sample' -TimeoutSeconds 15 -WarningAction SilentlyContinue | Out-Null
         (Get-Item -LiteralPath $cast).Length | Should -BeLessOrEqual 1024
         Get-Content -LiteralPath $cast -Raw | Should -Not -Match 'private-sample'
         (Get-Content -LiteralPath ($cast + '.json') -Raw | ConvertFrom-Json).sizeLimitReached | Should -BeTrue
+    }
+
+    It 'keeps redacted names out of every Invoke export title' {
+        foreach ($format in 'html', 'json', 'svg', 'final') {
+            $destination = Join-Path $TestDrive ('title-' + $format + $(if ($format -eq 'final') { '.svg' } else { '.' + $format }))
+            $parameters = @{
+                Destination = $destination
+                Name = 'private-project'
+                Redact = 'private-project'
+                InProcess = $true
+                WarningAction = 'SilentlyContinue'
+            }
+            if ($format -eq 'final') { $parameters.FinalFrame = $true }
+            Invoke-ConsoleRecording { Write-Host 'Visible output' } @parameters | Out-Null
+            Get-Content -LiteralPath $destination -Raw | Should -Not -Match 'private-project'
+            Get-Content -LiteralPath $destination -Raw | Should -Match '\[REDACTED\]'
+        }
     }
 }

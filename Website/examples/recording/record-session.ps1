@@ -66,6 +66,23 @@ function Show-DemoToken {
 Clear-Host
 '@
         $setup = $setup.Replace('__MODULE__', $module).Replace('__DEMO__', $directory)
+        $unix = [Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT
+        if ($unix) {
+            # The typing driver has no terminal emulator to answer ConsoleHost cursor-position queries.
+            # Read the real PTY's canonical input directly; the PTY echoes each typed key before PowerShell executes it.
+            $setup += @'
+
+$inputReader = [IO.StreamReader]::new([Console]::OpenStandardInput(), [Text.UTF8Encoding]::new($false))
+try {
+    while ($true) {
+        Write-Host (prompt) -NoNewline
+        $command = $inputReader.ReadLine()
+        if ($null -eq $command -or $command -eq 'exit') { break }
+        Invoke-Expression $command | Out-Default
+    }
+} finally { $inputReader.Dispose() }
+'@
+        }
         $null = [Reflection.Assembly]::LoadFrom($env:CM_DEMO_DRIVER)
         $options = [ConsoleMonster.Sessions.SessionRecordingOptions]::new()
         $options.Path = Join-Path $env:CM_DEMO_ROOT 'typing.cast'
@@ -79,7 +96,9 @@ Clear-Host
         $options.Environment['TERM'] = 'xterm-256color'
         $options.Environment['CI'] = $null
         $options.Environment['NO_COLOR'] = $null
-        foreach ($argument in @('-NoLogo', '-NoProfile', '-NoExit', '-EncodedCommand', [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($setup)))) {
+        foreach ($argument in @('-NoLogo', '-NoProfile')) { $options.Arguments.Add($argument) }
+        if (-not $unix) { $options.Arguments.Add('-NoExit') }
+        foreach ($argument in @('-EncodedCommand', [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($setup)))) {
             $options.Arguments.Add($argument)
         }
         $relay = [Delegate]::CreateDelegate([Action[string]], [TypedSession].GetMethod('Output'))

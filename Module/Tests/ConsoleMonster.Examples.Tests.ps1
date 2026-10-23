@@ -52,6 +52,7 @@ BeforeAll {
 
     # Samples that genuinely need .NET interop, each with the reason. Keep this list short.
     $script:InteropAllowList = @{
+        'Website/examples/recording/record-session.ps1' = 'The typing driver deliberately uses the C# PTY API to feed keys to a real nested PowerShell terminal; the outer recording uses Invoke-ConsoleRecording.'
     }
 
     # The marker for a clearly labelled method-form alternative shown after the cmdlet form.
@@ -139,7 +140,7 @@ BeforeAll {
     $script:ExampleCases = @{
         'Website/examples/recording/record-session.ps1' = @{
             Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
-            Expect = @('Build finished. Recording stays local.')
+            Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }
         'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
         # Keep native help's external-pager choice independent of the launcher's PAGER setting in headless runs.
