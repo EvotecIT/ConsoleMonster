@@ -738,7 +738,7 @@
     },
     {
       "verb": "Show",
-      "count": 6,
+      "count": 7,
       "commands": [
         {
           "name": "Show-Console",
@@ -764,6 +764,11 @@
           "name": "Show-ConsoleMenu",
           "synopsis": "Shows a menu until the user exits.",
           "url": "/powershell/commands/show-consolemenu/"
+        },
+        {
+          "name": "Show-ConsoleObject",
+          "synopsis": "Explores an object's members with the keyboard.",
+          "url": "/powershell/commands/show-consoleobject/"
         },
         {
           "name": "Show-ConsoleReplay",
