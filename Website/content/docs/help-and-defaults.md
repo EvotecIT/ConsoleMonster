@@ -171,3 +171,5 @@ The existing parameter convention omits one renderer-added dash: use `Name = "-o
 such as `-o` are literal. Labels follow the render profile's language; set `ValuesHeading` only for a custom heading.
 
 {{< cm-frame ids="cli-help-120,cli-help-60" caption="The complete .NET example compiles against ConsoleMonster and renders at 120 and 60 columns in both themes." >}}
+
+Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

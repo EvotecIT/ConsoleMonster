@@ -18,12 +18,13 @@ namespace ConsoleMonster.Widgets {
                 int indent = Math.Min(new StyledLine(prefix).Width, Math.Max(0, width - 4));
                 StyledLine firstPrefix = TextWrapper.Truncate(new StyledLine(prefix), indent, string.Empty);
                 List<TextSpan> content = new List<TextSpan>();
-                AddLines(content, context.Markup(node.Label).Lines);
+                AddLines(content, context.Markup(node.LabelFor(context)).Lines);
                 if (node.Value != null) {
                     content.Add(new TextSpan("  "));
                     AddLines(content, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines);
                 }
-                if (!string.IsNullOrEmpty(node.Note)) content.Add(new TextSpan("  " + node.Note, context.Style(ThemeToken.Muted)));
+                string? note = node.NoteFor(context);
+                if (!string.IsNullOrEmpty(note)) content.Add(new TextSpan("  " + note, context.Style(ThemeToken.Muted)));
                 IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(new StyledLine(content), Math.Max(1, width - indent));
                 for (int i = 0; i < wrapped.Count; i++) {
                     List<TextSpan> spans = i == 0 ? new List<TextSpan>(firstPrefix) : new List<TextSpan> { new TextSpan(new string(' ', indent)) };

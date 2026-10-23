@@ -64,6 +64,35 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains("Second complete", text);
         }
 
+        [Fact]
+        public void WrappedHierarchy_UsesRenderLanguageForGeneratedLabelsAndCycleNotes() {
+            string? previous = Environment.GetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE");
+            try {
+                Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", "en");
+                HierarchyItem item = new HierarchyItem("Root");
+                item.Children.Add(item);
+                item.Children.Add(new HierarchyItem("Hidden"));
+                Tree tree = new Tree { WrapLabels = true };
+                TreeHierarchy.Add(tree.Root, new[] { item }, value => new TreeNode(value.Name),
+                    value => value.Children, new TreeHierarchyOptions { MaxItems = 1 });
+                TerminalProfile profile = TerminalProfile.Fixed(60, 40, ColorDepth.None, GlyphTier.Full);
+                Assert.Contains("+1 more", Terminal.RenderText(tree, profile.WithLanguage(CultureInfo.GetCultureInfo("en")), Theme.Dark));
+                string polish = Terminal.RenderText(tree, profile.WithLanguage(CultureInfo.GetCultureInfo("pl")), Theme.Dark);
+                Assert.Contains("+1 więcej", polish);
+                Assert.Contains("(cykl)", polish);
+                Assert.DoesNotContain("(cycle)", polish);
+                Assert.DoesNotContain("+1 more", polish);
+            } finally {
+                Environment.SetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE", previous);
+            }
+        }
+
+        private sealed class HierarchyItem {
+            public HierarchyItem(string name) { Name = name; }
+            public string Name { get; }
+            public System.Collections.Generic.List<HierarchyItem> Children { get; } = new System.Collections.Generic.List<HierarchyItem>();
+        }
+
         private static string Render(HelpView view, string language) => Terminal.RenderText(view,
             TerminalProfile.Fixed(120, 100, ColorDepth.None, GlyphTier.Full)
                 .WithLanguage(CultureInfo.GetCultureInfo(language)), Theme.Dark);
