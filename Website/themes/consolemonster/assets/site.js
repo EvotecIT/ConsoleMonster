@@ -275,4 +275,33 @@
     window.addEventListener('hashchange', function () { fromHash(false); });
     fromHash(true);
   });
+
+  // Code never wraps (base.css). A block whose lines run past its width says so in its bar (is-wide), and its right edge
+  // fades out until it is scrolled to the end (is-end); is-tall keeps a vertical scrollbar out of the fade. Blocks that
+  // skip rendering off screen are measured when they come near, where the browser says so.
+  var deferred = !!(Element.prototype.checkVisibility && ('oncontentvisibilityautostatechange' in window));
+  function atEnd(pre) { pre.classList.toggle('is-end', pre.scrollLeft + pre.clientWidth >= pre.scrollWidth - 2); }
+  function markCode(scope) {
+    (scope && scope.querySelectorAll ? scope : document).querySelectorAll('.cm-code').forEach(function (block) {
+      // The whole program when it is open (the short sample is hidden then), otherwise the sample.
+      var pre = block.querySelector(':scope > .cm-code__full[open] > pre') || block.querySelector(':scope > pre');
+      if (!pre || (deferred && !pre.checkVisibility({ contentVisibilityAuto: true }))) return;
+      block.classList.toggle('is-wide', pre.scrollWidth > pre.clientWidth + 2);
+      pre.classList.toggle('is-tall', pre.scrollHeight > pre.clientHeight + 2);
+      atEnd(pre);
+    });
+  }
+  var codeTimer = 0;
+  var remark = function () { markCode(document); };
+  document.addEventListener('scroll', function (event) {
+    var pre = event.target;
+    if (pre && pre.matches && pre.matches('.cm-code pre')) atEnd(pre);
+  }, { capture: true, passive: true });
+  document.addEventListener('contentvisibilityautostatechange', function (event) { if (!event.skipped) markCode(event.target); }, true);
+  document.addEventListener('toggle', function (event) { if (event.target.matches && event.target.matches('.cm-code__full')) remark(); }, true);
+  document.addEventListener('cm:tab', remark);
+  window.addEventListener('resize', function () { clearTimeout(codeTimer); codeTimer = setTimeout(remark, 150); });
+  window.addEventListener('load', remark);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remark);
+  remark();
 })();

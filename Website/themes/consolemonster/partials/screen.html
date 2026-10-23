@@ -19,7 +19,9 @@
         screen_name = screen_title + ": " + screen_sentence
       end
     end ~}}
-<figure class="cm-window{{ if screen_class }} {{ screen_class }}{{ end }}"{{ if screen_id }} id="{{ screen_id }}"{{ end }}>
+{{~ ## A frame of more than 92 columns does not fit a reading column (about 660 px) at the 11.5 px legible minimum:
+     cm-window--wide lets a docs page give it the article's full width (docs.css). ## ~}}
+<figure class="cm-window{{ if f.w > 92 }} cm-window--wide{{ end }}{{ if screen_class }} {{ screen_class }}{{ end }}"{{ if screen_id }} id="{{ screen_id }}"{{ end }}>
   <div class="cm-window__frame">
   <figcaption class="cm-window__bar">
     <span class="cm-window__tab"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m3 4 4 4-4 4M8.5 12H13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{ screen_title }}</span></span>

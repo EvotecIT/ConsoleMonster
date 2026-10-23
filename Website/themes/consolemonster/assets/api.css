@@ -458,7 +458,7 @@ html[data-theme] body.pf-api-docs .type-examples .example-title:first-of-type { 
 html[data-theme] body.pf-api-docs .type-examples .example-title { text-transform: lowercase; }
 html[data-theme] body.pf-api-docs .type-examples .example-title::first-letter { text-transform: uppercase; }
 html[data-theme] body.pf-api-docs .type-examples .cm-code { margin: 0; }
-html[data-theme] body.pf-api-docs .type-examples .cm-code > pre { margin: 0; padding: var(--cm-space-3) var(--cm-space-4); border: 0; border-radius: 0 0 calc(var(--cm-radius) - 1px) calc(var(--cm-radius) - 1px); background: none; white-space: pre-wrap; overflow-wrap: anywhere; }
+html[data-theme] body.pf-api-docs .type-examples .cm-code > pre { margin: 0; padding: var(--cm-space-3) var(--cm-space-4); border: 0; border-radius: 0 0 calc(var(--cm-radius) - 1px) calc(var(--cm-radius) - 1px); background: none; }
 html[data-theme] body.pf-api-docs .type-examples .cm-code + p { max-width: 72ch; margin: var(--cm-space-2) 0 0; color: var(--cm-ink-2); font-size: 14px; }
 
 /* The page's contents: a quiet rail beside the text on wide screens, hidden where there is no room for it. */

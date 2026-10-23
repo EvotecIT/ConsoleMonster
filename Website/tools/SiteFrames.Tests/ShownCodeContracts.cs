@@ -7,10 +7,90 @@ namespace SiteFrames.Tests {
     /// <summary>The rules that keep the code a page shows equal to the code that ran: region splitting and the code guard.</summary>
     public sealed class ShownCodeContracts {
         [Fact]
-        public void Split_MoreRegion_KeepsFirstLineInShortFormAndAllInFull() {
-            (string shortForm, string full) = SourceSnippets.Split("$a = 1\n#region more\n$b = 2\n$c = 3\n#endregion\nWrite-Output $a");
-            Assert.Equal("$a = 1\n$b = 2\n# … 1 more line in the full program\nWrite-Output $a", shortForm);
-            Assert.Equal("$a = 1\n$b = 2\n$c = 3\nWrite-Output $a", full);
+        public void Split_MoreRegion_KeepsFirstAndLastLineInShortFormAndAllInFull() {
+            (string shortForm, string full) = SourceSnippets.Split("$a = 1\n#region more\n$b = 2\n$c = 3\n$d = 4\n$e = 5\n#endregion\nWrite-Output $a");
+            Assert.Equal("$a = 1\n$b = 2\n# … 2 more lines in the full program\n$e = 5\nWrite-Output $a", shortForm);
+            Assert.Equal("$a = 1\n$b = 2\n$c = 3\n$d = 4\n$e = 5\nWrite-Output $a", full);
+        }
+
+        [Fact]
+        public void Split_FoldOfOneLine_ShowsTheLine() {
+            (string shortForm, string full) = SourceSnippets.Split("#region more\n$b = 2\n$c = 3\n$d = 4\n#endregion");
+            Assert.Equal(full, shortForm);
+        }
+
+        [Fact]
+        public void Split_SeveralStatements_ShowEachOpeningWithItsClose() {
+            (string shortForm, string _) = SourceSnippets.Split(
+                "#region more\n$hosts = @(\n    'WEB01'\n    'WEB02'\n    'SQL01'\n)\n$match = {\n    param($State)\n    $hosts | Where-Object { $_ -like $State }\n    'done'\n}\n#endregion\nShow-It");
+            Assert.Equal("$hosts = @(\n    # … 3 more lines in the full program\n)\n$match = {\n    # … 3 more lines in the full program\n}\nShow-It", shortForm);
+        }
+
+        [Fact]
+        public void Split_ContinuedOrCommentedLastLine_IsFolded() {
+            (string csharpShort, string _) = SourceSnippets.Split(
+                "// <more>\nvoid Build() {\n    Run();\n    Wait();\n}\n\nstatic int Worst(int a) =>\n    a > 1 ? 2\n    : 0;\n// </more>");
+            Assert.Equal("void Build() {\n    // … 2 more lines in the full program\n}\n// … 4 more lines in the full program", csharpShort);
+            (string powershellShort, string _) = SourceSnippets.Split("#region more\n$a = 1\n$b = 2\n# A sentence that goes on\n# to the next line.\n#endregion");
+            Assert.Equal("$a = 1\n# … 3 more lines in the full program", powershellShort);
+        }
+
+        [Fact]
+        public void Split_EveryExample_CountsOnlyTheLinesItHides() {
+            System.IO.DirectoryInfo? repository = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+            while (repository != null && !System.IO.File.Exists(System.IO.Path.Combine(repository.FullName, "ConsoleMonster.sln"))) { repository = repository.Parent; }
+            Assert.NotNull(repository);
+            System.Text.RegularExpressions.Regex fold = new System.Text.RegularExpressions.Regex(@"^\s*(?:#|//) … (\d+) more lines? in the full program$");
+            int checkedFiles = 0;
+            foreach (string path in System.IO.Directory.EnumerateFiles(System.IO.Path.Combine(repository!.FullName, "Website", "examples"), "*.*", System.IO.SearchOption.AllDirectories)) {
+                if (!path.EndsWith(".ps1", StringComparison.Ordinal) && !path.EndsWith(".cs", StringComparison.Ordinal)) {
+                    continue;
+                }
+                string code = System.IO.File.ReadAllText(path);
+                if (code.Contains("#region hidden", StringComparison.OrdinalIgnoreCase) || code.Contains("// <hidden>", StringComparison.Ordinal)) {
+                    continue;
+                }
+                (string shortForm, string full) = SourceSnippets.Split(code);
+                int shown = 0;
+                foreach (string line in shortForm.Split('\n')) {
+                    System.Text.RegularExpressions.Match match = fold.Match(line);
+                    shown += match.Success ? int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) : 1;
+                }
+                Assert.True(full.Split('\n').Length == shown, path + ": the short form accounts for " + shown + " lines, the full program has " + full.Split('\n').Length);
+                checkedFiles++;
+            }
+            Assert.True(checkedFiles > 20);
+        }
+
+        [Fact]
+        public void Split_BracketsInStringsAndComments_AreNotCounted() {
+            (string shortForm, string _) = SourceSnippets.Split("#region more\n$a = '(' + \"{ `\" [\" # )\n$b = 2\n$c = 3\n$d = 4\n#endregion");
+            Assert.Equal("$a = '(' + \"{ `\" [\" # )\n# … 2 more lines in the full program\n$d = 4", shortForm);
+        }
+
+        [Fact]
+        public void Split_MoreRegion_OpeningAStatement_ShowsWhereItCloses() {
+            (string shortForm, string _) = SourceSnippets.Split("#region more\n$servers = foreach ($server in @(\n    'DC01'\n    'DC02'\n    'DC03'\n)) {\n    $server\n}\n#endregion\n$servers");
+            Assert.Equal("$servers = foreach ($server in @(\n    # … 5 more lines in the full program\n}\n$servers", shortForm);
+        }
+
+        [Fact]
+        public void Split_CSharpMoreBlock_ShowsItsClosingBraceAndCountsOnlyHiddenLines() {
+            (string shortForm, string _) = SourceSnippets.Split("var rows = new[] {\n    // <more>\n    new Row(1),\n    new Row(2),\n    new Row(3),\n    new Row(4),\n    // </more>\n};");
+            Assert.Equal("var rows = new[] {\n    new Row(1),\n    // … 2 more lines in the full program\n    new Row(4),\n};", shortForm);
+        }
+
+        [Fact]
+        public void Split_TwoLineRegion_IsShownWhole() {
+            (string shortForm, string full) = SourceSnippets.Split("#region more\n$a = @(\n)\n#endregion\n$a");
+            Assert.Equal("$a = @(\n)\n$a", shortForm);
+            Assert.Equal(full, shortForm);
+        }
+
+        [Fact]
+        public void Split_TrailingBlankLines_StayAfterTheLastCodeLine() {
+            (string shortForm, string _) = SourceSnippets.Split("#region more\n$a = 1\n$b = 2\n$c = 3\n$e = 5\n\n#endregion\n$d = 4");
+            Assert.Equal("$a = 1\n# … 2 more lines in the full program\n$e = 5\n\n$d = 4", shortForm);
         }
 
         [Fact]

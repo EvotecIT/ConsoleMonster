@@ -4,7 +4,8 @@
 
 /* Tier ribbon on the gallery stage: one composition at four terminal profiles. */
 .cm-ribbon { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--cm-space-3); }
-.cm-ribbon .cm-screen { --cm-max-font: 11.5px; }
+/* Four 40-column frames at the 11.5 px legible size, with a slimmer inner margin, fit the 1240 px content width; below it the ribbon goes to two across. */
+.cm-ribbon .cm-screen { --cm-max-font: 11.5px; --cm-pad: 10px; }
 
 /* The sticky terminal-profile toolbar. */
 .cm-toolbar { position: sticky; top: 64px; z-index: 20; border-bottom: 1px solid var(--cm-line); background: color-mix(in srgb, var(--cm-page) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
@@ -104,6 +105,16 @@
 .cm-points li { position: relative; padding-left: 22px; }
 .cm-points li::before { content: "›"; position: absolute; left: 4px; top: 0; color: var(--key, var(--cm-accent)); font: 800 16px/1.6 var(--cm-mono); }
 
+/* Code beside output or notes: when a block's lines are longer than half the row holds (cm-code--wide, partials/code.html),
+   the row stacks and the code takes the full width. Code never wraps, so this is how a long program gets its room; short
+   samples keep the side-by-side layout. */
+.cm-specimen__body:has(.cm-code--wide), .cm-pair:has(.cm-code--wide), .cm-steps:has(.cm-code--wide),
+.cm-story__body:has(.cm-code--wide), .cm-quad:has(.cm-code--wide), .cm-compare:has(.cm-code--wide) { grid-template-columns: minmax(0, 1fr); }
+/* Frames the same way: one of more than 92 columns (cm-window--wide, partials/screen.html) does not fit half a row at the
+   11.5 px legible minimum, so frames compared side by side, or a frame beside notes, stack and take the full width (a stage's
+   output goes under its title the same way, base.css). */
+.cm-compare:has(.cm-window--wide), .cm-quad:has(.cm-window--wide), .cm-table-showcase__body:has(.cm-window--wide) { grid-template-columns: minmax(0, 1fr); }
+
 /* Not found. */
 .cm-notfound { padding: var(--cm-space-8) 0; }
 .cm-notfound__inner { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--cm-space-7); align-items: center; }
@@ -122,7 +133,7 @@
   .cm-toolbar__note { margin-left: 0; flex-basis: 100%; }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1319px) {
   .cm-ribbon { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 

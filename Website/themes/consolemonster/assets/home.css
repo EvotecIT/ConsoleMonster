@@ -34,6 +34,10 @@
 .cm-hero__note { max-width: 88ch; margin: 0; color: var(--cm-stage-muted); font-size: 14px; line-height: 1.6; }
 .cm-hero__note a { color: var(--cm-link); }
 .cm-hero__take { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: var(--cm-space-6); align-items: start; margin-top: var(--cm-space-4); }
+/* A program with lines longer than half the stage holds (cm-code--wide, partials/code.html) takes the stage's full width
+   under the packages, which then sit in one row: code never wraps, and a long program should not scroll in half a column. */
+.cm-hero__take:has(.cm-code--wide) { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-5); }
+.cm-hero__take:has(.cm-code--wide) .cm-packages { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .cm-hero__install, .cm-hero__code { display: grid; gap: var(--cm-space-3); align-content: start; min-width: 0; }
 .cm-hero__code .cm-seg { justify-self: start; }
 .cm-hero__code > div { min-width: 0; }
@@ -64,6 +68,7 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 .cm-twins__output .cm-section__head { margin-bottom: var(--cm-space-2); }
 .cm-twins__code { display: grid; gap: var(--cm-space-4); min-width: 0; }
 .cm-twins__code .cm-code pre { font-size: 12.5px; }
+.cm-twins:has(.cm-code--wide) { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
 
 .cm-split { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--cm-space-7); align-items: start; }
 .cm-split .cm-section__head { margin-bottom: 0; }
@@ -90,6 +95,7 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
 
 @media (max-width: 1080px) {
   .cm-hero__take, .cm-split, .cm-split--narrow, .cm-twins { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
+  .cm-hero__take .cm-packages { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cm-side .cm-demos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -98,11 +104,11 @@ html:not(.cm-js) .cm-quick .cm-quick__cmd[hidden] { display: flex !important; }
   .cm-quick .cm-quick__switch { flex: 1 1 100%; }
   .cm-quick__switch button { flex: 1 1 0; justify-content: center; }
   .cm-quick__cmd::before, .cm-quick__cmd pre { font-size: 14px; }
-  .cm-quick__cmd pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   .cm-quick__facts { gap: var(--cm-space-1) var(--cm-space-4); font-size: 12.5px; }
   .cm-paths__switch { justify-self: stretch; }
   .cm-paths__switch button { min-width: 0; flex: 1 1 0; }
   .cm-ribbon.cm-ribbon--home { grid-template-columns: minmax(0, 1fr); }
+  .cm-hero__take .cm-packages, .cm-hero__take:has(.cm-code--wide) .cm-packages { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 640px) {
