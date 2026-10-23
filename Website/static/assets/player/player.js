@@ -107,6 +107,21 @@
         var screen = el('pre', 'cm-screen', frame);
         screen.setAttribute('role', 'img');
         screen.setAttribute('aria-label', data.title || 'Console recording');
+        var scrollHint = null, sizeObserver = null;
+        if (host.classList.contains('cm-standalone')) {
+            scrollHint = el('p', 'cm-scroll-hint', frame);
+            scrollHint.textContent = 'Scroll horizontally to see the full terminal.';
+            scrollHint.hidden = true;
+            if (typeof ResizeObserver === 'function') {
+                sizeObserver = new ResizeObserver(updateScrollHint);
+                sizeObserver.observe(screen);
+            }
+            window.addEventListener('resize', updateScrollHint);
+            if (document.fonts && document.fonts.ready) { document.fonts.ready.then(updateScrollHint); }
+        }
+        function updateScrollHint() {
+            if (scrollHint && !destroyed) { scrollHint.hidden = screen.scrollWidth <= screen.clientWidth + 1; }
+        }
         for (var r = 0; r < height; r++) {
             if (r > 0) {
                 screen.appendChild(document.createTextNode('\n'));
@@ -255,6 +270,7 @@
                     lines[r].innerHTML = row >= 0 ? rows[row] : '';
                 }
             }
+            updateScrollHint();
         }
 
         function labels(now) {
@@ -400,6 +416,8 @@
             if (destroyed) { return; }
             destroyed = true;
             window.clearTimeout(copyTimer);
+            if (sizeObserver) { sizeObserver.disconnect(); }
+            window.removeEventListener('resize', updateScrollHint);
             want = false;
             suspend();
             if (observer) {
@@ -479,6 +497,7 @@
             t = Math.max(0, Math.min(total, +options.start));
         }
         draw();
+        updateScrollHint();
         labels(performance.now());
         players.push(self);
         if (observer) {

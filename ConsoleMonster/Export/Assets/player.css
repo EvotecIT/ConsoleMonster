@@ -1,4 +1,5 @@
 /* Screen colours and cell metrics come from the recording's scoped export theme. */
+.cm-standalone .cm-scroll-hint{margin:0;padding:4px 12px;font:12px/1.4 system-ui,sans-serif;color:var(--cm-chrome-fg);background:var(--cm-player-bg)}
 .cm-export.cm-player-host{--cm-player-ink:var(--cm-fg,var(--cm-ink,var(--cm-chrome-fg)));--cm-player-bg:var(--cm-bg,var(--cm-surface,#fff));display:inline-block;max-width:100%;outline:none}
 .cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-player-ink)}
 .cm-export .cm-screen .cm-line{display:inline;height:auto;vertical-align:baseline}

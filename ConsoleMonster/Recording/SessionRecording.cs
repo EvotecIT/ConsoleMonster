@@ -29,7 +29,8 @@ namespace ConsoleMonster.Sessions {
         public static SessionRecording Read(TextReader reader) {
             if (reader == null) { throw new ArgumentNullException(nameof(reader)); }
             SessionRecording recording = new SessionRecording();
-            recording._header = reader.ReadLine() ?? throw new FormatException("Missing asciicast header.");
+            long size = 0;
+            recording._header = ReadBoundedLine(reader, ref size) ?? throw new FormatException("Missing asciicast header.");
             Dictionary<string, object?> header = MiniJson.Read(recording._header) as Dictionary<string, object?> ?? throw new FormatException("Invalid asciicast header.");
             if (Number(header, "version") != 2) { throw new FormatException("Session recordings require asciicast v2."); }
             recording.Width = Number(header, "width"); recording.Height = Number(header, "height");
@@ -38,10 +39,8 @@ namespace ConsoleMonster.Sessions {
             if (header.TryGetValue("consolemonster", out object? metadata) && metadata is Dictionary<string, object?> map && map.TryGetValue("mode", out object? mode)) { recording.Mode = mode as string ?? recording.Mode; }
             string? line;
             double previous = 0;
-            long size = recording._header.Length;
-            while ((line = reader.ReadLine()) != null) {
-                size += line.Length;
-                if (line.Length > 1024 * 1024 || size > 128 * 1024 * 1024 || recording._events.Count > 1000000) { throw new FormatException("The recording exceeds the playback input limit."); }
+            while ((line = ReadBoundedLine(reader, ref size)) != null) {
+                if (recording._events.Count >= 1000000) { throw new FormatException("The recording exceeds the playback input limit."); }
                 if (string.IsNullOrWhiteSpace(line)) { continue; }
                 List<object?> item = MiniJson.Read(line) as List<object?> ?? throw new FormatException("Invalid asciicast event.");
                 if (item.Count != 3 || !(item[1] is string kind) || !(item[2] is string data) || !double.TryParse(item[0] as string, NumberStyles.Float, CultureInfo.InvariantCulture, out double seconds)
@@ -51,6 +50,24 @@ namespace ConsoleMonster.Sessions {
                 if (kind == "o" || kind == "r" || kind == "m") { recording._events.Add(new CastEvent(seconds, kind, data)); }
             }
             return recording;
+        }
+        private static string? ReadBoundedLine(TextReader reader, ref long size) {
+            StringBuilder line = new StringBuilder();
+            int character;
+            while ((character = reader.Read()) >= 0) {
+                if (++size > 128 * 1024 * 1024) { throw new FormatException("The recording exceeds the playback input limit."); }
+                if (character == '\n') { return line.ToString(); }
+                if (character == '\r') {
+                    if (reader.Peek() == '\n') {
+                        reader.Read();
+                        if (++size > 128 * 1024 * 1024) { throw new FormatException("The recording exceeds the playback input limit."); }
+                    }
+                    return line.ToString();
+                }
+                if (line.Length >= 1024 * 1024) { throw new FormatException("The recording exceeds the playback input limit."); }
+                line.Append((char)character);
+            }
+            return line.Length == 0 ? null : line.ToString();
         }
         private static int Number(Dictionary<string, object?> map, string key) {
             if (!map.TryGetValue(key, out object? value) || !int.TryParse(value as string, NumberStyles.None, CultureInfo.InvariantCulture, out int number)) { throw new FormatException("Missing or invalid " + key + "."); }
@@ -66,9 +83,9 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Reconstructs the last visible frame, including cursor movement, colour and resizes.</summary>
         public CellBuffer FinalFrame() => Replay().Snapshot();
         /// <summary>Reconstructs print-once terminal scrollback and the final main screen.</summary>
-        public CellBuffer Transcript() => Replay().Transcript();
-        private VtScreen Replay() {
-            VtScreen screen = new VtScreen(Width, Height);
+        public CellBuffer Transcript() => Replay(true).Transcript();
+        private VtScreen Replay(bool keepScrollback = false) {
+            VtScreen screen = new VtScreen(Width, Height, keepScrollback);
             foreach (CastEvent item in _events) { Apply(screen, item); }
             return screen;
         }
@@ -93,7 +110,12 @@ namespace ConsoleMonster.Sessions {
             return HtmlPlayerWriter.WriteData(Frames(effective), effective);
         }
         /// <summary>Exports a static final-frame SVG with the same theme and cell geometry as the player.</summary>
-        public string ExportFinalSvg(ExportOptions? options = null) => ConsoleExporter.ToSvg(FinalFrame(), options);
+        public string ExportFinalSvg(ExportOptions? options = null) {
+            CellBuffer frame = FinalFrame();
+            ExportOptions effective = options?.Clone() ?? new ExportOptions();
+            effective.Title = effective.Title ?? Title;
+            return ConsoleExporter.ToSvg(TrimRows(frame, UsedHeight(frame)), effective);
+        }
         /// <summary>Returns an interoperable v2 cast without input events.</summary>
         public string ToAsciicast() {
             StringBuilder output = new StringBuilder(_header).Append('\n');
@@ -107,7 +129,7 @@ namespace ConsoleMonster.Sessions {
                 WindowChrome = source.WindowChrome, ChromeStyle = source.ChromeStyle, FontFamily = source.FontFamily, FontSize = source.FontSize,
                 LineHeight = source.LineHeight, FramesPerSecond = source.FramesPerSecond, MaxFrames = source.MaxFrames,
                 Speed = source.Speed, HoldLastFrame = source.HoldLastFrame, Glyphs = source.Glyphs,
-                Culture = source.Culture, Padding = source.Padding, Timestamp = source.Timestamp
+                Culture = source.Culture, Padding = source.Padding, Timestamp = source.Timestamp, Loop = source.Loop
             };
             if (result.MaxFrames < 2) { throw new ArgumentOutOfRangeException(nameof(options), "Session playback needs at least two frames."); }
             int width = Width, height = Height;
@@ -120,25 +142,47 @@ namespace ConsoleMonster.Sessions {
             return result;
         }
         private List<RecordedFrame> Frames(RecordingExportOptions options) {
-            VtScreen screen = new VtScreen(Width, Height);
+            VtScreen screen = new VtScreen(Width, Height, false);
             List<RecordedFrame> frames = new List<RecordedFrame>();
             double lastTime = _events.Count > 0 ? _events[_events.Count - 1].Time : 0;
             double interval = Math.Max(1.0 / options.FramesPerSecond, lastTime / (options.MaxFrames - 1));
-            frames.Add(new RecordedFrame(Pad(screen.Snapshot(), options.Width, options.Height), 0));
-            double next = interval;
-            foreach (CastEvent item in _events) {
-                Apply(screen, item);
-                if (item.Time >= next && frames.Count < options.MaxFrames - 1) {
-                    frames.Add(new RecordedFrame(Pad(screen.Snapshot(), options.Width, options.Height), (long)(item.Time * 1000 / options.Speed)));
-                    next = item.Time + interval;
-                }
+            int eventIndex = 0;
+            for (int sample = 0; sample < options.MaxFrames - 1 && sample * interval < lastTime; sample++) {
+                double at = sample * interval;
+                while (eventIndex < _events.Count && _events[eventIndex].Time <= at) { Apply(screen, _events[eventIndex++]); }
+                AddFrame(frames, Pad(screen.Snapshot(), options.Width, options.Height), (long)(at * 1000 / options.Speed));
             }
-            frames.Add(new RecordedFrame(Pad(screen.Snapshot(), options.Width, options.Height), (long)(lastTime * 1000 / options.Speed)));
-            // Coalesce same-time frames so both the SVG and HTML show the final write at that moment.
-            for (int i = frames.Count - 2; i >= 0; i--) { if (frames[i].Start == frames[i + 1].Start) { frames.RemoveAt(i); } }
+            while (eventIndex < _events.Count) { Apply(screen, _events[eventIndex++]); }
+            long end = (long)(lastTime * 1000 / options.Speed);
+            AddFrame(frames, Pad(screen.Snapshot(), options.Width, options.Height), end);
             for (int i = 0; i < frames.Count - 1; i++) { frames[i].Duration = frames[i + 1].Start - frames[i].Start; }
-            frames[frames.Count - 1].Duration = Math.Max(1, (long)options.HoldLastFrame.TotalMilliseconds);
+            frames[frames.Count - 1].Duration = Math.Max(1, end - frames[frames.Count - 1].Start + (long)options.HoldLastFrame.TotalMilliseconds);
+            int usedHeight = 1;
+            foreach (RecordedFrame frame in frames) { usedHeight = Math.Max(usedHeight, UsedHeight(frame.Frame)); }
+            options.Height = usedHeight;
+            for (int i = 0; i < frames.Count; i++) {
+                RecordedFrame frame = frames[i];
+                frames[i] = new RecordedFrame(TrimRows(frame.Frame, usedHeight), frame.Start) { Duration = frame.Duration };
+            }
             return frames;
+        }
+        // Only export geometry is trimmed. The raw cast and terminal replay retain their recorded size and wrapping.
+        private static int UsedHeight(CellBuffer frame) {
+            for (int y = frame.Height - 1; y >= 0; y--) {
+                if (HtmlFrameWriter.ContentEnd(frame, y) > 0) { return y + 1; }
+            }
+            return 1;
+        }
+        private static CellBuffer TrimRows(CellBuffer frame, int height) {
+            if (frame.Height == height) { return frame; }
+            CellBuffer trimmed = new CellBuffer(frame.Width, height);
+            trimmed.Blit(frame, 0, 0, frame.Width, height, 0, 0);
+            return trimmed;
+        }
+        private static void AddFrame(List<RecordedFrame> frames, CellBuffer buffer, long time) {
+            if (frames.Count > 0 && RecordingFrames.Same(frames[frames.Count - 1].Frame, buffer)) { return; }
+            if (frames.Count > 0 && frames[frames.Count - 1].Start == time) { frames.RemoveAt(frames.Count - 1); }
+            frames.Add(new RecordedFrame(buffer, time));
         }
         /// <summary>Shares the core replay/sampling with the site's existing row renderer.</summary>
         internal List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null) => Frames(Ready(options));

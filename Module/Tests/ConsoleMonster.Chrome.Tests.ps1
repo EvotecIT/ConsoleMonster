@@ -46,7 +46,7 @@ Describe 'ConsoleMonster window styles' {
         $data.chromeStyle | Should -Be $Style.ToLowerInvariant()
         $data.chrome | Should -Be ($Style -ne 'None')
         [xml] $final = Export-ConsoleRecording -Path $cast -FinalFrame -ChromeStyle $Style
-        [double] $final.svg.height | Should -Be (3 * 16.8 + 24 + $Bar)
+        [double] $final.svg.height | Should -Be (16.8 + 24 + $Bar)
         (Export-ConsoleRecording -Path $cast -Format PlayerData -ChromeStyle $Style -WindowChrome:$false | ConvertFrom-Json).chrome | Should -BeFalse
         $recording = Join-Path $TestDrive ($Style + '.jsonl')
         [IO.File]::WriteAllLines($recording, @('{"consolemonster":"recording","version":1}', '{"t":20,"target":"build","op":"advance","value":1}'))
@@ -70,7 +70,10 @@ Describe 'ConsoleMonster window styles' {
         $finalPath = Join-Path $TestDrive ($Style + '-invoke-final.svg')
         Invoke-ConsoleRecording { Write-Host 'Build complete' } -Destination $finalPath -FinalFrame -ChromeStyle $Style -Width 36 -Height 3 -InProcess -WarningAction SilentlyContinue | Out-Null
         [xml] $svg = Get-Content -LiteralPath $finalPath -Raw
-        [double] $svg.svg.height | Should -Be (3 * 16.8 + 24 + $Bar)
+        # Windows PowerShell can also emit module-initialization progress into the fallback recording.
+        # Compare the same cast so this checks chrome geometry independently of the run's occupied rows.
+        [xml] $plain = Export-ConsoleRecording -Path ([IO.Path]::ChangeExtension($finalPath, '.cast')) -FinalFrame -ChromeStyle None
+        [double] $svg.svg.height | Should -Be ([double] $plain.svg.height + $Bar)
     }
 
     It 'keeps Invoke chrome on by default and lets explicit false override a style' {

@@ -41,11 +41,13 @@ if ($PSVersionTable.PSVersion.Major -ge 7) {
     $PSStyle.Progress.View = 'Classic'
 }
 function Show-DemoReport {
+    Write-Host 'Build report' -ForegroundColor Cyan
+    $check = ([char] 0x2713).ToString()
     @(
         [pscustomobject]@{ Check = 'Compile'; Result = 'Passed'; Duration = '1.8 s' }
-        [pscustomobject]@{ Check = 'Unit tests'; Result = '24 passed'; Duration = '2.4 s' }
+        [pscustomobject]@{ Check = 'Unit tests'; Result = "$check 24 passed"; Duration = '2.4 s' }
         [pscustomobject]@{ Check = 'Package'; Result = 'Ready'; Duration = '0.6 s' }
-    ) | Format-ConsoleTable -Title 'Build report' -Width 70
+    ) | Format-ConsoleTable -Width 70
 }
 function Invoke-DemoBuild {
     Use-ConsoleProgress {

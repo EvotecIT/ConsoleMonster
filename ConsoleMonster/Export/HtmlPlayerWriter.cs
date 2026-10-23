@@ -98,8 +98,15 @@ namespace ConsoleMonster.Export {
             // The page itself: a neutral desk under a window frame, otherwise the terminal background.
             string background = palette == ExportPalette.Light ? (options.EffectiveChrome != WindowChromeStyle.None ? "#c9c9cf" : palette.Background) : (options.EffectiveChrome != WindowChromeStyle.None ? "#3a3a3f" : palette.Background);
             html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.EffectiveChrome != WindowChromeStyle.None ? "20px" : "0").Append("}\n");
-            html.Append(ConsoleExporter.PlayerStyles).Append("</style>\n</head>\n<body>\n");
-            html.Append("<div class=\"cm-recording\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
+            html.Append(ConsoleExporter.PlayerStyles);
+            // Size in the terminal's font, not the controls' system font or the host's shrink-to-fit width.
+            html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)
+                .Append(";font-size:").Append(ExportText.Num(Math.Max(13, options.FontSize))).Append("px;width:calc(")
+                .Append(recording.Width).Append("ch + ").Append(options.Padding * 2).Append("px)}")
+                .Append(".cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}")
+                .Append(".cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:")
+                .Append(ExportText.Num(Math.Max(13, options.FontSize) * options.LineHeight)).Append("px}</style>\n</head>\n<body>\n");
+            html.Append("<div class=\"cm-recording cm-standalone\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
             html.Append("<script type=\"application/json\" id=\"cm-data\">").Append(data).Append("</script>\n");
             html.Append("<script>\n").Append(ConsoleExporter.PlayerScript.Replace("</script", "<\\/script")).Append("\n</script>\n</body>\n</html>\n");
             return html.ToString();

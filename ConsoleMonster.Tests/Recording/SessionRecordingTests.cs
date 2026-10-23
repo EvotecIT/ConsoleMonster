@@ -245,6 +245,39 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
+        public void Reader_WrapsAtRecordedWidthAcrossOutputEvents() {
+            string first = new string('a', 88);
+            SessionRecording recording = SessionRecording.Read(new StringReader(
+                "{\"version\":2,\"width\":88,\"height\":4}\n"
+                + "[0,\"o\",\"" + first + "\"]\n"
+                + "[0.1,\"o\",\"b\\r\\nnext\"]\n"));
+            var frame = recording.FinalFrame();
+            Assert.Equal(first, frame.GetRowText(0));
+            Assert.Equal("b", frame.GetRowText(1).TrimEnd());
+            Assert.Equal("next", frame.GetRowText(2).TrimEnd());
+            Assert.Equal(88, frame.Width);
+            Assert.Equal(4, frame.Height);
+            string player = recording.ExportPlayerData();
+            Assert.Contains(first, player);
+            Assert.Contains("next", player);
+        }
+
+        [Fact]
+        public void Export_TrimsOnlyUnusedBottomRowsAcrossAllPlaybackFrames() {
+            SessionRecording recording = SessionRecording.Read(new StringReader(
+                "{\"version\":2,\"width\":88,\"height\":28}\n"
+                + "[0,\"o\",\"first\\r\\nsecond\\r\\nthird\"]\n"
+                + "[1,\"o\",\"\\u001b[2J\\u001b[Hdone\"]\n"));
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            Assert.Equal("3", data["height"]);
+            Assert.Equal("88", data["width"]);
+            Assert.Contains("third", recording.ExportPlayerData());
+            Assert.Equal(28, recording.FinalFrame().Height);
+            Assert.Contains("\"height\":28", recording.ToAsciicast());
+            Assert.Contains("height=\"40.8\"", recording.ExportFinalSvg(new ExportOptions { Padding = 12 }));
+        }
+
+        [Fact]
         public void Reader_InvalidHeaderOrEventFailsWithoutRendering() {
             foreach (string cast in new[] {
                 "{\"version\":3,\"width\":12,\"height\":4}",

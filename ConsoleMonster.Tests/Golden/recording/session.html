@@ -10,6 +10,7 @@
 html,body{margin:0;background:#3a3a3f}
 body{padding:20px}
 /* Screen colours and cell metrics come from the recording's scoped export theme. */
+.cm-standalone .cm-scroll-hint{margin:0;padding:4px 12px;font:12px/1.4 system-ui,sans-serif;color:var(--cm-chrome-fg);background:var(--cm-player-bg)}
 .cm-export.cm-player-host{--cm-player-ink:var(--cm-fg,var(--cm-ink,var(--cm-chrome-fg)));--cm-player-bg:var(--cm-bg,var(--cm-surface,#fff));display:inline-block;max-width:100%;outline:none}
 .cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-player-ink)}
 .cm-export .cm-screen .cm-line{display:inline;height:auto;vertical-align:baseline}
@@ -57,11 +58,11 @@ body{padding:20px}
 
 .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help[open] summary::after{display:none}
 .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary::after{left:auto;right:0;transform:none}
-</style>
+.cm-export.cm-standalone{display:block;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;width:calc(16ch + 24px)}.cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}.cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:16.8px}</style>
 </head>
 <body>
-<div class="cm-recording" data-cm-recording="#cm-data" data-cm-autoplay></div>
-<script type="application/json" id="cm-data">{"format":"consolemonster-player","version":1,"title":"Recorded session","width":16,"height":4,"fps":10,"duration":2000,"chrome":true,"chromeStyle":"macos","chromeBar":"\u003cdiv class=\"cm-titlebar\"\u003e\u003cspan class=\"cm-dots\" aria-hidden=\"true\"\u003e\u003ci\u003e\u003c/i\u003e\u003ci\u003e\u003c/i\u003e\u003ci\u003e\u003c/i\u003e\u003c/span\u003e\u003cspan class=\"cm-title\" title=\"Recorded session\"\u003eRecorded session\u003c/span\u003e\u003c/div\u003e","theme":"dark","css":".cm-export{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:dark}\n.cm-export{display:inline-block}\n.cm-export{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}\n.cm-export .cm-window.cm-chrome-macos{display:inline-block;min-width:76px;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(127,127,127,.25);background:var(--cm-bg)}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar{position:relative;container-type:inline-size;min-width:76px;height:28px;background:var(--cm-chrome);color:var(--cm-chrome-fg)}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar .cm-title{position:absolute;left:76px;right:76px;top:0;display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--cm-chrome-title);text-align:center;font:13px/28px monospace}\n@container (width \u003c 160px){.cm-export .cm-window.cm-chrome-macos .cm-titlebar .cm-title{visibility:hidden}}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar svg{position:absolute;top:0;color:var(--cm-chrome-fg)}\n.cm-export .cm-window.cm-chrome-macos .cm-left{left:0}.cm-export .cm-window.cm-chrome-macos .cm-right{right:0}\n.cm-export .cm-window.cm-chrome-macos .cm-dots{position:absolute;left:12px;top:8px;display:flex;gap:8px;height:12px}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i{display:block;flex:none;width:12px;height:12px;border-radius:50%;background:var(--cm-close)}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i+i{background:var(--cm-minimise)}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i+i+i{background:var(--cm-zoom)}\n.cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:12px;width:16ch;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;line-height:16.8px;color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}\n.cm-export .cm-screen span,.cm-export .cm-screen a{display:inline-block;vertical-align:top;height:16.8px}\n.cm-export .cm-screen a{color:inherit;text-decoration:none}\n.cm-export .cm-screen a:hover{text-decoration:underline}\n.cm-export .cm-screen .n{width:1ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .w{width:2ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .b{position:relative}\n.cm-export .cm-screen .b svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;shape-rendering:crispEdges}\n.cm-export .cm-screen{position:relative}\n.cm-export .cm-screen\u003e.cm-paint{position:absolute;left:12px;top:12px;width:calc(100% - 24px);height:calc(100% - 24px);overflow:visible;pointer-events:none;user-select:none;shape-rendering:crispEdges}\n.cm-export .s0{color:#13a10e;}\n","rows":["\u003cspan class=\"s0\"\u003eBuild\u003c/span\u003e","","Working 50%","Done"],"frames":[[0,[0,1,1,1]],[500,[0,2,1,1]],[1000,[0,3,1,1]]],"markers":[[200,"Build \u003c/script\u003e\u003cimg\u003e"]]}</script>
+<div class="cm-recording cm-standalone" data-cm-recording="#cm-data" data-cm-autoplay></div>
+<script type="application/json" id="cm-data">{"format":"consolemonster-player","version":1,"title":"Recorded session","width":16,"height":2,"fps":10,"duration":2000,"chrome":true,"chromeStyle":"macos","chromeBar":"\u003cdiv class=\"cm-titlebar\"\u003e\u003cspan class=\"cm-dots\" aria-hidden=\"true\"\u003e\u003ci\u003e\u003c/i\u003e\u003ci\u003e\u003c/i\u003e\u003ci\u003e\u003c/i\u003e\u003c/span\u003e\u003cspan class=\"cm-title\" title=\"Recorded session\"\u003eRecorded session\u003c/span\u003e\u003c/div\u003e","theme":"dark","css":".cm-export{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:dark}\n.cm-export{display:inline-block}\n.cm-export{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}\n.cm-export .cm-window.cm-chrome-macos{display:inline-block;min-width:76px;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(127,127,127,.25);background:var(--cm-bg)}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar{position:relative;container-type:inline-size;min-width:76px;height:28px;background:var(--cm-chrome);color:var(--cm-chrome-fg)}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar .cm-title{position:absolute;left:76px;right:76px;top:0;display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--cm-chrome-title);text-align:center;font:13px/28px monospace}\n@container (width \u003c 160px){.cm-export .cm-window.cm-chrome-macos .cm-titlebar .cm-title{visibility:hidden}}\n.cm-export .cm-window.cm-chrome-macos .cm-titlebar svg{position:absolute;top:0;color:var(--cm-chrome-fg)}\n.cm-export .cm-window.cm-chrome-macos .cm-left{left:0}.cm-export .cm-window.cm-chrome-macos .cm-right{right:0}\n.cm-export .cm-window.cm-chrome-macos .cm-dots{position:absolute;left:12px;top:8px;display:flex;gap:8px;height:12px}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i{display:block;flex:none;width:12px;height:12px;border-radius:50%;background:var(--cm-close)}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i+i{background:var(--cm-minimise)}\n.cm-export .cm-window.cm-chrome-macos .cm-dots i+i+i{background:var(--cm-zoom)}\n.cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:12px;width:16ch;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;line-height:16.8px;color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}\n.cm-export .cm-screen span,.cm-export .cm-screen a{display:inline-block;vertical-align:top;height:16.8px}\n.cm-export .cm-screen a{color:inherit;text-decoration:none}\n.cm-export .cm-screen a:hover{text-decoration:underline}\n.cm-export .cm-screen .n{width:1ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .w{width:2ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .b{position:relative}\n.cm-export .cm-screen .b svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;shape-rendering:crispEdges}\n.cm-export .cm-screen{position:relative}\n.cm-export .cm-screen\u003e.cm-paint{position:absolute;left:12px;top:12px;width:calc(100% - 24px);height:calc(100% - 24px);overflow:visible;pointer-events:none;user-select:none;shape-rendering:crispEdges}\n.cm-export .s0{color:#13a10e;}\n","rows":["\u003cspan class=\"s0\"\u003eBuild\u003c/span\u003e","","Working 50%","Done"],"frames":[[0,[0,1]],[500,[0,2]],[1000,[0,3]]],"markers":[[200,"Build \u003c/script\u003e\u003cimg\u003e"]]}</script>
 <script>
 /*!
  * ConsoleMonster recording player.
@@ -171,6 +172,21 @@ body{padding:20px}
         var screen = el('pre', 'cm-screen', frame);
         screen.setAttribute('role', 'img');
         screen.setAttribute('aria-label', data.title || 'Console recording');
+        var scrollHint = null, sizeObserver = null;
+        if (host.classList.contains('cm-standalone')) {
+            scrollHint = el('p', 'cm-scroll-hint', frame);
+            scrollHint.textContent = 'Scroll horizontally to see the full terminal.';
+            scrollHint.hidden = true;
+            if (typeof ResizeObserver === 'function') {
+                sizeObserver = new ResizeObserver(updateScrollHint);
+                sizeObserver.observe(screen);
+            }
+            window.addEventListener('resize', updateScrollHint);
+            if (document.fonts && document.fonts.ready) { document.fonts.ready.then(updateScrollHint); }
+        }
+        function updateScrollHint() {
+            if (scrollHint && !destroyed) { scrollHint.hidden = screen.scrollWidth <= screen.clientWidth + 1; }
+        }
         for (var r = 0; r < height; r++) {
             if (r > 0) {
                 screen.appendChild(document.createTextNode('\n'));
@@ -319,6 +335,7 @@ body{padding:20px}
                     lines[r].innerHTML = row >= 0 ? rows[row] : '';
                 }
             }
+            updateScrollHint();
         }
 
         function labels(now) {
@@ -464,6 +481,8 @@ body{padding:20px}
             if (destroyed) { return; }
             destroyed = true;
             window.clearTimeout(copyTimer);
+            if (sizeObserver) { sizeObserver.disconnect(); }
+            window.removeEventListener('resize', updateScrollHint);
             want = false;
             suspend();
             if (observer) {
@@ -543,6 +562,7 @@ body{padding:20px}
             t = Math.max(0, Math.min(total, +options.start));
         }
         draw();
+        updateScrollHint();
         labels(performance.now());
         players.push(self);
         if (observer) {
