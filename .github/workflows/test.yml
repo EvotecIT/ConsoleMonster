@@ -120,11 +120,12 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
           Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
-          $modulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
-          "PSModulePath=$modulePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Run Pester
         run: |
+          # Preserve this test host's native module paths, especially Windows PowerShell 5.1.
+          $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
+          $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
@@ -288,10 +289,11 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
           Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
-          $modulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
-          "PSModulePath=$modulePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Run Pester
         run: |
+          # Preserve this test host's native module paths, especially Windows PowerShell 5.1.
+          $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
+          $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests'
@@ -339,10 +341,11 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $null = New-Item -ItemType Directory -Path $moduleRoot -Force
           Save-PSResource -Name Pester -Version $env:PESTER_VERSION -Repository PSGallery -Path $moduleRoot -TrustRepository -ErrorAction Stop
-          $modulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
-          "PSModulePath=$modulePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Run Pester
         run: |
+          # Preserve this test host's native module paths, especially Windows PowerShell 5.1.
+          $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
+          $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests'
