@@ -1,0 +1,12 @@
+09:31:06        worker heartbeat
+09:31:07 ▴ WARN database pool busy
+09:31:08        cache warmed
+09:31:09 ✗ ERR  database timeout
+09:31:10        database connected
+09:31:11        batch accepted
+09:31:12 ▴ WARN database retry recovered
+09:31:13        batch completed
+09:31:14 ✗ ERR  database synthetic failure
+09:31:15        database healthy
+Following latest
+q quit · PgUp history · End follow

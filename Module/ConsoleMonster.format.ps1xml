@@ -43,6 +43,7 @@
         <TypeName>ConsoleMonster.Layout.Rows</TypeName>
         <TypeName>ConsoleMonster.Layout.Sized</TypeName>
         <TypeName>ConsoleMonster.Layout.Stack</TypeName>
+        <TypeName>ConsoleMonster.Live.Tails.LogTailView</TypeName>
         <TypeName>ConsoleMonster.Live.WatchFrame</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunSummary</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunView</TypeName>

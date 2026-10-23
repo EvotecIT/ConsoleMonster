@@ -100,9 +100,10 @@ namespace SiteFrames {
                     return BuiltInViews.Verify(new Site(website), Path.GetFullPath(only));
                 case "review-prompt":
                     return PromptFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the review output directory."));
+                case "tails-review" when only != null:
+                    return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
-                    Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -181,6 +182,9 @@ namespace SiteFrames {
             if (Wants(only, "help-formatting")) {
                 HelpFormattingPage.Capture(site);
             }
+            if (Wants(only, "tails")) {
+                TailsPage.Capture(site);
+            }
             return 0;
         }
 
@@ -201,6 +205,7 @@ namespace SiteFrames {
             PromptFigures.Render(site);
             ExplorerFigures.Render(site);
             HomePage.Render(site, hosts);
+            TailsPage.Render(site);
             Visuals.Render(site);
             Figures.Write(site);
             site.Write(site.Static("css/frames.css"), site.Styles.Css());

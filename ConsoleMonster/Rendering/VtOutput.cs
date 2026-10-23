@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Interop;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -22,6 +23,7 @@ namespace ConsoleMonster.Rendering {
         private CellBuffer? _previous;
         private bool _invalidated = true;
         private bool _live;
+        private WindowsOutputModeScope? _outputMode;
 
         /// <summary>Creates a VT output.</summary>
         /// <param name="writer">The sink.</param>
@@ -110,8 +112,15 @@ namespace ConsoleMonster.Rendering {
             }
             _live = true;
             _invalidated = true;
-            _writer.Write(Esc + "?1049h" + Esc + "?25l" + Esc + "0m" + Esc + "2J" + Esc + "H");
-            _writer.Flush();
+            _outputMode = WindowsOutputModeScope.Activate(_writer);
+            try {
+                _writer.Write(Esc + "?1049h" + Esc + "?25l" + Esc + "0m" + Esc + "2J" + Esc + "H");
+                _writer.Flush();
+            } catch {
+                // A writer can fail after a partial screen switch. Attempt screen cleanup without hiding its failure.
+                try { EndLive(); } catch (Exception) { }
+                throw;
+            }
         }
 
         /// <inheritdoc />
@@ -176,15 +185,20 @@ namespace ConsoleMonster.Rendering {
             }
             _live = false;
             _previous = null;
-            _writer.Write(Esc + "0m" + Esc + "?25h" + Esc + "?1049l");
-            _writer.Flush();
+            try {
+                _writer.Write(Esc + "0m" + Esc + "?25h" + Esc + "?1049l");
+                _writer.Flush();
+            } finally {
+                _outputMode?.Dispose();
+                _outputMode = null;
+            }
         }
 
         /// <inheritdoc />
         public void Dispose() {
-            EndLive();
-            if (_ownsWriter) {
-                _writer.Dispose();
+            try { EndLive(); }
+            finally {
+                if (_ownsWriter) { _writer.Dispose(); }
             }
         }
 
@@ -208,9 +222,12 @@ namespace ConsoleMonster.Rendering {
         }
 
         private void Emit() {
-            _writer.Write(_sb.ToString());
-            _writer.Flush();
-            _sb.Clear();
+            // Final scrollback is emitted after EndLive; cached capability support is not an active native mode.
+            using (WindowsOutputModeScope? mode = WindowsOutputModeScope.Activate(_writer)) {
+                _writer.Write(_sb.ToString());
+                _writer.Flush();
+                _sb.Clear();
+            }
         }
     }
 }

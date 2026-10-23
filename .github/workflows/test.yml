@@ -106,6 +106,9 @@ jobs:
       - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
+      - name: Build the native console test host (Debug, net472)
+        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net472 -warnaserror
+
       - name: Install Pester
         # Download with the hosted PowerShell 7 client; Run Pester still uses matrix.shell, including 5.1.
         shell: pwsh

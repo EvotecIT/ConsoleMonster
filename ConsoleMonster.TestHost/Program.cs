@@ -20,7 +20,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.TestHost {
     // A separate executable is required: Terminal uses OS stdout, and a real Ctrl+C must never reach the test runner.
-    public static class Program {
+    public static partial class Program {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
@@ -31,6 +31,7 @@ namespace ConsoleMonster.TestHost {
                     case "app-mode-child": AppOutputModeProbe.Run(args[1], args[2]); break;
                     case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
                     case "host": return LaunchHidden(args.Skip(1));
+                    case "native-modes": return NativeModes(args[1], args[2]);
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
                     case "unix-input-probe": return UnixInputProbe.Run(args[1]);

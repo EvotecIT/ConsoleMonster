@@ -571,6 +571,11 @@ Runs a script block again and again and shows its latest output as a live view.
 
 Like watch: every -Interval seconds the script block runs and its output replaces the previous one, shaped as Format-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Piped into another command (Out-File, Out-String), or without an interactive console (redirected output, CI, a job), every run is printed instead, so use -Count there; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.
 
+### [Watch-ConsoleLog](Watch-ConsoleLog.md)
+Follows a log file or a local Windows event log with a live, scrollable log view.
+
+File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -Plain output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.
+
 ### [Write-ConsoleException](Write-ConsoleException.md)
 Writes an error or exception readably (Format-ConsoleError without -AsWidget).
 

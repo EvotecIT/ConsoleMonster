@@ -10,9 +10,7 @@ namespace ConsoleMonster.Output {
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly CancellationToken _cancellation;
         private readonly bool _handleCancelKey;
-        private readonly IntPtr _handle;
-        private readonly uint _originalMode;
-        private readonly bool _hasOriginalMode;
+        private readonly WindowsOutputModeScope _outputMode;
         private int _restored;
         private int _cancelPresses;
         private int _disposed;
@@ -24,8 +22,7 @@ namespace ConsoleMonster.Output {
             _restore = restore ?? throw new ArgumentNullException(nameof(restore));
             _cancellation = _cts.Token;
             _handleCancelKey = handleCancelKey;
-            _handle = WindowsConsole.StandardOutput;
-            _hasOriginalMode = WindowsConsole.TryGetMode(_handle, out _originalMode);
+            _outputMode = new WindowsOutputModeScope();
             if (handleCancelKey) {
                 Console.CancelKeyPress += OnCancelKeyPress;
             }
@@ -48,9 +45,7 @@ namespace ConsoleMonster.Output {
                 try {
                     _restore();
                 } finally {
-                    if (_hasOriginalMode) {
-                        WindowsConsole.TrySetMode(_handle, _originalMode);
-                    }
+                    _outputMode.Dispose();
                 }
             } catch (Exception) {
                 // An exit handler must not cause a second failure.
