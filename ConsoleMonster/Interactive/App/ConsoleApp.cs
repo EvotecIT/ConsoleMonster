@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
@@ -26,6 +27,9 @@ namespace ConsoleMonster.Interactive {
             ConsoleAppOptions settings = options ?? new ConsoleAppOptions();
             if (settings.ReflowBelow < 1) { throw new ArgumentOutOfRangeException(nameof(options), AppMessages.Get("ReflowWidth")); }
             if (settings.Live?.Mode == LiveMode.Inline) { throw new ArgumentException(AppMessages.Get("FullScreen"), nameof(options)); }
+            // Capability detection may enable Windows VT on Terminal's very first use. The session's
+            // own guard starts later, so retain the entry mode across initialization and all exit paths.
+            using TerminalGuard outputMode = new TerminalGuard(() => { }, false);
             InteractiveOptions interactive = settings.Interactive ?? InteractiveOptions.Default;
             TerminalProfile profile = interactive.ResolveProfile();
             if (!settings.StaticSnapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
@@ -82,15 +86,18 @@ namespace ConsoleMonster.Interactive {
                                 app.Handle(input, settings.Mouse);
                             }
                         }
-                        settings.ProcessEvents?.Invoke(values);
-                        app.Refresh(session);
+                        if (session.Failure == null) {
+                            settings.ProcessEvents?.Invoke(values);
+                            app.Refresh(session);
+                        }
                     } finally {
                         session.Stop();
-                        if (interactive.Capture != null) {
+                        if (session.Failure == null && interactive.Capture != null) {
                             int[] finalWindow = Volatile.Read(ref captureWindow);
                             interactive.Capture.Surface.Present(app.PrepareFrame(finalWindow[2], finalWindow[3]), null);
                         }
                     }
+                    if (session.Failure is Exception failure) { ExceptionDispatchInfo.Capture(failure).Throw(); }
                     return values;
                 }
             }

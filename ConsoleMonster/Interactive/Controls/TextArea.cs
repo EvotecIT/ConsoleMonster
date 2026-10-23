@@ -14,6 +14,7 @@ namespace ConsoleMonster.Interactive {
     public sealed class TextArea : InputControl {
         private readonly TextAreaEditor _editor;
         private readonly CaretSlot? _caret;
+        private int _layoutWidth;
 
         /// <summary>Creates a named multiline input using the shared text-area editor.</summary>
         /// <param name="name">The application-state key.</param>
@@ -50,7 +51,12 @@ namespace ConsoleMonster.Interactive {
         protected override object ReadValueCore() => _editor.Text;
 
         /// <inheritdoc />
-        protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
+        protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) {
+            // Input and callbacks can change text several times before the renderer draws again.
+            // Rebuild under InputControl's edit/render lock, using the most recent content width.
+            Layout(_editor.Text, _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6));
+            return _editor.Handle(input);
+        }
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(Math.Max(1, Height), constraints.IsHeightUnbounded ? Height : constraints.MaxHeight));
@@ -66,6 +72,7 @@ namespace ConsoleMonster.Interactive {
                 region.Write(0, y, glyph, bar);
             }
             int width = region.Width - 2;
+            _layoutWidth = width;
             string text = _editor.Text;
             Layout(text, width);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {

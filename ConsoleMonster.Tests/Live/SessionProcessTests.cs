@@ -39,6 +39,20 @@ namespace ConsoleMonster.Tests.Live {
             } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
         }
 
+        [WindowsTheory]
+        [InlineData("normal")]
+        [InlineData("startup")]
+        [InlineData("cancel")]
+        public async Task FirstUseApp_RestoresNativeOutputMode(string scenario) {
+            string receipt = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".txt");
+            try {
+                var result = await Run("app-mode " + scenario + " " + CommandLine.Quote(receipt, CommandStyle.Windows));
+                string actual = File.Exists(receipt) ? File.ReadAllText(receipt) : "The native app child produced no receipt.";
+                Assert.True(result.Exit == 0, actual + result.Output + result.Error);
+                Assert.Equal("APP_MODE_OK " + scenario + " 3->3\n", actual);
+            } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
+        }
+
         private static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
             string assembly = typeof(TestHost.Program).Assembly.Location;
 #if NETFRAMEWORK
@@ -47,7 +61,7 @@ namespace ConsoleMonster.Tests.Live {
             ProcessStartInfo info = new ProcessStartInfo(assembly, arguments);
 #else
             string runtime = Path.ChangeExtension(typeof(SessionProcessTests).Assembly.Location, ".runtimeconfig.json");
-            if (arguments.StartsWith("cancel ", StringComparison.Ordinal)) { arguments += " " + Quote(runtime); }
+            if (arguments.StartsWith("cancel ", StringComparison.Ordinal) || arguments.StartsWith("app-mode ", StringComparison.Ordinal)) { arguments += " " + Quote(runtime); }
             ProcessStartInfo info = new ProcessStartInfo("dotnet", "exec --runtimeconfig " + Quote(runtime) + " " + Quote(assembly) + " " + arguments);
 #endif
             info.UseShellExecute = false;
@@ -72,6 +86,12 @@ namespace ConsoleMonster.Tests.Live {
         private sealed class WindowsFactAttribute : FactAttribute {
             public WindowsFactAttribute() {
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { Skip = "An isolated native Windows console is required for the Ctrl+C signal oracle."; }
+            }
+        }
+
+        private sealed class WindowsTheoryAttribute : TheoryAttribute {
+            public WindowsTheoryAttribute() {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { Skip = "An isolated native Windows console is required for output-mode restoration."; }
             }
         }
     }

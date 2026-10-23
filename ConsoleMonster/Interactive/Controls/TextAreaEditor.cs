@@ -26,6 +26,7 @@ namespace ConsoleMonster.Interactive {
                 _text.Clear();
                 _text.Append(Clean(value ?? string.Empty));
                 Caret = _text.Length;
+                PreferredColumn = -1;
             }
         }
 

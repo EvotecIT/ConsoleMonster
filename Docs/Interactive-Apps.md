@@ -118,6 +118,12 @@ Applications use a full-screen live session. `ConsoleAppOptions.Live` and `Show-
 settings; inline mode is rejected before state initialization or input acquisition because its moving screen origin
 cannot provide reliable click coordinates.
 
+Text-area edits and programmatic value changes are safe between renderer frames. Navigation uses the current text
+and the latest layout width, so callbacks can clear or replace a field before the next key is read.
+If the renderer or output fails, `Show-ConsoleApp` reports the failure and does not emit a successful partial state.
+`ConsoleApp.Run` and `RunAsync` propagate the original exception after session cleanup. Windows output mode is saved
+before first-use capability detection and restored on normal exit, startup failure and cancellation.
+
 ## Website frames
 
 The site generator compiles and calls `LiveFilterApp.Run`; it does not maintain a separate mock screen. It writes
