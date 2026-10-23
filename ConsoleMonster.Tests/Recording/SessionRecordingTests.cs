@@ -15,6 +15,33 @@ namespace ConsoleMonster.Tests.Sessions {
         private SessionRecordingOptions Options(string name = "session") => new SessionRecordingOptions { Path = System.IO.Path.Combine(_folder, name + ".cast"), Width = 30, Height = 6, InProcess = true };
 
         [Fact]
+        public void Writer_AutoNamesUseTheConfiguredFolderAndDescribeTheRecording() {
+            SessionRecordingOptions options = Options();
+            options.Path = null;
+            options.Folder = System.IO.Path.Combine(_folder, "automatic");
+            options.Name = "Automatic recording";
+            options.Redact.Add("\\A" + System.Text.RegularExpressions.Regex.Escape(Environment.MachineName) + "\\z");
+            long earliest = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            string first, second;
+            using (SessionRecorder recorder = SessionRecorder.Start(options)) { first = recorder.Path; recorder.CapturePowerShellOutput("first\n"); }
+            using (SessionRecorder recorder = SessionRecorder.Start(options)) { second = recorder.Path; recorder.CapturePowerShellOutput("second\n"); }
+            long latest = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            Assert.NotEqual(first, second);
+            Assert.Equal(options.Folder, System.IO.Path.GetDirectoryName(first));
+            Assert.Equal(options.Folder, System.IO.Path.GetDirectoryName(second));
+            Assert.Equal(".cast", System.IO.Path.GetExtension(first));
+            Assert.Contains("first", SessionRecording.Read(first).Export(ExportFormat.Text));
+            Assert.Contains("second", SessionRecording.Read(second).Export(ExportFormat.Text));
+            var header = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllLines(first)[0])!;
+            Assert.InRange(long.Parse((string)header["timestamp"]!), earliest, latest);
+            Assert.Equal("Automatic recording", header["title"]);
+            var metadata = (Dictionary<string, object?>)header["consolemonster"]!;
+            Assert.True((bool)metadata["recording"]!);
+            Assert.Equal("in-process PowerShell output only", metadata["mode"]);
+            Assert.Equal("[REDACTED]", metadata["host"]);
+        }
+
+        [Fact]
         public void Writer_RedactsAcrossReadsAndProtectsChapterMetadata() {
             SessionRecordingOptions options = Options();
             options.Redact.Add("private-project");
@@ -71,8 +98,91 @@ namespace ConsoleMonster.Tests.Sessions {
                 Assert.True(recorder.LimitReached);
             }
             Assert.InRange(new FileInfo(options.Path!).Length, 1, options.MaxBytes);
-            Assert.Contains("true", File.ReadAllText(options.Path + ".json"));
+            var metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.Path + ".json"))!;
+            Assert.True((bool)metadata["sizeLimitReached"]!);
             Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
+        }
+
+        [Fact]
+        public void Writer_StopControlRemainsActiveAfterSizeCap() {
+            SessionRecordingOptions options = Options(); options.MaxBytes = 1024;
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+                writer.Append(new string('x', 2000) + "\n");
+                Assert.True(writer.LimitReached);
+                writer.Append(SessionRecorder.StopSequence);
+                Assert.True(writer.StopRequested);
+            }
+            Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
+        }
+
+        [Fact]
+        public void Writer_InterruptedPrivateMarkerDoesNotPersistEncodedLabel() {
+            SessionRecordingOptions options = Options();
+            string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes("private-label"));
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+                writer.Append(SessionCastWriter.ControlPrefix + "marker;" + encoded);
+                writer.Append("\u001b[32mVisible\r\n");
+            }
+            string cast = File.ReadAllText(options.Path!);
+            Assert.DoesNotContain(encoded, cast); Assert.DoesNotContain("private-label", cast);
+            Assert.Contains("Visible", SessionRecording.Read(options.Path!).Export(ExportFormat.Text));
+        }
+
+        [Fact]
+        public void Writer_PreservesPartialWriteTimingAndResizeOrder() {
+            SessionRecordingOptions options = Options(); options.Width = 4; options.Height = 4; options.IdleLimit = TimeSpan.Zero;
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+                writer.Append("ABCDEF");
+                Thread.Sleep(80);
+                writer.Resize(8, 4);
+                writer.Marker("Expanded");
+                writer.Append("\r\n");
+            }
+            string[] lines = File.ReadAllLines(options.Path!);
+            Assert.Contains("ABCDEF", lines[1]);
+            Assert.Contains("\"r\",\"8x4\"", lines[2]);
+            Assert.Contains("\"m\",\"Expanded\"", lines[3]);
+            List<object?> first = (List<object?>)MiniJson.Read(lines[1])!;
+            List<object?> resize = (List<object?>)MiniJson.Read(lines[2])!;
+            double gap = double.Parse((string)resize[0]!, System.Globalization.CultureInfo.InvariantCulture) - double.Parse((string)first[0]!, System.Globalization.CultureInfo.InvariantCulture);
+            Assert.True(gap >= 0.02, "Buffered output lost its original arrival time.");
+            string text = SessionRecording.Read(options.Path!).Export(ExportFormat.Text);
+            Assert.StartsWith("ABCD", text);
+            Assert.Contains("EF", text.Split('\n')[1]);
+        }
+
+        [Fact]
+        public void Writer_RedactsAcrossResizeWithoutPersistingASecretPrefix() {
+            SessionRecordingOptions options = Options();
+            using (SessionCastWriter writer = new SessionCastWriter(options, "in-process PowerShell output only")) {
+                writer.Append("password=split-"); writer.Resize(40, 8); writer.Append("secret\r\n");
+            }
+            string cast = File.ReadAllText(options.Path!);
+            Assert.DoesNotContain("split-", cast); Assert.DoesNotContain("secret", cast);
+            Assert.Contains("[REDACTED]", cast);
+            Assert.Equal(40, SessionRecording.Read(options.Path!).FinalFrame().Width);
+        }
+
+        [Fact]
+        public void Playback_ShowsInitialAndInterveningStatesDuringIdleGaps() {
+            SessionRecording recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":12,\"height\":4}\n[0,\"o\",\"Ready\"]\n[0.05,\"o\",\"!\"]\n[5,\"o\",\"\\rDone\"]\n"));
+            Dictionary<string, object?> data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            List<object?> frames = (List<object?>)data["frames"]!;
+            List<object?> rows = (List<object?>)data["rows"]!;
+            List<object?> first = (List<object?>)frames[0]!;
+            List<object?> firstRows = (List<object?>)first[1]!;
+            Assert.Equal("0", first[0]);
+            Assert.Contains("Ready", (string)rows[int.Parse((string)firstRows[0]!)]!);
+            List<object?> second = (List<object?>)frames[1]!;
+            Assert.Equal("100", second[0]);
+            Assert.Contains("Ready!", (string)rows[int.Parse((string)((List<object?>)second[1]!)[0]!)]!);
+            Assert.DoesNotContain("infinite", recording.Export(ExportFormat.Svg, new RecordingExportOptions { Loop = false }));
+            Dictionary<string, object?> bounded = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData(new RecordingExportOptions { MaxFrames = 2 }))!;
+            var boundedFrames = (List<object?>)bounded["frames"]!;
+            Assert.InRange(boundedFrames.Count, 1, 2);
+            var finalSample = (List<object?>)boundedFrames[boundedFrames.Count - 1]!;
+            int finalRow = int.Parse((string)((List<object?>)finalSample[1]!)[0]!);
+            Assert.Contains("Done", (string)((List<object?>)bounded["rows"]!)[finalRow]!);
         }
 
         [Fact]
@@ -143,12 +253,12 @@ namespace ConsoleMonster.Tests.Sessions {
             using (ManualResetEventSlim prompt = new ManualResetEventSlim()) {
                 if (windows) {
                     options.Shell = "powershell.exe";
-                    string script = "[Console]::Write([char]27 + '[32mNative colour' + [char]27 + '[0m' + \"`r`n\"); git --version; 1..3 | % { [Console]::Write(\"`rProgress $_/3\"); Start-Sleep -Milliseconds 30 }; [Console]::Write(\"`r`nPassword: \"); do { $k=[Console]::ReadKey($true) } while ($k.Key -ne 'Enter'); [Console]::Write(\"`r`npassword=output-secret`r`nFinished`r`n\")";
+                    string script = "[Console]::Write([char]27 + '[32mNative colour' + [char]27 + '[0m' + \"`r`n\"); git --version; 1..3 | % { [Console]::Write(\"`rProgress $_/3\"); Start-Sleep -Milliseconds 30 }; [Console]::Write(\"`r`nPassword: \"); do { $k=[Console]::ReadKey($true) } while ($k.Key -ne 'Enter'); [Console]::Write(\"`r`nNative size $([Console]::WindowWidth)x$([Console]::WindowHeight)`r`npassword=output-secret`r`nFinished`r`n\")";
                     options.Arguments.Add("-NoProfile"); options.Arguments.Add("-EncodedCommand"); options.Arguments.Add(Convert.ToBase64String(Encoding.Unicode.GetBytes(script)));
                 } else {
                     options.Shell = "/bin/sh";
                     options.Arguments.Add("-c");
-                    options.Arguments.Add(@"/usr/bin/printf '\033[32mNative colour\033[0m\n'; git --version; printf '\rProgress 3/3\n'; stty -echo; printf 'Password: '; IFS= read -r secret; stty echo; printf '\npassword=output-secret\nFinished\n'");
+                    options.Arguments.Add(@"/usr/bin/printf '\033[32mNative colour\033[0m\n'; git --version; printf '\rProgress 3/3\n'; stty -echo; printf 'Password: '; IFS= read -r secret; stty echo; printf '\nNative rows/cols '; stty size; printf 'password=output-secret\nFinished\n'");
                 }
                 StringBuilder live = new StringBuilder();
                 using (SessionRecorder recorder = SessionRecorder.Start(options, text => { lock (live) { live.Append(text); if (live.ToString().Contains("Password:")) { prompt.Set(); } } })) {
@@ -167,6 +277,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(40, recording.FinalFrame().Width);
             Assert.Contains("Finished", ConsoleExporter.ToText(recording.FinalFrame()));
             Assert.Contains("git version", recording.Export(ExportFormat.Text));
+            Assert.Contains(windows ? "Native size 40x10" : "Native rows/cols 10 40", recording.Export(ExportFormat.Text));
             Assert.Contains("consolemonster-player", recording.Export(ExportFormat.Html));
         }
 
