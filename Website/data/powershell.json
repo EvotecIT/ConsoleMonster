@@ -773,7 +773,7 @@
     },
     {
       "verb": "Show",
-      "count": 8,
+      "count": 9,
       "commands": [
         {
           "name": "Show-Console",
@@ -809,6 +809,11 @@
           "name": "Show-ConsoleObject",
           "synopsis": "Explores an object's members with the keyboard.",
           "url": "/powershell/commands/show-consoleobject/"
+        },
+        {
+          "name": "Show-ConsoleOverview",
+          "synopsis": "Shows a compact, read-only summary of the local host.",
+          "url": "/powershell/commands/show-consoleoverview/"
         },
         {
           "name": "Show-ConsoleReplay",

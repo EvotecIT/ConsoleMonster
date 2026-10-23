@@ -69,6 +69,8 @@ namespace SiteFrames {
                     return ThemeFilesPage.Review(new Site(website), only, args.Length > 3 && args[3] == "--powershell");
                 case "app-review" when only != null:
                     return AppPage.Review(new Site(website), only);
+                case "review-overview":
+                    return OverviewFigures.Review(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-overview"));
                 case "readme":
                     return Readme.Sync(new Site(website));
                 case "review-object":
@@ -108,7 +110,7 @@ namespace SiteFrames {
                 case "tails-review" when only != null:
                     return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -197,6 +199,7 @@ namespace SiteFrames {
         private static int Render(Site site, string? only) {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
+            OverviewFigures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
             ThemeFilesPage.Render(site);

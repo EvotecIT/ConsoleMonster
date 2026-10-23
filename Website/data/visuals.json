@@ -77,6 +77,10 @@
     "help": {
       "src": "/site/cards/help.svg"
     },
+    "host-overview-120": {
+      "dark": "/site/cards/host-overview-120-dark.svg",
+      "light": "/site/cards/host-overview-120-light.svg"
+    },
     "hosting": {
       "src": "/site/cards/hosting.svg"
     },
