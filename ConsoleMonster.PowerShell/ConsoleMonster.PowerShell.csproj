@@ -35,6 +35,7 @@
         <EmbeddedResource Update="Help\HelpMessages.resx" LogicalName="ConsoleMonster.PowerShell.Help.HelpMessages.resources" />
         <EmbeddedResource Include="Formatting\OutDefaultProxy.ps1" />
         <EmbeddedResource Include="Help\HelpProxy.ps1" />
+        <EmbeddedResource Include="Formatting\ReadLineOptions.ps1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1032" height="104.4" viewBox="0 0 1032 104.4" role="img" aria-label="PowerShell 7 · progress">
+<title>PowerShell 7 · progress</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#e8e8e8;--cm-chrome-fg:#555}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}
+</style>
+<rect width="1032" height="104.4" rx="10" style="fill:var(--cm-chrome)"/><circle cx="18" cy="15" r="6" fill="#ff5f57"/><circle cx="38" cy="15" r="6" fill="#febc2e"/><circle cx="58" cy="15" r="6" fill="#28c840"/><text class="cm-title" x="516" y="15">PowerShell 7 · progress</text>
+<g class="cm-layer" transform="translate(12 42)"><rect width="1032" height="74.4" x="-12" y="-12" fill="#f2f2f2"/><path class="cm-s" d="M0 0h1008v16.8h-1008z" fill="#f2f2f2"/><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 63 71.4 79.8 88.2 96.6 105 121.8 130.2 138.6 147 155.4 163.8 172.2 180.6" y="8.4" fill="#0c0c0c">Nativebackupprogress</text><path class="cm-s" d="M67.2 16.8h386.4v16.8h-386.4z" fill="#2563eb"/><path class="cm-s" d="M991.2 16.8h16.8v16.8h-16.8z" fill="#f2f2f2"/><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 63" y="25.2" fill="#2563eb">Backup[</text><text class="cm-t" x="71.4 79.8 88.2 96.6 105 113.4 121.8 138.6 147 155.4 163.8 172.2 180.6 189 197.4 205.8 214.2 222.6" y="25.2" fill="#ffffff">Copyingarchive.zip</text><text class="cm-t" x="970.2 978.6 987" y="25.2" fill="#2563eb">9s]</text><path class="cm-s" d="M0 33.6h1008v16.8h-1008z" fill="#f2f2f2"/></g>
+</svg>

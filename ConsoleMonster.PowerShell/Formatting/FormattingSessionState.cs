@@ -15,6 +15,15 @@ namespace ConsoleMonster.PowerShell {
 
         private FormattingSessionState(Runspace owner) {
             Progress = new RunspaceProgressState(owner);
+            owner.StateChanged += OnOwnerStateChanged;
+        }
+
+        // Use the captured installations: a Closed/Broken callback need not have a default runspace.
+        private void OnOwnerStateChanged(object? sender, RunspaceStateEventArgs args) {
+            if (args.RunspaceStateInfo.State != RunspaceState.Closed && args.RunspaceStateInfo.State != RunspaceState.Broken) { return; }
+            Streams.Restore();
+            ReadLine.Restore();
+            if (sender is Runspace owner) { owner.StateChanged -= OnOwnerStateChanged; }
         }
 
         internal bool TakeOverBuiltIns { get; set; } = true;
@@ -30,6 +39,7 @@ namespace ConsoleMonster.PowerShell {
         internal FormatCommandInstallation? FormatCommands { get; set; }
         internal FormatCommandInstallation? Help { get; set; }
         internal StreamFormattingInstallation Streams { get; } = new StreamFormattingInstallation();
+        internal ReadLineFormattingInstallation ReadLine { get; } = new ReadLineFormattingInstallation();
 
         internal Dictionary<string, ConsoleViewRegistration> Views { get; } = new Dictionary<string, ConsoleViewRegistration>(StringComparer.OrdinalIgnoreCase);
         internal HashSet<string> ViewModules { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -37,6 +47,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Ends this installation without changing any other runspace's saved commands.</summary>
         internal void Reset() {
             Streams.Restore();
+            ReadLine.Restore();
             SessionProgress.Reset(Progress);
             Features = ConsoleFormattingFeature.None;
             DetailedErrors = false;

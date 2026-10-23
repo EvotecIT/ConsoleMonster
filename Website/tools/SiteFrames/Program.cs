@@ -17,6 +17,7 @@ namespace SiteFrames {
     /// <item><c>capture [Website]</c>: runs the PowerShell examples on Windows PowerShell 5.1 and PowerShell 7 and records the
     /// live showcases, each inside a Windows pseudo console, and saves the VT streams under <c>Website/captures/</c>.</item>
                 case "app-review":
+    /// <item><c>native-styling Website Output</c>: captures real PSReadLine and native progress at both review widths and exports their cells and restoration evidence.</item>
     /// </list>
     /// </summary>
     public static class Program {
@@ -81,6 +82,10 @@ namespace SiteFrames {
                     return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"), args.Length > 3 && args[3] == "--reuse-captures");
                 case "help-proof":
                     return HelpFormattingPage.Verify(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-proof [WebsiteRoot] [scratch]"));
+                case "native-styling":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."));
+                case "native-styling-all":
+                    return NativeStylingReview.Run(new Site(website), only ?? throw new ArgumentException("Supply an output directory for native styling evidence."), useAll: true);
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
                     Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");
