@@ -292,6 +292,47 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [Fact]
+        public void Reader_RejectsOversizedHeaderAndEventBeforeReadingTheWholeLine() {
+            foreach (string prefix in new[] { "", "{\"version\":2,\"width\":88,\"height\":28}\n" }) {
+                using (GeneratedRecordingReader reader = new GeneratedRecordingReader(prefix, 4 * 1024 * 1024)) {
+                    Assert.Throws<FormatException>(() => SessionRecording.Read(reader));
+                    Assert.InRange(reader.CharactersRead, 1024 * 1024, prefix.Length + 1024 * 1024 + 1);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("\n")]
+        [InlineData("\r\n")]
+        [InlineData("\r")]
+        public void Reader_AcceptsLineEndingsAndAnUnterminatedLastEvent(string newline) {
+            string cast = "{\"version\":2,\"width\":88,\"height\":28}" + newline + "[0,\"o\",\"Visible output\"]";
+            Assert.Contains("Visible output", SessionRecording.Read(new StringReader(cast)).Export(ExportFormat.Text));
+        }
+
+        private sealed class GeneratedRecordingReader : TextReader {
+            private readonly string _prefix;
+            private readonly int _length;
+            public int CharactersRead { get; private set; }
+            public GeneratedRecordingReader(string prefix, int length) { _prefix = prefix; _length = prefix.Length + length; }
+            public override int Read() {
+                if (CharactersRead >= _length) { return -1; }
+                int at = CharactersRead++;
+                return at < _prefix.Length ? _prefix[at] : 'x';
+            }
+        }
+
+        [Fact]
+        public void Export_FinalFrameUsesRecordedTitleWithoutChangingCallerOptions() {
+            SessionRecording recording = GoldenRecording();
+            ExportOptions options = new ExportOptions { WindowChrome = true };
+            Assert.Contains("<title>Recorded session</title>", recording.ExportFinalSvg(options));
+            Assert.Null(options.Title);
+            options.Title = "Custom title";
+            Assert.Contains("<title>Custom title</title>", recording.ExportFinalSvg(options));
+        }
+
+        [Fact]
         public void Reader_InvalidHeaderOrEventFailsWithoutRendering() {
             foreach (string cast in new[] {
                 "{\"version\":3,\"width\":12,\"height\":4}",
@@ -333,7 +374,8 @@ namespace ConsoleMonster.Tests.Sessions {
                 } else {
                     options.Shell = "/bin/sh";
                     options.Arguments.Add("-c");
-                    options.Arguments.Add(@"/usr/bin/printf '\033[32mNative colour\033[0m\n'; git --version; printf '\rProgress 3/3\n'; stty -echo; printf 'Password: '; IFS= read -r secret; stty echo; printf '\nNative rows/cols '; stty size; printf 'password=output-secret\nFinished\n'");
+                    // Start the size probe at column zero independently of the PTY's newline translation mode.
+                    options.Arguments.Add(@"/usr/bin/printf '\033[32mNative colour\033[0m\r\n'; git --version; printf '\rProgress 3/3\r\n'; stty -echo; printf 'Password: '; IFS= read -r secret; stty echo; printf '\r\nNative rows/cols '; stty size; printf '\r\npassword=output-secret\r\nFinished\r\n'");
                 }
                 StringBuilder live = new StringBuilder();
                 using (SessionRecorder recorder = SessionRecorder.Start(options, text => { lock (live) { live.Append(text); if (live.ToString().Contains("Password:")) { prompt.Set(); } } })) {

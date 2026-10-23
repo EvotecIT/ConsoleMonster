@@ -3,6 +3,15 @@ Describe 'Whole-session recording' {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
     }
 
+    It 'keeps the recording title on a final frame and honors an explicit override' {
+        $cast = Join-Path $TestDrive 'named.cast'
+        [IO.File]::WriteAllLines($cast, @('{"version":2,"width":40,"height":4,"title":"Build report"}', '[0,"o","Complete"]'))
+        [xml] $named = Export-ConsoleRecording -Path $cast -FinalFrame -WindowChrome
+        [string] $named.svg.title | Should -Be 'Build report'
+        [xml] $custom = Export-ConsoleRecording -Path $cast -FinalFrame -WindowChrome -Title 'Custom report'
+        [string] $custom.svg.title | Should -Be 'Custom report'
+    }
+
     It 'uses a visible redaction label without losing surrounding text' {
         $html = Join-Path $TestDrive 'redaction-label.html'
         $mask = ([char] 0x2022).ToString() * 7
