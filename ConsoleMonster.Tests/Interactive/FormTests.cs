@@ -80,6 +80,66 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal("Install-Thing", result.CommandLine);
         }
 
+        [Theory]
+        [InlineData("Int32", 45)]
+        [InlineData("Int64", 45)]
+        [InlineData("Double", 45)]
+        [InlineData("Decimal", 45)]
+        [InlineData("Int32", 120)]
+        [InlineData("Int64", 120)]
+        [InlineData("Double", 120)]
+        [InlineData("Decimal", 120)]
+        public void Show_NumericDefault_SubmitsUnchangedAtNarrowAndWideWidths(string type, int width) {
+            object initial = type == "Int32" ? (object)4 : type == "Int64" ? (object)4L : type == "Double" ? (object)4d : 4m;
+            Form form = new Form("Options") { Review = false, Command = "tool" };
+            NumberField count = form.Number("Count", "Concurrent rules");
+            count.Default = initial;
+            count.Required = true;
+            count.WholeNumber = true;
+            count.Minimum = 1;
+            count.Maximum = 8;
+            count.Parameter = "--count";
+
+            RecordingSurface surface = Show(form, "Down Enter", out FormResult result, width: width);
+
+            Assert.True(result.Submitted);
+            Assert.Equal(4m, result.Values["Count"]);
+            Assert.Equal("tool", result.CommandLine);
+            Assert.Contains(surface.Frames[0].ToPlainText().Split('\n'), line => line.Contains("Concurrent") && line.Contains("4"));
+        }
+
+        [Fact]
+        public void Show_IntegerDefault_StepsFromConfiguredValue() {
+            Form form = new Form("Options") { Review = false };
+            form.Number("Count").Default = 4;
+            Show(form, "Ctrl+Up Down Enter", out FormResult result);
+            Assert.True(result.Submitted);
+            Assert.Equal(5m, result.Values["Count"]);
+        }
+
+        [Fact]
+        public void Show_LineMode_IntegerDefaultSurvivesAnEmptyAnswer() {
+            Form form = new Form("Options") { Review = false };
+            form.Number("Count").Default = 4;
+            PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(string.Empty, "y");
+            FormResult result = form.Show(new FormOptions { Interactive = new InteractiveOptions {
+                Mode = InteractionMode.Line, LineConsole = lines, Labels = new PromptLabels()
+            } });
+            Assert.True(result.Submitted);
+            Assert.Equal(4m, result.Values["Count"]);
+        }
+
+        [Fact]
+        public void Show_NonInteractive_IntegerDefaultOutsideRange_IsRejected() {
+            Form form = new Form("Options");
+            NumberField count = form.Number("Count");
+            count.Default = 9;
+            count.Maximum = 8;
+            Assert.Throws<PromptUnavailableException>(() => form.Show(new FormOptions {
+                Interactive = new InteractiveOptions { Mode = InteractionMode.None, Labels = new PromptLabels() }
+            }));
+        }
+
         [Fact]
         public void Show_RequiredFieldEmpty_BlocksTheNextPageWithAnInlineError() {
             Form form = Wizard();

@@ -22,6 +22,7 @@ namespace ConsoleMonster {
         private static readonly object WriteGate = new object();
         private static TerminalProfile? _profile;
         private static ITheme? _theme;
+        private static ITheme? _detectedTheme;
         private static ICapabilityProvider _provider = new CapabilityDetector();
         private static bool _defaultProvider = true;
         private static bool _explicitProfile;
@@ -42,6 +43,7 @@ namespace ConsoleMonster {
                     _defaultProvider = false;
                     _profile = null;
                     _explicitProfile = false;
+                    _detectedTheme = null;
                 }
             }
         }
@@ -66,6 +68,7 @@ namespace ConsoleMonster {
                 lock (Gate) {
                     _profile = value ?? throw new ArgumentNullException(nameof(value));
                     _explicitProfile = true;
+                    _detectedTheme = null;
                 }
             }
         }
@@ -96,13 +99,25 @@ namespace ConsoleMonster {
             get {
                 ITerminalTarget target = Target;
                 if (!(target is ConsoleTarget)) {
-                    return target.Theme ?? ResolveTheme(target.Profile);
+                    return target.Theme ?? ResolveTheme(ApplyProfilePolicy(target.Profile));
                 }
+                TerminalProfile profile;
+                ITheme detected;
                 lock (Gate) {
-                    return _theme ?? (_theme = ResolveTheme(Profile));
+                    if (_theme != null) return _theme;
+                    profile = Profile;
+                    detected = _detectedTheme ?? (_detectedTheme = ResolveTheme(profile.WithThemePreference(ThemePreference.Auto)));
+                }
+                // Host callbacks and flow-local preferences must not be cached or invoked while holding Gate.
+                switch (ApplyProfilePolicy(profile).ThemePreference) {
+                    case ThemePreference.Light: return Styling.Theme.Light;
+                    case ThemePreference.Dark: return Styling.Theme.Dark;
+                    default: return detected;
                 }
             }
-            set => _theme = value ?? throw new ArgumentNullException(nameof(value));
+            set {
+                lock (Gate) { _theme = value ?? throw new ArgumentNullException(nameof(value)); }
+            }
         }
 
         /// <summary>Discards the cached profile so the next use detects the terminal again (after a resize or font change).</summary>
@@ -113,6 +128,7 @@ namespace ConsoleMonster {
                 }
                 _profile = null;
                 _explicitProfile = false;
+                _detectedTheme = null;
             }
         }
 
@@ -125,7 +141,7 @@ namespace ConsoleMonster {
         /// <remarks>With a non-console <see cref="Target"/> in effect, this is that target's profile.</remarks>
         public static TerminalProfile GetCurrentProfile() {
             ITerminalTarget target = Target;
-            return target is ConsoleTarget ? GetConsoleProfile() : target.Profile;
+            return GetTargetProfile(target);
         }
 
         // The console's cached profile with the current window size (see GetCurrentProfile).

@@ -10,6 +10,23 @@ using Xunit;
 namespace ConsoleMonster.Tests.Hierarchy {
     /// <summary>Trees built from hierarchical objects: nesting, statuses, and the depth, width, size and cycle limits.</summary>
     public sealed class TreeHierarchyTests {
+        [Theory]
+        [InlineData(45)]
+        [InlineData(120)]
+        public void WrapLabels_LongIdentityAndValue_PreservesTextAcrossContinuationLines(int width) {
+            Tree tree = new Tree("Directory objects") { WrapLabels = true };
+            tree.Add("Operator[[prod]]", StatusKind.Warn, "relationship evidence retained")
+                .Value = TableCell.FromValue("CN=Operator[prod],OU=Privileged,DC=example,DC=test S-1-5-21-123456789-987654321-10001");
+
+            string text = TestTerminal.RenderText(tree, width, 40, GlyphTier.Full);
+            string compact = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", "");
+            Assert.Contains("Operator[prod]", compact);
+            Assert.Contains("CN=Operator[prod],OU=Privileged,DC=example,DC=test", compact);
+            Assert.Contains("S-1-5-21-123456789-987654321-10001", compact);
+            Assert.Contains("relationshipevidenceretained", compact);
+            Assert.DoesNotContain("…", text);
+        }
+
         private sealed class Item {
             public Item(string name, StatusKind? status = null, params Item[] children) {
                 Name = name;

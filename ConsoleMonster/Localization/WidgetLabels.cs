@@ -342,6 +342,14 @@ namespace ConsoleMonster.Localization {
         /// <summary>Items with a warning: <c>{0} warnings</c>.</summary>
         public string WarningCount { get; set; } = "{0} warnings";
 
+        /// <summary>The warning counter when exactly one warning is present.</summary>
+        public string OneWarningCount { get; set; } = "{0} warning";
+
+        /// <summary>Selects the warning label for a count.</summary>
+        /// <param name="count">The warning count.</param>
+        /// <returns>The localized format string.</returns>
+        public string Warnings(int count) => count == 1 ? OneWarningCount : WarningCount;
+
         /// <summary>The heading of a watched command: <c>Every {0}:</c> with the interval.</summary>
         public string WatchEvery { get; set; } = "Every {0}:";
 
