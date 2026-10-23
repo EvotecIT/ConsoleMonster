@@ -4,13 +4,16 @@ Describe 'Show-ConsoleHelp' {
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
         $script:HelpStepsPath = Join-Path $TestDrive 'help-child-steps.txt'
+        $script:HelpModuleRoot = Join-Path $TestDrive 'help-modules'
+        $null = New-Item -ItemType Directory -Path $script:HelpModuleRoot
 
         # A child process with redirected output (plain text), en-US culture and a function with comment-based help.
         function Invoke-HelpChild {
             param([Parameter(Mandatory)][string] $Script)
             $lines = @(
-                # Native wildcard help searches available modules too; this fixture owns only its runtime's catalog.
+                # Load the native cmdlet used below, then give wildcard help an owned, empty available-module catalog.
                 "`$env:PSModulePath = Join-Path `$PSHOME 'Modules'"
+                'Import-Module Microsoft.PowerShell.Management -ErrorAction Stop'
                 "`$helpStepsPath = '$($script:HelpStepsPath.Replace("'", "''"))'"
                 @'
 function Write-HelpStep {
@@ -24,6 +27,7 @@ Write-HelpStep 'module import begin'
                 "[System.Threading.Thread]::CurrentThread.CurrentUICulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
                 "Import-Module '$($script:ModulePath)' -Force"
                 "Write-HelpStep 'module import end'"
+                "`$env:PSModulePath = '$($script:HelpModuleRoot.Replace("'", "''"))'"
                 @'
 function Get-Thing {
     <#

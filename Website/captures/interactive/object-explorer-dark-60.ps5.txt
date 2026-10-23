@@ -1,0 +1,21 @@
+source 13d8d2a79ca8fef3956b0466c59c8ae4
+ Server configuration                             4 members
+$server
+╭─ Members ────────────────────────────────────────────────╮
+│ >   Name      web-01                                     │
+│   + Owner     OwnerInfo                                  │
+│   + Services  2 items                                    │
+│     Enabled   yes                                        │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+╰──────────────────────────────────────────────────────────╯
+ ↑↓ move  right expand  enter drill  / search  f1 keys
