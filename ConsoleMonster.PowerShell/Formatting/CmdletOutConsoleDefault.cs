@@ -152,6 +152,9 @@ namespace ConsoleMonster.PowerShell {
         // The error view of Enable-ConsoleFormatting -Feature ErrorView: the type, the message, the category and id, the
         // position in the script (and the stack with $ErrorView = 'DetailedView'). CategoryView keeps PowerShell's view.
         private bool WriteErrorView(ErrorRecord record) {
+            // Upstream commands can start transcription or disable the feature after this pipeline's BeginProcessing.
+            if (_compactErrors && ((ConsoleFormatting.Features & ConsoleFormattingFeature.Errors) == 0
+                || Transcript.IsPresent || ErrorRedirected() || !FormatCommandRouter.IsUnrecordedHost(this))) { return false; }
             string view = Convert.ToString(GetVariableValue("ErrorView"), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
             if (string.Equals(view, "CategoryView", StringComparison.OrdinalIgnoreCase)) {
                 return false;
