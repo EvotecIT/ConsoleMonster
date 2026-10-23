@@ -200,6 +200,7 @@ namespace SiteFrames {
             JsonObject hosts = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(site.Captures, "hosts.json")))!;
             Figures.Render(site);
             OverviewFigures.Render(site);
+            CommandLineHelpFigures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
             ThemeFilesPage.Render(site);

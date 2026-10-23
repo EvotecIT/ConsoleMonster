@@ -15,10 +15,10 @@ namespace ConsoleMonster.Widgets {
                 rows.Add(Paragraph(Topic.Synopsis!, context, 0));
             }
             ParagraphsInto(rows, Topic.Description, context);
-            Section(rows, "Usage", context);
+            Section(rows, context.Labels.HelpUsage, context);
             rows.Add(Paragraph(Topic.CommandLine!.Usage, context, 2));
             if (Topic.CommandLine.Commands.Count > 0) {
-                Section(rows, "Commands", context);
+                Section(rows, context.Labels.HelpCommands, context);
                 int commandNameWidth = Topic.CommandLine.Commands.Max(command => DisplayWidth.Measure(command.Name));
                 bool firstCommandGroup = true;
                 foreach (IGrouping<string, HelpCommand> group in Topic.CommandLine.Commands.GroupBy(c => c.Group ?? string.Empty)) {
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             if (Topic.CommandLine.Values.Count > 0) {
-                Section(rows, Topic.CommandLine.ValuesHeading, context);
+                Section(rows, Topic.CommandLine.ValuesHeading ?? context.Labels.HelpValues, context);
                 int valueNameWidth = Topic.CommandLine.Values.Max(value => DisplayWidth.Measure(value.Name));
                 bool firstValueGroup = true;
                 foreach (IGrouping<string, HelpValue> group in Topic.CommandLine.Values.GroupBy(value => value.Group ?? string.Empty)) {
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             if (ShowParameters && Topic.Parameters.Count > 0) {
-                Section(rows, "Options", context);
+                Section(rows, context.Labels.HelpOptions, context);
                 List<(string, string, string?, string?)> entries = new List<(string, string, string?, string?)>();
                 foreach (HelpParameter parameter in Topic.Parameters) {
                     List<string> names = new List<string>();
@@ -52,12 +52,12 @@ namespace ConsoleMonster.Widgets {
                     if (parameter.Named && !string.IsNullOrEmpty(parameter.Type)) {
                         syntax += " <" + parameter.Type + ">";
                     }
-                    entries.Add((syntax, (parameter.Required ? "Required. " : string.Empty) + parameter.Description, parameter.Named && string.IsNullOrEmpty(parameter.Type) ? null : parameter.Default, null));
+                    entries.Add((syntax, (parameter.Required ? context.Labels.HelpRequired + " " : string.Empty) + parameter.Description, parameter.Named && string.IsNullOrEmpty(parameter.Type) ? null : parameter.Default, null));
                 }
                 rows.Add(new HelpColumns(entries));
             }
             if (ShowExamples && Topic.Examples.Count > 0) {
-                Section(rows, "Examples", context);
+                Section(rows, context.Labels.HelpExamples, context);
                 foreach (HelpExample example in Topic.Examples) {
                     if (!string.IsNullOrEmpty(example.Title)) rows.Add(Paragraph(example.Title!, context, 2));
                     rows.Add(new LineBlock(new[] { StyledLine.From(example.Code, context.Style(ThemeToken.Title)) }, 2, 4));
@@ -88,7 +88,7 @@ namespace ConsoleMonster.Widgets {
                 foreach (var entry in _entries) {
                     StyledLine name = StyledLine.From(entry.Name, context.Style(ThemeToken.Title));
                     List<TextSpan> spans = new List<TextSpan> { new TextSpan(entry.Description, context.Style(ThemeToken.Text)) };
-                    if (!string.IsNullOrEmpty(entry.Default)) spans.Add(new TextSpan("  [default: " + entry.Default + "]", context.Style(ThemeToken.Muted)));
+                    if (!string.IsNullOrEmpty(entry.Default)) spans.Add(new TextSpan("  " + Localization.WidgetLabels.Format(context.Labels.HelpDefault, entry.Default), context.Style(ThemeToken.Muted)));
                     StyledLine description = new StyledLine(spans);
                     bool stacked = name.Width > nameWidth;
                     IReadOnlyList<StyledLine> names = TextWrapper.Wrap(name, stacked ? available : nameWidth);

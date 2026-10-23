@@ -25,6 +25,7 @@ namespace ConsoleMonster.Widgets {
                 Title = first ? Title : null, TitleIndent = TitleIndent, Caption = first ? Caption : null,
                 RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders,
                 Border = Border, ShowHeader = ShowHeader, HeaderSeparator = HeaderSeparator,
+                GroupHeadersAsRows = GroupHeadersAsRows,
                 WrapLines = WrapLines, Expand = Expand, Presentation = Presentation,
                 ShowTotals = ShowTotals, ShowSubtotals = ShowSubtotals, AutoTotals = AutoTotals,
                 MaxRows = MaxRows, TotalRowCount = TotalRowCount, TotalLabel = TotalLabel

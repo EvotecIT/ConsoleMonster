@@ -16,6 +16,9 @@ namespace ConsoleMonster.Widgets {
     public sealed partial class HelpView : IWidget {
         private Rows? _built;
         private int _builtWidth = -1;
+        private RenderContext? _builtContext;
+        private bool _builtExamples;
+        private bool _builtParameters;
 
         /// <summary>Creates the view.</summary>
         /// <param name="topic">The help.</param>
@@ -52,9 +55,13 @@ namespace ConsoleMonster.Widgets {
         }
 
         private Rows Build(int width, RenderContext context) {
-            if (_built != null && _builtWidth == width) {
+            if (_built != null && _builtWidth == width && ReferenceEquals(_builtContext, context)
+                && _builtExamples == ShowExamples && _builtParameters == ShowParameters) {
                 return _built;
             }
+            _builtContext = context;
+            _builtExamples = ShowExamples;
+            _builtParameters = ShowParameters;
             if (Topic.CommandLine != null) {
                 _built = BuildCommandLine(width, context);
                 _builtWidth = width;

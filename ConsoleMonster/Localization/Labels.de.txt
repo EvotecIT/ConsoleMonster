@@ -260,3 +260,11 @@ Widget.TailPauseMarker = ⏸
 Widget.TailNewLines = {0} neue Zeilen
 
 Widget.OneWarningCount = {0} Warnung
+
+Widget.HelpUsage = Verwendung
+Widget.HelpCommands = Befehle
+Widget.HelpValues = Werte
+Widget.HelpOptions = Optionen
+Widget.HelpExamples = Beispiele
+Widget.HelpRequired = Erforderlich.
+Widget.HelpDefault = [Standard: {0}]
