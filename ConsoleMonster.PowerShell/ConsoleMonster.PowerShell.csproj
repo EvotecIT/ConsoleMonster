@@ -38,6 +38,7 @@
         <EmbeddedResource Include="Formatting\ReadLineOptions.ps1" />
         <EmbeddedResource Include="Formatting\EverydayBuiltInViews.ps1" />
         <EmbeddedResource Include="Formatting\GridViewFallback.ps1;Formatting\GridViewLifecycle.ps1;Formatting\GridViewMessages.txt" />
+        <EmbeddedResource Include="Formatting\PromptFunction.ps1" />
     </ItemGroup>
 
     <ItemGroup>

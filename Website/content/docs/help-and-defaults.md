@@ -26,6 +26,7 @@ These features change how PowerShell's own output looks for the session, never w
    Enable-ConsoleFormatting -Feature All        # output, errors, native stream/progress colors and ReadLine
    Enable-ConsoleFormatting -Feature FormatCommands  # Format-Table, Format-List and Format-Wide too (never part of All)
    Enable-ConsoleFormatting -Feature Errors      # compact host errors (never part of All)
+   Enable-ConsoleFormatting -Feature Prompt     # minimal shell prompt (never part of All)
    ```
 
 2. To keep it on in every session, add the lines `-ProfileSnippet` prints to your profile. It only prints them; this appends them to `$PROFILE`, creating the file when there is none:
@@ -115,3 +116,38 @@ With `-Feature Streams`, PowerShell's own warning, verbose and debug messages (a
 {{< cm-frame ids="streams-ps5,streams-ps7" caption="The same script on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
 
 Only the colours change. `Write-Warning`, `Write-Verbose` and `Write-Debug` stay PowerShell's commands, with their `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes, preferences, redirection and transcripts. PowerShell 7.2 and later set `$PSStyle.Formatting`; Windows PowerShell 5.1 and PowerShell 7.0 and 7.1 set the host's `$Host.PrivateData` colours, and hosts without them (remoting, headless) are left alone. `Disable-ConsoleFormatting -Feature Streams` puts back exactly the values it changed. For rich messages in your own scripts, with status symbols and markup, use [`Write-ConsoleStatus`](/powershell/commands/write-consolestatus/) or [`Write-ConsoleLog`](/powershell/commands/write-consolelog/).
+
+## Minimal shell prompt
+
+Opt in with `Prompt`; it is excluded from `All` and does not enable default output formatting:
+
+```powershell
+Import-Module ConsoleMonster
+Set-ConsoleTheme -Name Dark  # use Light for a light terminal background
+Enable-ConsoleFormatting -Feature Prompt
+Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet  # prints profile lines
+```
+
+The prompt shows the shortened path, git branch with `*` for index or working-tree changes, and a success or failure mark. A completed command taking **more than two seconds** also shows its duration, using PowerShell's own history timestamps. An old nonzero native exit code does not mark a later successful PowerShell command as failed. PSReadLine handlers and key bindings stay as they are.
+
+Git is optional: one asynchronous probe runs per session, with a 100 ms child-process budget and a five-second cache. The prompt never waits for it. The first prompt can omit git until the next prompt; changed state can take five seconds to appear. Missing git, an unavailable repository or an expired probe omits that segment. Submodule contents are not scanned.
+
+An existing oh-my-posh or Starship prompt is kept. Use `Enable-ConsoleFormatting -Feature Prompt -Force` to replace it explicitly. Other custom prompts are backed up, including their closure scope. `Disable-ConsoleFormatting -Feature Prompt`, disabling all enabled features without a feature argument, or `Remove-Module ConsoleMonster` restores the original. A prompt you install later is kept. `Disable-ConsoleFormatting -Feature All` leaves this explicit opt-in enabled.
+
+Only the top-level local console prompt is themed. Assigned, piped, redirected, transcribed, recorded, job, remote and nested prompt calls use the original prompt. Native output, error records, preferences, `$?` and `$LASTEXITCODE` retain their behavior. Engines whose status or transcription state cannot be checked keep native output.
+
+### The same renderer in .NET
+
+The following frames use fixed illustrative path, branch and completed-command data. This complete C# program calls the renderer used by the PowerShell prompt; the PowerShell feature collects the live session data.
+
+```bash
+dotnet new console -n PromptExample
+cd PromptExample
+dotnet add package ConsoleMonster
+# Replace Program.cs with the complete program below, then run it.
+dotnet run
+```
+
+{{< cm-frame ids="shell-prompt-120,shell-prompt-60" caption="Fixed illustrative data: success first, then a failed 3.4-second command. Switch themes to compare light and dark." >}}
+
+Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).

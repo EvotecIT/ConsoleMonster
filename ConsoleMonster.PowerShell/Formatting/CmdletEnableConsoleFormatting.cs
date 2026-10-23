@@ -7,6 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Shows the default output of common types through ConsoleMonster for this session (opt-in).</para>
     /// <para type="description">Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; commands group by module with command-type chips; modules show version, linked path and exported counts; history shows id, duration, status and highlighted command text. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. If you already have your own Out-Default function, it is kept and nothing is enabled unless you pass -Force.</para>
     /// </summary>
+
     /// <example>
     ///   <para>Inspect members with the built-in view, while keeping an explicit native column selection</para>
     ///   <code>Enable-ConsoleFormatting -Feature Output, FormatCommands; 'synthetic' | Get-Member -Name Length, Substring; Get-Command Get-Date | Format-Table Name, Source</code>
@@ -18,6 +19,10 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>Turn it on for the session</para>
     ///   <code>Enable-ConsoleFormatting; Get-ChildItem; Get-Process | Select-Object -First 10</code>
+    /// </example>
+    /// <example>
+    ///   <para>Use a minimal themed shell prompt, separately from default output formatting</para>
+    ///   <code>Set-ConsoleTheme -Name Dark; Enable-ConsoleFormatting -Feature Prompt</code>
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
@@ -71,6 +76,14 @@ namespace ConsoleMonster.PowerShell {
             }
             if (wanted == ConsoleFormattingFeature.None) {
                 return;
+            }
+            if ((wanted & ConsoleFormattingFeature.Prompt) != 0) {
+                if (PromptInstallation.Install(this, Force.IsPresent)) {
+                    ConsoleFormatting.Features |= ConsoleFormattingFeature.Prompt;
+                    ConsoleFormatting.RestoreCommandsWithModule(MyInvocation.MyCommand.Module);
+                }
+                wanted &= ~ConsoleFormattingFeature.Prompt;
+                if (wanted == ConsoleFormattingFeature.None) { return; }
             }
             if ((wanted & ConsoleFormattingFeature.GridView) != 0) {
                 if (GridViewInstallation.Install(this, Force.IsPresent)) {

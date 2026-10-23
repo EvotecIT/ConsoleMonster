@@ -98,6 +98,8 @@ namespace SiteFrames {
                 case "builtins-proof":
                     if (only == null) { return 2; }
                     return BuiltInViews.Verify(new Site(website), Path.GetFullPath(only));
+                case "review-prompt":
+                    return PromptFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the review output directory."));
                 default:
                     Console.Error.WriteLine("Usage: SiteFrames render|capture|readme [WebsiteRoot] [area]");
                     Console.Error.WriteLine("       SiteFrames review-chart|review-text|review-object [WebsiteRoot] [OutputDirectory]");
@@ -196,6 +198,7 @@ namespace SiteFrames {
             BenchmarksPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("live")))!);
             DocsPage.Render(site, (JsonObject)JsonNode.Parse(File.ReadAllText(site.Data("powershell")))!);
             HelpFormattingPage.Render(site);
+            PromptFigures.Render(site);
             ExplorerFigures.Render(site);
             HomePage.Render(site, hosts);
             Visuals.Render(site);

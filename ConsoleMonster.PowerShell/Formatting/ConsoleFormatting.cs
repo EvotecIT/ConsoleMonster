@@ -70,6 +70,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Native stream and progress colours from the active theme; commands, records and progress view stay native.</summary>
         Streams = 16,
 
+        /// <summary>Minimal host-only shell prompt with path, cached git state, status and completed command duration. Excluded from All.</summary>
+        Prompt = 512,
+
         /// <summary>Falls back to Show-ConsoleGrid only when Out-GridView is unavailable; excluded from All.</summary>
         GridView = 256,
 
@@ -197,7 +200,7 @@ namespace ConsoleMonster.PowerShell {
                 return "All";
             }
             List<string> names = new List<string>();
-            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView }) {
+            foreach (ConsoleFormattingFeature feature in new[] { ConsoleFormattingFeature.Output, ConsoleFormattingFeature.ErrorView, ConsoleFormattingFeature.Progress, ConsoleFormattingFeature.FormatCommands, ConsoleFormattingFeature.Streams, ConsoleFormattingFeature.Help, ConsoleFormattingFeature.Errors, ConsoleFormattingFeature.ReadLine, ConsoleFormattingFeature.GridView, ConsoleFormattingFeature.Prompt }) {
                 if ((features & feature) != 0) {
                     names.Add(feature.ToString());
                 }
