@@ -206,6 +206,7 @@
 .cm-demo__source .cm-code pre { max-height: 360px; font-size: 12.5px; }
 .cm-demo__use { display: grid; gap: var(--cm-space-3); padding: var(--cm-space-4); border-radius: 10px; background: var(--cm-sunken); min-width: 0; }
 .cm-demo__use .cm-code { background: var(--cm-surface); }
+.cm-demo__use--links { padding: 0; background: none; }
 .cm-demo__use-title { margin: 0; font: 700 14px/1.4 var(--cm-mono); color: var(--cm-ink); }
 .cm-demo__use .cm-code pre { font-size: 12.5px; }
 .cm-demo__refs { margin: 0; font-size: 14px; color: var(--cm-ink-2); }
@@ -221,6 +222,42 @@
 /* Inside a demo the grid sets every gap: prose margins on its window, code blocks, tabs and paragraphs would stack on top. */
 .cm-prose .cm-demo figure, .cm-prose .cm-demo .cm-code, .cm-prose .cm-demo .cm-tabset, .cm-prose .cm-demo p { margin: 0; }
 
+/* Try it (partials/try.html, also the source column of a demo): the examples' tabs and the PowerShell | C# switch on one
+   row, then the install line, the program and its Run line, then the output it printed. The language switch is the
+   reader's: it stays on every page (site.js keeps it in <html data-lang>), and without JavaScript both languages show. */
+.cm-try { display: grid; gap: var(--cm-space-3); min-width: 0; }
+.cm-prose .cm-try { margin: 1.4em 0 var(--cm-space-6); }
+.cm-prose .cm-demo .cm-try { margin: 0; }
+.cm-try__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cm-space-2) var(--cm-space-3); }
+.cm-try__lang { margin-left: auto; }
+.cm-try__scenario { display: grid; gap: var(--cm-space-3); min-width: 0; }
+.cm-try__scenario[hidden] { display: none; }
+.cm-try__code { display: grid; gap: var(--cm-space-2); min-width: 0; }
+.cm-js .cm-try__code[data-lang="csharp"], .cm-js[data-lang="csharp"] .cm-try__code[data-lang="powershell"] { display: none; }
+.cm-js[data-lang="csharp"] .cm-try__code[data-lang="csharp"] { display: grid; }
+/* The same lines in both languages on a docs page (<div class="cm-lang" data-lang="powershell"> around a fence, then its
+   C# twin): site.js puts the two under one switch, and the reader's language shows. */
+.cm-langpair { display: grid; gap: var(--cm-space-2); margin: 1.4em 0 1.6em; min-width: 0; }
+.cm-langpair > .cm-try__bar { justify-content: flex-end; }
+.cm-prose .cm-langpair .cm-code { margin: 0; }
+.cm-js .cm-lang[data-lang="csharp"], .cm-js[data-lang="csharp"] .cm-lang[data-lang="powershell"] { display: none; }
+.cm-js[data-lang="csharp"] .cm-lang[data-lang="csharp"] { display: block; }
+.cm-try__code .cm-code pre { max-height: 460px; font-size: 13px; }
+/* The install line: one command with its own Copy, the prompt drawn by CSS so it is never copied. */
+.cm-try__cmd { display: flex; align-items: center; gap: 4px; padding-right: 6px; }
+.cm-try__cmd::before { content: attr(data-prompt); content: attr(data-prompt) / ""; flex: none; padding-left: 14px; color: var(--cm-muted); font: 500 13px/1 var(--cm-mono); }
+.cm-try__cmd pre { flex: 1 1 auto; min-width: 0; padding: 10px 10px 10px 8px; }
+.cm-try__cmd .cm-code__copy { margin-left: 0; }
+.cm-try__run { margin: 0; padding-left: 2px; color: var(--cm-muted); font: 500 13px/1.5 var(--cm-mono); overflow-wrap: anywhere; }
+.cm-try__run span { margin-right: 4px; }
+.cm-try__run code { color: var(--cm-ink-2); font: inherit; background: none; padding: 0; }
+.cm-try__note { margin-left: 2px; }
+.cm-try__output { margin: var(--cm-space-2) 0 0; min-width: 0; }
+.cm-try__caption { margin: 0; color: var(--cm-muted); font-size: 14px; }
+.cm-prose .cm-try figure, .cm-prose .cm-try .cm-code, .cm-prose .cm-try p { margin: 0; }
+.cm-prose .cm-try .cm-try__output { margin-top: var(--cm-space-2); }
+html:not(.cm-js) .cm-try__scenario[hidden] { display: grid !important; margin-top: var(--cm-space-5); }
+html:not(.cm-js) .cm-try__scenarios { display: none; }
 /* The demo strip on the home page: one card per recorded demo. */
 /* Cards: the title, what it shows and the command, each on its own line; the command keeps to the bottom edge, so cards in
    a row line up whatever the length of their text. */

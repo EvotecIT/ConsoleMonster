@@ -418,10 +418,8 @@
       "title": "Forty servers, eight at a time",
       "body": "ForEach-ConsoleItem runs a script block for every item, here in parallel with a time limit. Three servers fail and one hangs; the run keeps going, and the failures are listed when it ends.",
       "label": "A parallel run of 40 items with a summary bar, a cell per item, the running items and the failures",
+      "try": { "run": "pwsh ./parallel.ps1", "project": "ParallelRun" },
       "use": {
-        "title": "Use it in your script",
-        "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
         "links": [
           {
             "title": "Invoke-ConsoleRun",
@@ -438,10 +436,8 @@
       "title": "A command as a live view",
       "body": "Watch-Console runs a script block every few seconds and shows its latest output; -Differences marks what changed since the last run.",
       "label": "Mail queue counts refreshed six times, with changed cells marked",
+      "try": { "run": "pwsh ./watch.ps1" },
       "use": {
-        "title": "Use it in your script",
-        "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
         "links": [
           {
             "title": "Watch-Console",
@@ -454,10 +450,8 @@
       "title": "Pester tests as they run",
       "body": "Invoke-ConsolePester takes Pester's parameters and shows the current test, a cell per test and each failure with its expected and actual values.",
       "label": "A Pester run of 14 mail checks with two failures and one skipped test",
+      "try": { "install": "Install-Module ConsoleMonster -Scope CurrentUser\nInstall-Module Pester -Scope CurrentUser -SkipPublisherCheck", "run": "pwsh ./pester.ps1", "runNote": "with MailDomain.Tests.ps1 saved in a fixtures folder beside it" },
       "use": {
-        "title": "Use it in your tests",
-        "label": "PowerShell 5.1 and 7, Pester 5 or 6",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\nInstall-Module Pester -Scope CurrentUser -SkipPublisherCheck",
         "links": [
           {
             "title": "Invoke-ConsolePester",
@@ -517,16 +511,15 @@
     "threads-naive": {
       "title": "Twelve threads, one console",
       "body": "Each worker writes its progress with Write-Host as it goes. The pieces of different workers land in each other's lines.",
-      "label": "Parallel workers writing to the console directly, their lines interleaved"
+      "label": "Parallel workers writing to the console directly, their lines interleaved",
+      "try": { "run": "pwsh ./threads-naive.ps1", "project": "Threads" }
     },
     "threads-live": {
       "title": "The same work through a dashboard",
       "body": "Each runspace updates its own lane by name and Write-Host goes to the log panel. The session draws the screen about 15 times a second from one thread.",
       "label": "Twelve lanes updated by parallel workers, with a log panel",
+      "try": { "run": "pwsh ./threads-dashboard.ps1", "project": "ThreadsDashboard" },
       "use": {
-        "title": "Run it",
-        "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser\n./threads-dashboard.ps1",
         "links": [
           {
             "title": "Start-ConsoleDashboard",
@@ -538,16 +531,15 @@
     "threads-ci": {
       "title": "The same script in CI",
       "body": "With CI detected, the same dashboard writes a whole line for each lane start and finish and each log entry instead of redrawing, in the order the updates were applied, then prints its final state.",
-      "label": "The dashboard script's output when CI=true: ordered, whole lines"
+      "label": "The dashboard script's output when CI=true: ordered, whole lines",
+      "try": { "run": "$env:CI = 'true'; pwsh ./threads-dashboard.ps1; Remove-Item Env:CI" }
     },
     "shaping": {
       "title": "Arrays in cells and groups",
       "body": "Format-Table beside Format-ConsoleTable -GroupBy on the same objects: roles as a list, durations as durations, statuses with their symbol, one heading per site.",
       "label": "Domain controllers in Format-Table and in Format-ConsoleTable grouped by site",
+      "try": { "run": "pwsh ./shaping.ps1" },
       "use": {
-        "title": "Use it in your script",
-        "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
         "links": [
           {
             "title": "Format-ConsoleTable",
@@ -560,10 +552,8 @@
       "title": "Help that reads like a page",
       "body": "Show-ConsoleHelp renders the help PowerShell already has, here a function's comment-based help: syntax, a parameter table and highlighted examples.",
       "label": "Show-ConsoleHelp for a function with comment-based help",
+      "try": { "run": "pwsh ./help.ps1" },
       "use": {
-        "title": "Use it in your session",
-        "label": "PowerShell 5.1 and 7",
-        "install": "Install-Module ConsoleMonster -Scope CurrentUser",
         "links": [
           {
             "title": "Show-ConsoleHelp",
@@ -576,12 +566,8 @@
       "title": "A dashboard updated from three threads",
       "body": "Each server is deployed in parallel and updates its own lane by name. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
       "label": "Three servers deployed in parallel into one dashboard",
+      "try": { "run": "pwsh ./session.ps1", "project": "Deploy" },
       "use": {
-        "title": "Run it yourself",
-        "steps": [
-          { "text": "PowerShell: install the module, save the script and run it.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser\n./session.ps1" } ] },
-          { "text": "C#: a new console project with the package, the program as its `Program.cs`, then `dotnet run`.", "code": [ { "lang": "bash", "label": ".NET 8 and later", "text": "dotnet new console -n Deploy\ncd Deploy\ndotnet add package ConsoleMonster\ndotnet run" } ] }
-        ],
         "links": [
           { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
           { "title": "LiveSession (C#)", "url": "/api/consolemonster-live-livesession/" }
@@ -592,12 +578,12 @@
       "title": "Record, replay, export",
       "body": "One script: a dashboard defined once, a run recorded with -RecordPath, the recording played back at twice the speed into the same dashboard, and a page with a player saved next to it.",
       "label": "A deploy dashboard run, then its recording replayed at twice the speed",
+      "try": { "run": ". ./record.ps1", "project": "Record" },
       "use": {
-        "title": "Run it yourself",
+        "title": "After the run",
         "steps": [
-          { "text": "Install the module and save the script (Copy on its panel) as `record.ps1`.", "code": [ { "lang": "powershell", "label": "PowerShell 5.1 and 7", "text": "Install-Module ConsoleMonster -Scope CurrentUser" } ] },
-          { "text": "Run it (dot-sourced, so `$dashboard` stays defined). The recording and the page are written to your temporary folder; open the page in a browser to scrub through the run.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": ". ./record.ps1\nInvoke-Item (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')" } ] },
-          { "text": "To rewind the run in the terminal instead, with markers, failures and log search, use `Show-ConsoleReplay`.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Show-ConsoleReplay $dashboard (Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl')" } ] }
+          { "text": "The script is dot-sourced, so `$dashboard` stays defined. The recording and a page with a player are in your temporary folder; open the page to scrub through the run.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Invoke-Item (Join-Path ([IO.Path]::GetTempPath()) 'deploy.html')" } ] },
+          { "text": "To rewind it in the terminal instead, with markers, failures and log search, use `Show-ConsoleReplay`.", "code": [ { "lang": "powershell", "label": "PowerShell", "text": "Show-ConsoleReplay $dashboard (Join-Path ([IO.Path]::GetTempPath()) 'deploy.jsonl')" } ] }
         ],
         "links": [
           { "title": "Start-ConsoleDashboard", "url": "/powershell/commands/start-consoledashboard/" },
@@ -697,11 +683,8 @@
       "title": "A generic host with a live dashboard",
       "body": "Three hosted services: a queue worker, a cache warmer that completes and a report builder that fails. Log lines go into the dashboard's log region.",
       "label": "A hosting dashboard with a running, a completed and a failed service, and its log",
+      "try": { "project": "Orders", "packages": ["ConsoleMonster.Hosting", "ConsoleMonster.Extensions.Logging", "Microsoft.Extensions.Hosting"], "note": "Ctrl+C stops the host." },
       "use": {
-        "title": "Run the full program",
-        "label": ".NET 8 and later",
-        "lang": "bash",
-        "install": "dotnet new console -n Orders\ncd Orders\ndotnet add package ConsoleMonster.Hosting\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Hosting\n# Replace Program.cs with the full program above.\ndotnet run\n# Ctrl+C stops the host.",
         "links": [
           {
             "title": "Hosting dashboard",
@@ -715,11 +698,8 @@
       "title": "Log entries the ConsoleMonster way",
       "body": "Every level, a scope, a structured message and an exception, through the Microsoft.Extensions.Logging provider.",
       "label": "Log entries at every level with a scope and an exception",
+      "try": { "project": "Shop", "packages": ["ConsoleMonster.Extensions.Logging", "Microsoft.Extensions.Logging"] },
       "use": {
-        "title": "Run the full program",
-        "label": ".NET 8 and later",
-        "lang": "bash",
-        "install": "dotnet new console -n Shop\ncd Shop\ndotnet add package ConsoleMonster.Extensions.Logging\ndotnet add package Microsoft.Extensions.Logging\n# Replace Program.cs with the full program above.\ndotnet run",
         "links": [
           {
             "title": "Logging",
@@ -732,19 +712,7 @@
     "template": {
       "title": "dotnet new consolemonster",
       "body": "The template's app: a menu with a status report and a page, then dotnet run -- serve with the hosting dashboard until Ctrl+C.",
-      "label": "The template app's menu, its status report, and the host's live dashboard",
-      "use": {
-        "title": "Start an app from it",
-        "label": ".NET 8 and later",
-        "lang": "bash",
-        "install": "dotnet new install ConsoleMonster.Templates\ndotnet new consolemonster -o MyTool",
-        "links": [
-          {
-            "title": "Template",
-            "url": "/docs/template/"
-          }
-        ]
-      }
+      "label": "The template app's menu, its status report, and the host's live dashboard"
     },
     "app": {
       "title": "A fleet health check, start to finish",
@@ -752,7 +720,8 @@
       "label": "A fleet health check app: menu, form, live dashboard and results",
       "use": {
         "title": "Build one like it",
-        "label": ".NET and PowerShell",
+        "label": "Terminal",
+        "lang": "bash",
         "install": "dotnet add package ConsoleMonster",
         "links": [
           {

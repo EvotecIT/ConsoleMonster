@@ -72,7 +72,7 @@
   // grammars it extends are loaded explicitly, in order, before the block is highlighted (the autoloader's deferred
   // re-highlight is not relied on: it never ran for C#, whose grammar first needs clike).
   var PRISM = '/assets/prism/';
-  var ALIAS = { cs: 'csharp', 'c#': 'csharp', ps1: 'powershell', pwsh: 'powershell', sh: 'bash', shell: 'bash', html: 'markup', xml: 'markup', yml: 'yaml' };
+  var ALIAS = { cs: 'csharp', 'c#': 'csharp', ps1: 'powershell', pwsh: 'powershell', sh: 'bash', shell: 'bash', terminal: 'bash', html: 'markup', xml: 'markup', yml: 'yaml' };
   var NEEDS = { csharp: ['clike'], 'xml-doc': ['markup'] };
   var PLAIN = { text: true, none: true, plaintext: true, txt: true };
   // Prism's PowerShell grammar has no token for parameters (-Title, -Scope); ConsoleMonster's own highlighter colours
@@ -146,7 +146,8 @@
     code.classList.add('cm-ident');
   });
   // Markdown fences become the shared code block: a caption with the language and a copy action.
-  var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', text: 'Text', xml: 'XML', yaml: 'YAML' };
+  // dotnet commands (with the cd that goes with them) are fenced as terminal and labelled Terminal; CodeGuard.cs checks the dotnet part.
+  var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', terminal: 'Terminal', text: 'Text', xml: 'XML', yaml: 'YAML' };
   // Prose code and the examples on the reference pages are set in the shared code block (language, copy).
   document.querySelectorAll('.cm-prose pre > code, .pf-api-docs .type-examples pre > code').forEach(function (code) {
     var pre = code.parentElement;
@@ -223,6 +224,7 @@
       set.dispatchEvent(new CustomEvent('cm:tab', { detail: tab, bubbles: true }));
     };
     tabs.forEach(function (tab, index) {
+      tab.cmSelect = select;
       tab.addEventListener('click', function () { select(tab, false); });
       tab.addEventListener('keydown', function (event) {
         var step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
@@ -231,6 +233,91 @@
         else if (step) { event.preventDefault(); select(tabs[(index + step + tabs.length) % tabs.length], true); }
       });
     });
+  });
+
+  // The reader's language, PowerShell or C#: one choice for every page, kept in <html data-lang> (set before the page
+  // draws by partials/head.html) and in localStorage when it can be. Try-it switches ([data-cm-lang-switch], a radio
+  // group) show the chosen language's code through CSS; tabs that name a language (data-cm-lang, such as the home
+  // page's install line) select the matching tab.
+  var langs = { powershell: true, csharp: true };
+  // A PowerShell excerpt followed by its C# twin (.cm-lang blocks on docs pages) gets a switch of its own.
+  document.querySelectorAll('.cm-lang[data-lang="powershell"]').forEach(function (ps) {
+    var cs = ps.nextElementSibling;
+    if (!cs || !cs.matches('.cm-lang[data-lang="csharp"]')) return;
+    var pair = document.createElement('div');
+    pair.className = 'cm-langpair';
+    pair.innerHTML = '<div class="cm-try__bar"><div class="cm-seg cm-try__lang" role="radiogroup" aria-label="Language" data-cm-lang-switch hidden>' +
+      '<button type="button" role="radio" aria-checked="true" data-lang="powershell" style="--key: var(--cm-s3)">PowerShell</button>' +
+      '<button type="button" role="radio" aria-checked="false" data-lang="csharp" style="--key: var(--cm-s5)">C#</button></div></div>';
+    ps.parentNode.insertBefore(pair, ps);
+    pair.appendChild(ps);
+    pair.appendChild(cs);
+  });
+  var currentLang = function () { return root.dataset.lang === 'csharp' ? 'csharp' : 'powershell'; };
+  var langTabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"][data-cm-lang]'));
+  var syncLang = function () {
+    var lang = currentLang();
+    document.querySelectorAll('[data-cm-lang-switch]').forEach(function (group) {
+      group.hidden = false;
+      group.querySelectorAll('[role="radio"]').forEach(function (option) {
+        var on = option.getAttribute('data-lang') === lang;
+        option.setAttribute('aria-checked', on ? 'true' : 'false');
+        option.tabIndex = on ? 0 : -1;
+      });
+    });
+    langTabs.forEach(function (tab) {
+      if (tab.getAttribute('data-cm-lang') === lang && tab.getAttribute('aria-selected') !== 'true' && tab.cmSelect) tab.cmSelect(tab, false);
+    });
+  };
+  var setLang = function (lang) {
+    if (!langs[lang]) return;
+    root.dataset.lang = lang;
+    try { localStorage.setItem('cm-lang', lang); } catch (e) { /* storage unavailable: the choice lasts for this page */ }
+    syncLang();
+    // Code that was hidden is measured again (scroll hints), as after a tab change.
+    document.dispatchEvent(new CustomEvent('cm:tab', { detail: null }));
+  };
+  document.querySelectorAll('[data-cm-lang-switch]').forEach(function (group) {
+    var options = Array.prototype.slice.call(group.querySelectorAll('[role="radio"]'));
+    options.forEach(function (option, index) {
+      option.addEventListener('click', function () { setLang(option.getAttribute('data-lang')); });
+      option.addEventListener('keydown', function (event) {
+        var step = /^(ArrowRight|ArrowDown)$/.test(event.key) ? 1 : /^(ArrowLeft|ArrowUp)$/.test(event.key) ? -1 : 0;
+        if (!step) return;
+        event.preventDefault();
+        var next = options[(index + step + options.length) % options.length];
+        setLang(next.getAttribute('data-lang'));
+        next.focus();
+      });
+    });
+  });
+  langTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () { if (currentLang() !== tab.getAttribute('data-cm-lang')) setLang(tab.getAttribute('data-cm-lang')); });
+    tab.addEventListener('keyup', function (event) {
+      if (/^(ArrowLeft|ArrowRight|Home|End)$/.test(event.key) && tab.getAttribute('aria-selected') === 'true' && currentLang() !== tab.getAttribute('data-cm-lang')) setLang(tab.getAttribute('data-cm-lang'));
+    });
+  });
+  syncLang();
+
+  // Download on a code block saves the whole program under its file name, built from the code on the page, so the file
+  // is always the code shown. A PowerShell script gets a byte order mark, which Windows PowerShell 5.1 needs for
+  // characters outside ASCII.
+  document.querySelectorAll('[data-cm-download]').forEach(function (button) { button.hidden = !window.Blob || !window.URL; });
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-cm-download]');
+    if (!button) return;
+    var figure = button.closest('.cm-code');
+    var full = figure.querySelector('.cm-code__full pre');
+    var code = full || figure.querySelector('pre');
+    var name = button.getAttribute('data-cm-download');
+    var text = (code ? code.textContent : '').replace(/\n?$/, '\n');
+    if (/\.ps1$/i.test(name)) text = '\ufeff' + text.replace(/\r?\n/g, '\r\n');
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 1500);
   });
 
   // The hero's two paths (Everyday and Monster) keep the choice in the URL hash, so a link can open either. The player
@@ -267,7 +354,7 @@
           return;
         }
         if (fromUrl) { if (tab !== chosen) p.pause(); return; }
-        if (tab === chosen) { p.play(); } else { p.pause(); }
+        if (tab === chosen) { if (replay.cmPlay) replay.cmPlay(); else p.play(); } else { p.pause(); }
       });
       var hash = '#' + chosen.getAttribute('data-cm-path');
       if (location.hash !== hash && history.replaceState) history.replaceState(null, '', hash);

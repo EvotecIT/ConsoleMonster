@@ -1,10 +1,12 @@
 {{~ ## A replay, played by ConsoleMonster's own player (player.js and player.css, copied from the engine at build time).
-     Without JavaScript the window shows the poster, a frame from the middle of the run. When the replay comes near the
-     viewport, frames.js mounts the engine player on this element, starts it at the poster's moment and puts its screen
-     where the poster was; the player's controls follow the window. Set player_data (an object with url, w, h, poster
-     and start), player_title, player_meta, player_label, player_autoplay, player_loop (start again at the end), player_max (largest font size),
-     player_class, and for a phone rendering player_compact (its data URL) with player_alt (its poster and start). ## ~}}
-<div class="cm-replay" style="--cols:{{ player_data.poster.w }}{{ if player_max }};--cm-max-font:{{ player_max }}px{{ end }}" data-cm-replay="{{ player_data.url }}"{{ if player_autoplay }} data-autoplay{{ end }}{{ if player_loop }} data-loop{{ end }}{{ if player_compact }} data-compact="{{ player_compact }}"{{ end }}{{ if player_data.start }} data-start="{{ player_data.start }}"{{ end }}{{ if player_alt && player_alt.start }} data-compact-start="{{ player_alt.start }}"{{ end }}>
+     Without JavaScript the window shows the poster: a frame from the middle of the run, or its final screen. When the
+     replay comes near the viewport, frames.js mounts the engine player on this element, starts it at the poster's moment
+     and puts its screen where the poster was; the player's controls follow the window. It plays once it is in view, from
+     the poster, or from player_data.hero (the run's first full screen) when the poster is the final screen. Set
+     player_data (an object with url, w, h, poster, start and hero), player_title, player_meta, player_label,
+     player_autoplay, player_loop (go round again after holding the end), player_max (largest font size), player_class,
+     and for a phone rendering player_compact (its data URL) with player_alt (its poster, start and hero). ## ~}}
+<div class="cm-replay" style="--cols:{{ player_data.poster.w }}{{ if player_max }};--cm-max-font:{{ player_max }}px{{ end }}" data-cm-replay="{{ player_data.url }}"{{ if player_autoplay }} data-autoplay{{ end }}{{ if player_loop }} data-loop{{ end }}{{ if player_compact }} data-compact="{{ player_compact }}"{{ end }}{{ if player_data.start }} data-start="{{ player_data.start }}"{{ end }}{{ if player_data.hero }} data-hero="{{ player_data.hero }}"{{ end }}{{ if player_alt && player_alt.hero }} data-compact-hero="{{ player_alt.hero }}"{{ end }}{{ if player_alt && player_alt.start }} data-compact-start="{{ player_alt.start }}"{{ end }}>
   {{~ screen_frame = player_data.poster; screen_title = player_title; screen_meta = player_meta; screen_dark = true; screen_label = player_label; screen_max = player_max; screen_class = player_class; screen_alt = player_alt ~}}
   {{ include "screen" }}
 </div>

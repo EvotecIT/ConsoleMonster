@@ -227,10 +227,15 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code__repo { margin-left: auto; color: var(--cm-muted); font: 500 11.5px/1 var(--cm-mono); white-space: nowrap; text-decoration: underline; text-decoration-color: var(--cm-line); text-underline-offset: 3px; }
 .cm-code__repo:hover { color: var(--cm-ink); text-decoration-color: currentColor; }
 .cm-code__repo + .cm-code__copy { margin-left: 0; }
+/* A quiet Download beside Copy (partials/code.html code_download): the file is built from the code on the page. */
+.cm-code__download { margin-left: auto; height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--cm-muted); font: 500 12px/1 var(--cm-mono); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+.cm-code__download:hover { background: var(--cm-hover); color: var(--cm-ink); }
+.cm-code__download:not([hidden]) + .cm-code__copy, .cm-code__repo + .cm-code__download { margin-left: 0; }
 .cm-code pre { margin: 0; padding: 14px 16px 16px; overflow: auto; max-height: var(--cm-code-max, none); font-size: 13.5px; line-height: 1.6; color: var(--cm-ink); tab-size: 4; white-space: pre; overflow-wrap: normal; word-break: normal; }
 /* A block whose lines run past its width says so in its bar (frames.js marks it), in the words a terminal window uses. */
 .cm-code.is-wide .cm-code__bar::after { content: "scroll sideways" / ""; order: 1; margin-left: auto; color: var(--cm-muted); font: 500 11.5px/1 var(--cm-mono); white-space: nowrap; }
-.cm-code.is-wide .cm-code__copy { order: 2; margin-left: 0; }
+.cm-code.is-wide .cm-code__copy { order: 3; margin-left: 0; }
+.cm-code.is-wide .cm-code__download { order: 2; margin-left: 0; }
 .cm-code.is-wide .cm-code__repo { order: 1; }
 .cm-code.is-wide:has(.cm-code__repo) .cm-code__bar::after { margin-left: 0; }
 @media (max-width: 480px) { .cm-code.is-wide .cm-code__bar::after { content: "scroll \2192" / ""; } }
