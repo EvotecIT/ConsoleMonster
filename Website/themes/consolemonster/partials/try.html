@@ -42,7 +42,7 @@
       </div>
       {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = file; code_text = fig.script; code_full = fig.scriptFull; code_download = true ~}}
       {{ include "code" }}
-      <p class="cm-try__run"><span>Run:</span> <code>{{ (try_run ?? ("pwsh ./" + file)) | html.escape }}</code></p>
+      <p class="cm-try__run"><span>Run:</span> <code>{{ (try_run ?? ("./" + file)) | html.escape }}</code></p>
     </div>
     {{~ end ~}}
     {{~ if fig.csharp ~}}
