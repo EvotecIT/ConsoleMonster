@@ -103,7 +103,7 @@ namespace ConsoleMonster.Interactive {
             }
             Rows rows = new Rows();
             rows.Add(new HeaderBar(_grid.Title) { Right = right }, LayoutSize.Fixed(1));
-            TextInputWidget input = new TextInputWidget(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
+            TextInput input = new TextInput(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
             Columns filter = new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), input) { Gap = 0 };
             rows.Add(new Padding(filter, 1, 1, 1, 0), LayoutSize.Fixed(2));
             Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderToken = ThemeToken.Accent };

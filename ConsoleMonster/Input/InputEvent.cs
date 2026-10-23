@@ -15,7 +15,8 @@ namespace ConsoleMonster.Input {
     /// </list>
     /// </summary>
     public sealed class InputEvent {
-        private InputEvent(InputEventKind kind, ConsoleKey key, char character, KeyModifiers modifiers, string? text, int width, int height) {
+        private InputEvent(InputEventKind kind, ConsoleKey key, char character, KeyModifiers modifiers, string? text, int width, int height,
+            int column = 0, int row = 0, int mouseButton = 0, bool mousePressed = false) {
             Kind = kind;
             Key = key;
             Char = character;
@@ -23,6 +24,10 @@ namespace ConsoleMonster.Input {
             Text = text;
             Width = width;
             Height = height;
+            Column = column;
+            Row = row;
+            MouseButton = mouseButton;
+            MousePressed = mousePressed;
         }
 
         /// <summary>What the event describes.</summary>
@@ -45,6 +50,33 @@ namespace ConsoleMonster.Input {
 
         /// <summary>The new window height (<see cref="InputEventKind.Resize"/>).</summary>
         public int Height { get; }
+
+        /// <summary>The zero-based character-cell column for <see cref="InputEventKind.Mouse"/>; zero for other events.</summary>
+        public int Column { get; }
+
+        /// <summary>The zero-based character-cell row for <see cref="InputEventKind.Mouse"/>; zero for other events.</summary>
+        public int Row { get; }
+
+        /// <summary>The mouse button: 1 for left, 2 for middle, 3 for right; zero for other event kinds.</summary>
+        public int MouseButton { get; }
+
+        /// <summary>Whether the mouse button was pressed (true) or released (false); false for other event kinds.</summary>
+        public bool MousePressed { get; }
+
+        /// <summary>Creates a mouse button press or release at a character-cell position, retaining all modifiers.</summary>
+        /// <param name="column">The zero-based column.</param>
+        /// <param name="row">The zero-based row.</param>
+        /// <param name="button">The button: 1 for left, 2 for middle, or 3 for right.</param>
+        /// <param name="pressed">True for a press; false for a release.</param>
+        /// <param name="modifiers">The modifiers held when the button changed.</param>
+        /// <returns>The normalized mouse event.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">A coordinate is negative or the button is not supported.</exception>
+        public static InputEvent Mouse(int column, int row, int button = 1, bool pressed = true, KeyModifiers modifiers = KeyModifiers.None) {
+            if (column < 0) throw new ArgumentOutOfRangeException(nameof(column));
+            if (row < 0) throw new ArgumentOutOfRangeException(nameof(row));
+            if (button < 1 || button > 3) throw new ArgumentOutOfRangeException(nameof(button));
+            return new InputEvent(InputEventKind.Mouse, 0, '\0', modifiers, null, 0, 0, column, row, button, pressed);
+        }
 
         /// <summary>Whether this is a printable character typed without Ctrl or Alt.</summary>
         public bool IsText => Kind == InputEventKind.Key && Char >= ' ' && Char != '\u007f' && (Modifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == 0;
@@ -110,6 +142,9 @@ namespace ConsoleMonster.Input {
                     return "focus gained";
                 case InputEventKind.FocusLost:
                     return "focus lost";
+                case InputEventKind.Mouse:
+                    return "mouse " + MouseButton.ToString(CultureInfo.InvariantCulture) + (MousePressed ? " pressed at " : " released at ")
+                        + Column.ToString(CultureInfo.InvariantCulture) + "," + Row.ToString(CultureInfo.InvariantCulture);
             }
             if (IsText) {
                 return Char == ' ' ? "Space" : Char.ToString();

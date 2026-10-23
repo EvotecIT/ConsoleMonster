@@ -135,6 +135,16 @@ Creates one bar of a bar chart, or one segment of a stacked bar, with its own to
 
 Use it inside the script block of New-ConsoleBarChart when a bar or a segment needs its own colour: -Tone takes a theme role (Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted, Series1 to Series6). Without -Tone the chart's colour is used, and a stacked bar picks the next series colour. The label is shown literally; rich text from New-ConsoleText keeps its colours. To add bars to a chart made earlier, pipe the chart to Add-ConsoleItem.
 
+### [New-ConsoleBinding](New-ConsoleBinding.md)
+Creates a display rebuilt from application state on the owning PowerShell input thread.
+
+Content receives param($State) and injected $State as a native hashtable. Emit widgets or text using the ordinary layout commands. Input controls must remain in the stable outer layout. Added or assigned state keys write back through AppState; bindings should normally only read state.
+
+### [New-ConsoleButton](New-ConsoleButton.md)
+Creates a named action button for Show-ConsoleApp.
+
+Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
+
 ### [New-ConsoleCellMap](New-ConsoleCellMap.md)
 Creates a cell map: one status symbol per item of a run, with a legend of counts.
 
@@ -245,6 +255,11 @@ Creates a preset a menu comes with: form values and selections under one name, w
 
 Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) and add a New-ConsoleMenuItem -Presets item: it lists them first, marked as built in, before the presets people save; they cannot be overwritten or deleted. Applying one sets the values it names and keeps the rest. -Form with -Values fills in a form opened from the menu (a list for a multi-choice field; a value for a field whose choices load is chosen once they arrive). -Item with -Selection selects values in a selection item. -Preview is shown beside the list while the preset has focus: a scriptblock (run once, now), widgets, text or objects.
 
+### [New-ConsoleMultiSelect](New-ConsoleMultiSelect.md)
+Creates a named multiselect input for Show-ConsoleApp.
+
+Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
+
 ### [New-ConsolePadding](New-ConsolePadding.md)
 Adds empty space around console widgets.
 
@@ -285,6 +300,11 @@ Creates the result a menu run returns: a title, a status, a summary, figures and
 
 Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.
 
+### [New-ConsoleSelect](New-ConsoleSelect.md)
+Creates a named select input for Show-ConsoleApp.
+
+Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
+
 ### [New-ConsoleSparkline](New-ConsoleSparkline.md)
 Creates a sparkline: a compact trend of recent values.
 
@@ -324,6 +344,21 @@ Columns come from -Property or from the first object's properties (or hashtable 
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
 
 -Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Style adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLog and Update-ConsoleLane, and with Write-ConsoleWidget. Without colour (NO_COLOR, redirected output) the text stays plain.
+
+### [New-ConsoleTextArea](New-ConsoleTextArea.md)
+Creates a named multiline text input for Show-ConsoleApp.
+
+Emits a stable core TextArea widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
+
+### [New-ConsoleTextInput](New-ConsoleTextInput.md)
+Creates a named single-line text input for Show-ConsoleApp.
+
+Emits a stable core TextInput widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
+
+### [New-ConsoleToggle](New-ConsoleToggle.md)
+Creates a named Boolean toggle for Show-ConsoleApp.
+
+Emits a stable core Toggle widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
 ### [New-ConsoleTree](New-ConsoleTree.md)
 Creates a console tree from nested New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.
@@ -430,6 +465,11 @@ Sends a "set" update to the named widget. For a key/value list the value is show
 Shows pipeline input in the view that fits it best.
 
 One object becomes an inspector; objects of one shape a table (cards when the window is narrow), using their DefaultDisplayPropertySet and presenters by type (bytes for Length and Size, dates, durations, Yes/No, status markers for enums such as Running/Stopped); hierarchical objects (a child collection of the same type, or -ChildProperty) a tree; a numeric series a bar chart; strings highlighted code when a language is detected, otherwise text. -View overrides the choice; Grid opens the interactive Show-ConsoleGrid and returns what you pick.
+
+### [Show-ConsoleApp](Show-ConsoleApp.md)
+Runs native input controls and dependent displays in a console application.
+
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ### [Show-ConsoleChanges](Show-ConsoleChanges.md)
 Shows the changes an action would make and asks before making them: the what-if pattern.

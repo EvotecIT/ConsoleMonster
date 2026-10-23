@@ -165,7 +165,10 @@ jobs:
           dotnet build ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
           dotnet build ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
       - name: Test
-        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        # These harness-only contracts also exercise Darwin observation/error boundaries without a live Mac claim.
+        run: |
+          python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
+          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 15
       - name: Test the logging and hosting packages
         run: dotnet test ConsoleMonster.Extensions.Tests/ConsoleMonster.Extensions.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
@@ -199,7 +202,9 @@ jobs:
       - name: Build (warnings as errors)
         run: dotnet build ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --framework ${{ matrix.framework }} --no-restore -warnaserror
       - name: Test
-        run: dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
+        run: |
+          python3 -B -m unittest discover -s ConsoleMonster.Tests/Input/Fixtures -p test_unix_input_pty.py -v
+          dotnet test ConsoleMonster.Tests/ConsoleMonster.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity ${{ env.TEST_VERBOSITY }} --logger "console;verbosity=${{ env.TEST_VERBOSITY }}" --logger trx
         timeout-minutes: 15
       - uses: actions/upload-artifact@v7
         if: always()

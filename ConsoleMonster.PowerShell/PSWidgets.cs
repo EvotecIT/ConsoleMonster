@@ -12,9 +12,13 @@ namespace ConsoleMonster.PowerShell {
             if (content == null) {
                 return widgets;
             }
-            foreach (PSObject item in content.Invoke()) {
-                AddItem(widgets, item);
-            }
+            return Collect(content.Invoke());
+        }
+
+        /// <summary>Collects widgets from script output already invoked with native application variables.</summary>
+        public static List<IWidget> Collect(IEnumerable<PSObject> output) {
+            List<IWidget> widgets = new List<IWidget>();
+            foreach (PSObject item in output) { AddItem(widgets, item); }
             return widgets;
         }
 

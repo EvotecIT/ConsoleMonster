@@ -250,6 +250,7 @@
 .cm-screen .c110{width:66em}
 .cm-screen .c111{width:66.6em}
 .cm-screen .c112{width:67.2em}
+.cm-screen .c113{width:67.8em}
 .cm-screen .c118{width:70.8em}
 .cm-screen .g2500{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light)}
 .cm-screen .g2501{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy)}

@@ -129,7 +129,7 @@ namespace ConsoleMonster.Replay {
 
         private IWidget InfoLine(ViewFrame frame) {
             if (_searching) {
-                TextInputWidget input = new TextInputWidget(_search, frame.Caret) { Placeholder = Labels.ReplaySearch, Focused = true };
+                TextInput input = new TextInput(_search, frame.Caret) { Placeholder = Labels.ReplaySearch, Focused = true };
                 return new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan("/ ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), input) { Gap = 0 };
             }
             return new UiLine(context => CurrentMarkerLine(context));

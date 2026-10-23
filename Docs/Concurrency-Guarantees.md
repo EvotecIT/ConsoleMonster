@@ -95,7 +95,8 @@ using (var session = new LiveSession(new Rows().Add(summary).Add(slot).Add(log))
 
 `SummaryBarHandle.SetProgress` can update either value independently; omitted values retain the preceding queued value.
 `SetCounter` replaces a counter by label in apply order. `session.Region(name).Set(widget)` and `Slot.Handle(session).Set(widget)`
-enqueue swaps. A swap invalidates layout and forces the next frame to redraw fully.
+enqueue swaps. The next frame measures the new content and redraws only changed cells. The VT output contract is proved by
+[`RegionReplacement_UsesCellDiffWithoutFullInvalidation`](../ConsoleMonster.Tests/Live/SlotDiffTests.cs).
 Normal application happens on the render thread; after that thread joins, the stopping caller can perform the final drain.
 These phases remain serialized. Read mutable widget state after stopping or from the applying thread.
 

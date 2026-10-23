@@ -26,6 +26,13 @@
       <ViewSelectedBy>
         <TypeName>ConsoleMonster.Changes.ChangeView</TypeName>
         <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
+        <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Button</TypeName>
+        <TypeName>ConsoleMonster.Interactive.MultiSelect</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Select</TypeName>
+        <TypeName>ConsoleMonster.Interactive.TextArea</TypeName>
+        <TypeName>ConsoleMonster.Interactive.TextInput</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Toggle</TypeName>
         <TypeName>ConsoleMonster.Layout.Align</TypeName>
         <TypeName>ConsoleMonster.Layout.Columns</TypeName>
         <TypeName>ConsoleMonster.Layout.CultureScope</TypeName>

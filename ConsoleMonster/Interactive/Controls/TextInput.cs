@@ -10,34 +10,63 @@ namespace ConsoleMonster.Interactive {
     /// Draws a <see cref="LineEditor"/> on one row: the text (or its mask), scrolled horizontally so the caret stays visible,
     /// a muted placeholder while empty, and the caret position reported to the <see cref="CaretSlot"/> when focused.
     /// </summary>
-    internal sealed class TextInputWidget : IWidget {
+    public sealed class TextInput : InputControl {
         private readonly LineEditor _editor;
         private readonly CaretSlot? _caret;
+        private readonly bool _reservePlaceholderCell;
 
-        public TextInputWidget(LineEditor editor, CaretSlot? caret) {
-            _editor = editor ?? throw new ArgumentNullException(nameof(editor));
-            _caret = caret;
+        /// <summary>Creates a named, focusable single-line input using the shared line editor.</summary>
+        /// <param name="name">The application-state key.</param>
+        /// <param name="value">The initial text.</param>
+        public TextInput(string name, string? value = null) : base(name) {
+            _editor = new LineEditor(value);
+            _caret = new CaretSlot();
+            _reservePlaceholderCell = true;
         }
 
+        internal TextInput(LineEditor editor, CaretSlot? caret) : base(nameof(TextInput), false) {
+            _editor = editor ?? throw new ArgumentNullException(nameof(editor));
+            _caret = caret;
+            Focused = true;
+        }
+
+        /// <summary>Muted text shown while the value is empty.</summary>
         public string? Placeholder { get; set; }
 
         /// <summary>The mask character for secrets, or null to show the text. An empty string hides the text entirely.</summary>
         public string? Mask { get; set; }
 
-        public bool Focused { get; set; } = true;
-
+        /// <summary>The theme token for entered text.</summary>
         public ThemeToken Token { get; set; } = ThemeToken.Text;
 
-        public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
+        /// <summary>The text value; edits notify the application after the control lock is released.</summary>
+        public string Value { get => Read(() => _editor.Text); set => Change(() => _editor.Text = value); }
 
-        public void Render(Region region, RenderContext context) {
+        /// <summary>The maximum text length, in UTF-16 units.</summary>
+        public int MaxLength { get => Read(() => _editor.MaxLength); set => Change(() => _editor.MaxLength = value); }
+
+        internal override Caret? CurrentCaret => _caret?.Caret;
+
+        /// <inheritdoc />
+        protected override object ReadValueCore() => _editor.Text;
+
+        /// <inheritdoc />
+        protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
+
+        /// <inheritdoc />
+        protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
+
+        /// <inheritdoc />
+        protected override void RenderContent(Region region, RenderContext context) {
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
             int width = region.Width;
             Style style = context.Style(Token);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
-                region.Write(0, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
+                // Public controls paint their own caret; existing prompt compositions own its surrounding space.
+                int placeholderColumn = Focused && _reservePlaceholderCell ? 1 : 0;
+                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
                 if (Focused) {
                     _caret?.Set(region.Bounds.X, region.Bounds.Y);
                 }

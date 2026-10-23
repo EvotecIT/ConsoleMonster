@@ -32,7 +32,7 @@ namespace ConsoleMonster.Interactive {
 
         public override IWidget Build(ViewFrame frame, CaretSlot caret) {
             Rows rows = new Rows();
-            TextAreaWidget widget = new TextAreaWidget(_editor, caret) { Height = Math.Min(_height, Math.Max(2, frame.Height - 10)), Placeholder = _placeholder, ScrollRow = _scroll };
+            TextArea widget = new TextArea(_editor, caret) { Height = Math.Min(_height, Math.Max(2, frame.Height - 10)), Placeholder = _placeholder, ScrollRow = _scroll };
             rows.Add(new Scrolled(widget, row => _scroll = row));
             string counter = PromptLabels.Format(_labels.TextAreaCounter, _editor.LineCount, _editor.Length);
             rows.Add(new UiLine(context => _error != null ? ChoicePane.Problem(_error, context) : StyledLine.From(counter, context.Style(Styling.ThemeToken.Muted))));
@@ -62,10 +62,10 @@ namespace ConsoleMonster.Interactive {
 
         // Keeps the text area's scroll position between frames (the widget is rebuilt each frame).
         private sealed class Scrolled : IWidget {
-            private readonly TextAreaWidget _inner;
+            private readonly TextArea _inner;
             private readonly Action<int> _keep;
 
-            public Scrolled(TextAreaWidget inner, Action<int> keep) {
+            public Scrolled(TextArea inner, Action<int> keep) {
                 _inner = inner;
                 _keep = keep;
             }
