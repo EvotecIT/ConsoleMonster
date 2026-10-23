@@ -12,7 +12,6 @@ namespace ConsoleMonster.Export {
     /// selectable. No external assets: the font is a family stack and everything else is inline.
     /// </summary>
     internal static class SvgFrameWriter {
-        public const double TitleBarHeight = 30;
 
         public static string Write(IReadOnlyList<ExportLayer> layers, ExportOptions options) {
             SvgGeometry g = SvgGeometry.For(layers[0].Frame.Width, layers[0].Frame.Height, options);
@@ -60,23 +59,25 @@ namespace ConsoleMonster.Export {
             string font = ExportText.IsSafeFontFamily(options.FontFamily) ? options.FontFamily : ExportOptions.DefaultFontFamily;
             bool adaptive = layers.Count > 1 || layers[0].Palette.UseVariables;
             css.Append("svg{--cm-fg:").Append(ExportPalette.Dark.Foreground).Append(";--cm-bg:").Append(ExportPalette.Dark.Background).Append(";--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}\n");
+            WindowChrome.AppendTokens(css, "svg", options, !adaptive && layers[0].Palette == ExportPalette.Light);
             if (adaptive) {
-                css.Append("@media (prefers-color-scheme: light){svg{--cm-fg:").Append(ExportPalette.Light.Foreground).Append(";--cm-bg:").Append(ExportPalette.Light.Background).Append(";--cm-chrome:#e8e8e8;--cm-chrome-fg:#555}}\n");
-            } else if (layers[0].Palette == ExportPalette.Light) {
-                css.Append("svg{--cm-chrome:#e8e8e8;--cm-chrome-fg:#555}\n");
+                css.Append("@media (prefers-color-scheme: light){");
+                css.Append("svg{--cm-fg:").Append(ExportPalette.Light.Foreground).Append(";--cm-bg:").Append(ExportPalette.Light.Background).Append("}\n");
+                WindowChrome.AppendTokens(css, "svg", options, true);
+                css.Append("}\n");
             }
             css.Append(".cm-t{font-family:").Append(font).Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}\n");
-            css.Append(".cm-s{shape-rendering:crispEdges}\n.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}\n");
+            css.Append(".cm-s{shape-rendering:crispEdges}\n.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}\n");
             if (layers.Count > 1) {
                 css.Append(".cm-light{display:none}\n@media (prefers-color-scheme: light){.cm-dark{display:none}.cm-light{display:inline}}\n");
             }
         }
 
         internal static void AppendChrome(StringBuilder svg, SvgGeometry g, ExportOptions options) {
-            if (!options.WindowChrome) {
+            if (options.EffectiveChrome == WindowChromeStyle.None) {
                 return;
             }
-            WindowChrome.AppendSvg(svg, g.Width, g.Height, options.Title);
+            WindowChrome.AppendSvg(svg, g.Width, g.Height, options.Title, options.EffectiveChrome);
         }
 
         /// <summary>Appends a frame's rows at the origin of the current group.</summary>
@@ -234,12 +235,12 @@ namespace ConsoleMonster.Export {
                 GridWidth = columns * options.CellWidth,
                 GridHeight = rows * options.CellHeight
             };
-            double chrome = options.WindowChrome ? SvgFrameWriter.TitleBarHeight : 0;
+            double chrome = WindowChrome.BarHeight(options.EffectiveChrome);
             g.ScreenX = options.Padding;
             g.ScreenY = options.Padding + chrome;
             g.Width = g.GridWidth + (2 * options.Padding);
-            if (options.WindowChrome) {
-                g.Width = Math.Max(g.Width, WindowChrome.MinimumWidth);
+            if (options.EffectiveChrome != WindowChromeStyle.None) {
+                g.Width = Math.Max(g.Width, WindowChrome.MinimumWidth(options.EffectiveChrome));
             }
             g.Height = g.GridHeight + (2 * options.Padding) + chrome;
             return g;

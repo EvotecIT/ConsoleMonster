@@ -71,6 +71,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter WindowChrome { get; set; }
 
+        /// <summary><para type="description">MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</para></summary>
+        [Parameter]
+        [PSDefaultValue(Value = WindowChromeStyle.MacOS)]
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+
         /// <summary><para type="description">With -Destination, also writes the file to the pipeline.</para></summary>
         [Parameter]
         public SwitchParameter PassThru { get; set; }
@@ -101,13 +106,13 @@ namespace ConsoleMonster.PowerShell {
                 Speed = Speed,
                 Theme = Theme,
                 Title = Title,
-                WindowChrome = WindowChrome.IsPresent
+                WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle
             };
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
                 if (ParameterSetName == "Session") {
                     SessionRecording session = SessionRecording.Read(reader);
-                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Title, WindowChrome = WindowChrome.IsPresent })
+                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Title, WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle })
                         : playerData ? session.ExportPlayerData(options) : session.Export(format, options);
                 } else {
                     document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options) : Export.Recording.Export(Dashboard, reader, format, options);

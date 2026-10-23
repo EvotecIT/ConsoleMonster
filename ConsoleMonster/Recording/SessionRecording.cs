@@ -104,7 +104,7 @@ namespace ConsoleMonster.Sessions {
             RecordingExportOptions source = options ?? new RecordingExportOptions();
             RecordingExportOptions result = new RecordingExportOptions {
                 Theme = source.Theme, CustomTheme = source.CustomTheme, Title = source.Title ?? Title,
-                WindowChrome = source.WindowChrome, FontFamily = source.FontFamily, FontSize = source.FontSize,
+                WindowChrome = source.WindowChrome, ChromeStyle = source.ChromeStyle, FontFamily = source.FontFamily, FontSize = source.FontSize,
                 LineHeight = source.LineHeight, FramesPerSecond = source.FramesPerSecond, MaxFrames = source.MaxFrames,
                 Speed = source.Speed, HoldLastFrame = source.HoldLastFrame, Glyphs = source.Glyphs,
                 Culture = source.Culture, Padding = source.Padding, Timestamp = source.Timestamp

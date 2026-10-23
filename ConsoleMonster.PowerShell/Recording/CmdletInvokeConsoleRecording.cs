@@ -20,6 +20,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true)] public string Destination { get; set; } = string.Empty;
         /// <summary><para type="description">Export colours.</para></summary>
         [Parameter] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
+        /// <summary><para type="description">Draws a title bar (default true). Use -WindowChrome:$false to hide it.</para></summary>
+        [Parameter, PSDefaultValue(Value = true)] public SwitchParameter WindowChrome { get; set; } = new SwitchParameter(true);
+        /// <summary><para type="description">MacOS (default), Windows, Linux or None. None or -WindowChrome:$false hides chrome.</para></summary>
+        [Parameter, PSDefaultValue(Value = WindowChromeStyle.MacOS)] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+
         /// <summary><para type="description">Export the final frame as a static SVG.</para></summary>
         [Parameter] public SwitchParameter FinalFrame { get; set; }
         /// <inheritdoc/>
@@ -48,9 +53,9 @@ namespace ConsoleMonster.PowerShell {
             if (!string.Equals(cast, destination, StringComparison.OrdinalIgnoreCase)) {
                 if (File.Exists(destination)) { throw new IOException("The export destination already exists: " + destination); }
                 SessionRecording recording = SessionRecording.Read(cast);
-                string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = Name, WindowChrome = true })
-                    : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = Name, WindowChrome = true })
-                    : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = Name, WindowChrome = true });
+                string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = WindowChrome.IsPresent, ChromeStyle = ChromeStyle })
+                    : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = WindowChrome.IsPresent, ChromeStyle = ChromeStyle })
+                    : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = WindowChrome.IsPresent, ChromeStyle = ChromeStyle });
                 File.WriteAllText(destination, document, new UTF8Encoding(false));
             }
             WriteObject(new FileInfo(destination));

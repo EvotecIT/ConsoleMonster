@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="generator" content="ConsoleMonster">
+<title>Console session</title>
+<style>
+html,body{margin:0;background:#ffffff}
+body{padding:0}
+/* ConsoleMonster recording player: controls and screen rows. The screen grid, theme variables and cell styles come
+   with each recording's data (scoped to its player). */
+.cm-export.cm-player-host{display:inline-block;max-width:100%;outline:none}
+.cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-chrome-fg)}
+.cm-export .cm-screen .cm-line{display:inline;height:auto;vertical-align:baseline}
+.cm-export .cm-controls{display:flex;align-items:center;gap:10px;padding:6px 12px 10px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg);background:var(--cm-bg)}
+.cm-export .cm-controls button{font:inherit;min-width:64px;padding:3px 10px;border-radius:6px;border:1px solid var(--cm-chrome-fg);background:transparent;color:inherit;cursor:pointer}
+.cm-export .cm-controls .cm-track{position:relative;display:flex;align-items:center;flex:1;min-width:80px}
+.cm-export .cm-controls input[type=range]{flex:1;min-width:0;width:100%}
+.cm-export .cm-controls.cm-has-marks{padding-bottom:26px}
+.cm-export .cm-marks{position:absolute;left:0;right:0;top:100%;height:18px}
+.cm-export .cm-controls .cm-mark{position:absolute;top:2px;min-width:0;padding:1px 5px;border:0;border-left:2px solid var(--cm-chrome-fg);border-radius:0;font-size:11px;line-height:1.2;white-space:nowrap}
+.cm-export .cm-controls .cm-mark.cm-mark--end{transform:translateX(-100%);border-left:0;border-right:2px solid var(--cm-chrome-fg)}
+.cm-export .cm-controls select{font:inherit;background:transparent;color:inherit;border:1px solid var(--cm-chrome-fg);border-radius:6px}
+.cm-export .cm-controls option{color:#000}
+.cm-export .cm-time{font-variant-numeric:tabular-nums;min-width:90px;text-align:right}
+.cm-export .cm-error{padding:12px;font:13px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg)}
+.cm-export .cm-controls{flex-wrap:wrap}
+.cm-export .cm-controls .cm-chapters{max-width:160px}
+.cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
+.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
+.cm-export .cm-controls .cm-mark{width:8px;height:8px;overflow:hidden;color:transparent;padding:0;border-left-color:var(--cm-chrome-fg);border-right-color:var(--cm-chrome-fg)}
+@media(max-width:600px){.cm-export .cm-controls .cm-track{flex-basis:55%}.cm-export .cm-marks{display:none}.cm-export .cm-controls.cm-has-marks{padding-bottom:10px}}
+</style>
+</head>
+<body>
+<div class="cm-recording" data-cm-recording="#cm-data" data-cm-autoplay></div>
+<script type="application/json" id="cm-data">{"format":"consolemonster-player","version":1,"title":"Console session","width":60,"height":16,"fps":10,"duration":5131,"chrome":false,"chromeStyle":"none","chromeBar":"","theme":"light","css":".cm-export{--cm-fg:#24292f;--cm-bg:#ffffff;--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:light}\n.cm-export{display:inline-block}\n.cm-export{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}\n.cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:12px;width:60ch;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;line-height:16.8px;color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}\n.cm-export .cm-screen span,.cm-export .cm-screen a{display:inline-block;vertical-align:top;height:16.8px}\n.cm-export .cm-screen a{color:inherit;text-decoration:none}\n.cm-export .cm-screen a:hover{text-decoration:underline}\n.cm-export .cm-screen .n{width:1ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .w{width:2ch;text-align:center;overflow:visible}\n.cm-export .cm-screen .b{position:relative}\n.cm-export .cm-screen .b svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;shape-rendering:crispEdges}\n.cm-export .cm-screen{position:relative}\n.cm-export .cm-screen\u003e.cm-paint{position:absolute;left:12px;top:12px;width:calc(100% - 24px);height:calc(100% - 24px);overflow:visible;pointer-events:none;user-select:none;shape-rendering:crispEdges}\n.cm-export .s0{color:#3a96dd;font-weight:bold;}\n.cm-export .s1{color:#3a96dd;}\n.cm-export .s2{color:#c19c00;}\n.cm-export .s3{color:#13a10e;}\n","rows":["","\u003cspan class=\"s0\"\u003eCONSOLE SESSION\u003c/span\u003e","Native commands, progress and chapters","\u003cspan class=\"s1\"\u003e\u0026gt; git --version\u003c/span\u003e","git version 2.55.0.windows.5","\u003cspan class=\"s1\"\u003e\u0026gt; dotnet --version\u003c/span\u003e","10.0.402","\u003cspan class=\"s2\"\u003eBuild [#-------] 1/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [##------] 2/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [###-----] 3/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [####----] 4/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [#####---] 5/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [######--] 6/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [#######-] 7/8\u003c/span\u003e","\u003cspan class=\"s2\"\u003eBuild [########] 8/8\u003c/span\u003e","[REDACTED]","\u003cspan class=\"s3\"\u003eBuild finished. Recording stays local.\u003c/span\u003e"],"frames":[[0,[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[1100,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[1200,[1,2,0,3,0,0,0,0,0,0,0,0,0,0,0,0]],[1300,[1,2,0,3,4,5,0,0,0,0,0,0,0,0,0,0]],[1700,[1,2,0,3,4,5,6,0,7,0,0,0,0,0,0,0]],[1900,[1,2,0,3,4,5,6,0,8,0,0,0,0,0,0,0]],[2000,[1,2,0,3,4,5,6,0,9,0,0,0,0,0,0,0]],[2200,[1,2,0,3,4,5,6,0,10,0,0,0,0,0,0,0]],[2300,[1,2,0,3,4,5,6,0,11,0,0,0,0,0,0,0]],[2500,[1,2,0,3,4,5,6,0,12,0,0,0,0,0,0,0]],[2700,[1,2,0,3,4,5,6,0,13,0,0,0,0,0,0,0]],[2800,[1,2,0,3,4,5,6,0,14,0,0,0,0,0,0,0]],[3000,[1,2,0,3,4,5,6,0,14,0,15,16,0,0,0,0]]],"markers":[[1096,"Inspect"],[1666,"Build"],[2929,"Review"]]}</script>
+<script>
+/*!
+ * ConsoleMonster recording player.
+ *
+ * Include this script once per page, with the player styles, and mark each player with the recording data it plays:
+ *
+ *   <div data-cm-recording="run.json" data-cm-autoplay></div>          (fetched)
+ *   <div data-cm-recording="#run-data"></div>                           (inline, from an element with that id)
+ *   <script type="application/json" id="run-data">{...}<\/script>
+ *
+ * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
+ * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
+ * ExportPlayerData writes when chapters are present: marks under the position bar and a chapter list that seek to their moments. Players found when the page loads are
+ * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
+ * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
+ * applies, from the beginning when the player opened at its end (data-cm-start, a deep link, opens there too but does not
+ * autoplay). player.state() reports the position, the
+ * duration and whether it is playing.
+ *
+ * Cost: a frame change rewrites only the rows that differ from the previous frame; playback wakes at the recording's
+ * frame rate at most, scaled by playback speed, and the clock, the position bar and its accessible text change at most once a second (and on
+ * seeking). A player pauses while off-screen or while the tab is hidden and resumes on return. Only one player per page
+ * autoplays (the first that asks with data-cm-autoplay), and none does when the reader prefers reduced motion. With
+ * data-cm-loop a player starts again from the beginning when it reaches the end, until it is paused; without it a player
+ * stops on the last frame and nothing runs until the reader plays it again.
+ */
+(function () {
+    'use strict';
+    if (window.ConsoleMonsterPlayer) {
+        return;
+    }
+    var players = [];
+    var counter = 0;
+    var autoplayOwner = null;
+    var motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    var observer = typeof IntersectionObserver === 'function' ? new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+            var player = entries[i].target.__cmPlayer;
+            if (player) {
+                player.setVisible(entries[i].isIntersecting);
+            }
+        }
+    }) : null;
+
+    function fmt(ms) {
+        var s = Math.floor(ms / 1000);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor(s / 60) % 60;
+        var sec = ('0' + (s % 60)).slice(-2);
+        return h > 0 ? h + ':' + ('0' + m).slice(-2) + ':' + sec : m + ':' + sec;
+    }
+
+    function el(tag, className, parent) {
+        var e = document.createElement(tag);
+        if (className) {
+            e.className = className;
+        }
+        if (parent) {
+            parent.appendChild(e);
+        }
+        return e;
+    }
+
+    function Player(host, data, options) {
+        var self = this;
+        var frames = data.frames || [];
+        var rows = data.rows || [];
+        var total = Math.max(0, data.duration || (frames.length ? frames[frames.length - 1][0] : 0));
+        var height = data.height || (frames.length ? frames[0][1].length : 0);
+        var minDelay = 1000 / Math.max(1, Math.min(60, data.fps || 10));
+        var id = ++counter;
+        var t = 0, shown = -1, speed = 1, last = 0, lastLabel = -1e9, timer = 0;
+        var want = false, playing = false, visible = !observer, autoplayed = false;
+        var current = [];
+        var lines = [];
+        var destroyed = false;
+        var originalChildren = Array.prototype.slice.call(host.childNodes);
+
+        host.__cmPlayer = self;
+        host.setAttribute('data-cm-player', String(id));
+        host.classList.add('cm-export', 'cm-player-host');
+        if (!host.hasAttribute('tabindex')) {
+            host.tabIndex = 0;
+        }
+        if (data.css) {
+            var style = el('style');
+            style.textContent = String(data.css).split('.cm-export').join('.cm-export[data-cm-player="' + id + '"]');
+            host.appendChild(style);
+        }
+        var frame = host;
+        if (data.chrome) {
+            var chromeStyle = /^(macos|windows|linux)$/.test(data.chromeStyle) ? data.chromeStyle : 'macos';
+            frame = el('div', 'cm-window cm-chrome-' + chromeStyle, host);
+            if (data.chromeBar) {
+                frame.innerHTML = data.chromeBar;
+            } else {
+                // Version 1 data written before chrome styles used the MacOS title bar.
+                var bar = el('div', 'cm-titlebar', frame);
+                el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
+                var title = el('span', 'cm-title', bar);
+                title.textContent = data.title || '';
+                title.title = data.title || '';
+            }
+        } else {
+            frame = el('div', 'cm-player', host);
+        }
+        var screen = el('pre', 'cm-screen', frame);
+        screen.setAttribute('role', 'img');
+        screen.setAttribute('aria-label', data.title || 'Console recording');
+        for (var r = 0; r < height; r++) {
+            if (r > 0) {
+                screen.appendChild(document.createTextNode('\n'));
+            }
+            lines.push(el('span', 'cm-line', screen));
+            current.push(-1);
+        }
+        var controls = el('div', 'cm-controls', frame);
+        var play = el('button', 'cm-play', controls);
+        play.type = 'button';
+        play.textContent = 'Play';
+        var track = el('span', 'cm-track', controls);
+        var seek = el('input', 'cm-seek', track);
+        seek.type = 'range';
+        seek.min = '0';
+        seek.max = String(total);
+        seek.step = '10';
+        seek.value = '0';
+        seek.setAttribute('aria-label', 'Position');
+        // Chapter marks: a labelled button per marker under the position bar, placed at its share of the recording.
+        var marks = data.markers && data.markers.length ? el('span', 'cm-marks', track) : null;
+        if (marks) {
+            controls.classList.add('cm-has-marks');
+            data.markers.forEach(function (marker) {
+                var at = Math.max(0, Math.min(total, +marker[0] || 0));
+                var share = total > 0 ? at / total : 0;
+                var mark = el('button', 'cm-mark', marks);
+                mark.type = 'button';
+                mark.textContent = String(marker[1] || '');
+                mark.setAttribute('aria-label', 'Go to ' + mark.textContent);
+                mark.style.left = (share * 100).toFixed(2) + '%';
+                // The tick is the label's left edge, at the marker's moment; near the end the label hangs left of a right-hand tick.
+                if (share > 0.85) {
+                    mark.className += ' cm-mark--end';
+                }
+                mark.addEventListener('click', function () { self.seek(at); });
+            });
+        }
+        var time = el('span', 'cm-time', controls);
+        var rate = el('select', 'cm-speed', controls);
+        rate.setAttribute('aria-label', 'Speed');
+        [0.5, 1, 2, 4].forEach(function (value) {
+            var option = el('option', null, rate);
+            option.value = String(value);
+            option.textContent = value + '×';
+            option.selected = value === 1;
+        });
+        if (data.markers && data.markers.length) {
+            var chapters = el('select', 'cm-chapters', controls);
+            chapters.setAttribute('aria-label', 'Chapters');
+            var heading = el('option', null, chapters);
+            heading.textContent = 'Chapters';
+            heading.value = '';
+            data.markers.forEach(function (marker) {
+                var chapter = el('option', null, chapters);
+                chapter.textContent = String(marker[1] || 'Chapter');
+                chapter.value = String(Math.max(0, Math.min(total, +marker[0] || 0)));
+            });
+            chapters.addEventListener('change', function () {
+                if (chapters.value !== '') { self.seek(+chapters.value); }
+            });
+        }
+        var copy = el('button', 'cm-copy', controls);
+        copy.type = 'button';
+        copy.textContent = 'Copy text';
+        copy.addEventListener('click', function () {
+            var text = screen.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () { copy.textContent = 'Copied'; }, selectText);
+            } else { selectText(); }
+        });
+        function selectText() {
+            var range = document.createRange();
+            range.selectNodeContents(screen);
+            var selection = window.getSelection();
+            if (selection) { selection.removeAllRanges(); selection.addRange(range); }
+            copy.textContent = 'Text selected';
+        }
+
+        function at(ms) {
+            var lo = 0, hi = frames.length - 1;
+            while (lo < hi) {
+                var mid = (lo + hi + 1) >> 1;
+                if (frames[mid][0] <= ms) {
+                    lo = mid;
+                } else {
+                    hi = mid - 1;
+                }
+            }
+            return lo;
+        }
+
+        // Rewrites only the rows whose content differs from what is on screen.
+        function draw() {
+            if (!frames.length) {
+                return;
+            }
+            var i = at(t);
+            if (i === shown) {
+                return;
+            }
+            shown = i;
+            var ids = frames[i][1];
+            for (var r = 0; r < lines.length; r++) {
+                var row = r < ids.length ? ids[r] : -1;
+                if (row !== current[r]) {
+                    current[r] = row;
+                    lines[r].innerHTML = row >= 0 ? rows[row] : '';
+                }
+            }
+        }
+
+        function labels(now) {
+            lastLabel = now;
+            var text = fmt(t) + ' / ' + fmt(total);
+            time.textContent = text;
+            seek.value = String(Math.round(t));
+            seek.setAttribute('aria-valuetext', text);
+        }
+
+        function advance(now) {
+            if (playing) {
+                t = Math.min(total, t + (now - last) * speed);
+                last = now;
+            }
+        }
+
+        // Wakes at the next frame change (scaled by playback speed) or when the clock must move.
+        function schedule(now) {
+            var next = shown + 1 < frames.length ? frames[shown + 1][0] : total;
+            var frameDelay = minDelay / speed;
+            var delay = Math.max(frameDelay, (next - t) / speed);
+            delay = Math.min(delay, Math.max(frameDelay, 1000 - (now - lastLabel)));
+            timer = window.setTimeout(step, delay);
+        }
+
+        function step() {
+            timer = 0;
+            var now = performance.now();
+            advance(now);
+            draw();
+            if (t >= total && self.loop && want) {
+                // Looping: back to the first frame, still playing.
+                t = 0;
+                shown = -1;
+                draw();
+                labels(now);
+                schedule(now);
+                return;
+            }
+            if (t >= total) {
+                labels(now);
+                want = false;
+                stopTimer();
+                playing = false;
+                play.textContent = 'Play';
+                return;
+            }
+            if (now - lastLabel >= 1000) {
+                labels(now);
+            }
+            schedule(now);
+        }
+
+        function stopTimer() {
+            if (timer) {
+                window.clearTimeout(timer);
+                timer = 0;
+            }
+        }
+
+        function resume() {
+            if (!want || playing || !visible || document.hidden || !frames.length) {
+                return;
+            }
+            playing = true;
+            last = performance.now();
+            play.textContent = 'Pause';
+            schedule(last);
+        }
+
+        function suspend() {
+            if (!playing) {
+                return;
+            }
+            var now = performance.now();
+            advance(now);
+            playing = false;
+            stopTimer();
+            labels(now);
+        }
+
+        self.play = function () {
+            if (destroyed) { return; }
+            if (t >= total) {
+                t = 0;
+                draw();
+            }
+            want = true;
+            play.textContent = 'Pause';
+            resume();
+        };
+
+        self.pause = function () {
+            want = false;
+            suspend();
+            play.textContent = 'Play';
+        };
+
+        self.seek = function (ms) {
+            if (destroyed) { return; }
+            var now = performance.now();
+            advance(now);
+            t = Math.max(0, Math.min(total, ms));
+            draw();
+            labels(now);
+            if (playing) {
+                stopTimer();
+                last = now;
+                schedule(now);
+            }
+        };
+
+        self.setVisible = function (value) {
+            if (destroyed) { return; }
+            visible = value;
+            if (!visible) {
+                suspend();
+                return;
+            }
+            if (!autoplayed && self.autoplay && !(motion && motion.matches) && (autoplayOwner === null || autoplayOwner === self)) {
+                autoplayOwner = self;
+                autoplayed = true;
+                want = true;
+                // A player opened at its end (a host showing the final frame first) autoplays from the beginning, as Play does.
+                if (t >= total) {
+                    t = 0;
+                    draw();
+                }
+            }
+            resume();
+        };
+
+        self.visibility = function () {
+            if (document.hidden) {
+                suspend();
+            } else {
+                resume();
+            }
+        };
+
+        self.destroy = function () {
+            if (destroyed) { return; }
+            destroyed = true;
+            want = false;
+            suspend();
+            if (observer) {
+                observer.unobserve(host);
+            }
+            var index = players.indexOf(self);
+            if (index >= 0) {
+                players.splice(index, 1);
+            }
+            if (autoplayOwner === self) { autoplayOwner = null; }
+            if (host.__cmPlayer === self) { delete host.__cmPlayer; }
+            delete host.__cmLoading;
+            host.removeEventListener('keydown', onKeyDown);
+            screen.remove();
+            Array.prototype.slice.call(host.childNodes).forEach(function (child) {
+                if (originalChildren.indexOf(child) < 0) { child.remove(); }
+            });
+            host.classList.remove('cm-export', 'cm-player-host');
+            host.removeAttribute('data-cm-player');
+        };
+
+        self.state = function () {
+            return { time: t, duration: total, playing: playing, wanted: want };
+        };
+
+        self.element = host;
+        self.autoplay = host.hasAttribute('data-cm-autoplay') && host.getAttribute('data-cm-autoplay') !== 'false';
+        self.loop = host.hasAttribute('data-cm-loop') && host.getAttribute('data-cm-loop') !== 'false';
+
+        play.addEventListener('click', function () {
+            if (want) {
+                self.pause();
+            } else {
+                self.play();
+            }
+        });
+        seek.addEventListener('input', function () {
+            self.seek(parseFloat(seek.value) || 0);
+        });
+        rate.addEventListener('change', function () {
+            var now = performance.now();
+            advance(now);
+            speed = parseFloat(rate.value) || 1;
+            if (playing) {
+                stopTimer();
+                schedule(now);
+            }
+        });
+        function onKeyDown(e) {
+            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select'))) {
+                return;
+            }
+            if (e.key === ' ' || e.key === 'k') {
+                e.preventDefault();
+                play.click();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                self.seek(t + (e.key === 'ArrowLeft' ? -5000 : 5000));
+            } else if (e.key === 'Home' || e.key === 'End') {
+                e.preventDefault();
+                self.seek(e.key === 'Home' ? 0 : total);
+            }
+        }
+        host.addEventListener('keydown', onKeyDown);
+
+        // A deep link (data-cm-start) opens at its moment without autoplay; options.start opens there and keeps it, so a host
+        // that starts at a poster's moment draws that frame once instead of the first frame and then a seek.
+        var start = parseFloat(host.getAttribute('data-cm-start') || '');
+        if (!isNaN(start)) {
+            t = Math.max(0, Math.min(total, start));
+            autoplayed = true;
+        } else if (options && isFinite(+options.start) && +options.start > 0) {
+            t = Math.max(0, Math.min(total, +options.start));
+        }
+        draw();
+        labels(performance.now());
+        players.push(self);
+        if (observer) {
+            observer.observe(host);
+        } else {
+            self.setVisible(true);
+        }
+    }
+
+    function fail(host, message) {
+        host.classList.add('cm-export');
+        var box = el('div', 'cm-error', host);
+        box.textContent = 'This recording could not be loaded: ' + message;
+    }
+
+    function mount(host, data, options) {
+        if (!host || host.__cmPlayer) {
+            return host ? host.__cmPlayer : null;
+        }
+        if (!data || data.format !== 'consolemonster-player') {
+            fail(host, 'not ConsoleMonster player data');
+            return null;
+        }
+        return new Player(host, data, options);
+    }
+
+    function load(host) {
+        if (host.__cmPlayer || host.__cmLoading) {
+            return;
+        }
+        var loading = {};
+        host.__cmLoading = loading;
+        var hash = /[#&]t=(\d+)/.exec(location.hash);
+        if (hash && !host.hasAttribute('data-cm-start') && document.querySelectorAll('[data-cm-recording]').length === 1) {
+            host.setAttribute('data-cm-start', hash[1]);
+        }
+        var source = host.getAttribute('data-cm-recording') || '';
+        if (source.charAt(0) === '#') {
+            var element = document.getElementById(source.slice(1));
+            try {
+                mount(host, JSON.parse(element ? element.textContent : 'null'));
+            } catch (e) {
+                fail(host, e.message);
+            }
+            delete host.__cmLoading;
+            return;
+        }
+        fetch(source).then(function (response) {
+            if (!response.ok) {
+                throw new Error(response.status + ' ' + response.statusText);
+            }
+            return response.json();
+        }).then(function (data) {
+            if (host.__cmLoading !== loading) { return; }
+            delete host.__cmLoading;
+            mount(host, data);
+        }, function (e) {
+            if (host.__cmLoading !== loading) { return; }
+            delete host.__cmLoading;
+            fail(host, e.message);
+        });
+    }
+
+    function scan(root) {
+        var hosts = (root || document).querySelectorAll('[data-cm-recording]');
+        for (var i = 0; i < hosts.length; i++) {
+            load(hosts[i]);
+        }
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        for (var i = 0; i < players.length; i++) {
+            players[i].visibility();
+        }
+    });
+
+    if (motion && motion.addEventListener) {
+        motion.addEventListener('change', function () {
+            if (motion.matches) {
+                for (var i = 0; i < players.length; i++) { players[i].pause(); }
+            }
+        });
+    }
+
+    window.ConsoleMonsterPlayer = { mount: mount, scan: scan, players: players, version: 1 };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { scan(); });
+    } else {
+        scan();
+    }
+})();
+
+</script>
+</body>
+</html>

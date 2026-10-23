@@ -67,8 +67,13 @@ namespace ConsoleMonster.Export {
         /// <summary>The page title and, with <see cref="WindowChrome"/>, the title bar text.</summary>
         public string? Title { get; set; }
 
-        /// <summary>Draws a window frame with a title bar around the screen.</summary>
+        /// <summary>Enables the chosen <see cref="ChromeStyle"/> (default MacOS). False always hides chrome; style None also hides it.</summary>
         public bool WindowChrome { get; set; }
+
+        /// <summary>The title bar style, used only when <see cref="WindowChrome"/> is true. Default MacOS; None hides chrome.</summary>
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+
+        internal WindowChromeStyle EffectiveChrome => WindowChrome ? ChromeStyle : WindowChromeStyle.None;
 
         /// <summary>The font stack (see <see cref="DefaultFontFamily"/>).</summary>
         public string FontFamily { get; set; } = DefaultFontFamily;
@@ -104,6 +109,9 @@ namespace ConsoleMonster.Export {
         internal ExportOptions Clone() => (ExportOptions)MemberwiseClone();
 
         internal void Validate() {
+            if (ChromeStyle < WindowChromeStyle.None || ChromeStyle > WindowChromeStyle.Linux) {
+                throw new ArgumentOutOfRangeException(nameof(ChromeStyle));
+            }
             if (Width < 1 || Width > 1000) {
                 throw new ArgumentOutOfRangeException(nameof(Width), "Width must be between 1 and 1000 cells.");
             }

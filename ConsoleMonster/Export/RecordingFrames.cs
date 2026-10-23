@@ -28,8 +28,11 @@ namespace ConsoleMonster.Export {
         /// <summary>The title (page title, title bar, asciicast title).</summary>
         public string? Title { get; set; }
 
-        /// <summary>Draws a window frame with a title bar (HTML and SVG).</summary>
+        /// <summary>Enables the chosen <see cref="ChromeStyle"/>. False always hides chrome; style None also hides it.</summary>
         public bool WindowChrome { get; set; }
+
+        /// <summary>The title bar style when WindowChrome is true (default MacOS). None hides chrome.</summary>
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary>The font stack (see <see cref="ExportOptions.DefaultFontFamily"/>).</summary>
         public string FontFamily { get; set; } = ExportOptions.DefaultFontFamily;
@@ -74,6 +77,7 @@ namespace ConsoleMonster.Export {
                 Theme = Theme == ExportTheme.Light ? ExportTheme.Light : ExportTheme.Dark,
                 Title = Title,
                 WindowChrome = WindowChrome,
+                ChromeStyle = ChromeStyle,
                 FontFamily = FontFamily,
                 FontSize = FontSize,
                 LineHeight = LineHeight,
@@ -81,6 +85,8 @@ namespace ConsoleMonster.Export {
                 Culture = Culture,
                 Padding = Padding
             };
+            o.DarkTheme = CustomTheme;
+            o.LightTheme = CustomTheme;
             o.Validate();
             if (Height < 1) {
                 throw new ArgumentOutOfRangeException(nameof(Height), "A recording needs a fixed height of at least one row.");

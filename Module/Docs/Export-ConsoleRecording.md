@@ -13,12 +13,12 @@ Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecordi
 ## SYNTAX
 ### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-PassThru] [-FinalFrame] [<CommonParameters>]
+Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [<CommonParameters>]
 ```
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-PassThru] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,6 +37,22 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
 An animated SVG and an HTML player of the same run
 
 ## PARAMETERS
+
+### -ChromeStyle
+MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
+
+```yaml
+Type: WindowChromeStyle
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: None, MacOS, Windows, Linux
+
+Required: False
+Position: named
+Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Dashboard
 The dashboard (or widget tree) the recording was made with.

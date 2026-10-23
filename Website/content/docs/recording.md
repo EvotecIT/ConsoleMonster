@@ -161,6 +161,68 @@ File.WriteAllText("nightly.html", ConsoleExporter.ToHtml(table, new ExportOption
 
 The players on this site are ConsoleMonster's own player, the one `Export-ConsoleRecording -Format Html` writes.
 
+## Choose a window style
+
+Use `-ChromeStyle MacOS`, `Windows` or `Linux` on `Export-ConsoleFrame`, `Export-ConsoleRecording` and `Invoke-ConsoleRecording`. The same style applies to static HTML and SVG, the HTML player, animated SVG and a session's final frame. These are generic vector shapes; no operating-system assets or logos are used.
+
+{{< cm-chrome-styles >}}
+
+Each command below runs on its own after installing ConsoleMonster. It creates the panel shown above and saves an SVG in the current directory. Change `-Theme Dark` to `Light` for the light sample, or change `.svg` to `.html` for selectable HTML.
+
+### MacOS
+
+```powershell
+Import-Module ConsoleMonster
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-macos.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle MacOS
+```
+
+### Windows
+
+```powershell
+Import-Module ConsoleMonster
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-windows.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Windows
+```
+
+### Linux
+
+```powershell
+Import-Module ConsoleMonster
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-linux.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Linux
+```
+
+MacOS has a 28px bar and three coloured dots. Windows has a 32px tab bar, prompt glyph, plus sign and line controls. Linux has a 36px header, a bold title and a round close control. Titles truncate within the space reserved for them. The bar uses the theme's `Surface` background and the control glyphs use `Muted`; only the macOS dots keep their traffic-light colours.
+
+`-WindowChrome` keeps the MacOS default. `-ChromeStyle` by itself enables the chosen style. `-WindowChrome:$false` or `-ChromeStyle None` hides the frame. Frame and recording exports still omit chrome when neither parameter is supplied; `Invoke-ConsoleRecording` includes it by default. Text, Markdown and asciicast contain terminal content, so chrome does not add characters to those formats.
+
+Record and export a Windows-style player, then a Linux-style final frame from the same cast:
+
+```powershell
+Import-Module ConsoleMonster
+Invoke-ConsoleRecording {
+    Add-ConsoleRecordingMarker 'Build'
+    Write-Host '8 of 8 checks passed' -ForegroundColor Green
+} -Destination ./chrome-demo.html -ChromeStyle Windows -Theme Light
+
+Export-ConsoleRecording -Path ./chrome-demo.cast -Destination ./chrome-demo-final.svg `
+    -FinalFrame -ChromeStyle Linux -Theme Light -Title 'Build report'
+```
+
+In C#, both option types keep `WindowChrome` as the on/off control. `ChromeStyle` defaults to `MacOS`; setting it alone does not enable the frame. `WindowChrome = false` and `ChromeStyle = None` each hide it:
+
+```csharp
+using ConsoleMonster.Export;
+using ConsoleMonster.Widgets;
+
+var options = new ExportOptions {
+    Width = 36, Theme = ExportTheme.Light, Title = "Build report",
+    WindowChrome = true, ChromeStyle = WindowChromeStyle.Windows
+};
+File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 checks passed"), options));
+```
+
 ## Targets
 
 Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a profile, a theme, a writer and an input source. `ConsoleTarget.Instance` is the process console; `TestTerminal.Target(...)` returns a `RecordingTarget` for tests, `WriterTarget` writes append-only lines to a `TextWriter`, and `NullTarget.Instance` discards output. `using (Terminal.Use(target)) { ... }` sends everything in the block to a target, and the scope flows with `async` calls. In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going to a file (`-Path`), a writer or a target, or returned as a string.

@@ -89,12 +89,18 @@
         }
         var frame = host;
         if (data.chrome) {
-            frame = el('div', 'cm-window', host);
-            var bar = el('div', 'cm-titlebar', frame);
-            el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
-            var title = el('span', 'cm-title', bar);
-            title.textContent = data.title || '';
-            title.title = data.title || '';
+            var chromeStyle = /^(macos|windows|linux)$/.test(data.chromeStyle) ? data.chromeStyle : 'macos';
+            frame = el('div', 'cm-window cm-chrome-' + chromeStyle, host);
+            if (data.chromeBar) {
+                frame.innerHTML = data.chromeBar;
+            } else {
+                // Version 1 data written before chrome styles used the MacOS title bar.
+                var bar = el('div', 'cm-titlebar', frame);
+                el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
+                var title = el('span', 'cm-title', bar);
+                title.textContent = data.title || '';
+                title.title = data.title || '';
+            }
         } else {
             frame = el('div', 'cm-player', host);
         }

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="528" height="328.8" viewBox="0 0 528 328.8" role="img" aria-label="Console session">
+<title>Console session</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+.s0{fill:#3a96dd;font-weight:bold;}
+@keyframes cm-play{0%{transform:translateX(0px)}21.438%{transform:translateX(-528px)}23.387%{transform:translateX(-1056px)}25.336%{transform:translateX(-1584px)}33.132%{transform:translateX(-2112px)}37.03%{transform:translateX(-2640px)}38.979%{transform:translateX(-3168px)}42.877%{transform:translateX(-3696px)}44.826%{transform:translateX(-4224px)}48.723%{transform:translateX(-4752px)}52.621%{transform:translateX(-5280px)}54.57%{transform:translateX(-5808px)}58.468%{transform:translateX(-6336px)}100%{transform:translateX(-6336px)}}
+.cm-strip{animation:cm-play 5.131s steps(1,end) infinite}
+@media (prefers-reduced-motion: reduce){.cm-strip{animation-play-state:paused}}
+</style>
+<defs>
+<g id="r0"><text class="cm-t s0" x="4.2 12.6 21 29.4 37.8 46.2 54.6 71.4 79.8 88.2 96.6 105 113.4 121.8" y="8.4">CONSOLESESSION</text></g>
+<g id="r1"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8 172.2 180.6 189 197.4 205.8 222.6 231 239.4 256.2 264.6 273 281.4 289.8 298.2 306.6 315" y="8.4" fill="#cccccc">Nativecommands,progressandchapters</text></g>
+<g id="r2"><text class="cm-t" x="4.2 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8" y="8.4" fill="#3a96dd">&gt;git--version</text></g>
+<g id="r3"><text class="cm-t" x="4.2 12.6 21 37.8 46.2 54.6 63 71.4 79.8 88.2 105 113.4 121.8 130.2 138.6 147 155.4 163.8 172.2 180.6 189 197.4 205.8 214.2 222.6 231" y="8.4" fill="#cccccc">gitversion2.55.0.windows.5</text></g>
+<g id="r4"><text class="cm-t" x="4.2 21 29.4 37.8 46.2 54.6 63 79.8 88.2 96.6 105 113.4 121.8 130.2 138.6 147" y="8.4" fill="#3a96dd">&gt;dotnet--version</text></g>
+<g id="r5"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 54.6 63" y="8.4" fill="#cccccc">10.0.402</text></g>
+<g id="r6"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[#-------]1/8</text></g>
+<g id="r7"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[##------]2/8</text></g>
+<g id="r8"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[###-----]3/8</text></g>
+<g id="r9"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[####----]4/8</text></g>
+<g id="r10"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[#####---]5/8</text></g>
+<g id="r11"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[######--]6/8</text></g>
+<g id="r12"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[#######-]7/8</text></g>
+<g id="r13"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 130.2 147 155.4 163.8" y="8.4" fill="#c19c00">Build[########]8/8</text></g>
+<g id="r14"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 54.6 63 71.4 79.8" y="8.4" fill="#cccccc">[REDACTED]</text></g>
+<g id="r15"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 138.6 147 155.4 163.8 172.2 180.6 189 197.4 205.8 222.6 231 239.4 247.8 256.2 273 281.4 289.8 298.2 306.6 315" y="8.4" fill="#13a10e">Buildfinished.Recordingstayslocal.</text></g>
+</defs>
+<rect width="528" height="328.8" rx="12" style="fill:var(--cm-chrome)"/>
+<g transform="translate(480 0)" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.2"><circle cx="26" cy="18" r="11"/><path d="M22 14l8 8m0-8l-8 8"/></g><svg class="cm-title-area" x="48" y="0" width="432" height="36" overflow="hidden"><text class="cm-title" x="216" y="18" textLength="120" lengthAdjust="spacingAndGlyphs" style="font-family:monospace;font-weight:bold;"><title>Console session</title>Console session</text></svg>
+<svg x="0" y="36" width="528" height="292.8"><rect width="100%" height="100%" fill="#0c0c0c"/>
+<g class="cm-strip">
+<g transform="translate(0 0)"></g>
+<g transform="translate(528 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/></g>
+<g transform="translate(1056 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/></g>
+<g transform="translate(1584 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/></g>
+<g transform="translate(2112 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r6" xlink:href="#r6" y="146.4" x="12"/></g>
+<g transform="translate(2640 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r7" xlink:href="#r7" y="146.4" x="12"/></g>
+<g transform="translate(3168 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r8" xlink:href="#r8" y="146.4" x="12"/></g>
+<g transform="translate(3696 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r9" xlink:href="#r9" y="146.4" x="12"/></g>
+<g transform="translate(4224 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r10" xlink:href="#r10" y="146.4" x="12"/></g>
+<g transform="translate(4752 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r11" xlink:href="#r11" y="146.4" x="12"/></g>
+<g transform="translate(5280 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r12" xlink:href="#r12" y="146.4" x="12"/></g>
+<g transform="translate(5808 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r13" xlink:href="#r13" y="146.4" x="12"/></g>
+<g transform="translate(6336 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/><use href="#r2" xlink:href="#r2" y="62.4" x="12"/><use href="#r3" xlink:href="#r3" y="79.2" x="12"/><use href="#r4" xlink:href="#r4" y="96" x="12"/><use href="#r5" xlink:href="#r5" y="112.8" x="12"/><use href="#r13" xlink:href="#r13" y="146.4" x="12"/><use href="#r14" xlink:href="#r14" y="180" x="12"/><use href="#r15" xlink:href="#r15" y="196.8" x="12"/></g>
+</g></svg>
+</svg>

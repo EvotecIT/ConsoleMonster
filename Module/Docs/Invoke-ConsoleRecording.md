@@ -13,7 +13,7 @@ Runs the script in an isolated child process. Caller variables and functions are
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-FinalFrame] [-Path <string>] [-Folder <string>] [-Name <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-MaxBytes <long>] [-IdleLimit <double>] [-InProcess] [-TimeoutSeconds <int>] [<CommonParameters>]
+Invoke-ConsoleRecording [-ScriptBlock] <scriptblock> -Destination <string> [-Theme <ExportTheme>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FinalFrame] [-Path <string>] [-Folder <string>] [-Name <string>] [-Shell <string>] [-Width <int>] [-Height <int>] [-Redact <string[]>] [-MaxBytes <long>] [-IdleLimit <double>] [-InProcess] [-TimeoutSeconds <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,22 @@ Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; git --version; Wri
 Record native coloured output and a chapter
 
 ## PARAMETERS
+
+### -ChromeStyle
+MacOS (default), Windows, Linux or None. None or -WindowChrome:$false hides chrome.
+
+```yaml
+Type: WindowChromeStyle
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: None, MacOS, Windows, Linux
+
+Required: False
+Position: named
+Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Destination
 Export path. Extension selects HTML, SVG, cast, text or Markdown.
@@ -268,6 +284,22 @@ Possible values:
 Required: False
 Position: named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WindowChrome
+Draws a title bar (default true). Use -WindowChrome:$false to hide it.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

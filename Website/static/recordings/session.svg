@@ -1,10 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="528" height="322.8" viewBox="0 0 528 322.8" role="img" aria-label="Console session">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="528" height="320.8" viewBox="0 0 528 320.8" role="img" aria-label="Console session">
 <title>Console session</title>
 <style>
 svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
 .cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
 .cm-s{shape-rendering:crispEdges}
-.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
 .s0{fill:#3a96dd;font-weight:bold;}
 @keyframes cm-play{0%{transform:translateX(0px)}21.299%{transform:translateX(-528px)}26.475%{transform:translateX(-1056px)}30.117%{transform:translateX(-1584px)}33.419%{transform:translateX(-2112px)}36.72%{transform:translateX(-2640px)}40.021%{transform:translateX(-3168px)}43.323%{transform:translateX(-3696px)}46.709%{transform:translateX(-4224px)}49.904%{transform:translateX(-4752px)}53.142%{transform:translateX(-5280px)}57.401%{transform:translateX(-5808px)}100%{transform:translateX(-5808px)}}
 .cm-strip{animation:cm-play 4.695s steps(1,end) infinite}
@@ -28,10 +29,9 @@ svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
 <g id="r14"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 54.6 63 71.4 79.8" y="8.4" fill="#cccccc">[REDACTED]</text></g>
 <g id="r15"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4 121.8 138.6 147 155.4 163.8 172.2 180.6 189 197.4 205.8 222.6 231 239.4 247.8 256.2 273 281.4 289.8 298.2 306.6 315" y="8.4" fill="#13a10e">Buildfinished.Recordingstayslocal.</text></g>
 </defs>
-<rect width="528" height="322.8" rx="10" style="fill:var(--cm-chrome)"/>
-<circle cx="18" cy="15" r="6" fill="#ff5f57"/><circle cx="38" cy="15" r="6" fill="#febc2e"/><circle cx="58" cy="15" r="6" fill="#28c840"/>
-<svg class="cm-title-area" x="76" y="0" width="440" height="30" overflow="hidden"><text class="cm-title" x="220" y="15" textLength="120" lengthAdjust="spacingAndGlyphs" style="font-family:monospace"><title>Console session</title>Console session</text></svg>
-<svg x="0" y="30" width="528" height="292.8"><rect width="100%" height="100%" fill="#0c0c0c"/>
+<rect width="528" height="320.8" rx="10" style="fill:var(--cm-chrome)"/>
+<circle cx="18" cy="14" r="6" style="fill:var(--cm-close)"/><circle cx="38" cy="14" r="6" style="fill:var(--cm-minimise)"/><circle cx="58" cy="14" r="6" style="fill:var(--cm-zoom)"/><svg class="cm-title-area" x="76" y="0" width="376" height="28" overflow="hidden"><text class="cm-title" x="188" y="14" textLength="120" lengthAdjust="spacingAndGlyphs" style="font-family:monospace;"><title>Console session</title>Console session</text></svg>
+<svg x="0" y="28" width="528" height="292.8"><rect width="100%" height="100%" fill="#0c0c0c"/>
 <g class="cm-strip">
 <g transform="translate(0 0)"></g>
 <g transform="translate(528 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/></g>
