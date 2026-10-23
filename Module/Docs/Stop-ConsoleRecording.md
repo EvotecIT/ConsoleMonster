@@ -25,10 +25,11 @@ Sends a private terminal control to the parent recorder, which finalizes local f
 
 ### EXAMPLE 1
 ```powershell
-Stop-ConsoleRecording
+Write-Host 'Deployment finished'
+            Stop-ConsoleRecording
 ```
 
-Finish a recorded session
+Finish from inside the recorded child shell
 
 ## PARAMETERS
 

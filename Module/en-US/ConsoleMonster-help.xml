@@ -27810,9 +27810,10 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Stop-ConsoleRecording</dev:code>
+        <dev:code>Write-Host 'Deployment finished'&#xD;
+            Stop-ConsoleRecording</dev:code>
         <dev:remarks>
-          <maml:para>Finish a recorded session</maml:para>
+          <maml:para>Finish from inside the recorded child shell</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

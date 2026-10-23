@@ -3,7 +3,8 @@ using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary><para type="synopsis">Stops recording from inside the recorded child shell.</para><para type="description">Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Start-ConsoleRecording session.</para></summary>
-    /// <example><para>Finish a recorded session</para><code>Stop-ConsoleRecording</code></example>
+    /// <example><para>Finish from inside the recorded child shell</para><code>Write-Host 'Deployment finished'
+    /// Stop-ConsoleRecording</code></example>
     [Cmdlet(VerbsLifecycle.Stop, "ConsoleRecording")]
     public sealed class CmdletStopConsoleRecording : PSCmdlet {
         /// <inheritdoc/>

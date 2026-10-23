@@ -1,4 +1,4 @@
-﻿param([string[]] $ExampleName)
+param([string[]] $ExampleName)
 
 BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
@@ -137,6 +137,10 @@ BeforeAll {
 
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
+        'Website/examples/recording/record-session.ps1' = @{
+            Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
+            Expect = @('Build finished. Recording stays local.')
+        }
         'Website/examples/app/live-filter.ps1' = @{ Arguments = '-AppOptions @{ StaticSnapshot = $true }'; Expect = @('6 of 6 hosts', 'SQL01', 'SQL02') }
         # Keep native help's external-pager choice independent of the launcher's PAGER setting in headless runs.
         'Website/examples/help-formatting/help.ps1' = @{ NoNativePager = $true }
