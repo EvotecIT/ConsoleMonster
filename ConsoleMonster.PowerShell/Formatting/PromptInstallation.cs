@@ -39,6 +39,15 @@ namespace ConsoleMonster.PowerShell {
             FormattingSessionState state = FormattingSessionState.Current;
             if (state.Prompt != null) { return true; }
             ScriptBlock? original = FormatCommandInstallation.GlobalFunction(cmdlet.SessionState, "prompt");
+            // Leave native binding and pipeline lifecycle intact for signatures a display-only wrapper cannot proxy.
+            ScriptBlockAst? ast = original?.Ast as ScriptBlockAst ?? (original?.Ast as FunctionDefinitionAst)?.Body;
+            if (ast != null && (ast.DynamicParamBlock != null || ast.ProcessBlock != null
+                || ast.Find(node => node is VariableExpressionAst variable && (variable.VariablePath.UserPath.Equals("input", StringComparison.OrdinalIgnoreCase)
+                    || variable.VariablePath.UserPath.EndsWith(":input", StringComparison.OrdinalIgnoreCase)), true) != null
+                || HasPipelineParameters(ast))) {
+                cmdlet.WriteWarning(Message("NativePromptSignature"));
+                return false;
+            }
             string definition = original?.ToString() ?? string.Empty;
             if (!force && (definition.IndexOf("oh-my-posh", StringComparison.OrdinalIgnoreCase) >= 0
                 || definition.IndexOf("oh_my_posh", StringComparison.OrdinalIgnoreCase) >= 0
@@ -84,6 +93,20 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static string Message(string key) => Messages.GetString(key, LabelLanguage.Default) ?? key;
+
+        private static bool HasPipelineParameters(ScriptBlockAst ast) {
+            if (ast.ParamBlock == null) { return false; }
+            foreach (ParameterAst parameter in ast.ParamBlock.Parameters) {
+                foreach (AttributeBaseAst attribute in parameter.Attributes) {
+                    if (!(attribute is AttributeAst binding)) { continue; }
+                    foreach (NamedAttributeArgumentAst argument in binding.NamedArguments) {
+                        if (argument.ArgumentName.Equals("ValueFromPipeline", StringComparison.OrdinalIgnoreCase)
+                            || argument.ArgumentName.Equals("ValueFromPipelineByPropertyName", StringComparison.OrdinalIgnoreCase)) { return true; }
+                    }
+                }
+            }
+            return false;
+        }
 
         private Invocation Invoke(bool succeeded, InvocationInfo invocation, PSHost host, object[] stack) {
             Invocation frame = new Invocation(this, succeeded, invocation);

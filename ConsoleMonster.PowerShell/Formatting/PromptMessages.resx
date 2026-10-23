@@ -7,4 +7,5 @@
   <data name="ProtectedPrompt" xml:space="preserve"><value>An oh-my-posh or Starship prompt was kept. Use -Feature Prompt -Force to replace it for this session.</value></data>
   <data name="UnsupportedEngine" xml:space="preserve"><value>This PowerShell engine cannot preserve prompt status; the existing prompt was kept.</value></data>
   <data name="MissingResource" xml:space="preserve"><value>The prompt resource is missing.</value></data>
+  <data name="NativePromptSignature" xml:space="preserve"><value>The existing prompt uses dynamic parameters or pipeline input; its native callable contract was kept.</value></data>
 </root>
