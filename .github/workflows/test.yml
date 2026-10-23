@@ -106,8 +106,8 @@ jobs:
       - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
-      - name: Build the native console test host (Debug, net472)
-        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net472 -warnaserror
+      - name: Build the console test host (Debug)
+        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug -warnaserror
 
       - name: Install Pester
         # Download with the hosted PowerShell 7 client; Run Pester still uses matrix.shell, including 5.1.
@@ -250,6 +250,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build the console test host (Debug, net8.0)
+        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Import smoke (exports match the manifest)
         run: |
           $manifest = Import-PowerShellDataFile ./Module/ConsoleMonster.psd1
@@ -336,6 +338,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net10.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build the console test host (Debug, net8.0)
+        run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Install Pester
         timeout-minutes: 5
         run: |

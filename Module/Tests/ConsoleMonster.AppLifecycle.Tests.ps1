@@ -3,11 +3,11 @@ Describe 'Application editing and renderer failure contracts' {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
         $framework = if ($PSEdition -eq 'Desktop') { 'net472' } else { 'net8.0' }
         $hostProject = Join-Path $PSScriptRoot '../../ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj'
-        # This existing test-only host owns the output fixture; do not duplicate it in Add-Type strings.
-        $build = @(& dotnet build $hostProject -c Debug -f $framework -warnaserror -nodeReuse:false --nologo 2>&1)
-        if ($LASTEXITCODE -ne 0) { throw ($build -join "`n") }
         $extension = if ($PSEdition -eq 'Desktop') { 'exe' } else { 'dll' }
         $assemblyPath = [IO.Path]::GetFullPath((Join-Path (Split-Path $hostProject) "bin/Debug/$framework/ConsoleMonster.TestHost.$extension"))
+        if (-not (Test-Path -LiteralPath $assemblyPath)) {
+            throw 'Build ConsoleMonster.TestHost in Debug before running the module tests.'
+        }
         if ($PSEdition -eq 'Desktop') {
             $assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)
         } else {

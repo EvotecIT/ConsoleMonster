@@ -1,14 +1,12 @@
 Describe 'GridView first-use Windows output mode' -Skip:($env:OS -ne 'Windows_NT') {
     BeforeAll {
-        . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
         $script:GridHostFramework = if ($PSEdition -eq 'Desktop') { 'net472' } else { 'net8.0' }
         $script:GridHostExtension = if ($PSEdition -eq 'Desktop') { 'exe' } else { 'dll' }
         $project = Join-Path $PSScriptRoot '../../ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj'
-        # Keep the native build pipeline outside Pester's control-flow scope (Pester 6 can otherwise leak a loop label).
-        $buildScript = "& dotnet build '$($project.Replace("'", "''"))' -c Debug -f $script:GridHostFramework -warnaserror -nodeReuse:false --nologo; exit `$LASTEXITCODE"
-        $build = @(Invoke-TestChild -Runtime (Get-Process -Id $PID).Path -Script $buildScript)
-        if ($LASTEXITCODE -ne 0) { throw ($build -join "`n") }
         $script:GridHostAssembly = [IO.Path]::GetFullPath((Join-Path (Split-Path $project) "bin/Debug/$script:GridHostFramework/ConsoleMonster.TestHost.$script:GridHostExtension"))
+        if (-not (Test-Path -LiteralPath $script:GridHostAssembly)) {
+            throw 'Build ConsoleMonster.TestHost in Debug before running the module tests.'
+        }
     }
 
     It 'restores stdout after <Entry> <Scenario> in a fresh console before first capability lookup' -ForEach @(
