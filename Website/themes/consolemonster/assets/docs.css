@@ -17,6 +17,12 @@
 .cm-docs--wide { grid-template-columns: 220px minmax(0, 1fr); }
 .cm-docs--wide .cm-docs__article .cm-prose { max-width: none; }
 .cm-docs--wide .cm-prose > :is(p, ul, ol, h2, h3, h4, blockquote, dl) { max-width: 72ch; }
+/* A page with a frame wider than a reading column (cm-window--wide, partials/screen.html) is laid out the same way: the
+   outline goes and the article takes the width, so the frame is drawn at a readable size instead of shrinking to fit 76ch. */
+.cm-docs:has(.cm-window--wide) { grid-template-columns: 220px minmax(0, 1fr); }
+.cm-docs:has(.cm-window--wide) .cm-docs__toc { display: none; }
+.cm-docs:has(.cm-window--wide) .cm-docs__article .cm-prose { max-width: none; }
+.cm-docs:has(.cm-window--wide) .cm-prose > :is(p, ul, ol, h2, h3, h4, blockquote, dl) { max-width: 72ch; }
 /* Previous and next, in the documentation order. */
 .cm-docs__pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cm-space-4); margin-top: var(--cm-space-8); }
 .cm-docs__pager a { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--cm-line); border-radius: 10px; background: var(--cm-surface); color: var(--cm-ink); font: 700 15px/1.3 var(--cm-mono); text-decoration: none; }
@@ -72,13 +78,13 @@
 .cm-catalog__layers .cm-prose { max-width: 76ch; }
 
 @media (max-width: 1180px) {
-  .cm-docs, .cm-docs--wide { grid-template-columns: 200px minmax(0, 1fr); }
+  .cm-docs, .cm-docs--wide, .cm-docs:has(.cm-window--wide) { grid-template-columns: 200px minmax(0, 1fr); }
   .cm-catalog__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cm-docs__toc { display: none; }
 }
 
 @media (max-width: 860px) {
-  .cm-docs, .cm-docs--wide { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-5); }
+  .cm-docs, .cm-docs--wide, .cm-docs:has(.cm-window--wide) { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-5); }
   .cm-docs__pager { grid-template-columns: minmax(0, 1fr); }
   .cm-docs__pager-next { grid-column: 1; }
   .cm-docs__nav { position: static; max-height: none; }

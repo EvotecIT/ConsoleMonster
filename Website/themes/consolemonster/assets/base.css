@@ -105,7 +105,7 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 /* The stage: a band that stays dark, with the title beside or above real output. */
 .cm-stage { position: relative; padding: var(--cm-space-8) 0; background-color: var(--cm-stage); color: var(--cm-stage-ink); background-image: radial-gradient(var(--cm-stage-grid) 1px, transparent 1.2px); background-size: 14px 24px; overflow: hidden; }
 .cm-stage__inner { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: var(--cm-space-7); align-items: center; }
-.cm-stage--wide .cm-stage__inner { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
+.cm-stage--wide .cm-stage__inner, .cm-stage__inner:has(.cm-window--wide) { grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-6); }
 .cm-stage h1 { max-width: 18ch; font-size: clamp(34px, 5vw, 60px); font-weight: 700; color: #f8fafc; }
 .cm-stage__lede { max-width: 60ch; margin: var(--cm-space-4) 0 0; color: #c3cad6; font-size: clamp(17px, 1.6vw, 19px); }
 .cm-stage__side { margin-top: var(--cm-space-5); }
@@ -192,6 +192,10 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 @supports (font-size: round(down, 13px, 1px)) {
   .cm-screen { font-size: round(down, clamp(var(--cm-min-font), calc((100cqi - 2 * var(--cm-pad) - 2px) / (var(--cols, 80) * .6)), var(--cm-max-font)), calc(1px / 38.4)); }
 }
+/* Beyond phones a frame never scales below 11.5 px, where its text stays readable: a frame that needs less than that to
+   fit scrolls sideways at that size instead, and docs pages give frames wider than a reading column (cm-window--wide,
+   partials/screen.html) the article's full width (docs.css). Phones keep the 9 px minimum. */
+@media (min-width: 761px) { .cm-screen { --cm-min-font: 11.5px; } }
 /* A frame that still does not fit at the smallest font scrolls inside its window, and the window says so (frames.js marks it). */
 .cm-window.is-scrollable .cm-window__meta::before { content: "scroll sideways"; display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 4px; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 11px/1 var(--cm-mono); white-space: nowrap; }
 .cm-screen--dark { --cm-term-fg: #cccccc; --cm-term-bg: #0c0c0c; }
@@ -231,9 +235,12 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
 .cm-code.is-wide:has(.cm-code__repo) .cm-code__bar::after { margin-left: 0; }
 @media (max-width: 480px) { .cm-code.is-wide .cm-code__bar::after { content: "scroll \2192" / ""; } }
 .cm-code code { white-space: inherit; }
-/* On wider screens long lines wrap inside the panel instead of scrolling (Copy still copies the lines as written); phones keep
-   sideways scrolling, where wrapping would break almost every line. */
-@media (min-width: 761px) { .cm-code pre { white-space: pre-wrap; overflow-wrap: anywhere; } }
+/* Code never wraps, on any screen: a wrapped line starts at column 0 and loses its indentation, so a long line scrolls
+   sideways instead. While there is more to the right, the right edge fades out (frames.js marks the end once it is
+   reached). Layouts that put code beside something else stack when the code is wide (cm-code--wide, partials/code.html). */
+.cm-code.is-wide pre:not(.is-end) { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent calc(100% - 8px)); mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent calc(100% - 8px)); }
+/* A block that also scrolls down keeps its vertical scrollbar (the 8 px on the right) out of the fade. */
+.cm-code.is-wide pre.is-tall:not(.is-end) { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 52px), transparent calc(100% - 16px)), linear-gradient(#000, #000); mask-image: linear-gradient(to right, #000 calc(100% - 52px), transparent calc(100% - 16px)), linear-gradient(#000, #000); -webkit-mask-size: 100% 100%, 8px 100%; mask-size: 100% 100%, 8px 100%; -webkit-mask-position: 0 0, 100% 0; mask-position: 0 0, 100% 0; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
 .cm-code__full { border-top: 1px solid var(--cm-line); }
 .cm-code__full summary { display: flex; align-items: center; gap: 8px; padding: 9px 14px; color: var(--cm-ink-2); font: 600 12.5px/1.2 var(--cm-mono); cursor: pointer; list-style: none; }
 .cm-code__full summary::-webkit-details-marker { display: none; }

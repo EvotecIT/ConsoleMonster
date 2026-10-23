@@ -14,7 +14,8 @@ namespace SiteFrames {
         /// <summary>
         /// Splits example code into the short form a page shows first and the full program. Lines between
         /// <c>// &lt;more&gt;</c> and <c>// &lt;/more&gt;</c> (C#) or <c>#region more</c> and <c>#endregion</c> (PowerShell) are
-        /// data the reader can take on trust: the short form keeps the first of them and says how many follow. The full form
+        /// data the reader can take on trust: the short form keeps their outline and says how many lines each fold hides, so a
+        /// statement opened in the block also closes there (see <see cref="SourceFold"/>). The full form
         /// is the code exactly as it ran, without the markers. Lines between <c>#region hidden</c> and <c>#endregion</c> (or
         /// <c>// &lt;hidden&gt;</c> and <c>// &lt;/hidden&gt;</c>) are presentation for a recording: the short form leaves them
         /// out and the full form keeps them.
@@ -72,12 +73,7 @@ namespace SiteFrames {
                 if (block.Count == 0 || hidden) {
                     continue;
                 }
-                shortForm.Add(block[0]);
-                if (block.Count > 1) {
-                    string indent = block[0].Substring(0, block[0].Length - block[0].TrimStart().Length);
-                    string more = (block.Count - 1) + " more " + (block.Count == 2 ? "line" : "lines") + " in the full program";
-                    shortForm.Add(indent + (csharp ? "// … " : "# … ") + more);
-                }
+                shortForm.AddRange(SourceFold.Fold(block, csharp));
             }
             return (string.Join("\n", shortForm), string.Join("\n", full));
         }

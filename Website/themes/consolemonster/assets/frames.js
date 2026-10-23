@@ -248,10 +248,9 @@
   } else {
     replays.forEach(mountReplay);
   }
-  // A frame wider than its window at the smallest font scrolls inside the window; the window says so in its bar, and so does
-  // a code block with long lines. Those that skip rendering off screen are measured when they come near (measuring them now
-  // would render them all).
-  // Deferred only where the browser also says when a skipped window comes near; otherwise every window and code block is measured now.
+  // A frame wider than its window at the smallest font scrolls inside the window; the window says so in its bar. Windows
+  // that skip rendering off screen are measured when they come near (measuring them now would render them all).
+  // Deferred only where the browser also says when a skipped window comes near; otherwise every window is measured now.
   var deferred = !!(Element.prototype.checkVisibility && ('oncontentvisibilityautostatechange' in window));
   function markScrollable(root) {
     var scope = root && root.querySelectorAll ? root : document;
@@ -260,13 +259,7 @@
       var body = win.querySelector('.cm-window__body');
       if (body) win.classList.toggle('is-scrollable', body.scrollWidth > body.clientWidth + 2);
     });
-    // Code blocks too: one whose lines run past its width says so in its bar.
-    scope.querySelectorAll('.cm-code').forEach(function (block) {
-      // The whole program when it is open (the short sample is hidden then), otherwise the sample.
-      var pre = block.querySelector(':scope > .cm-code__full[open] > pre') || block.querySelector(':scope > pre');
-      if (!pre || (deferred && !pre.checkVisibility({ contentVisibilityAuto: true }))) return;
-      block.classList.toggle('is-wide', pre.scrollWidth > pre.clientWidth + 2);
-    });
+    // Code blocks are marked by site.js, on every page.
   }
   document.addEventListener('contentvisibilityautostatechange', function (event) {
     if (!event.skipped) markScrollable(event.target);
@@ -288,7 +281,6 @@
   window.addEventListener('resize', function () { clearTimeout(hintTimer); hintTimer = setTimeout(hint, 150); });
   window.addEventListener('load', hint);
   document.addEventListener('cm:tab', hint);
-  document.addEventListener('toggle', function (event) { if (event.target.matches && event.target.matches('.cm-code__full')) hint(); }, true);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(hint);
   hint();
 })();
