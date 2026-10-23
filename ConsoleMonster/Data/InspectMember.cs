@@ -18,6 +18,10 @@ namespace ConsoleMonster.Data {
         /// <summary>The member name.</summary>
         public string Name { get; }
 
+        // Dictionary identity is retained separately from the display label, which can collide for keys 1 and "1".
+        internal object? DictionaryKey { get; set; }
+        internal int? DictionaryIndex { get; set; }
+
         /// <summary>Reads the member value; the read may throw.</summary>
         public object? Value => _read();
 
