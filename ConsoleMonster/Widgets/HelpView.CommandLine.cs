@@ -60,7 +60,7 @@ namespace ConsoleMonster.Widgets {
                 Section(rows, context.Labels.HelpExamples, context);
                 foreach (HelpExample example in Topic.Examples) {
                     if (!string.IsNullOrEmpty(example.Title)) rows.Add(Paragraph(example.Title!, context, 2));
-                    rows.Add(new LineBlock(new[] { StyledLine.From(example.Code, context.Style(ThemeToken.Title)) }, 2, 4));
+                    rows.Add(new LineBlock(StyledText.FromPlain(example.Code, context.Style(ThemeToken.Title)).Lines, 2, 4));
                     if (!string.IsNullOrEmpty(example.Remarks)) rows.Add(Paragraph(example.Remarks!, context, 4));
                 }
             }
