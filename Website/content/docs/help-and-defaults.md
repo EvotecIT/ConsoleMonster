@@ -151,8 +151,6 @@ dotnet run
 
 {{< cm-frame ids="shell-prompt-120,shell-prompt-60" caption="Fixed illustrative data: success first, then a failed 3.4-second command. Switch themes to compare light and dark." >}}
 
-Next: [choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).
-
 ## Command-line help for .NET hosts
 
 In PowerShell, use the native command surface first:
