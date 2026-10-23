@@ -128,6 +128,9 @@ html:not(.cm-js) .cm-navgroup:hover .cm-navpanel, html:not(.cm-js) .cm-navgroup:
 .cm-seg [aria-selected="true"], .cm-seg [aria-checked="true"], .cm-seg [aria-pressed="true"], .cm-seg [aria-current="true"] { background: var(--cm-focus-bg); color: var(--cm-focus-fg); font-weight: 700; }
 .cm-seg [aria-selected="true"]::before, .cm-seg [aria-checked="true"]::before, .cm-seg [aria-pressed="true"]::before, .cm-seg [aria-current="true"]::before { content: "›"; width: auto; height: auto; margin-top: 0; background: none; opacity: 1; transform: translateY(-50%); color: var(--key, var(--cm-accent)); font-weight: 800; left: 7px; }
 .cm-seg__count { color: var(--cm-muted); font-weight: 400; }
+/* An option the current content does not have (a Try it example in one language): visible, but not a choice. */
+.cm-seg button:disabled { opacity: .45; cursor: not-allowed; }
+.cm-seg button:disabled:hover { background: transparent; color: var(--cm-ink-2); }
 .cm-tone-dark .cm-seg { background: #121925; border-color: var(--cm-stage-line); }
 
 /* Terminal windows: a title bar with the real terminal profile, then the frame. */

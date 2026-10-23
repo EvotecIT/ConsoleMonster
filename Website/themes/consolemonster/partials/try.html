@@ -28,8 +28,11 @@
     {{~ end ~}}
   </div>
   {{~ end ~}}
-  {{~ for s in scen; fig = data.figures[s.ids[0]]; pair = fig.script && fig.csharp ~}}
-  <div class="cm-try__scenario"{{ if scen.size > 1 }} id="try-{{ tk }}-{{ for.index }}" role="tabpanel" aria-labelledby="try-{{ tk }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}{{ end }}>
+  {{~ for s in scen; fig = data.figures[s.ids[0]]; pair = fig.script && fig.csharp
+      langs = (fig.script ? "powershell" : "") + (pair ? " " : "") + (fig.csharp ? "csharp" : "") ~}}
+  {{~ ## data-langs: the languages this example has. The switch offers only those (site.js), so a C#-only example never
+       shows PowerShell as a choice that does nothing. ## ~}}
+  <div class="cm-try__scenario" data-langs="{{ langs }}"{{ if scen.size > 1 }} id="try-{{ tk }}-{{ for.index }}" role="tabpanel" aria-labelledby="try-{{ tk }}-{{ for.index }}-tab"{{ if !for.first }} hidden{{ end }}{{ end }}>
     {{~ if fig.script ~}}
     {{~ file = try_file ?? fig.file ?? "example.ps1" ~}}
     <div class="cm-try__code"{{ if pair }} data-lang="powershell"{{ end }}>

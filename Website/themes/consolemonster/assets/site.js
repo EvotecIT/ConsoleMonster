@@ -5,6 +5,15 @@
 
   var root = document.documentElement;
 
+  // <lang-choice> Which language a switch shows: the reader's choice when the example has it, otherwise the language the
+  // example has; the languages it lacks cannot be chosen. The reader's choice itself is kept for the next example that
+  // has it. Kept free of the page so tools/SiteFrames.Tests can run it.
+  function langChoice(preferred, available) {
+    var has = function (name) { return available.indexOf(name) >= 0; };
+    var lang = has(preferred) || !available.length ? preferred : available[0];
+    return { lang: lang, unavailable: { powershell: available.length > 0 && !has('powershell'), csharp: available.length > 0 && !has('csharp') } };
+  }
+  // </lang-choice>
   document.querySelectorAll('[data-cm-theme-toggle]').forEach(function (button) {
     button.addEventListener('click', function () {
       var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -255,14 +264,25 @@
   });
   var currentLang = function () { return root.dataset.lang === 'csharp' ? 'csharp' : 'powershell'; };
   var langTabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"][data-cm-lang]'));
+  // The languages the switch's example has: a Try it block's shown example names them (data-langs); a demo's source or
+  // a pair of excerpts has both.
+  var languagesOf = function (group) {
+    var block = group.closest('.cm-try');
+    var shown = block ? Array.prototype.filter.call(block.querySelectorAll('.cm-try__scenario[data-langs]'), function (s) { return !s.hidden; })[0] : null;
+    return shown ? shown.getAttribute('data-langs').split(' ').filter(Boolean) : ['powershell', 'csharp'];
+  };
   var syncLang = function () {
     var lang = currentLang();
     document.querySelectorAll('[data-cm-lang-switch]').forEach(function (group) {
       group.hidden = false;
+      var choice = langChoice(lang, languagesOf(group));
       group.querySelectorAll('[role="radio"]').forEach(function (option) {
-        var on = option.getAttribute('data-lang') === lang;
+        var name = option.getAttribute('data-lang');
+        var on = name === choice.lang;
         option.setAttribute('aria-checked', on ? 'true' : 'false');
         option.tabIndex = on ? 0 : -1;
+        option.disabled = !!choice.unavailable[name];
+        if (option.disabled) option.setAttribute('aria-disabled', 'true'); else option.removeAttribute('aria-disabled');
       });
     });
     langTabs.forEach(function (tab) {
@@ -280,12 +300,14 @@
   document.querySelectorAll('[data-cm-lang-switch]').forEach(function (group) {
     var options = Array.prototype.slice.call(group.querySelectorAll('[role="radio"]'));
     options.forEach(function (option, index) {
-      option.addEventListener('click', function () { setLang(option.getAttribute('data-lang')); });
+      // The option already shown does nothing: in an example with one language it is shown without being the reader's choice.
+      option.addEventListener('click', function () { if (option.getAttribute('aria-checked') !== 'true') setLang(option.getAttribute('data-lang')); });
       option.addEventListener('keydown', function (event) {
         var step = /^(ArrowRight|ArrowDown)$/.test(event.key) ? 1 : /^(ArrowLeft|ArrowUp)$/.test(event.key) ? -1 : 0;
         if (!step) return;
         event.preventDefault();
         var next = options[(index + step + options.length) % options.length];
+        if (next.disabled) return;
         setLang(next.getAttribute('data-lang'));
         next.focus();
       });
@@ -298,6 +320,8 @@
     });
   });
   syncLang();
+  // Choosing another example in a Try it block changes which languages its switch offers.
+  document.addEventListener('cm:tab', function (event) { if (event.detail) syncLang(); });
 
   // Download on a code block saves the whole program under its file name, built from the code on the page, so the file
   // is always the code shown. A PowerShell script gets a byte order mark, which Windows PowerShell 5.1 needs for

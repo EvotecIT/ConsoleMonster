@@ -203,16 +203,20 @@
   // its end four seconds between rounds.
   var HOLD = 6000, LOOP_HOLD = 4000;
   function autoplay(replay, player, hero) {
-    var touched = false, seen = false, visible = false, held = 0, round = 0, view = null;
+    var touched = false, started = false, visible = false, held = 0, round = 0, view = null;
     var looping = replay.hasAttribute('data-loop');
+    // Asked to play: by the page (data-autoplay), or by the home page's path switch, before the replay mounted
+    // (data-cm-play) or after (cmPlay). A switch asks for the run now; the page's own request first holds a final poster.
+    var asked = replay.hasAttribute('data-autoplay') || replay.hasAttribute('data-cm-play');
+    var now = replay.hasAttribute('data-cm-play');
     // Nothing runs for a replay the reader controls, with reduced motion, in a hidden tab, or once it has been replaced
-    // (the phone and desktop renderings swap when the window crosses the breakpoint).
+    // (the phone and desktop renderings swap when the window crosses the breakpoint). Every deferred start checks again.
     var gone = function () { return replay.cmCancelled || !replay.isConnected; };
     var still = function () { return touched || (reduceMotion && reduceMotion.matches) || document.hidden || gone(); };
     var atEnd = function () { var s = player.state(); return s.time >= s.duration - 1; };
-    // Leaving the view during the hold puts the replay back where it was: it holds again when it returns.
-    var clear = function () { if (held) seen = false; clearTimeout(held); clearTimeout(round); held = round = 0; };
-    // The next round: when the run should end, plus the hold. Rechecked then, never polled.
+    // Leaving the view, or the tab, during the hold puts the replay back where it was: it holds again when it returns.
+    var clear = function () { if (held) started = false; clearTimeout(held); clearTimeout(round); held = round = 0; };
+    // The next round of a replay that loops (only a page that asks for it): when the run should end, plus the hold.
     var next = function () {
       clearTimeout(round);
       round = 0;
@@ -220,52 +224,68 @@
       var s = player.state();
       round = setTimeout(function () {
         round = 0;
-        if (gone() && view) view.disconnect();
         if (!visible || still() || replay.closest('[hidden]')) return;
         if (player.state().wanted) next();
         else if (atEnd()) run();
       }, (s.wanted ? Math.max(0, s.duration - s.time) : 0) + LOOP_HOLD);
     };
     var run = function () {
+      if (still()) return;
       if (atEnd()) player.seek(hero);
       player.play();
       next();
     };
-    var stop = function () { touched = true; clear(); if (view) view.disconnect(); };
-    // Using the player's controls (or its keys) hands playback to the reader; a swipe across the window does not.
-    replay.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('button, input, select')) stop(); }, true);
-    replay.addEventListener('keydown', stop, true);
-    // The home page's path switch plays the chosen path the same way (site.js).
-    replay.cmPlay = function () { seen = true; clearTimeout(held); held = 0; run(); };
-    var wanted = replay.hasAttribute('data-autoplay') || replay.hasAttribute('data-cm-play');
-    if (!wanted && !looping) return;
     var begin = function () {
-      if (seen || still()) return;
-      seen = true;
-      if (replay.hasAttribute('data-cm-play')) run();
-      else if (atEnd()) held = setTimeout(function () { held = 0; if (visible && !still() && !player.state().wanted) run(); if ((!looping || gone()) && view) view.disconnect(); }, HOLD);
+      if (started || !visible || still()) return;
+      started = true;
+      if (!now && atEnd()) held = setTimeout(function () { held = 0; run(); }, HOLD);
       else run();
     };
-    if (!('IntersectionObserver' in window)) { visible = true; if (wanted) begin(); return; }
-    view = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        // Half of the window, or half of the screen for a window taller than that. A hidden panel (the home page's
-        // other path) is never in view.
-        visible = entry.isIntersecting && (entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= (window.innerHeight || 800) / 2);
-        if (!visible) { clear(); return; }
-        if (!seen) { if (wanted) begin(); }
-        else if (!held) next();
-        if (seen && !looping && !held) view.disconnect();
-      });
-    }, { threshold: [0, 0.25, 0.5] });
-    view.observe(replay);
-    // A hidden tab pauses the player; the next round waits for the tab to come back.
-    var onTab = function () {
-      if (gone() || touched) { clear(); view.disconnect(); document.removeEventListener('visibilitychange', onTab); return; }
-      if (document.hidden) { clearTimeout(round); round = 0; }
-      else if (seen && visible && !held) next();
+    var stop = function () {
+      touched = true;
+      clear();
+      if (view) view.disconnect();
+      document.removeEventListener('visibilitychange', onTab);
     };
-    document.addEventListener('visibilitychange', onTab);
+    // A hidden tab pauses the player and cancels a pending start or round; they resume when the tab comes back.
+    var onTab = function () {
+      if (gone()) { stop(); return; }
+      if (document.hidden) { clear(); return; }
+      if (asked && !started) begin();
+      else if (started && !held) next();
+    };
+    // Only a replay asked to play watches the view: the others wait for Play and schedule nothing.
+    var watch = function () {
+      if (view || touched) return;
+      if (!('IntersectionObserver' in window)) { visible = true; begin(); return; }
+      view = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (gone()) { stop(); return; }
+          // Half of the window, or half of the screen for a window taller than that. A hidden panel (the home page's
+          // other path) is never in view.
+          visible = entry.isIntersecting && (entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= (window.innerHeight || 800) / 2);
+          if (!visible) { clear(); return; }
+          if (asked && !started) begin();
+          else if (started && !held) next();
+        });
+      }, { threshold: [0, 0.25, 0.5] });
+      view.observe(replay);
+      document.addEventListener('visibilitychange', onTab);
+    };
+    // Using the player's controls (or its keys) hands playback to the reader; a swipe across the window does not.
+    replay.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('button, input, select')) stop(); }, true);
+    // Moving through the controls with Tab is not using them.
+    replay.addEventListener('keydown', function (event) { if (event.key !== 'Tab' && event.key !== 'Shift') stop(); }, true);
+    // The home page's path switch, once the replay has mounted: the same rules as data-cm-play.
+    replay.cmPlay = function () {
+      asked = true;
+      now = true;
+      clear();
+      started = false;
+      watch();
+      begin();
+    };
+    if (asked) watch();
   }
   function mountReplay(replay) {
     if (replay.cmMounting || !window.ConsoleMonsterPlayer) return;

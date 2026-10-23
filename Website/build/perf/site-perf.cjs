@@ -158,7 +158,8 @@ const scenarios = {
     },
     docs: { url: '/docs/live-runs/', async run(page) { await wheel(page, 30, 350, 90); } },
     api: { url: '/api/consolemonster-widgets-table/', async run(page) { await wheel(page, 30, 400, 80); } },
-    // At rest. The home page's Everyday hero loops (one player, in view); everything else should cost about nothing.
+    // At rest. The home page's Everyday hero (one player, in view) holds its final screen six seconds, plays once and stops;
+    // everything else should cost about nothing.
     'idle-home': idle('/'),
     // The Monster hero plays once when opened (from the beginning to the results) and then stops: measured while it
     // plays, and at rest once it has ended, which must cost about nothing.
