@@ -75,6 +75,8 @@
         var lines = [];
         var destroyed = false;
         var originalChildren = Array.prototype.slice.call(host.childNodes);
+        var originalWidth = host.style.getPropertyValue('width');
+        var originalWidthPriority = host.style.getPropertyPriority('width');
 
         host.__cmPlayer = self;
         host.setAttribute('data-cm-player', String(id));
@@ -116,8 +118,27 @@
                 sizeObserver = new ResizeObserver(updateScrollHint);
                 sizeObserver.observe(screen);
             }
-            window.addEventListener('resize', updateScrollHint);
-            if (document.fonts && document.fonts.ready) { document.fonts.ready.then(updateScrollHint); }
+            window.addEventListener('resize', sizeStandalone);
+            if (document.fonts) {
+                document.fonts.ready.then(sizeStandalone);
+                document.fonts.addEventListener('loadingdone', sizeStandalone);
+            }
+        }
+        function sizeStandalone() {
+            if (!scrollHint || destroyed) { return; }
+            // Measure a run in the screen's actual font, including a web font that arrives after mount.
+            var probe = el('span', null, screen);
+            probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;white-space:pre;width:auto;height:auto;font:inherit;letter-spacing:inherit';
+            probe.textContent = '0123456789'.repeat(20);
+            var cell = probe.getBoundingClientRect().width / probe.textContent.length;
+            probe.remove();
+            if (cell > 0) {
+                var css = window.getComputedStyle(screen);
+                var inset = parseFloat(css.paddingLeft) + parseFloat(css.paddingRight)
+                    + parseFloat(css.borderLeftWidth) + parseFloat(css.borderRightWidth);
+                host.style.width = Math.ceil(cell * data.width + inset) + 'px';
+            }
+            updateScrollHint();
         }
         function updateScrollHint() {
             if (scrollHint && !destroyed) { scrollHint.hidden = screen.scrollWidth <= screen.clientWidth + 1; }
@@ -417,7 +438,12 @@
             destroyed = true;
             window.clearTimeout(copyTimer);
             if (sizeObserver) { sizeObserver.disconnect(); }
-            window.removeEventListener('resize', updateScrollHint);
+            window.removeEventListener('resize', sizeStandalone);
+            if (document.fonts) { document.fonts.removeEventListener('loadingdone', sizeStandalone); }
+            if (scrollHint) {
+                if (originalWidth) { host.style.setProperty('width', originalWidth, originalWidthPriority); }
+                else { host.style.removeProperty('width'); }
+            }
             want = false;
             suspend();
             if (observer) {
@@ -497,6 +523,7 @@
             t = Math.max(0, Math.min(total, +options.start));
         }
         draw();
+        sizeStandalone();
         updateScrollHint();
         labels(performance.now());
         players.push(self);

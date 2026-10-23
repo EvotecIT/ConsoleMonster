@@ -99,10 +99,9 @@ namespace ConsoleMonster.Export {
             string background = palette == ExportPalette.Light ? (options.EffectiveChrome != WindowChromeStyle.None ? "#c9c9cf" : palette.Background) : (options.EffectiveChrome != WindowChromeStyle.None ? "#3a3a3f" : palette.Background);
             html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.EffectiveChrome != WindowChromeStyle.None ? "20px" : "0").Append("}\n");
             html.Append(ConsoleExporter.PlayerStyles);
-            // Size in the terminal's font, not the controls' system font or the host's shrink-to-fit width.
+            // The player measures the rendered terminal font and sets the natural width after fonts load.
             html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)
-                .Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;width:calc(")
-                .Append(recording.Width).Append("ch + ").Append(options.Padding * 2).Append("px)}")
+                .Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;width:100%}")
                 .Append(".cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}")
                 .Append(".cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:")
                 .Append(ExportText.Num(options.FontSize * options.LineHeight)).Append("px}</style>\n</head>\n<body>\n");
