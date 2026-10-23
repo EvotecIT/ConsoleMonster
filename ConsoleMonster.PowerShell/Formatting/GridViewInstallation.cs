@@ -78,6 +78,8 @@ namespace ConsoleMonster.PowerShell {
             if (!(native is CmdletInfo info) || info.ImplementingType.FullName != "Microsoft.PowerShell.Commands.OutGridViewCommand") {
                 return true;
             }
+            // PowerShell also exposes this desktop cmdlet as a stub on Unix, where its Windows graphical host cannot run.
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT) { return false; }
             if (!Environment.UserInteractive || cmdlet.SessionState.PSVariable.GetValue("PSSenderInfo") != null
                 || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SSH_CONNECTION"))
                 || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SSH_CLIENT"))) {

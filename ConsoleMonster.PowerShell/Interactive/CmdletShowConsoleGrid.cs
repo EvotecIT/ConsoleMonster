@@ -83,6 +83,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
+            // Shaping and input routing can touch Terminal before Grid.Show; keep the same outer operation boundary.
+            using Output.TerminalGuard outputMode = new Output.TerminalGuard(() => { }, false);
             // The same columns and cell values as Format-ConsoleTable (shared value rules); a collection passed as one object is its items.
             Values.ShapeOptions shape = PSShaping.Options(Culture);
             Values.ShapeBudget budget = Values.ShapeBudget.For(shape);

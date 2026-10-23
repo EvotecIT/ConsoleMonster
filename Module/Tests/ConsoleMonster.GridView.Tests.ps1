@@ -3,7 +3,26 @@
         . (Join-Path $PSScriptRoot 'Support/Invoke-GridViewSession.ps1')
     }
 
-    It 'keeps an available native cmdlet and every existing command unchanged, even with Force' {
+    It 'uses the terminal fallback for the Microsoft desktop stub on non-Windows hosts' -Skip:($env:OS -eq 'Windows_NT') {
+        Invoke-GridViewSession -Native @'
+$native = Get-Command Out-GridView -CommandType Cmdlet
+if ($native.ImplementingType.FullName -ne 'Microsoft.PowerShell.Commands.OutGridViewCommand') { throw 'The desktop stub baseline is missing.' }
+$options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
+$options.Capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 22)
+$options.Input = [ConsoleMonster.Input.ScriptedInput]::new('F10')
+[ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+$row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
+Enable-ConsoleFormatting -Feature GridView
+if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'The unusable desktop stub won command resolution.' }
+$picked = @($row | Out-GridView -PassThru -ErrorAction Stop)
+if ($picked.Count -ne 1 -or -not [object]::ReferenceEquals($picked[0], $row)) { throw 'Terminal selection lost the original row.' }
+Disable-ConsoleFormatting
+if ((Get-Command Out-GridView -CommandType Cmdlet).ImplementingType -ne $native.ImplementingType) { throw 'The native stub was not restored.' }
+'STUB_FALLBACK_OK'
+'@ | Should -Be 'STUB_FALLBACK_OK'
+    }
+
+    It 'keeps an available native cmdlet and every existing command unchanged, even with Force' -Skip:($env:OS -ne 'Windows_NT') {
         Invoke-GridViewSession -Native @'
 $before = Get-Command Out-GridView -CommandType Cmdlet -ErrorAction Ignore
 if (-not $before) { throw 'The Windows native baseline is missing.' }

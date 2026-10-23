@@ -27,6 +27,7 @@ namespace ConsoleMonster.TestHost {
                     case "fallback": Fallback(); break;
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;
+                    case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
                     case "host": return LaunchHidden(args.Skip(1));
                     case "summary-locks": RenderLockOrder(true); break;
                     case "frame-locks": RenderLockOrder(false); break;
@@ -34,7 +35,8 @@ namespace ConsoleMonster.TestHost {
                 }
                 return 0;
             } catch (Exception error) {
-                if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
+                if (args.Length > 2 && args[0] == "grid-mode-child") { File.WriteAllText(args[2], error.ToString()); }
+                else if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }
