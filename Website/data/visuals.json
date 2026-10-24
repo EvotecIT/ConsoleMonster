@@ -106,6 +106,9 @@
     "logging": {
       "src": "/site/cards/logging.svg"
     },
+    "markdown-120": {
+      "src": "/site/cards/markdown-120.svg"
+    },
     "object-explorer-120": {
       "dark": "/site/cards/object-explorer-120-dark.svg",
       "light": "/site/cards/object-explorer-120-light.svg"

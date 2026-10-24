@@ -73,7 +73,7 @@ Get-Service | Select-Object Name
         $text = Show-ConsoleMarkdown -Content $source -AsString -Width 60
         $path = Join-Path $TestDrive 'rendered.txt'
         Show-ConsoleMarkdown -Content $source -NoPager -Width 60 | Set-Content -LiteralPath $path -Encoding UTF8
-        (Get-Content -LiteralPath $path -Raw).Trim() | Should -BeExactly $text.Trim()
+        (Get-Content -LiteralPath $path -Raw).Replace("`r", '').Trim() | Should -BeExactly $text.Replace("`r", '').Trim()
         $text | Should -Not -Match ([char]27)
     }
 

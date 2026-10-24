@@ -504,7 +504,12 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 ### [Show-ConsoleHelp](Show-ConsoleHelp.md)
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
-Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics are written as they are. Works on Windows PowerShell 5.1 and PowerShell 7.
+Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Show-ConsoleMarkdown](Show-ConsoleMarkdown.md)
+Reads Markdown with native console tables, highlighted code and interactive paging.
+
+Reads CommonMark with pipe tables through the optional OfficeIMO-backed add-on. Headings use accent rules, lists have hanging indents, and block quotes have a vertical bar. Code uses the registered highlighter and its language label. Links use OSC 8 when supported and show a muted URL otherwise. HTML stays literal, images become labelled links, and document content is never executed or fetched. Long documents page only when output goes directly to an interactive host. Piped, redirected, recorded and non-interactive output never acquires input. Pipeline strings are joined before parsing, preserving reference links and block structure. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ### [Show-ConsoleMenu](Show-ConsoleMenu.md)
 Shows a menu until the user exits.

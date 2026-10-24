@@ -88,7 +88,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
                 for (int y = 0; y < frame.Height; y++) {
                     for (int x = 0; x < frame.Width; x++) { Assert.Null(frame[x, y].Style.Link); }
                 }
-                Assert.DoesNotContain("\u001b", frame.ToPlainText());
+                Assert.DoesNotContain('\u001b', frame.ToPlainText());
             }
         }
 

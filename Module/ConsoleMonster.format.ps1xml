@@ -66,6 +66,7 @@
         <TypeName>ConsoleMonster.Widgets.LiveTable</TypeName>
         <TypeName>ConsoleMonster.Widgets.LogRegion</TypeName>
         <TypeName>ConsoleMonster.Widgets.Logo</TypeName>
+        <TypeName>ConsoleMonster.Widgets.MarkdownView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Phases</TypeName>
         <TypeName>ConsoleMonster.Widgets.PipelineChart</TypeName>
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>

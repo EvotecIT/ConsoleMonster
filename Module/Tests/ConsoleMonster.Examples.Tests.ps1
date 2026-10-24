@@ -138,6 +138,8 @@ BeforeAll {
 
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
+        # Relative recording exports belong to the child-owned temp folder, not the checked-out example directory.
+        'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
             Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
@@ -264,6 +266,11 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         $invoke = "& '$Path' $arguments | Out-String | Out-Null"
+        $location = if ($case['TemporaryWorkingDirectory']) {
+            'Set-Location -LiteralPath ([IO.Path]::GetTempPath())'
+        } else {
+            "Set-Location -LiteralPath '$(Split-Path -Parent $Path)'"
+        }
         if ($case['Selection']) {
             $names = ($case['Selection'] -join ',').Replace("'", "''")
             $invoke = "`$selected = @(& '$Path' $arguments); if ((`$selected.Name -join ',') -ne '$names') { throw 'The full example returned an unexpected selection.' }"
@@ -287,7 +294,7 @@ if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Write-Console
 $keys
 $screen
 $pager
-Set-Location -LiteralPath '$(Split-Path -Parent $Path)'
+$location
 try {
     $invoke
     'EXAMPLE-DONE'

@@ -35,7 +35,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         private Table Build(RenderContext context) {
-            Table table = new Table { WrapLines = int.MaxValue, RecordViewRows = 0, KeepAllColumns = true, ShowKeyField = true };
+            Table table = new Table { WrapLines = int.MaxValue, WrapHeaders = true, RecordViewRows = 0, KeepAllColumns = true, ShowKeyField = true };
             for (int c = 0; c < _headers.Length; c++) {
                 table.AddColumn(new TableColumn(MarkdownText.Resolve(_headers[c], context)) {
                     Alignment = _alignments?[c],

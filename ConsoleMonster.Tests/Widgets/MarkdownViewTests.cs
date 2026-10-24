@@ -144,6 +144,17 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void LongTableHeaders_WrapWithoutLosingTheirSuffix() {
+            MarkdownView view = new MarkdownView().AddTable(new[] {
+                RichText.Plain("Host"), RichText.Plain("Required approval before deployment ONLY_HEADER_SUFFIX")
+            }, new[] { new[] { RichText.Plain("web-01"), RichText.Plain("ready") } });
+            string text = Render(view, 40).ToPlainText();
+            Assert.Contains("ONLY_HEADER_SUFFIX", text);
+            Assert.Contains("web-01", text);
+            Assert.DoesNotContain("…", text);
+        }
+
+        [Fact]
         public void InvalidStructure_RejectsMalformedInput() {
             MarkdownView view = new MarkdownView();
             Assert.Throws<ArgumentOutOfRangeException>(() => view.AddHeading(RichText.Plain("bad"), 0));

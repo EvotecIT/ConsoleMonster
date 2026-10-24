@@ -1,0 +1,85 @@
+Deployment notebook
+────────────────────────────────────────────────────────────
+
+Read the approved plan, keep the rollback notes close, and
+treat [fail]literal brackets[/] as code rather than console
+markup.
+
+Preparation
+────────────────────────────────────────────────────────────
+
+3. Verify the target host and the deployment window.
+4. Check the release artefacts.
+
+   - Confirm the package identity.
+   - Record the previous version.
+5. Continue only after verification.
+
+│ Keep the rollback plan available throughout the
+│ deployment.
+│
+│ - Restore the previous package if verification fails.
+│ - Preserve the diagnostic log for the incident review.
+
+Release checks
+────────────────────────────────────────────────────────────
+
+╭──────────────────┬─────────┬─────────────────────────────╮
+│ Check            │ Result  │                    Evidence │
+├──────────────────┼─────────┼─────────────────────────────┤
+│ Package identity │  Ready  │           release|candidate │
+│ Service health   │ Waiting │                Health guide │
+│                  │         │       (https://example.org/ │
+│                  │         │                     health) │
+│ Operator notes   │  Ready  │          Read the whole row │
+╰──────────────────┴─────────┴─────────────────────────────╯
+
+╭─ powershell ─────────────────────────────────────────────╮
+│ Get-Service |                                            │
+│     Select-Object Name, Status                           │
+╰──────────────────────────────────────────────────────────╯
+
+The language label also remains visible for an unknown
+language:
+
+╭─ deployment-notes ───────────────────────────────────────╮
+│ target = lab                                             │
+│ state  = ready                                           │
+╰──────────────────────────────────────────────────────────╯
+
+Links and literal content
+────────────────────────────────────────────────────────────
+
+Open the release guide (https://example.org/releases) or the
+detailed health guide (https://example.org/health). An
+autolink keeps its own label: https://example.org/releases.
+
+Escaped punctuation stays literal: *asterisks*, [brackets],
+and #markers. Character references decode to text: &, ©, and
+Ω.
+
+This source line continues the same paragraph after a soft
+break.
+
+This source line ends with a hard break.
+The next line begins a new rendered line.
+
+[Image: Deployment topology]
+(https://example.org/topology.png)
+
+Raw HTML is a presentation-policy fixture; it must not be
+executed or fetched:
+
+<div class="deployment-note">Keep the rollback plan
+close.</div>
+
+────────────────────────────────────────────────────────────
+
+Compact terminal reading
+────────────────────────────────────────────────────────────
+
+This deliberately longer paragraph checks wrapping at sixty
+columns while retaining Polish text such as zażółć gęślą
+jaźń, Japanese text such as 検証, and an emoji such as ✅.
+The pager must retain every paragraph and table row when the
+document exceeds the visible screen.
