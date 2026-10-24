@@ -1,0 +1,15 @@
+```text
+2 records
+
+Ethernet
+  Status       ✓ Up
+  MacAddress   00-00-5E-00-53-01
+  LinkSpeed    1 Gbps
+  Description  Synthetic network adapter
+
+Ethernet
+  Status       ✗ Disconnected
+  MacAddress   00-00-5E-00-53-01
+  LinkSpeed    1 Gbps
+  Description  Synthetic network adapter
+```

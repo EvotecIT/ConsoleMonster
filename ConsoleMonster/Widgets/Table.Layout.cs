@@ -467,36 +467,8 @@ namespace ConsoleMonster.Widgets {
             return IsNumericColumn(column) ? HorizontalAlignment.Right : HorizontalAlignment.Left;
         }
 
-        private static List<StyledLine> Fit(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) {
-            List<StyledLine> result = new List<StyledLine>();
-            foreach (StyledLine line in lines) {
-                if (line.Width <= width) {
-                    result.Add(line);
-                } else if (overflow == ColumnOverflow.Wrap) {
-                    result.AddRange(TextWrapper.Wrap(line, width));
-                } else if (overflow == ColumnOverflow.TruncateMiddle) {
-                    result.Add(TruncateMiddle(line, width, context));
-                } else {
-                    result.Add(TextWrapper.Truncate(line, width, context.Ellipsis));
-                }
-            }
-            if (maxLines > 0 && result.Count > maxLines) {
-                // Keep MaxLines lines; the last one ends with an ellipsis so the cut is visible.
-                StyledLine last = result[maxLines - 1];
-                int room = Math.Max(0, width - DisplayWidth.Measure(context.Ellipsis));
-                StyledLine kept = last.Width <= room ? last : TextWrapper.Truncate(last, room, string.Empty);
-                List<TextSpan> spans = new List<TextSpan>(kept);
-                spans.Add(new TextSpan(context.Ellipsis, context.Style(ThemeToken.Muted)));
-                result.RemoveRange(maxLines - 1, result.Count - maxLines + 1);
-                result.Add(new StyledLine(spans));
-            }            if (result.Count == 0) {
-                result.Add(StyledLine.Empty);
-            }
-            return result;
-        }
-
-        // Keeps each part's styles (multicolour paths, rich text) up to the ellipsis.
-        private static StyledLine TruncateMiddle(StyledLine line, int width, RenderContext context) => TextWrapper.TruncateMiddle(line, width, context.Ellipsis);
+        private static List<StyledLine> Fit(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) =>
+            CellRendering.FitLines(lines, width, overflow, maxLines, context);
 
         private bool IsNumericColumn(int column) {
             bool any = false;

@@ -166,7 +166,8 @@ namespace ConsoleMonster.PowerShell {
                     grouping = view.Title;
                 }
             }
-            if (view?.GroupBy != null && property == null && grouping == null) {
+            if (view?.GroupBy != null && property == null && grouping == null && items.Count >= view.GroupMinimumRows
+                && (!view.GroupRepeatedOnly || GroupBinder.Group(items, view.GroupBy, false, shape).Any(group => group.Value.Count > 1))) {
                 grouping = view.GroupBy;
             }
             // Record and card headings: the key column's value (a name-like column picked by the title rule) with an Id

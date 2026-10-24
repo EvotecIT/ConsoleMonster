@@ -35,6 +35,9 @@ namespace ConsoleMonster.PowerShell.Binding {
             if (present.Count == 0) {
                 return Array.Empty<object>();
             }
+            // Registered scalar views (for example IPAddress) take precedence over the generic Value column.
+            view = ConsoleFormatting.Find(present[0]);
+            if (view?.Property != null && view.Property.Length > 0) { return view.Property; }
             bool anyValue = present.Any(item => PSShaping.IsValueLike(item, options));
             if (anyValue && present.All(item => PSShaping.IsValueLike(item, options))) {
                 return new object[] { "Value" };
@@ -98,9 +101,7 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="options">Shape options.</param>
         /// <returns>The key.</returns>
         internal static string RunKey(PSObject? item, ShapeOptions options) {
-            if (item == null || PSShaping.IsValueLike(item, options)) {
-                return "value";
-            }
+            if (item == null) { return "value"; }
             ConsoleViewRegistration? view = ConsoleFormatting.Find(item);
             if (view != null) {
                 string key = "view:" + view.Group;
@@ -108,6 +109,7 @@ namespace ConsoleMonster.PowerShell.Binding {
                 return view.Title != null && view.GroupBy != null
                     ? key + "\n" + PSFormatting.SharedTitle(new[] { item }, view.Title) : key;
             }
+            if (PSShaping.IsValueLike(item, options)) { return "value"; }
             object? prepared = ValueShaper.Prepare(item, options);
             if (prepared is System.Collections.IDictionary) {
                 return "dictionary";

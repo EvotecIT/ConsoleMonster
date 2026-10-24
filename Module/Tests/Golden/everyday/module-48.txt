@@ -1,0 +1,15 @@
+```text
+2 records
+
+Demo.Inventory  2
+  Demo.Inventory
+    Version     1.2.0
+    ModuleType  Script
+    Commands    2
+    Path        1.2.0/Demo.Inventory.psm1
+  Demo.Inventory
+    Version     2.0.0
+    ModuleType  Script
+    Commands    2
+    Path        2.0.0/Demo.Inventory.psm1
+```

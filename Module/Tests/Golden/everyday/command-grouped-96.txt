@@ -1,0 +1,19 @@
+```text
+╭──────────────────────┬─────────────┬─────────┬────────────────╮
+│ Name                 │ CommandType │ Version │ Source         │
+├─ Demo.Backup · 6 ────┼─────────────┼─────────┼────────────────┤
+│ Get-Item7            │ [Function]  │ 1.2.0   │ Demo.Backup    │
+│ Get-Item8            │ [Function]  │ 1.2.0   │ Demo.Backup    │
+│ Get-Item9            │ [Function]  │ 1.2.0   │ Demo.Backup    │
+│ Get-Item10           │ [Function]  │ 1.2.0   │ Demo.Backup    │
+│ Get-Item11           │ [Function]  │ 1.2.0   │ Demo.Backup    │
+│ Get-Item12           │ [Function]  │ 1.2.0   │ Demo.Backup    │
+├─ Demo.Inventory · 6 ─┼─────────────┼─────────┼────────────────┤
+│ Get-Item1            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+│ Get-Item2            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+│ Get-Item3            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+│ Get-Item4            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+│ Get-Item5            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+│ Get-Item6            │ [Function]  │ 1.2.0   │ Demo.Inventory │
+╰──────────────────────┴─────────────┴─────────┴────────────────╯
+```

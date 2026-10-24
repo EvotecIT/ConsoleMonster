@@ -17,6 +17,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The nesting level (0 = top); each level indents by <see cref="RecordView.IndentWidth"/>.</summary>
         public int Level { get; }
 
+        internal int MaxLines;
+        internal ColumnOverflow Overflow = ColumnOverflow.Wrap;
+
         /// <summary>The heading text or the field label (markup for headings, plain for labels).</summary>
         public string Text { get; internal set; } = string.Empty;
 

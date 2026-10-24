@@ -1,0 +1,23 @@
+```text
+2 records
+
+api-01
+  Count        12
+  Date         2026-10-24
+  Owner        Alex
+  Region       west
+  Description  Application deployment
+  Ticket       12345
+  Queue        release
+  Notes        Ready for review
+
+api-02
+  Count        2048
+  Date         2026-10-25
+  Owner        Sam
+  Region       east
+  Description  Database maintenance
+  Ticket       12346
+  Queue        backup
+  Notes        Waiting for backup
+```

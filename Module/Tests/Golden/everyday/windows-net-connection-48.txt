@@ -1,0 +1,17 @@
+```text
+2 records
+
+api.example.test
+  RemoteAddress  192.0.2.10
+  RemotePort     443
+  Interface      Ethernet
+  Ping           ✓ Success
+  TCP            ✓ Success
+
+api.example.test
+  RemoteAddress  192.0.2.10
+  RemotePort     443
+  Interface      Ethernet
+  Ping           ✗ Failed
+  TCP            ✗ Failed
+```

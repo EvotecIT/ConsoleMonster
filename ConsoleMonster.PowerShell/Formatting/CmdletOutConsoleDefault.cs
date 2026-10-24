@@ -18,6 +18,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletOutConsoleDefault : PSCmdlet {
         private readonly List<PSObject> _batch = new List<PSObject>();
         private ConsoleViewRegistration? _batchView;
+        private int _omittedRows;
         private SteppablePipeline? _inner;
         private bool _active;
         private readonly List<IWidget> _exportWidgets = new List<IWidget>();
@@ -135,11 +136,16 @@ namespace ConsoleMonster.PowerShell {
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, Format != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
                 FlushExportObjects();
-                if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
+                if (_batchView != null && (!string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)
+                    || _batchView.IsStructuredData != view.IsStructuredData)) {
                     Flush();
                 }
                 _batchView ??= view;
-                _batch.Add(item);
+                if (view.IsStructuredData && _batch.Count >= EverydayDataView.RowLimit) {
+                    _omittedRows++;
+                } else {
+                    _batch.Add(item);
+                }
                 return;
             }
             System.Collections.IEnumerable? elements = unroll ? LanguagePrimitives.GetEnumerable(item.BaseObject) : null;
@@ -230,6 +236,14 @@ namespace ConsoleMonster.PowerShell {
 
         private void Flush() {
             if (_batch.Count == 0 || _batchView == null) {
+                return;
+            }
+            if (_batchView.IsStructuredData) {
+                IWidget data = EverydayDataView.Build(_batch, _omittedRows);
+                if (As != null) { _exportWidgets.Add(data); } else { PSFormatting.Write(this, data, 0); }
+                _batch.Clear();
+                _omittedRows = 0;
+                _batchView = null;
                 return;
             }
             IWidget widget;

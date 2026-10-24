@@ -1,0 +1,20 @@
+```text
+4 records
+
+Get-Inventory
+  CommandType  [Function]
+  Version      1.2.0
+  Source       Demo.Inventory
+
+Get-Date
+  CommandType  [Cmdlet]
+  Version      7.0.0.0
+  Source       Microsoft.PowerShell.Utility
+
+gi -> Get-Inventory
+  CommandType  [Alias]
+
+tool
+  CommandType  [Application]
+  Source       /usr/bin/tool
+```

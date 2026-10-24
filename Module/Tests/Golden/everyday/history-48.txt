@@ -1,0 +1,15 @@
+```text
+2 records
+
+101
+  Started      10:20:30
+  Duration     2.0 s
+  Status       ✓ Completed
+  CommandLine  Get-Inventory -Region "west" | S…
+
+102
+  Started      10:20:30
+  Duration     2.0 s
+  Status       ✗ Failed
+  CommandLine  Invoke-Inventory -ComputerName "…
+```

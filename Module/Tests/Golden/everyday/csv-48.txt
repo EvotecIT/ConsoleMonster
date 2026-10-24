@@ -1,0 +1,15 @@
+```text
+2 records
+
+api-01
+  Count  0012
+  Cost   12.50
+  When   2026-10-24
+  Notes  ready
+
+api-02
+  Count  123456
+  Cost   -2.75
+  When   2026-10-25
+  Notes  waiting
+```

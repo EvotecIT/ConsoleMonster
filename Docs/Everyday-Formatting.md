@@ -302,3 +302,7 @@ See [module views](Module-Views.md), [output exports and clipboard](Output-Expor
 Custom prompts with dynamic parameters, a process block or pipeline input keep their native function and binding, including every input record and begin/end behaviour. Enabling the feature reports that the existing prompt was kept.
 
 `Enable-ConsoleFormatting -Feature Prompt` separately opts into the shortened path, cached git branch and dirty mark, last-command status and completed-history duration above two seconds. It is excluded from `All`. `-ProfileSnippet` prints the opt-in profile lines. oh-my-posh and Starship require `-Force`. Disable or module removal restores the original prompt, including its closure scope; later user replacements are kept. Captures, transcripts, recordings, remoting and nested prompts use the original prompt. PSReadLine handlers stay untouched. See [the guide](https://consolemonster.dev/docs/help-and-defaults/#minimal-shell-prompt) for cache timing, examples and renderer frames.
+
+## JSON, CSV and discovery output
+
+`Enable-ConsoleFormatting` also displays JSON/REST and CSV `PSCustomObject` records, command metadata, modules, history and network replies. The [everyday PowerShell guide](../Website/content/guides/everyday-powershell.md) covers the columns, before/after examples, truncation limits and platform availability. JSON/CSV display limits do not truncate captured objects or exported files. Windows networking views register only on Windows; PowerShell 7 ping and .NET DNS/address views work across platforms.

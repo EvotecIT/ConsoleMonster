@@ -28,10 +28,7 @@ evotec.xyz
   TTL         1 h 00 m
   Data        v=spf1
               include:spf.protection.outlook.com
-              include:_spf.google.com
-              include:sendgrid.net
-              include:mailgun.org ip4:51.38.120.9
-              ip4:51.38.120.10 -all
+              include:_spf.google.com…
   Latency     21 ms
   Cache file  /var/cache/dns/evotec.xyz/TXT.json
 
@@ -42,8 +39,7 @@ _dmarc.evotec.xyz
               rua=mailto:dmarc@evotec.xyz;
               ruf=mailto:forensic@evotec.xyz; fo=1
   Latency     ! 133 ms
-  Cache file  /var/cache/dns/evotec.xyz/
-              _dmarc.TXT.json
+  Cache file  /var/cache/dns/evo…z/_dmarc.TXT.json
 
 selector1._domainkey.evotec.xyz
   Type        CNAME
@@ -51,8 +47,7 @@ selector1._domainkey.evotec.xyz
   Data        selector1-evotec-xyz._domainkey.
               evotecpl.onmicrosoft.com
   Latency     16 ms
-  Cache file  /var/cache/dns/evotec.xyz/
-              selector1._domainkey.CNAME.json
+  Cache file  /var/cache/dns/evo…ainkey.CNAME.json
 
 evotec.xyz
   Type        CAA
@@ -79,16 +74,14 @@ DMARC
 DKIM
   Status  ! WARN
   Detail  selector2 key is 1024-bit; selector1 is
-          2048-bit. Rotate selector2 to a 2048-bit
-          key
+          2048-bit. Rotate selector2 to a 2048-bi…
   Took    212 ms
   RFC     6376
 
 MTA-STS
   Status  × FAIL
   Detail  policy file returns 404 at
-          https://mta-sts.evotec.xyz/.well-known/
-          mta-sts.txt
+          https://mta-sts.evotec.xyz/.well-known/…
   Took    1.4 s
   RFC     8461
 
@@ -202,8 +195,7 @@ ConsoleMonster.2.0.0.nupkg
   Size      1.41 MB
   Built in  48 s
   Created   12 m ago
-  Path      /build/ConsoleMonster/Artefacts/
-            Packed/ConsoleMonster.2.0.0.nupkg
+  Path      /build/ConsoleMonst…onster.2.0.0.nupkg
   SHA256    9f2c4e81a7d03b6e
 
 ConsoleMonster.2.0.0.snupkg
@@ -211,8 +203,7 @@ ConsoleMonster.2.0.0.snupkg
   Size      393 KB
   Built in  3.1 s
   Created   12 m ago
-  Path      /build/ConsoleMonster/Artefacts/
-            Packed/ConsoleMonster.2.0.0.snupkg
+  Path      /build/ConsoleMonst…nster.2.0.0.snupkg
   SHA256    41ab09cd77e2f310
 
 ConsoleMonster-2.0.0.zip
@@ -220,8 +211,7 @@ ConsoleMonster-2.0.0.zip
   Size      2.77 MB
   Built in  12 s
   Created   11 m ago
-  Path      /build/ConsoleMonster/Artefacts/
-            Packed/ConsoleMonster-2.0.0.zip
+  Path      /build/ConsoleMonst…eMonster-2.0.0.zip
   SHA256    c0ffee4251de9a07
 
 ConsoleMonster.PowerShell.dll
@@ -229,9 +219,7 @@ ConsoleMonster.PowerShell.dll
   Size      184 KB
   Built in  23 s
   Created   3 h ago
-  Path      /build/ConsoleMonster/Sources/
-            ConsoleMonster.PowerShell/bin/Release/
-            net8.0/ConsoleMonster.PowerShell.dll
+  Path      /build/ConsoleMonst…ter.PowerShell.dll
   SHA256    77aa13f9b2c46e5d
 
 en-US\ConsoleMonster-help.xml
@@ -239,8 +227,7 @@ en-US\ConsoleMonster-help.xml
   Size      94 KB
   Built in  6.4 s
   Created   2 d ago
-  Path      /build/ConsoleMonster/Artefacts/
-            Packed/en-US\ConsoleMonster-help.xml
+  Path      /build/ConsoleMonst…leMonster-help.xml
   SHA256    0be4d29c6a1f8873
 
 Total

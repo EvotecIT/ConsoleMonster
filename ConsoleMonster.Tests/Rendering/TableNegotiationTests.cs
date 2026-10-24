@@ -58,6 +58,34 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.DoesNotContain("columns (", text);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CardsAndRecords_KeepExplicitTruncationAndOmissionHint(bool cards) {
+            Table table = new Table { Caption = "+3 more rows", AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Command") { Overflow = ColumnOverflow.Truncate, MaxLines = 1 });
+            table.AddColumn(new TableColumn("Notes") { MaxLines = 2 });
+            table.AddValues("api-01", "Get-Inventory -ComputerName api-01 -OutputPath /reports/very-long-file.json", "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen");
+            string text = Render(table, 40);
+            Assert.Contains("+3 more rows", text);
+            Assert.Contains("Get-Inventory", text);
+            Assert.DoesNotContain("very-long-file.json", text);
+            Assert.Contains("…", text);
+            Assert.True(text.Split('\n').Length < 10);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SparseCardsAndRecords_KeepTheirIdentity(bool cards) {
+            Table table = new Table { AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn("Owner").AddColumn("Note");
+            table.AddValues("api-01", null, null);
+            Assert.Contains("api-01", Render(table, 48));
+        }
+
         [Fact]
         public void Negotiation_SingleRow_RendersRecordView() {
             Table table = new Table { Title = "dc01" };
