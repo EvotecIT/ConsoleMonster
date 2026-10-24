@@ -21,6 +21,10 @@ def main():
     directory.mkdir()
     cast = directory / "session.cast"
     script = directory / "outer.ps1"
+    # Never read the runner's bashrc: it can replace PS1 and add title writes.
+    shell = directory / "recording-shell"
+    shell.write_text("#!/bin/sh\nexport PS1='CM-SHELL> '\nexport BASH_SILENCE_DEPRECATION_WARNING=1\nexec /bin/bash --noprofile --norc -i\n")
+    shell.chmod(0o700)
     quote = lambda value: "'" + str(value).replace("'", "''") + "'"
     script.write_text("\n".join([
         "$ErrorActionPreference = 'Stop'",
@@ -29,8 +33,7 @@ def main():
         "[Console]::WriteLine('CM-BASELINE')",
         "[Console]::ReadLine() > $null",
         "$before = & stty -g",
-        # Use the same interactive shell for the WINCH trap on macOS and Linux.
-        "Start-ConsoleRecording -Shell /bin/bash -Path " + quote(cast) + " -Name PTY-check -TimeoutSeconds 30 | Out-Null",
+        "Start-ConsoleRecording -Shell " + quote(shell) + " -Path " + quote(cast) + " -Name PTY-check -TimeoutSeconds 30 | Out-Null",
         "$after = & stty -g",
         "@{before=$before; after=$after} | ConvertTo-Json | Set-Content " + quote(directory / "mode.json"),
         "[Console]::WriteLine('CM-RETURNED')",
