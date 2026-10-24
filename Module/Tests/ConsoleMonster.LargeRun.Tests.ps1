@@ -129,4 +129,69 @@ try {
         $output | Should -Match '(?s)0/1.*?worker done.*?WAIT_DONE.*?1 / 1 finished'
         $output | Should -Not -Match ([char]27)
     }
+
+    It 'retains deferred final host output until completion can be retried' {
+        $code = @'
+$ErrorActionPreference = 'Stop'
+Import-Module '__MODULE__' -Force
+Add-Type -Path '__FIXTURE__'
+$run = New-ConsoleRun -Items @('deferred check') -NoLive -ProgressSeconds 0
+try {
+$queues = [ConsoleMonster.PowerShell.CmdletCompleteConsoleRun].Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
+$lookup = $queues.GetType().GetMethod('TryGetValue')
+$arguments = [object[]]@($run.PSObject.BaseObject, $null)
+if (-not $lookup.Invoke($queues, $arguments)) { throw 'The host writer was not registered' }
+$writer = $arguments[1]
+$gate = $writer.GetType().GetField('_gate', 'Instance,NonPublic').GetValue($writer)
+$hold = New-Object HeldMonitor -ArgumentList $gate
+try {
+    try { Update-ConsoleRun $run -Index 0 -State Pass -ErrorAction Stop }
+    catch { "UPDATE_ERROR=$($_.Exception.Message)" }
+    try {
+        Complete-ConsoleRun $run -ErrorAction Stop
+        throw 'Deferred output was reported complete'
+    } catch { "DEFERRED_ERROR=$($_.Exception.Message)" }
+    $arguments[1] = $null
+    "RETAINED=$($lookup.Invoke($queues, $arguments))"
+} finally { $hold.Dispose() }
+"FLUSHED=$($run.Flush([TimeSpan]::FromSeconds(10)))"
+$summary = Complete-ConsoleRun $run -PassThru
+"FINISHED=$($summary.IsFinished),$($summary.Skipped)"
+$arguments[1] = $null
+"REMOVED=$(-not $lookup.Invoke($queues, $arguments))"
+Complete-ConsoleRun $run
+} finally { $run.Dispose() }
+'@
+        $fixture = Join-Path $PSScriptRoot 'Support/HeldMonitor.cs'
+        $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath).Replace('__FIXTURE__', $fixture)) -join "`n"
+        $LASTEXITCODE | Should -Be 0 -Because $output
+        $output | Should -Match 'DEFERRED_ERROR=Run output did not flush within five seconds'
+        $output | Should -Match 'RETAINED=True'
+        $output | Should -Match 'FLUSHED=True'
+        $output | Should -Match 'FINISHED=True,0'
+        $output | Should -Match 'REMOVED=True'
+        ([regex]::Matches($output, '1 / 1 finished')).Count | Should -Be 1
+    }
+
+    It 'releases a finalized host queue even when the host rejects its last output' {
+        $code = @'
+$ErrorActionPreference = 'Stop'
+Import-Module '__MODULE__' -Force
+$run = New-ConsoleRun -Items @('final check') -NoLive -ProgressSeconds 0
+try {
+    try {
+        Complete-ConsoleRun $run -InformationAction Stop -ErrorAction Stop
+        throw 'The final host-output failure was ignored'
+    } catch { "FINAL_HOST_ERROR=$($_.FullyQualifiedErrorId)" }
+    $queues = [ConsoleMonster.PowerShell.CmdletCompleteConsoleRun].Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
+    $arguments = [object[]]@($run.PSObject.BaseObject, $null)
+    "REMOVED=$(-not $queues.GetType().GetMethod('TryGetValue').Invoke($queues, $arguments))"
+    Complete-ConsoleRun $run
+} finally { $run.Dispose() }
+'@
+        $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
+        $LASTEXITCODE | Should -Be 0 -Because $output
+        $output | Should -Match 'FINAL_HOST_ERROR=ActionPreferenceStop'
+        $output | Should -Match 'REMOVED=True'
+    }
 }

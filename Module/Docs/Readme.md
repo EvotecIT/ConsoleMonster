@@ -43,7 +43,7 @@ Shows the reference and difference side by side at 120 columns or more, and inli
 ### [Complete-ConsoleRun](Complete-ConsoleRun.md)
 Finishes a run dashboard and prints its full summary into scrollback.
 
-Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
+Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
 
 ### [Copy-ConsoleOutput](Copy-ConsoleOutput.md)
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.

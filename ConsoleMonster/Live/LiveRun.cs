@@ -65,14 +65,14 @@ namespace ConsoleMonster.Live {
         public Exception? OutputFailure => _session.Failure;
         /// <summary>Signals cooperative cancellation while leaving completion output open.</summary>
         public void Cancel() => _session.Cancel();
-        /// <summary>Waits for previously posted output to reach the target, for hosts that pump output on their own thread.</summary>
+        /// <summary>Waits for previously posted output to reach the target. After Complete, waits for final output and restoration, including deferred cleanup. Hosts can then drain their output on their pipeline thread.</summary>
         /// <param name="timeout">Maximum wait.</param>
         /// <returns>Whether output was flushed.</returns>
         public bool Flush(TimeSpan timeout) {
             LiveSession.CheckFlushTimeout(timeout);
             System.Threading.Tasks.Task<bool> signal;
             // Queue behind the last published completion, then release producers before waiting on their output sink.
-            lock (_gate) { signal = _session.QueueFlush(); }
+            lock (_gate) { signal = _complete ? _session.OutputStopped : _session.QueueFlush(); }
             return signal.Wait(timeout) && signal.Result;
         }
         /// <summary>Whether the target supports live redraw for this run.</summary>

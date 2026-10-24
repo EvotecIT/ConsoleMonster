@@ -4,6 +4,11 @@ using System.Threading.Tasks;
 
 namespace ConsoleMonster.Live {
     public sealed partial class LiveSession {
+        private readonly TaskCompletionSource<bool> _outputStopped = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        /// <summary>Completes only after final output and terminal restoration finish, including deferred shutdown.</summary>
+        internal Task<bool> OutputStopped => _outputStopped.Task;
+
         /// <summary>Waits until earlier accepted events have reached output. Useful for a host's pipeline-thread output pump; it does not force a frame redraw.</summary>
         /// <param name="timeout">Maximum wait. The render thread cannot synchronously wait for itself.</param>
         /// <returns>False if the session is closed or the timeout expired.</returns>

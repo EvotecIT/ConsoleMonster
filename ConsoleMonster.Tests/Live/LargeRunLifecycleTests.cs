@@ -77,6 +77,41 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
+        [Fact]
+        public void FlushAfterCompleteWaitsForDeferredSummaryAndCanBeRetried() {
+            var profile = TerminalProfile.Fixed(80, 24, ColorDepth.None);
+            var writer = new CallbackWriter();
+            var output = new System.Collections.Concurrent.ConcurrentQueue<string>();
+            using (var entered = new System.Threading.ManualResetEventSlim())
+            using (var proceed = new System.Threading.ManualResetEventSlim())
+            using (var run = new LiveRun(new[] { new RunItem("deferred item") }, new LiveRunOptions {
+                ProgressInterval = TimeSpan.Zero,
+                Session = new LiveSessionOptions {
+                    Profile = profile, Output = new LineOutput(writer, profile), CaptureConsole = false,
+                    HandleCancelKey = false, StopTimeout = TimeSpan.Zero
+                }
+            })) {
+                writer.Callback = text => {
+                    output.Enqueue(text);
+                    if (!text.Contains("deferred item")) { return; }
+                    entered.Set();
+                    if (!proceed.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("The test did not release output."); }
+                };
+                try {
+                    run.Finished(0, StatusKind.Pass);
+                    Assert.True(entered.Wait(TimeSpan.FromSeconds(10)));
+                    Assert.True(run.Complete().IsFinished);
+                    Assert.IsType<TimeoutException>(run.Session.LastError);
+                    Assert.False(run.Flush(TimeSpan.Zero));
+                } finally { proceed.Set(); }
+                Assert.True(run.Flush(TimeSpan.FromSeconds(10)));
+                Assert.Null(run.OutputFailure);
+                Assert.True(run.Complete().IsFinished);
+                Assert.True(run.Flush(TimeSpan.Zero));
+                Assert.Single(Regex.Matches(string.Concat(output), "1 / 1 finished").Cast<Match>());
+            }
+        }
+
         private sealed class CallbackWriter : ITerminalWriter {
             internal Action<string>? Callback;
             internal Action? Flushing;

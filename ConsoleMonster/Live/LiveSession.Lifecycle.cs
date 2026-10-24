@@ -277,6 +277,7 @@ namespace ConsoleMonster.Live {
                 lock (_lifecycle) {
                     Volatile.Write(ref _state, 3);
                     _wake.Dispose();
+                    _outputStopped.TrySetResult(true);
                 }
             }
         }

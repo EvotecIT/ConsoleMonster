@@ -6,7 +6,7 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Finishes a run dashboard and prints its full summary into scrollback.</para>
-    /// <para type="description">Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para>
+    /// <para type="description">Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para>
     /// </summary>
     /// <example><para>Keep a structured final result</para><code>$summary = Complete-ConsoleRun $run -PassThru; $summary.Items | Where-Object State -eq Fail</code></example>
     [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun")]
@@ -32,12 +32,14 @@ namespace ConsoleMonster.PowerShell {
         internal static void Drain(LiveRun run, PSCmdlet cmdlet, bool final = false) {
             if (Queues.TryGetValue(run, out HostQueueWriter? writer)) {
                 // Rendering is asynchronous. A barrier keeps the last accepted line from waiting for the next cmdlet.
-                bool flushed = final || run.Flush(TimeSpan.FromSeconds(5));
-                try { writer.Drain(cmdlet, final); }
-                finally { if (final) { Remove(run); } }
+                bool flushed = run.Flush(TimeSpan.FromSeconds(5));
+                try { writer.Drain(cmdlet, final && flushed); }
+                finally { if (final && flushed) { Remove(run); } }
+                if (run.OutputFailure != null) { throw new InvalidOperationException("Run output failed before it could flush.", run.OutputFailure); }
                 if (!flushed) {
-                    if (run.OutputFailure != null) { throw new InvalidOperationException("Run output failed before it could flush.", run.OutputFailure); }
-                    throw new InvalidOperationException("Run output did not flush within five seconds.");
+                    throw new InvalidOperationException(final
+                        ? "Run output did not flush within five seconds. Call Complete-ConsoleRun again after pending cleanup finishes."
+                        : "Run output did not flush within five seconds.");
                 }
             }
         }

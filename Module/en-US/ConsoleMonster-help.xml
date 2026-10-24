@@ -1234,12 +1234,12 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:noun>ConsoleRun</command:noun>
       <maml:description>
         <maml:para>Finishes a run dashboard and prints its full summary into scrollback.</maml:para>
-        <maml:para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</maml:para>
+        <maml:para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Finishes a run dashboard and prints its full summary into scrollback.</maml:para>
-      <maml:para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</maml:para>
+      <maml:para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
