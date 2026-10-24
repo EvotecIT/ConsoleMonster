@@ -13,7 +13,7 @@ Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-c
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-FontFamily <string>] [<CommonParameters>]
+Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -39,6 +39,54 @@ A dashboard as an SVG in a window frame, dark only
 
 ## PARAMETERS
 
+### -Background
+Slide background: Theme (default), Solid or Gradient.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Theme, Solid, Gradient
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BackgroundColor
+Solid background or gradient start as #RGB or #RRGGBB.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BackgroundEndColor
+Gradient end as #RGB or #RRGGBB; omitted uses the theme background.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -ChromeStyle
 MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
 
@@ -51,6 +99,22 @@ Possible values: None, MacOS, Windows, Linux
 Required: False
 Position: named
 Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Fit
+Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Content, Terminal
+
+Required: False
+Position: named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -72,7 +136,7 @@ Accept wildcard characters: False
 ```
 
 ### -FontSize
-The font size in pixels (default 14).
+Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.
 
 ```yaml
 Type: Double

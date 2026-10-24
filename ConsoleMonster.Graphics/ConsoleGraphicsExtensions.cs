@@ -55,7 +55,7 @@ namespace ConsoleMonster.Graphics {
             cancellationToken.ThrowIfCancellationRequested();
             GraphicsExportOptions settings = options ?? new GraphicsExportOptions();
             if (format == GraphicsFormat.Png) { recording.SavePng(path, settings); return; }
-            SaveFrames(recording.CaptureFrames(Playback(settings)), path, format, settings, cancellationToken);
+            SaveFrames(recording.CaptureFrames(Playback(settings), trimEmptyRows: settings.Preset == GraphicsPreset.Docs), path, format, settings, cancellationToken);
         }
         /// <summary>Encodes recorded dashboard events through the existing widget replay engine.</summary>
         public static void SaveGraphics(this IWidget dashboard, IEnumerable<LiveEvent> events, string path, GraphicsFormat format,
@@ -82,12 +82,18 @@ namespace ConsoleMonster.Graphics {
             if (frames.Count == 0) { throw new ArgumentException("The recording has no frames."); }
             if (format == GraphicsFormat.Png) { frames[frames.Count - 1].Frame.SavePng(path, settings); return; }
             // Render on demand: GIF's palette and encoding passes retain only bounded RGBA working buffers.
-            RgbaImage first = frames[0].Frame.ToRaster(settings);
+            int columns = 1, rows = 1;
+            foreach (RecordedFrame frame in frames) {
+                columns = Math.Max(columns, frame.Frame.Width);
+                rows = Math.Max(rows, settings.Preset != GraphicsPreset.Docs && settings.Fit == GraphicsFit.Content ? ConsoleExporter.MeasureContentRows(frame.Frame) : frame.Frame.Height);
+            }
+            GraphicsLayout layout = GraphicsRenderer.Layout(frames[0].Frame, settings, columns, rows);
+            RgbaImage first = GraphicsRenderer.Render(frames[0].Frame, settings, layout);
             RasterAnimationSource source = new RasterAnimationSource(first.Width, first.Height, frames.Count, (index, cancellation) => {
                 cancellation.ThrowIfCancellationRequested();
                 double duration = frames[index].Duration;
                 if (index < frames.Count - 1 && settings.IdleLimit > TimeSpan.Zero) { duration = Math.Min(duration, settings.IdleLimit.TotalMilliseconds); }
-                return new RasterAnimationFrame(index == 0 ? first : frames[index].Frame.ToRaster(settings), TimeSpan.FromMilliseconds(Math.Max(10, duration)));
+                return new RasterAnimationFrame(index == 0 ? first : GraphicsRenderer.Render(frames[index].Frame, settings, layout), TimeSpan.FromMilliseconds(Math.Max(10, duration)));
             });
             if (format == GraphicsFormat.Mp4) { FfmpegWriter.Write(path, source, settings.Playback.FramesPerSecond, token); return; }
             if (format != GraphicsFormat.Gif && format != GraphicsFormat.Apng) { throw new ArgumentOutOfRangeException(nameof(format)); }

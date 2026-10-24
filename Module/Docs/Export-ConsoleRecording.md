@@ -13,12 +13,12 @@ PNG selects the final frame, -At a source time, -Chapter a completed chapter, or
 ## SYNTAX
 ### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-FontFamily <string>] [-At <timespan>] [-Chapter <string>] [-PerChapter] [-IdleLimit <double>] [-LoopCount <int>] [<CommonParameters>]
+Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-At <timespan>] [-Chapter <string>] [-PerChapter] [-IdleLimit <double>] [-LoopCount <int>] [<CommonParameters>]
 ```
 
 ### Dashboard
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-FontFamily <string>] [-IdleLimit <double>] [-LoopCount <int>] [<CommonParameters>]
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-Preset <string>] [-Fit <string>] [-Background <string>] [-BackgroundColor <string>] [-BackgroundEndColor <string>] [-FontFamily <string>] [-IdleLimit <double>] [-LoopCount <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,6 +44,54 @@ Source recording time for PNG, before playback speed or idle compression.
 ```yaml
 Type: TimeSpan
 Parameter Sets: Session
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Background
+Slide background: Theme (default), Solid or Gradient.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: Theme, Solid, Gradient
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BackgroundColor
+Solid background or gradient start as #RGB or #RRGGBB.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -BackgroundEndColor
+Gradient end as #RGB or #RRGGBB; omitted uses the theme background.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -126,6 +174,22 @@ Type: SwitchParameter
 Parameter Sets: Session
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Fit
+Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.
+
+```yaml
+Type: String
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: Content, Terminal
 
 Required: False
 Position: named

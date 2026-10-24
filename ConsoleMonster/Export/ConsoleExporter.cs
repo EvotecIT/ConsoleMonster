@@ -20,6 +20,20 @@ namespace ConsoleMonster.Export {
         private static string? _playerScript;
         private static string? _playerStyles;
 
+        /// <summary>Measures the same rounded cell geometry, padding and chrome used by SVG exports.</summary>
+        public static ExportFrameSize MeasureFrame(int columns, int rows, ExportOptions? options = null) {
+            if (columns < 1 || rows < 1) { throw new ArgumentOutOfRangeException(nameof(columns), "A frame needs at least one column and row."); }
+            SvgGeometry geometry = SvgGeometry.For(columns, rows, Ready(options));
+            return new ExportFrameSize(geometry.Width, geometry.Height);
+        }
+
+        /// <summary>Measures occupied rows, including painted backgrounds, without trailing empty terminal rows. An empty screen retains one row.</summary>
+        public static int MeasureContentRows(CellBuffer frame) {
+            if (frame == null) { throw new ArgumentNullException(nameof(frame)); }
+            for (int y = frame.Height - 1; y >= 0; y--) { if (HtmlFrameWriter.ContentEnd(frame, y) > 0) { return y + 1; } }
+            return 1;
+        }
+
         /// <summary>
         /// The recording player script (a native asset, <c>player.js</c>): include it once on a page with
         /// <see cref="PlayerStyles"/>, then mark each player with <c>data-cm-recording</c> pointing at data from

@@ -6,13 +6,14 @@
     $env:CONSOLEMONSTER_GLYPHS = 'full'
     $env:CI = $null
     $env:NO_COLOR = $null
-    $demo = if ($env:CM_DEMO_ROOT) { $env:CM_DEMO_ROOT } else { Join-Path ([IO.Path]::GetTempPath()) ('ConsoleMonsterTalk-' + [guid]::NewGuid().ToString('N')) }
+    $demo = if ($env:CM_DEMO_ROOT) { $env:CM_DEMO_ROOT } else { Join-Path ([IO.Path]::GetTempPath()) ('ConsoleMonsterTalk-' + [guid]::NewGuid().ToString('N') + '/demo') }
     $null = New-Item -ItemType Directory -Path $demo -Force
-    Set-Location $demo
+    $null = New-PSDrive -Name demo -PSProvider FileSystem -Root $demo -Scope Global
+    Set-Location demo:
     $env:GIT_PAGER = 'cat'
     $env:GIT_AUTHOR_DATE = '2026-01-01T12:00:00Z'
     $env:GIT_COMMITTER_DATE = $env:GIT_AUTHOR_DATE
-    $env:API_TOKEN = 'demo-session-only-value'
+    $env:API_TOKEN = 'demo-token'
     git init --quiet --initial-branch main
     foreach ($subject in @('Start sample app', 'Add synthetic fixtures', 'Render report table', 'Track build progress', 'Document local recording')) {
         Add-Content (Join-Path $demo 'history.txt') $subject
@@ -40,7 +41,7 @@
     }
     function global:Show-DemoToken {
         param([string] $Value)
-        Write-Host ("API_TOKEN={0} (redacted)" -f $Value) -ForegroundColor DarkGray
+        Write-Host ("API_TOKEN={0} (synthetic)" -f $Value) -ForegroundColor DarkGray
     }
 }
 # demo: wpm 180
@@ -54,7 +55,7 @@ Invoke-DemoBuild
 # demo: chapter Report
 Show-DemoReport
 # demo: pause 1
-# demo: chapter Errors and redaction
-Get-Item ./missing.json
+# demo: chapter Errors and configuration
+Get-Item ./missing.json 2>&1 | Write-ConsoleText -Color Red
 Show-DemoToken $env:API_TOKEN
 # demo: pause 2

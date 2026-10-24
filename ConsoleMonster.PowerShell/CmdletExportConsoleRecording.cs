@@ -88,6 +88,15 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</para></summary>
         [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
         public string Preset { get; set; } = "Docs";
+        /// <summary><para type="description">Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</para></summary>
+        [Parameter, ValidateSet("Content", "Terminal")] public string Fit { get; set; } = "Content";
+        /// <summary><para type="description">Slide background: Theme (default), Solid or Gradient.</para></summary>
+        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] public string Background { get; set; } = "Theme";
+        /// <summary><para type="description">Solid background or gradient start as #RGB or #RRGGBB.</para></summary>
+        [Parameter] public string? BackgroundColor { get; set; }
+        /// <summary><para type="description">Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</para></summary>
+        [Parameter] public string? BackgroundEndColor { get; set; }
+
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
         /// <summary><para type="description">Source recording time for PNG, before playback speed or idle compression.</para></summary>
@@ -118,7 +127,7 @@ namespace ConsoleMonster.PowerShell {
                 if (Destination == null) { throw new System.ArgumentException("Graphics recording exports need -Destination."); }
                 string graphicsTarget = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
                 bool chrome = MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle));
-                var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily,
+                var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor,
                     new ExportOptions { Theme = Theme, Title = Title, WindowChrome = chrome, ChromeStyle = ChromeStyle },
                     new RecordingExportOptions { Width = Width, Height = Height, Theme = Theme, FramesPerSecond = FramesPerSecond, Speed = Speed },
                     IdleLimit, LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,

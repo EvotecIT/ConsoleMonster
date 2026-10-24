@@ -60,10 +60,21 @@ PNG, GIF and APNG run without an external executable. MP4 pipes RGBA frames to `
 
 | Preset | Canvas |
 |---|---|
-| `Slide16x9` | 1920 × 1080, padded and fitted to the complete grid. |
+| `Slide16x9` | 1920 × 1080. |
 | `Slide4x3` | 1440 × 1080. |
 | `Social` | 1200 × 630. |
 | `Docs` | Natural size. |
+
+Every slide preset centres the complete window inside a safe inset of 6% of the canvas's short side. Opposite margins match; the extra space follows the window's aspect ratio. Rounded corners, a subtle shadow and a fine border keep the bottom edge visible. PNG, GIF, APNG and MP4 share this composition.
+
+`-Fit Content` is the slide default: stills trim trailing empty rows, while animations reserve the most rows used anywhere in the clip. The window stays in one place as commands type. `-Fit Terminal` keeps the complete grid, including empty rows. In both modes, the font grows until width or height reaches the inset, up to 72 pixels. `Docs` keeps its natural-size layout.
+
+The surrounding background uses the theme colour by default. Choose a solid colour or a soft gradient with hex colours:
+
+```powershell
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -Destination ./terminal.png
+Export-ConsoleRecording ./talk.cast -Format Mp4 -Preset Slide16x9 -Background Gradient -BackgroundColor '#192332' -BackgroundEndColor '#0c0c0c' -Destination ./talk.mp4
+```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
 
@@ -141,4 +152,4 @@ recording.SaveChapterPngs("slides", slides);
 
 For live presentation use `ConsoleDemo.Present(demo, options)`. Pass `stepChanged` to display a custom step counter and a cancellation token to stop the owned child.
 
-The repository includes a complete [PowerShell recording example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/recording) and a [runnable C# example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/presenter-kit). Both use synthetic data.
+The repository includes a complete [PowerShell recording example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/recording) and a [runnable C# example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/presenter-kit). Both use synthetic data. The recording example works from a neutral `demo:` filesystem drive, so genuine errors show `demo:/missing.json` instead of a machine's real working path. It pipes the error record through `Write-ConsoleText -Color Red` to show the message without PowerShell's source-location header. Its example token is labelled synthetic and needs no redaction.

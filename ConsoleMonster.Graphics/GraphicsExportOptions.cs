@@ -25,11 +25,37 @@ namespace ConsoleMonster.Graphics {
         /// <summary>1200 by 630 pixels.</summary>
         Social
     }
+    /// <summary>Rows retained when fitting a slide window.</summary>
+    public enum GraphicsFit {
+        /// <summary>Use occupied rows; animations use the maximum occupied height throughout the clip.</summary>
+        Content,
+        /// <summary>Keep the full terminal grid, including trailing empty rows.</summary>
+        Terminal
+    }
+    /// <summary>Background behind a slide's terminal window.</summary>
+    public enum GraphicsBackground {
+        /// <summary>The terminal theme's background colour.</summary>
+        Theme,
+        /// <summary>One colour supplied by BackgroundColor.</summary>
+        Solid,
+        /// <summary>A soft diagonal gradient, with optional start and end colours.</summary>
+        Gradient
+    }
     /// <summary>Graphics layout and animation settings. Existing frame and recording options own themes and chrome.</summary>
     public sealed class GraphicsExportOptions {
         /// <summary>Canvas size. Slide presets fit the entire grid without cropping.</summary>
         public GraphicsPreset Preset { get; set; } = GraphicsPreset.Docs;
-        /// <summary>Widget dimensions, theme, title, font size and chrome. Presets select a larger font when this is left at 14.</summary>
+        /// <summary>Slide row fitting. Content is the default; Docs retains its natural-size behaviour.</summary>
+        public GraphicsFit Fit { get; set; } = GraphicsFit.Content;
+        /// <summary>Slide background. Docs has no surrounding slide canvas.</summary>
+        public GraphicsBackground Background { get; set; } = GraphicsBackground.Theme;
+        /// <summary>Solid colour, or gradient start, as #RGB or #RRGGBB.</summary>
+        public string? BackgroundColor { get; set; }
+        /// <summary>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</summary>
+        public string? BackgroundEndColor { get; set; }
+        /// <summary>Maximum slide font size in pixels. The window otherwise fills the safe area.</summary>
+        public double MaxFontSize { get; set; } = 72;
+        /// <summary>Widget dimensions, theme, title, natural-size typography and window chrome.</summary>
         public ExportOptions Frame { get; set; } = new ExportOptions { Theme = ExportTheme.Dark };
         /// <summary>Recording frame rate, speed and final hold. The graphics layer also caps idle gaps.</summary>
         public RecordingExportOptions Playback { get; set; } = new RecordingExportOptions();
@@ -43,8 +69,18 @@ namespace ConsoleMonster.Graphics {
         public int LoopCount { get; set; }
         internal void Validate() {
             if (Preset < GraphicsPreset.Docs || Preset > GraphicsPreset.Social) { throw new ArgumentOutOfRangeException(nameof(Preset)); }
+            if (Fit < GraphicsFit.Content || Fit > GraphicsFit.Terminal) { throw new ArgumentOutOfRangeException(nameof(Fit)); }
+            if (Background < GraphicsBackground.Theme || Background > GraphicsBackground.Gradient) { throw new ArgumentOutOfRangeException(nameof(Background)); }
+            if (double.IsNaN(MaxFontSize) || MaxFontSize < 4 || MaxFontSize > 96) { throw new ArgumentOutOfRangeException(nameof(MaxFontSize)); }
+            ValidateColor(BackgroundColor); ValidateColor(BackgroundEndColor);
+            if (Background == GraphicsBackground.Solid && BackgroundColor == null) { throw new ArgumentException("A solid slide background needs BackgroundColor."); }
             if (IdleLimit < TimeSpan.Zero || LoopCount < 0 || LoopCount > 65536) { throw new ArgumentOutOfRangeException(nameof(LoopCount)); }
             if (Frame == null || Playback == null) { throw new ArgumentException("Frame and Playback settings are required."); }
+        }
+        private static void ValidateColor(string? value) {
+            if (value == null) { return; }
+            if ((value.Length != 4 && value.Length != 7) || value[0] != '#') { throw new ArgumentException("Slide colours use #RGB or #RRGGBB."); }
+            for (int i = 1; i < value.Length; i++) { if (!Uri.IsHexDigit(value[i])) { throw new ArgumentException("Slide colours use #RGB or #RRGGBB."); } }
         }
     }
 }

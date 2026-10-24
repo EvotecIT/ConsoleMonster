@@ -5,7 +5,7 @@ Describe 'Talks and demos' {
 
     It 'exports binary PNG through the frame cmdlet and infers graphics from extensions' {
         $path = Join-Path $TestDrive 'slide.png'
-        'Talk demo' | Export-ConsoleFrame -Format Png -Path $path -Preset Social -Theme HighContrast -PassThru | Should -BeOfType ([IO.FileInfo])
+        'Talk demo' | Export-ConsoleFrame -Format Png -Path $path -Preset Social -Theme HighContrast -Fit Content -Background Solid -BackgroundColor '#25364a' -PassThru | Should -BeOfType ([IO.FileInfo])
         $bytes = [IO.File]::ReadAllBytes($path)
         [Convert]::ToBase64String($bytes[0..7]) | Should -Be 'iVBORw0KGgo='
         $raw = 'Pipeline PNG' | Export-ConsoleFrame -Format Png
@@ -26,7 +26,7 @@ Describe 'Talks and demos' {
         $files = @(Export-ConsoleRecording $cast -Format Png -PerChapter -Destination $slides -Preset Slide16x9 -PassThru)
         $files.Count | Should -Be 2
         $files[0].Name | Should -Be 'slide-001.png'
-        Export-ConsoleRecording $cast -Format Png -At '00:00:00.2' -Destination (Join-Path $TestDrive 'at.png')
+        Export-ConsoleRecording $cast -Format Png -At '00:00:00.2' -Preset Social -Fit Terminal -Background Gradient -BackgroundColor '#142238' -BackgroundEndColor '#090e17' -Destination (Join-Path $TestDrive 'at.png')
         Export-ConsoleRecording $cast -Format Png -Chapter First -Destination (Join-Path $TestDrive 'chapter.png')
         foreach ($format in @('Gif', 'Apng')) {
             $target = Join-Path $TestDrive ('talk.' + $format.ToLowerInvariant())

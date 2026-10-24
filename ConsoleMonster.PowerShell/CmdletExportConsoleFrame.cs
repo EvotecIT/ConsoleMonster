@@ -63,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Value = WindowChromeStyle.MacOS)]
         public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
-        /// <summary><para type="description">The font size in pixels (default 14).</para></summary>
+        /// <summary><para type="description">Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</para></summary>
         [Parameter]
         [ValidateRange(4, 96)]
         public double FontSize { get; set; } = 14;
@@ -75,6 +75,15 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</para></summary>
         [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
         public string Preset { get; set; } = "Docs";
+
+        /// <summary><para type="description">Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</para></summary>
+        [Parameter, ValidateSet("Content", "Terminal")] public string Fit { get; set; } = "Content";
+        /// <summary><para type="description">Slide background: Theme (default), Solid or Gradient.</para></summary>
+        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] public string Background { get; set; } = "Theme";
+        /// <summary><para type="description">Solid background or gradient start as #RGB or #RRGGBB.</para></summary>
+        [Parameter] public string? BackgroundColor { get; set; }
+        /// <summary><para type="description">Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</para></summary>
+        [Parameter] public string? BackgroundEndColor { get; set; }
 
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
@@ -108,7 +117,7 @@ namespace ConsoleMonster.PowerShell {
             };
             if (graphics) {
                 string? target = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-                object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, options, this);
+                object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor, options, this);
                 if (target == null || PassThru.IsPresent) { WriteObject(result, false); }
                 return;
             }

@@ -19,8 +19,8 @@ namespace ConsoleMonster.PowerShell {
                 || string.Equals(name, "Apng", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "Mp4", StringComparison.OrdinalIgnoreCase);
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static object Frame(IReadOnlyList<object> items, string? path, string preset, string? font, ExportOptions options, PSCmdlet cmdlet) {
-            GraphicsExportOptions settings = new GraphicsExportOptions { Preset = ParsePreset(preset), FontFamily = font, Frame = options };
+        internal static object Frame(IReadOnlyList<object> items, string? path, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor, ExportOptions options, PSCmdlet cmdlet) {
+            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, options);
             byte[] bytes;
             object raw = items.Count == 1 ? PSObject.AsPSObject(items[0]).BaseObject : new object();
             if (raw is Canvas.CellBuffer frame) { bytes = frame.ToPng(settings); }
@@ -30,12 +30,10 @@ namespace ConsoleMonster.PowerShell {
             File.WriteAllBytes(path, bytes); return new FileInfo(path);
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static IReadOnlyList<string> Recording(string source, string target, string? format, string preset, string? font,
+        internal static IReadOnlyList<string> Recording(string source, string target, string? format, string preset, string? font, string fit, string background, string? backgroundColor, string? backgroundEndColor,
             ExportOptions frame, RecordingExportOptions playback, double idleLimit, int loops, IWidget? dashboard, TimeSpan? at, string? chapter, bool perChapter, System.Threading.CancellationToken cancellationToken) {
-            GraphicsExportOptions settings = new GraphicsExportOptions {
-                Preset = ParsePreset(preset), Frame = frame, Playback = playback, FontFamily = font,
-                IdleLimit = TimeSpan.FromSeconds(idleLimit), LoopCount = loops
-            };
+            GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, frame);
+            settings.Playback = playback; settings.IdleLimit = TimeSpan.FromSeconds(idleLimit); settings.LoopCount = loops;
             GraphicsFormat selected = (GraphicsFormat)Enum.Parse(typeof(GraphicsFormat), format ?? System.IO.Path.GetExtension(target).TrimStart('.'), true);
             if (dashboard != null) {
                 using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
@@ -56,6 +54,10 @@ namespace ConsoleMonster.PowerShell {
             }
             return new[] { target };
         }
-        private static GraphicsPreset ParsePreset(string value) => (GraphicsPreset)Enum.Parse(typeof(GraphicsPreset), value, true);
+        private static GraphicsExportOptions Settings(string preset, string? font, string fit, string background, string? color, string? endColor, ExportOptions frame) => new GraphicsExportOptions {
+            Preset = (GraphicsPreset)Enum.Parse(typeof(GraphicsPreset), preset, true), FontFamily = font, Frame = frame,
+            Fit = (GraphicsFit)Enum.Parse(typeof(GraphicsFit), fit, true), Background = (GraphicsBackground)Enum.Parse(typeof(GraphicsBackground), background, true),
+            BackgroundColor = color, BackgroundEndColor = endColor
+        };
     }
 }

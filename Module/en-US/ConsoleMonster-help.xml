@@ -1964,6 +1964,47 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Export-ConsoleFrame</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ChromeStyle</maml:name>
           <maml:description>
             <maml:para>MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</maml:para>
@@ -1982,6 +2023,22 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>[ConsoleMonster.Export.WindowChromeStyle]::MacOS</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FontFamily</maml:name>
           <maml:description>
             <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
@@ -1996,7 +2053,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FontSize</maml:name>
           <maml:description>
-            <maml:para>The font size in pixels (default 14).</maml:para>
+            <maml:para>Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -2148,6 +2205,47 @@ $tree | Write-ConsoleWidget</dev:code>
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Background</maml:name>
+        <maml:description>
+          <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundColor</maml:name>
+        <maml:description>
+          <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundEndColor</maml:name>
+        <maml:description>
+          <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ChromeStyle</maml:name>
         <maml:description>
           <maml:para>MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</maml:para>
@@ -2166,6 +2264,22 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>[ConsoleMonster.Export.WindowChromeStyle]::MacOS</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fit</maml:name>
+        <maml:description>
+          <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FontFamily</maml:name>
         <maml:description>
           <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
@@ -2180,7 +2294,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FontSize</maml:name>
         <maml:description>
-          <maml:para>The font size in pixels (default 14).</maml:para>
+          <maml:para>Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -2406,6 +2520,47 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Chapter</maml:name>
           <maml:description>
             <maml:para>Exports the completed view of this chapter as PNG.</maml:para>
@@ -2455,6 +2610,22 @@ $tree | Write-ConsoleWidget</dev:code>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -2668,6 +2839,47 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:syntaxItem parameterSetName="Dashboard">
         <maml:name>Export-ConsoleRecording</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ChromeStyle</maml:name>
           <maml:description>
             <maml:para>MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</maml:para>
@@ -2703,6 +2915,22 @@ $tree | Write-ConsoleWidget</dev:code>
             <maml:para>The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -2918,6 +3146,47 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Background</maml:name>
+        <maml:description>
+          <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundColor</maml:name>
+        <maml:description>
+          <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundEndColor</maml:name>
+        <maml:description>
+          <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Chapter</maml:name>
         <maml:description>
           <maml:para>Exports the completed view of this chapter as PNG.</maml:para>
@@ -2979,6 +3248,22 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fit</maml:name>
+        <maml:description>
+          <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
