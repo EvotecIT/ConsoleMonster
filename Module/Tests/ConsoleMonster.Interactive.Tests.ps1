@@ -342,6 +342,26 @@ Show-ConsoleMenu $menu -Layout Inline
             $loaded[1].Value.Domain | Should -Be 'corp.example.test'
         }
 
+        It 'rejects calculated selectors for loaded choices instead of silently dropping their metadata' {
+            { New-ConsoleField -Name Server -Type Select -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+            { New-ConsoleMenuItem -Title Targets -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+        }
+
+        It 'omits an unchanged loaded command value from the equivalent command' {
+            $field = New-ConsoleField -Name Server -Type Select -Default SRV01 -Display Name -CommandValue Name -Parameter ComputerName -LoadChoices {
+                [pscustomobject] @{ Name = 'SRV01'; Role = 'Web' }
+                [pscustomobject] @{ Name = 'SRV02'; Role = 'Database' }
+            }
+            $form = New-ConsoleForm -Title Fleet -Command Invoke-FleetCheck -Field $field
+            $loaded = @($field.Loader.Invoke($form.GetValues(), [Threading.CancellationToken]::None).GetAwaiter().GetResult())
+            foreach ($choice in $loaded) { $field.Choices.Add($choice) }
+            $field.Loader = $null
+            # Applying a preset resolves its scalar key to the loaded value, retaining its properties.
+            Set-ConsoleFormValue -Form $form -Value @{ Server = 'SRV01' }
+            $form.BuildCommand() | Should -BeExactly 'Invoke-FleetCheck'
+            $field.Value.Role | Should -Be 'Web'
+        }
+
         It 'applies page descriptions while preserving the form description and defaults for other pages' {
             $fields = @(
                 New-ConsoleField -Name Domain -Label Domain -Page Scope

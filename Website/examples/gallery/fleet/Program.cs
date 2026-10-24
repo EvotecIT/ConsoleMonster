@@ -190,7 +190,7 @@ servers.Loader = async (values, token) => {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name) {
         Title = n.Name, Group = n.Site, Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
-        Description = n.Role + " · " + n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == ""
+        Description = n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == ""
     });
 };
 servers.Default = targets.Select(n => n.Name).ToArray();

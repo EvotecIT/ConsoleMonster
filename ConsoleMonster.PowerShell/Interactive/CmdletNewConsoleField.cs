@@ -86,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? GroupBy { get; set; }
 
-        /// <summary><para type="description">A sentence for the focused choice: a property name or a scriptblock.</para></summary>
+        /// <summary><para type="description">A sentence for the focused choice: a property name or a scriptblock. With -LoadChoices, use a property name.</para></summary>
         [Parameter]
         public object? Describe { get; set; }
 
@@ -98,7 +98,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? Disabled { get; set; }
 
-        /// <summary><para type="description">Whether a choice starts selected: a property name or a scriptblock returning $true. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</para></summary>
+        /// <summary><para type="description">Whether a choice starts selected: a property name or a scriptblock returning $true. With -LoadChoices, use a property name. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).</para></summary>
         [Parameter]
         public object? Selected { get; set; }
 
@@ -299,12 +299,12 @@ namespace ConsoleMonster.PowerShell {
                             List<object?> values = new List<object?>();
                             foreach (object? d in PSInteractive.Enumerate(Default)) {
                                 Choice? match = PSInteractive.Find(choice.Choices, d);
-                                values.Add(match != null ? match.Value : d);
+                                values.Add(match != null ? match.Value : PSInteractive.ChoiceDefault(d, CommandValue));
                             }
                             choice.Default = values;
                         } else {
                             Choice? match = PSInteractive.Find(choice.Choices, Default);
-                            choice.Default = match != null ? match.Value : PSText.Unwrap(Default);
+                            choice.Default = match != null ? match.Value : PSInteractive.ChoiceDefault(PSText.Unwrap(Default), CommandValue);
                         }
                     }
                     return choice;

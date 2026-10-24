@@ -235,6 +235,11 @@ namespace ConsoleMonster.PowerShell {
             return value;
         }
 
+        // Loaded command values carry object properties on a PSObject string. Defaults must use that same
+        // equality shape: String.Equals(PSObject) is false even though the reverse comparison is true.
+        internal static object? ChoiceDefault(object? value, object? commandValue) =>
+            value == null || commandValue == null ? value : PSObject.AsPSObject(CommandValue(value, commandValue)!);
+
         public static IEnumerable<object?> Enumerate(object? value) {
             object? raw = PSText.Unwrap(value);
             if (raw == null) {
@@ -407,7 +412,12 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Scriptblocks belong to the caller's runspace and cannot run on the loader's thread; only property names are used there.
-        internal static object? PropertyOnly(object? selector) => PSText.Unwrap(selector) is ScriptBlock ? null : selector;
+        internal static object? PropertyOnly(object? selector) {
+            if (PSText.Unwrap(selector) is ScriptBlock) {
+                throw new PSArgumentException("Loaded choice selectors take property names. Calculate additional properties in the -LoadChoices script.");
+            }
+            return selector;
+        }
 
         public static SecureString ToSecureString(string text) {
             SecureString secure = new SecureString();

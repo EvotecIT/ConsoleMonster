@@ -211,6 +211,11 @@ try {
         $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1')
     }
 
+    It 'keeps the loaded fleet defaults selected in the native editor' {
+        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo fleet -StaticSnapshot -Step 1'
+        $text | Should -Match '5 of 5 selected'
+    }
+
     It 'filters the exported <Slug> app through real scripted input and shows the matching result' -ForEach @(
         @{ Slug = 'fleet-filter'; Query = 'missing'; Expected = 'No matching hosts'; Absent = 'web-01'; Count = 0 }
         @{ Slug = 'live-filter'; Query = 'sql'; Expected = 'sql-02'; Absent = 'web-01'; Count = 2 }

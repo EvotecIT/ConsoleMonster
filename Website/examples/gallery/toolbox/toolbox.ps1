@@ -329,7 +329,14 @@ function Set-Options {
         $plan[$name] = $Values[$name]
     }
 }
-$options = New-ConsoleForm -Title Options -NoReview -SubmitText Save -Content { Get-OptionFields }
+$formOptions = @{
+    Title = 'Options'
+    NoReview = $true
+    SubmitText = 'Save'
+    PageDescriptions = @{ Options = 'Parallelism, reports and notifications.' }
+    Content = { Get-OptionFields }
+}
+$options = New-ConsoleForm @formOptions
 $targetItem = New-ConsoleMenuItem -Title Targets -Hotkey t -IconName Targets -Description 'Inventory grouped by site; unavailable servers stay visible.' `
     -LoadChoices {
     param($Values, $Inventory)
