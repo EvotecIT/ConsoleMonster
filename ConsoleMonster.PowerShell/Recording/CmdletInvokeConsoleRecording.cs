@@ -7,26 +7,28 @@ using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Records a script in a child PowerShell terminal and exports the result.</para>
-    /// <para type="description">Runs the script in an isolated child process. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</para>
+    /// <para type="synopsis">Records a script or an interactive child shell and saves the result.</para>
+    /// <para type="description">Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</para>
     /// </summary>
     /// <example><para>Record native coloured output and a chapter</para><code>Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; git --version; Write-Host 'Done' -ForegroundColor Green } -Destination ./demo.html</code></example>
+    /// <example><para>Record an interactive shell</para><code>Invoke-ConsoleRecording -Interactive -Destination ./session.cast</code></example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRecording", DefaultParameterSetName = "Script")]
     [OutputType(typeof(FileInfo))]
     public sealed partial class CmdletInvokeConsoleRecording : ConsoleRecordingCommand {
         /// <summary><para type="description">Script to run in the recorded PowerShell child.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Script")] public ScriptBlock ScriptBlock { get; set; } = null!;
-        /// <summary><para type="description">Export path. Extension selects HTML, SVG, cast, text or Markdown.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Script")] public string Destination { get; set; } = string.Empty;
+        /// <summary><para type="description">Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Script")]
+        [Parameter(ParameterSetName = "Interactive")] public string Destination { get; set; } = string.Empty;
         /// <summary><para type="description">Export colours.</para></summary>
-        [Parameter] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
+        [Parameter(ParameterSetName = "Script")] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
         /// <summary><para type="description">Hides the default export title bar.</para></summary>
-        [Parameter] public SwitchParameter NoWindowChrome { get; set; }
+        [Parameter(ParameterSetName = "Script")] public SwitchParameter NoWindowChrome { get; set; }
         /// <summary><para type="description">MacOS (default), Windows, Linux or None. None or -NoWindowChrome hides chrome.</para></summary>
-        [Parameter, PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+        [Parameter(ParameterSetName = "Script"), PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary><para type="description">Export the final frame as a static SVG.</para></summary>
-        [Parameter] public SwitchParameter FinalFrame { get; set; }
+        [Parameter(ParameterSetName = "Script")] public SwitchParameter FinalFrame { get; set; }
         /// <summary><para type="description">Records an interactive child shell until it exits or stops recording.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
         public SwitchParameter Interactive { get; set; }

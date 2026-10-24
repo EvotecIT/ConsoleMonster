@@ -14,10 +14,10 @@ namespace ConsoleMonster.PowerShell {
     /// earlier. No rendering or layout logic lives here: every item ends in one of the widget's own public methods.
     /// </summary>
     internal static class PSItems {
-        // Series made by New-ConsoleChartSeries without -Tone: the chart picks their colour (status words take their tone).
+        // Series made by New-ConsoleChartSeries without -Role: the chart picks their colour (status words take their tone).
         private static readonly ConditionalWeakTable<ChartSeries, object> AutomaticRole = new ConditionalWeakTable<ChartSeries, object>();
 
-        /// <summary>Remembers that a series has no chosen tone.</summary>
+        /// <summary>Remembers that a series has no chosen role.</summary>
         internal static void MarkAutomaticRole(ChartSeries series) => AutomaticRole.Add(series, true);
 
         /// <summary>What a widget accepts, for error messages and help.</summary>
@@ -70,7 +70,7 @@ namespace ConsoleMonster.PowerShell {
             return items;
         }
 
-        private static void Flatten(List<object> items, object? value) {
+        private static void Flatten(List<object> items, object? value, List<object>? path = null) {
             object? raw = PSText.Unwrap(value);
             if (raw == null) {
                 return;
@@ -78,9 +78,10 @@ namespace ConsoleMonster.PowerShell {
             // Arrays and lists are their items (a double[] of samples, a List of nodes); strings, dictionaries and
             // widgets are one item each.
             if (raw is IEnumerable enumerable && !(raw is string) && !(raw is IDictionary) && !(raw is Layout.IWidget) && !(raw is PSCustomObject)) {
-                foreach (object? element in enumerable) {
-                    Flatten(items, element);
-                }
+                PSCollectionPath.Enter(ref path, raw);
+                try {
+                    foreach (object? element in enumerable) { Flatten(items, element, path); }
+                } finally { path!.RemoveAt(path.Count - 1); }
                 return;
             }
             items.Add(Item(value!));

@@ -234,6 +234,22 @@ namespace ConsoleMonster.Tests.Export {
         }
 
         [Fact]
+        public void RecordingAutomaticWidthIsSharedByFramesAndSerializedGeometry() {
+            var target = new global::ConsoleMonster.Output.RecordingTarget(TerminalProfile.Fixed(57, 24, ColorDepth.None, GlyphTier.Ascii));
+            using (Terminal.Use(target)) {
+                var options = new RecordingExportOptions { Height = 6, FramesPerSecond = 5 };
+                IWidget root = Build(out string recording);
+                string data = Recording.ExportPlayerData(root, new StringReader(recording), options);
+                Assert.Contains("\"width\":57", data);
+                string cast = Recording.ExportAsciicast(root, new StringReader(recording), options);
+                Assert.Contains("\"cols\":57", cast.Split('\n')[0]);
+                string svg = Recording.ExportSvg(root, new StringReader(recording), options);
+                Assert.DoesNotContain("width=\"0\"", svg);
+                Assert.Equal(0, options.Width);
+            }
+        }
+
+        [Fact]
         public void Recording_Asciicast_IsValidV3() {
             IWidget root = Build(out string recording);
             string cast = Recording.ExportAsciicast(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build", Timestamp = new DateTimeOffset(2026, 10, 17, 0, 0, 0, TimeSpan.Zero) });

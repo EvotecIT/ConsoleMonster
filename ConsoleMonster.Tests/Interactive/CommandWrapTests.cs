@@ -86,7 +86,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Form form = new Form("Health check") { Command = "Invoke-HealthCheck" };
             string[] names = Enumerable.Range(1, 40).Select(i => "Check" + i.ToString("00", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
             ChoiceField checks = form.Page("Checks").MultiSelect("Checks", "Checks", names.Select(c => new Choice(c)));
-            checks.Parameter = "Check";
+            checks.ParameterName = "Check";
             checks.Value = names.Cast<object?>().ToList();
             RecordingSurface surface = new RecordingSurface(46, 30, false);
             PromptHarness.Guard(surface, () => form.Show(new FormOptions { Interactive = PromptHarness.Options("PageDown Escape Escape", surface) }));
@@ -105,11 +105,11 @@ namespace ConsoleMonster.Tests.Interactive {
             FormPage page = form.Page("Checks");
             string[] names = { "SecureChannel", "TimeOffset", "ForwardRecord", "PendingReboot", "DiskSpace" };
             ChoiceField checks = page.MultiSelect("Checks", "Checks", names.Select(c => new Choice(c)));
-            checks.Parameter = "Check";
+            checks.ParameterName = "Check";
             checks.Value = names.Cast<object?>().ToList();
             string[] hosts = { "APP01", "APP02", "DB01" };
             ChoiceField servers = page.MultiSelect("Servers", "Servers", hosts.Select(s => new Choice(s)));
-            servers.Parameter = "ComputerName";
+            servers.ParameterName = "ComputerName";
             servers.Value = hosts.Cast<object?>().ToList();
             RecordingSurface surface = new RecordingSurface(46, 26, false);
             PromptHarness.Guard(surface, () => form.Show(new FormOptions { Interactive = PromptHarness.Options("PageDown Escape Escape", surface) }));

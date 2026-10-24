@@ -36,7 +36,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 NumberField field = form.Number("Count");
                 field.Default = 4.000m;
                 field.Integer = true;
-                field.Parameter = "Count";
+                field.ParameterName = "Count";
                 FormResult result;
                 if (lineMode) {
                     result = form.Show(new FormOptions { Interactive = new InteractiveOptions {
@@ -91,7 +91,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Options") { Review = false, Command = "tool" };
                 NumberField field = form.Number("Rate");
                 field.Default = initial;
-                field.Parameter = "Rate";
+                field.ParameterName = "Rate";
                 FormResult result;
                 if (lineMode) {
                     result = form.Show(new FormOptions { Interactive = new InteractiveOptions {

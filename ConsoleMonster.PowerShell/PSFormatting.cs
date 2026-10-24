@@ -379,7 +379,7 @@ namespace ConsoleMonster.PowerShell {
                     "AsStringWithPassThru", ErrorCategory.InvalidArgument, null));
             }
             if (asString) {
-                cmdlet.WriteObject(CaptureText(cmdlet, widget, width, culture));
+                cmdlet.WriteObject(WidgetFormatter.Render(widget, cmdlet.Host, "PlainText", width, culture));
                 return;
             }
             if (!passThru && cmdlet.MyInvocation.PipelinePosition < cmdlet.MyInvocation.PipelineLength) {

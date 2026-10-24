@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
             get => PSModuleImport.PathFor(this);
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
-        [Parameter] public string? RecordingPath { get; set; }
+        [Parameter(ParameterSetName = "Script")] public string? RecordingPath { get; set; }
         /// <summary><para type="description">Folder for automatic cast names.</para></summary>
         [Parameter] public string? Folder { get; set; }
         /// <summary><para type="description">Recording title.</para></summary>

@@ -35,7 +35,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Converts any value to display text using PowerShell's conversion rules.</summary>
-        public static string ToText(object? value) {
+        public static string ToText(object? value) => ToText(value, null);
+
+        private static string ToText(object? value, List<object>? path) {
             if (value == null) {
                 return string.Empty;
             }
@@ -45,9 +47,10 @@ namespace ConsoleMonster.PowerShell {
             }
             if (raw is System.Collections.IEnumerable enumerable && !(raw is System.Collections.IDictionary)) {
                 List<string> parts = new List<string>();
-                foreach (object? part in enumerable) {
-                    parts.Add(ToText(part));
-                }
+                PSCollectionPath.Enter(ref path, raw);
+                try {
+                    foreach (object? part in enumerable) { parts.Add(ToText(part, path)); }
+                } finally { path!.RemoveAt(path.Count - 1); }
                 return string.Join(", ", parts.ToArray());
             }
             return LanguagePrimitives.ConvertTo<string>(raw) ?? string.Empty;
@@ -130,12 +133,13 @@ namespace ConsoleMonster.PowerShell {
             objects.Clear();
         }
 
-        private static void AddItem(List<IWidget> widgets, object? item) {
+        private static void AddItem(List<IWidget> widgets, object? item, List<object>? path = null) {
             object? raw = item is PSObject ps ? ps.BaseObject : item;
             if (raw is object[] array) {
-                foreach (object nested in array) {
-                    AddItem(widgets, nested);
-                }
+                PSCollectionPath.Enter(ref path, array);
+                try {
+                    foreach (object nested in array) { AddItem(widgets, nested, path); }
+                } finally { path!.RemoveAt(path.Count - 1); }
                 return;
             }
             IWidget? widget = AsWidget(raw);

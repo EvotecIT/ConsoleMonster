@@ -202,7 +202,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             Field field = Create();
             field.Help = Help;
-            field.Parameter = ParameterName;
+            field.ParameterName = ParameterName;
             field.Required = Required.IsPresent || field.Required && Type == ConsoleFieldType.Secret;
             if (NoRemember.IsPresent) {
                 field.Remember = false;

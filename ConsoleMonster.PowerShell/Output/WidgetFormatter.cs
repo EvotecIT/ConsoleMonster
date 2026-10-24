@@ -36,7 +36,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="widget">The widget.</param>
         /// <param name="host">The host (for the width), or null.</param>
         /// <param name="outputRendering">Host, Ansi or PlainText; empty or null means plain.</param>
-        /// <param name="width">A width, or 0 for the host's (one column less, so a full line never wraps).</param>
+        /// <param name="width">An explicit positive width, or zero for the current target/terminal, falling back to 100 cells.</param>
         /// <param name="culture">A culture, or null.</param>
         /// <returns>The text, without a trailing line break.</returns>
         public static string Render(IWidget widget, PSHost? host, string? outputRendering, int width, CultureInfo? culture) {
@@ -47,11 +47,8 @@ namespace ConsoleMonster.PowerShell {
             if (culture != null) {
                 profile = profile.WithCulture(culture);
             }
-            int columns = width > 0 ? width : HostWidth(host);
-            if (columns <= 0) {
-                columns = profile.Width;
-            }
-            profile = profile.WithSize(Math.Max(10, columns), profile.Height);
+            int columns = Terminal.ResolveWidth(width);
+            profile = profile.WithSize(columns, profile.Height);
             if (profile.Mode == OutputMode.Interactive) {
                 profile = profile.WithMode(OutputMode.Stream);
             }

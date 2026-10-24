@@ -31,6 +31,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? Footer { get; set; }
 
+        /// <summary><para type="description">Key/label dictionaries or typed KeyHint values; replaces the default Ctrl+C hint. Used when Footer is unset.</para></summary>
+        [Parameter]
+        public object[]? FooterHints { get; set; }
+
         /// <summary><para type="description">Live name of the dashboard (for Send-ConsoleEvent title/status updates).</para></summary>
         [Parameter(Position = 0)]
         public string WidgetId { get; set; } = "dashboard";
@@ -48,6 +52,10 @@ namespace ConsoleMonster.PowerShell {
             Dashboard dashboard = new Dashboard(PSText.Markup(Title) ?? string.Empty, new Rows(children.ToArray()) { Gap = Gap }, WidgetId) { Subtitle = PSText.Markup(Subtitle), ShowElapsed = !NoElapsed.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Footer))) {
                 dashboard.Footer = PSText.Markup(Footer);
+            }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(FooterHints))) {
+                dashboard.FooterHints.Clear();
+                foreach (KeyHint hint in PSFooterHints.Read(FooterHints)) { dashboard.FooterHints.Add(hint); }
             }
             WriteObject(dashboard);
         }

@@ -420,7 +420,7 @@ namespace ConsoleMonster.PowerShell {
         public static void Fail(PSCmdlet cmdlet, Exception ex, string title) {
             switch (ex) {
                 case PromptCanceledException cancelled:
-                    cmdlet.ThrowTerminatingError(new ErrorRecord(cancelled, "PromptCancelled", ErrorCategory.OperationStopped, title));
+                    cmdlet.ThrowTerminatingError(new ErrorRecord(cancelled, "PromptCanceled", ErrorCategory.OperationStopped, title));
                     return;
                 case PromptUnavailableException unavailable:
                     cmdlet.ThrowTerminatingError(new ErrorRecord(unavailable, "PromptNeedsValue", ErrorCategory.InvalidOperation, title));

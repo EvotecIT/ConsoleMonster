@@ -142,12 +142,12 @@ namespace ConsoleMonster.Examples.Showcases {
             FormPage target = form.Page("Scope", "Which servers to check.");
             ChoiceField domain = target.Select("Domain", "Domain", FleetData.DomainChoices());
             domain.Required = true;
-            domain.Parameter = "Domain";
+            domain.ParameterName = "Domain";
             domain.Help = "Choosing a domain loads its servers from the inventory.";
             ChoiceField servers = target.MultiSelect("Servers", "Servers");
             servers.DependsOn.Add("Domain");
             servers.Minimum = 1;
-            servers.Parameter = "ComputerName";
+            servers.ParameterName = "ComputerName";
             servers.Loader = (values, token) => FleetData.LoadServersAsync(values.Get<string>("Domain"), loadDelay, token);
             servers.Help = "Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.";
 
@@ -158,7 +158,7 @@ namespace ConsoleMonster.Examples.Showcases {
             }
             ChoiceField list = checks.MultiSelect("Checks", "Checks", checkChoices);
             list.Minimum = 1;
-            list.Parameter = "Check";
+            list.ParameterName = "Check";
             list.Preview = c => FleetData.CheckPreview(FleetData.Check((string)c.Value!));
             list.Help = "Grouped by category; the preview shows what a healthy server reports.";
 
@@ -168,20 +168,20 @@ namespace ConsoleMonster.Examples.Showcases {
             parallel.Minimum = 1;
             parallel.Maximum = 16;
             parallel.Default = 4m;
-            parallel.Parameter = "ThrottleLimit";
+            parallel.ParameterName = "ThrottleLimit";
             ChoiceField format = run.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
             format.Default = "Html";
-            format.Parameter = "Format";
+            format.ParameterName = "Format";
             PathField report = run.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
             report.Default = Path.Combine("Reports", "Fleet");
-            report.Parameter = "ReportPath";
+            report.ParameterName = "ReportPath";
             ToggleField notify = run.Toggle("Notify", "Email the report");
-            notify.Parameter = "Notify";
+            notify.ParameterName = "Notify";
             TextField email = run.Text("Email", "Recipient");
             email.VisibleWhen = v => v.Get<bool>("Notify");
             email.Default = "ops@contoso.com";
-            email.Parameter = "To";
+            email.ParameterName = "To";
             email.Validator = (value, values) => value is string s && s.Contains("@") ? null : "Enter an email address";
             return form;
         }
