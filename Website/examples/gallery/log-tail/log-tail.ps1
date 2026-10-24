@@ -6,6 +6,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 # All values are synthetic. This example never connects to a host.
 
 # Data: fictional inputs kept in memory.
@@ -19,11 +20,11 @@ $messages = @(
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
-        '[bold]Application log[/] [muted]· synthetic events[/]'
+        '[bold]Application log[/] [muted]· worker events[/]'
         New-ConsolePanel -Title './logs/worker.log' {
             foreach ($line in $messages[0..$Tick]) { $line }
         }
-        "[muted]$($Tick + 1) / 5 events · bounded sample · Ctrl+C stops the live run[/]"
+        "[muted]$($Tick + 1) / 5 events · Ctrl+C stops the live run[/]"
     }
 }
 

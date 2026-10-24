@@ -7,6 +7,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
 
 # Data: fictional inputs kept in memory.
@@ -21,7 +22,7 @@ $query = @('', 'sql', 'missing')[$Step]
 # Layout: construct the widgets shown on screen.
 Show-ConsoleApp {
     New-ConsoleRows -Gap 1 {
-        '[bold]Live filter[/] [muted]· synthetic inventory[/]'
+        '[bold]Live filter[/] [muted]· host inventory[/]'
 
         New-ConsoleTextInput -Name Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'
         # Live updates: rebuild this section when an input or button changes state.

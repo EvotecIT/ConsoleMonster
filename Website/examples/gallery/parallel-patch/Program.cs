@@ -1,4 +1,5 @@
 // Run synthetic work with a concurrency limit and retain failures for retry.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -22,9 +23,9 @@ IWidget Frame(int tick) {
         string result = tick < 2 ? "-" : server == "web-03" ? "Retry needed" : "Pass";
         table.AddRow(server, stage, TableCell.FromValue(result));
     }
-    string summary = tick == 2 ? "[pass]5 passed[/]  [warn]1 retry needed[/]  [muted]0 real hosts changed[/]"
-        : "[muted]Synthetic hosts only. Ctrl+C cancels active work.[/]";
-    return new Rows(new TextBlock("[bold]Parallel patch run[/] [muted]· dry run, throttle 3[/]"),
+    string summary = tick == 2 ? "[pass]5 passed[/]  [warn]1 retry needed[/]"
+        : "[muted]Ctrl+C cancels active work.[/]";
+    return new Rows(new TextBlock("[bold]Parallel patch run[/] [muted]· throttle 3[/]"),
         table, new TextBlock(summary)) { Gap = 1 };
 }
 // Live updates: print one state headlessly, or run the bounded simulation.
@@ -34,8 +35,8 @@ if (snapshot) {
 }
 IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
     await Task.Delay(350, cancel);
-    if (server == "web-03") throw new InvalidOperationException("Synthetic restart check failed");
+    if (server == "web-03") throw new InvalidOperationException("Restart check failed");
     return server + " preview passed";
-}, new RunOptions { ThrottleLimit = 3, Timeout = TimeSpan.FromSeconds(3), Title = "Patch preview" });
+}, new RunOptions { ThrottleLimit = 3, Timeout = TimeSpan.FromSeconds(3), Title = "Patch run" });
 // results retains each outcome for retry/reporting; no patch command runs here.
 Terminal.Write(Frame(2));

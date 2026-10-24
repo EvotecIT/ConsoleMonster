@@ -23,5 +23,8 @@
     "Add explicit confirmation before a destructive action."
   ],
   "mode": "live",
-  "steps": 3
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when a handful of admin operations need a discoverable menu and preview.",
+  "featured": false
 }

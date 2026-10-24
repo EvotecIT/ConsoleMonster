@@ -6,6 +6,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 # All values are synthetic. This example never connects to a host.
 
 # Data: fictional inputs kept in memory.
@@ -14,7 +15,7 @@ $workerCount = 8
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
-        '[bold]Worker stress dashboard[/] [muted]· simulated load[/]'
+        '[bold]Worker stress dashboard[/] [muted]· worker pool[/]'
         New-ConsoleColumns {
             New-ConsolePanel -Title Workers {
                 foreach ($worker in 1..$workerCount) {
@@ -32,7 +33,7 @@ function New-DemoFrame($Tick) {
                 New-ConsoleSparkline -Label 'updates/s' -Value @(120,180,160,240,210,(220 + $Tick * 15))
             }
         }
-        '[muted]Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.[/]'
+        '[muted]Ctrl+C stops the live run.[/]'
     }
 }
 

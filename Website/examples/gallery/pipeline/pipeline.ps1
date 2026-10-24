@@ -6,6 +6,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 # All values are synthetic. This example never connects to a host.
 
 # Data: fictional inputs kept in memory.
@@ -13,7 +14,7 @@ $stages = @('Restore', 'Compile', 'Test', 'Package')
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
-        '[bold]Build pipeline[/] [muted]· dry run[/]'
+        '[bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
         New-ConsolePanel -Title 'Release checklist' {
             foreach ($index in 0..3) {
                 $status = if ($index -lt $Tick) { 'pass' } elseif ($index -eq $Tick) { 'accent' } else { 'muted' }
@@ -26,9 +27,9 @@ function New-DemoFrame($Tick) {
             'Project' = 'Orbit.Tools'
             'Version' = '1.2.0'
             'Artifacts' = './artifacts/'
-            'Publish' = 'disabled'
+            'Publish' = 'manual approval'
         })
-        '[muted]Nothing is built, signed or published. Ctrl+C stops the live run.[/]'
+        '[muted]Ctrl+C stops the live run.[/]'
     }
 }
 

@@ -23,5 +23,8 @@
     "Add a detail panel for the selected result."
   ],
   "mode": "live",
-  "steps": 3
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when readers need to narrow a local table as they type.",
+  "featured": false
 }

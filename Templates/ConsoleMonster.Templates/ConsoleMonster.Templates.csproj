@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <GalleryDemo Include="assessment;fleet;setup;stress;pipeline;live-filter;toolbox;parallel-patch;log-tail;welcome-compact;welcome-rich;everyday">
+        <GalleryDemo Include="assessment;fleet;setup;stress;pipeline;live-filter;toolbox;parallel-patch;log-tail;welcome-compact;welcome-rich;everyday;assessment-showcase;stress-showcase;fleet-showcase;setup-showcase;pipeline-showcase;toolbox-showcase;query-showcase;parallel-patch-showcase;prompt-tour;certificate-expiry;disk-usage;process-monitor;port-matrix;repository-status;backup-runner">
             <Link>content/ConsoleMonsterApp/gallery/%(Identity)/Program.cs</Link>
             <PackagePath>content/content/ConsoleMonsterApp/gallery/%(Identity)/</PackagePath>
         </GalleryDemo>

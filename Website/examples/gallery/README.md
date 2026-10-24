@@ -1,9 +1,11 @@
 # Copyable demos
 
 Each folder contains one complete `<slug>.ps1` script, one complete `Program.cs`,
-and `metadata.json`. The samples use fictional inline data and never contact
-hosts, install software, patch machines, or publish artifacts. The welcome
-screens use fixed host and git summaries so they start quickly and work offline.
+and `metadata.json`. Starters keep the first useful version small. Showcases
+carry the full workflow: richer dashboards, menus, forms, live progress, and
+results. Both tiers use fictional inline data and never contact hosts, install
+software, patch machines, or publish artifacts. These limits live in the source
+comments so the terminal output reads like the tool you would build from it.
 
 Install ConsoleMonster, then browse and run the PowerShell demos:
 
@@ -13,6 +15,10 @@ Get-ConsoleDemo | Select-Object Slug, Title, Category
 Show-ConsoleDemo fleet
 Get-ConsoleDemo fleet -Path ./fleet.ps1
 ```
+
+Use `Get-ConsoleDemo | Where-Object Tier -eq showcase` to browse the larger
+programs. For example, `Show-ConsoleDemo fleet-showcase` opens the shell workflow
+with presets, scope selection, a review, live check progress, and results.
 
 Edit `fleet.ps1`, then run it from your shell. Use `-StaticSnapshot -Step 0`
 to print a state without reading input. `Steps` in the metadata gives the number
@@ -41,8 +47,10 @@ time. There is no second maintained copy of either source.
 ## Metadata and generated data
 
 `metadata.json` defines the title, pitch, category, tags, terminal size, supported
-runtimes, add-ons, three customization suggestions, mode, and state count.
-Keep each source at 250 lines or less. All launch demos require no add-ons.
+runtimes, add-ons, three customization suggestions, mode, state count, `tier`,
+and `useCase`. The use-case sentence starts with "Use it when". `featured` marks
+the strongest showcase programs. Keep starters at 250 lines or less and
+showcases at 450 lines or less. No entry requires an add-on.
 
 SiteFrames generates `Website/data/gallery.json` as:
 
@@ -54,12 +62,19 @@ SiteFrames generates `Website/data/gallery.json` as:
 ```
 
 Each demo keeps its metadata and adds `id`, a `source` object with `powershell`
-and `csharp` entries, download URLs, run commands, a `frame`, a
-`thumbnail` SVG URL, and per-state cell parity results. Live entries also carry
+and `csharp` entries, `lines` with each file's line count, download URLs, run
+commands, a `frame`, a `thumbnail` SVG URL, and per-state cell parity results.
+Featured entries come first, followed by slug order. Live entries also carry
 `url`, `duration` in milliseconds, `frames`, `fps`, and `start` for the existing
 player. Their `capture` field identifies them as deterministic snapshot
 storyboards: they show the sample's successive states at fixed intervals,
 rather than recording keyboard timing or claiming measured performance.
+
+`replay` is null for a static entry. For a live entry it has the existing player
+shape: `url`, `w`, `h`, `poster` (`w`, `h`, `dark`), `start`, and `hero`. Its
+dimensions match the replay file, and `start` is the poster's time. The existing
+flat replay and source fields remain available. Recordings of a different
+program are not reused as evidence for a new port.
 
 Each language entry in `source` contains `file`, `text`, and `repo`. `text` is
 the complete runnable file, read directly from its canonical UTF-8 bytes, including

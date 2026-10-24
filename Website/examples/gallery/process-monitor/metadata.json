@@ -1,0 +1,30 @@
+{
+  "slug": "process-monitor",
+  "title": "Process monitor",
+  "pitch": "Track CPU and memory counters in a bounded live dashboard.",
+  "category": "Dashboards",
+  "tags": [
+    "processes",
+    "refresh",
+    "sparkline"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 26
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Collect process counters before each refresh and retain stable process identifiers.",
+    "Choose a refresh interval that keeps collection inexpensive.",
+    "Add a bounded history or a status threshold for the resource you investigate most."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when a long-running task needs a compact view of CPU and memory pressure.",
+  "featured": false
+}

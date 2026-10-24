@@ -5,6 +5,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 
 # Data: fictional inputs kept in memory.
 # The same synthetic objects feed the plain baseline and the formatted table.
@@ -22,7 +23,7 @@ $screen = New-ConsoleRows -Gap 1 {
     New-ConsoleText $baseline
     New-ConsoleText -Markup '[bold]After[/] [muted]| ConsoleMonster table[/]'
     $tasks | New-ConsoleTable -Property Task, State, Minutes -Expand
-    New-ConsoleText -Markup '[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]'
+    New-ConsoleText -Markup '[muted]Three tasks. Aligned columns and right-aligned numbers.[/]'
 }
 
 # Live updates: this static screen prints once and returns immediately.

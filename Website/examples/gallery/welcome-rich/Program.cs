@@ -1,4 +1,5 @@
 // Print an offline welcome screen with a logo, host summary, git status and tip.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
@@ -8,7 +9,7 @@ using ConsoleMonster.Widgets;
 // Replace fixed strings with cached local data to keep profile startup fast.
 var hostData = new[] {
     (Label: "Host", Value: "comet-devbox"),
-    (Label: "Platform", Value: "Unix-like / sample environment"),
+    (Label: "Platform", Value: "Cross-platform development"),
     (Label: "Runtime", Value: "PowerShell 7.4+ / .NET 8+"),
     (Label: "Workspace", Value: "comet-notes")
 };
@@ -19,11 +20,11 @@ KeyValueList hostSummary = new KeyValueList();
 foreach (var item in hostData) hostSummary.Add(item.Label, item.Value);
 
 Rows layout = new Rows(
-    new Logo("HELLO", "[muted]A little context before your next command. Sample profile.[/]"),
-    new Panel(hostSummary, "Host summary") { Caption = "synthetic values" },
+    new Logo("HELLO", "[muted]A little context before your next command.[/]"),
+    new Panel(hostSummary, "Host summary") { Caption = "local workspace" },
     new Panel(new TextBlock(git), "Git | comet-notes"),
     new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
-    new TextBlock("[muted]Ready when you are. Everything here is fixed sample data.[/]")) { Gap = 1 };
+    new TextBlock("[muted]Ready when you are.[/]")) { Gap = 1 };
 
 // Live updates: this static screen prints once and returns immediately.
 Terminal.Write(layout);

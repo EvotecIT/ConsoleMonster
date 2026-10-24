@@ -23,5 +23,8 @@
     "Choose queue and error thresholds."
   ],
   "mode": "live",
-  "steps": 5
+  "steps": 5,
+  "tier": "starter",
+  "useCase": "Use it when a worker queue needs progress bars and a throughput trend.",
+  "featured": false
 }

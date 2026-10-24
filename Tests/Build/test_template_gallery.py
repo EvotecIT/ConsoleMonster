@@ -19,11 +19,7 @@ import zipfile
 REPO = Path(__file__).resolve().parents[2]
 TEMPLATE = REPO / "Templates/ConsoleMonster.Templates"
 GALLERY = REPO / "Website/examples/gallery"
-SLUGS = (
-    "assessment", "fleet", "setup", "stress", "pipeline", "live-filter",
-    "toolbox", "parallel-patch", "log-tail", "welcome-compact", "welcome-rich",
-    "everyday",
-)
+SLUGS = tuple(sorted(path.parent.name for path in GALLERY.glob("*/metadata.json")))
 
 
 def normalized(data):

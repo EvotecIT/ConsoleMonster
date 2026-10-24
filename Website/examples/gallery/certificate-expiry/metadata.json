@@ -1,0 +1,30 @@
+{
+  "slug": "certificate-expiry",
+  "title": "Certificate expiry report",
+  "pitch": "Review renewal deadlines, owners and next actions in one report.",
+  "category": "Reports",
+  "tags": [
+    "certificates",
+    "deadlines",
+    "ownership"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 30
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the fixed certificate list with inventory records and calculate days remaining before rendering.",
+    "Set your urgent and warning thresholds, keeping the same policy in the summary and table.",
+    "Assign renewal owners and a concrete next action for each certificate."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when certificate renewals need an owner and a visible deadline.",
+  "featured": false
+}

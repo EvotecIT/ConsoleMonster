@@ -33,10 +33,12 @@ namespace SiteFrames.Pages {
                 if (Slug != Path.GetFileName(folder) || Slug.Length == 0 || Slug.Any(c => !(c >= 'a' && c <= 'z') && c != '-')) {
                     throw new InvalidDataException("Gallery slug must match its folder: " + folder);
                 }
-                foreach (string key in new[] { "title", "pitch", "category", "mode" }) {
+                foreach (string key in new[] { "title", "pitch", "category", "mode", "tier", "useCase" }) {
                     if (string.IsNullOrWhiteSpace(Metadata[key]?.GetValue<string>())) throw new InvalidDataException(Slug + " needs " + key);
                 }
                 if (!Categories.Contains(Metadata["category"]!.GetValue<string>()) ||
+                    (Tier != "starter" && Tier != "showcase") ||
+                    !Metadata["useCase"]!.GetValue<string>().StartsWith("Use it when ", StringComparison.Ordinal) ||
                     Metadata["makeItYours"]!.AsArray().Count != 3 || Metadata["addons"]!.AsArray().Count != 0 ||
                     Metadata["tags"]!.AsArray().Count == 0 || Metadata["runtime"] is not JsonObject ||
                     Width < 40 || Width > 160 || Height < 4 || Height > 60 || Steps < 1 || Steps > 12 ||
@@ -44,8 +46,9 @@ namespace SiteFrames.Pages {
                     throw new InvalidDataException("Invalid gallery metadata: " + Slug);
                 }
                 foreach (string path in new[] { PowerShell, CSharp }) {
-                    if (!File.Exists(path) || File.ReadAllLines(path).Length > 250) {
-                        throw new InvalidDataException(Slug + " needs a complete source of at most 250 lines: " + path);
+                    int limit = Tier == "showcase" ? 450 : 250;
+                    if (!File.Exists(path) || File.ReadAllLines(path).Length > limit) {
+                        throw new InvalidDataException(Slug + " needs a complete source of at most " + limit + " lines: " + path);
                     }
                 }
             }
@@ -59,10 +62,13 @@ namespace SiteFrames.Pages {
             public string PowerShell => Path.Combine(Folder, Slug + ".ps1");
             public string CSharp => Path.Combine(Folder, "Program.cs");
             public string Title => Metadata["title"]!.GetValue<string>();
+            public string Tier => Metadata["tier"]!.GetValue<string>();
         }
 
         internal static Demo[] Read(Site site) => Directory.GetDirectories(Path.Combine(site.Website, "examples", "gallery"))
-            .OrderBy(path => path, StringComparer.Ordinal).Select(path => new Demo(path)).ToArray();
+            .Select(path => new Demo(path))
+            .OrderByDescending(demo => demo.Metadata["featured"]?.GetValue<bool>() ?? false)
+            .ThenBy(demo => demo.Slug, StringComparer.Ordinal).ToArray();
 
         private static string CapturePath(Site site, Demo demo, int step) => Path.Combine(site.Captures, "gallery", demo.Slug + "-" + step.ToString(CultureInfo.InvariantCulture) + ".ps7.ansi");
 
@@ -85,6 +91,8 @@ namespace SiteFrames.Pages {
                         "-Width", demo.Width.ToString(CultureInfo.InvariantCulture), "-Height", demo.Height.ToString(CultureInfo.InvariantCulture),
                         "-Steps", demo.Steps.ToString(CultureInfo.InvariantCulture) }) info.ArgumentList.Add(argument);
                     foreach (KeyValuePair<string, string?> setting in PowerShellRunner.Environment("dark")) info.Environment[setting.Key] = setting.Value;
+                    // SiteFrames clears host overrides; captures use the Release module built for the website.
+                    info.Environment["CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION"] = "Release";
                     using (Process process = Process.Start(info)!) {
                         var stdout = process.StandardOutput.ReadToEndAsync();
                         var stderr = process.StandardError.ReadToEndAsync();
@@ -149,6 +157,12 @@ namespace SiteFrames.Pages {
                 entry["thumbnail"] = "/" + thumbnail;
                 entry["frame"] = site.Frame(poster, null);
                 entry["parity"] = parity;
+                entry["lines"] = new JsonObject {
+                    ["powershell"] = File.ReadAllLines(demo.PowerShell).Length,
+                    ["csharp"] = File.ReadAllLines(demo.CSharp).Length
+                };
+                entry["featured"] = demo.Metadata["featured"]?.GetValue<bool>() ?? false;
+                entry["replay"] = null;
                 foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs" }) {
                     string target = site.Static("examples/gallery/" + demo.Slug + "/" + file);
                     Directory.CreateDirectory(Path.GetDirectoryName(target)!);
@@ -170,6 +184,14 @@ namespace SiteFrames.Pages {
                     entry["frames"] = count;
                     entry["start"] = 0;
                     entry["fps"] = 10;
+                    entry["replay"] = new JsonObject {
+                        ["url"] = entry["url"]!.GetValue<string>(),
+                        ["w"] = timeline.Max(frame => frame.Frame.Width),
+                        ["h"] = timeline.Max(frame => frame.Frame.Height),
+                        ["poster"] = site.Frame(poster, null),
+                        ["start"] = timeline[timeline.Count - 1].Time,
+                        ["hero"] = ReplayFit.Hero(timeline)
+                    };
                 }
                 entries.Add(entry);
                 Console.WriteLine("gallery " + demo.Slug + ": " + demo.Steps + " twin states identical");

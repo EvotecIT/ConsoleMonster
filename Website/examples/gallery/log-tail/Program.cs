@@ -1,4 +1,5 @@
 // Reveal a bounded stream of sample log events in a live region.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -24,10 +25,10 @@ if (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));
 IWidget Frame(int tick) {
     Rows lines = new Rows();
     foreach (string line in messages.Take(tick + 1)) lines.Add(new TextBlock(line));
-    return new Rows(new TextBlock("[bold]Application log[/] [muted]· synthetic events[/]"),
+    return new Rows(new TextBlock("[bold]Application log[/] [muted]· worker events[/]"),
         new Panel(lines, "./logs/worker.log"), new TextBlock("[muted]" +
             (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) +
-            " / 5 events · bounded sample · Ctrl+C stops the live run[/]")) { Gap = 1 };
+            " / 5 events · Ctrl+C stops the live run[/]")) { Gap = 1 };
 }
 
 // Live updates: print one state headlessly, or run the bounded simulation.

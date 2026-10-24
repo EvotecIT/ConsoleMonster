@@ -1,4 +1,5 @@
 // Animate worker progress bars and a small session dashboard.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -29,9 +30,9 @@ IWidget Frame(int tick) {
         .Add("Workers", "8").Add("Dropped", "[pass]0[/]");
     Sparkline trend = new Sparkline { Label = "updates/s" };
     trend.AddRange(new double[] { 120,180,160,240,210,220 + tick * 15 });
-    return new Rows(new TextBlock("[bold]Worker stress dashboard[/] [muted]· simulated load[/]"),
+    return new Rows(new TextBlock("[bold]Worker stress dashboard[/] [muted]· worker pool[/]"),
         new Columns(new Panel(workers, "Workers"), new Panel(new Rows(stats, trend), "Session")),
-        new TextBlock("[muted]Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.[/]")) { Gap = 1 };
+        new TextBlock("[muted]Ctrl+C stops the live run.[/]")) { Gap = 1 };
 }
 
 // Live updates: print one state headlessly, or run the bounded simulation.

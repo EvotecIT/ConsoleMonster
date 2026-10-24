@@ -23,5 +23,8 @@
     "Choose which levels deserve warning or failure colours."
   ],
   "mode": "live",
-  "steps": 5
+  "steps": 5,
+  "tier": "starter",
+  "useCase": "Use it when a command needs a bounded live event log that preserves its final state.",
+  "featured": false
 }

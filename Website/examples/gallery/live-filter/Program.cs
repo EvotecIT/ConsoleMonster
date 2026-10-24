@@ -1,4 +1,5 @@
 // Filter a synthetic host table as you type.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
@@ -30,7 +31,7 @@ IWidget Results(string query) {
     return result;
 }
 Rows layout = new Rows(
-    new TextBlock("[bold]Live filter[/] [muted]· synthetic inventory[/]"),
+    new TextBlock("[bold]Live filter[/] [muted]· host inventory[/]"),
 
     new TextInput("Query", new[] { "", "sql", "missing" }[step]) { Label = "Filter", Placeholder = "Host, role, site or status" },
     new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))) { Gap = 1 };

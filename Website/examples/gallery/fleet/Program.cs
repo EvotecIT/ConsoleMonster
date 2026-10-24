@@ -1,4 +1,5 @@
 // Explore a small fleet dashboard with an interactive inventory filter.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
@@ -30,7 +31,7 @@ IWidget Results(string query) {
     return result;
 }
 Rows layout = new Rows(
-    new TextBlock("[bold]Fleet health[/] [muted]· synthetic inventory[/]"),
+    new TextBlock("[bold]Fleet health[/] [muted]· production inventory[/]"),
     new Panel(new TextBlock("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]"), "Fleet summary"),
 
     new TextInput("Query", new[] { "", "sql", "missing" }[step]) { Label = "Filter", Placeholder = "Host, role, site or status" },

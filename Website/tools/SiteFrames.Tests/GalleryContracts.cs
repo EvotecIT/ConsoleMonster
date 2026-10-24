@@ -27,8 +27,13 @@ namespace SiteFrames.Tests {
             Site site = Repository();
             JsonArray entries = JsonNode.Parse(File.ReadAllText(site.Data("gallery")))!["demos"]!.AsArray();
             Assert.Equal(GalleryPage.Read(site).Length, entries.Count);
+            Assert.InRange(entries.Count(entry => entry!["featured"]!.GetValue<bool>()), 2, 3);
             foreach (JsonNode entry in entries.Cast<JsonNode>()) {
                 string slug = entry["id"]!.GetValue<string>();
+                string tier = entry["tier"]!.GetValue<string>();
+                Assert.Contains(tier, new[] { "starter", "showcase" });
+                Assert.StartsWith("Use it when ", entry["useCase"]!.GetValue<string>());
+                if (entry["featured"]!.GetValue<bool>()) Assert.Equal("showcase", tier);
                 foreach (string language in new[] { "powershell", "csharp" }) {
                     JsonNode source = entry["source"]![language]!;
                     string file = language == "powershell" ? slug + ".ps1" : "Program.cs";
@@ -38,6 +43,20 @@ namespace SiteFrames.Tests {
                     byte[] canonical = File.ReadAllBytes(Path.Combine(site.Website, "..", repo));
                     Assert.Equal(canonical, Encoding.UTF8.GetBytes(source["text"]!.GetValue<string>()));
                     Assert.Equal(canonical, File.ReadAllBytes(site.Static("examples/gallery/" + slug + "/" + file)));
+                    int lines = File.ReadAllLines(Path.Combine(site.Website, "..", repo)).Length;
+                    Assert.Equal(lines, entry["lines"]![language]!.GetValue<int>());
+                    Assert.InRange(lines, 1, tier == "showcase" ? 450 : 250);
+                }
+                if (entry["mode"]!.GetValue<string>() == "static") {
+                    Assert.Null(entry["replay"]);
+                } else {
+                    JsonNode replay = entry["replay"]!;
+                    string replayFile = site.Static(replay["url"]!.GetValue<string>().TrimStart('/'));
+                    JsonNode player = JsonNode.Parse(File.ReadAllText(replayFile))!;
+                    Assert.Equal(player["width"]!.GetValue<int>(), replay["w"]!.GetValue<int>());
+                    Assert.Equal(player["height"]!.GetValue<int>(), replay["h"]!.GetValue<int>());
+                    Assert.True(JsonNode.DeepEquals(entry["frame"], replay["poster"]));
+                    Assert.InRange(replay["start"]!.GetValue<long>(), 0, player["duration"]!.GetValue<long>());
                 }
             }
         }
@@ -46,7 +65,7 @@ namespace SiteFrames.Tests {
         [InlineData("live-filter", "\"sql\" Escape", "sql-02", "web-01")]
         [InlineData("fleet", "\"missing\" Escape", "No matching hosts", "web-01")]
         [InlineData("toolbox", "Down Enter Escape", "12 jobs waiting", "CPU 24%")]
-        [InlineData("setup", "Tab Tab Tab Enter Enter Escape", "Preview ready", "Choose a writable folder")]
+        [InlineData("setup", "Tab Tab Tab Enter Enter Escape", "Ready to install", "Choose a writable folder")]
         public void ScriptedKeysReachThePublishedAppsResult(string slug, string keys, string expected, string absent) {
             Site site = Repository();
             GalleryPage.Demo demo = GalleryPage.Read(site).Single(d => d.Slug == slug);
@@ -68,6 +87,8 @@ namespace SiteFrames.Tests {
         [InlineData("pipeline", "Package", "complete")]
         [InlineData("log-tail", "Batch complete", "5 / 5")]
         [InlineData("parallel-patch", "5 passed", "1 retry needed")]
+        [InlineData("backup-runner", "4 passed", "1 recovered on retry")]
+        [InlineData("process-monitor", "CPU 66%", "1768 MiB")]
         public void LiveDriversFinishAndRetainTheirResult(string slug, string expected, string detail) {
             GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == slug);
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);

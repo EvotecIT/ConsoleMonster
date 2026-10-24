@@ -100,7 +100,7 @@ $state = & $path -AppOptions @{
         (Get-Command Get-ConsoleDemo -Module ConsoleMonster).CommandType | Should -Be 'Cmdlet'
         (Get-Command Show-ConsoleDemo -Module ConsoleMonster).CommandType | Should -Be 'Cmdlet'
         $demos = @(Get-ConsoleDemo)
-        $expected = @('assessment', 'everyday', 'fleet', 'live-filter', 'log-tail', 'parallel-patch', 'pipeline', 'setup', 'stress', 'toolbox', 'welcome-compact', 'welcome-rich')
+        $expected = @(Get-ChildItem (Join-Path $PSScriptRoot '../../Website/examples/gallery/*/metadata.json') | ForEach-Object { $_.Directory.Name } | Sort-Object)
         ($demos.Slug -join ',') | Should -BeExactly ($expected -join ',')
         foreach ($demo in $demos) {
             $demo.Title | Should -Not -BeNullOrEmpty
@@ -114,6 +114,8 @@ $state = & $path -AppOptions @{
             $demo.PSObject.Properties.Name | Should -Contain 'addons'
             @($demo.MakeItYours).Count | Should -Be 3
             @('static', 'live') | Should -Contain $demo.Mode
+            @('starter', 'showcase') | Should -Contain $demo.Tier
+            $demo.UseCase | Should -Match '^Use it when .+\.$'
             $demo.Steps | Should -BeGreaterThan 0
         }
     }
@@ -166,18 +168,7 @@ $state = & $path -AppOptions @{
     }
 
     It 'exports <Slug> byte for byte and runs its embedded static snapshot' -ForEach @(
-        @{ Slug = 'assessment' }
-        @{ Slug = 'fleet' }
-        @{ Slug = 'setup' }
-        @{ Slug = 'stress' }
-        @{ Slug = 'pipeline' }
-        @{ Slug = 'live-filter' }
-        @{ Slug = 'toolbox' }
-        @{ Slug = 'parallel-patch' }
-        @{ Slug = 'log-tail' }
-        @{ Slug = 'welcome-compact' }
-        @{ Slug = 'welcome-rich' }
-        @{ Slug = 'everyday' }
+        Get-ChildItem (Join-Path $PSScriptRoot '../../Website/examples/gallery/*/metadata.json') | ForEach-Object { @{ Slug = $_.Directory.Name } }
     ) {
         $path = Join-Path $TestDrive "$Slug.ps1"
         $null = Get-ConsoleDemo $Slug -Path $path -Force
@@ -229,7 +220,7 @@ $state = & $path -AppOptions @{
         $result.State.Next | Should -Be 2
         $result.State.Back | Should -Be 0
         $result.Frame | Should -Match '3 / 3'
-        $result.Frame | Should -Match 'Preview ready'
+        $result.Frame | Should -Match 'Ready to install'
         $result.Frame | Should -Match 'Component: Core \+ reports'
         $result.Frame | Should -Not -Match 'Choose a writable folder'
         $result.FrameCount | Should -BeGreaterThan 1
