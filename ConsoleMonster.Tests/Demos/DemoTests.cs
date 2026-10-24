@@ -40,6 +40,25 @@ namespace ConsoleMonster.Tests.Demos {
             Assert.Contains("ForEach-Object", script.Steps[0].Text);
             Assert.Equal(2, DemoScript.Parse("$value = @'\ntext\n'@\nWrite-Output $value").Steps.Count);
         }
+        [Theory]
+        [InlineData("")]
+        [InlineData("# a comment")]
+        [InlineData("<# a block\ncomment #>")]
+        public void StatementTriviaIsNotTypedAndDoesNotSplitElseBranches(string trivia) {
+            var script = DemoScript.Parse("'first'\n" + trivia + "\n'second'\n" + trivia);
+            Assert.Equal(new[] { "'first'", "'second'" }, script.Steps.Select(step => step.Text));
+            var conditional = DemoScript.Parse("if ($true) { 'yes' }\n" + trivia + "\nelse { 'no' }\n" + trivia);
+            Assert.Single(conditional.Steps);
+            Assert.EndsWith("else { 'no' }", conditional.Steps[0].Text);
+            var literal = DemoScript.Parse("$text = 'line one\n# literal string content\n'\n" + trivia);
+            Assert.Equal("$text = 'line one\n# literal string content\n'", literal.Steps[0].Text);
+        }
+        [Fact]
+        public void InvalidWaitPatternsFailBeforeAnyDemoCanExecute() {
+            var error = Assert.Throws<FormatException>(() => DemoScript.Parse("Remove-Item ./fixture\n# demo: wait ["));
+            Assert.Contains("line 2", error.Message);
+            Assert.IsAssignableFrom<ArgumentException>(error.InnerException);
+        }
         [Fact]
         public void SemanticOutputExcludesTypedInputAndPromptsButKeepsLateOutputAtEveryChunkBoundary() {
             const string stream = "typed-READY\u001b]133;C\aactual\r\n\u001b]133;D;0\a\u001b]133;A\aprompt-READY> \u001b]133;B\alate\r\n";

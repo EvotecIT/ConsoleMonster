@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ConsoleMonster.Demos {
     /// <summary>An executable command or a presentation instruction in a PowerShell demo.</summary>
@@ -60,7 +61,7 @@ namespace ConsoleMonster.Demos {
             PowerShellCommandBoundary boundary = new PowerShellCommandBoundary();
             double wpm = 100;
             bool hidden = false, typeOnly = false;
-            int line = 0, start = 0;
+            int line = 0, start = 0, commandEnd = 0;
             using (StringReader reader = new StringReader(source)) {
                 string? text;
                 while ((text = reader.ReadLine()) != null) {
@@ -82,7 +83,10 @@ namespace ConsoleMonster.Demos {
                             case "chapter": Add(DemoStepKind.Chapter); break;
                             case "pause": Number(value, line, 0, 3600); Add(DemoStepKind.Pause); break;
                             case "narrate": Add(DemoStepKind.Narration); break;
-                            case "wait": Add(DemoStepKind.Wait); break;
+                            case "wait":
+                                try { _ = new Regex(value, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1)); }
+                                catch (ArgumentException error) { throw new FormatException("Invalid wait pattern at line " + line + ".", error); }
+                                Add(DemoStepKind.Wait); break;
                             default: throw new FormatException("Unknown demo directive at line " + line + ": " + name);
                         }
                         void Add(DemoStepKind kind) {
@@ -96,6 +100,7 @@ namespace ConsoleMonster.Demos {
                     else { command.Append('\n'); }
                     command.Append(text);
                     boundary.Feed(text);
+                    if (boundary.HasCode) { commandEnd = command.Length; }
                 }
             }
             if (command.Length != 0) {
@@ -105,12 +110,15 @@ namespace ConsoleMonster.Demos {
             if (hidden || typeOnly) { throw new FormatException("A setup or type-only directive needs a following command."); }
             return new DemoScript(steps);
             void Flush() {
-                steps.Add(new DemoStep(DemoStepKind.Command, command.ToString(), start, wpm, hidden, typeOnly));
-                command.Clear(); hidden = typeOnly = false;
+                if (commandEnd > 0) {
+                    steps.Add(new DemoStep(DemoStepKind.Command, command.ToString(0, commandEnd), start, wpm, hidden, typeOnly));
+                    hidden = typeOnly = false;
+                }
+                command.Clear(); commandEnd = 0;
             }
         }
         private static bool FollowsBlock(string line, string command) {
-            if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal)) { return true; }
+            if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal) || line.StartsWith("<#", StringComparison.Ordinal)) { return true; }
             if (line.StartsWith("{", StringComparison.Ordinal)) {
                 string header = command.TrimStart();
                 foreach (string keyword in new[] { "function", "filter", "class", "enum", "if", "elseif", "switch", "try", "catch", "finally", "foreach", "for", "while", "do", "begin", "process", "end", "clean" }) {

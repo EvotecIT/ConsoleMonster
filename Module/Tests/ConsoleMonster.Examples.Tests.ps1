@@ -136,6 +136,7 @@ BeforeAll {
         # Relative recording exports belong to the child-owned temp folder, not the checked-out example directory.
         'Website/examples/recording/record-command.ps1' = @{ TemporaryWorkingDirectory = $true }
         'Website/examples/recording/record-session.ps1' = @{
+            RequiresCore = $true
             Arguments = "-OutputDirectory '$($TestDrive.Replace("'", "''"))/recording-demo'"
             Expect = @('Build succeeded. 24 tests passed.', 'Build report', 'API_TOKEN=')
         }

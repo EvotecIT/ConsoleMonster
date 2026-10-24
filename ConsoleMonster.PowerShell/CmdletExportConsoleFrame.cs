@@ -100,7 +100,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            bool graphics = GraphicsExportBridge.IsGraphics(Format, Path);
+            string? requested = Format ?? (Path == null ? null : System.IO.Path.GetExtension(Path).TrimStart('.'));
+            bool graphics = string.Equals(requested, "Png", System.StringComparison.OrdinalIgnoreCase);
             ExportFormat format = graphics ? ExportFormat.Svg : Format != null
                 ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
                 : Path != null ? ConsoleExporter.FormatFor(Path) : ExportFormat.Html;

@@ -12,6 +12,18 @@ Describe 'Talks and demos' {
         ($raw -is [byte[]]) | Should -BeTrue
     }
 
+    It 'only infers PNG for still frame graphics paths' {
+        $png = Join-Path $TestDrive 'inferred.png'
+        'Talk demo' | Export-ConsoleFrame -Path $png
+        [Convert]::ToBase64String(([IO.File]::ReadAllBytes($png))[0..7]) | Should -Be 'iVBORw0KGgo='
+        foreach ($extension in 'gif', 'apng', 'mp4') {
+            $path = Join-Path $TestDrive ('frame.' + $extension)
+            'Talk demo' | Export-ConsoleFrame -Path $path
+            [IO.File]::ReadAllText($path) | Should -Match 'Talk demo'
+            [Convert]::ToBase64String(([IO.File]::ReadAllBytes($path))[0..7]) | Should -Not -Be 'iVBORw0KGgo='
+        }
+    }
+
     It 'writes chapter slides, source-time PNG, GIF and APNG through the installed export surface' {
         $cast = Join-Path $TestDrive 'input.cast'
         [IO.File]::WriteAllLines($cast, @(

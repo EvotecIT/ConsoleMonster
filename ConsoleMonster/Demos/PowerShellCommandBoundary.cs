@@ -10,7 +10,10 @@ namespace ConsoleMonster.Demos {
         private bool _comment;
         private bool _continuation;
         internal bool Complete { get; private set; }
+        // Includes literal string content, but excludes comments and whitespace outside strings.
+        internal bool HasCode { get; private set; }
         internal bool Feed(string line) {
+            HasCode = true;
             bool closedHereString = false;
             if (_here != '\0') {
                 if (!line.StartsWith(_here + "@", StringComparison.Ordinal)) { return Complete = false; }
@@ -42,6 +45,7 @@ namespace ConsoleMonster.Demos {
             foreach (string op in operators) { if (significant.EndsWith(op, StringComparison.OrdinalIgnoreCase)) { continuation = true; } }
             // Blank and comment-only lines do not finish a pending pipeline or operator.
             if (significant.Length > 0 || continuation) { _continuation = continuation; }
+            HasCode = significant.Length > 0 || continuation || _here != '\0';
             return Complete = _brackets.Count == 0 && _quote == '\0' && _here == '\0' && !_comment && !_continuation;
         }
     }

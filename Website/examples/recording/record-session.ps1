@@ -1,3 +1,5 @@
+#Requires -Version 7.0
+
 param(
     [string] $OutputDirectory = (Join-Path $PWD 'session-demo'),
     [string] $ModulePath = 'ConsoleMonster'
@@ -17,7 +19,7 @@ try {
     Export-ConsoleRecording -Path $cast -Destination (Join-Path $OutputDirectory 'session.svg')
     Export-ConsoleRecording -Path $cast -Format Gif -Preset Docs -WindowChrome -Destination (Join-Path $OutputDirectory 'session.gif')
     Export-ConsoleRecording -Path $cast -Format Png -Preset Slide16x9 -PerChapter -WindowChrome -Destination (Join-Path $OutputDirectory 'slides')
-    if (Get-Command ffmpeg -ErrorAction SilentlyContinue) {
+    if (Get-Command ffmpeg -CommandType Application -ErrorAction Ignore) {
         Export-ConsoleRecording -Path $cast -Format Mp4 -Preset Slide16x9 -WindowChrome -Destination (Join-Path $OutputDirectory 'session.mp4')
     }
     Export-ConsoleRecording -Path $cast -FinalFrame -Theme Light -WindowChrome -Destination (Join-Path $OutputDirectory 'session-final-light.svg')
