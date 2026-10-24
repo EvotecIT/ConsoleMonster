@@ -12,6 +12,7 @@ using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>Exercises the published single-file gallery programs through their actual app and capture paths.</summary>
+    [Collection("Interactive process defaults")]
     public sealed class GalleryContracts {
         private static Site Repository() {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
