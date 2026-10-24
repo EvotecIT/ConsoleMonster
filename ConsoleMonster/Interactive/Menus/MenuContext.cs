@@ -64,11 +64,11 @@ namespace ConsoleMonster.Interactive {
         /// <param name="work">The work; returns the result to show (null shows a plain "done").</param>
         /// <param name="options">Live session options; the output is managed by the menu.</param>
         /// <returns>The result.</returns>
-        public RunResult Run(IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options = null) => _host.Run(this, dashboard, work, options);
+        public MenuRunResult Run(IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options = null) => _host.Run(this, dashboard, work, options);
 
         /// <summary>Shows a result page (summary and next actions) in the content area.</summary>
         /// <param name="result">The result.</param>
-        public void ShowResult(RunResult result) => _host.ShowResult(result);
+        public void ShowResult(MenuRunResult result) => _host.ShowResult(result);
 
         /// <summary>Opens an item (its submenu, form, selection or page).</summary>
         /// <param name="item">The item.</param>

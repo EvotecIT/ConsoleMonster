@@ -15,10 +15,10 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     internal static class PSItems {
         // Series made by New-ConsoleChartSeries without -Tone: the chart picks their colour (status words take their tone).
-        private static readonly ConditionalWeakTable<ChartSeries, object> AutomaticTone = new ConditionalWeakTable<ChartSeries, object>();
+        private static readonly ConditionalWeakTable<ChartSeries, object> AutomaticRole = new ConditionalWeakTable<ChartSeries, object>();
 
         /// <summary>Remembers that a series has no chosen tone.</summary>
-        internal static void MarkAutomaticTone(ChartSeries series) => AutomaticTone.Add(series, true);
+        internal static void MarkAutomaticRole(ChartSeries series) => AutomaticRole.Add(series, true);
 
         /// <summary>What a widget accepts, for error messages and help.</summary>
         internal static string Accepted(object widget) {
@@ -135,9 +135,9 @@ namespace ConsoleMonster.PowerShell {
                 case BarChart bars:
                     if (BarItemFrom(item, ref problem) is ChartItem bar) {
                         if (bar.LabelText != null) {
-                            bars.Add(bar.LabelText, bar.Value, bar.Token);
+                            bars.Add(bar.LabelText, bar.Value, bar.Role, bar.Key);
                         } else {
-                            bars.Add(bar.Label, bar.Value, bar.Token);
+                            bars.Add(bar.Label, bar.Value, bar.Role, bar.Key);
                         }
                         return true;
                     }
@@ -145,23 +145,21 @@ namespace ConsoleMonster.PowerShell {
                 case StackedBar stacked:
                     if (BarItemFrom(item, ref problem) is ChartItem segment) {
                         if (segment.LabelText != null) {
-                            stacked.Add(segment.LabelText, segment.Value, segment.Token);
+                            stacked.Add(segment.LabelText, segment.Value, segment.Role, segment.Key);
                         } else {
-                            stacked.Add(segment.Label, segment.Value, segment.Token);
+                            stacked.Add(segment.Label, segment.Value, segment.Role, segment.Key);
                         }
                         return true;
                     }
                     return false;
                 case LineChart chart:
                     if (item is ChartSeries series) {
-                        ThemeToken? token = AutomaticTone.TryGetValue(series, out _) ? (ThemeToken?)null : series.Token;
-                        if (series.NameText != null) {
-                            chart.AddSeries(series.NameText, token);
-                        } else {
-                            chart.AddSeries(series.Name, token);
-                        }
+                        ThemeToken? token = AutomaticRole.TryGetValue(series, out _) ? (ThemeToken?)null : series.Role;
+                        ChartSeries attached = chart.AddSeries(series.Key, token);
+                        attached.Label = series.Label;
+                        attached.LabelText = series.LabelText;
                         foreach (double value in series.Values) {
-                            chart.Add(series.Name, value);
+                            chart.Add(series.Key, value);
                         }
                         return true;
                     }
@@ -269,9 +267,9 @@ namespace ConsoleMonster.PowerShell {
             }
             if (IsRecord(item)) {
                 // @{ Label = 'Restore'; Status = 'Pass'; Detail = '1.6 s' } (or such an object) reads like the item cmdlet's parameters.
-                string label = PSWidgets.ToText(Field(item, "Label") ?? Field(item, "Name") ?? Field(item, "Key"));
+                string label = PSWidgets.ToText(Field(item, "Label") ?? Field(item, "Key"));
                 if (label.Length == 0) {
-                    problem = "A status item needs a Label (or Name) value.";
+                    problem = "A status item needs a Label value.";
                     return null;
                 }
                 StatusKind status = StatusKind.Pending;
@@ -294,23 +292,23 @@ namespace ConsoleMonster.PowerShell {
                 return chartItem;
             }
             if (IsRecord(item)) {
-                object? label = Field(item, "Label") ?? Field(item, "Name");
+                object? label = Field(item, "Label");
                 object? value = Field(item, "Value");
                 if (label == null || value == null || !TryNumber(value, out double number)) {
-                    problem = "A bar needs a Label (or Name) and a numeric Value.";
+                    problem = "A bar needs a Label and a numeric Value.";
                     return null;
                 }
                 ThemeToken? token = null;
-                object? tone = Field(item, "Tone");
+                object? tone = Field(item, "Role");
                 if (tone != null) {
                     string toneText = PSWidgets.ToText(tone);
                     if (int.TryParse(toneText, out _) || !Enum.TryParse(toneText, true, out ThemeToken parsed) || !Enum.IsDefined(typeof(ThemeToken), parsed)) {
-                        problem = "'" + toneText + "' is not a tone. Use a theme role such as Pass, Fail, Warn, Accent or Series1 to Series6.";
+                        problem = "'" + toneText + "' is not a role. Use a theme role such as Pass, Fail, Warn, Accent or Series1 to Series6.";
                         return null;
                     }
                     token = parsed;
                 }
-                return new ChartItem(PSWidgets.ToText(label), number, token);
+                return new ChartItem(PSWidgets.ToText(label), number, token, Field(item, "Key") as string);
             }
             return null;
         }

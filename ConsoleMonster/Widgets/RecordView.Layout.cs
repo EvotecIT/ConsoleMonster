@@ -71,8 +71,8 @@ namespace ConsoleMonster.Widgets {
 
         private Entry HeadingEntry(RecordItem item, int indent, int width, bool spaced, RenderContext context) {
             Style style = item.Level == 0 ? context.Style(ThemeToken.Title) : context.Style(ThemeToken.Header);
-            if (item.Tone.HasValue) {
-                style = context.Style(item.Tone.Value).With(TextDecoration.Bold);
+            if (item.Role.HasValue) {
+                style = context.Style(item.Role.Value).With(TextDecoration.Bold);
             }
             List<TextSpan> spans = new List<TextSpan>();
             foreach (TextSpan span in context.Markup(item.Text).Lines[0].WithBaseStyle(style)) {

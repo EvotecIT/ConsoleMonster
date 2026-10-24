@@ -58,11 +58,11 @@ namespace ConsoleMonster.Widgets {
     /// <summary>Turns cells into content and draws visuals; one implementation for every widget that shows cells.</summary>
     internal static class CellRendering {
         /// <summary>Presents a cell: raw values through the column presenter and tone rules, markup as written, status cells with marker.</summary>
-        internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
+        internal static CellContent Content(TableCell cell, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             if (cell.HasValue && !(cell.Value is RichText)) {
                 PresentedValue presented = CellPresenters.Present(cell.Value, presenter, rules, context);
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.
-                bool status = presented.Tone.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
+                bool status = presented.Role.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
                 return new CellContent(new List<StyledLine> { presented.Line }, presented, (IsShortValue(cell.Value) || status) && presented.Line.Width <= ShortValueWidth);
             }
             RenderContext render = context.Render;
@@ -87,7 +87,7 @@ namespace ConsoleMonster.Widgets {
         // The widest a short value may be and still never break (a date with time and zone is about 25 cells).
         private const int ShortValueWidth = 32;
 
-        /// <summary>Values that read as one token and never break: booleans, dates, durations, enums, statuses, versions, GUIDs and addresses.</summary>
+        /// <summary>Values that read as one role and never break: booleans, dates, durations, enums, statuses, versions, GUIDs and addresses.</summary>
         internal static bool IsShortValue(object? value) =>
             value is bool || value is DateTime || value is DateTimeOffset || value is TimeSpan || value is Enum || value is StatusKind
             || value is Version || value is Guid || value is System.Net.IPAddress;
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Widgets {
             if (cells <= 0) {
                 return;
             }
-            ThemeToken tone = presented.Tone ?? ThemeToken.Series1;
+            ThemeToken tone = presented.Role ?? ThemeToken.Series1;
             switch (presented.Visual) {
                 case CellVisualKind.Bar:
                     BarDrawer.Draw(region, x, y, cells, presented.Fraction, context.Style(tone), context, false, BarShape.Block);

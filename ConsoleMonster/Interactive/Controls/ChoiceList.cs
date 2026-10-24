@@ -83,7 +83,7 @@ namespace ConsoleMonster.Interactive {
             foreach (Choice c in _choices) {
                 int badge = c.Badge == null ? 0 : DisplayWidth.Measure(c.Badge.PlainText) + 3;
                 int group = string.IsNullOrEmpty(c.Group) ? 0 : DisplayWidth.Measure(c.Group) + 4;
-                widest = Math.Max(widest, DisplayWidth.Measure(c.Title) + badge);
+                widest = Math.Max(widest, DisplayWidth.Measure(c.Label) + badge);
                 widest = Math.Max(widest, group + 6);
             }
             int marks = 2 + (HasHotkeys ? 3 : 0) + (Multi ? 4 + (HasGroups ? 2 : 0) : 0) + 4;
@@ -509,7 +509,7 @@ namespace ConsoleMonster.Interactive {
             if (focused) {
                 Style bar = context.Style(ThemeToken.Accent);
                 if (context.HasColor) {
-                    bar = bar.WithBackground(focus.Background);
+                    bar = bar.WithBackgroundColor(focus.BackgroundColor);
                 }
                 row.Put(0, 0, g.FocusBar, bar);
             }
@@ -557,7 +557,7 @@ namespace ConsoleMonster.Interactive {
                 spans.Add(new TextSpan("[", titleStyle));
             }
             if (data.Match != null && data.Match.Count > 0) {
-                AddHighlighted(spans, c.Title, data.Match, titleStyle, baseStyle.Combine(context.Style(ThemeToken.Accent)).With(TextDecoration.Bold | TextDecoration.Underline));
+                AddHighlighted(spans, c.Label, data.Match, titleStyle, baseStyle.Combine(context.Style(ThemeToken.Accent)).With(TextDecoration.Bold | TextDecoration.Underline));
             } else if (c.RichTitle != null && !IsFiltering && enabled) {
                 foreach (StyledLine line in c.RichTitle.ToStyledText(context).Lines) {
                     foreach (TextSpan span in line) {
@@ -566,7 +566,7 @@ namespace ConsoleMonster.Interactive {
                     break;
                 }
             } else {
-                spans.Add(new TextSpan(c.Title, titleStyle));
+                spans.Add(new TextSpan(c.Label, titleStyle));
             }
             if (focused && brackets) {
                 spans.Add(new TextSpan("]", titleStyle));
@@ -812,7 +812,7 @@ namespace ConsoleMonster.Interactive {
                     indexes.Add(i);
                 }
             }
-            IReadOnlyList<FuzzyResult<int>> ranked = FuzzyMatcher.Rank(indexes, i => _choices[i].Title, pattern);
+            IReadOnlyList<FuzzyResult<int>> ranked = FuzzyMatcher.Rank(indexes, i => _choices[i].Label, pattern);
             HashSet<int> added = new HashSet<int>();
             foreach (FuzzyResult<int> result in ranked) {
                 _rows.Add(new Row(RowKind.Item, result.Item, _choices[result.Item].Group, result.Match.Positions));

@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class SpinnerHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The spinner name.</param>
-        public SpinnerHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The spinner name.</param>
+        public SpinnerHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Restarts the clock and returns to running, optionally with a new label.</summary>

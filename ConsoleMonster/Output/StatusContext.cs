@@ -11,7 +11,7 @@ namespace ConsoleMonster.Output {
     /// <see cref="Update(string)"/>. On an interactive VT terminal it is a transient inline live area with a
     /// <see cref="Spinner"/>: console output and <see cref="Terminal"/> writes made meanwhile scroll above it, and the line is
     /// removed when the work ends. In redirected output, CI logs and plain mode each new text is printed once as a plain line
-    /// (no spinner, no redraw), as <c>Write-ConsoleStatus</c> does. Updates are thread-safe.
+    /// (no spinner, no redraw), as <c>Show-ConsoleStatusLine</c> does. Updates are thread-safe.
     /// </summary>
     public sealed class StatusContext : IDisposable {
         private readonly object _gate = new object();

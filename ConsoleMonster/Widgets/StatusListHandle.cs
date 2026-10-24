@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class StatusListHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The list name.</param>
-        public StatusListHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The list name.</param>
+        public StatusListHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Adds or updates a row.</summary>

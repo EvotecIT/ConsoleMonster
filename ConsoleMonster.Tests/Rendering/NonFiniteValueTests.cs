@@ -30,7 +30,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void Sparkline_NonFiniteMaximumOrNegativeCapacity_DoesNotThrow() {
-            Sparkline sparkline = new Sparkline { Max = double.NaN, Capacity = -5 };
+            Sparkline sparkline = new Sparkline { Maximum = double.NaN, Capacity = -5 };
             sparkline.AddRange(new[] { 1.0, 2.0, 3.0 });
             AssertReadable(Render(sparkline));
         }
@@ -65,7 +65,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void LineChart_NonFiniteValuesAndBounds_DoNotThrow() {
-            LineChart chart = new LineChart { Height = 6, Max = double.NaN, Min = double.NegativeInfinity, Unit = "%" };
+            LineChart chart = new LineChart { Height = 6, Maximum = double.NaN, Minimum = double.NegativeInfinity, Unit = "%" };
             chart.Add("cpu", 10);
             chart.Add("cpu", double.PositiveInfinity);
             chart.Add("cpu", double.NaN);

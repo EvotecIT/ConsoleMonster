@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
         private readonly List<ChartSeries> _series = new List<ChartSeries>();
 
         /// <summary>Creates a chart.</summary>
-        /// <param name="name">The live name (default <c>chart</c>).</param>
-        public LineChart(string name = "chart") : base(name) {
+        /// <param name="widgetId">The live name (default <c>chart</c>).</param>
+        public LineChart(string widgetId = "chart") : base(widgetId) {
         }
 
         /// <summary>The series.</summary>
@@ -34,40 +34,40 @@ namespace ConsoleMonster.Widgets {
         public int Capacity { get; set; } = 512;
 
         /// <summary>A fixed minimum for the y axis, or <c>null</c> (0 when all values are positive).</summary>
-        public double? Min { get; set; }
+        public double? Minimum { get; set; }
 
         /// <summary>A fixed maximum for the y axis, or <c>null</c>.</summary>
-        public double? Max { get; set; }
+        public double? Maximum { get; set; }
 
         /// <summary>A unit appended to axis labels.</summary>
         public string? Unit { get; set; }
 
         /// <summary>Adds a series with a multicolour legend name (its plain text is the key), or returns the existing one.</summary>
-        /// <param name="name">The rich name.</param>
-        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <param name="key">The rich name.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
         /// <returns>The series.</returns>
-        public ChartSeries AddSeries(Text.RichText name, ThemeToken? token = null) {
-            if (name == null) {
-                throw new ArgumentNullException(nameof(name));
+        public ChartSeries AddSeries(Text.RichText key, ThemeToken? role = null) {
+            if (key == null) {
+                throw new ArgumentNullException(nameof(key));
             }
-            ChartSeries series = AddSeries(name.PlainText, token);
-            series.NameText = name;
+            ChartSeries series = AddSeries(key.PlainText, role);
+            series.LabelText = key;
             return series;
         }
 
         /// <summary>Adds a series, or returns the existing one with that name.</summary>
-        /// <param name="name">The name.</param>
-        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <param name="key">The name.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
         /// <returns>The series.</returns>
-        public ChartSeries AddSeries(string name, ThemeToken? token = null) {
+        public ChartSeries AddSeries(string key, ThemeToken? role = null) {
             foreach (ChartSeries existing in _series) {
-                if (string.Equals(existing.Name, name, StringComparison.Ordinal)) {
+                if (string.Equals(existing.Key, key, StringComparison.Ordinal)) {
                     return existing;
                 }
             }
-            // A series named with a status word (failed, passed, warnings...) takes that status tone unless a token is given.
-            ThemeToken automatic = StatusKinds.TryParse(name, out StatusKind status) ? status.ToToken() : (ThemeToken)((int)ThemeToken.Series1 + (_series.Count % 6));
-            ChartSeries series = new ChartSeries(name, token ?? automatic);
+            // A series named with a status word (failed, passed, warnings...) takes that status tone unless a role is given.
+            ThemeToken automatic = StatusKinds.TryParse(key, out StatusKind status) ? status.ToToken() : (ThemeToken)((int)ThemeToken.Series1 + (_series.Count % 6));
+            ChartSeries series = new ChartSeries(key, role ?? automatic);
             _series.Add(series);
             return series;
         }
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that appends values through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, Name);
+        public SparklineHandle Handle(ILiveDispatcher dispatcher) => new SparklineHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -106,16 +106,16 @@ namespace ConsoleMonster.Widgets {
             if (plotRows < 1 || region.Width < 8) {
                 return;
             }
-            double min = Min ?? double.MaxValue;
-            double max = Max ?? double.MinValue;
+            double min = Minimum ?? double.MaxValue;
+            double max = Maximum ?? double.MinValue;
             int longest = 0;
             foreach (ChartSeries series in _series) {
                 longest = Math.Max(longest, series.Values.Count);
                 foreach (double v in series.Values) {
-                    if (!Min.HasValue) {
+                    if (!Minimum.HasValue) {
                         min = Math.Min(min, v);
                     }
-                    if (!Max.HasValue) {
+                    if (!Maximum.HasValue) {
                         max = Math.Max(max, v);
                     }
                 }
@@ -124,7 +124,7 @@ namespace ConsoleMonster.Widgets {
                 min = 0;
                 max = 1;
             }
-            if (!Min.HasValue && min > 0) {
+            if (!Minimum.HasValue && min > 0) {
                 min = 0;
             }
             // A non-finite fixed bound would turn every point into NaN; fall back to the data range.
@@ -151,7 +151,7 @@ namespace ConsoleMonster.Widgets {
             int pw = canvas.PixelWidth;
             int ph = canvas.PixelHeight;
             foreach (ChartSeries series in _series) {
-                Color color = context.Style(series.Token).Foreground;
+                Color color = context.Style(series.Role).Color;
                 IReadOnlyList<double> values = series.Values;
                 int count = Math.Min(values.Count, pw);
                 int start = values.Count - count;
@@ -183,9 +183,9 @@ namespace ConsoleMonster.Widgets {
                     if (spans.Count > 0) {
                         spans.Add(new TextSpan("   "));
                     }
-                    spans.Add(new TextSpan(marker, context.Style(series.Token)));
+                    spans.Add(new TextSpan(marker, context.Style(series.Role)));
                     spans.Add(new TextSpan(" ", muted));
-                    spans.AddRange(RichLines.Line(series.NameText, series.Name, muted, context));
+                    spans.AddRange(RichLines.Line(series.LabelText, series.Label, muted, context));
                 }
                 region.Write(axisWidth, region.Height - 1, new StyledLine(spans));
             }

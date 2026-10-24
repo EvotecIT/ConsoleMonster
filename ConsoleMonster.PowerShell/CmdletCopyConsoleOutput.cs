@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Copy a process table into a Markdown report</para>
-    ///   <code>Get-Process | Select-Object -First 10 Name, Id | Format-ConsoleTable -AsWidget | Copy-ConsoleOutput -As Markdown</code>
+    ///   <code>Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown</code>
     /// </example>
     [Cmdlet(VerbsCommon.Copy, "ConsoleOutput", SupportsShouldProcess = true)]
     [OutputType(typeof(string))]
@@ -27,12 +27,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Copies Text, Markdown or Html source as clipboard text (default Text).</para></summary>
         [Parameter]
         [ValidateSet("Text", "Markdown", "Html")]
-        public string As { get; set; } = "Text";
+        public string Format { get; set; } = "Text";
 
-        /// <summary><para type="description">Width in cells for rendering widgets and objects (default 100); single frames keep their own size.</para></summary>
+        /// <summary><para type="description">Width in cells for rendering widgets and objects (default 0: terminal width, falling back to 100); single frames keep their own size.</para></summary>
         [Parameter]
-        [ValidateRange(1, 1000)]
-        public int Width { get; set; } = 100;
+        [ValidateRange(0, 1000)]
+        public int Width { get; set; }
 
         /// <summary><para type="description">Height in cells, or 0 to measure the full content.</para></summary>
         [Parameter]
@@ -59,8 +59,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            string document = PSOutputExport.Document(_items, PSOutputExport.Format(As), new ExportOptions { Width = Width, Height = Height, Culture = Culture }, this);
-            if (!ShouldProcess("Operating-system clipboard", "Copy " + As + " output")) {
+            string document = PSOutputExport.Document(_items, PSOutputExport.Format(Format), new ExportOptions { Width = Width, Height = Height, Culture = Culture }, this);
+            if (!ShouldProcess("Operating-system clipboard", "Copy " + Format + " output")) {
                 return;
             }
             if (!new ClipboardService().TryCopy(document, out string? error)) {

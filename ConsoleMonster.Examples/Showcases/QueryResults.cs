@@ -84,7 +84,7 @@ namespace ConsoleMonster.Examples.Showcases {
 
             Columns lower = new Columns(
                 new Panel(delegation, "Delegation"),
-                new Panel(new Rows(checks, new Rule(), latency) { Gap = 0 }, "Mail security") { Caption = "evotec.xyz" });
+                new Panel(new Rows(checks, new Rule(), latency) { Gap = 0 }, "Mail security") { HeaderRight = "evotec.xyz" });
 
             return new Rows(
                 new Rule("[bold]DNS query results[/] [muted]· evotec.xyz[/]"),

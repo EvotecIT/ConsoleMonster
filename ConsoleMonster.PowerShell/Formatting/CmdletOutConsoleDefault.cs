@@ -23,15 +23,11 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<IWidget> _exportWidgets = new List<IWidget>();
         private readonly List<object> _exportObjects = new List<object>();
 
-        /// <summary><para type="description">Returns registered views as semantic Markdown, fenced Text or an Html page, including in redirected output. Other objects use the normal ConsoleMonster table exporter; native Format-* records should go through Out-ConsoleFormatCommand -AsWidget and Export-ConsoleFrame. Cannot be combined with -Transcript or the internal -Shim.</para></summary>
-        [Parameter]
-        [ValidateSet("Text", "Markdown", "Html")]
-        public string? As { get; set; }
 
-        /// <summary><para type="description">Width in cells for an exported document (default 100).</para></summary>
+        /// <summary><para type="description">Width in cells for an exported document (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
-        [ValidateRange(1, 1000)]
-        public int Width { get; set; } = 100;
+        [ValidateRange(0, 1000)]
+        public int Width { get; set; }
 
         /// <summary><para type="description">The objects to show.</para></summary>
         [Parameter(ValueFromPipeline = true)]
@@ -62,12 +58,17 @@ namespace ConsoleMonster.PowerShell {
         private bool _compactErrors;
         private bool _progress;
 
+        /// <summary><para type="description">Serializes the output to Text, Markdown or Html instead of displaying it.</para></summary>
+        [Parameter]
+        [ValidateSet("Text", "Markdown", "Html", "FencedText")]
+        public string? Format { get; set; }
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
             ConsoleModuleViews.Discover(this);
-            if (As != null) {
+            if (Format != null) {
                 if (Transcript.IsPresent || Shim.IsPresent) {
-                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("-As cannot be combined with -Transcript or -Shim."), "IncompatibleOutputOptions", ErrorCategory.InvalidArgument, null));
+                    ThrowTerminatingError(new ErrorRecord(new ArgumentException("-Format cannot be combined with -Transcript or -Shim."), "IncompatibleOutputOptions", ErrorCategory.InvalidArgument, null));
                 }
                 _active = true;
                 return;
@@ -131,7 +132,7 @@ namespace ConsoleMonster.PowerShell {
             if ((_errors || _compactErrors) && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
                 return;
             }
-            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, As != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
+            ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, Format != null || ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             if (view != null) {
                 FlushExportObjects();
                 if (_batchView != null && !string.Equals(_batchView.Group, view.Group, StringComparison.OrdinalIgnoreCase)) {
@@ -149,7 +150,7 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             Flush();
-            if (As != null) {
+            if (Format != null) {
                 _exportObjects.Add(item);
                 return;
             }
@@ -163,10 +164,10 @@ namespace ConsoleMonster.PowerShell {
                 SessionProgress.EndPipeline();
             }
             Flush();
-            if (As != null) {
+            if (Format != null) {
                 FlushExportObjects();
                 if (_exportWidgets.Count > 0) {
-                    WriteObject(PSFormatting.Export(PSFormatting.Combine(_exportWidgets), PSOutputExport.Format(As), Width));
+                    WriteObject(ConsoleMonster.Export.ConsoleExporter.Export(PSFormatting.Combine(_exportWidgets), PSOutputExport.Format(Format), new ConsoleMonster.Export.ExportOptions { Width = Width }));
                 }
             }
             _inner?.End();
@@ -236,7 +237,7 @@ namespace ConsoleMonster.PowerShell {
                 case ConsoleViewKind.Table:
                 case ConsoleViewKind.Cards:
                     bool cards = _batchView.View == ConsoleViewKind.Cards;
-                    // The same columns, titles and cell values as Format-ConsoleTable: the registered view is found again
+                    // The same columns, titles and cell values as Show-ConsoleTable: the registered view is found again
                     // by the column resolver, so its columns, its title ("Directory: ...") and its grouping apply.
                     List<IWidget> tables = PSFormatting.BuildTables(_batch, null, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = this }, table => {
                         if (_batchView.NativePresentation) { table.RecordViewRows = 0; }
@@ -253,7 +254,7 @@ namespace ConsoleMonster.PowerShell {
                     widget = ConsoleView.Auto(new List<object?>(_batch), options);
                     break;
             }
-            if (As != null) {
+            if (Format != null) {
                 _exportWidgets.Add(widget);
             } else {
                 PSFormatting.Write(this, widget, 0);

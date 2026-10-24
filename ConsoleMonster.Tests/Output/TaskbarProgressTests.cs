@@ -74,11 +74,11 @@ namespace ConsoleMonster.Tests.Output {
             Lanes lanes = new Lanes();
             lanes.Apply(new LiveEvent("lanes", "add", "a", "A", total: 10));
             lanes.Apply(new LiveEvent("lanes", "add", "b", "B", total: 10));
-            lanes.Apply(new LiveEvent("lanes", "advance", "a", state: "pass", value: 5));
+            lanes.Apply(new LiveEvent("lanes", "advance", "a", status: "pass", value: 5));
             Assert.True(lanes.TryGetTaskbarProgress(out TaskbarState state, out double fraction));
             Assert.Equal(TaskbarState.Normal, state);
             Assert.Equal(0.25, fraction, 3);
-            lanes.Apply(new LiveEvent("lanes", "advance", "b", state: "fail", value: 1));
+            lanes.Apply(new LiveEvent("lanes", "advance", "b", status: "fail", value: 1));
             Assert.True(lanes.TryGetTaskbarProgress(out state, out _));
             Assert.Equal(TaskbarState.Error, state);
 
@@ -93,7 +93,7 @@ namespace ConsoleMonster.Tests.Output {
             Assert.True(spinner.TryGetTaskbarProgress(out state, out _));
             Assert.Equal(TaskbarState.Indeterminate, state);
 
-            Dashboard dashboard = new Dashboard("run", new Rows()) { StatusLevel = StatusKind.Warn };
+            Dashboard dashboard = new Dashboard("run", new Rows()) { Status = StatusKind.Warn };
             Assert.True(dashboard.TryGetTaskbarProgress(out state, out _));
             Assert.Equal(TaskbarState.Paused, state);
         }

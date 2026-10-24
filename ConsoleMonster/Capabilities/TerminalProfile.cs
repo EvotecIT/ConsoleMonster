@@ -14,7 +14,7 @@ namespace ConsoleMonster.Capabilities {
     public sealed class TerminalProfile {
 
         /// <summary>The default width used when the real width cannot be determined (redirected output).</summary>
-        public const int DefaultWidth = 120;
+        public const int DefaultWidth = 100;
 
         /// <summary>The default height used when the real height cannot be determined.</summary>
         public const int DefaultHeight = 40;

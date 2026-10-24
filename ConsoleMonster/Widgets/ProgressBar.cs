@@ -14,8 +14,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class ProgressBar : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
         /// <summary>Creates a progress bar.</summary>
         /// <param name="label">The label (markup).</param>
-        /// <param name="name">The live name (default <c>progress</c>).</param>
-        public ProgressBar(string label = "", string name = "progress") : base(name) {
+        /// <param name="widgetId">The live name (default <c>progress</c>).</param>
+        public ProgressBar(string label = "", string widgetId = "progress") : base(widgetId) {
             Label = label ?? string.Empty;
         }
 
@@ -103,14 +103,14 @@ namespace ConsoleMonster.Widgets {
         private ProgressRow Row(TimeSpan now) {
             string label = Markup.Strip(Label);
             StatusKind status = Status == StatusKind.Running && !_started.HasValue && Value <= 0 ? StatusKind.Pending : Status;
-            return new ProgressRow(Name, label, RichText.FromMarkup(Label), null, null, status, Value, Total, 0, 0, 0, 0, _started, _finished, now,
+            return new ProgressRow(WidgetId, label, RichText.FromMarkup(Label), null, null, status, Value, Total, 0, 0, 0, 0, _started, _finished, now,
                 status == StatusKind.Running ? _meter.Rate(now) : 0, 0);
         }
 
         /// <summary>Returns a handle that updates this bar through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public ProgressHandle Handle(ILiveDispatcher dispatcher) => new ProgressHandle(dispatcher, Name);
+        public ProgressHandle Handle(ILiveDispatcher dispatcher) => new ProgressHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -145,7 +145,7 @@ namespace ConsoleMonster.Widgets {
                     Label = liveEvent.Text ?? string.Empty;
                     break;
                 case "state":
-                    if (StatusKinds.TryParse(liveEvent.State, out StatusKind status)) {
+                    if (StatusKinds.TryParse(liveEvent.Status, out StatusKind status)) {
                         Status = status;
                     }
                     break;
@@ -189,8 +189,8 @@ namespace ConsoleMonster.Widgets {
             if (labelWidth > 0) {
                 region.Write(0, 0, TextWrapper.Truncate(label, labelWidth, context.Ellipsis));
             }
-            ThemeToken token = Status == StatusKind.Running || Status == StatusKind.Pending ? ThemeToken.Accent : Status.ToToken();
-            BarDrawer.Draw(region, barX, 0, barWidth, Fraction, context.Style(token), context, true, Shape);
+            ThemeToken role = Status == StatusKind.Running || Status == StatusKind.Pending ? ThemeToken.Accent : Status.ToToken();
+            BarDrawer.Draw(region, barX, 0, barWidth, Fraction, context.Style(role), context, true, Shape);
             region.Write(region.Width - tailWidth, 0, tail, context.Style(ThemeToken.Muted));
         }
 

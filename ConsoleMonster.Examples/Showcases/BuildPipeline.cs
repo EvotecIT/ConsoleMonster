@@ -49,7 +49,7 @@ namespace ConsoleMonster.Examples.Showcases {
             new Step("Test", "xunit", "Run xUnit tests (net472, net8.0)", 3.2, StatusKind.Pass, "Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net472)", "Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net8.0)"),
             new Step("Test", "pester5", "Run Pester tests (Windows PowerShell 5.1)", 2.4, StatusKind.Pass, "Tests completed in 2.1s", "Tests Passed: 41, Failed: 0, Skipped: 0"),
             new Step("Test", "pester7", "Run Pester tests (PowerShell 7.5)", 2.1, StatusKind.Warn, "Tests completed in 1.8s", "Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)"),
-            new Step("Docs", "md", "Generate markdown help (38 commands)", 1.7, StatusKind.Pass, "Docs\\Readme.md updated", "Docs\\Write-ConsoleTable.md ... Docs\\Start-ConsoleDashboard.md"),
+            new Step("Docs", "md", "Generate markdown help (38 commands)", 1.7, StatusKind.Pass, "Docs\\Readme.md updated", "Docs\\Show-ConsoleTable.md ... Docs\\Invoke-ConsoleDashboard.md"),
             new Step("Docs", "maml", "Generate en-US MAML help", 0.9, StatusKind.Pass, "en-US\\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)"),
             new Step("Sign", "sign", "Sign module files", 0.3, StatusKind.Skip, "SignModule is $false for this build; skipping Authenticode signing"),
             new Step("Package", "nupkg", "Pack ConsoleMonster.2.0.0.nupkg", 1.2, StatusKind.Pass, "Successfully created package 'Artefacts\\ProjectBuild\\ConsoleMonster.2.0.0.nupkg'."),
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Examples.Showcases {
             string? currentPhase = null;
             Stopwatch phaseWatch = new Stopwatch();
             List<StatusKind> phaseResults = new List<StatusKind>();
-            session.Post(new LiveEvent("dashboard", "status", text: "building", state: "running"));
+            session.Post(new LiveEvent("dashboard", "status", text: "building", status: "running"));
             Console.WriteLine("Build engine 3.0.168 · release pipeline");
             int index = 0;
             foreach (Step step in Steps) {
@@ -155,7 +155,7 @@ namespace ConsoleMonster.Examples.Showcases {
             module.Set("Elapsed", NumberFormat.Duration(total.Elapsed));
             progress.Complete(StatusKind.Pass);
             Console.WriteLine("Build completed: 2 artefacts in Artefacts\\ (nupkg, zip)");
-            session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning", state: "warn"));
+            session.Post(new LiveEvent("dashboard", "status", text: "build succeeded with 1 warning", status: "warn"));
             Thread.Sleep(1500);
         }
 

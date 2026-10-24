@@ -95,7 +95,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         public void ComposingAWindowPreservesTheLastRowsGlyphs() {
             CellBuffer frame = new CellBuffer(100, 23);
             frame.Write(0, 0, "A recorded command", Style.Plain);
-            frame.Write(0, 22, "PS demo>", Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
+            frame.Write(0, 22, "PS demo>", Style.Plain.WithColor(Color.FromRgb(255, 0, 255)));
             GraphicsExportOptions slide = Settings(GraphicsPreset.Slide16x9);
             slide.Frame.WindowChrome = true; slide.Frame.Title = "demo"; slide.Fit = GraphicsFit.Terminal;
             GraphicsExportOptions natural = new GraphicsExportOptions {
@@ -111,7 +111,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             CellBuffer frame = new CellBuffer(100, 8);
             frame.Write(40, 1, "界", Style.Plain);
             Assert.Equal(42, ConsoleExporter.MeasureContentColumns(frame));
-            frame.Write(60, 5, " ", Style.Plain.WithBackground(Color.FromRgb(255, 0, 255)));
+            frame.Write(60, 5, " ", Style.Plain.WithBackgroundColor(Color.FromRgb(255, 0, 255)));
             Assert.Equal(61, ConsoleExporter.MeasureContentColumns(frame));
             Assert.Equal(1, ConsoleExporter.MeasureContentColumns(new CellBuffer(100, 8)));
         }
@@ -119,7 +119,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [Fact]
         public void NarrowContentUsesLargerTextWhileTerminalAndDocsRetainTheirGrid() {
             CellBuffer frame = new CellBuffer(100, 8);
-            frame.Write(0, 0, new string('M', 45), Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
+            frame.Write(0, 0, new string('M', 45), Style.Plain.WithColor(Color.FromRgb(255, 0, 255)));
             GraphicsExportOptions settings = Settings(GraphicsPreset.Slide16x9);
             RgbaImage content = frame.ToRaster(settings);
             settings.Fit = GraphicsFit.Terminal;
@@ -135,7 +135,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [Fact]
         public void TinyChaptersKeepTheFontCapInsteadOfFillingTheWholeSlide() {
             CellBuffer frame = new CellBuffer(100, 40);
-            frame.Write(0, 0, "Hi", Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
+            frame.Write(0, 0, "Hi", Style.Plain.WithColor(Color.FromRgb(255, 0, 255)));
             GraphicsExportOptions settings = Settings(GraphicsPreset.Slide16x9);
             RgbaImage slide = frame.ToRaster(settings);
             var bounds = WindowBounds(slide);

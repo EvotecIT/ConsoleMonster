@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Interactive {
             TextField name = form.Text("Name", "Run name");
             name.Parameter = "Name";
             NumberField count = form.Number("Count", "Retries");
-            count.WholeNumber = true;
+            count.Integer = true;
             count.Default = 2m;
             count.Parameter = "Retry";
             return form;
@@ -252,7 +252,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Form form = new Form("Run") { Review = false };
                 form.Text("Name", "Run name");
                 NumberField count = form.Number("Count", "Retries");
-                count.WholeNumber = true;
+                count.Integer = true;
                 form.Preset("Quick", p => p.Value("Name", "preset").Value("Count", 5));
                 form.Apply(new Dictionary<string, object?> { ["Name"] = "applied" });
                 PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(string.Empty, string.Empty, "y");

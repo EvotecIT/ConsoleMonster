@@ -10,7 +10,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A display widget rebuilt from state on the application's input thread, then swapped through the live dispatcher.</summary>
     public sealed class AppBinding : IContainer {
         private static long _next;
-        private readonly Slot _slot;
+        private readonly RegionWidget _slot;
         private readonly Func<AppState, IWidget> _build;
 
         /// <summary>Creates a dependent display view.</summary>
@@ -18,7 +18,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="name">An optional stable live-region name.</param>
         public AppBinding(Func<AppState, IWidget> build, string? name = null) {
             _build = build ?? throw new ArgumentNullException(nameof(build));
-            _slot = new Slot(name ?? nameof(AppBinding) + Interlocked.Increment(ref _next));
+            _slot = new RegionWidget(name ?? nameof(AppBinding) + Interlocked.Increment(ref _next));
         }
 
         /// <summary>The backing live region.</summary>

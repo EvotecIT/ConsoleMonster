@@ -28,7 +28,7 @@ namespace ConsoleMonster.Tests.Interactive {
             CultureInfo format = CultureInfo.GetCultureInfo(culture);
             PromptLabels labels = new PromptLabels();
             PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines(4.5m.ToString(format), "4");
-            decimal result = new NumberPrompt("Count") { WholeNumber = true, Culture = format }.Show(new InteractiveOptions {
+            decimal result = new NumberPrompt("Count") { Integer = true, Culture = format }.Show(new InteractiveOptions {
                 Mode = InteractionMode.Line, LineConsole = lines, Labels = labels
             });
             Assert.Equal(4m, result);
@@ -40,7 +40,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [InlineData("pl-PL")]
         public void NumberPrompt_WholeScaledDefaultAndCultureGroupingRemainValid(string culture) {
             CultureInfo format = CultureInfo.GetCultureInfo(culture);
-            NumberPrompt prompt = new NumberPrompt("Count") { Default = 4.000m, WholeNumber = true, Culture = format };
+            NumberPrompt prompt = new NumberPrompt("Count") { Default = 4.000m, Integer = true, Culture = format };
             RecordingSurface surface = new RecordingSurface(80, 16, false);
             Assert.Equal(4m, PromptHarness.Guard(surface, () => prompt.Show(PromptHarness.Options("Enter", surface))));
             PromptModeTests.FakeLines lines = new PromptModeTests.FakeLines("1" + format.NumberFormat.NumberGroupSeparator + "234");

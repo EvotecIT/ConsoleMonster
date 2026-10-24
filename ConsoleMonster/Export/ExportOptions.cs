@@ -52,8 +52,8 @@ namespace ConsoleMonster.Export {
         /// </summary>
         public const string DefaultFontFamily = "'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
-        /// <summary>Width in cells for widgets (frames and snapshots keep their own size). Default 100.</summary>
-        public int Width { get; set; } = 100;
+        /// <summary>Width in cells for widgets (frames and snapshots keep their own size). Zero resolves the current target width, falling back to 100 cells.</summary>
+        public int Width { get; set; }
 
         /// <summary>Height in cells for widgets; 0 (default) uses the height the widget measures at <see cref="Width"/>.</summary>
         public int Height { get; set; }

@@ -63,7 +63,7 @@ namespace ConsoleMonster.Tests.Export {
             Style style = Style.Plain;
             if (styleCase != 4) { style = style.With(TextDecoration.Dim); }
             if (styleCase == 1 || styleCase == 3) {
-                style = style.WithForeground(Color.FromRgb(200, 200, 200)).WithBackground(Color.FromRgb(20, 20, 20));
+                style = style.WithColor(Color.FromRgb(200, 200, 200)).WithBackgroundColor(Color.FromRgb(20, 20, 20));
             }
             if (styleCase == 2 || styleCase == 3) { style = style.With(TextDecoration.Reverse); }
             CellBuffer frame = new CellBuffer(5, 1);

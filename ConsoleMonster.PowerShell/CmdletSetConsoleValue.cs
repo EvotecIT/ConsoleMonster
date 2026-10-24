@@ -8,21 +8,21 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Update a summary pair</para>
-    ///   <code>Set-ConsoleValue -Name summary -Key 'Evaluated' -Value '154 / 332'</code>
+    ///   <code>Set-ConsoleValue -WidgetId summary -Key 'Evaluated' -Value '154 / 332'</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleValue")]
     public sealed class CmdletSetConsoleValue : LiveCmdlet {
         /// <summary><para type="description">The key, bar label or segment.</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public string Key { get; set; } = string.Empty;
 
         /// <summary><para type="description">The value.</para></summary>
-        [Parameter(Position = 1, Mandatory = true)]
+        [Parameter(Position = 2, Mandatory = true)]
         public object Value { get; set; } = string.Empty;
 
         /// <summary><para type="description">The widget name (default keyvalue).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "keyvalue";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "keyvalue";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
             if (numeric) {
                 number = LanguagePrimitives.ConvertTo<double>(raw);
             }
-            Send(new LiveEvent(Name, "set", Key, Text.Markup.Escape(PSWidgets.ToText(raw)), value: number));
+            Send(new LiveEvent(WidgetId, "set", Key, Text.Markup.Escape(PSWidgets.ToText(raw)), value: number));
         }
     }
 }

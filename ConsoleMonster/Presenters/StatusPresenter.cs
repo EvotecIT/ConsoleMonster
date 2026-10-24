@@ -34,7 +34,7 @@ namespace ConsoleMonster.Presenters {
             if (ShowWord && context.Render.Glyphs.Tier != GlyphTier.Ascii) {
                 spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), style));
             }
-            return new PresentedValue(new StyledLine(spans)) { Tone = status.ToToken() };
+            return new PresentedValue(new StyledLine(spans)) { Role = status.ToToken() };
         }
     }
 }

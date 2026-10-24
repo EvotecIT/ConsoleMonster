@@ -68,7 +68,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Names and descriptions wrap independently. Long syntax moves above its description rather than stealing
-        // the description column or being ellipsized. TextWrapper preserves all text even below a token's width.
+        // the description column or being ellipsized. TextWrapper preserves all text even below a role's width.
         private sealed class HelpColumns : IWidget {
             private readonly List<(string Name, string Description, string? Default, string? Note)> _entries;
 

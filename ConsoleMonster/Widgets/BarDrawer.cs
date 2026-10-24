@@ -45,7 +45,7 @@ namespace ConsoleMonster.Widgets {
             if (remainder > 0 && next < width) {
                 string partial = glyphs.HorizontalFill(remainder);
                 if (partial.Length > 0) {
-                    Style partialStyle = solidTrack ? fill.WithBackground(trackStyle.Foreground) : fill;
+                    Style partialStyle = solidTrack ? fill.WithBackgroundColor(trackStyle.Color) : fill;
                     region.Put(x + next, y, partial, partialStyle);
                     next++;
                 }

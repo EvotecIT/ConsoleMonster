@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
         public ICellPresenter? Presenter { get; set; }
 
         /// <summary>Conditional tone rules for raw values; the first matching rule wins.</summary>
-        public IList<ToneRule> ToneRules { get; } = new List<ToneRule>();
+        public IList<RoleRule> RoleRules { get; } = new List<RoleRule>();
 
         /// <summary>How the column is summarised in group subtotals and the totals row.</summary>
         public ColumnAggregate Aggregate { get; set; }

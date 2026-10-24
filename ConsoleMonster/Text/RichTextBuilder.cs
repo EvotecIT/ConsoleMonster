@@ -18,14 +18,14 @@ namespace ConsoleMonster.Text {
             return this;
         }
 
-        /// <summary>Appends literal text with a foreground colour, decorations and an optional background.</summary>
+        /// <summary>Appends literal text with a color colour, decorations and an optional backgroundColor.</summary>
         /// <param name="text">The text.</param>
-        /// <param name="foreground">The foreground (a ConsoleColor, theme role or colour converts implicitly).</param>
+        /// <param name="color">The color (a ConsoleColor, theme role or colour converts implicitly).</param>
         /// <param name="decoration">Decorations.</param>
-        /// <param name="background">The background.</param>
+        /// <param name="backgroundColor">The backgroundColor.</param>
         /// <returns>This builder.</returns>
-        public RichTextBuilder Append(string? text, RichColor foreground, TextDecoration decoration = TextDecoration.None, RichColor background = default) {
-            return Append(text, new RichStyle(foreground, background, decoration));
+        public RichTextBuilder Append(string? text, RichColor color, TextDecoration decoration = TextDecoration.None, RichColor backgroundColor = default) {
+            return Append(text, new RichStyle(color, backgroundColor, decoration));
         }
 
         /// <summary>Appends a hyperlink (OSC 8 where the terminal supports it, otherwise the text).</summary>

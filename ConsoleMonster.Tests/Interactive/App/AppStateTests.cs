@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             List<AppValueChangedEventArgs> changes = new List<AppValueChangedEventArgs>();
             state.Changed += (sender, change) => {
                 Assert.Same(state, sender);
-                Assert.Equal(change.Value, state[change.Name]);
+                Assert.Equal(change.Value, state[change.Key]);
                 changes.Add(change);
             };
             state["query"] = null;
@@ -78,7 +78,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
                 Exception? workerError = null;
                 Thread? worker = null;
                 state.Changed += (_, change) => {
-                    if (change.Name != "query") { return; }
+                    if (change.Key != "query") { return; }
                     worker = new Thread(() => {
                         try {
                             Assert.Equal("a", state.Snapshot()["query"]);

@@ -30,8 +30,8 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Same(expected, actual);
                 Assert.Same(originalOut, Console.Out);
                 Assert.Same(originalError, Console.Error);
-                Assert.Equal(new[] { "one", "two", "partial" }, target.Events.Where(e => e.State == "out").Select(e => e.Text));
-                Assert.Equal("error", Assert.Single(target.Events, e => e.State == "err").Text);
+                Assert.Equal(new[] { "one", "two", "partial" }, target.Events.Where(e => e.Status == "out").Select(e => e.Text));
+                Assert.Equal("error", Assert.Single(target.Events, e => e.Status == "err").Text);
                 Assert.All(target.Events, e => Assert.Equal("write", e.Operation));
                 Assert.False(session.IsRunning);
                 Assert.Equal(1, output.Calls.Count(c => c == "end"));
@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Live {
                         }
                         Console.WriteLine("captured again");
                     });
-                    Assert.Equal(new[] { "captured", "captured again" }, log.Events.Where(e => e.State == "out").Select(e => e.Text));
+                    Assert.Equal(new[] { "captured", "captured again" }, log.Events.Where(e => e.Status == "out").Select(e => e.Text));
                 }
                 Assert.Contains("handed on", real.ToString());
                 Assert.DoesNotContain("captured", real.ToString());

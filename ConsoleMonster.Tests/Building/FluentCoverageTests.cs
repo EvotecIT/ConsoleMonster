@@ -59,11 +59,11 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void GeneratedMethods_SetAndAddAndReturnTheSameInstance() {
             HeaderBar header = new HeaderBar("Build");
-            Assert.Same(header, header.WithSubtitle("nightly").WithShowClock().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
+            Assert.Same(header, header.WithSubtitle("nightly").WithShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
             Assert.Equal("nightly", header.Subtitle);
-            Assert.True(header.ShowClock);
+            Assert.True(header.ShowElapsed);
             Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
-            Assert.False(header.WithShowClock(false).ShowClock);
+            Assert.False(header.WithShowElapsed(false).ShowElapsed);
         }
 
         [Fact]

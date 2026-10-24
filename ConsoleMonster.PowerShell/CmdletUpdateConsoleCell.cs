@@ -11,23 +11,23 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A check starts and passes on the second server of a grid with five checks per row</para>
     ///   <code>
-    /// Update-ConsoleCell -Name checks -Index 7 -Status Running
-    /// Update-ConsoleCell -Name checks -Index 7 -Status Pass</code>
+    /// Update-ConsoleCell -WidgetId checks -Index 7 -Status Running
+    /// Update-ConsoleCell -WidgetId checks -Index 7 -Status Pass</code>
     /// </example>
     /// <example>
     ///   <para>Grow a map as items are found, then mark them</para>
     ///   <code>
-    /// Update-ConsoleCell -Name files -Count 40
-    /// Update-ConsoleCell -Name files -Index 0, 1, 2 -Status Pass</code>
+    /// Update-ConsoleCell -WidgetId files -Count 40
+    /// Update-ConsoleCell -WidgetId files -Index 0, 1, 2 -Status Pass</code>
     /// </example>
     [Cmdlet(VerbsData.Update, "ConsoleCell", DefaultParameterSetName = "Set")]
     public sealed class CmdletUpdateConsoleCell : LiveCmdlet {
         /// <summary><para type="description">The cells to set, by position from 0.</para></summary>
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Set")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Set")]
         public int[] Index { get; set; } = new int[0];
 
         /// <summary><para type="description">The new state (for -Add, the state of the new cells; default Pending).</para></summary>
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Set")]
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Set")]
         [Parameter(ParameterSetName = "Add")]
         [Binding.StatusKindTransformation]
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
@@ -48,24 +48,24 @@ namespace ConsoleMonster.PowerShell {
         public int Count { get; set; }
 
         /// <summary><para type="description">The cell map name (default cells).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "cells";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "cells";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
             switch (ParameterSetName) {
                 case "Count":
-                    Send(new LiveEvent(Name, "count", value: Count));
+                    Send(new LiveEvent(WidgetId, "count", value: Count));
                     break;
                 case "Add":
                     for (int i = 0; i < Times; i++) {
-                        Send(new LiveEvent(Name, "add", state: Status.ToString()));
+                        Send(new LiveEvent(WidgetId, "add", status: Status.ToString()));
                     }
                     break;
                 default:
                     foreach (int index in Index) {
                         if (index >= 0) {
-                            Send(new LiveEvent(Name, "set", index.ToString(CultureInfo.InvariantCulture), state: Status.ToString()));
+                            Send(new LiveEvent(WidgetId, "set", index.ToString(CultureInfo.InvariantCulture), status: Status.ToString()));
                         }
                     }
                     break;

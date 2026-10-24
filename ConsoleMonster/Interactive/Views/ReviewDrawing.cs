@@ -62,7 +62,7 @@ namespace ConsoleMonster.Interactive {
                 y++;
                 int bottom = problemRows > 0 ? problemTop - 1 : region.Height - 2;
                 Region box = region.Sub(0, y, region.Width, Math.Min(commandHeight, Math.Max(0, bottom - y)));
-                new Panel(new Lines(commandLines, context.Style(ThemeToken.Accent)), Markup.Escape(commandTitle)) { BorderToken = ThemeToken.Border }.Render(box, context);
+                new Panel(new Lines(commandLines, context.Style(ThemeToken.Accent)), Markup.Escape(commandTitle)) { BorderRole = ThemeToken.Border }.Render(box, context);
             }
             for (int i = 0; i < problemRows; i++) {
                 string text = i == problemRows - 1 && problems.Count > problemRows ? PromptLabels.Format(PromptLabels.Default.More, problems.Count - i) : problems[i];

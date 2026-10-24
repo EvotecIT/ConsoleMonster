@@ -106,10 +106,21 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         NETFramework                         = 'net8.0', 'net10.0', 'net472'
         NETHandleAssemblyWithSameName        = $true
         NETAssemblyLoadContext               = $true
-        NETAssemblyTypeAcceleratorMode       = 'Assembly'
-        NETAssemblyTypeAcceleratorAssemblies = @(
-            'ConsoleMonster'
-            'ConsoleMonster.Markdown'
+        NETAssemblyTypeAcceleratorMode       = 'AllowList'
+        NETAssemblyTypeAccelerators = @(
+            'ConsoleMonster.Terminal'
+            'ConsoleMonster.Layout.IWidget'
+            'ConsoleMonster.Styling.Color'
+            'ConsoleMonster.Styling.RichColor'
+            'ConsoleMonster.Styling.Style'
+            'ConsoleMonster.Styling.RichStyle'
+            'ConsoleMonster.Styling.Theme'
+            'ConsoleMonster.Styling.ThemeToken'
+            'ConsoleMonster.Styling.StatusKind'
+            'ConsoleMonster.Text.RichText'
+            'ConsoleMonster.Interactive.InteractionMode'
+            'ConsoleMonster.Capabilities.GlyphTier'
+            'ConsoleMonster.Capabilities.ColorDepth'
         )
         DotSourceLibraries                   = $true
         DotSourceClasses                     = $true

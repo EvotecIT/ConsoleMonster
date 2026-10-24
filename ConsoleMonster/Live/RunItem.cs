@@ -9,28 +9,28 @@ namespace ConsoleMonster.Live {
     /// <summary>A unit of work declared before a large run starts. Labels are literal text, not markup.</summary>
     public sealed class RunItem {
         /// <summary>Creates a named unit of work.</summary>
-        /// <param name="name">Display name.</param>
+        /// <param name="label">Display name.</param>
         /// <param name="target">Optional machine, file or other target.</param>
         /// <param name="group">Optional category used by the group summary.</param>
-        public RunItem(string name, string? target = null, string? group = null) {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+        public RunItem(string label, string? target = null, string? group = null) {
+            Label = label ?? throw new ArgumentNullException(nameof(label));
             Target = target ?? string.Empty;
             Group = group ?? string.Empty;
         }
         /// <summary>The display name.</summary>
-        public string Name { get; }
+        public string Label { get; }
         /// <summary>The target, or an empty string.</summary>
         public string Target { get; }
         /// <summary>The group, or an empty string.</summary>
         public string Group { get; }
         /// <summary>The name followed by its optional target, for logs and activity rows.</summary>
-        public string DisplayName => Name + (Target.Length > 0 ? " · " + Target : "");
+        public string DisplayName => Label + (Target.Length > 0 ? " · " + Target : "");
     }
 
     /// <summary>An immutable observation of one declared item.</summary>
     public sealed class RunItemSnapshot {
-        internal RunItemSnapshot(int index, RunItem item, StatusKind state, string phase, string message, TimeSpan duration, int completionOrder) {
-            Index = index; Item = item; State = state; Phase = phase; Message = message; Duration = duration;
+        internal RunItemSnapshot(int index, RunItem item, StatusKind status, string phase, string message, TimeSpan duration, int completionOrder) {
+            Index = index; Item = item; Status = status; Phase = phase; Message = message; Duration = duration;
             CompletionOrder = completionOrder;
         }
         /// <summary>The zero-based input position, also used for updates.</summary>
@@ -38,7 +38,7 @@ namespace ConsoleMonster.Live {
         /// <summary>The declared metadata.</summary>
         public RunItem Item { get; }
         /// <summary>The current state.</summary>
-        public StatusKind State { get; }
+        public StatusKind Status { get; }
         /// <summary>The current phase, for example collecting or evaluating.</summary>
         public string Phase { get; }
         /// <summary>The completion message, retained in full for the final summary.</summary>
@@ -49,7 +49,7 @@ namespace ConsoleMonster.Live {
         public int CompletionOrder { get; }
         /// <summary>Formats the literal fallback text for a completion event; the event state carries its outcome.</summary>
         /// <returns>Name, target, duration and a one-line message.</returns>
-        public override string ToString() => Item.Name + (Item.Target.Length > 0 ? "   " + Item.Target : "") + "   " + NumberFormat.Duration(Duration)
+        public override string ToString() => Item.Label + (Item.Target.Length > 0 ? "   " + Item.Target : "") + "   " + NumberFormat.Duration(Duration)
             + (Message.Length > 0 ? ": " + Message.Replace("\r", " ").Replace("\n", " ") : "");
     }
 

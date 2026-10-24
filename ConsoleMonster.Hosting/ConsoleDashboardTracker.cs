@@ -130,7 +130,7 @@ namespace ConsoleMonster.Hosting {
         public void Log(string message, string level = "info") {
             LiveSession? session = Session;
             if (session != null && session.IsRunning) {
-                session.Post(new LiveEvent("$log", "write", text: message ?? string.Empty, state: level));
+                session.Post(new LiveEvent("$log", "write", text: message ?? string.Empty, status: level));
             }
         }
 

@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class SummaryBarHandle : LiveHandle {
         /// <summary>Creates a summary-bar handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The summary bar's name.</param>
-        public SummaryBarHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) { }
+        /// <param name="widgetId">The summary bar's name.</param>
+        public SummaryBarHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) { }
 
         /// <summary>Sets progress; a kept value uses the preceding queued update, not a producer's stale copy.</summary>
         /// <param name="done">Items completed, or <see cref="SummaryBar.Keep"/> to leave the value unchanged.</param>

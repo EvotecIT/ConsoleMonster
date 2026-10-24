@@ -14,9 +14,9 @@ namespace ConsoleMonster.Interactive {
 
         T Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken);
 
-        RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options);
+        MenuRunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options);
 
-        void ShowResult(RunResult result);
+        void ShowResult(MenuRunResult result);
 
         void Open(MenuItem item);
 

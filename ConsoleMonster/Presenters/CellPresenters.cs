@@ -151,7 +151,7 @@ namespace ConsoleMonster.Presenters {
         public static ICellPresenter Chip { get; } = new ChipPresenter();
 
         /// <summary>PowerShell member signatures with muted types and highlighted member names.</summary>
-        public static ICellPresenter MemberSignature { get; } = new HighlightPresenter(new Highlighting.MemberSignatureHighlighter()) { TypeTone = ThemeToken.Muted };
+        public static ICellPresenter MemberSignature { get; } = new HighlightPresenter(new Highlighting.MemberSignatureHighlighter()) { TypeRole = ThemeToken.Muted };
 
         /// <summary>Text values interpreted as markup (<c>[pass]OK[/]</c>); invalid markup is shown literally. Data stays literal unless a column opts in with this presenter.</summary>
         public static ICellPresenter Markup { get; } = new MarkupPresenter();
@@ -229,7 +229,7 @@ namespace ConsoleMonster.Presenters {
         /// <param name="rules">Tone rules, or null.</param>
         /// <param name="context">The presenter context.</param>
         /// <returns>The presented value.</returns>
-        public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<ToneRule>? rules, PresenterContext context) {
+        public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
             if (value is Text.RichText rich) {
                 // Rich text brings its own colours; presenters and tone rules do not restyle it.
                 return MarkupPresenter.FromStyledText(rich.ToStyledText(context.Render), rich.PlainText.Length == 0);
@@ -245,15 +245,15 @@ namespace ConsoleMonster.Presenters {
             if (rules == null || rules.Count == 0) {
                 return presented;
             }
-            foreach (ToneRule rule in rules) {
+            foreach (RoleRule rule in rules) {
                 if (rule.Matches(value, presented.Number)) {
-                    return WithTone(presented, rule.Tone, context);
+                    return WithRole(presented, rule.Role, context);
                 }
             }
             return presented;
         }
 
-        private static PresentedValue WithTone(PresentedValue presented, ThemeToken tone, PresenterContext context) {
+        private static PresentedValue WithRole(PresentedValue presented, ThemeToken tone, PresenterContext context) {
             Style style = context.Render.Style(tone);
             List<TextSpan> spans = new List<TextSpan>();
             if (!context.HasColor && ToStatus(tone, out StatusKind status)) {
@@ -261,10 +261,10 @@ namespace ConsoleMonster.Presenters {
                 spans.Add(new TextSpan(marker + " ", style));
             }
             foreach (TextSpan span in presented.Line) {
-                spans.Add(new TextSpan(span.Text, span.Style.WithForeground(style.Foreground)));
+                spans.Add(new TextSpan(span.Text, span.Style.WithColor(style.Color)));
             }
             return new PresentedValue(new StyledLine(spans), presented.Alignment) {
-                Tone = tone,
+                Role = tone,
                 Visual = presented.Visual,
                 Fraction = presented.Fraction,
                 Series = presented.Series,

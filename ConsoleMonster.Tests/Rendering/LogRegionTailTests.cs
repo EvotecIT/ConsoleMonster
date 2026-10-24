@@ -12,7 +12,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(false)]
         [InlineData(true)]
         public void ScrollOffsetSelectsEarlierEntriesAndClampsAtOldest(bool wrap) {
-            LogRegion log = new LogRegion { ShowTime = false, Wrap = wrap };
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = wrap };
             for (int i = 1; i <= 5; i++) { log.Write("L" + i); }
             log.ScrollOffset = 1;
             Assert.Equal("L3\nL4", Render(log).ToPlainText());
@@ -73,15 +73,15 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(false)]
         [InlineData(true)]
         public void HighlightingPreservesRichMultilineSlices(bool wrap) {
-            LogRegion log = new LogRegion { ShowTime = false, Wrap = wrap, HighlightText = "first" };
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = wrap, HighlightText = "first" };
             log.Write(RichText.FromMarkup("[pass]first\nsecond[/]"));
             RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 2, ColorDepth.TrueColor, GlyphTier.Ascii), Theme.Dark);
             CellBuffer frame = new CellBuffer(120, 2);
             log.Render(new Region(frame), context);
 
             Assert.Equal("first\nsecond", frame.ToPlainText());
-            Assert.Equal(context.Style(ThemeToken.Pass).Foreground, frame[0, 0].Style.Foreground);
-            Assert.Equal(context.Style(ThemeToken.Pass).Foreground, frame[0, 1].Style.Foreground);
+            Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 0].Style.Color);
+            Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 1].Style.Color);
         }
 
         private static CellBuffer Render(LogRegion log) {

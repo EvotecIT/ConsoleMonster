@@ -122,11 +122,11 @@ namespace ConsoleMonster.Tests.Interactive {
 
         [Fact]
         public void Number_StepsWithArrowsAndChecksTheRange() {
-            NumberPrompt prompt = new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 };
+            NumberPrompt prompt = new NumberPrompt("Port") { Integer = true, Minimum = 1, Maximum = 65535, Default = 443 };
             string text = Run(prompt, "Up Up Enter", 60, GlyphTier.Full, out decimal value, 3);
             Assert.Equal(445m, value);
             Golden.Match(Name("number", GlyphTier.Full, 60), text);
-            NumberPrompt range = new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 10 };
+            NumberPrompt range = new NumberPrompt("Port") { Integer = true, Minimum = 1, Maximum = 10 };
             RecordingSurface surface = new RecordingSurface(60, 10, true);
             Assert.Equal(7m, range.Show(PromptHarness.Options("\"42\" Enter Backspace*2 \"7\" Enter", surface)));
             Assert.Contains("Enter 10 or less.", surface.Frames.Select(f => f.ToPlainText()).First(f => f.Contains("or less")));
@@ -166,7 +166,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void Escape_CancelsWithAnException() {
             RecordingSurface surface = new RecordingSurface(60, 10, true);
-            PromptCancelledException error = Assert.Throws<PromptCancelledException>(() => new SelectPrompt<object?>("Target", Servers()).Show(PromptHarness.Options("Escape", surface)));
+            PromptCanceledException error = Assert.Throws<PromptCanceledException>(() => new SelectPrompt<object?>("Target", Servers()).Show(PromptHarness.Options("Escape", surface)));
             Assert.Equal("Target", error.Prompt);
             Assert.Contains("cancelled", surface.SummaryText());
         }
@@ -194,7 +194,7 @@ namespace ConsoleMonster.Tests.Interactive {
             ConsoleMonster.Canvas.RenderContext context = Terminal.CreateContext(profile, Theme.Dark);
             Style focus = context.Style(ThemeToken.Focus);
             int row = Enumerable.Range(0, frame.Height).First(y => frame.GetRowText(y).Contains("FS01"));
-            Assert.Equal(focus.Background, frame[10, row].Style.Background);
+            Assert.Equal(focus.BackgroundColor, frame[10, row].Style.BackgroundColor);
             Assert.Equal("▌", frame[2, row].Glyph);
             Assert.DoesNotContain("[FS01]", frame.GetRowText(row));
         }

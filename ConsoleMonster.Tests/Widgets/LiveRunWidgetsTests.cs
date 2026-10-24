@@ -53,8 +53,8 @@ namespace ConsoleMonster.Tests.LiveRuns {
         public void CellMap_LiveEvents_SetAddAndCount() {
             CellMap map = new CellMap();
             map.Apply(new LiveEvent("cells", "count", value: 3));
-            map.Apply(new LiveEvent("cells", "set", key: "1", state: "failed"));
-            map.Apply(new LiveEvent("cells", "add", state: "passed"));
+            map.Apply(new LiveEvent("cells", "set", key: "1", status: "failed"));
+            map.Apply(new LiveEvent("cells", "add", status: "passed"));
             Assert.Equal(4, map.Count);
             Assert.Equal(StatusKind.Fail, map[1]);
             Assert.Equal(StatusKind.Pass, map[3]);
@@ -92,7 +92,7 @@ namespace ConsoleMonster.Tests.LiveRuns {
         [Fact]
         public void CellMap_BadLiveEvents_AreIgnored() {
             CellMap map = new CellMap().Resize(3);
-            map.Apply(new LiveEvent("cells", "set", key: "2000000000", state: "failed"));
+            map.Apply(new LiveEvent("cells", "set", key: "2000000000", status: "failed"));
             map.Apply(new LiveEvent("cells", "count"));
             map.Apply(new LiveEvent("cells", "count", value: double.NaN));
             map.Apply(new LiveEvent("cells", "count", value: -5));
@@ -102,8 +102,8 @@ namespace ConsoleMonster.Tests.LiveRuns {
         [Fact]
         public void ActivityList_WithoutAPercentage_KeepsItsStatus_AndIdsKeepTheTitlesInLine() {
             ActivityList list = new ActivityList { ShowIds = true };
-            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "9", text: "Copying", state: "file 3 of 10", value: -1, total: -1));
-            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "10", text: "Hashing", state: "chunk 2", value: -1, total: -1));
+            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "9", text: "Copying", status: "file 3 of 10", value: -1, total: -1));
+            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "10", text: "Hashing", status: "chunk 2", value: -1, total: -1));
             string[] lines = Render(list, 60);
             Assert.Contains("file 3 of 10", lines[0]);
             Assert.Contains("chunk 2", lines[1]);

@@ -71,11 +71,11 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
-            if (liveEvent.Target == "$checkpoint" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> checkpoint) {
+            if (liveEvent.WidgetId == "$checkpoint" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> checkpoint) {
                 ApplyCheckpoint(checkpoint);
                 return;
             }
-            if (liveEvent.Target == "$flush" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> flush) {
+            if (liveEvent.WidgetId == "$flush" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> flush) {
                 try {
                     lock (_outputGate) { FlushUnrouted(); }
                     Interlocked.Increment(ref _eventsApplied);
@@ -93,23 +93,23 @@ namespace ConsoleMonster.Live {
                 Interlocked.Increment(ref _eventsApplied);
                 return;
             }
-            if (liveEvent.Target == MarkerTarget) {
+            if (liveEvent.WidgetId == MarkerTarget) {
                 Interlocked.Increment(ref _eventsApplied);
                 Record(liveEvent);
                 return;
             }
-            if (!TryGetTarget(liveEvent.Target, out ILiveTarget? target)) {
-                if (liveEvent.Target == "$log" && liveEvent.Text != null) {
+            if (!TryGetTarget(liveEvent.WidgetId, out ILiveTarget? target)) {
+                if (liveEvent.WidgetId == "$log" && liveEvent.Text != null) {
                     RouteUnclaimedLog(liveEvent);
                     Interlocked.Increment(ref _eventsApplied);
                     Record(liveEvent);
                     return;
                 }
                 Interlocked.Increment(ref _eventsDropped);
-                _unknownTargets.AddOrUpdate(liveEvent.Target ?? string.Empty, 1, (name, count) => count + 1);
+                _unknownTargets.AddOrUpdate(liveEvent.WidgetId ?? string.Empty, 1, (name, count) => count + 1);
                 return;
             }
-            IWidget? previousContent = target is Widgets.Slot previousSlot ? previousSlot.Content : null;
+            IWidget? previousContent = target is Widgets.RegionWidget previousSlot ? previousSlot.Content : null;
             try {
                 target!.Apply(liveEvent);
             } catch (Exception ex) {
@@ -133,7 +133,7 @@ namespace ConsoleMonster.Live {
                 StyledText text = scrollback.ScrollbackText(liveEvent, _context!);
                 _unroutedLines.Enqueue(new ConsoleWriteBlock(text.Lines, true));
             }
-            if (target is Widgets.Slot slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
+            if (target is Widgets.RegionWidget slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
                 if (previousContent != null) { Detach(previousContent); }
                 foreach (IWidget child in slot.Children) { Adopt(child); }
                 ResolveLogTarget();

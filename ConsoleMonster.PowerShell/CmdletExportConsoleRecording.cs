@@ -8,7 +8,7 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</para>
-    /// <para type="description">PNG selects the final frame, -At a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</para>
+    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</para>
     /// </summary>
     /// <example>
     ///   <para>An animated SVG and an HTML player of the same run</para>
@@ -37,13 +37,13 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</para></summary>
         [Parameter(Position = 2, ParameterSetName = "Dashboard")]
         [Parameter(Position = 1, ParameterSetName = "Session")]
-        [Alias("OutFile")]
+
         public string? Destination { get; set; }
 
-        /// <summary><para type="description">Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.</para></summary>
+        /// <summary><para type="description">Dashboard playback width in cells (default 0: terminal width, falling back to 100). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
-        [ValidateRange(10, 1000)]
-        public int Width { get; set; } = 100;
+        [ValidateRange(0, 1000)]
+        public int Width { get; set; }
 
         /// <summary><para type="description">Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
@@ -74,7 +74,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</para></summary>
         [Parameter]
-        [PSDefaultValue(Value = WindowChromeStyle.MacOS)]
+        [PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")]
         public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary><para type="description">With -Destination, also writes the file to the pipeline.</para></summary>
@@ -100,13 +100,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
         /// <summary><para type="description">Source recording time for PNG, before playback speed or idle compression.</para></summary>
-        [Parameter(ParameterSetName = "Session")] public System.TimeSpan At { get; set; }
+        [Parameter(ParameterSetName = "Session")] public double AtSeconds { get; set; }
+        private System.TimeSpan At => System.TimeSpan.FromSeconds(AtSeconds);
         /// <summary><para type="description">Exports the completed view of this chapter as PNG.</para></summary>
         [Parameter(ParameterSetName = "Session")] public string? Chapter { get; set; }
         /// <summary><para type="description">Writes numbered PNG slides to the destination directory, one per chapter.</para></summary>
         [Parameter(ParameterSetName = "Session")] public SwitchParameter PerChapter { get; set; }
         /// <summary><para type="description">Maximum unchanged-frame delay in graphics exports; zero preserves timing.</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double IdleLimit { get; set; } = 2;
+        [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Total animation plays: zero repeats forever, one plays once.</para></summary>
         [Parameter, ValidateRange(0, 65536)] public int LoopCount { get; set; }
 
@@ -122,7 +123,7 @@ namespace ConsoleMonster.PowerShell {
             if (graphics) {
                 string selected = Format ?? System.IO.Path.GetExtension(Destination!).TrimStart('.');
                 bool png = string.Equals(selected, "Png", System.StringComparison.OrdinalIgnoreCase);
-                int selectors = (MyInvocation.BoundParameters.ContainsKey(nameof(At)) ? 1 : 0) + (Chapter == null ? 0 : 1) + (PerChapter.IsPresent ? 1 : 0) + (FinalFrame.IsPresent ? 1 : 0);
+                int selectors = (MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? 1 : 0) + (Chapter == null ? 0 : 1) + (PerChapter.IsPresent ? 1 : 0) + (FinalFrame.IsPresent ? 1 : 0);
                 if (selectors > 1 || (!png && selectors > 0)) { throw new System.ArgumentException("Choose one PNG selector: -At, -Chapter, -PerChapter or -FinalFrame."); }
                 if (Destination == null) { throw new System.ArgumentException("Graphics recording exports need -Destination."); }
                 string graphicsTarget = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Destination);
@@ -130,12 +131,12 @@ namespace ConsoleMonster.PowerShell {
                 var paths = GraphicsExportBridge.Recording(source, graphicsTarget, selected, Preset, FontFamily, Fit, Background, BackgroundColor, BackgroundEndColor,
                     new ExportOptions { Theme = Theme, Title = Title, WindowChrome = chrome, ChromeStyle = ChromeStyle },
                     new RecordingExportOptions { Width = Width, Height = Height, Theme = Theme, FramesPerSecond = FramesPerSecond, Speed = Speed },
-                    IdleLimit, LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
-                    MyInvocation.BoundParameters.ContainsKey(nameof(At)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token);
+                    IdleLimitSeconds, LoopCount, ParameterSetName == "Dashboard" ? Dashboard : null,
+                    MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) ? (System.TimeSpan?)At : null, Chapter, PerChapter.IsPresent, _exportStop.Token);
                 if (PassThru.IsPresent) { foreach (string path in paths) { WriteObject(new FileInfo(path)); } }
                 return;
             }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(At)) || Chapter != null || PerChapter.IsPresent) { throw new System.ArgumentException("-At, -Chapter and -PerChapter require -Format Png."); }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(AtSeconds)) || Chapter != null || PerChapter.IsPresent) { throw new System.ArgumentException("-AtSeconds, -Chapter and -PerChapter require -Format Png."); }
             if (FinalFrame.IsPresent && ((Format != null && !string.Equals(Format, "Svg", System.StringComparison.OrdinalIgnoreCase))
                 || (Destination != null && !string.Equals(System.IO.Path.GetExtension(Destination), ".svg", System.StringComparison.OrdinalIgnoreCase)))) {
                 throw new System.ArgumentException("FinalFrame writes SVG; use -Format Svg or an .svg destination.");

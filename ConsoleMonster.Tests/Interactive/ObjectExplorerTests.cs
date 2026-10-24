@@ -191,8 +191,8 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal(column, lines[owner].IndexOf("Object", StringComparison.Ordinal));
             Assert.Equal(column, lines[items].IndexOf("2 items", StringComparison.Ordinal));
             var context = new RenderContext(TerminalProfile.Fixed(width, 20, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
-            Assert.Equal(context.Style(ThemeToken.Muted).Foreground, frame[column, owner].Style.Foreground);
-            Assert.Equal(context.Style(ThemeToken.Muted).Foreground, frame[column, items].Style.Foreground);
+            Assert.Equal(context.Style(ThemeToken.Muted).Color, frame[column, owner].Style.Color);
+            Assert.Equal(context.Style(ThemeToken.Muted).Color, frame[column, items].Style.Color);
         }
 
         [Fact]

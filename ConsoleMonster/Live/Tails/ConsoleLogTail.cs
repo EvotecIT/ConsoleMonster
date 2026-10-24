@@ -29,7 +29,7 @@ namespace ConsoleMonster.Live.Tails {
             // Profile detection may enable Windows VT. Preserve the entry mode before resolving it.
             using (TerminalGuard modeGuard = new TerminalGuard(() => { }, false)) {
                 TerminalProfile profile = options.Profile ?? Terminal.Target.Profile;
-                bool plain = options.Plain || profile.IsOutputRedirected || profile.IsContinuousIntegration
+                bool plain = !options.Live || profile.IsOutputRedirected || profile.IsContinuousIntegration
                     || profile.Mode != OutputMode.Interactive || !profile.SupportsVirtualTerminal
                     || (options.Input == null && Terminal.Target.Input == null && ConsoleInput.Override == null && Console.IsInputRedirected)
                     || (options.Output != null && !options.Output.SupportsLiveFrames);

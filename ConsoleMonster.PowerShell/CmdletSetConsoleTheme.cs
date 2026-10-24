@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Use the light theme</para>
-    ///   <code>Set-ConsoleTheme -Name Light</code>
+    ///   <code>Set-ConsoleTheme -Theme Light</code>
     /// </example>
     /// <example>
     ///   <para>Load a team theme exported as JSON or a PowerShell data file.</para>
@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name")]
         [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe")]
-        public string Name { get; set; } = "Dark";
+        public string Theme { get; set; } = "Dark";
 
         /// <summary><para type="description">A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Path")]
@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (ParameterSetName == "Name") {
-                Terminal.Theme = Theme.FromName(Name);
+                Terminal.Theme = Styling.Theme.FromName(Theme);
                 return;
             }
             try {

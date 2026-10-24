@@ -34,7 +34,7 @@ namespace ConsoleMonster.Interactive {
             _back = back;
         }
 
-        public string Title => _model.Title ?? _item.Title;
+        public string Title => _model.Title ?? _item.Label;
 
         public string? Caption => _model.Problems.Count > 0 ? PromptLabels.Format(_labels.ToFix, _model.Problems.Count) : null;
 
@@ -228,7 +228,7 @@ namespace ConsoleMonster.Interactive {
             _pane = new ChoicePane(_list, new CaretSlot()) { Fill = true };
         }
 
-        public string Title => _item.Title;
+        public string Title => _item.Label;
 
         public string? Caption => null;
 

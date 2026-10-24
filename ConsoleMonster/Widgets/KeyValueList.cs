@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
         private readonly Dictionary<string, int> _index = new Dictionary<string, int>(StringComparer.Ordinal);
 
         /// <summary>Creates a key/value list.</summary>
-        /// <param name="name">The live name (default <c>keyvalue</c>).</param>
-        public KeyValueList(string name = "keyvalue") : base(name) {
+        /// <param name="widgetId">The live name (default <c>keyvalue</c>).</param>
+        public KeyValueList(string widgetId = "keyvalue") : base(widgetId) {
         }
 
         /// <summary>The pairs in order.</summary>
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public KeyValueList AddValue(string key, object? value, Presenters.ICellPresenter? presenter = null, IReadOnlyList<Presenters.ToneRule>? rules = null) {
+        public KeyValueList AddValue(string key, object? value, Presenters.ICellPresenter? presenter = null, IReadOnlyList<Presenters.RoleRule>? rules = null) {
             Add(key, string.Empty);
             KeyValueItem item = _items[_index[key]];
             item.Cell = TableCell.FromValue(value);
@@ -105,13 +105,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that updates this list through a dispatcher (a live session).</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public KeyValueHandle Handle(ILiveDispatcher dispatcher) => new KeyValueHandle(dispatcher, Name);
+        public KeyValueHandle Handle(ILiveDispatcher dispatcher) => new KeyValueHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation == "set" && liveEvent.Key != null) {
                 StatusKind? status = null;
-                if (liveEvent.State != null && StatusKinds.TryParse(liveEvent.State, out StatusKind parsed)) {
+                if (liveEvent.Status != null && StatusKinds.TryParse(liveEvent.Status, out StatusKind parsed)) {
                     status = parsed;
                 }
                 Add(liveEvent.Key, liveEvent.Text ?? liveEvent.Value.ToString(CultureInfo.InvariantCulture), status);
@@ -212,23 +212,23 @@ namespace ConsoleMonster.Widgets {
                 return string.Empty;
             }
             int end = value.IndexOf(' ');
-            string token = end < 0 ? value : value.Substring(0, end);
+            string role = end < 0 ? value : value.Substring(0, end);
             int i = 0;
-            if (i < token.Length && (token[i] == '~' || token[i] == '+' || token[i] == '-' || token[i] == '\u2248')) {
+            if (i < role.Length && (role[i] == '~' || role[i] == '+' || role[i] == '-' || role[i] == '\u2248')) {
                 i++;
             }
-            if (i >= token.Length || !char.IsDigit(token[i])) {
+            if (i >= role.Length || !char.IsDigit(role[i])) {
                 return string.Empty;
             }
-            while (i < token.Length && (char.IsDigit(token[i]) || IsNumberSeparator(token, i))) {
+            while (i < role.Length && (char.IsDigit(role[i]) || IsNumberSeparator(role, i))) {
                 i++;
             }
-            for (; i < token.Length; i++) {
-                if (!char.IsLetter(token[i]) && token[i] != '%' && token[i] != '/') {
+            for (; i < role.Length; i++) {
+                if (!char.IsLetter(role[i]) && role[i] != '%' && role[i] != '/') {
                     return string.Empty;
                 }
             }
-            return token;
+            return role;
         }
 
         private CellContent Present(KeyValueItem item, RenderContext context) {
@@ -239,9 +239,9 @@ namespace ConsoleMonster.Widgets {
             return item.Cell != null ? Markup.Escape(Present(item, context).Lines[0].PlainText) : item.Value;
         }
 
-        private static bool IsNumberSeparator(string token, int index) {
-            char c = token[index];
-            bool between = index > 0 && index + 1 < token.Length && char.IsDigit(token[index - 1]) && char.IsDigit(token[index + 1]);
+        private static bool IsNumberSeparator(string role, int index) {
+            char c = role[index];
+            bool between = index > 0 && index + 1 < role.Length && char.IsDigit(role[index - 1]) && char.IsDigit(role[index + 1]);
             if (c == '.' || c == ',' || c == ':') {
                 return true;
             }

@@ -25,8 +25,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Title alignment (default left).</summary>
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
-        /// <summary>The line's theme token (default <see cref="ThemeToken.Border"/>).</summary>
-        public ThemeToken LineToken { get; set; } = ThemeToken.Border;
+        /// <summary>The line's theme role (default <see cref="ThemeToken.Border"/>).</summary>
+        public ThemeToken LineRole { get; set; } = ThemeToken.Border;
 
         /// <summary>The line's box style, or null to use the glyph profile's ordinary rule line.</summary>
         public BoxStyle? LineStyle { get; set; }
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Widgets {
             string glyph = LineStyle.HasValue
                 ? context.Glyphs.GetBox(LineStyle.Value).Horizontal
                 : context.Glyphs.Get(Glyph.RuleLine);
-            Style line = context.Style(LineToken);
+            Style line = context.Style(LineRole);
             region.HorizontalLine(0, 0, region.Width, glyph, line);
             if (string.IsNullOrEmpty(Title) || region.Width < 8) {
                 return;

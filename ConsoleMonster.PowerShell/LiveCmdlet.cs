@@ -7,7 +7,7 @@ using ConsoleMonster.Live;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// Base for cmdlets that update a running dashboard. The session is taken from <c>-Session</c>, then from the
-    /// <c>$ConsoleSession</c> variable that <c>Start-ConsoleDashboard</c> defines in the runspaces it owns, then from the
+    /// <c>$ConsoleSession</c> variable that <c>Invoke-ConsoleDashboard</c> defines in the runspaces it owns, then from the
     /// most recently started session in the process.
     /// </summary>
     public abstract class LiveCmdlet : PSCmdlet {
@@ -28,11 +28,11 @@ namespace ConsoleMonster.PowerShell {
         protected void Send(LiveEvent liveEvent) {
             LiveSession? session = ResolveSession();
             if (session == null) {
-                WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Start-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
+                WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."), "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
                 return;
             }
-            if (liveEvent.Target != LiveSession.MarkerTarget && !session.TryGetTarget(liveEvent.Target, out _) && Warned.GetOrCreateValue(session).TryAdd(liveEvent.Target, true)) {
-                WriteWarning(UnknownTargetMessage(session, liveEvent.Target, null));
+            if (liveEvent.WidgetId != LiveSession.MarkerTarget && !session.TryGetTarget(liveEvent.WidgetId, out _) && Warned.GetOrCreateValue(session).TryAdd(liveEvent.WidgetId, true)) {
+                WriteWarning(UnknownTargetMessage(session, liveEvent.WidgetId, null));
             }
             session.Post(liveEvent);
         }
@@ -56,7 +56,7 @@ namespace ConsoleMonster.PowerShell {
         internal static string UnknownTargetMessage(LiveSession session, string target, long? count) {
             string ignored = count.HasValue ? count.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) + " update(s)" : "updates";
             if (target == "$log") {
-                return "The console dashboard has no log region (New-ConsoleLog); " + ignored + " for the log were ignored.";
+                return "The console dashboard has no log region (New-ConsoleLogRegion); " + ignored + " for the log were ignored.";
             }
             string names = string.Join(", ", session.TargetNames.OrderBy(name => name, System.StringComparer.OrdinalIgnoreCase));
             return "The console dashboard has no widget named '" + target + "'; " + ignored + " for it were ignored. Widget names: " + (names.Length == 0 ? "(none)" : names) + ".";

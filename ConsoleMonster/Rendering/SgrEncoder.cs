@@ -42,8 +42,8 @@ namespace ConsoleMonster.Rendering {
             if ((d & TextDecoration.Strikethrough) != 0) {
                 builder.Append(";9");
             }
-            AppendColor(builder, s.Foreground, false);
-            AppendColor(builder, s.Background, true);
+            AppendColor(builder, s.Color, false);
+            AppendColor(builder, s.BackgroundColor, true);
             builder.Append('m');
         }
 

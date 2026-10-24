@@ -5,8 +5,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class LogHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The log name.</param>
-        public LogHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The log name.</param>
+        public LogHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Writes a line.</summary>

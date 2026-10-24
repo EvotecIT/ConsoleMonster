@@ -5,8 +5,8 @@ namespace ConsoleMonster.Live {
     public sealed class LiveRunOptions {
         /// <summary>The literal run name.</summary>
         public string Title { get; set; } = "Run";
-        /// <summary>Force append-only output even on an interactive terminal.</summary>
-        public bool NoLive { get; set; }
+        /// <summary>Allow live rendering when supported by the terminal; false selects append-only output.</summary>
+        public bool Live { get; set; } = true;
         /// <summary>Maximum share of terminal height used by the dashboard, default 0.4. Header and problems share the available rows on very short terminals.</summary>
         public double HeightFraction { get; set; } = 0.4;
         /// <summary>Show category progress when spare height is available.</summary>

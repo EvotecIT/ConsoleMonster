@@ -8,13 +8,13 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Append a throughput sample</para>
-    ///   <code>Add-ConsoleValue -Name throughput -Key completed -Value 42</code>
+    ///   <code>Add-ConsoleValue -WidgetId throughput -Key completed -Value 42</code>
     /// </example>
     [Cmdlet(VerbsCommon.Add, "ConsoleValue")]
     public sealed class CmdletAddConsoleValue : LiveCmdlet {
         /// <summary><para type="description">The chart name.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
-        public string Name { get; set; } = string.Empty;
+        public string WidgetId { get; set; } = string.Empty;
 
         /// <summary><para type="description">The value.</para></summary>
         [Parameter(Position = 1, Mandatory = true, ValueFromPipeline = true)]
@@ -26,7 +26,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Send(new LiveEvent(Name, "add", Key, value: Value));
+            Send(new LiveEvent(WidgetId, "add", Key, value: Value));
         }
     }
 }

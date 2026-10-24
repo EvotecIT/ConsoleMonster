@@ -65,7 +65,7 @@ namespace ConsoleMonster.Presenters {
             }
             Style style = context.Render.Style(status);
             string marker = context.Render.Glyphs.StatusMarker(status);
-            return new PresentedValue(new StyledLine(new[] { new TextSpan(marker + " ", style), new TextSpan(text, status == StatusKind.Skip ? context.Render.Style(ThemeToken.Muted) : style) })) { Tone = status.ToToken() };
+            return new PresentedValue(new StyledLine(new[] { new TextSpan(marker + " ", style), new TextSpan(text, status == StatusKind.Skip ? context.Render.Style(ThemeToken.Muted) : style) })) { Role = status.ToToken() };
         }
     }
 }

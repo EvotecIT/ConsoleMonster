@@ -22,15 +22,15 @@ namespace ConsoleMonster.Widgets {
         private DateTimeOffset? _lastRun;
 
         /// <summary>Creates a watch view.</summary>
-        /// <param name="name">The live name (default <c>watch</c>).</param>
-        public WatchView(string name = "watch") : base(name) {
+        /// <param name="widgetId">The live name (default <c>watch</c>).</param>
+        public WatchView(string widgetId = "watch") : base(widgetId) {
         }
 
         /// <summary>What is being watched, shown in the heading (markup), or null.</summary>
         public string? Title { get; set; }
 
         /// <summary>The time between runs, shown in the heading.</summary>
-        public TimeSpan Interval { get; set; } = TimeSpan.FromSeconds(2);
+        public TimeSpan PollInterval { get; set; } = TimeSpan.FromSeconds(2);
 
         /// <summary>Whether values that changed since the previous run are highlighted (bold on a soft surface; a marker without colour).</summary>
         public bool Differences { get; set; }
@@ -144,7 +144,7 @@ namespace ConsoleMonster.Widgets {
                     if (context.Profile.ColorDepth == Capabilities.ColorDepth.None) {
                         body.Put(0, y, "*", context.Style(ThemeToken.Muted));
                     } else {
-                        body.SetStyle(0, y, body.Get(0, y).Style.WithBackground(context.Style(ThemeToken.Surface).Background));
+                        body.SetStyle(0, y, body.Get(0, y).Style.WithBackgroundColor(context.Style(ThemeToken.Surface).BackgroundColor));
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 return;
             }
-            Color tone = context.Style(ThemeToken.Surface).Background;
+            Color tone = context.Style(ThemeToken.Surface).BackgroundColor;
             for (int i = start; i < textEnd; i++) {
                 Cell cell = body.Get(i, y);
                 if (cell.IsContinuation) {
@@ -168,7 +168,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 Style style = cell.Style.With(TextDecoration.Bold);
                 // A cell with its own background (a badge, a status pill) keeps it and is underlined instead.
-                body.SetStyle(i, y, tone.IsDefault || !cell.Style.Background.IsDefault ? style.With(TextDecoration.Underline) : style.WithBackground(tone));
+                body.SetStyle(i, y, tone.IsDefault || !cell.Style.BackgroundColor.IsDefault ? style.With(TextDecoration.Underline) : style.WithBackgroundColor(tone));
             }
         }
 
@@ -291,7 +291,7 @@ namespace ConsoleMonster.Widgets {
         private StyledLine Heading(RenderContext context) {
             Style muted = context.Style(ThemeToken.Muted);
             System.Collections.Generic.List<TextSpan> spans = new System.Collections.Generic.List<TextSpan> {
-                new TextSpan(Localization.WidgetLabels.Format(context.Labels.WatchEvery, NumberFormat.Duration(Interval)), muted)
+                new TextSpan(Localization.WidgetLabels.Format(context.Labels.WatchEvery, NumberFormat.Duration(PollInterval)), muted)
             };
             if (!string.IsNullOrEmpty(Title)) {
                 spans.Add(new TextSpan(" "));

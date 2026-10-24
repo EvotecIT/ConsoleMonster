@@ -187,7 +187,7 @@ namespace ConsoleMonster.Interactive {
             List<Field> stale = _form.StaleDependents(before);
             foreach (Field dependent in stale) {
                 FieldState state = _states[dependent];
-                bool given = Form.TryGet(values, dependent.Name, out object? wanted);
+                bool given = Form.TryGet(values, dependent.Key, out object? wanted);
                 if (dependent is ChoiceField choice && choice.Loader != null) {
                     state.CancelLoad();
                     state.LoadAttempted = false;
@@ -203,12 +203,12 @@ namespace ConsoleMonster.Interactive {
             Dictionary<Field, object?> after = _form.SnapshotValues();
             foreach (KeyValuePair<Field, FieldState> pair in _states) {
                 pair.Value.SyncEditor();
-                if (!Form.SameValue(pair.Key, after[pair.Key], before[pair.Key]) || Form.TryGet(values, pair.Key.Name, out _)) {
+                if (!Form.SameValue(pair.Key, after[pair.Key], before[pair.Key]) || Form.TryGet(values, pair.Key.Key, out _)) {
                     pair.Value.Error = null;
                 }
             }
             // An open choice list holds its own copy of the selection; close it so it cannot write back an old one.
-            if (_editor != null && (stale.Contains(_editor.Field) || Form.TryGet(values, _editor.Field.Name, out _) || !Form.SameValue(_editor.Field, after[_editor.Field], before[_editor.Field]))) {
+            if (_editor != null && (stale.Contains(_editor.Field) || Form.TryGet(values, _editor.Field.Key, out _) || !Form.SameValue(_editor.Field, after[_editor.Field], before[_editor.Field]))) {
                 _editor = null;
             }
             if (markDirty) {
@@ -265,7 +265,7 @@ namespace ConsoleMonster.Interactive {
             }
             FormValues values = _form.GetValues();
             foreach (Field field in _form.Pages[page].Fields) {
-                if (values.IsVisible(field.Name)) {
+                if (values.IsVisible(field.Key)) {
                     fields.Add(field);
                 }
             }
@@ -320,7 +320,7 @@ namespace ConsoleMonster.Interactive {
             _dirty = true;
             _states[field].Error = null;
             foreach (Field other in _form.Fields) {
-                if (other == field || !Contains(other.DependsOn, field.Name)) {
+                if (other == field || !Contains(other.DependsOn, field.Key)) {
                     continue;
                 }
                 FieldState state = _states[other];
@@ -400,7 +400,7 @@ namespace ConsoleMonster.Interactive {
                 changed = true;
                 ChoiceField field = (ChoiceField)pair.Key;
                 if (load.IsCanceled || (state.Cts != null && state.Cts.IsCancellationRequested)) {
-                    state.LoadError = Labels.Cancelled;
+                    state.LoadError = Labels.Canceled;
                     continue;
                 }
                 if (load.IsFaulted) {
@@ -550,7 +550,7 @@ namespace ConsoleMonster.Interactive {
             Field? field = FocusedField;
             if (field != null && _states[field].Loading) {
                 _states[field].CancelLoad();
-                _states[field].LoadError = Labels.Cancelled;
+                _states[field].LoadError = Labels.Canceled;
                 return true;
             }
             if (_page > 0) {

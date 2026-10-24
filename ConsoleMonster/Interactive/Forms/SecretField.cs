@@ -10,9 +10,9 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A secret: masked in the form, never shown on the review page, never stored, a placeholder in the command.</summary>
     public sealed class SecretField : Field {
         /// <summary>Creates a secret field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public SecretField(string name, string? label = null) : base(name, label) {
+        public SecretField(string key, string? label = null) : base(key, label) {
             Remember = false;
             Required = true;
         }

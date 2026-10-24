@@ -43,7 +43,7 @@ namespace ConsoleMonster.Presenters {
             StyledLine line = ascii
                 ? StyledLine.From(flag.Value ? TrueText : FalseText, style)
                 : new StyledLine(new[] { new TextSpan(symbol + " ", style), new TextSpan(flag.Value ? TrueText : FalseText, style) });
-            return new PresentedValue(line) { Tone = tone, Number = flag.Value ? 1 : 0 };
+            return new PresentedValue(line) { Role = tone, Number = flag.Value ? 1 : 0 };
         }
     }
 }

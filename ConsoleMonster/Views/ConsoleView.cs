@@ -47,7 +47,7 @@ namespace ConsoleMonster.Views {
         public ConsoleViewKind? View { get; set; }
 
         /// <summary>The member that holds each object's children, for a tree (found automatically when null).</summary>
-        public string? ChildProperty { get; set; }
+        public string? ChildrenProperty { get; set; }
 
         /// <summary>Whether objects should become a chart (label from the first text member, value from the first number).</summary>
         public bool Chart { get; set; }
@@ -151,8 +151,8 @@ namespace ConsoleMonster.Views {
             if (options.Chart) {
                 return ConsoleViewKind.Chart;
             }
-            string? childProperty = options.ChildProperty ?? FindChildProperty(present[0], options);
-            if (childProperty != null && options.ChildProperty != null) {
+            string? childProperty = options.ChildrenProperty ?? FindChildProperty(present[0], options);
+            if (childProperty != null && options.ChildrenProperty != null) {
                 return ConsoleViewKind.Tree;
             }
             if (present.Count == 1) {
@@ -199,7 +199,7 @@ namespace ConsoleMonster.Views {
             return table;
         }
 
-        /// <summary>A tree of the items and their children (<see cref="ConsoleViewOptions.ChildProperty"/> or found automatically).</summary>
+        /// <summary>A tree of the items and their children (<see cref="ConsoleViewOptions.ChildrenProperty"/> or found automatically).</summary>
         /// <param name="items">The items.</param>
         /// <param name="options">Options, or null.</param>
         /// <returns>The tree.</returns>
@@ -207,7 +207,7 @@ namespace ConsoleMonster.Views {
             options ??= new ConsoleViewOptions();
             Tree tree = new Tree(options.Title);
             List<object> present = items.Where(item => item != null).Select(item => item!).ToList();
-            string? child = options.ChildProperty ?? (present.Count > 0 ? FindChildProperty(present[0], options) : null);
+            string? child = options.ChildrenProperty ?? (present.Count > 0 ? FindChildProperty(present[0], options) : null);
             foreach (object item in present) {
                 AddNode(tree.Root, item, child, options, 0);
             }

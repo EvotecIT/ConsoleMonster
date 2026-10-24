@@ -24,7 +24,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.False(toggle.Value);
             Assert.Equal(false, toggle.CurrentValue);
             Assert.Equal(4, changes.Count);
-            Assert.All(changes, change => Assert.Equal("enabled", change.Name));
+            Assert.All(changes, change => Assert.Equal("enabled", change.Key));
             Assert.Equal(false, changes[0].PreviousValue);
             Assert.Equal(true, changes[0].Value);
             Assert.Equal(false, changes[3].Value);

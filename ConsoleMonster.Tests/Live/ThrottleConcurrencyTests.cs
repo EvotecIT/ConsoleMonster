@@ -30,7 +30,7 @@ namespace ConsoleMonster.Tests.Live {
                     token.ThrowIfCancellationRequested();
                     return item * 2;
                 } finally { Interlocked.Decrement(ref active); }
-            }, new RunOptions { ThrottleLimit = limit, Interactive = false, Print = _ => { } });
+            }, new RunOptions { ThrottleLimit = limit, Live = false, Print = _ => { } });
             try {
                 Assert.Same(full.Task, await Task.WhenAny(full.Task, Task.Delay(TimeSpan.FromSeconds(30))));
                 Assert.Equal(limit, Volatile.Read(ref active));

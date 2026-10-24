@@ -59,7 +59,7 @@ namespace ConsoleMonster.Interactive {
                     new StyledLine(new[] {
                         new TextSpan(context.Glyphs.Get(Glyphs.Glyph.Cross) + " ", context.Style(ThemeToken.Muted)),
                         new TextSpan(form.Title, context.Style(ThemeToken.Muted)),
-                        new TextSpan("  " + labels.Cancelled, context.Style(ThemeToken.Muted).With(TextDecoration.Italic))
+                        new TextSpan("  " + labels.Canceled, context.Style(ThemeToken.Muted).With(TextDecoration.Italic))
                     })
                 };
             }
@@ -87,7 +87,7 @@ namespace ConsoleMonster.Interactive {
             }
             values = form.GetValues();
             foreach (Field field in form.Fields) {
-                if (!values.IsVisible(field.Name)) {
+                if (!values.IsVisible(field.Key)) {
                     continue;
                 }
                 if (field.Check(field.Value, values, labels) != null) {
@@ -132,7 +132,7 @@ namespace ConsoleMonster.Interactive {
                     lines.Say(page.Title);
                 }
                 foreach (Field field in page.Fields) {
-                    if (!form.GetValues().IsVisible(field.Name)) {
+                    if (!form.GetValues().IsVisible(field.Key)) {
                         continue;
                     }
                     if (field is ChoiceField choice && choice.Loader != null) {
@@ -141,7 +141,7 @@ namespace ConsoleMonster.Interactive {
                         foreach (Choice c in choice.Loader(form.GetValues(), token).GetAwaiter().GetResult()) {
                             choice.Choices.Add(c);
                         }
-                        if (pending.TryGetValue(choice.Name, out object? wanted) && Form.TryRestore(choice, wanted, out object? restored)) {
+                        if (pending.TryGetValue(choice.Key, out object? wanted) && Form.TryRestore(choice, wanted, out object? restored)) {
                             choice.Value = restored;
                         }
                     }
@@ -152,7 +152,7 @@ namespace ConsoleMonster.Interactive {
             lines.Say(lines.Labels.Review);
             FormValues values = form.GetValues();
             foreach (Field field in form.Fields) {
-                if (values.IsVisible(field.Name)) {
+                if (values.IsVisible(field.Key)) {
                     lines.Say("  " + field.Label + ": " + field.Display(field.Value, lines.Labels));
                 }
             }
@@ -266,7 +266,7 @@ namespace ConsoleMonster.Interactive {
         public FormResult? Result { get; private set; }
 
         /// <summary>The result of a run started after submitting, when there was one.</summary>
-        public RunResult? RunResult { get; private set; }
+        public MenuRunResult? RunResult { get; private set; }
 
         public override bool IsAnimating => (_override?.IsAnimating ?? false) || Pane.IsAnimating;
 
@@ -327,8 +327,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 string title = _override?.Title ?? (Pane.Crumbs.Count > 0 ? Pane.Crumbs[0] : Pane.Title);
                 Panel panel = new Panel(new Padding(pane.Build(frame, _modals.Count == 0), 1, 1, 1, 0), Markup.Escape(title)) {
-                    Caption = pane.Caption == null ? null : Markup.Escape(pane.Caption),
-                    BorderToken = ThemeToken.Border
+                    HeaderRight = pane.Caption == null ? null : Markup.Escape(pane.Caption),
+                    BorderRole = ThemeToken.Border
                 };
                 Rows rows = new Rows();
                 rows.Add(header, LayoutSize.Fixed(1));
@@ -381,10 +381,10 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             if (Pane.IsDirty) {
-                ShowModal(new ConfirmDialog(Labels.Exit, Labels.DiscardChanges, () => { IsCancelled = true; IsDone = true; }, Labels, true));
+                ShowModal(new ConfirmDialog(Labels.Exit, Labels.DiscardChanges, () => { IsCanceled = true; IsDone = true; }, Labels, true));
                 return;
             }
-            IsCancelled = true;
+            IsCanceled = true;
             IsDone = true;
         }
 
@@ -409,14 +409,14 @@ namespace ConsoleMonster.Interactive {
             return prompt.Show(o, cancellationToken);
         }
 
-        RunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
-            RunResult result = RunHost.Run(this, _surface!, _surface as ScreenSurface, _input!, _context!, context, dashboard, work, options, pane => _override = pane, () => _override = null, _form.Title);
+        MenuRunResult IMenuHost.Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
+            MenuRunResult result = RunHost.Run(this, _surface!, _surface as ScreenSurface, _input!, _context!, context, dashboard, work, options, pane => _override = pane, () => _override = null, _form.Title);
             RunResult = result;
             ShowResultPane(result);
             return result;
         }
 
-        void IMenuHost.ShowResult(RunResult result) => ShowResultPane(result);
+        void IMenuHost.ShowResult(MenuRunResult result) => ShowResultPane(result);
 
         void IMenuHost.Open(MenuItem item) {
         }
@@ -425,7 +425,7 @@ namespace ConsoleMonster.Interactive {
 
         void IMenuHost.Log(string text, StatusKind status) => ShowToast(new Toast(text, status));
 
-        private void ShowResultPane(RunResult result) {
+        private void ShowResultPane(MenuRunResult result) {
             RunResult = result;
             _override = new ResultPane(result, Labels, item => { }, () => IsDone = true);
         }

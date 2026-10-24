@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named multiline text input for Show-ConsoleApp.</para>
     /// <para type="description">Emits a stable core TextArea widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para>
     /// </summary>
-    /// <example><para>Create an application input.</para><code>New-ConsoleTextArea -Name Notes -Height 4 -Value 'Draft'</code></example>
+    /// <example><para>Create an application input.</para><code>New-ConsoleTextArea -Key Notes -Height 4 -Value 'Draft'</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleTextArea")]
     [OutputType(typeof(TextArea))]
     public sealed class CmdletNewConsoleTextArea : AppInputCmdlet {
@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new TextArea(Name, Value) { Placeholder = Placeholder, MaxLength = MaxLength, Height = Height });
+            Emit(new TextArea(Key, Value) { Placeholder = Placeholder, MaxLength = MaxLength, Height = Height });
         }
     }
 }

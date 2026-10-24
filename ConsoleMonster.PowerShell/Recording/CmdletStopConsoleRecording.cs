@@ -2,7 +2,7 @@ using System.Management.Automation;
 using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Stops recording from inside the recorded child shell.</para><para type="description">Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Start-ConsoleRecording session.</para></summary>
+    /// <summary><para type="synopsis">Stops recording from inside the recorded child shell.</para><para type="description">Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.</para></summary>
     /// <example><para>Finish from inside the recorded child shell</para><code>Write-Host 'Deployment finished'
     /// Stop-ConsoleRecording</code></example>
     [Cmdlet(VerbsLifecycle.Stop, "ConsoleRecording")]

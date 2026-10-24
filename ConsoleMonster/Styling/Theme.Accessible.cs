@@ -24,14 +24,14 @@ namespace ConsoleMonster.Styling {
                 .With(ThemeToken.Title, new ThemeStyle(foreground, null, TextDecoration.Bold))
                 .With(ThemeToken.Header, new ThemeStyle(foreground, null, TextDecoration.Bold | TextDecoration.Underline))
                 .With(ThemeToken.Highlight, new ThemeStyle(yellow, null, TextDecoration.Bold))
-                .With(ThemeToken.SurfaceAccent, new ThemeStyle(blue, Dark.Get(ThemeToken.SurfaceAccent).Background, TextDecoration.Bold))
+                .With(ThemeToken.SurfaceAccent, new ThemeStyle(blue, Dark.Get(ThemeToken.SurfaceAccent).BackgroundColor, TextDecoration.Bold))
                 .With(ThemeToken.Series1, new ThemeStyle(blue))
                 .With(ThemeToken.Series2, new ThemeStyle(orange))
                 .With(ThemeToken.Series3, new ThemeStyle(teal))
                 .With(ThemeToken.Series4, new ThemeStyle(purple))
                 .With(ThemeToken.Series5, new ThemeStyle(yellow))
                 .With(ThemeToken.Series6, new ThemeStyle(foreground))
-                .With(ThemeToken.Focus, new ThemeStyle(foreground, Dark.Get(ThemeToken.Focus).Background, TextDecoration.Bold));
+                .With(ThemeToken.Focus, new ThemeStyle(foreground, Dark.Get(ThemeToken.Focus).BackgroundColor, TextDecoration.Bold));
         }
     }
 }

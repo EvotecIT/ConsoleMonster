@@ -224,7 +224,7 @@ namespace ConsoleMonster.Interactive {
                     region.Fill(0, y, region.Width, 1, " ", focus);
                 }
                 if (focused) {
-                    region.Put(0, y, g.FocusBar, context.Style(ThemeToken.Accent).WithBackground(row.Background));
+                    region.Put(0, y, g.FocusBar, context.Style(ThemeToken.Accent).WithBackgroundColor(row.BackgroundColor));
                 }
                 Style labelStyle = row.Combine(context.Style(focused ? ThemeToken.Text : ThemeToken.Muted));
                 if (focused) {
@@ -311,7 +311,7 @@ namespace ConsoleMonster.Interactive {
                     // The editor draws on the plain background; keep the focus band behind it.
                     for (int i = 0; i < cell.Width; i++) {
                         Cell c = cell.Get(i, 0);
-                        cell.SetStyle(i, 0, c.Style.WithBackground(row.Background));
+                        cell.SetStyle(i, 0, c.Style.WithBackgroundColor(row.BackgroundColor));
                     }
                 }
                 return;

@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletUpdateConsoleSpinner : LiveCmdlet {
         /// <summary><para type="description">The spinner name (default spinner).</para></summary>
         [Parameter(Position = 0)]
-        public string Name { get; set; } = "spinner";
+        public string WidgetId { get; set; } = "spinner";
 
         /// <summary><para type="description">A new label.</para></summary>
         [Parameter]
@@ -40,14 +40,14 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Restart.IsPresent) {
-                Send(new LiveEvent(Name, "start", text: PSText.Markup(Label)));
+                Send(new LiveEvent(WidgetId, "start", text: PSText.Markup(Label)));
             } else if (Label != null) {
-                Send(new LiveEvent(Name, "label", text: PSText.Markup(Label)));
+                Send(new LiveEvent(WidgetId, "label", text: PSText.Markup(Label)));
             }
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", text: PSText.Markup(Detail), state: Status.Value.ToString()));
+                Send(new LiveEvent(WidgetId, "state", text: PSText.Markup(Detail), status: Status.Value.ToString()));
             } else if (Detail != null) {
-                Send(new LiveEvent(Name, "detail", text: PSText.Markup(Detail)));
+                Send(new LiveEvent(WidgetId, "detail", text: PSText.Markup(Detail)));
             }
         }
     }

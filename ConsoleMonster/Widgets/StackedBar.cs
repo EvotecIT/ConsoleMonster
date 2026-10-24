@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// One bar split into proportional segments with a legend (label, value, share). Segments labelled with a status word
-    /// (Passed, Failed, Warnings, Skipped...) take that status colour unless a token is given. Without colour, segments use distinct
+    /// (Passed, Failed, Warnings, Skipped...) take that status colour unless a role is given. Without colour, segments use distinct
     /// fill glyphs so the split stays readable. Live operations (Key = segment): <c>set</c> (Value), <c>add</c> (Value).
     /// </summary>
     public sealed class StackedBar : LiveWidget {
@@ -19,8 +19,8 @@ namespace ConsoleMonster.Widgets {
         private readonly List<ChartItem> _segments = new List<ChartItem>();
 
         /// <summary>Creates a stacked bar.</summary>
-        /// <param name="name">The live name (default <c>stacked</c>).</param>
-        public StackedBar(string name = "stacked") : base(name) {
+        /// <param name="widgetId">The live name (default <c>stacked</c>).</param>
+        public StackedBar(string widgetId = "stacked") : base(widgetId) {
         }
 
         /// <summary>The segments.</summary>
@@ -60,15 +60,16 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds or updates a segment with a multicolour legend label (its plain text is the key).</summary>
         /// <param name="label">The rich label.</param>
         /// <param name="value">The value.</param>
-        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
+        /// <param name="key">Stable item identity, or null to use the label.</param>
         /// <returns>This instance.</returns>
-        public StackedBar Add(Text.RichText label, double value, ThemeToken? token = null) {
+        public StackedBar Add(Text.RichText label, double value, ThemeToken? role = null, string? key = null) {
             if (label == null) {
                 throw new ArgumentNullException(nameof(label));
             }
-            Add(label.PlainText, value, token);
+            Add(label.PlainText, value, role, key);
             foreach (ChartItem segment in _segments) {
-                if (string.Equals(segment.Label, label.PlainText, StringComparison.Ordinal)) {
+                if (string.Equals(segment.Key, key ?? label.PlainText, StringComparison.Ordinal)) {
                     segment.LabelText = label;
                 }
             }
@@ -78,20 +79,21 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds or updates a segment.</summary>
         /// <param name="label">The label.</param>
         /// <param name="value">The value.</param>
-        /// <param name="token">The colour token, or <c>null</c> for the next series colour.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
+        /// <param name="key">Stable item identity, or null to use the label.</param>
         /// <returns>This instance.</returns>
-        public StackedBar Add(string label, double value, ThemeToken? token = null) {
+        public StackedBar Add(string label, double value, ThemeToken? role = null, string? key = null) {
             foreach (ChartItem segment in _segments) {
-                if (string.Equals(segment.Label, label, StringComparison.Ordinal)) {
+                if (string.Equals(segment.Key, key ?? label, StringComparison.Ordinal)) {
                     segment.Value = value;
-                    if (token.HasValue) {
-                        segment.Token = token;
+                    if (role.HasValue) {
+                        segment.Role = role;
                     }
                     return this;
                 }
             }
             ThemeToken automatic = StatusKinds.TryParse(label, out StatusKind status) ? status.ToToken() : (ThemeToken)((int)ThemeToken.Series1 + (_segments.Count % 6));
-            _segments.Add(new ChartItem(label, value, token ?? automatic));
+            _segments.Add(new ChartItem(label, value, role ?? automatic, key));
             return this;
         }
 
@@ -105,7 +107,7 @@ namespace ConsoleMonster.Widgets {
             } else if (liveEvent.Operation == "add") {
                 double current = 0;
                 foreach (ChartItem segment in _segments) {
-                    if (segment.Label == liveEvent.Key) {
+                    if (segment.Key == liveEvent.Key) {
                         current = segment.Value;
                     }
                 }
@@ -128,7 +130,7 @@ namespace ConsoleMonster.Widgets {
             int x = 0;
             for (int i = 0; i < _segments.Count; i++) {
                 string fill = FillGlyph(i, context);
-                region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Token ?? ThemeToken.Series1));
+                region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Role ?? ThemeToken.Series1));
                 x += widths[i];
             }
             if (x < region.Width) {
@@ -248,7 +250,7 @@ namespace ConsoleMonster.Widgets {
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
                 StyledLine label = TextWrapper.Truncate(RichLines.Line(segment.LabelText, segment.Label, textStyle, context), labelWidth, context.Ellipsis);
-                current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Token ?? ThemeToken.Series1)));
+                current.Add(new TextSpan(StatColumn.Pad(FillGlyph(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role ?? ThemeToken.Series1)));
                 // The label keeps its own colours; padding fills the column per its alignment.
                 int padding = Math.Max(0, labelWidth - label.Width);
                 int before = LabelColumn.Alignment == HorizontalAlignment.Right ? padding : LabelColumn.Alignment == HorizontalAlignment.Center ? padding / 2 : 0;

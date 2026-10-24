@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Through a pager</para>
-    ///   <code>Show-ConsoleHelp Format-ConsoleTable | more</code>
+    ///   <code>Show-ConsoleHelp Show-ConsoleTable | more</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleHelp")]
     [OutputType(typeof(string))]
@@ -40,8 +40,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter NoExamples { get; set; }
 
+        /// <summary><para type="description">Returns the view widget without drawing or acquiring input.</para></summary>
+        [Parameter]
+        public SwitchParameter AsWidget { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
+            PSOutputExport.Validate(this);
             CommandInfo? command = null;
             bool wildcard = WildcardPattern.ContainsWildcardCharacters(Name);
             bool topic = Name.StartsWith("about_", StringComparison.OrdinalIgnoreCase) || wildcard;
@@ -80,7 +85,8 @@ namespace ConsoleMonster.PowerShell {
             }
             if (entries.Count > 1 && command == null) {
                 // A wildcard or a topic search: Get-Help gives short entries, shown as a list to pick from.
-                PSFormatting.Emit(this, IndexTable(entries), Width, null, AsString.IsPresent);
+                if (AsWidget.IsPresent) { WriteObject(IndexTable(entries)); }
+                else { PSFormatting.Emit(this, IndexTable(entries), Width, null, AsString.IsPresent); }
                 return;
             }
             PSObject? help = Matching(entries, command);
@@ -95,7 +101,8 @@ namespace ConsoleMonster.PowerShell {
             } else {
                 view = PSHelp.CreateView(help, command, NoExamples.IsPresent);
             }
-            PSFormatting.Emit(this, view, Width, null, AsString.IsPresent);
+            if (AsWidget.IsPresent) { WriteObject(view); }
+            else { PSFormatting.Emit(this, view, Width, null, AsString.IsPresent); }
         }
 
         // The help object of the command PowerShell resolved (the same name in another module or version comes second).

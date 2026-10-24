@@ -9,7 +9,7 @@ using ConsoleMonster.Output;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Follows a log file or a local Windows event log with a live, scrollable log view.</para>
-    /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -Plain output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
+    /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
     /// </summary>
     /// <example><para>Follow a file and emphasize a component.</para><code>Watch-ConsoleLog -Path ./service.log -Highlight database</code></example>
     /// <example><para>Capture the current matching lines as ordinary strings.</para><code>Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 | Out-File ./errors.txt</code></example>
@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">One literal FileSystem path. Wildcards are not expanded.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Path")]
-        [Alias("LiteralPath")]
+
         [ValidateNotNullOrEmpty]
         public string Path { get; set; } = string.Empty;
 
@@ -50,7 +50,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Seconds between polls, from 0.05 to 86400; defaults to 0.25.</para></summary>
         [Parameter]
         [ValidateRange(0.05, 86400)]
-        public double Interval { get; set; } = 0.25;
+        public double PollIntervalSeconds { get; set; } = 0.25;
 
         /// <summary><para type="description">Literal case-insensitive text required in a line. Null or empty accepts every line.</para></summary>
         [Parameter]
@@ -72,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Writes literal lines without a live screen or keyboard input.</para></summary>
         [Parameter]
-        public SwitchParameter Plain { get; set; }
+        public SwitchParameter NoLive { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -84,9 +84,9 @@ namespace ConsoleMonster.PowerShell {
                     TerminalProfile profile = Terminal.GetCurrentProfile();
                     bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
                     LogTailOptions options = new LogTailOptions {
-                        Count = Count, PollInterval = TimeSpan.FromSeconds(Interval), Capacity = Capacity,
+                        Count = Count, PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds), Capacity = Capacity,
                         Filter = Filter, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
-                        Plain = Plain.IsPresent || !last || HostOutput.UseHost(this, profile) || profile.Mode != OutputMode.Interactive,
+                        Live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == OutputMode.Interactive,
                         WriteLine = text => WriteObject(text)
                     };
                     if (ParameterSetName == "EventLog") {

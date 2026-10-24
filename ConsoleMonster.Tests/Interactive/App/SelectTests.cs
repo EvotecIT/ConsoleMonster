@@ -27,7 +27,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal("ready", select.Value);
             Assert.True(select.HandleInput(InputEvent.Press(ConsoleKey.Enter), Context()));
             AppValueChangedEventArgs change = Assert.Single(changes);
-            Assert.Equal("target", change.Name);
+            Assert.Equal("target", change.Key);
             Assert.Null(change.PreviousValue);
             Assert.Equal("ready", change.Value);
         }

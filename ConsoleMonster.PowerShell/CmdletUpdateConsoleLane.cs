@@ -18,12 +18,12 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsData.Update, "ConsoleLane")]
     public sealed class CmdletUpdateConsoleLane : LiveCmdlet {
         /// <summary><para type="description">The lane key (created on first use).</para></summary>
-        [Parameter(Position = 0, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public string Key { get; set; } = string.Empty;
 
         /// <summary><para type="description">The lanes widget name (default lanes).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "lanes";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "lanes";
 
         /// <summary><para type="description">Result of completed steps.</para></summary>
         [Parameter]
@@ -62,17 +62,17 @@ namespace ConsoleMonster.PowerShell {
             string? detail = PSText.EventText(Detail, out bool detailMarkup);
             if (Label != null || Total > 0) {
                 string? label = PSText.EventText(Label, out bool labelMarkup);
-                Send(new LiveEvent(Name, "add", Key, label, total: Total, isMarkup: labelMarkup));
+                Send(new LiveEvent(WidgetId, "add", Key, label, total: Total, isMarkup: labelMarkup));
             }
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", Key, detail, Status.Value.ToString(), isMarkup: detailMarkup));
+                Send(new LiveEvent(WidgetId, "state", Key, detail, Status.Value.ToString(), isMarkup: detailMarkup));
             } else if (Result.HasValue) {
-                Send(new LiveEvent(Name, "advance", Key, detail, Result.Value.ToString(), Steps, isMarkup: detailMarkup));
+                Send(new LiveEvent(WidgetId, "advance", Key, detail, Result.Value.ToString(), Steps, isMarkup: detailMarkup));
             } else if (Detail != null) {
-                Send(new LiveEvent(Name, "detail", Key, detail, isMarkup: detailMarkup));
+                Send(new LiveEvent(WidgetId, "detail", Key, detail, isMarkup: detailMarkup));
             }
             if (Complete.IsPresent) {
-                Send(new LiveEvent(Name, "complete", Key));
+                Send(new LiveEvent(WidgetId, "complete", Key));
             }
         }
     }

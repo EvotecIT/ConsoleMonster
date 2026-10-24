@@ -84,12 +84,12 @@ namespace ConsoleMonster.Interactive {
                 string? group = null;
                 foreach (MenuItem item in menu.Items) {
                     if (item.Kind == MenuItemKind.Separator) {
-                        group = string.IsNullOrEmpty(item.Title) ? null : item.Title;
+                        group = string.IsNullOrEmpty(item.Label) ? null : item.Label;
                         continue;
                     }
                     RichText? badge = item.CurrentBadge;
-                    string? state = item.CurrentState;
-                    choices.Add(new Choice(item, item.Title) {
+                    string? state = item.CurrentDetail;
+                    choices.Add(new Choice(item, item.Label) {
                         Group = group,
                         Hotkey = item.HotkeyChar,
                         Description = item.Description,
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Interactive {
                 object? chosen;
                 try {
                     chosen = prompt.Show(Interactive, _token);
-                } catch (PromptCancelledException) {
+                } catch (PromptCanceledException) {
                     if (_stack.Count > 1) {
                         _stack.RemoveAt(_stack.Count - 1);
                         continue;
@@ -166,7 +166,7 @@ namespace ConsoleMonster.Interactive {
                         }
                         return;
                     case MenuItemKind.Select: {
-                        SelectPrompt<object?> select = new SelectPrompt<object?>(item.Title, item.Choices) { Description = item.Description };
+                        SelectPrompt<object?> select = new SelectPrompt<object?>(item.Label, item.Choices) { Description = item.Description };
                         if (item.SelectedValue != null) {
                             select.Default = item.SelectedValue;
                         }
@@ -183,7 +183,7 @@ namespace ConsoleMonster.Interactive {
                                 }
                             }
                         }
-                        MultiSelectPrompt<object?> multi = new MultiSelectPrompt<object?>(item.Title, item.Choices) { Description = item.Description, Minimum = item.Minimum, Maximum = item.Maximum };
+                        MultiSelectPrompt<object?> multi = new MultiSelectPrompt<object?>(item.Label, item.Choices) { Description = item.Description, Minimum = item.Minimum, Maximum = item.Maximum };
                         item.SetSelection(multi.Show(Interactive, _token));
                         item.SelectionChanged?.Invoke(context);
                         return;
@@ -197,7 +197,7 @@ namespace ConsoleMonster.Interactive {
                         ChoosePreset(item);
                         return;
                 }
-            } catch (PromptCancelledException) {
+            } catch (PromptCanceledException) {
                 // Backing out of a prompt returns to the menu.
             }
         }
@@ -220,7 +220,7 @@ namespace ConsoleMonster.Interactive {
                 });
             }
             choices.Add(new Choice(null, _labels.Back));
-            SelectPrompt<object?> prompt = new SelectPrompt<object?>(item.Title, choices) { Description = item.Description, PageSize = 14 };
+            SelectPrompt<object?> prompt = new SelectPrompt<object?>(item.Label, choices) { Description = item.Description, PageSize = 14 };
             if (prompt.Show(Interactive, _token) is string name && MenuPresets.Apply(_root, _store, name)) {
                 ShowToast(new Toast(PromptLabels.Format(_labels.PresetApplied, name), StatusKind.Info));
             }
@@ -245,16 +245,16 @@ namespace ConsoleMonster.Interactive {
 
         public T Ask<T>(Prompt<T> prompt, CancellationToken cancellationToken) => prompt.Show(Interactive, cancellationToken);
 
-        public RunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options) {
+        public MenuRunResult Run(MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options) {
             LiveSession session = new LiveSession(dashboard, options ?? new LiveSessionOptions());
-            RunResult result;
+            MenuRunResult result;
             session.Start();
             try {
-                result = work(new RunContext(session, context)) ?? new RunResult(context.Item?.Title ?? _root.Title);
+                result = work(new RunContext(session, context)) ?? new MenuRunResult(context.Item?.Label ?? _root.Title);
             } catch (OperationCanceledException) {
-                result = new RunResult(context.Item?.Title ?? _root.Title, StatusKind.Warn) { Summary = _labels.Cancelled };
+                result = new MenuRunResult(context.Item?.Label ?? _root.Title, StatusKind.Warn) { Summary = _labels.Canceled };
             } catch (Exception ex) {
-                result = new RunResult(context.Item?.Title ?? _root.Title, StatusKind.Fail) { Error = ex };
+                result = new MenuRunResult(context.Item?.Label ?? _root.Title, StatusKind.Fail) { Error = ex };
             } finally {
                 session.Stop();
             }
@@ -266,21 +266,21 @@ namespace ConsoleMonster.Interactive {
             return result;
         }
 
-        public void ShowResult(RunResult result) {
+        public void ShowResult(MenuRunResult result) {
             Terminal.Write(new ResultSummary(result, _labels));
             if (result.NextActions.Count == 0) {
                 return;
             }
             List<Choice> choices = new List<Choice>();
             foreach (MenuItem item in result.NextActions) {
-                choices.Add(new Choice(item, item.Title) { Description = item.Description });
+                choices.Add(new Choice(item, item.Label) { Description = item.Description });
             }
             choices.Add(new Choice(null, _labels.Back));
             try {
                 if (new SelectPrompt<object?>(_labels.NextActions, choices).Show(Interactive, _token) is MenuItem next) {
                     Open(next);
                 }
-            } catch (PromptCancelledException) {
+            } catch (PromptCanceledException) {
                 // Back to the menu.
             }
         }
@@ -290,10 +290,10 @@ namespace ConsoleMonster.Interactive {
 
     /// <summary>A run result as print-once output: the status line, summary, figures and details.</summary>
     internal sealed class ResultSummary : IWidget {
-        private readonly RunResult _result;
+        private readonly MenuRunResult _result;
         private readonly PromptLabels _labels;
 
-        public ResultSummary(RunResult result, PromptLabels labels) {
+        public ResultSummary(MenuRunResult result, PromptLabels labels) {
             _result = result;
             _labels = labels;
         }

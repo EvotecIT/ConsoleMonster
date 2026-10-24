@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Plain PowerShell demo file with optional # demo: directives.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public string Path { get; set; } = string.Empty;
         /// <summary><para type="description">Terminal width in cells.</para></summary>
-        [Parameter, ValidateRange(2, 1000)] public int Width { get; set; } = 100;
+        [Parameter, ValidateRange(0, 1000)] public int Width { get; set; }
         /// <summary><para type="description">Terminal height in cells.</para></summary>
         [Parameter, ValidateRange(2, 1000)] public int Height { get; set; } = 28;
         /// <summary><para type="description">Seed for repeatable character timing.</para></summary>
@@ -23,14 +23,14 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum wait for a semantic prompt or output pattern.</para></summary>
         [Parameter, ValidateRange(1, 3600)] public int StepTimeoutSeconds { get; set; } = 30;
         /// <summary><para type="description">Longest recorded idle gap in seconds; zero preserves actual timing.</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double IdleLimit { get; set; } = 2;
+        [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Output patterns redacted before recording.</para></summary>
         [Parameter] public string[] Redact { get; set; } = Array.Empty<string>();
         /// <summary><para type="description">Child PowerShell executable. Defaults to the current PowerShell.</para></summary>
         [Parameter] public string? Shell { get; set; }
         /// <summary>Runs and drains the child on the pipeline thread; no PowerShell scriptblock is invoked on a reader thread.</summary>
         protected void RunDemo(string? destination, bool presenter) {
-            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Invoke-ConsoleDemo for unattended recording."); }
+            if (presenter && Console.IsInputRedirected) { throw new InvalidOperationException("Live presenter mode needs a terminal. Use Invoke-ConsolePresentation for unattended recording."); }
             string source = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             DemoScript script = DemoScript.Read(source);
             bool temporary = destination == null;
@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
                     Recording = new SessionRecordingOptions {
                         Path = output, Shell = Shell ?? Process.GetCurrentProcess().MainModule!.FileName,
                         Width = Width, Height = Height, WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path,
-                        IdleLimit = TimeSpan.FromSeconds(IdleLimit), Name = System.IO.Path.GetFileNameWithoutExtension(source)
+                        IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds), Title = System.IO.Path.GetFileNameWithoutExtension(source)
                     },
                     Seed = Seed, StepTimeout = TimeSpan.FromSeconds(StepTimeoutSeconds), Output = relay.Receive
                 };

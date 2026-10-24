@@ -82,7 +82,7 @@ namespace ConsoleMonster.Examples.Showcases {
             throughput.AddSeries("completed", ThemeToken.Accent);
             throughput.AddSeries("failed", ThemeToken.Fail);
             Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations") { Height = 6, Unit = "s" };
-            BarChart findings = new BarChart("findings") { BarToken = ThemeToken.Fail };
+            BarChart findings = new BarChart("findings") { Role = ThemeToken.Fail };
             foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) {
                 findings.Add(category, 0);
             }

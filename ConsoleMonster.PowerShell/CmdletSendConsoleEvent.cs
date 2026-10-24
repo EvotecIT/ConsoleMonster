@@ -8,13 +8,13 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Change the dashboard status in the header</para>
-    ///   <code>Send-ConsoleEvent -Target dashboard -Operation status -Text 'deploying wave 2' -State running</code>
+    ///   <code>Send-ConsoleEvent -WidgetId dashboard -Operation status -Text 'deploying wave 2' -Status running</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Send, "ConsoleEvent")]
     public sealed class CmdletSendConsoleEvent : LiveCmdlet {
         /// <summary><para type="description">The widget name.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
-        public string Target { get; set; } = string.Empty;
+        public string WidgetId { get; set; } = string.Empty;
 
         /// <summary><para type="description">The operation (advance, state, set, add, write, title, status...).</para></summary>
         [Parameter(Position = 1, Mandatory = true)]
@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A state word.</para></summary>
         [Parameter]
-        public string? State { get; set; }
+        public string? Status { get; set; }
 
         /// <summary><para type="description">A numeric value.</para></summary>
         [Parameter]
@@ -47,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Send(new LiveEvent(Target, Operation, Key, Text, State, Value, Total, TimeMilliseconds));
+            Send(new LiveEvent(WidgetId, Operation, Key, Text, Status, Value, Total, TimeMilliseconds));
         }
     }
 }

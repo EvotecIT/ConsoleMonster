@@ -19,15 +19,15 @@ namespace ConsoleMonster.PowerShell {
             get => PSModuleImport.PathFor(this);
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
-        [Parameter] public string? Path { get; set; }
+        [Parameter] public string? RecordingPath { get; set; }
         /// <summary><para type="description">Folder for automatic cast names.</para></summary>
         [Parameter] public string? Folder { get; set; }
         /// <summary><para type="description">Recording title.</para></summary>
-        [Parameter] public string Name { get; set; } = "Console session";
+        [Parameter] public string Title { get; set; } = "Console session";
         /// <summary><para type="description">Shell executable. The default is the current PowerShell executable.</para></summary>
         [Parameter] public string? Shell { get; set; }
         /// <summary><para type="description">Initial terminal width in cells.</para></summary>
-        [Parameter] [ValidateRange(2, 1000)] public int Width { get; set; } = 100;
+        [Parameter] [ValidateRange(0, 1000)] public int Width { get; set; }
         /// <summary><para type="description">Initial terminal height in cells.</para></summary>
         [Parameter] [ValidateRange(2, 1000)] public int Height { get; set; } = 30;
         /// <summary><para type="description">Additional regular expressions to redact from recorded output.</para></summary>
@@ -37,18 +37,18 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum cast bytes. At the cap recording stops with a warning.</para></summary>
         [Parameter] [ValidateRange(1024, long.MaxValue)] public long MaxBytes { get; set; } = 64 * 1024 * 1024;
         /// <summary><para type="description">Longest playback idle gap in seconds; zero keeps original timing.</para></summary>
-        [Parameter] [ValidateRange(0, 86400)] public double IdleLimit { get; set; } = 2;
+        [Parameter] [ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Explicit limited fallback: PowerShell host output in this process; no native terminal capture.</para></summary>
         [Parameter] public SwitchParameter InProcess { get; set; }
         /// <summary><para type="description">Maximum child lifetime in seconds.</para></summary>
-        [Parameter] [ValidateRange(1, 604800)] public int TimeoutSeconds { get; set; } = 86400;
+        [Parameter] [ValidateRange(0.01, 604800)] public double TimeoutSeconds { get; set; } = 86400;
 
         /// <summary>Maps PowerShell paths and arguments into the shared recording API.</summary>
         protected SessionRecordingOptions Options() {
             SessionRecordingOptions options = new SessionRecordingOptions {
-                Path = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path),
-                Name = Name, Shell = Shell ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName, RedactionText = RedactionText,
-                Width = Width, Height = Height, MaxBytes = MaxBytes, IdleLimit = TimeSpan.FromSeconds(IdleLimit),
+                Path = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
+                Title = Title, Shell = Shell ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName, RedactionText = RedactionText,
+                Width = Width, Height = Height, MaxBytes = MaxBytes, IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds),
                 WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path, InProcess = InProcess.IsPresent, Timeout = TimeSpan.FromSeconds(TimeoutSeconds)
             };
             if (Folder != null) { options.Folder = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Folder); }
@@ -62,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
             string? title = null;
             TerminalInputRelay? input = null;
             try {
-                try { title = Host.UI.RawUI.WindowTitle; Host.UI.RawUI.WindowTitle = "● REC " + options.Name; } catch (Exception error) when (error is IOException || error is NotSupportedException || error is NotImplementedException) { }
+                try { title = Host.UI.RawUI.WindowTitle; Host.UI.RawUI.WindowTitle = "● REC " + options.Title; } catch (Exception error) when (error is IOException || error is NotSupportedException || error is NotImplementedException) { }
                 if (interactive && Console.IsInputRedirected) { throw new InvalidOperationException("Interactive recording needs a terminal. Use Invoke-ConsoleRecording for scripts."); }
                 _recorder = SessionRecorder.Start(options, output.Receive);
                 // Finalization joins the reader. Keep the pipeline draining while that reader can be backpressured.

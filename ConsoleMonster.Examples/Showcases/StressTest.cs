@@ -65,7 +65,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Stray writes", "0")
                 .Add("Dropped / errors", "0 / 0");
             rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
-            cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
+            cpu = new LineChart("cpu") { Height = 6, Minimum = 0, Unit = "%" };
             cpu.AddSeries("cpu", ThemeToken.Accent2);
 
             // Keep the finite stress run's complete log so delivery is verified by identity, not attempted-write counts.

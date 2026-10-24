@@ -21,8 +21,8 @@ namespace ConsoleMonster.Text {
         internal bool LinkFromText { get; }
 
         internal Style Apply(Style parent) => new Style(
-            _foreground ? Style.Foreground : parent.Foreground,
-            _background ? Style.Background : parent.Background,
+            _foreground ? Style.Color : parent.Color,
+            _background ? Style.BackgroundColor : parent.BackgroundColor,
             parent.Decoration | Style.Decoration,
             Style.Link ?? parent.Link);
 
@@ -47,10 +47,10 @@ namespace ConsoleMonster.Text {
                         return false;
                     }
                     if (Color.TryParse(words[i], out Color bg)) {
-                        style = style.WithBackground(bg);
-                    } else if ((theme ?? Theme.Dark).TryResolve(words[i], depth, out Style role) && !role.Foreground.IsDefault) {
+                        style = style.WithBackgroundColor(bg);
+                    } else if ((theme ?? Theme.Dark).TryResolve(words[i], depth, out Style role) && !role.Color.IsDefault) {
                         // A theme role as the background ("on pass", "on muted") uses that role's colour.
-                        style = style.WithBackground(role.Foreground);
+                        style = style.WithBackgroundColor(role.Color);
                     } else {
                         return false;
                     }
@@ -96,12 +96,12 @@ namespace ConsoleMonster.Text {
                             continue;
                         }
                         if (Color.TryParse(word, out Color color)) {
-                            style = style.WithForeground(color);
+                            style = style.WithColor(color);
                             foreground = true;
                         } else if ((theme ?? Theme.Dark).TryResolve(word, depth, out Style token)) {
                             style = style.Combine(token);
-                            foreground |= !token.Foreground.IsDefault;
-                            background |= !token.Background.IsDefault;
+                            foreground |= !token.Color.IsDefault;
+                            background |= !token.BackgroundColor.IsDefault;
                         } else {
                             return false;
                         }

@@ -10,12 +10,12 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A panel holding a lanes widget, taking two shares of a row</para>
-    ///   <code>New-ConsolePanel -Title 'Targets' -Weight 2 { New-ConsoleLanes -Name targets }</code>
+    ///   <code>New-ConsolePanel -Title 'Targets' -Weight 2 -Content { New-ConsoleLanes -WidgetId targets }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePanel")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsolePanel : PSCmdlet {
-        /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Format-ConsoleList and Format-ConsoleTable).</para></summary>
+        /// <summary><para type="description">The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-ConsoleList and Show-ConsoleTable).</para></summary>
         [Parameter(Position = 0)]
         public object? Content { get; set; }
 
@@ -29,11 +29,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Text on the right of the top border, for example a count.</para></summary>
         [Parameter]
-        public object? Caption { get; set; }
+        public object? HeaderRight { get; set; }
 
         /// <summary><para type="description">Text on the right of the bottom border.</para></summary>
         [Parameter]
-        public object? Footer { get; set; }
+        public object? Caption { get; set; }
 
         /// <summary><para type="description">Border style: Rounded, Single, Double, Heavy, Ascii or None.</para></summary>
         [Parameter]
@@ -58,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
                 children.Add(Widget);
             }
             IWidget content = children.Count == 1 ? children[0] : new Rows(children.ToArray());
-            Panel panel = new Panel(content, PSText.Markup(Title)) { Caption = PSText.Markup(Caption), Footer = PSText.Markup(Footer), Border = Border };
+            Panel panel = new Panel(content, PSText.Markup(Title)) { HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border };
             WriteObject(PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent));
         }
     }

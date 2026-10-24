@@ -60,7 +60,7 @@ namespace ConsoleMonster.PowerShell {
             int end = block.Width;
             while (end > 0) {
                 Cell last = block[end - 1, y];
-                if (!last.IsContinuation && (last.Glyph != " " || !last.Style.Background.IsDefault)) {
+                if (!last.IsContinuation && (last.Glyph != " " || !last.Style.BackgroundColor.IsDefault)) {
                     break;
                 }
                 end--;
@@ -73,9 +73,9 @@ namespace ConsoleMonster.PowerShell {
                 if (cell.IsContinuation) {
                     continue;
                 }
-                ConsoleColor? cellBackground = colors.Background(cell.Style.Background);
+                ConsoleColor? cellBackground = colors.Background(cell.Style.BackgroundColor);
                 bool blank = cell.Glyph == " ";
-                ConsoleColor? cellForeground = blank && cellBackground == background ? foreground : colors.Foreground(cell.Style.Foreground);
+                ConsoleColor? cellForeground = blank && cellBackground == background ? foreground : colors.Foreground(cell.Style.Color);
                 if (run.Length > 0 && (cellForeground != foreground || cellBackground != background)) {
                     segments.Add(new Segment(run.ToString(), foreground, background));
                     run.Clear();
@@ -110,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
                 foreach (TextSpan span in lines[i]) {
                     string text = Clean(span.Text);
                     if (text.Length > 0) {
-                        segments.Add(new Segment(text, colors.Foreground(span.Style.Foreground), colors.Background(span.Style.Background)));
+                        segments.Add(new Segment(text, colors.Foreground(span.Style.Color), colors.Background(span.Style.BackgroundColor)));
                     }
                 }
                 EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
@@ -157,9 +157,9 @@ namespace ConsoleMonster.PowerShell {
                 if (text.Length == 0) {
                     continue;
                 }
-                ConsoleColor? spanBackground = colors.Background(span.Style.Background);
+                ConsoleColor? spanBackground = colors.Background(span.Style.BackgroundColor);
                 bool blank = text.Trim().Length == 0;
-                ConsoleColor? spanForeground = blank && spanBackground == background ? foreground : colors.Foreground(span.Style.Foreground);
+                ConsoleColor? spanForeground = blank && spanBackground == background ? foreground : colors.Foreground(span.Style.Color);
                 if (run.Length > 0 && (spanForeground != foreground || spanBackground != background)) {
                     segments.Add(new Segment(run.ToString(), foreground, background));
                     run.Clear();

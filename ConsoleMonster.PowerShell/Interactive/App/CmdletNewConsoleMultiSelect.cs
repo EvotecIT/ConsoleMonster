@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named multiselect input for Show-ConsoleApp.</para>
     /// <para type="description">Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.</para>
     /// </summary>
-    /// <example><para>Choose initial values.</para><code>New-ConsoleMultiSelect -Name Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw</code></example>
+    /// <example><para>Choose initial values.</para><code>New-ConsoleMultiSelect -Key Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleMultiSelect")]
     [OutputType(typeof(MultiSelect))]
     public sealed class CmdletNewConsoleMultiSelect : AppChoiceCmdlet {
@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            MultiSelect control = new MultiSelect(Name, BuildChoices());
+            MultiSelect control = new MultiSelect(Key, BuildChoices());
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) { control.Value = Value ?? new object[0]; }
             Emit(control);
         }

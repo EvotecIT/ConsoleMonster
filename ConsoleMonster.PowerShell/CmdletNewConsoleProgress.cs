@@ -8,29 +8,29 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A static progress bar</para>
-    ///   <code>New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Write-ConsoleWidget</code>
+    ///   <code>New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Several bars, one of them finished</para>
     ///   <code>
-    /// New-ConsoleRows {
-    ///     New-ConsoleProgress 'Build' -Value 64 -Total 100
-    ///     New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass
-    ///     New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block
-    /// } | Write-ConsoleWidget</code>
+    /// New-ConsoleRows -Content {
+    ///     New-ConsoleProgress -Label 'Build' -Value 64 -Total 100
+    ///     New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass
+    ///     New-ConsoleProgress -Label 'Upload' -Value 3 -Total 8 -Shape Block
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleProgress")]
     [OutputType(typeof(ProgressBar))]
     public sealed class CmdletNewConsoleProgress : PSCmdlet {
         /// <summary><para type="description">The label (markup allowed).</para></summary>
-        [Parameter(Position = 0)]
+        [Parameter(Position = 1)]
         public object Label { get; set; } = string.Empty;
 
         /// <summary><para type="description">The current value.</para></summary>
         [Parameter]
         public double Value { get; set; }
 
-        /// <summary><para type="description">The total (default 100).</para></summary>
+        /// <summary><para type="description">The total (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
         public double Total { get; set; } = 100;
 
@@ -41,8 +41,8 @@ namespace ConsoleMonster.PowerShell {
         public Styling.StatusKind Status { get; set; } = Styling.StatusKind.Running;
 
         /// <summary><para type="description">The live name (default progress).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "progress";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "progress";
 
         /// <summary><para type="description">Bar shape: Line (thin stroke) or Block (solid blocks). Default Line.</para></summary>
         [Parameter]
@@ -53,9 +53,14 @@ namespace ConsoleMonster.PowerShell {
         [ValidateSet("Standard", "Spinner", "Description", "Bar", "Percent", "Count", "Elapsed", "Remaining", "Rate", "ByteRate", "Results", "Status", IgnoreCase = true)]
         public string[]? Column { get; set; }
 
+        /// <summary><para type="description">Shared count-column settings from New-ConsoleColumnFormat.</para></summary>
+        [Parameter] public Layout.ColumnFormat? CountColumn { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            WriteObject(new ProgressBar(PSText.Markup(Label) ?? string.Empty, Name) { Value = Value, Total = Total, Status = Status, Shape = Shape, Columns = Column == null ? null : ProgressColumns.FromNames(Column) });
+            ProgressBar progress = new ProgressBar(PSText.Markup(Label) ?? string.Empty, WidgetId) { Value = Value, Total = Total, Status = Status, Shape = Shape, Columns = Column == null ? null : ProgressColumns.FromNames(Column) };
+            if (CountColumn != null) { progress.CountColumn = CountColumn; }
+            WriteObject(progress);
         }
     }
 }

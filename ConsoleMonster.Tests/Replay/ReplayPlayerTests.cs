@@ -29,14 +29,14 @@ namespace ConsoleMonster.Tests.Replay {
 
         private static List<LiveEvent> Events() {
             return new List<LiveEvent> {
-                new LiveEvent("steps", "set", key: "compile", state: "running", time: 1),
-                new LiveEvent("$log", "write", text: "restoring packages", state: "info", time: 200),
+                new LiveEvent("steps", "set", key: "compile", status: "running", time: 1),
+                new LiveEvent("$log", "write", text: "restoring packages", status: "info", time: 200),
                 new LiveEvent(LiveSession.MarkerTarget, "mark", text: "Build started", time: 300),
-                new LiveEvent("steps", "set", key: "compile", state: "pass", time: 800),
-                new LiveEvent("$log", "write", text: "disk almost full", state: "warn", time: 900),
-                new LiveEvent("steps", "set", key: "test", state: "fail", time: 1600),
-                new LiveEvent("steps", "set", key: "test", state: "fail", text: "still failing", time: 1700),
-                new LiveEvent("$log", "write", text: "3 tests failed", state: "error", time: 1800)
+                new LiveEvent("steps", "set", key: "compile", status: "pass", time: 800),
+                new LiveEvent("$log", "write", text: "disk almost full", status: "warn", time: 900),
+                new LiveEvent("steps", "set", key: "test", status: "fail", time: 1600),
+                new LiveEvent("steps", "set", key: "test", status: "fail", text: "still failing", time: 1700),
+                new LiveEvent("$log", "write", text: "3 tests failed", status: "error", time: 1800)
             };
         }
 
@@ -60,11 +60,11 @@ namespace ConsoleMonster.Tests.Replay {
         [Fact]
         public void Markers_FromEvents_SkipRepeatedStatesAndSnapshots() {
             IReadOnlyList<ReplayMarker> markers = ReplayMarker.From(new[] {
-                new LiveEvent("main", "set", text: "[red]x[/]", state: "snapshot", time: 5, isMarkup: true),
-                new LiveEvent("lanes", "state", key: "web", state: "fail", time: 10),
-                new LiveEvent("lanes", "state", key: "web", state: "fail", time: 20),
-                new LiveEvent("lanes", "state", key: "web", state: "running", time: 30),
-                new LiveEvent("lanes", "state", key: "web", state: "fail", time: 40)
+                new LiveEvent("main", "set", text: "[red]x[/]", status: "snapshot", time: 5, isMarkup: true),
+                new LiveEvent("lanes", "state", key: "web", status: "fail", time: 10),
+                new LiveEvent("lanes", "state", key: "web", status: "fail", time: 20),
+                new LiveEvent("lanes", "state", key: "web", status: "running", time: 30),
+                new LiveEvent("lanes", "state", key: "web", status: "fail", time: 40)
             });
             Assert.Equal(new[] { 10.0, 40.0 }, markers.Select(m => m.Time.TotalMilliseconds).ToArray());
         }
@@ -116,7 +116,7 @@ namespace ConsoleMonster.Tests.Replay {
         public void Player_RecordedDashboard_ShowsOneHeaderWithItsTitleAndStatusAndNoRecordedFooter() {
             Dashboard dashboard = new Dashboard("Nightly patch run", Dashboard());
             List<LiveEvent> events = Events();
-            events.Add(new LiveEvent("dashboard", "status", text: "2 failed", state: "fail", time: 1700));
+            events.Add(new LiveEvent("dashboard", "status", text: "2 failed", status: "fail", time: 1700));
             ScreenCapture capture = new ScreenCapture(100, 14);
             InteractiveOptions interactive = new InteractiveOptions { Mode = InteractionMode.Rich, Input = new ScriptedInput("End q") { Paced = true }, Capture = capture, Theme = Theme.Dark, Profile = TerminalProfile.Fixed(100, 14, ColorDepth.None, GlyphTier.Full) };
             ReplayPlayer.Play(dashboard, events, new ReplayOptions { Title = "Nightly patch run - 17 Oct", AutoPlay = false, Interactive = interactive });

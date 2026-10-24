@@ -54,7 +54,7 @@ namespace ConsoleMonster.Interactive {
                     body = new Rows(new Sized(body, LayoutSize.Fixed(members)), new Sized(grid, LayoutSize.Fixed(gridRows))) { Gap = 1 };
                 }
             }
-            rows.Add(new Panel(body, "Members") { BorderToken = ThemeToken.Accent }, LayoutSize.Fraction());
+            rows.Add(new Panel(body, "Members") { BorderRole = ThemeToken.Accent }, LayoutSize.Fraction());
             List<KeyBinding> bindings = new List<KeyBinding>();
             if (frame != null) { AddBindings(bindings, frame); }
             rows.Add(frame == null ? TextBlock.Plain("↑↓ move · → expand · ← collapse · Enter drill · Backspace up · / search · F10 choose · Esc quit", ThemeToken.Muted) : (IWidget)new KeyFooter(bindings), LayoutSize.Fixed(1));
@@ -184,7 +184,7 @@ namespace ConsoleMonster.Interactive {
                     Style style = context.Style(focused ? ThemeToken.Focus : node.Error != null ? ThemeToken.Fail : ThemeToken.Text);
                     (string value, bool descriptor) = node.DisplayValue();
                     Style valueStyle = context.Style(node.Error != null ? ThemeToken.Fail : descriptor ? ThemeToken.Muted : ThemeToken.Text);
-                    if (focused) { valueStyle = valueStyle.WithBackground(style.Background); }
+                    if (focused) { valueStyle = valueStyle.WithBackgroundColor(style.BackgroundColor); }
                     StyledLine keyLine = TextWrapper.Truncate(StyledLine.From(key, style), keyWidth, context.Ellipsis);
                     List<TextSpan> spans = new List<TextSpan>(keyLine) {
                         new TextSpan(new string(' ', keyWidth - keyLine.Width + 2), style),

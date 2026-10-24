@@ -53,10 +53,10 @@ namespace ConsoleMonster.Live {
             }
             if (_output != null && _output.SupportsLiveFrames && _options.Mode == LiveMode.FullScreen) {
                 if (_captureLog == null) {
-                    _captureLog = new LogRegion { PreferredHeight = 6, ShowTime = false, Wrap = true };
+                    _captureLog = new LogRegion { PreferredHeight = 6, ShowElapsed = false, Wrap = true };
                 }
                 if (literalFallback) {
-                    _captureLog.Write(liveEvent.Text!, liveEvent.State ?? "info", System.TimeSpan.FromMilliseconds(liveEvent.Time));
+                    _captureLog.Write(liveEvent.Text!, liveEvent.Status ?? "info", System.TimeSpan.FromMilliseconds(liveEvent.Time));
                 } else { _captureLog.Apply(liveEvent); }
             }
             RouteConsoleWrite(new ConsoleWriteBlock(text.Lines, true));

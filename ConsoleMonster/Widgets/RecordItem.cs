@@ -21,7 +21,7 @@ namespace ConsoleMonster.Widgets {
         public string Text { get; internal set; } = string.Empty;
 
         /// <summary>An optional tone for headings (for example a card's status).</summary>
-        public ThemeToken? Tone { get; internal set; }
+        public ThemeToken? Role { get; internal set; }
 
         /// <summary>The field cell (markup, status or raw value).</summary>
         public TableCell? Cell { get; internal set; }
@@ -30,7 +30,7 @@ namespace ConsoleMonster.Widgets {
         public ICellPresenter? Presenter { get; internal set; }
 
         /// <summary>Tone rules for raw values.</summary>
-        public IReadOnlyList<ToneRule>? Rules { get; internal set; }
+        public IReadOnlyList<RoleRule>? Rules { get; internal set; }
 
         /// <summary>The nested widget.</summary>
         public IWidget? Widget { get; internal set; }

@@ -18,7 +18,7 @@ namespace ConsoleMonster.Tests.Live {
         private static LiveRunOptions Options(StringTerminalWriter writer, bool live, int width = 120, int height = 24) {
             TerminalProfile profile = TerminalProfile.Fixed(width, height, ColorDepth.None, GlyphTier.Ascii, live ? OutputMode.Interactive : OutputMode.Plain);
             return new LiveRunOptions {
-                Title = "Worker run", NoLive = !live, ProgressEvery = 100, ProgressInterval = TimeSpan.Zero,
+                Title = "Worker run", Live = !(!live), ProgressEvery = 100, ProgressInterval = TimeSpan.Zero,
                 Session = new LiveSessionOptions { CaptureConsole = false, HandleCancelKey = false, Discoverable = false, Profile = profile,
                     Output = live ? (ITerminalOutput)new InlineOutput(writer, profile, false) : new LineOutput(writer, profile), WindowSource = () => new[] { 0, 0, width, height } }
             };

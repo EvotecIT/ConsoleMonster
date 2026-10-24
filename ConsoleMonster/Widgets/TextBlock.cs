@@ -23,8 +23,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Whether <see cref="Content"/> is markup (default true).</summary>
         public bool IsMarkup { get; set; } = true;
 
-        /// <summary>A theme token layered under the text, or <c>null</c>.</summary>
-        public ThemeToken? Token { get; set; }
+        /// <summary>A theme role layered under the text, or <c>null</c>.</summary>
+        public ThemeToken? Role { get; set; }
 
         /// <summary>Alignment (default left).</summary>
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
@@ -34,9 +34,9 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Creates a text block from plain text (brackets are shown literally).</summary>
         /// <param name="text">The text.</param>
-        /// <param name="token">An optional theme token.</param>
+        /// <param name="role">An optional theme role.</param>
         /// <returns>The text block.</returns>
-        public static TextBlock Plain(string text, ThemeToken? token = null) => new TextBlock(text ?? string.Empty) { IsMarkup = false, Token = token };
+        public static TextBlock Plain(string text, ThemeToken? role = null) => new TextBlock(text ?? string.Empty) { IsMarkup = false, Role = role };
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
@@ -69,7 +69,7 @@ namespace ConsoleMonster.Widgets {
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
             StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
-            Style baseStyle = Token.HasValue ? context.Style(Token.Value) : Style.Plain;
+            Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
                 StyledLine line = raw.WithBaseStyle(baseStyle);

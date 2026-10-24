@@ -20,7 +20,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Toggle active = new Toggle("active");
             AppState state = new AppState { ["owner"] = "test" };
             List<string> edits = new List<string>();
-            state.Changed += (_, change) => { if (change.Name == "query") { edits.Add((string)change.Value!); } };
+            state.Changed += (_, change) => { if (change.Key == "query") { edits.Add((string)change.Value!); } };
             ConsoleAppOptions options = AppTestHarness.Options("\"ab\" Tab Space Escape", out ScreenCapture capture);
             AppState result = ConsoleApp.Run(new Rows(query, active), state, options);
             Assert.Same(state, result);

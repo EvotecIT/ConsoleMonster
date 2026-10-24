@@ -132,7 +132,7 @@ namespace ConsoleMonster.PowerShell {
             } catch (PipelineStoppedException) {
             } catch (RuntimeException exception) {
                 Failure ??= exception;
-                _session.Post(new LiveEvent("$log", "write", text: exception.Message, state: "err"));
+                _session.Post(new LiveEvent("$log", "write", text: exception.Message, status: "err"));
             } finally {
                 Errors.AddRange(invocation.Shell.Streams.Error);
                 invocation.Dispose();

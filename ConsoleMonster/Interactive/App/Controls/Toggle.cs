@@ -11,10 +11,10 @@ namespace ConsoleMonster.Interactive {
         private bool _value;
 
         /// <summary>Creates an on/off input.</summary>
-        /// <param name="name">The application-state key.</param>
+        /// <param name="key">The application-state key.</param>
         /// <param name="value">The initial value.</param>
-        public Toggle(string name, bool value = false) : base(name) {
-            _field = new ToggleField(name);
+        public Toggle(string key, bool value = false) : base(key) {
+            _field = new ToggleField(key);
             _value = value;
         }
 

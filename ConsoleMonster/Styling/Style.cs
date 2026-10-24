@@ -7,13 +7,13 @@ namespace ConsoleMonster.Styling {
     /// </summary>
     public readonly struct Style : IEquatable<Style> {
         /// <summary>Creates a style.</summary>
-        /// <param name="foreground">Foreground colour.</param>
-        /// <param name="background">Background colour.</param>
+        /// <param name="color">Foreground colour.</param>
+        /// <param name="backgroundColor">Background colour.</param>
         /// <param name="decoration">Decorations.</param>
         /// <param name="link">A hyperlink target (OSC 8), or null.</param>
-        public Style(Color foreground, Color background = default, TextDecoration decoration = TextDecoration.None, string? link = null) {
-            Foreground = foreground;
-            Background = background;
+        public Style(Color color, Color backgroundColor = default, TextDecoration decoration = TextDecoration.None, string? link = null) {
+            Color = color;
+            BackgroundColor = backgroundColor;
             Decoration = decoration;
             Link = string.IsNullOrEmpty(link) ? null : link;
         }
@@ -22,10 +22,10 @@ namespace ConsoleMonster.Styling {
         public static Style Plain => default;
 
         /// <summary>Foreground colour.</summary>
-        public Color Foreground { get; }
+        public Color Color { get; }
 
         /// <summary>Background colour.</summary>
-        public Color Background { get; }
+        public Color BackgroundColor { get; }
 
         /// <summary>Decorations.</summary>
         public TextDecoration Decoration { get; }
@@ -34,32 +34,32 @@ namespace ConsoleMonster.Styling {
         public string? Link { get; }
 
         /// <summary>Whether this is the plain style.</summary>
-        public bool IsPlain => Foreground.IsDefault && Background.IsDefault && Decoration == TextDecoration.None && Link == null;
+        public bool IsPlain => Color.IsDefault && BackgroundColor.IsDefault && Decoration == TextDecoration.None && Link == null;
 
         /// <summary>Returns a copy with a different foreground.</summary>
         /// <param name="color">The colour.</param>
         /// <returns>A new style.</returns>
-        public Style WithForeground(Color color) => new Style(color, Background, Decoration, Link);
+        public Style WithColor(Color color) => new Style(color, BackgroundColor, Decoration, Link);
 
         /// <summary>Returns a copy with a different background.</summary>
         /// <param name="color">The colour.</param>
         /// <returns>A new style.</returns>
-        public Style WithBackground(Color color) => new Style(Foreground, color, Decoration, Link);
+        public Style WithBackgroundColor(Color color) => new Style(Color, color, Decoration, Link);
 
         /// <summary>Returns a copy with extra decorations added.</summary>
         /// <param name="decoration">Decorations to add.</param>
         /// <returns>A new style.</returns>
-        public Style With(TextDecoration decoration) => new Style(Foreground, Background, Decoration | decoration, Link);
+        public Style With(TextDecoration decoration) => new Style(Color, BackgroundColor, Decoration | decoration, Link);
 
         /// <summary>Returns a copy with decorations removed.</summary>
         /// <param name="decoration">Decorations to remove.</param>
         /// <returns>A new style.</returns>
-        public Style Without(TextDecoration decoration) => new Style(Foreground, Background, Decoration & ~decoration, Link);
+        public Style Without(TextDecoration decoration) => new Style(Color, BackgroundColor, Decoration & ~decoration, Link);
 
         /// <summary>Returns a copy with a hyperlink target (null removes it).</summary>
         /// <param name="link">The target URL.</param>
         /// <returns>The new style.</returns>
-        public Style WithLink(string? link) => new Style(Foreground, Background, Decoration, link);
+        public Style WithLink(string? link) => new Style(Color, BackgroundColor, Decoration, link);
 
         /// <summary>
         /// Layers <paramref name="overlay"/> on top of this style: non-default overlay colours win and decorations are combined.
@@ -68,8 +68,8 @@ namespace ConsoleMonster.Styling {
         /// <returns>The combined style.</returns>
         public Style Combine(Style overlay) {
             return new Style(
-                overlay.Foreground.IsDefault ? Foreground : overlay.Foreground,
-                overlay.Background.IsDefault ? Background : overlay.Background,
+                overlay.Color.IsDefault ? Color : overlay.Color,
+                overlay.BackgroundColor.IsDefault ? BackgroundColor : overlay.BackgroundColor,
                 Decoration | overlay.Decoration,
                 overlay.Link ?? Link);
         }
@@ -81,12 +81,12 @@ namespace ConsoleMonster.Styling {
             if (depth == ColorDepth.None) {
                 return Plain;
             }
-            return new Style(Foreground.Downsample(depth), Background.Downsample(depth), Decoration, Link);
+            return new Style(Color.Downsample(depth), BackgroundColor.Downsample(depth), Decoration, Link);
         }
 
         /// <inheritdoc />
         public bool Equals(Style other) {
-            return Foreground.Equals(other.Foreground) && Background.Equals(other.Background) && Decoration == other.Decoration && string.Equals(Link, other.Link, StringComparison.Ordinal);
+            return Color.Equals(other.Color) && BackgroundColor.Equals(other.BackgroundColor) && Decoration == other.Decoration && string.Equals(Link, other.Link, StringComparison.Ordinal);
         }
 
         /// <inheritdoc />
@@ -95,7 +95,7 @@ namespace ConsoleMonster.Styling {
         /// <inheritdoc />
         public override int GetHashCode() {
             unchecked {
-                return (Foreground.GetHashCode() * 397) ^ (Background.GetHashCode() * 31) ^ (int)Decoration ^ (Link == null ? 0 : StringComparer.Ordinal.GetHashCode(Link));
+                return (Color.GetHashCode() * 397) ^ (BackgroundColor.GetHashCode() * 31) ^ (int)Decoration ^ (Link == null ? 0 : StringComparer.Ordinal.GetHashCode(Link));
             }
         }
 
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Styling {
 
         /// <inheritdoc />
         public override string ToString() {
-            string text = Foreground + " on " + Background;
+            string text = Color + " on " + BackgroundColor;
             return Decoration == TextDecoration.None ? text : Decoration + " " + text;
         }
     }

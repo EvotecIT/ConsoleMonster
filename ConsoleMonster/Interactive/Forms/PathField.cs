@@ -10,9 +10,9 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A file or folder path with completion.</summary>
     public sealed class PathField : Field {
         /// <summary>Creates a path field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public PathField(string name, string? label = null) : base(name, label) {
+        public PathField(string key, string? label = null) : base(key, label) {
         }
 
         /// <inheritdoc />

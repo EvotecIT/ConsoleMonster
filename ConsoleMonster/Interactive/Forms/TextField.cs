@@ -10,9 +10,9 @@ namespace ConsoleMonster.Interactive {
     /// <summary>A line of text.</summary>
     public sealed class TextField : Field {
         /// <summary>Creates a text field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public TextField(string name, string? label = null) : base(name, label) {
+        public TextField(string key, string? label = null) : base(key, label) {
         }
 
         /// <inheritdoc />

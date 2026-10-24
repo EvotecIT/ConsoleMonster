@@ -15,11 +15,11 @@ namespace ConsoleMonster.Tests.Findings {
     /// <summary>Narrow header bars, markup wrapping, empty text keeping values, and identifier columns.</summary>
     public sealed class EngineFindingsTests {
         private static HeaderBar LongHeader() => new HeaderBar("Patching the production web farm") {
-            Status = "waiting for approval from the change board",
-            StatusLevel = StatusKind.Warn,
+            Detail = "waiting for approval from the change board",
+            Status = StatusKind.Warn,
             Right = "wave 2 of 5",
-            ShowClock = true,
-            Clock = TimeSpan.FromSeconds(754)
+            ShowElapsed = true,
+            Elapsed = TimeSpan.FromSeconds(754)
         };
 
         [Theory]
@@ -96,7 +96,7 @@ namespace ConsoleMonster.Tests.Findings {
 
             Spinner spinner = new Spinner("Waiting for DNS", "spin") { Detail = "dc01" };
             spinner.Apply(new LiveEvent("spin", "start", text: ""));
-            spinner.Apply(new LiveEvent("spin", "state", text: "", state: "running"));
+            spinner.Apply(new LiveEvent("spin", "state", text: "", status: "running"));
             text = TestTerminal.RenderText(spinner, 60);
             Assert.Contains("Waiting for DNS", text);
             Assert.Contains("dc01", text);

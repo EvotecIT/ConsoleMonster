@@ -26,6 +26,6 @@ namespace ConsoleMonster.Interactive {
         public string? Preset { get; }
 
         /// <summary>The result of the run started from FormOptions.AfterSubmit, or null.</summary>
-        public RunResult? RunResult { get; internal set; }
+        public MenuRunResult? RunResult { get; internal set; }
     }
 }

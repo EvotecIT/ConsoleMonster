@@ -7,21 +7,25 @@ namespace ConsoleMonster.Widgets {
         private readonly List<double> _values = new List<double>();
 
         /// <summary>Creates a series.</summary>
-        /// <param name="name">The name (legend and live key).</param>
-        /// <param name="token">The colour token.</param>
-        public ChartSeries(string name, ThemeToken token) {
-            Name = name;
-            Token = token;
+        /// <param name="key">The name (legend and live key).</param>
+        /// <param name="role">The colour role.</param>
+        public ChartSeries(string key, ThemeToken role) {
+            Key = key;
+            Label = key;
+            Role = role;
         }
 
         /// <summary>The name.</summary>
-        public string Name { get; }
+        public string Key { get; }
 
-        /// <summary>A multicolour legend name shown instead of <see cref="Name"/> (which stays the key), or null.</summary>
-        public Text.RichText? NameText { get; set; }
+        /// <summary>Visible legend text, independently of the series key.</summary>
+        public string Label { get; set; }
 
-        /// <summary>The colour token.</summary>
-        public ThemeToken Token { get; set; }
+        /// <summary>A multicolour legend name shown instead of <see cref="Key"/> (which stays the key), or null.</summary>
+        public Text.RichText? LabelText { get; set; }
+
+        /// <summary>The colour role.</summary>
+        public ThemeToken Role { get; set; }
 
         /// <summary>The values, oldest first.</summary>
         public IReadOnlyList<double> Values => _values;

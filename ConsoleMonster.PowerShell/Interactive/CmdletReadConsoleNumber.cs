@@ -37,17 +37,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A validator: $_ is the number; return $true, $false or an error message.</para></summary>
         [Parameter]
-        public ScriptBlock? Validate { get; set; }
+        public ScriptBlock? Validator { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            NumberPrompt prompt = new NumberPrompt(Title) { WholeNumber = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum, Step = Step };
+            NumberPrompt prompt = new NumberPrompt(Title) { Integer = Integer.IsPresent, Minimum = Minimum, Maximum = Maximum, Step = Step };
             Configure(prompt);
             if (Default.HasValue) {
                 prompt.Default = Default.Value;
             }
-            if (Validate != null) {
-                ScriptBlock validate = Validate;
+            if (Validator != null) {
+                ScriptBlock validate = Validator;
                 prompt.Validator = value => PSInteractive.Validation(validate, value, PromptLabels.Default);
             }
             if (TrySnapshot(prompt)) { return; }

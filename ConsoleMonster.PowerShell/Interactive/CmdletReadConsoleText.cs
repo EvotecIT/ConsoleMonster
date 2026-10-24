@@ -6,7 +6,7 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Asks for a line of text.</para>
-    /// <para type="description">A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para>
+    /// <para type="description">A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para>
     /// </summary>
     /// <example>
     ///   <para>A validated name</para>
@@ -14,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
-    ///   <code>Read-ConsoleText 'Email' -Validate { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
+    ///   <code>Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleText")]
     [OutputType(typeof(string))]
@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A validator: $_ is the answer; return $true (or nothing) to accept, $false or an error message to refuse.</para></summary>
         [Parameter]
-        public ScriptBlock? Validate { get; set; }
+        public ScriptBlock? Validator { get; set; }
 
         /// <summary><para type="description">Earlier answers offered with Up and Down (oldest first).</para></summary>
         [Parameter]
@@ -57,7 +57,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Puts the default in the box (editable) instead of showing it as a hint.</para></summary>
         [Parameter]
-        public SwitchParameter Prefill { get; set; }
+        public SwitchParameter PrefillDefault { get; set; }
 
         /// <summary><para type="description">Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</para></summary>
         [Parameter]
@@ -79,8 +79,8 @@ namespace ConsoleMonster.PowerShell {
                 if (Default != null) {
                     area.Default = Default;
                 }
-                if (Validate != null) {
-                    ScriptBlock check = Validate;
+                if (Validator != null) {
+                    ScriptBlock check = Validator;
                     area.Validator = text => PSInteractive.Validation(check, text, PromptLabels.Default);
                 }
                 if (TrySnapshot(area)) { return; }
@@ -94,7 +94,7 @@ namespace ConsoleMonster.PowerShell {
                 MaxLength = MaxLength,
                 Pattern = Pattern,
                 PatternMessage = PatternMessage,
-                PrefillDefault = Prefill.IsPresent
+                PrefillDefault = PrefillDefault.IsPresent
             };
             Configure(prompt);
             if (Default != null) {
@@ -105,8 +105,8 @@ namespace ConsoleMonster.PowerShell {
                     prompt.History.Add(entry);
                 }
             }
-            if (Validate != null) {
-                ScriptBlock validate = Validate;
+            if (Validator != null) {
+                ScriptBlock validate = Validator;
                 prompt.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
             }
             if (TrySnapshot(prompt)) { return; }

@@ -9,7 +9,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Output {
     /// <summary>
-    /// A single updating status line on a real VT console (Write-ConsoleStatus in PowerShell): redrawn in place (carriage return, the
+    /// A single updating status line on a real VT console (Show-ConsoleStatusLine in PowerShell): redrawn in place (carriage return, the
     /// line, clear to the end), with an optional spinner, clock and elapsed time refreshed about ten times a second. The
     /// refresh stops by itself as soon as anything else moves the cursor (other output, the prompt), so it never draws over
     /// later output; completing the status ends the line.

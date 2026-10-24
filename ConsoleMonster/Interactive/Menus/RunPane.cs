@@ -50,8 +50,8 @@ namespace ConsoleMonster.Interactive {
                 if (!string.IsNullOrWhiteSpace(_dashboard.Subtitle)) {
                     parts.Add(Markup.Strip(_dashboard.Subtitle!));
                 }
-                if (!string.IsNullOrWhiteSpace(_dashboard.Status)) {
-                    parts.Add(Markup.Strip(_dashboard.Status!));
+                if (!string.IsNullOrWhiteSpace(_dashboard.Detail)) {
+                    parts.Add(Markup.Strip(_dashboard.Detail!));
                 }
                 parts.Add(clock);
                 return string.Join("  " + Separator + "  ", parts.ToArray());
@@ -109,7 +109,7 @@ namespace ConsoleMonster.Interactive {
     /// shows a run pane while the session draws the view, on the same screen or capture, then the caller shows the result.
     /// </summary>
     internal static class RunHost {
-        public static RunResult Run(InteractiveView view, IPromptSurface surface, ScreenSurface? screen, IInputSource input, RenderContext appContext, MenuContext context, IWidget dashboard, Func<RunContext, RunResult?> work, LiveSessionOptions? options, Action<RunPane> show, Action hide, string fallbackTitle) {
+        public static MenuRunResult Run(InteractiveView view, IPromptSurface surface, ScreenSurface? screen, IInputSource input, RenderContext appContext, MenuContext context, IWidget dashboard, Func<RunContext, MenuRunResult?> work, LiveSessionOptions? options, Action<RunPane> show, Action hide, string fallbackTitle) {
             LiveSessionOptions o = options ?? new LiveSessionOptions();
             o.PrintFinalState = false;
             o.Summary = null;
@@ -127,7 +127,7 @@ namespace ConsoleMonster.Interactive {
             }
             IConsoleInputMode? raw = input as IConsoleInputMode;
             raw?.Suspend();
-            RunResult result;
+            MenuRunResult result;
             RunPane pane = new RunPane(dashboard, view.Labels);
             show(pane);
             LiveSession session = new LiveSession(new MenuRunView(view, pane, dashboard), o);
@@ -136,11 +136,11 @@ namespace ConsoleMonster.Interactive {
             try {
                 session.Start();
                 try {
-                    result = work(new RunContext(session, context)) ?? new RunResult(fallbackTitle);
+                    result = work(new RunContext(session, context)) ?? new MenuRunResult(fallbackTitle);
                 } catch (OperationCanceledException) {
-                    result = new RunResult(fallbackTitle, StatusKind.Warn) { Summary = view.Labels.Cancelled };
+                    result = new MenuRunResult(fallbackTitle, StatusKind.Warn) { Summary = view.Labels.Canceled };
                 } catch (Exception ex) {
-                    result = new RunResult(fallbackTitle, StatusKind.Fail) { Error = ex };
+                    result = new MenuRunResult(fallbackTitle, StatusKind.Fail) { Error = ex };
                 } finally {
                     session.Stop();
                 }
