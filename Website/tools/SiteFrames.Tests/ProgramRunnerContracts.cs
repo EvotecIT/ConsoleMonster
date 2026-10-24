@@ -11,6 +11,15 @@ using Xunit;
 namespace SiteFrames.Tests {
     /// <summary>The shown C# programs compile as a reader's project would, and only clean programs make frames.</summary>
     public sealed class ProgramRunnerContracts : IDisposable {
+        [Fact]
+        public void Program_CompilesAndRunsTheOptionalMarkdownAddon() {
+            string path = Program("markdown", "using ConsoleMonster.Markdown;\nMarkdownConsole.Show(\"# Notes\\n\\n[Guide](https://example.org/guide)\");\n");
+            string text = CSharpRunner.Run(path, 60, ColorDepth.None, GlyphTier.Ascii, Theme.Dark).ToPlainText();
+            Assert.Contains("Notes", text, StringComparison.Ordinal);
+            Assert.Contains("Guide (https://example.org/guide)", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("# Notes", text, StringComparison.Ordinal);
+        }
+
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "siteframes-programs-" + Guid.NewGuid().ToString("N"));
 
         public ProgramRunnerContracts() => Directory.CreateDirectory(_folder);
