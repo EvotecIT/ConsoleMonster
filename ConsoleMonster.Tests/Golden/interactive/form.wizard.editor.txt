@@ -21,4 +21,4 @@
 │                                                                              │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  f1 keys
+ ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  ? keys

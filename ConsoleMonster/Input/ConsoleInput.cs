@@ -15,6 +15,7 @@ namespace ConsoleMonster.Input {
         private static IInputSource? _source;
         private static int _ownerThread;
         private static int _depth;
+        private static bool _inputStarted;
         private static bool _ownsSource;
 
         /// <summary>
@@ -62,6 +63,15 @@ namespace ConsoleMonster.Input {
             }
         }
 
+        /// <summary>Serializes a startup terminal query against all console input leases.</summary>
+        internal static void BeforeFirstRead(Action probe) {
+            lock (Gate) {
+                if (!_inputStarted && _depth == 0 && Override == null) { probe(); }
+            }
+        }
+
+        internal static void MarkInputStarted() { lock (Gate) { _inputStarted = true; } }
+
         internal static void Release(InputLease lease) {
             if (!lease.Global) {
                 return;
@@ -86,6 +96,8 @@ namespace ConsoleMonster.Input {
         /// <summary>Opens the platform console reader: <see cref="WindowsConsoleInput"/> on Windows, <see cref="ConsoleKeyInput"/> elsewhere.</summary>
         /// <returns>The source, or null when standard input is not a console.</returns>
         public static IInputSource? OpenConsole() {
+            Output.TerminalBackground.ProbeBeforeInput();
+            MarkInputStarted();
             if (WindowsConsole.IsWindows) {
                 return WindowsConsoleInput.TryOpen();
             }

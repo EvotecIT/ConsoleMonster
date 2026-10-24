@@ -10,7 +10,7 @@
     ▼ [ ] Lab                         0/1
       [ ] LAB01                      Test
     File server · Windows Server 2022
-  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ? keys
 --- frame 6
 ? Servers
   › type to filter        1 of 4 selected
@@ -23,7 +23,7 @@
     ▼ [ ] Lab                         0/1
       [ ] LAB01                      Test
 
-  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ? keys
 --- frame 7
 ? Servers
   › type to filter        2 of 4 selected
@@ -36,6 +36,6 @@
     ▼ [ ] Lab                         0/1
       [ ] LAB01                      Test
 
-  ↑↓ move  space toggle  enter confirm  ctrl+a all  f1 keys
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ? keys
 --- summary
 √ Servers  FS01, FS11

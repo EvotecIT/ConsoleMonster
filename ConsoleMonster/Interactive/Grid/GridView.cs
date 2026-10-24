@@ -153,7 +153,7 @@ namespace ConsoleMonster.Interactive {
             bindings.Add(new KeyBinding(_filter.IsEmpty ? Labels.KeyCancel : Labels.KeyClearFilter, Escape, new KeyChord(ConsoleKey.Escape)) { Order = 25 });
             // The essential move/select/done/cancel hints fit at 60 columns. Let secondary hints, including the key-map
             // hint, give way before these actions instead of reserving footer space for F1. F1 still opens every binding.
-            KeyBinding help = HelpBinding(false);
+            KeyBinding help = HelpBinding();
             help.Order = 100;
             bindings.Add(help);
         }

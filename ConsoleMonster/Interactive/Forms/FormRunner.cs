@@ -357,7 +357,7 @@ namespace ConsoleMonster.Interactive {
             if (_override != null) {
                 _override.AddBindings(bindings, frame);
                 if (!(_override is RunPane)) {
-                    bindings.Add(HelpBinding(false));
+                    bindings.Add(HelpBinding());
                 }
                 return;
             }
@@ -373,7 +373,7 @@ namespace ConsoleMonster.Interactive {
             if (!hasEscape) {
                 bindings.Add(new KeyBinding(Pane.Crumbs.Count > 1 || (Pane.Caption != null && !Pane.Caption.StartsWith("1/", StringComparison.Ordinal)) ? Labels.KeyBack : Labels.KeyCancel, Escape, new KeyChord(ConsoleKey.Escape)) { Order = 70 });
             }
-            bindings.Add(HelpBinding(false));
+            bindings.Add(HelpBinding());
         }
 
         private void Escape() {

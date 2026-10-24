@@ -10,7 +10,7 @@
     v [ ] Lab                         0/1
       [ ] LAB01                      Test
     File server · Windows Server 2022
-  Up/Down move  space toggle  enter confirm  f1 keys
+  Up/Down move  space toggle  enter confirm  ? keys
 --- frame 6
 ? Servers
   > type to filter        1 of 4 selected
@@ -23,7 +23,7 @@
     v [ ] Lab                         0/1
       [ ] LAB01                      Test
 
-  Up/Down move  space toggle  enter confirm  f1 keys
+  Up/Down move  space toggle  enter confirm  ? keys
 --- frame 7
 ? Servers
   > type to filter        2 of 4 selected
@@ -36,6 +36,6 @@
     v [ ] Lab                         0/1
       [ ] LAB01                      Test
 
-  Up/Down move  space toggle  enter confirm  f1 keys
+  Up/Down move  space toggle  enter confirm  ? keys
 --- summary
 + Servers  FS01, FS11

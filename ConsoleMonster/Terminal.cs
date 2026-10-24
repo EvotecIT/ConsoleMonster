@@ -75,7 +75,7 @@ namespace ConsoleMonster {
 
         /// <summary>
         /// Chooses the light or dark theme: <c>CONSOLEMONSTER_THEME=light|dark</c> wins; otherwise interactive consoles use
-        /// the detected background (console colour table, COLORFGBG) and everything else the dark theme.
+        /// the detected background (console colour table, startup OSC 11 query, COLORFGBG) and everything else the dark theme.
         /// </summary>
         /// <param name="profile">The terminal profile.</param>
         /// <returns>The theme.</returns>

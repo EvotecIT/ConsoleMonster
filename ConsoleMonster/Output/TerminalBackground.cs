@@ -3,9 +3,9 @@ using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
 
-    /// <summary>Detects terminal background appearance using output-side and environment information only.</summary>
-    public static class TerminalBackground {
-        /// <summary>Attempts to detect the terminal background without reading standard input.</summary>
+    /// <summary>Detects terminal background appearance using console, startup VT query and environment information.</summary>
+    public static partial class TerminalBackground {
+        /// <summary>Attempts to detect the terminal background with a bounded startup query before interactive input is opened.</summary>
         /// <param name="info">The detected background or an unknown result.</param>
         /// <returns>True when a background classification was available.</returns>
         public static bool TryDetect(out TerminalBackgroundInfo info) {
@@ -19,6 +19,7 @@ namespace ConsoleMonster.Output {
                         "console color table", "background attribute " + index + " resolved from the console color table; ConPTY may expose a default table");
                     return true;
                 }
+                if (TryOsc(out info)) { return true; }
                 string? colorFgbg = Environment.GetEnvironmentVariable("COLORFGBG");
                 if (TryParseColorFgbg(colorFgbg, out bool isLight)) {
                     info = new TerminalBackgroundInfo(isLight, false, 0, 0, 0, null, "COLORFGBG",

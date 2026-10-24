@@ -45,7 +45,7 @@ namespace ConsoleMonster.Interactive {
                     Decline();
                 }
             }, new KeyChord(ConsoleKey.Escape)) { Order = 70 });
-            bindings.Add(HelpBinding(false));
+            bindings.Add(HelpBinding());
         }
 
         protected override bool HandleUnbound(InputEvent input) {

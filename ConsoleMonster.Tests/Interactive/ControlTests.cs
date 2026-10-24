@@ -16,6 +16,24 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
+        public void UnixMetaAndEmacsKeysEditTheLineThroughTheDecoder() {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) { return; }
+            LineEditor editor = new LineEditor("alpha beta");
+            VtInputDecoder decoder = new VtInputDecoder();
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001bb\u001b\u007f", events);
+            foreach (InputEvent input in events) { editor.Handle(input); }
+            Assert.Equal("beta", editor.Text);
+            Assert.Equal(0, editor.Caret);
+            editor.Handle(InputEvent.Press(ConsoleKey.E, KeyModifiers.Control));
+            Assert.Equal(4, editor.Caret);
+            editor.Handle(InputEvent.Press(ConsoleKey.A, KeyModifiers.Control));
+            Assert.Equal(0, editor.Caret);
+            editor.Handle(InputEvent.Character('f', KeyModifiers.Alt));
+            Assert.Equal(4, editor.Caret);
+        }
+
+        [Fact]
         public void Handle_EditsAndMovesByWord() {
             LineEditor editor = new LineEditor();
             Type(editor, "\"copy files now\" Ctrl+Left Ctrl+Backspace");

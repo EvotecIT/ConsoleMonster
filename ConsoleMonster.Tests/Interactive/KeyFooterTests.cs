@@ -10,6 +10,17 @@ using Xunit;
 namespace ConsoleMonster.Tests.Interactive {
     /// <summary>Equal-priority key hints retain their declaration order on every supported runtime.</summary>
     public sealed class KeyFooterTests {
+        [Fact]
+        public void HelpDialogKeepsTheLastBindingInsideItsMeasuredFrame() {
+            KeyMapWidget map = new KeyMapWidget(new[] {
+                new KeyBinding("move", () => { }, new KeyChord(ConsoleKey.DownArrow)) { Group = "Movement" },
+                new KeyBinding("last action", () => { }, new KeyChord('?')) { Group = "Help" }
+            }, new PromptLabels());
+            string text = Terminal.RenderText(map, TerminalProfile.Fixed(60, 30, ColorDepth.None), Theme.Dark);
+            Assert.Contains("last action", text);
+            Assert.Contains("any key closes", text);
+        }
+
         /// <summary>Priority sorts groups, while ties stay in declaration order rather than depending on List.Sort.</summary>
         [Fact]
         public void EqualPriorityHints_PreserveDeclarationOrder() {

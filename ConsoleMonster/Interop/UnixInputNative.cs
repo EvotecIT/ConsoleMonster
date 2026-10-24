@@ -6,6 +6,7 @@ namespace ConsoleMonster.Interop {
     internal static class UnixInputNative {
         // termios is 60 bytes on Linux and 72 on macOS. It remains opaque; no pointer is passed to a smaller allocation.
         internal const int AttributesCapacity = 1024;
+        internal static readonly System.Collections.Concurrent.ConcurrentQueue<byte> PendingInput = new System.Collections.Concurrent.ConcurrentQueue<byte>();
 
         [StructLayout(LayoutKind.Sequential)]
         private struct PollDescriptor {

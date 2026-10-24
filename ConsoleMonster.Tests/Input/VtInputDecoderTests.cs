@@ -6,6 +6,37 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Input {
     public sealed class VtInputDecoderTests {
+        [Theory]
+        [InlineData("\u001b\u007f", ConsoleKey.Backspace, KeyModifiers.Alt)]
+        [InlineData("\u001bb", ConsoleKey.B, KeyModifiers.Alt)]
+        [InlineData("\u001bf", ConsoleKey.F, KeyModifiers.Alt)]
+        [InlineData("\u001bOM", ConsoleKey.Enter, KeyModifiers.None)]
+        public void TerminalEditingSequencesSurviveEveryChunkBoundary(string sequence, ConsoleKey key, KeyModifiers modifiers) {
+            for (int split = 0; split <= sequence.Length; split++) {
+                VtInputDecoder decoder = new VtInputDecoder();
+                List<InputEvent> events = new List<InputEvent>();
+                decoder.Feed(sequence.Substring(0, split), events);
+                decoder.Feed(sequence.Substring(split), events);
+                Assert.True(Assert.Single(events).Is(key, modifiers));
+            }
+        }
+
+        [Fact]
+        public void DelayedOscBackgroundReplyNeverBecomesText() {
+            const string reply = "\u001b]11;rgb:ffff/ffff/ffff\u001b\\";
+            for (int split = 2; split < reply.Length; split++) {
+                VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+                List<InputEvent> events = new List<InputEvent>();
+                decoder.Feed(reply.Substring(0, split), events);
+                decoder.Flush(events);
+                decoder.Feed(reply.Substring(split) + "hello", events);
+                Assert.Equal("hello", new string(events.ConvertAll(e => e.Char).ToArray()));
+            }
+            InputEvent altBracket = Assert.Single(Decode("\u001b]"));
+            Assert.Equal(']', altBracket.Char);
+            Assert.Equal(KeyModifiers.Alt, altBracket.Modifiers);
+        }
+
         [Fact]
         public void Feed_PrintableAndControls_NormalizesEvents() {
             List<InputEvent> events = Decode("a!\r\n\t\b\u007f\0\u0001\u001a\u001c\u001f");

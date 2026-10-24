@@ -16,6 +16,8 @@ namespace ConsoleMonster.Input {
 
         /// <summary>Creates the reader.</summary>
         public ConsoleKeyInput() {
+            TerminalBackground.ProbeBeforeInput();
+            ConsoleInput.MarkInputStarted();
             _unix = UnixKeyInput.TryOpen();
             TerminalSize.TryGet(out _width, out _height);
         }

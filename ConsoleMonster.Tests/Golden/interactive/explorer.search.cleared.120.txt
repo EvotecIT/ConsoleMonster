@@ -17,4 +17,4 @@ $x
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys

@@ -128,13 +128,12 @@ namespace ConsoleMonster.Interactive {
             IsDone = true;
         }
 
-        /// <summary>The standard key-map binding (F1, and ? where typing it is not needed).</summary>
-        protected KeyBinding HelpBinding(bool questionMark) {
-            List<KeyChord> chords = new List<KeyChord> { new KeyChord(ConsoleKey.F1) };
-            if (questionMark) {
-                chords.Add(new KeyChord('?'));
-            }
-            return new KeyBinding(Labels.KeyHelp, () => KeyMapOpen = true, chords.ToArray()) { Order = KeyFooter.HelpOrder, Group = "Help", KeyText = questionMark ? "?" : "f1" };
+        /// <summary>The standard key-map binding (F1 or ?).</summary>
+        protected KeyBinding HelpBinding() {
+            return new KeyBinding(Labels.KeyHelp, () => KeyMapOpen = true, new KeyChord(ConsoleKey.F1), new KeyChord('?')) {
+                Order = KeyFooter.HelpOrder, Group = "Help",
+                KeyText = "?"
+            };
         }
 
         /// <summary>The summary lines left in the scrollback by an inline prompt.</summary>
