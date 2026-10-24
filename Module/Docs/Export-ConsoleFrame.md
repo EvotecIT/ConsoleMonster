@@ -6,18 +6,18 @@ schema: 2.0.0
 ---
 # Export-ConsoleFrame
 ## SYNOPSIS
-Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.
+Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [<CommonParameters>]
+Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [-Preset <string>] [-FontFamily <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.
+Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
@@ -55,6 +55,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -FontFamily
+Installed raster font; omitted uses embedded JetBrains Mono.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -FontSize
 The font size in pixels (default 14).
 
@@ -72,13 +88,13 @@ Accept wildcard characters: False
 ```
 
 ### -Format
-The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).
+The format: Png, Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).
 
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Html, Svg, Text, Markdown
+Possible values: Html, Svg, Text, Markdown, Png
 
 Required: False
 Position: named
@@ -136,7 +152,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-The file to write (UTF-8 without a byte order mark). Without it the document goes to the pipeline.
+The file to write (binary PNG, or UTF-8 text without a byte order mark). Without it PNG bytes or the text document go to the pipeline.
 
 ```yaml
 Type: String
@@ -151,14 +167,30 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Preset
+Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Docs, Slide16x9, Slide4x3, Social
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Theme
-Auto (both renderings, following the viewer), Dark or Light.
+Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.
 
 ```yaml
 Type: ExportTheme
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Auto, Dark, Light
+Possible values: Auto, Dark, Light, HighContrast
 
 Required: False
 Position: named
@@ -225,6 +257,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `System.String`
+- `System.Byte[]`
 - `System.IO.FileInfo`
 
 ## RELATED LINKS

@@ -263,7 +263,7 @@ Export colours.
 Type: ExportTheme
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Auto, Dark, Light
+Possible values: Auto, Dark, Light, HighContrast
 
 Required: False
 Position: named

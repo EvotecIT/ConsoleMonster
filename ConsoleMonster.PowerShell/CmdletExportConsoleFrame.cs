@@ -6,7 +6,7 @@ using ConsoleMonster.Export;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.</para>
+    /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</para>
     /// <para type="description">Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
     /// </summary>
     /// <example>
@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>$dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -WindowChrome</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleFrame")]
-    [OutputType(typeof(string), typeof(FileInfo))]
+    [OutputType(typeof(string), typeof(byte[]), typeof(FileInfo))]
     public sealed class CmdletExportConsoleFrame : PSCmdlet {
         private readonly List<object> _items = new List<object>();
 
@@ -27,12 +27,12 @@ namespace ConsoleMonster.PowerShell {
         [AllowNull]
         public object? InputObject { get; set; }
 
-        /// <summary><para type="description">The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</para></summary>
+        /// <summary><para type="description">The format: Png, Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</para></summary>
         [Parameter]
-        [ValidateSet("Html", "Svg", "Text", "Markdown")]
+        [ValidateSet("Html", "Svg", "Text", "Markdown", "Png")]
         public string? Format { get; set; }
 
-        /// <summary><para type="description">The file to write (UTF-8 without a byte order mark). Without it the document goes to the pipeline.</para></summary>
+        /// <summary><para type="description">The file to write (binary PNG, or UTF-8 text without a byte order mark). Without it PNG bytes or the text document go to the pipeline.</para></summary>
         [Parameter(Position = 1)]
         public string? Path { get; set; }
 
@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 1000)]
         public int Height { get; set; }
 
-        /// <summary><para type="description">Auto (both renderings, following the viewer), Dark or Light.</para></summary>
+        /// <summary><para type="description">Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.</para></summary>
         [Parameter]
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
@@ -72,6 +72,13 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter PassThru { get; set; }
 
+        /// <summary><para type="description">Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</para></summary>
+        [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
+        public string Preset { get; set; } = "Docs";
+
+        /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
+        [Parameter] public string? FontFamily { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) {
@@ -84,7 +91,8 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) {
                 return;
             }
-            ExportFormat format = Format != null
+            bool graphics = GraphicsExportBridge.IsGraphics(Format, Path);
+            ExportFormat format = graphics ? ExportFormat.Svg : Format != null
                 ? (ExportFormat)System.Enum.Parse(typeof(ExportFormat), Format, true)
                 : Path != null ? ConsoleExporter.FormatFor(Path) : ExportFormat.Html;
             if (format == ExportFormat.Asciicast) {
@@ -98,6 +106,12 @@ namespace ConsoleMonster.PowerShell {
                 WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle,
                 FontSize = FontSize
             };
+            if (graphics) {
+                string? target = Path == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+                object result = GraphicsExportBridge.Frame(_items, target, Preset, FontFamily, options, this);
+                if (target == null || PassThru.IsPresent) { WriteObject(result, false); }
+                return;
+            }
             string document = PSOutputExport.Document(_items, format, options, this);
             if (Path == null) {
                 WriteObject(document);

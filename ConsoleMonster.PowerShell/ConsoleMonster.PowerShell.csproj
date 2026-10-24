@@ -47,5 +47,6 @@
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
+        <ProjectReference Include="../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj" />
     </ItemGroup>
 </Project>
