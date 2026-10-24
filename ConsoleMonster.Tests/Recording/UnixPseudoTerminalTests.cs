@@ -9,6 +9,83 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
     public sealed class UnixPseudoTerminalTests {
+        [UnixFact]
+        public void ChildHasAControllingTerminal() {
+            SessionRecordingOptions options = new SessionRecordingOptions { Shell = "/bin/stty", WorkingDirectory = Path.GetTempPath() };
+            options.Arguments.Add(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "-f" : "-F");
+            options.Arguments.Add("/dev/tty"); options.Arguments.Add("size");
+            WithRecording(options, (recorder, output) => {
+                recorder.WaitForExit();
+                Assert.True(recorder.ExitCode == 0, output());
+                Assert.Contains("30 100", output());
+            });
+        }
+
+        [UnixFact]
+        public void ResizeSignalsTheForegroundChild() {
+            SessionRecordingOptions options = new SessionRecordingOptions { Shell = "dotnet", WorkingDirectory = Path.GetTempPath() };
+            options.Arguments.Add("exec"); options.Arguments.Add("--runtimeconfig");
+            options.Arguments.Add(Path.ChangeExtension(typeof(UnixPseudoTerminalTests).Assembly.Location, ".runtimeconfig.json"));
+            options.Arguments.Add(typeof(TestHost.Program).Assembly.Location);
+            options.Arguments.Add("unix-recording-child");
+            WithRecording(options, (recorder, output) => {
+                Assert.True(SpinWait.SpinUntil(() => output().Contains("READY"), TimeSpan.FromSeconds(5)), output());
+                recorder.Resize(132, 40);
+                recorder.WaitForExit();
+                Assert.Equal(0, recorder.ExitCode);
+                Assert.Contains("WINCH 40 132", output());
+            });
+        }
+
+        [UnixFact]
+        public void CtrlCInterruptsANativeForegroundProgram() {
+            SessionRecordingOptions options = new SessionRecordingOptions { Shell = "/bin/sleep", WorkingDirectory = Path.GetTempPath() };
+            options.Arguments.Add("20");
+            WithRecording(options, (recorder, output) => {
+                recorder.SendInput("\u0003");
+                recorder.WaitForExit();
+                Assert.Equal(130, recorder.ExitCode);
+            });
+        }
+
+        [UnixFact]
+        public void NoEchoPromptReadsFromDevTtyWithoutRecordingTheSecret() {
+            SessionRecordingOptions options = Shell("stty -echo; printf READY; read secret </dev/tty; stty echo; test \"$secret\" = 'synthetic-secret' && printf ACCEPTED");
+            WithRecording(options, (recorder, output) => {
+                Assert.True(SpinWait.SpinUntil(() => output().Contains("READY"), TimeSpan.FromSeconds(5)), output());
+                recorder.SendInput("synthetic-secret\n"); recorder.WaitForExit();
+                Assert.Equal(0, recorder.ExitCode);
+                Assert.Contains("ACCEPTED", output());
+                Assert.DoesNotContain("synthetic-secret", output());
+                Assert.DoesNotContain("synthetic-secret", File.ReadAllText(recorder.Path));
+            });
+        }
+
+        [UnixFact]
+        public void MissingExecutableFailsAtStartup() {
+            SessionRecordingOptions options = Shell(string.Empty);
+            options.Shell = "/missing-consolemonster-" + Guid.NewGuid().ToString("N");
+            Assert.Throws<System.ComponentModel.Win32Exception>(() => { using (UnixPseudoTerminal terminal = new UnixPseudoTerminal(options)) { } });
+        }
+
+        private static SessionRecordingOptions Shell(string command) {
+            SessionRecordingOptions options = new SessionRecordingOptions { Shell = "/bin/sh", WorkingDirectory = Path.GetTempPath() };
+            options.Arguments.Add("-c"); options.Arguments.Add(command);
+            return options;
+        }
+
+        private static void WithRecording(SessionRecordingOptions options, Action<SessionRecorder, Func<string>> check) {
+            string directory = Path.Combine(Path.GetTempPath(), "ConsoleMonster-Tty-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            options.Path = Path.Combine(directory, "session.cast"); options.Timeout = TimeSpan.FromSeconds(5);
+            StringBuilder output = new StringBuilder();
+            try {
+                using (SessionRecorder recorder = SessionRecorder.Start(options, text => { lock (output) { output.Append(text); } })) {
+                    check(recorder, () => { lock (output) { return output.ToString(); } });
+                }
+            } finally { Directory.Delete(directory, true); }
+        }
+
         [Fact]
         public void FinalOutputArrivingAfterAnEmptyPollIsDrainedBeforeEof() {
             byte[] bytes = new byte[16];

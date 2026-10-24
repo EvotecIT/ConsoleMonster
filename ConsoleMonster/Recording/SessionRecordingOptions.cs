@@ -11,7 +11,7 @@ namespace ConsoleMonster.Sessions {
         public string Folder { get; set; } = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "ConsoleMonster", "Recordings");
         /// <summary>Human-readable recording title.</summary>
         public string Name { get; set; } = "Console session";
-        /// <summary>Child executable. Null selects the platform shell.</summary>
+        /// <summary>Child executable. Null selects $SHELL on Unix, falling back to zsh on macOS or sh on Linux; Windows uses its platform shell.</summary>
         public string? Shell { get; set; }
         /// <summary>Individual child arguments, quoted by the transport.</summary>
         public IList<string> Arguments { get; } = new List<string>();
