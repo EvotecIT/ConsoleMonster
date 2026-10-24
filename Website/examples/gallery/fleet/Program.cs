@@ -96,7 +96,7 @@ IWidget Body(List<Work> work, int done, int phase) {
         lane.Passed = ready.Count(w => w.Status == StatusKind.Pass); lane.Warned = ready.Count(w => w.Status == StatusKind.Warn); lane.Failed = ready.Count(w => w.Status == StatusKind.Fail);
         lane.Status = ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Check.Category == category) ? StatusKind.Running : StatusKind.Pending;
     }
-    LogRegion log = new() { ShowTime = false, PreferredHeight = 7 };
+    LogRegion log = new() { ShowElapsed = false, PreferredHeight = 7 };
     log.Write($"Inventory: {domain} · {targets.Length} servers · {work.Count} checks");
     if (phase >= 1) log.Write($"Connecting up to {parallel} servers at a time");
     foreach (Work w in finished.TakeLast(5)) log.Write($"{w.Node.Name} · {w.Check.Name}: {w.Actual}", w.Status == StatusKind.Fail ? "err" : w.Status == StatusKind.Warn ? "warn" : "info");
@@ -165,7 +165,7 @@ Form Options() {
     Form form = new("Options") { Review = false, SubmitText = "Save" };
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
-    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.WholeNumber = true; throttle.ParameterName = "ThrottleLimit";
+    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.Integer = true; throttle.ParameterName = "ThrottleLimit";
     PathField folder = page.Path("Report", "Report folder"); folder.Default = report; folder.PathKind = PathKind.Folder; folder.ParameterName = "ReportPath";
     ChoiceField output = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
     output.Default = format; output.ParameterName = "Format";
@@ -189,7 +189,7 @@ ChoiceField servers = scope.MultiSelect("Servers", "Servers"); servers.Minimum =
 servers.Loader = async (values, token) => {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name) {
-        Title = n.Name, Group = n.Site, Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
+        Label = n.Name, Group = n.Site, Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
         Description = n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == ""
     });
 };
@@ -217,7 +217,7 @@ menu.Item("New check", i => i.Hotkey('n').WithIcon(GlyphIcon.Run).Describe("Choo
     checks = catalog.Where(c => result.Values.GetList<string>("Checks").Contains(c.Id)).ToArray();
     ApplyOptions(result.Values); Execute(context, Plan());
 }));
-menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).State(() => history.Count + " runs"));
+menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).Detail(() => history.Count + " runs"));
 menu.Separator(); menu.Exit("Quit");
 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Fleet health check gallery" });
 

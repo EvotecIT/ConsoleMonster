@@ -101,7 +101,7 @@ IWidget Body(List<Work> work, int done, int phase) {
         lane.Status = ready.Length == planned.Length ? Verdict(ready) : active.Any(w => w.Node == node) ? StatusKind.Running : StatusKind.Pending;
         lane.Detail = active.FirstOrDefault(w => w.Node == node)?.Check.Name ?? ready.LastOrDefault()?.Check.Name;
     }
-    LogRegion log = new() { ShowTime = false, PreferredHeight = 7 };
+    LogRegion log = new() { ShowElapsed = false, PreferredHeight = 7 };
     log.Write($"Inventory: {domain} · {targets.Length} servers · {work.Count} tasks");
     if (phase >= 1) log.Write($"Connecting up to {parallel} servers at a time");
     foreach (Work w in finished.TakeLast(5)) log.Write($"{w.Node.Name} · {w.Check.Name}: {w.Actual}", w.Status == StatusKind.Fail ? "err" : w.Status == StatusKind.Warn ? "warn" : "info");
@@ -151,7 +151,7 @@ Form Options() {
     Form form = new("Options") { Review = false, SubmitText = "Save" };
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
-    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.WholeNumber = true; throttle.ParameterName = "ThrottleLimit";
+    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.Integer = true; throttle.ParameterName = "ThrottleLimit";
     PathField folder = page.Path("Report", "Report folder"); folder.Default = report; folder.PathKind = PathKind.Folder; folder.ParameterName = "ReportPath";
     ChoiceField output = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
     output.Default = format; output.ParameterName = "Format";
@@ -205,7 +205,7 @@ menu.Item("Review & run", i => i.Hotkey('r').WithIcon(GlyphIcon.Run).Review(_ =>
     review.Command = CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " " + options.BuildCommand();
     review.Run = ctx => Execute(ctx, Plan()); return review;
 }));
-menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).State(() => history.Count + " runs"));
+menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).Detail(() => history.Count + " runs"));
 menu.Separator(); menu.Exit("Quit");
 menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox gallery" });
 

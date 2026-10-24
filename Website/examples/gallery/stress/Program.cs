@@ -50,7 +50,7 @@ IWidget Frame(int tick) {
     LineChart cpu = new LineChart("cpu") { Height = 6, Minimum = 0, Unit = "%" };
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples)) cpu.Add("cpu", value);
-    LogRegion output = new LogRegion { PreferredHeight = 6, ShowTime = false };
+    LogRegion output = new LogRegion { PreferredHeight = 6, ShowElapsed = false };
     for (int i = 0; i < tick * 4; i++) output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5], i % 7 == 0 ? "err" : "info");
     Rows body = new Rows(new Columns().Add(new Panel(lanes, "Workers"), LayoutSize.Fraction(2.2))
         .Add(new Panel(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), "Session")))

@@ -58,7 +58,7 @@ for (int i = 0; i < compilerNames.Length; i++) {
     lane.Passed = (int)lane.Done;
     lane.Detail = lane.Done > 0 ? "compiled" : lane.Status == StatusKind.Running ? "compiling" : "queued";
 }
-LogRegion log = new LogRegion { PreferredHeight = 8, ShowTime = false };
+LogRegion log = new LogRegion { PreferredHeight = 8, ShowElapsed = false };
 log.Write("Build engine · release pipeline");
 foreach (BuildStep item in steps.Take(completed)) foreach (string line in item.Output) log.Write(PathText(line), item.Result == StatusKind.Warn ? "warn" : item.Result == StatusKind.Skip ? "skip" : "info");
 if (completed < steps.Length) log.Write(PathText(steps[completed].Label) + "...");

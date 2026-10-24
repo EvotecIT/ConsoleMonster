@@ -11,7 +11,7 @@ using ConsoleMonster.Widgets;
 string[] servers = { "web-01", "web-02", "web-03", "job-01", "sql-01", "sql-02" };
 
 // Layout: construct the widgets shown on screen.
-IWidget Summary(IReadOnlyList<MenuRunResult<string, string>> outcomes) {
+IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes) {
     var byHost = outcomes.ToDictionary(result => result.Item);
     Table table = new Table().AddColumn("Host").AddColumn("Stage").AddColumn("Result", column => column.Presenter = CellPresenters.StatusWord);
     foreach (string server in servers) {
@@ -26,8 +26,8 @@ IWidget Summary(IReadOnlyList<MenuRunResult<string, string>> outcomes) {
         table, new TextBlock(summary)) { Gap = 1 };
 }
 // Behaviour: run the actual parallel workload; keep every outcome for retry/reporting.
-Terminal.Write(Summary(Array.Empty<MenuRunResult<string, string>>()));
-IReadOnlyList<MenuRunResult<string, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
+Terminal.Write(Summary(Array.Empty<RunResult<string, string>>()));
+IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
     await Task.Delay(350, cancel);
     if (server == "web-03") throw new InvalidOperationException("Restart check failed");
     return server + " preview passed";
