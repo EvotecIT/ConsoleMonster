@@ -75,7 +75,7 @@ namespace SiteFrames {
                     return Readme.Sync(new Site(website));
                 case "review-large-run":
                     if (only == null) { Console.Error.WriteLine("Pass an output directory: SiteFrames review-large-run [WebsiteRoot] [OutputDirectory]"); return 2; }
-                    return LargeRunFigures.Review(only);
+                    return LargeRunFigures.Review(new Site(website), only);
                 case "review-object":
                     if (only == null) {
                         Console.Error.WriteLine("Usage: SiteFrames review-object [WebsiteRoot] [ScratchOutputDirectory]");

@@ -12,55 +12,31 @@ chips: [Scrollback, Concurrent workers, CI]
 
 `LiveRun` monitors work scheduled by your application or script. Each finished item prints once above an inline dashboard, so completed work stays in normal terminal scrollback. The dashboard occupies at most 40% of terminal height by default.
 
-{{< cm-frame ids="large-run-120,large-run-60" >}}
+## Try it
 
-The frames use illustrative checks with eight active workers. Their [C# scene](https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Examples/LargeRunScene.cs) is also used by the golden-frame tests.
+This example reports two illustrative outcomes without contacting either target. Replace the comments and updates with your own checks. Choose PowerShell or C#; the output comes from the C# program with a fixed clock, while PowerShell shows the time your script takes.
 
-## PowerShell
+{{< cm-try key="large-run" ids="large-run-example" project="FleetChecks" >}}
 
-Declare the items, report state changes, then complete the run in `finally`. The monitor leaves your script's output and exit code alone.
+## How it works
+
+Declare the items, report state changes, then complete the run in `finally`. The monitor leaves your script's output and exit code alone:
 
 ```powershell
-$files = @(Get-ChildItem *.log)
-$run = New-ConsoleRun -Items $files -Title 'Archive logs' -Name Name -Target DirectoryName
+$run = New-ConsoleRun -Items $checks -Name Name -Target Target -Group { $_.Category }
 try {
-    for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-ConsoleRun $run -Index $i -State Running -Phase 'archiving'
-        try {
-            Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop
-            Update-ConsoleRun $run -Index $i -State Pass
-        } catch {
-            Update-ConsoleRun $run -Index $i -State Fail -Message $_.Exception.Message
-        }
-    }
+    Update-ConsoleRun $run -Index 0 -State Running -Phase 'collecting'
+    Update-ConsoleRun $run -Index 0 -State Pass
 } finally {
     $summary = Complete-ConsoleRun $run -PassThru
 }
 ```
 
-`-Name`, `-Target` and `-Group` accept property names or script blocks such as `-Group { $_.Directory.Name }`. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once.
+`-Name`, `-Target` and `-Group` accept property names or script blocks. Item positions start at zero. `Running` updates can change the phase without restarting elapsed time. `Pass`, `Fail`, `Warn` and `Skip` finish an item once. In C#, the handle's `Started` and `Finished` methods accept calls from worker threads.
 
-## C#
+The larger previews below show 214 illustrative checks with eight active workers partway through a run. Their [C# scene](https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Examples/LargeRunScene.cs) is also used by the golden-frame tests:
 
-Use the same monitor around your existing runner. Its methods accept calls from worker threads; it does not schedule work or collect application results.
-
-```csharp
-using ConsoleMonster.Live;
-using ConsoleMonster.Styling;
-using ConsoleMonster.Widgets;
-
-using (LiveRun run = new LiveRun(new[] {
-    new RunItem("Read inventory", "node-01", "Inventory"),
-    new RunItem("Check storage", "node-02", "Storage")
-}, new LiveRunOptions { Title = "Fleet checks" })) {
-    run.Dashboard.WithShowTrend(true).WithShowGroups(true);
-    run.Started(0, "collecting");
-    run.Finished(0, StatusKind.Pass);
-    run.Started(1, "evaluating");
-    run.Finished(1, StatusKind.Warn, "Free space is below the preferred threshold");
-    RunSnapshot summary = run.Complete();
-}
-```
+{{< cm-frame ids="large-run-120,large-run-60" >}}
 
 ## Height, output and controls
 
@@ -73,5 +49,7 @@ CI and redirected output use append-only lines. `-NoLive` forces this mode. `-Pr
 Background workers can call `$run.Started($index, $phase)` and `$run.Finished($index, $state, $message)` directly. Use `Wait-ConsoleRun $run` on the calling pipeline while those workers run: PowerShell hosts receive timed progress through that command's output pump. Join workers before `Complete-ConsoleRun`, including during cancellation. In C#, observe `run.Cancellation`, let workers report their last outcomes, then call `Complete`.
 
 `-InteractiveKeys` enables `p` to pause/resume completion lines, `f` to filter new log lines to problems, `g` to show/hide groups, and `?` for key help. Work and dashboard counts continue while the log is paused. Held lines flush on resume or completion. `-Trend` adds a throughput sparkline when width permits. Without keyboard input these controls are omitted.
+
+## Related
 
 For scheduling work directly, see [live runs](/docs/live-runs/). For building your own composition, see [live sessions](/docs/live-sessions/).

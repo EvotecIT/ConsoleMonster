@@ -95,6 +95,18 @@ namespace SiteFrames.Tests {
             Assert.Equal("Terminal.Write(x);", shortForm);
             Assert.Equal("using ConsoleMonster;\n\nTerminal.Write(x);", full);
             Assert.Equal("Write-ConsoleRule", SourceSnippets.Program("Import-Module ConsoleMonster\n\nWrite-ConsoleRule").Short);
+            Assert.Equal("Buffer stream = new();", SourceSnippets.Program("global using System.IO;\nusing Buffer = System.IO.MemoryStream;\n\nBuffer stream = new();").Short);
+        }
+
+        [Theory]
+        [InlineData("using (var stream = new MemoryStream()) { stream.WriteByte(1); }")]
+        [InlineData("using MemoryStream stream = new MemoryStream();")]
+        [InlineData("using var stream = new MemoryStream();")]
+        public void Program_ShortForm_PreservesResourceLifetimeStatements(string statement) {
+            string program = "using System.IO;\n\n" + statement;
+            (string shortForm, string full) = SourceSnippets.Program(program);
+            Assert.Equal(statement, shortForm);
+            Assert.Equal(program, full);
         }
     }
 }

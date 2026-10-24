@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace SiteFrames {
     /// <summary>
@@ -87,7 +88,7 @@ namespace SiteFrames {
             (string shortForm, string full) = Split(code);
             string[] lines = shortForm.Split('\n');
             int first = 0;
-            while (first < lines.Length && (lines[first].StartsWith("using ", StringComparison.Ordinal) || lines[first].Trim() == "Import-Module ConsoleMonster" || lines[first].Trim().Length == 0)) {
+            while (first < lines.Length && (IsUsingDirective(lines[first]) || lines[first].Trim() == "Import-Module ConsoleMonster" || lines[first].Trim().Length == 0)) {
                 first++;
             }
             List<string> shown = new List<string>(lines.Length - first);
@@ -104,6 +105,14 @@ namespace SiteFrames {
                 shown.Add(lines[i]);
             }
             return (string.Join("\n", shown), full);
+        }
+
+        // Namespace imports are setup; resource-using statements belong to the executable example.
+        private static bool IsUsingDirective(string line) {
+            string text = line.Trim();
+            if (!text.StartsWith("using ", StringComparison.Ordinal) && !text.StartsWith("global using ", StringComparison.Ordinal)) { return false; }
+            var root = CSharpSyntaxTree.ParseText(text).GetCompilationUnitRoot();
+            return root.Usings.Count > 0 && root.Members.Count == 0 && !root.ContainsDiagnostics;
         }
 
         // PowerShell accepts #Region and #EndRegion in any case; markers compare in lower case.
