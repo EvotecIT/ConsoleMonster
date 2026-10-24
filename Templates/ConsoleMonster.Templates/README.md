@@ -29,11 +29,11 @@ dotnet run -- --snapshot          # deterministic output, also the default when 
 dotnet run -- --snapshot --step 2 # a particular point in the demo
 ```
 
-The available demos are `assessment`, `fleet`, `setup`, `stress`, `pipeline`,
-`live-filter`, `toolbox`, `parallel-patch`, `log-tail`, `welcome-compact`,
-`welcome-rich`, and `everyday`. Interactive demos run live in a terminal; static
-demos print their output. Each generated `Program.cs` is the same source used by
-the website gallery. Omitting `--demo` keeps the menu and hosted service above.
+Choose a full showcase such as `fleet` or `assessment`, or a small starter such
+as `fleet-filter` or `readiness-report`. Run `dotnet new consolemonster --help`
+for the complete list of gallery slugs. Interactive demos run live in a terminal;
+static demos print their output. Each generated `Program.cs` is the same source
+used by the website gallery. Omitting `--demo` keeps the menu and hosted service above.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
