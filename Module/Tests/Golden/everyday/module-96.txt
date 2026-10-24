@@ -1,8 +1,9 @@
 ```text
-╭──────────────────────┬─────────┬────────────┬──────────┬───────────────────────────╮
-│ Name                 │ Version │ ModuleType │ Commands │ Path                      │
-├─ Demo.Inventory · 2 ─┼─────────┼────────────┼──────────┼───────────────────────────┤
-│ Demo.Inventory       │ 1.2.0   │ Script     │        2 │ 1.2.0/Demo.Inventory.psm1 │
-│ Demo.Inventory       │ 2.0.0   │ Script     │        2 │ 2.0.0/Demo.Inventory.psm1 │
-╰──────────────────────┴─────────┴────────────┴──────────┴───────────────────────────╯
+╭─────────┬────────────┬──────────┬────────────────────────────────────────────────────────────╮
+│ Version │ ModuleType │ Commands │ Path                                                       │
+├─ Demo.Inventory · 3 ─┼──────────┼────────────────────────────────────────────────────────────┤
+│ 1.2.0   │ Script     │        2 │ System /opt/powershell/Module…ry/1.2.0/Demo.Inventory.psm1 │
+│ 2.0.0   │ Script     │        2 │ System /opt/powershell/Module…ry/2.0.0/Demo.Inventory.psm1 │
+│ 2.1.0   │ Script     │        2 │ User ~/Documents/PowerShell/M…ry/2.1.0/Demo.Inventory.psm1 │
+╰─────────┴────────────┴──────────┴────────────────────────────────────────────────────────────╯
 ```

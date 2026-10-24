@@ -1,4 +1,4 @@
-﻿$everydayCases = foreach ($view in 'json-flat', 'json-nested', 'json-envelope', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host') {
+﻿$everydayCases = foreach ($view in 'json-flat', 'json-nested', 'json-envelope', 'json-envelopes', 'json-budgets', 'json-records', 'json-empty-records', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host') {
     foreach ($width in 96, 48) { @{ View = $view; Width = $width } }
 }
 $windowsNetworkCases = foreach ($view in 'dns-record', 'net-ip', 'net-adapter', 'net-connection') {
@@ -51,7 +51,8 @@ Describe 'Everyday structured data and discovery views' {
         $nested = [pscustomobject]@{ Name = 'api-01' }
         $nested | Add-Member ScriptProperty Dangerous { throw 'Nested getter must not run' }
         $row = [pscustomobject]@{ Name = 'payload'; Child = $nested; Array = 1..100 }
-        $row | Out-ConsoleDefault -As Text | Should -Match '100 items'
+        $row | Out-ConsoleDefault -As Text | Should -Match '\+94 more'
+        $row | Out-ConsoleDefault -As Text | Should -Match 'Name=api-01'
         [object]::ReferenceEquals($row.Child, $nested) | Should -BeTrue
         ($row | Out-ConsoleDefault -As Text) | Should -Not -Match 'Dangerous|@\{'
     }
@@ -97,12 +98,116 @@ Describe 'Everyday structured data and discovery views' {
     It 'keeps unnamed envelope labels and chooses a name field without reordering columns' {
         $text = Get-EverydayViewSample json-envelope | Out-ConsoleDefault -As Text -Width 96
         $text | Should -Match 'Total\s+3'
-        $text | Should -Match 'Items\s+3 items'
+        $text | Should -Match 'Items'
+        $text | Should -Match 'api-01'
+        $text | Should -Match 'worker-01'
+        $text | Should -Not -Match '3 items'
         $row = [pscustomobject]@{ Count = '0012'; Name = 'api-01'; Region = 'west' }
         $record = $row | Out-ConsoleDefault -As Text -Width 48
         $record | Should -Match 'api-01'
         $record | Should -Match 'Count\s+0012'
         $row.PSObject.Properties.Name -join ',' | Should -BeExactly 'Count,Name,Region'
+    }
+
+    It 'shows small nested values and bounds deep objects and large arrays without losing omission hints' {
+        $text = Get-EverydayViewSample json-nested | Out-ConsoleDefault -As Text -Width 96
+        $text | Should -Match 'Region=west'
+        $text | Should -Match 'Count=3'
+        $text | Should -Match 'blue, ready'
+        $text | Should -Match 'dns'
+        $text | Should -Match 'http'
+        $text | Should -Match '\(none\)'
+        $limited = Get-EverydayViewSample json-budgets | Out-ConsoleDefault -As Text -Width 96
+        $limited | Should -Match 'tag-1, tag-2'
+        $limited | Should -Match '\+4 more'
+        $limited | Should -Match '6 keys'
+        $limited | Should -Match 'check-5'
+        $limited | Should -Match '\+3 more rows'
+        $limited | Should -Not -Match 'tag-7|check-6|A=1'
+        [pscustomobject]@{} | Out-ConsoleDefault -As Text | Should -Match '\(none\)'
+    }
+
+    It 'handles cycles and several envelope tables within one display budget without mutating them' {
+        $cycle = [pscustomobject]@{ Name = 'loop' }
+        $cycle | Add-Member NoteProperty Self $cycle
+        $text = [pscustomobject]@{ Name = 'payload'; Cycle = $cycle } | Out-ConsoleDefault -As Text
+        $text | Should -Match 'keys'
+        [object]::ReferenceEquals($cycle, $cycle.Self) | Should -BeTrue
+        $payload = [pscustomobject]@{ Total = 36 }
+        foreach ($group in 1..6) {
+            $rows = @(1..6 | ForEach-Object { [pscustomobject]@{ Name = "group-$group-row-$_"; Ready = $true } })
+            $payload | Add-Member NoteProperty "Group$group" $rows
+        }
+        $text = $payload | Out-ConsoleDefault -As Text -Width 96
+        $text | Should -Match 'group-5-row-4'
+        $text | Should -Not -Match 'group-5-row-5|group-6-row-1'
+        $text | Should -Match '6 items'
+        $payload.Group6.Count | Should -Be 6
+    }
+
+    It 'reads selected columns even when a later root or nested row declares them beyond its first fields' {
+        $one = [pscustomobject]@{ Name = 'one' }
+        $two = [pscustomobject]@{}
+        1..24 | ForEach-Object { $two | Add-Member NoteProperty "p$_" $_ }
+        $two | Add-Member NoteProperty Name 'two'
+        $text = @($one, $two) | Out-ConsoleDefault -As Text -Width 96
+        $text | Should -Match '\btwo\b'
+        $text | Should -Match '\+1 more field'
+        $text | Should -Not -Match '\+2 more fields'
+        $nested = [pscustomobject]@{ Total = 2; Items = @($one, $two) } | Out-ConsoleDefault -As Text -Width 96
+        $nested | Should -Match '\btwo\b'
+        $two.Name | Should -BeExactly 'two'
+        $dictionary = [ordered]@{}
+        1..24 | ForEach-Object { $dictionary["p$_"] = $_ }
+        $dictionary['Name'] = 'dictionary-row'
+        $envelope = [pscustomobject]@{ Items = @([ordered]@{ Name = 'one' }, $dictionary) }
+        $envelope | Out-ConsoleDefault -As Text -Width 96 | Should -Match 'dictionary-row'
+    }
+
+    It 'bounds large multiline text in expanded records and keeps the complete original value' {
+        $message = 'body line' + ("`ncontinued body" * 10000)
+        $payload = [pscustomobject]@{ Name = 'payload'; Message = $message; Settings = [pscustomobject]@{ Region = 'west' } }
+        foreach ($width in 96, 48) {
+            $text = $payload | Out-ConsoleDefault -As Text -Width $width
+            $text | Should -Match 'body line'
+            $text | Should -Match '…'
+            $text.Length | Should -BeLessThan 2000
+            ($text -split "`n").Count | Should -BeLessThan 30
+        }
+        $payload.Message | Should -BeExactly $message
+    }
+
+    It 'shows empty root and nested record rows explicitly instead of creating a zero-column table' {
+        foreach ($json in '[{},{}]', '[{}, {"Name":"api-01"}]', '{"Items":[{}]}', '{"Items":[{}, {"Name":"api-01"}]}') {
+            $text = $json | ConvertFrom-Json | Out-ConsoleDefault -As Text -Width 48
+            $text | Should -Match '\(none\)'
+            $text | Should -Not -Match 'outside the bounds|error:'
+        }
+    }
+
+    It 'shows readable network labels while preserving the failure marks and omitting failure latency' {
+        $text = Get-EverydayViewSample ping | Out-ConsoleDefault -As Text -Width 120
+        $text | Should -Match 'Timed out'
+        $text | Should -Match 'Host unreachable'
+        $text | Should -Not -Match 'TimedOut|DestinationHostUnreachable'
+        $failed = ($text -split "`n" | Where-Object { $_ -match 'Timed out' }) -join "`n"
+        $failed | Should -Not -Match '\b12\b'
+        $addresses = Get-EverydayViewSample ip | Out-ConsoleDefault -As Text
+        $addresses | Should -Match 'IPv4'
+        $addresses | Should -Match 'IPv6'
+        $addresses | Should -Not -Match 'InterNetwork'
+    }
+
+    It 'puts a repeated module name only in its group header and preserves user and system path origins' {
+        $text = Get-EverydayViewSample module | Out-ConsoleDefault -As Text -Width 160
+        $text | Should -Not -Match 'Name\s+\S\s+Version'
+        $text | Should -Match 'Demo.Inventory'
+        $text | Should -Match 'System /opt/'
+        $text | Should -Match 'User ~/'
+        $text | Should -Match '2.1.0'
+        $module = [pscustomobject]@{ Name = 'Local.Tools'; Version = [version]'1.0.0'; ModuleType = 'Script'; ExportedCommands = @{}; Path = (Join-Path $HOME 'Documents/PowerShell/Modules/Local.Tools/Local.Tools.psm1') }
+        $module.PSObject.TypeNames.Insert(0, 'System.Management.Automation.PSModuleInfo')
+        $module | Out-ConsoleDefault -As Text -Width 160 | Should -Match 'User ~[/\\]Documents'
     }
 
     It 'keeps capture, Select-Object, Export-Csv and native format records unchanged when enabled' {

@@ -1,0 +1,21 @@
+```text
+Record
+Total   4
+Region  west
+
+Users
+  ╭──────┬────────╮
+  │ Name │ Role   │
+  ├──────┼────────┤
+  │ Alex │ Reader │
+  │ Sam  │ Editor │
+  ╰──────┴────────╯
+
+Jobs
+  ╭───────────┬─────────╮
+  │ Name      │ State   │
+  ├───────────┼─────────┤
+  │ backup    │ Running │
+  │ inventory │ Ready   │
+  ╰───────────┴─────────╯
+```

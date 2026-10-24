@@ -6,21 +6,27 @@ Runs the deterministic view samples through PowerShell's real Out-Default before
 The child process uses the existing terminal test harness. Windows-only views require native Windows validation.
 .PARAMETER OutputDirectory
 Directory in which to retain the synthetic review captures.
+.PARAMETER Width
+Terminal width in cells (default 120).
 .EXAMPLE
 ./Export-EverydayDataReviewFrames.ps1 -OutputDirectory ./everyday-review
 #>
 [CmdletBinding()]
-param([Parameter(Mandatory)][string] $OutputDirectory)
+param(
+    [Parameter(Mandatory)][string] $OutputDirectory,
+    [ValidateRange(20, 240)][int] $Width = 120
+)
 
 $ErrorActionPreference = 'Stop'
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 $null = New-Item -ItemType Directory -Path $OutputDirectory -Force
 $modulePath = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../ConsoleMonster.psd1'))
 $samplePath = Join-Path $PSScriptRoot 'Get-EverydayViewSample.ps1'
-$views = @('json-flat', 'json-nested', 'json-envelope', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host')
+$views = @('json-flat', 'json-nested', 'json-envelope', 'json-envelopes', 'json-budgets', 'json-records', 'json-empty-records', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host')
 $source = @'
 $ErrorActionPreference = 'Stop'
 [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
+[Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 [Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 Import-Module '__MODULE__'
 . '__SAMPLE__'
@@ -39,7 +45,7 @@ $source = $source.Replace('__VIEWS__', ($views -join ','))
 $scriptPath = Join-Path $OutputDirectory 'capture.ps1'
 $ansiPath = Join-Path $OutputDirectory 'all-views.ansi'
 [IO.File]::WriteAllText($scriptPath, $source, [Text.UTF8Encoding]::new($true))
-& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath 120
+& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath 120 $Width
 if ($LASTEXITCODE -ne 0) { throw "Terminal capture failed with exit code $LASTEXITCODE." }
 $ansi = [IO.File]::ReadAllText($ansiPath)
 $matches = [regex]::Matches($ansi, '### ([a-z-]+) (before|after) ###')

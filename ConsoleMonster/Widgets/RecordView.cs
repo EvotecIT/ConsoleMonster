@@ -116,13 +116,14 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
-        /// <summary>Keeps a table column's explicit overflow limits when its row becomes a record or narrow card.</summary>
-        internal void AddTableField(string label, TableCell cell, TableColumn column) {
+        /// <summary>Keeps a table column's effective overflow and line limits when its row becomes a record or narrow card.</summary>
+        internal void AddTableField(string label, TableCell cell, TableColumn column, int defaultMaxLines) {
             AddField(label, cell, column.Presenter, (IReadOnlyList<ToneRule>)column.ToneRules);
             RecordItem item = _items[_items.Count - 1];
             // Never keeps a table column wide. In a record, preserve the complete value by wrapping it instead.
             item.Overflow = column.Overflow == ColumnOverflow.Never ? ColumnOverflow.Wrap : column.Overflow;
-            item.MaxLines = column.MaxLines;
+            item.MaxLines = column.Overflow == ColumnOverflow.Never ? TableColumn.Unlimited
+                : column.MaxLines > 0 ? column.MaxLines : defaultMaxLines;
         }
 
         /// <summary>Adds a nested widget (a table, a list) under the current heading.</summary>

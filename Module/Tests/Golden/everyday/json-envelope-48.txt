@@ -1,5 +1,14 @@
 ```text
 Record
 Total  3
-Items  3 items
+Next   —
+
+Items
+  ╭───────────┬────────┬───────╮
+  │ Name      │ Region │ Ready │
+  ├───────────┼────────┼───────┤
+  │ api-01    │ west   │ ✓ yes │
+  │ api-02    │ east   │ – no  │
+  │ worker-01 │ west   │ ✓ yes │
+  ╰───────────┴────────┴───────╯
 ```

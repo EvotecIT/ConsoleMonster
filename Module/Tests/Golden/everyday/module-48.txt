@@ -1,15 +1,17 @@
 ```text
-2 records
+3 records
 
-Demo.Inventory  2
-  Demo.Inventory
-    Version     1.2.0
+Demo.Inventory  3
+  1.2.0
     ModuleType  Script
     Commands    2
-    Path        1.2.0/Demo.Inventory.psm1
-  Demo.Inventory
-    Version     2.0.0
+    Path        System /opt/powe….Inventory.psm1
+  2.0.0
     ModuleType  Script
     Commands    2
-    Path        2.0.0/Demo.Inventory.psm1
+    Path        System /opt/powe….Inventory.psm1
+  2.1.0
+    ModuleType  Script
+    Commands    2
+    Path        User ~/Documents….Inventory.psm1
 ```

@@ -26,7 +26,7 @@
     GroupMinimumRows = 12
     Property = @(
         @{ Label = 'Name'; Expression = { if ($_.CommandType -eq 'Alias') { $_.Name + ' -> ' + $_.Definition } else { $_.Name } }; Priority = 10 }
-        @{ Label = 'CommandType'; Expression = { [string] $_.CommandType }; Presenter = 'Chip'; Priority = 8 }
+        @{ Label = 'CommandType'; Expression = { if ($_.CommandType -eq 'ExternalScript') { 'Script' } else { [string] $_.CommandType } }; Presenter = 'Chip'; Priority = 8 }
         @{ Name = 'Version'; Expression = { if ($_.Version -and $_.Version -ne [version] '0.0' -and $_.Version -ne [version] '0.0.0.0') { [string] $_.Version } } }
         'Source'
     )
@@ -41,7 +41,25 @@
         @{ Label = 'Version'; Expression = { [string] $_.Version }; Priority = 8 }
         @{ Label = 'ModuleType'; Expression = { [string] $_.ModuleType } }
         @{ Label = 'Commands'; Expression = { $_.ExportedCommands.Count }; Presenter = 'Identifier' }
-        @{ Label = 'Path'; Expression = { [ConsoleMonster.Text.DisplayPath]::Short([string] $_.Path, $HOME) }; Overflow = 'TruncateMiddle' }
+        @{ Label = 'Path'; Expression = {
+            $displayPath = [string] $_.Path
+            $path = $displayPath.Replace('\', '/')
+            $homeRoot = $HOME.Replace('\', '/').TrimEnd('/')
+            $comparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+            if ($path.StartsWith('~/')) {
+                'User ' + $displayPath
+            } elseif ($homeRoot -and $path.StartsWith($homeRoot + '/', $comparison)) {
+                'User ~' + $displayPath.Substring($homeRoot.Length)
+            } else {
+                $systemRoots = @($PSHOME, '/usr/local/share/powershell', '/usr/share/powershell', '/opt', '/Library/PowerShell', '/System/Library/PowerShell',
+                    [Environment]::GetFolderPath('ProgramFiles'), [Environment]::GetFolderPath('Windows'))
+                $system = $false
+                foreach ($root in $systemRoots) {
+                    if ($root -and $path.StartsWith($root.Replace('\', '/').TrimEnd('/') + '/', $comparison)) { $system = $true; break }
+                }
+                if ($system) { 'System ' + $displayPath } else { $displayPath }
+            }
+        }; Overflow = 'TruncateMiddle'; Priority = 7 }
     )
 }
 @{
@@ -51,7 +69,7 @@
         @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
         @{ Label = 'Started'; Expression = { $_.StartExecutionTime.ToString('HH:mm:ss') }; Alignment = 'Right' }
         @{ Name = 'Duration'; Expression = { $_.EndExecutionTime - $_.StartExecutionTime }; Presenter = 'Duration' }
-        @{ Name = 'Status'; Expression = { [string] $_.ExecutionStatus }; Presenter = 'StatusWord' }
+        @{ Label = 'Status'; Expression = { ([string] $_.ExecutionStatus) -replace 'NotStarted', 'Not started' -replace 'AtBreakpoint', 'At breakpoint' }; Presenter = 'StatusWord' }
         @{ Label = 'CommandLine'; Expression = { $_.CommandLine -replace '[\r\n]+', ' ' }; Highlight = 'PowerShell'; MaxLines = 1; Overflow = 'Truncate'; Priority = 10 }
     )
 }
@@ -70,14 +88,17 @@
         @{ Label = 'Reply'; Expression = 'Ping'; Presenter = 'Identifier' }
         @{ Label = 'Address'; Expression = { [string] $_.Address } }
         @{ Label = 'Latency (ms)'; Expression = { if ([string] $_.Status -eq 'Success') { $_.Latency } }; Alignment = 'Right' }
-        @{ Label = 'Status'; Expression = { [string] $_.Status }; Presenter = 'Text'; Priority = 8
+        @{ Label = 'Status'; Expression = {
+            $name = ([string] $_.Status) -replace '^Destination', '' -replace '^Ttl', 'TTL' -replace '^Icmp', 'ICMP'
+            $words = ($name -creplace '(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', ' ') -split ' ', 2
+            if ($words.Count -gt 1) { $words[0] + ' ' + $words[1].ToLowerInvariant() } else { $words[0] }
+        }; Presenter = 'Text'; Priority = 8
             Tone = @(
                 @{ Equals = 'Success'; Tone = 'Pass' }
-                foreach ($status in 'Unknown', 'DestinationNetworkUnreachable', 'DestinationHostUnreachable', 'DestinationProtocolUnreachable',
-                    'DestinationPortUnreachable', 'NoResources', 'BadOption', 'HardwareError', 'PacketTooBig', 'TimedOut',
-                    'BadRoute', 'TtlExpired', 'TtlReassemblyTimeExceeded', 'ParameterProblem', 'SourceQuench', 'BadDestination',
-                    'DestinationUnreachable', 'TimeExceeded', 'BadHeader', 'UnrecognizedNextHeader', 'IcmpError',
-                    'DestinationScopeMismatch') {
+                foreach ($status in 'Unknown', 'Network unreachable', 'Host unreachable', 'Protocol unreachable',
+                    'Port unreachable', 'No resources', 'Bad option', 'Hardware error', 'Packet too big', 'Timed out',
+                    'Bad route', 'TTL expired', 'TTL reassembly time exceeded', 'Parameter problem', 'Source quench', 'Bad destination',
+                    'Unreachable', 'Time exceeded', 'Bad header', 'Unrecognized next header', 'ICMP error', 'Scope mismatch') {
                     @{ Equals = $status; Tone = 'Fail' }
                 }
             )
@@ -89,7 +110,9 @@
     Group = 'IPAddress'
     Property = @(
         @{ Label = 'Address'; Expression = { $_.ToString() }; Priority = 10 }
-        @{ Label = 'Family'; Expression = { [string] $_.AddressFamily } }
+        @{ Label = 'Family'; Expression = {
+            switch ([string] $_.AddressFamily) { { $_ -in 'InterNetwork', '2', 'IPv4' } { 'IPv4' } { $_ -in 'InterNetworkV6', '23', 'IPv6' } { 'IPv6' } default { $_ } }
+        } }
     )
 }
 @{
@@ -112,8 +135,10 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
             @{ Label = 'Interface'; Expression = 'InterfaceAlias'; Priority = 10 }
             @{ Label = 'Address'; Expression = 'IPAddress'; Priority = 9 }
             @{ Label = 'Prefix'; Expression = 'PrefixLength' }
-            @{ Label = 'Family'; Expression = { [string] $_.AddressFamily } }
-            @{ Label = 'State'; Expression = { [string] $_.AddressState }; Presenter = 'StatusWord' }
+            @{ Label = 'Family'; Expression = {
+                switch ([string] $_.AddressFamily) { { $_ -in 'InterNetwork', '2', 'IPv4' } { 'IPv4' } { $_ -in 'InterNetworkV6', '23', 'IPv6' } { 'IPv6' } default { $_ } }
+            } }
+            @{ Label = 'State'; Expression = { ([string] $_.AddressState) -creplace '(?<=[a-z])(?=[A-Z])', ' ' }; Presenter = 'StatusWord' }
         )
     }
     @{

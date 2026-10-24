@@ -10,7 +10,29 @@
             '{"Name":"api-01","Settings":{"Region":"west","Retry":{"Count":3}},"Tags":["blue","ready"],"Checks":[{"Name":"dns"},{"Name":"http"}],"Empty":[]}' | ConvertFrom-Json
         }
         'json-envelope' {
-            '{"Total":3,"Items":[{"Name":"one"},{"Name":"two"},{"Name":"three"}],"Next":null}' | ConvertFrom-Json
+            '{"Total":3,"Items":[{"Name":"api-01","Region":"west","Ready":true},{"Name":"api-02","Region":"east","Ready":false},{"Name":"worker-01","Region":"west","Ready":true}],"Next":null}' | ConvertFrom-Json
+        }
+        'json-envelopes' {
+            '{"Total":4,"Region":"west","Users":[{"Name":"Alex","Role":"Reader"},{"Name":"Sam","Role":"Editor"}],"Jobs":[{"Name":"backup","State":"Running"},{"Name":"inventory","State":"Ready"}]}' | ConvertFrom-Json
+        }
+        'json-budgets' {
+            $items = 1..8 | ForEach-Object { [pscustomobject]@{ Name = "check-$_"; State = 'Ready' } }
+            [pscustomobject]@{
+                Name = 'payload'
+                Tags = 1..10 | ForEach-Object { "tag-$_" }
+                Settings = [pscustomobject]@{ Region = 'west'; Retry = $null }
+                Empty = @()
+                EmptyObject = [pscustomobject]@{}
+                Deep = [pscustomobject]@{ Level2 = [pscustomobject]@{ Level3 = [pscustomobject]@{ A = 1; B = 2; C = 3; D = 4; E = 5; F = 6 } } }
+                Message = 'Processing inventory for west region. ' * 8
+                Checks = @($items)
+            }
+        }
+        'json-records' {
+            '[{"Name":"api-01","Checks":[{"Name":"dns","Ready":true},{"Name":"http","Ready":false}]},{"Name":"api-02","Checks":[{"Name":"dns","Ready":true}]}]' | ConvertFrom-Json
+        }
+        'json-empty-records' {
+            '{"Total":2,"Items":[{},{}],"Mixed":[{"Name":"api-01"},{}]}' | ConvertFrom-Json
         }
         'json-large' {
             1..53 | ForEach-Object { [pscustomobject]@{ Name = "api-$_"; Count = $_ } }
@@ -49,13 +71,14 @@
             }
         }
         'module' {
-            foreach ($version in '1.2.0', '2.0.0') {
+            foreach ($version in '1.2.0', '2.0.0', '2.1.0') {
                 $item = [pscustomobject]@{
                     Name = 'Demo.Inventory'
                     Version = [version] $version
                     ModuleType = 'Script'
                     ExportedCommands = @{ 'Get-Inventory' = $null; 'Test-Inventory' = $null }
-                    Path = "/opt/powershell/Modules/Demo.Inventory/$version/Demo.Inventory.psm1"
+                    Path = if ($version -eq '2.1.0') { "~/Documents/PowerShell/Modules/Demo.Inventory/$version/Demo.Inventory.psm1" }
+                        else { "/opt/powershell/Modules/Demo.Inventory/$version/Demo.Inventory.psm1" }
                 }
                 $item.PSObject.TypeNames.Insert(0, 'System.Management.Automation.PSModuleInfo')
                 $item

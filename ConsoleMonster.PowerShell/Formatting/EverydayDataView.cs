@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,39 +13,52 @@ namespace ConsoleMonster.PowerShell {
     /// Host-only presentation of JSON/REST records and CSV rows. PowerShell gives them the same PSCustomObject type,
     /// so alignment is inferred from the displayed values without converting or annotating the original objects.
     /// </summary>
-    internal static class EverydayDataView {
+    internal static partial class EverydayDataView {
         internal const int RowLimit = 50;
         private const int ColumnLimit = 24;
 
         /// <summary>Builds a bounded table or single-record view using the shared adaptive table renderer.</summary>
         internal static IWidget Build(IReadOnlyList<PSObject> items, int omittedRows) {
+            ExpansionBudget budget = new ExpansionBudget();
+            List<DataRecord> records = items.Select(item => ReadRecord(item, false)).ToList();
+            if (records.Any(record => record.Fields.Any(field => IsRecordArray(field.Value)))
+                || (records.Count == 1 && (records[0].Count == 0 || records[0].Fields.Any(field => IsNested(field.Value))))) {
+                List<IWidget> parts = records.Select(record => (IWidget)BuildRecord(record, 0, budget, true)).ToList();
+                if (omittedRows > 0) { parts.Add(new TextBlock("[muted]" + More(omittedRows, "rows") + "[/]")); }
+                return PSFormatting.Combine(parts);
+            }
+            return BuildTable(records, omittedRows, 0, budget, false);
+        }
+
+        private static Table BuildTable(IReadOnlyList<DataRecord> items, int omittedRows, int depth, ExpansionBudget budget, bool nested) {
             List<string> names = new List<string>();
             HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (PSObject item in items) {
-                foreach (PSPropertyInfo property in item.Properties) {
-                    if (property.IsGettable && seen.Add(property.Name)) { names.Add(property.Name); }
+            foreach (DataRecord item in items) {
+                foreach (string name in item.Names()) {
+                    if (seen.Add(name)) { names.Add(name); }
                 }
             }
             int omittedColumns = Math.Max(0, names.Count - ColumnLimit);
             names = names.Take(ColumnLimit).ToList();
+            if (names.Count == 0) { names.Add("Value"); }
+            int title = ValueShaper.TitleIndex(names);
+            int key = title >= 0 ? title : 0;
             List<object?[]> rows = new List<object?[]>(items.Count);
-            foreach (PSObject item in items) {
+            foreach (DataRecord item in items) {
                 object?[] row = new object?[names.Count];
                 for (int c = 0; c < names.Count; c++) {
-                    try { row[c] = Summary(item.Properties[names[c]]?.Value); }
-                    catch (Exception ex) when (!(ex is PipelineStoppedException) && !(ex is OperationCanceledException)) { row[c] = "<unavailable>"; }
+                    row[c] = item.Count == 0 && c == key ? "(none)" : FormatValue(item.GetValue(names[c]), depth + 1, budget);
                 }
                 rows.Add(row);
             }
-            int title = ValueShaper.TitleIndex(names);
-            int key = title >= 0 ? title : 0;
             Table table = new Table { ShowKeyField = title < 0 };
+            if (nested) { table.RecordViewRows = 0; table.ShowKeyField = true; }
             if (items.Count == 1 && title < 0) { table.Title = "Record"; }
             for (int c = 0; c < names.Count; c++) {
                 int index = c;
                 object?[] values = rows.Select(row => row[index]).Where(value => value != null && !(value is string text && string.IsNullOrWhiteSpace(text))).ToArray();
                 bool align = values.Length > 0 && values.All(IsNumberOrDate);
-                table.AddColumn(new TableColumn(Markup.Escape(names[c])) {
+                table.AddColumn(new TableColumn(Markup.Escape(BoundedText(names[c], 48))) {
                     Alignment = align ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                     IsKey = c == key,
                     Priority = names.Count - c,
@@ -55,21 +67,10 @@ namespace ConsoleMonster.PowerShell {
             }
             foreach (object?[] row in rows) { table.AddValues(row); }
             List<string> hints = new List<string>();
-            if (omittedRows > 0) { hints.Add("+" + omittedRows.ToString("N0", CultureInfo.CurrentCulture) + " more rows"); }
-            if (omittedColumns > 0) { hints.Add("+" + omittedColumns.ToString("N0", CultureInfo.CurrentCulture) + " more fields"); }
+            if (omittedRows > 0) { hints.Add(More(omittedRows, "rows")); }
+            if (omittedColumns > 0) { hints.Add(More(omittedColumns, "fields")); }
             if (hints.Count > 0) { table.Caption = string.Join("; ", hints); }
             return table;
-        }
-
-        // Only scalar data is expanded. Nested records never invoke their getters or ToString, and arrays use Count.
-        private static object? Summary(object? value) {
-            object? raw = value is PSObject wrapped ? wrapped.BaseObject : value;
-            if (raw == null || ValueShaper.IsScalar(raw)) { return raw; }
-            if (raw is IDictionary || raw is PSCustomObject) { return "{…}"; }
-            if (raw is ICollection collection) {
-                return collection.Count.ToString("N0", CultureInfo.CurrentCulture) + (collection.Count == 1 ? " item" : " items");
-            }
-            return "{…}";
         }
 
         private static bool IsNumberOrDate(object? value) {

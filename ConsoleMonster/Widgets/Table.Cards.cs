@@ -95,12 +95,12 @@ namespace ConsoleMonster.Widgets {
                     continue;
                 }
                 TableColumn column = _columns[c];
-                view.AddTableField(Markup.Strip(column.Header), row[c], column);
+                view.AddTableField(Markup.Strip(column.Header), row[c], column, WrapLines);
                 visible |= !CellRendering.Content(row[c], column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, contexts[c]).IsEmpty;
             }
             // RecordView hides headings with no visible fields. Retain the identity of sparse rows and cards.
             if (!visible && key >= 0 && !ShowKeyField) {
-                view.AddTableField(Markup.Strip(_columns[key].Header), row[key], _columns[key]);
+                view.AddTableField(Markup.Strip(_columns[key].Header), row[key], _columns[key], WrapLines);
             }
         }
 

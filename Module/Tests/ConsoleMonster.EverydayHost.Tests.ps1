@@ -33,8 +33,11 @@ Write-Host '### end ###'
         $after = (($text -split '### after ###')[1] -split '### disabled ###')[0].Trim()
         $disabled = (($text -split '### disabled ###')[1] -split '### no-built-in ###')[0].Trim()
         $noBuiltIn = (($text -split '### no-built-in ###')[1] -split '### end ###')[0].Trim()
-        $after | Should -Match 'Settings\s+\{…\}'
-        $after | Should -Match 'Tags\s+2 items'
+        $after | Should -Match 'Settings\s+Region=west, Retry=\{Count=3\}'
+        $after | Should -Match 'Tags\s+blue, ready'
+        $after | Should -Match 'dns'
+        $after | Should -Match 'http'
+        $after | Should -Match 'Empty\s+\(none\)'
         $after | Should -Not -Match '@\{'
         $before | Should -Match '@\{'
         $disabled | Should -BeExactly $before

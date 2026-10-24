@@ -10,10 +10,10 @@ api-01
 api-01
   Reply    1
   Address  192.0.2.10
-  Status   TimedOut
+  Status   Timed out
 
 api-01
   Reply    1
   Address  192.0.2.10
-  Status   DestinationHostUnreachable
+  Status   Host unreachable
 ```

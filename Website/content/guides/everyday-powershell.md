@@ -30,7 +30,9 @@ Collections in a cell are joined (`DNS, GC, PDC`), with a `+N` marker for the it
 
 ## JSON and CSV at the prompt
 
-Flat objects from `ConvertFrom-Json` and `Invoke-RestMethod` become tables. Nested records show `{…}` and nested arrays show their item count, so one response does not fill the terminal with `@{...}` text. A single record uses labelled fields. The first 50 rows and 24 fields are shown, with a `+N more rows` or `+N more fields` hint. Narrow windows hide lower-priority columns with a hint or switch to cards.
+Flat objects from `ConvertFrom-Json` and `Invoke-RestMethod` become tables. Small nested objects show their fields, and short scalar arrays show their values: `Tags  blue, ready`. Empty arrays and objects show `(none)`. Objects expand to two levels below the root; only deeper objects or objects with more than six keys use a summary such as `{…} 12 keys`.
+
+An API envelope such as `{ Total: 3, Items: [...] }` shows its scalar metadata first, then an `Items` table with the actual records. Several record arrays each get a labelled table. Nested tables show up to five rows each, with a budget of 24 nested rows per displayed payload; scalar arrays show up to six values. Omitted items have a `+N more` hint, and long text ends with an ellipsis. The outer table still shows at most 50 rows and 24 fields. Narrow windows hide lower-priority columns with a hint or switch to cards.
 
 ```powershell
 Enable-ConsoleFormatting
@@ -41,8 +43,8 @@ Before: `Settings` reads `@{Region=west}` and `Tags` reads `{blue, ready}`. Afte
 
 ```text
 api-01
-  Settings  {…}
-  Tags      2 items
+Settings  Region=west
+Tags      blue, ready
 ```
 
 CSV keeps the header order and the original strings. Columns whose nonempty values all look numeric or date-like align to the right; `0012` stays `0012`, and `12.50` keeps its trailing zero. Text columns align left.
@@ -74,7 +76,7 @@ Get-History
 | View | Before | After |
 | --- | --- | --- |
 | Commands | Native command table, with long names competing for space | Name first, command-type chips, version and source; aliases show `alias -> target`. Results of 12 or more commands group by module. |
-| Modules | Exported command names can dominate a row | Name, version, module type, exported command count and a shortened path. Multiple versions of a module group together. The stored path stays complete. |
+| Modules | Exported command names can dominate a row | Name, version, module type, exported command count and a shortened path. Multiple versions group under one module name. Paths keep `User ~/...` or their system installation location visible; the stored path stays complete. |
 | History | Id and command line | Id, start time, elapsed duration, execution status and syntax-highlighted command text. Long commands end with an ellipsis. |
 
 `Get-Module -ListAvailable` reports the exported-command metadata PowerShell supplies; the view never imports a module to discover more commands. History uses local start times (`HH:mm:ss`) and PowerShell's `ExecutionStatus`, including completed and failed commands.
@@ -90,8 +92,8 @@ Test-Connection 127.0.0.1 -Count 2
 
 | View | Before | After | Where |
 | --- | --- | --- | --- |
-| Ping replies | Native ping table | Destination, reply number, address, latency in milliseconds and success/failure colour; failures keep their reason and have no invented latency | PowerShell 7 on macOS, Linux and Windows |
-| .NET addresses and DNS entries | Addresses or the native DNS record display | Address and family; host name, address list and aliases | macOS, Linux and Windows |
+| Ping replies | Native ping table | Destination, reply number, address, latency in milliseconds and success/failure colour; readable reasons such as `Timed out` and `Host unreachable`, with no invented failure latency | PowerShell 7 on macOS, Linux and Windows |
+| .NET addresses and DNS entries | Addresses or the native DNS record display | Address and `IPv4`/`IPv6` family; host name, address list and aliases | macOS, Linux and Windows |
 | `Resolve-DnsName` | Different native fields for each record kind | Name, type, TTL and the answer for A/AAAA, CNAME, MX, NS, PTR, TXT, SRV and SOA records | Windows, with DnsClient |
 | `Get-NetIPAddress` | Native address fields | Interface, address, prefix, family and address state | Windows, with NetTCPIP |
 | `Get-NetAdapter` | Native adapter table | Name, status, MAC address, link speed and description | Windows, with NetAdapter |

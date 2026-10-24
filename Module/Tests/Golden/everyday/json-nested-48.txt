@@ -1,7 +1,14 @@
 ```text
 api-01
-  Settings  {…}
-  Tags      2 items
-  Checks    2 items
-  Empty     0 items
+Settings  Region=west, Retry={Count=3}
+Tags      blue, ready
+Empty     (none)
+
+Checks
+  ╭──────╮
+  │ Name │
+  ├──────┤
+  │ dns  │
+  │ http │
+  ╰──────╯
 ```

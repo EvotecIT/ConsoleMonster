@@ -1,0 +1,26 @@
+```text
+payload
+Tags         tag-1, tag-2, tag-3, tag-4, tag-5,
+             tag-6, +4 more
+Settings     Region=west, Retry=—
+Empty        (none)
+EmptyObject  (none)
+Deep         Level2={Level3={…} 6 keys}
+Message      Processing inventory for west
+             region. Processing inventory for
+             west region. Processing inventory
+             for west region. Processing
+             inventory for west region. Process…
+
+Checks
+  ╭─────────┬───────╮
+  │ Name    │ State │
+  ├─────────┼───────┤
+  │ check-1 │ Ready │
+  │ check-2 │ Ready │
+  │ check-3 │ Ready │
+  │ check-4 │ Ready │
+  │ check-5 │ Ready │
+  ╰─────────┴───────╯
+   +3 more rows
+```
