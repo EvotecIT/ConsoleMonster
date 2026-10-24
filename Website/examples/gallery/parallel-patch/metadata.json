@@ -1,16 +1,17 @@
 {
   "slug": "parallel-patch",
-  "title": "Parallel patch run",
-  "pitch": "Run six harmless preview jobs with a concurrency limit and one retry outcome.",
+  "title": "Parallel patch wave",
+  "pitch": "Run forty hosts eight at a time, bound each task and retain restart failures and timeouts.",
   "category": "Dashboards",
   "tags": [
     "parallel",
-    "jobs",
-    "retry"
+    "lanes",
+    "timeout",
+    "failures"
   ],
   "terminal": {
-    "width": 88,
-    "height": 22
+    "width": 120,
+    "height": 48
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +19,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the delay with your patch operation after adding confirmation.",
-    "Choose the concurrency limit and per-host timeout.",
-    "Use the success results and retained failures to retry hosts and produce a report."
+    "Replace the host list with your approved targets.",
+    "Set a concurrency limit and timeout for your workload.",
+    "Inspect retained outcomes before choosing a separate retry."
   ],
   "mode": "live",
-  "steps": 3,
-  "tier": "starter",
-  "useCase": "Use it when independent jobs need bounded concurrency and retained failures for retry.",
+  "steps": 4,
+  "tier": "showcase",
+  "useCase": "Use it when a batch operation needs bounded concurrency and failures retained for retry.",
   "featured": false
 }

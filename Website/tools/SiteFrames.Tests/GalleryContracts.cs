@@ -23,6 +23,51 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void PublishedDetailPagesMatchTheCatalogueMetadata() {
+            Site site = Repository();
+            GalleryPage.Demo[] demos = GalleryPage.Read(site);
+            GalleryPage.ValidateDetailPages(site, demos);
+            foreach (GalleryPage.Demo demo in demos) {
+                string[] lines = File.ReadAllLines(Path.Combine(site.Website, "content", "pages", "demos", demo.Slug + ".md"));
+                Assert.Equal(8, lines.Length);
+                Assert.Equal("title: " + demo.Title, lines[1]);
+                Assert.Equal(demo.Metadata["pitch"]!.GetValue<string>(),
+                    JsonNode.Parse(lines[2].Substring("description: ".Length))!.GetValue<string>());
+                Assert.Equal("slug: demos/" + demo.Slug, lines[3]);
+                Assert.Equal("layout: demo", lines[4]);
+                Assert.Equal("demo: " + demo.Slug, lines[5]);
+                Assert.Equal("meta.seo_title: " + demo.Title + " demo | ConsoleMonster", lines[6]);
+            }
+        }
+
+        [Theory]
+        [InlineData("missing")]
+        [InlineData("orphaned")]
+        [InlineData("stale")]
+        public void DetailPageValidationRejectsBrokenCatalogueLinks(string failure) {
+            string root = Path.Combine(Path.GetTempPath(), "cm-gallery-pages-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path.Combine(root, "Website"));
+            File.WriteAllText(Path.Combine(root, "ConsoleMonster.sln"), string.Empty);
+            try {
+                Site site = new Site(Path.Combine(root, "Website"));
+                GalleryPage.Demo demo = GalleryPage.Read(Repository()).First();
+                demo.Metadata["pitch"] = "Read \"quoted values\" and \\paths without changing the description.";
+                GalleryPage.Demo[] demos = new[] { demo };
+                GalleryPage.WriteDetailPages(site, demos);
+                string folder = Path.Combine(site.Website, "content", "pages", "demos");
+                string page = Path.Combine(folder, demo.Slug + ".md");
+                string description = File.ReadAllLines(page)[2].Substring("description: ".Length);
+                Assert.Equal(demo.Metadata["pitch"]!.GetValue<string>(), JsonNode.Parse(description)!.GetValue<string>());
+                if (failure == "missing") File.Delete(page);
+                else if (failure == "orphaned") File.WriteAllText(Path.Combine(folder, "unknown-demo.md"), "---\nlayout: demo\n---\n");
+                else File.AppendAllText(page, "outdated content\n");
+                Assert.Throws<InvalidDataException>(() => GalleryPage.ValidateDetailPages(site, demos));
+            } finally {
+                Site.RemoveTemporary(root);
+            }
+        }
+
+        [Fact]
         public void GallerySourcesAndDownloadsPreserveEveryCanonicalByte() {
             Site site = Repository();
             JsonArray entries = JsonNode.Parse(File.ReadAllText(site.Data("gallery")))!["demos"]!.AsArray();
@@ -63,9 +108,9 @@ namespace SiteFrames.Tests {
 
         [Theory]
         [InlineData("live-filter", "\"sql\" Escape", "sql-02", "web-01")]
-        [InlineData("fleet", "\"missing\" Escape", "No matching hosts", "web-01")]
-        [InlineData("toolbox", "Down Enter Escape", "12 jobs waiting", "CPU 24%")]
-        [InlineData("setup", "Tab Tab Tab Enter Enter Escape", "Ready to install", "Choose a writable folder")]
+        [InlineData("fleet-filter", "\"missing\" Escape", "No matching hosts", "web-01")]
+        [InlineData("task-menu", "Down Enter Escape", "12 jobs waiting", "CPU 24%")]
+        [InlineData("setup-basic", "Tab Tab Tab Enter Enter Escape", "Ready to install", "Choose a writable folder")]
         public void ScriptedKeysReachThePublishedAppsResult(string slug, string keys, string expected, string absent) {
             Site site = Repository();
             GalleryPage.Demo demo = GalleryPage.Read(site).Single(d => d.Slug == slug);
@@ -83,10 +128,10 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("stress", "Updates", "2080")]
-        [InlineData("pipeline", "Package", "complete")]
+        [InlineData("worker-progress", "Updates", "2080")]
+        [InlineData("build-steps", "Package", "complete")]
         [InlineData("log-tail", "Batch complete", "5 / 5")]
-        [InlineData("parallel-patch", "5 passed", "1 retry needed")]
+        [InlineData("patch-progress", "5 passed", "1 retry needed")]
         [InlineData("backup-runner", "4 passed", "1 recovered on retry")]
         [InlineData("process-monitor", "CPU 66%", "1768 MiB")]
         public void LiveDriversFinishAndRetainTheirResult(string slug, string expected, string detail) {

@@ -1,16 +1,17 @@
 {
   "slug": "setup",
-  "title": "Setup wizard",
-  "pitch": "Edit a folder and component choice, then step through an installation preview.",
+  "title": "Complete setup wizard",
+  "pitch": "Walk through component choices, dependent server loading, review, installation progress and a result.",
   "category": "Wizards",
   "tags": [
     "wizard",
-    "input",
-    "preview"
+    "forms",
+    "validation",
+    "progress"
   ],
   "terminal": {
-    "width": 88,
-    "height": 40
+    "width": 112,
+    "height": 44
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +19,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the relative install folder with your application default.",
-    "Define your component choices and review text.",
-    "Connect a separate explicit install action after validation."
+    "Replace the component catalog and regional endpoints.",
+    "Set your application folders and account policy.",
+    "Connect the validated answers to your explicit installation action."
   ],
   "mode": "live",
-  "steps": 3,
-  "tier": "starter",
-  "useCase": "Use it when you need a small editable wizard before connecting installation actions.",
+  "steps": 7,
+  "tier": "showcase",
+  "useCase": "Use it when an installer needs editable options, a review step and visible progress.",
   "featured": false
 }

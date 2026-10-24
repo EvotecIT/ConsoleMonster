@@ -1,16 +1,17 @@
 {
   "slug": "pipeline",
-  "title": "Build pipeline",
-  "pitch": "Follow a dry-run build from restore to package without running build tools.",
+  "title": "Module build pipeline",
+  "pitch": "Follow all sixteen build steps with phase timings, compiler lanes, module facts and captured output.",
   "category": "Dashboards",
   "tags": [
-    "live",
-    "build",
-    "status"
+    "pipeline",
+    "phases",
+    "lanes",
+    "log"
   ],
   "terminal": {
-    "width": 88,
-    "height": 26
+    "width": 140,
+    "height": 40
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +19,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the four stage names with your build steps.",
-    "Post real completion events from your build process.",
-    "Change project facts and artifact directory."
+    "Replace the sixteen steps with your build phases and expected outcomes.",
+    "Stream your tool output into the log while updating compiler lanes.",
+    "Change module facts and artifact paths for your package."
   ],
   "mode": "live",
-  "steps": 5,
-  "tier": "starter",
-  "useCase": "Use it when a script needs to explain the current build stage and overall progress.",
+  "steps": 10,
+  "tier": "showcase",
+  "useCase": "Use it when a multistage build needs progress, worker status and tool output in the same terminal.",
   "featured": false
 }

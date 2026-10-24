@@ -1,16 +1,18 @@
 {
   "slug": "toolbox",
-  "title": "Server toolbox menu",
-  "pitch": "Choose a task and inspect a safe preview before connecting your own actions.",
+  "title": "Server toolbox",
+  "pitch": "Select servers and maintenance tasks, review options and follow a run into actionable results.",
   "category": "Terminal apps",
   "tags": [
     "menu",
-    "selection",
-    "preview"
+    "forms",
+    "presets",
+    "dashboard",
+    "results"
   ],
   "terminal": {
-    "width": 88,
-    "height": 22
+    "width": 128,
+    "height": 40
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +20,12 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the three task labels with your operations.",
-    "Use a read-only query for each preview.",
-    "Add explicit confirmation before a destructive action."
+    "Replace the inline inventory with your server catalog.",
+    "Connect the selected operations to your own cancellable work.",
+    "Store completed runs and connect report delivery."
   ],
   "mode": "live",
-  "steps": 3,
-  "tier": "starter",
-  "useCase": "Use it when a handful of admin operations need a discoverable menu and preview.",
-  "featured": false
+  "steps": 6,
+  "tier": "showcase",
+  "useCase": "Use it when operators need to plan, run and review a repeatable server maintenance workflow."
 }

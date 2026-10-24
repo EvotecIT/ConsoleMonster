@@ -1,16 +1,17 @@
 {
   "slug": "stress",
-  "title": "Stress dashboard",
-  "pitch": "Eight simulated workers, a throughput trend and a bounded queue.",
+  "title": "Stress test",
+  "pitch": "Keep thirty-two workers, session counters, CPU trends and captured output readable under sustained updates.",
   "category": "Dashboards",
   "tags": [
-    "live",
-    "progress",
-    "sparkline"
+    "stress",
+    "lanes",
+    "sparkline",
+    "live"
   ],
   "terminal": {
-    "width": 88,
-    "height": 28
+    "width": 140,
+    "height": 48
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +19,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the eight simulated workers with your queue.",
-    "Feed the sparkline measured update rates.",
-    "Choose queue and error thresholds."
+    "Replace the bounded worker loop with your queue consumers.",
+    "Connect session counters and CPU samples to your own workload.",
+    "Keep third-party output in the captured log while workers post updates."
   ],
   "mode": "live",
-  "steps": 5,
-  "tier": "starter",
-  "useCase": "Use it when a worker queue needs progress bars and a throughput trend.",
-  "featured": false
+  "steps": 7,
+  "tier": "showcase",
+  "useCase": "Use it when a busy worker pool must remain readable while updates and tool output arrive together.",
+  "featured": true
 }

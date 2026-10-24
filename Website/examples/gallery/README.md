@@ -17,8 +17,9 @@ Get-ConsoleDemo fleet -Path ./fleet.ps1
 ```
 
 Use `Get-ConsoleDemo | Where-Object Tier -eq showcase` to browse the larger
-programs. For example, `Show-ConsoleDemo fleet-showcase` opens the shell workflow
+programs. For example, `Show-ConsoleDemo fleet` opens the shell workflow
 with presets, scope selection, a review, live check progress, and results.
+`Show-ConsoleDemo fleet-filter` opens the smaller searchable host list.
 
 Edit `fleet.ps1`, then run it from your shell. Use `-StaticSnapshot -Step 0`
 to print a state without reading input. `Steps` in the metadata gives the number
@@ -32,8 +33,8 @@ with cached local information as needed; avoid network requests at shell startup
 Install `ConsoleMonster.Templates` with `dotnet new install`, then create a demo:
 
 ```terminal
-dotnet new consolemonster --demo fleet -n FleetStarter
-cd FleetStarter
+dotnet new consolemonster --demo fleet -n FleetConsole
+cd FleetConsole
 dotnet run
 ```
 
@@ -90,7 +91,9 @@ Neither file needs other gallery files. Both explain their data, layout, and liv
 updates in comments; static screens print once and return.
 
 Frames use the site's existing `frames.css`; replays use its existing player.
-No gallery route or layout is generated here.
+SiteFrames also generates `Website/content/pages/demos/<slug>.md` from the same
+metadata. Each page uses the Demos detail layout. Validation rejects missing,
+orphaned or stale pages, and website CI rejects uncommitted generated changes.
 
 ## Refresh captures
 

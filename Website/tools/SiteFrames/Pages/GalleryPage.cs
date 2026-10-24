@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -119,8 +121,11 @@ namespace SiteFrames.Pages {
 
         /// <summary>Checks both source programs cell by cell, then generates gallery data and downloadable sources.</summary>
         public static void Render(Site site, string? review = null) {
+            Demo[] demos = Read(site);
+            Site.Clean(site.Static("examples/gallery"));
+            Site.Clean(site.Static("site/gallery"));
             JsonArray entries = new JsonArray();
-            foreach (Demo demo in Read(site)) {
+            foreach (Demo demo in demos) {
                 List<TimedFrame> timeline = new List<TimedFrame>();
                 JsonArray parity = new JsonArray();
                 for (int step = 0; step < demo.Steps; step++) {
@@ -197,6 +202,48 @@ namespace SiteFrames.Pages {
                 Console.WriteLine("gallery " + demo.Slug + ": " + demo.Steps + " twin states identical");
             }
             site.WriteJson(site.Data("gallery"), new JsonObject { ["schemaVersion"] = 1, ["demos"] = entries });
+            WriteDetailPages(site, demos);
+        }
+
+        /// <summary>The complete front matter for the page that reads this demo from gallery.json.</summary>
+        internal static string DetailPage(Demo demo) {
+            string pitch = JsonSerializer.Serialize(demo.Metadata["pitch"]!.GetValue<string>(),
+                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            return "---\n" +
+                "title: " + demo.Title + "\n" +
+                "description: " + pitch + "\n" +
+                "slug: demos/" + demo.Slug + "\n" +
+                "layout: demo\n" +
+                "demo: " + demo.Slug + "\n" +
+                "meta.seo_title: " + demo.Title + " demo | ConsoleMonster\n" +
+                "---\n";
+        }
+
+        /// <summary>Generates routes from the same metadata as the catalogue; unrecognized pages are errors.</summary>
+        internal static void WriteDetailPages(Site site, Demo[] demos) {
+            string folder = Path.Combine(site.Website, "content", "pages", "demos");
+            foreach (Demo demo in demos) site.Write(Path.Combine(folder, demo.Slug + ".md"), DetailPage(demo));
+            ValidateDetailPages(site, demos);
+        }
+
+        /// <summary>Rejects missing, orphaned or stale pages before they can become broken detail links.</summary>
+        internal static void ValidateDetailPages(Site site, Demo[] demos) {
+            string folder = Path.Combine(site.Website, "content", "pages", "demos");
+            string[] actual = Directory.Exists(folder)
+                ? Directory.GetFiles(folder, "*.md", SearchOption.AllDirectories).Select(path => Path.GetRelativePath(folder, path)).ToArray()
+                : Array.Empty<string>();
+            string[] expected = demos.Select(demo => demo.Slug + ".md").ToArray();
+            string[] missing = expected.Except(actual, StringComparer.Ordinal).ToArray();
+            string[] orphaned = actual.Except(expected, StringComparer.Ordinal).ToArray();
+            if (missing.Length > 0 || orphaned.Length > 0) {
+                throw new InvalidDataException("Gallery detail pages do not match demos. Missing: " + string.Join(", ", missing) +
+                    "; orphaned: " + string.Join(", ", orphaned));
+            }
+            foreach (Demo demo in demos) {
+                if (File.ReadAllText(Path.Combine(folder, demo.Slug + ".md")).Replace("\r\n", "\n") != DetailPage(demo)) {
+                    throw new InvalidDataException("Stale gallery detail page: " + demo.Slug + ". Run SiteFrames render.");
+                }
+            }
         }
 
         // Decode the whole UTF-8 file, preserving its BOM (if any), newlines and final newline.

@@ -1,16 +1,18 @@
 {
   "slug": "fleet",
-  "title": "Fleet health TUI",
-  "pitch": "Filter five hosts while retaining a fleet-wide health summary.",
+  "title": "Fleet health",
+  "pitch": "Plan a fleet check, review the command and follow every category through findings and results.",
   "category": "Terminal apps",
   "tags": [
-    "input",
-    "filter",
-    "table"
+    "menu",
+    "forms",
+    "presets",
+    "dashboard",
+    "results"
   ],
   "terminal": {
-    "width": 88,
-    "height": 24
+    "width": 160,
+    "height": 50
   },
   "runtime": {
     "powershell": "7.4+",
@@ -18,13 +20,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the five sample hosts with your inventory.",
-    "Choose the properties your users search.",
-    "Change the summary counts and status rules."
+    "Replace the inline inventory with your server catalog.",
+    "Connect the selected operations to your own cancellable work.",
+    "Store completed runs and connect report delivery."
   ],
   "mode": "live",
-  "steps": 3,
-  "tier": "starter",
-  "useCase": "Use it when an operator needs to search a small inventory without losing the overall health summary.",
-  "featured": false
+  "steps": 6,
+  "tier": "showcase",
+  "useCase": "Use it when operators need to plan, run and review health checks across several sites.",
+  "featured": true
 }

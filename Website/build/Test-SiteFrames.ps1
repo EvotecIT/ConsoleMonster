@@ -6,7 +6,7 @@ try {
     dotnet run --project Website/tools/SiteFrames -c Release -- render Website
     if ($LASTEXITCODE -ne 0) { throw 'SiteFrames rendering failed.' }
     $generated = @(
-        'Website/data', 'Website/static/frames', 'Website/static/replays',
+        'Website/data', 'Website/content/pages/demos', 'Website/static/frames', 'Website/static/replays',
         'Website/static/recordings', 'Website/static/site', 'Website/static/css/frames.css',
         'Website/static/assets/player', 'Website/tools/SiteFrames/glyphs.txt'
     )

@@ -121,8 +121,8 @@ $state = & $path -AppOptions @{
     }
 
     It 'filters by positional slug and wildcard without running a demo' {
-        @(Get-ConsoleDemo ASSESSMENT).Count | Should -Be 1
-        (Get-ConsoleDemo ASSESSMENT).Slug | Should -BeExactly 'assessment'
+        @(Get-ConsoleDemo READINESS-REPORT).Count | Should -Be 1
+        (Get-ConsoleDemo READINESS-REPORT).Slug | Should -BeExactly 'readiness-report'
         (@(Get-ConsoleDemo 'welcome-*').Slug -join ',') | Should -BeExactly 'welcome-compact,welcome-rich'
         @(Get-ConsoleDemo 'no-such-demo-*').Count | Should -Be 0
         { Get-ConsoleDemo no-such-demo } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
@@ -130,11 +130,11 @@ $state = & $path -AppOptions @{
     }
 
     It 'exports the canonical script verbatim and returns its file information' {
-        $path = Join-Path $TestDrive 'assessment.ps1'
-        $file = Get-ConsoleDemo assessment -Path $path
+        $path = Join-Path $TestDrive 'readiness-report.ps1'
+        $file = Get-ConsoleDemo readiness-report -Path $path
         $file | Should -BeOfType [IO.FileInfo]
         $file.FullName | Should -Be $path
-        $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/assessment/assessment.ps1'
+        $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/readiness-report/readiness-report.ps1'
         [IO.File]::ReadAllText($path) | Should -BeExactly ([IO.File]::ReadAllText($canonical))
         $tokens = $null
         $parseErrors = $null
@@ -147,14 +147,14 @@ $state = & $path -AppOptions @{
     It 'preserves an existing file unless Force is explicit and honors WhatIf' {
         $path = Join-Path $TestDrive 'existing.ps1'
         [IO.File]::WriteAllText($path, 'keep my edits')
-        { Get-ConsoleDemo fleet -Path $path } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Get-ConsoleDemo fleet-filter -Path $path } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
         [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        Get-ConsoleDemo fleet -Path $path -Force -WhatIf
+        Get-ConsoleDemo fleet-filter -Path $path -Force -WhatIf
         [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        $null = Get-ConsoleDemo fleet -Path $path -Force
+        $null = Get-ConsoleDemo fleet-filter -Path $path -Force
         [IO.File]::ReadAllText($path) | Should -Not -BeExactly 'keep my edits'
         $unused = Join-Path $TestDrive 'whatif.ps1'
-        Get-ConsoleDemo fleet -Path $unused -WhatIf
+        Get-ConsoleDemo fleet-filter -Path $unused -WhatIf
         Test-Path -LiteralPath $unused | Should -BeFalse
     }
 
@@ -163,8 +163,8 @@ $state = & $path -AppOptions @{
         { Get-ConsoleDemo no-such-demo -Path $path } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
         { Get-ConsoleDemo 'welcome-*' -Path $path } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
         Test-Path -LiteralPath $path | Should -BeFalse
-        { Get-ConsoleDemo fleet -Path (Join-Path $TestDrive 'missing/demo.ps1') } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
-        { Get-ConsoleDemo fleet -Path 'Variable:GalleryDemoExport' } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Get-ConsoleDemo fleet-filter -Path (Join-Path $TestDrive 'missing/demo.ps1') } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Get-ConsoleDemo fleet-filter -Path 'Variable:GalleryDemoExport' } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
     }
 
     It 'exports <Slug> byte for byte and runs its embedded static snapshot' -ForEach @(
@@ -180,18 +180,18 @@ $state = & $path -AppOptions @{
 
     It 'forwards Step and produces the same deterministic snapshot as an exported standalone script' {
         $path = Join-Path $TestDrive 'standalone.ps1'
-        $null = Get-ConsoleDemo pipeline -Path $path
-        $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo pipeline -StaticSnapshot -Step 1'
+        $null = Get-ConsoleDemo build-steps -Path $path
+        $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1'
         $exported = Invoke-GalleryChild -Body "Set-Location '$($TestDrive.Replace("'", "''"))'; & '$($path.Replace("'", "''"))' -StaticSnapshot -Step 1"
         $embedded | Should -Match 'Restore\s+complete'
         $embedded | Should -Match 'Compile\s+running'
         $embedded | Should -Not -Match 'Restore\s+running'
         $embedded | Should -BeExactly $exported
-        $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo pipeline -StaticSnapshot -Step 1')
+        $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1')
     }
 
     It 'filters the exported <Slug> app through real scripted input and returns its final query' -ForEach @(
-        @{ Slug = 'fleet'; Query = 'missing'; Expected = 'No matching hosts'; Absent = 'web-01' }
+        @{ Slug = 'fleet-filter'; Query = 'missing'; Expected = 'No matching hosts'; Absent = 'web-01' }
         @{ Slug = 'live-filter'; Query = 'sql'; Expected = 'sql-02'; Absent = 'web-01' }
     ) {
         $result = Invoke-GalleryAppChild -Slug $Slug -Keys ('"{0}" Escape' -f $Query)
@@ -203,8 +203,8 @@ $state = & $path -AppOptions @{
         $result.InputAcquired | Should -BeFalse
     }
 
-    It 'selects a queue preview in the exported toolbox and returns the chosen task' {
-        $result = Invoke-GalleryAppChild -Slug toolbox -Keys 'Down Enter Escape'
+    It 'selects a queue preview in the exported task-menu and returns the chosen task' {
+        $result = Invoke-GalleryAppChild -Slug task-menu -Keys 'Down Enter Escape'
         $result.State.Task | Should -BeExactly 'Inspect queue'
         $result.Frame | Should -Match '12 jobs waiting'
         $result.Frame | Should -Not -Match 'CPU 24%'
@@ -213,8 +213,8 @@ $state = & $path -AppOptions @{
         $result.InputAcquired | Should -BeFalse
     }
 
-    It 'chooses reports and advances the exported setup to its final review' {
-        $result = Invoke-GalleryAppChild -Slug setup -Keys 'Tab Down Enter Tab Tab Enter Enter Escape'
+    It 'chooses reports and advances the exported setup-basic to its final review' {
+        $result = Invoke-GalleryAppChild -Slug setup-basic -Keys 'Tab Down Enter Tab Tab Enter Enter Escape'
         $result.State.Folder | Should -BeExactly './toolbox-agent'
         $result.State.Component | Should -BeExactly 'Core + reports'
         $result.State.Next | Should -Be 2

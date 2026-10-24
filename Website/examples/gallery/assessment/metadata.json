@@ -1,17 +1,17 @@
 {
   "slug": "assessment",
-  "title": "Readiness assessment",
-  "pitch": "Show what passed, what needs attention, and where to start in one static dashboard.",
+  "title": "Forest assessment",
+  "pitch": "Follow 332 checks across twelve targets, six workers, throughput, duration buckets and actionable findings.",
   "category": "Dashboards",
   "tags": [
     "assessment",
-    "status checks",
-    "bar chart",
-    "offline"
+    "lanes",
+    "histogram",
+    "line chart"
   ],
   "terminal": {
-    "width": 88,
-    "height": 30
+    "width": 140,
+    "height": 42
   },
   "runtime": {
     "powershell": "7.4+",
@@ -19,13 +19,13 @@
   },
   "addons": [],
   "makeItYours": [
-    "Replace the fixed check results with your own in-memory assessment results and update the summary counts.",
-    "Change the area scores and warning thresholds to match your readiness criteria.",
-    "Replace the next-action sentence with a concrete response to your highest-priority finding."
+    "Replace the rule catalogue and target labels with your assessment inputs.",
+    "Feed measured completions into the throughput and duration charts.",
+    "Group findings by the categories your operators act on."
   ],
-  "mode": "static",
-  "steps": 1,
-  "tier": "starter",
-  "useCase": "Use it when a readiness review needs clear pass, warning and failure results.",
-  "featured": false
+  "mode": "live",
+  "steps": 12,
+  "tier": "showcase",
+  "useCase": "Use it when parallel checks need one screen for progress, findings and the next action.",
+  "featured": true
 }
