@@ -30,8 +30,8 @@ namespace ConsoleMonster.Widgets {
         private readonly List<StatusKind> _cells = new List<StatusKind>();
 
         /// <summary>Creates a cell map.</summary>
-        /// <param name="name">The live name (default <c>cells</c>).</param>
-        public CellMap(string name = "cells") : base(name) {
+        /// <param name="widgetId">The live name (default <c>cells</c>).</param>
+        public CellMap(string widgetId = "cells") : base(widgetId) {
         }
 
         /// <summary>The most items a map holds (1,000,000): live events past it are ignored, so a mistyped index cannot exhaust memory.</summary>
@@ -156,7 +156,7 @@ namespace ConsoleMonster.Widgets {
             if (liveEvent == null) {
                 return;
             }
-            StatusKinds.TryParse(liveEvent.State, out StatusKind state);
+            StatusKinds.TryParse(liveEvent.Status, out StatusKind state);
             switch (liveEvent.Operation) {
                 case "set":
                     if (int.TryParse(liveEvent.Key, NumberStyles.Integer, CultureInfo.InvariantCulture, out int index) && index >= 0 && index < MaxItems) {
@@ -165,7 +165,7 @@ namespace ConsoleMonster.Widgets {
                     break;
                 case "add":
                     if (_cells.Count < MaxItems) {
-                        Add(string.IsNullOrEmpty(liveEvent.State) ? StatusKind.Pending : state);
+                        Add(string.IsNullOrEmpty(liveEvent.Status) ? StatusKind.Pending : state);
                     }
                     break;
                 case "count":

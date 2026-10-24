@@ -21,7 +21,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             Assert.Equal("[red]database timeout[/]", entry.Message);
             List<string> lines = new List<string>();
             ConsoleLogTail.Run(() => new[] { entry }, new LogTailOptions {
-                Plain = true, Count = 1, Filter = "ERROR", Highlight = "database", WriteLine = lines.Add,
+                Live = false, Count = 1, Filter = "ERROR", Highlight = "database", WriteLine = lines.Add,
                 HandleCancelKey = false
             });
             Assert.Equal(new[] { original }, lines);
@@ -48,7 +48,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
                 reads++;
                 return new[] { new TailedLogEntry("[red]raw[/]", "err"), new TailedLogEntry("[09:31] WARN literal"), new TailedLogEntry("third original") };
             }, new LogTailOptions {
-                Profile = profile, Plain = reason == "plain", Count = 1, WriteLine = lines.Add, Input = input,
+                Profile = profile, Live = reason != "plain", Count = 1, WriteLine = lines.Add, Input = input,
                 Output = output, HandleCancelKey = false
             });
             Assert.Equal(new[] { "[red]raw[/]", "[09:31] WARN literal", "third original" }, lines);
@@ -77,7 +77,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             int reads = 0;
             List<string> lines = new List<string>();
             ConsoleLogTail.Run(() => ++reads == 1 ? Array.Empty<TailedLogEntry>() : new[] { new TailedLogEntry("L" + reads) },
-                new LogTailOptions { Plain = true, WriteLine = lines.Add, Count = 3, PollInterval = TimeSpan.FromMilliseconds(1), HandleCancelKey = false });
+                new LogTailOptions { Live = false, WriteLine = lines.Add, Count = 3, PollInterval = TimeSpan.FromMilliseconds(1), HandleCancelKey = false });
             Assert.Equal(new[] { "L2", "L3" }, lines);
             Assert.Equal(3, reads);
         }
@@ -88,7 +88,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             ConsoleLogTail.Run(() => new[] {
                 new TailedLogEntry("[red]WARN.A[/]"), new TailedLogEntry("WARNxA"), new TailedLogEntry("warn.a")
             }, new LogTailOptions {
-                Plain = true, Count = 1, Filter = "warn.a", Highlight = "[red]", WriteLine = lines.Add, HandleCancelKey = false
+                Live = false, Count = 1, Filter = "warn.a", Highlight = "[red]", WriteLine = lines.Add, HandleCancelKey = false
             });
             Assert.Equal(new[] { "[red]WARN.A[/]", "warn.a" }, lines);
         }
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             TerminalProfile profile = TerminalProfile.Fixed(80, 10).WithLanguage(System.Globalization.CultureInfo.GetCultureInfo("pl-PL"));
             InvalidOperationException error = Assert.Throws<InvalidOperationException>(() => ConsoleLogTail.Run(
                 () => new TailedLogEntry[1], new LogTailOptions {
-                    Profile = profile, Plain = true, Count = 1, WriteLine = _ => { }, HandleCancelKey = false
+                    Profile = profile, Live = false, Count = 1, WriteLine = _ => { }, HandleCancelKey = false
                 }));
             Assert.Equal(WidgetLabels.For(profile.Language).TailReaderReturnedNullEntry, error.Message);
             Assert.Equal(error.Message, LabelCatalog.Entries("pl")["Widget.TailReaderReturnedNullEntry"]);
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             ConsoleLogTail.Run(() => {
                 reads++;
                 return new[] { new TailedLogEntry("excluded") };
-            }, new LogTailOptions { Plain = true, Count = 1, Filter = "absent", WriteLine = lines.Add, HandleCancelKey = false });
+            }, new LogTailOptions { Live = false, Count = 1, Filter = "absent", WriteLine = lines.Add, HandleCancelKey = false });
             Assert.Equal(1, reads);
             Assert.Empty(lines);
         }
@@ -123,7 +123,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
                 int reads = 0;
                 List<string> lines = new List<string>();
                 ConsoleLogTail.Run(() => { reads++; return new[] { new TailedLogEntry("last") }; }, new LogTailOptions {
-                    Plain = true, WriteLine = text => { lines.Add(text); stop.Cancel(); }, HandleCancelKey = false
+                    Live = false, WriteLine = text => { lines.Add(text); stop.Cancel(); }, HandleCancelKey = false
                 }, stop.Token);
                 Assert.Single(lines);
                 Assert.Equal(1, reads);
@@ -219,7 +219,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             InvalidOperationException expected = new InvalidOperationException("writer failed");
             Exception actual = Assert.Throws<InvalidOperationException>(() => ConsoleLogTail.Run(
                 () => new[] { new TailedLogEntry("literal") },
-                new LogTailOptions { Plain = true, WriteLine = _ => throw expected, HandleCancelKey = false }));
+                new LogTailOptions { Live = false, WriteLine = _ => throw expected, HandleCancelKey = false }));
             Assert.Same(expected, actual);
             Assert.False(ConsoleInput.IsAcquired);
         }

@@ -18,8 +18,8 @@ namespace ConsoleMonster.Widgets {
         private readonly Dictionary<string, StatusItem> _byKey = new Dictionary<string, StatusItem>(StringComparer.Ordinal);
 
         /// <summary>Creates a status list.</summary>
-        /// <param name="name">The live name (default <c>status</c>).</param>
-        public StatusList(string name = "status") : base(name) {
+        /// <param name="widgetId">The live name (default <c>status</c>).</param>
+        public StatusList(string widgetId = "status") : base(widgetId) {
         }
 
         /// <summary>The rows.</summary>
@@ -72,7 +72,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that updates this list through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public StatusListHandle Handle(ILiveDispatcher dispatcher) => new StatusListHandle(dispatcher, Name);
+        public StatusListHandle Handle(ILiveDispatcher dispatcher) => new StatusListHandle(dispatcher, WidgetId);
 
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             if (liveEvent.Operation == "set") {
-                StatusKinds.TryParse(liveEvent.State, out StatusKind status);
+                StatusKinds.TryParse(liveEvent.Status, out StatusKind status);
                 Set(liveEvent.Key, liveEvent.Text, status);
             } else if (liveEvent.Operation == "detail" && _byKey.TryGetValue(liveEvent.Key, out StatusItem? item)) {
                 item.Detail = liveEvent.Text;

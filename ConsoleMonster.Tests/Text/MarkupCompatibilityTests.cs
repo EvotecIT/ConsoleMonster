@@ -65,9 +65,9 @@ namespace ConsoleMonster.Tests.Text {
             Assert.Equal(256, names.Select(n => n.Value).Distinct(StringComparer.Ordinal).Count());
             foreach (KeyValuePair<int, string> name in names) {
                 Assert.True(Markup.TryParseStyle(name.Value, null, ColorDepth.TrueColor, out Style style), name.Value);
-                Assert.Equal(Expected(name.Key), style.Foreground);
+                Assert.Equal(Expected(name.Key), style.Color);
                 Assert.True(Markup.TryParseStyle("on " + name.Value.ToUpperInvariant(), null, ColorDepth.TrueColor, out Style background), name.Value);
-                Assert.Equal(Expected(name.Key), background.Background);
+                Assert.Equal(Expected(name.Key), background.BackgroundColor);
             }
         }
 
@@ -90,22 +90,22 @@ namespace ConsoleMonster.Tests.Text {
         public void Parse_NamesUsedByConsumers_RenderInsteadOfPrintingLiterally(string name, int index) {
             TextSpan span = Assert.Single(Markup.Parse("[" + name + "]text[/]").Lines[0]);
             Assert.Equal("text", span.Text);
-            Assert.Equal(Color.FromAnsi256(index), span.Style.Foreground);
+            Assert.Equal(Color.FromAnsi256(index), span.Style.Color);
         }
 
         [Fact]
         public void Parse_NamedColour_IsMappedPerColourTier() {
-            Assert.Equal(Color.FromAnsi256(72), Single("[cadetblue]x[/]", ColorDepth.TrueColor).Style.Foreground);
-            Assert.Equal(Color.FromAnsi256(72), Single("[cadetblue]x[/]", ColorDepth.Ansi256).Style.Foreground);
-            Assert.Equal(ColorKind.Ansi16, Single("[cadetblue]x[/]", ColorDepth.Ansi16).Style.Foreground.Kind);
-            Assert.True(Single("[cadetblue]x[/]", ColorDepth.None).Style.Foreground.IsDefault);
+            Assert.Equal(Color.FromAnsi256(72), Single("[cadetblue]x[/]", ColorDepth.TrueColor).Style.Color);
+            Assert.Equal(Color.FromAnsi256(72), Single("[cadetblue]x[/]", ColorDepth.Ansi256).Style.Color);
+            Assert.Equal(ColorKind.Ansi16, Single("[cadetblue]x[/]", ColorDepth.Ansi16).Style.Color.Kind);
+            Assert.True(Single("[cadetblue]x[/]", ColorDepth.None).Style.Color.IsDefault);
         }
 
         [Fact]
         public void Parse_ConsoleColorNamesOutsideTheXtermList_KeepThePowerShellMapping() {
-            Assert.Equal(Color.FromAnsi16(3), Single("[darkyellow]x[/]", ColorDepth.TrueColor).Style.Foreground);
-            Assert.Equal(Color.FromAnsi16(8), Single("[darkgray]x[/]", ColorDepth.TrueColor).Style.Foreground);
-            Assert.Equal(Color.FromAnsi16(13), Single("[magenta]x[/]", ColorDepth.TrueColor).Style.Foreground);
+            Assert.Equal(Color.FromAnsi16(3), Single("[darkyellow]x[/]", ColorDepth.TrueColor).Style.Color);
+            Assert.Equal(Color.FromAnsi16(8), Single("[darkgray]x[/]", ColorDepth.TrueColor).Style.Color);
+            Assert.Equal(Color.FromAnsi16(13), Single("[magenta]x[/]", ColorDepth.TrueColor).Style.Color);
             Assert.True(RichColor.TryParse("DarkRed", out RichColor console));
             Assert.Equal(Color.FromAnsi16(1), console.Color);
         }
@@ -126,8 +126,8 @@ namespace ConsoleMonster.Tests.Text {
         public void CollidingNames_FollowThePaletteInMarkupAndWriteHostInColorParameters() {
             StringBuilder table = new StringBuilder("name          markup   -Color   [console.name]  -Color palette.name\n");
             foreach (string name in new[] { "red", "darkred", "blue", "darkblue", "grey", "gray", "darkgray" }) {
-                Color markup = Single("[" + name + "]x[/]", ColorDepth.TrueColor).Style.Foreground;
-                Color console = Single("[console." + name + "]x[/]", ColorDepth.TrueColor).Style.Foreground;
+                Color markup = Single("[" + name + "]x[/]", ColorDepth.TrueColor).Style.Color;
+                Color console = Single("[console." + name + "]x[/]", ColorDepth.TrueColor).Style.Color;
                 Assert.True(RichColor.TryParse(name, out RichColor parameter));
                 Assert.True(RichColor.TryParse("palette." + name, out RichColor palette));
                 table.Append(name.PadRight(14)).Append(Code(markup).PadRight(9)).Append(Code(parameter.Color).PadRight(9))
@@ -138,12 +138,12 @@ namespace ConsoleMonster.Tests.Text {
 
         [Fact]
         public void ExplicitForms_WorkInBothPlaces() {
-            Assert.Equal(Color.FromRgb(0x87, 0, 0), Single("[#870000]x[/]", ColorDepth.TrueColor).Style.Foreground);
+            Assert.Equal(Color.FromRgb(0x87, 0, 0), Single("[#870000]x[/]", ColorDepth.TrueColor).Style.Color);
             Assert.True(RichColor.TryParse("#870000", out RichColor hex));
             Assert.Equal(Color.FromRgb(0x87, 0, 0), hex.Color);
             Assert.True(RichColor.TryParse("console.DarkRed", out RichColor console));
             Assert.Equal(Color.FromAnsi16(1), console.Color);
-            Assert.Equal(Color.FromAnsi16(1), Single("[on console.darkred]x[/]", ColorDepth.TrueColor).Style.Background);
+            Assert.Equal(Color.FromAnsi16(1), Single("[on console.darkred]x[/]", ColorDepth.TrueColor).Style.BackgroundColor);
             Assert.False(Markup.TryParseStyle("console.cadetblue", null, ColorDepth.TrueColor, out Style _));
         }
 
@@ -165,7 +165,7 @@ namespace ConsoleMonster.Tests.Text {
         public void Parse_UnknownTag_KeepsTheEnclosingStyle() {
             StyledLine line = Markup.Parse("[red]a[nosuch]b[/]c[/]").Lines[0];
             Assert.Equal("abc", line.PlainText);
-            Assert.All(line, span => Assert.Equal(Color.FromAnsi16(9), span.Style.Foreground));
+            Assert.All(line, span => Assert.Equal(Color.FromAnsi16(9), span.Style.Color));
         }
 
         [Theory]

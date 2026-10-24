@@ -7,7 +7,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// Builds rich text from the shared text parameters of New-ConsoleText, Write-ConsoleText and Write-ConsoleStatus:
+    /// Builds rich text from the shared text parameters of New-ConsoleText, Write-ConsoleText and Show-ConsoleStatusLine:
     /// Write-Color style pieces and colour arrays, markup, decorations, a link, a theme role and a gradient.
     /// </summary>
     internal static class PSRichText {
@@ -52,7 +52,7 @@ namespace ConsoleMonster.PowerShell {
             TextDecoration result = TextDecoration.None;
             foreach (string style in styles ?? Array.Empty<string>()) {
                 if (!RichStyle.TryParseDecoration(style, out TextDecoration decoration)) {
-                    throw new PSArgumentException("-Style: '" + style + "' is not a style. Use Bold, Dim, Italic, Underline, Strikethrough or Invert.");
+                    throw new PSArgumentException("-Decoration: '" + style + "' is not a style. Use Bold, Dim, Italic, Underline, Strikethrough or Invert.");
                 }
                 result |= decoration;
             }
@@ -68,16 +68,15 @@ namespace ConsoleMonster.PowerShell {
             RichColor[] foregrounds = Colors(color, "Color");
             RichColor[] backgrounds = Colors(background, "BackgroundColor");
             TextDecoration decoration = Decorations(style);
-            RichColor roleColor = role.HasValue ? RichColor.FromRole(role.Value) : RichColor.Default;
             List<RichText> parts = new List<RichText>();
             List<object?> pieces = new List<object?>();
             foreach (object? piece in text ?? Array.Empty<object>()) {
                 pieces.Add(PSText.Unwrap(piece));
             }
-            parts.Add(RichText.FromPieces(pieces, foregrounds, backgrounds, new RichStyle(roleColor, RichColor.Default, decoration, link)));
+            parts.Add(RichText.FromPieces(pieces, foregrounds, backgrounds, new RichStyle(decoration: decoration, link: link, role: role)));
             if (!string.IsNullOrEmpty(markup)) {
                 try {
-                    parts.Add(RichText.FromMarkup(markup, new RichStyle(roleColor, RichColor.Default, decoration, link)));
+                    parts.Add(RichText.FromMarkup(markup, new RichStyle(decoration: decoration, link: link, role: role)));
                 } catch (ArgumentException ex) {
                     throw new PSArgumentException("-Markup: " + ex.Message);
                 }
@@ -88,7 +87,7 @@ namespace ConsoleMonster.PowerShell {
                 if (stops.Length != 2) {
                     throw new PSArgumentException("-Gradient takes two colours: the first and the last.");
                 }
-                RichStyle gradientStyle = new RichStyle(RichColor.Default, backgrounds.Length > 0 ? backgrounds[0] : RichColor.Default, decoration, link);
+                RichStyle gradientStyle = new RichStyle(RichColor.Default, backgrounds.Length > 0 ? backgrounds[0] : RichColor.Default, decoration, link, role);
                 result = RichText.Gradient(result.PlainText, stops[0], stops[1], gradientStyle, Terminal.Theme);
             }
             return result;

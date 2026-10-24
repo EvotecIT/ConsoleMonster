@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A small script menu</para>
     ///   <code>
-    /// $menu = New-ConsoleMenu 'Backup helper' {
+    /// $menu = New-ConsoleMenu 'Backup helper' -Content {
     ///     New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
     ///     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
     ///     New-ConsoleMenuItem -Exit
@@ -20,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>An app with built-in presets for its form</para>
     ///   <code>
-    /// $menu = New-ConsoleMenu 'Backup helper' {
+    /// $menu = New-ConsoleMenu 'Backup helper' -Content {
     ///     New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'
     ///     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
     ///     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings

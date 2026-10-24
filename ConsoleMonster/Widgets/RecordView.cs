@@ -64,7 +64,7 @@ namespace ConsoleMonster.Widgets {
         /// <returns>This instance.</returns>
         public RecordView AddHeading(string title, int level, ThemeToken? tone = null, string? note = null) {
             _level = Math.Max(0, level);
-            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Tone = tone, Note = note });
+            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Role = tone, Note = note });
             return this;
         }
 
@@ -75,7 +75,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) =>
+        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
             AddField(label, (object?)value, presenter, rules);
 
         /// <summary>Adds a field with a raw value, formatted by a presenter.</summary>
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) {
+        public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             return AddField(label, TableCell.FromValue(value), presenter, rules);
         }
 
@@ -94,7 +94,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter for raw values, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<ToneRule>? rules = null) {
+        public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             _items.Add(new RecordItem(RecordItemKind.Field, _level + 1) {
                 Text = label ?? string.Empty,
                 Cell = cell ?? TableCell.FromValue(null),

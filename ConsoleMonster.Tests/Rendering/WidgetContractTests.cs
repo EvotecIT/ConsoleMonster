@@ -47,9 +47,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void LineChart_StatusNamedSeries_UsesStatusTones() {
             LineChart chart = new LineChart();
-            Assert.Equal(ThemeToken.Fail, chart.AddSeries("failed").Token);
-            Assert.Equal(ThemeToken.Pass, chart.AddSeries("passed").Token);
-            Assert.Equal(ThemeToken.Series3, chart.AddSeries("latency").Token);
+            Assert.Equal(ThemeToken.Fail, chart.AddSeries("failed").Role);
+            Assert.Equal(ThemeToken.Pass, chart.AddSeries("passed").Role);
+            Assert.Equal(ThemeToken.Series3, chart.AddSeries("latency").Role);
         }
 
         [Theory]
@@ -102,7 +102,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Spinner_Finished_ShowsStatusMarkerDurationAndNarration() {
             Spinner spinner = new Spinner("Resolving DNS");
             spinner.Apply(new LiveEvent("spinner", "start", time: 1000));
-            LiveEvent done = new LiveEvent("spinner", "state", text: "42 zones", state: "fail", time: 4500);
+            LiveEvent done = new LiveEvent("spinner", "state", text: "42 zones", status: "fail", time: 4500);
             spinner.Apply(done);
             string row = Render(spinner, elapsed: TimeSpan.FromSeconds(30))[0];
             Assert.StartsWith(Context().Glyphs.StatusMarker(StatusKind.Fail), row);
@@ -116,7 +116,7 @@ namespace ConsoleMonster.Tests.Rendering {
             Spinner spinner = new Spinner("Sync");
             string running = Render(spinner, tier: GlyphTier.Ascii, tick: 1)[0];
             Assert.StartsWith("/", running);
-            spinner.Apply(new LiveEvent("spinner", "state", state: "pass", time: 10));
+            spinner.Apply(new LiveEvent("spinner", "state", status: "pass", time: 10));
             string finished = Render(spinner, tier: GlyphTier.Ascii)[0];
             Assert.StartsWith("[PASS]", finished);
             Assert.True(finished.All(c => c < 127));

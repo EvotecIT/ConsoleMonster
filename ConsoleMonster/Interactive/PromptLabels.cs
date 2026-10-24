@@ -201,7 +201,7 @@ namespace ConsoleMonster.Interactive {
         public string LoadFailed { get; set; } = "Couldn't load the options: {0}";
 
         /// <summary>A prompt was cancelled.</summary>
-        public string Cancelled { get; set; } = "cancelled";
+        public string Canceled { get; set; } = "cancelled";
 
         /// <summary>A value is required.</summary>
         public string Required { get; set; } = "A value is required.";

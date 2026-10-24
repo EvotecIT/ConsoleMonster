@@ -37,7 +37,7 @@ namespace ConsoleMonster.Presenters {
                 Visual = CellVisualKind.Bar,
                 Fraction = max <= 0 ? 0 : text.Number.Value / max,
                 VisualWidth = BarWidth,
-                Tone = text.Tone
+                Role = text.Role
             };
         }
     }

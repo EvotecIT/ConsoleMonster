@@ -17,8 +17,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Creates a dashboard.</summary>
         /// <param name="title">The title (markup).</param>
         /// <param name="body">The body.</param>
-        /// <param name="name">The live name (default <c>dashboard</c>).</param>
-        public Dashboard(string title, IWidget body, string name = "dashboard") : base(name) {
+        /// <param name="widgetId">The live name (default <c>dashboard</c>).</param>
+        public Dashboard(string title, IWidget body, string widgetId = "dashboard") : base(widgetId) {
             Title = title ?? string.Empty;
             Body = body ?? throw new ArgumentNullException(nameof(body));
         }
@@ -30,10 +30,10 @@ namespace ConsoleMonster.Widgets {
         public string? Subtitle { get; set; }
 
         /// <summary>A status shown on the right of the header (markup).</summary>
-        public string? Status { get; set; }
+        public string? Detail { get; set; }
 
-        /// <summary>The status kind, shown as a marker before <see cref="Status"/>.</summary>
-        public StatusKind? StatusLevel { get; set; }
+        /// <summary>The status kind, shown as a marker before <see cref="Detail"/>.</summary>
+        public StatusKind? Status { get; set; }
 
         /// <summary>The footer text (markup), or <c>null</c> for no footer.</summary>
         public string? Footer { get; set; }
@@ -44,7 +44,7 @@ namespace ConsoleMonster.Widgets {
         private bool HasFooter => !string.IsNullOrEmpty(Footer) || FooterHints.Count > 0;
 
         /// <summary>Whether the elapsed clock is shown in the header (default true).</summary>
-        public bool ShowClock { get; set; } = true;
+        public bool ShowElapsed { get; set; } = true;
 
         /// <summary>The body.</summary>
         public IWidget Body { get; }
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Widgets {
         /// <returns>Whether the status is a failure or a warning.</returns>
         public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
             fraction = double.NaN;
-            state = StatusLevel == StatusKind.Fail ? Output.TaskbarState.Error : StatusLevel == StatusKind.Warn ? Output.TaskbarState.Paused : Output.TaskbarState.Clear;
+            state = Status == StatusKind.Fail ? Output.TaskbarState.Error : Status == StatusKind.Warn ? Output.TaskbarState.Paused : Output.TaskbarState.Clear;
             return state != Output.TaskbarState.Clear;
         }
 
@@ -72,8 +72,8 @@ namespace ConsoleMonster.Widgets {
                     Subtitle = liveEvent.Text;
                     break;
                 case "status":
-                    Status = liveEvent.Text;
-                    StatusLevel = StatusKinds.TryParse(liveEvent.State, out StatusKind kind) ? kind : (StatusKind?)null;
+                    Detail = liveEvent.Text;
+                    Status = StatusKinds.TryParse(liveEvent.Status, out StatusKind kind) ? kind : (StatusKind?)null;
                     break;
                 case "footer":
                     Footer = liveEvent.Text;
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Widgets {
 
         // Header and footer are the shared bars, so a dashboard looks the same full screen, inline and inside a menu run.
         private void DrawHeader(Region bar, RenderContext context) {
-            new HeaderBar(Title) { Subtitle = Subtitle, Status = Status, StatusLevel = StatusLevel, ShowClock = ShowClock }.Render(bar, context);
+            new HeaderBar(Title) { Subtitle = Subtitle, Detail = Detail, Status = Status, ShowElapsed = ShowElapsed }.Render(bar, context);
         }
 
         private void DrawFooter(Region bar, RenderContext context) {

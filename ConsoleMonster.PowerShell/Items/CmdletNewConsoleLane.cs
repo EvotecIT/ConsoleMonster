@@ -10,11 +10,11 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>Three servers at different points</para>
     ///   <code>
-    /// New-ConsoleLanes {
+    /// New-ConsoleLanes -Content {
     ///     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
     ///     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
     ///     New-ConsoleLane 'DC03' -Total 40
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLane")]
     [OutputType(typeof(Lane))]
@@ -63,11 +63,13 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.</para></summary>
         [Parameter]
-        public System.TimeSpan? Started { get; set; }
+        public double? StartedSeconds { get; set; }
+        private System.TimeSpan? Started => StartedSeconds.HasValue ? System.TimeSpan.FromSeconds(StartedSeconds.Value) : (System.TimeSpan?)null;
 
-        /// <summary><para type="description">When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.</para></summary>
+        /// <summary><para type="description">When the lane finished, measured from the start of the session. Together with -StartedSeconds, makes elapsed-time columns deterministic.</para></summary>
         [Parameter]
-        public System.TimeSpan? Finished { get; set; }
+        public double? FinishedSeconds { get; set; }
+        private System.TimeSpan? Finished => FinishedSeconds.HasValue ? System.TimeSpan.FromSeconds(FinishedSeconds.Value) : (System.TimeSpan?)null;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

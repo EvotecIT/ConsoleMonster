@@ -105,7 +105,7 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The item, or null.</returns>
         public MenuItem? Find(string title) {
             foreach (MenuItem item in Items) {
-                if (string.Equals(item.Title, title, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(item.Label, title, StringComparison.OrdinalIgnoreCase)) {
                     return item;
                 }
                 MenuItem? nested = item.SubmenuDefinition?.Find(title);

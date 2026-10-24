@@ -69,13 +69,19 @@ namespace ConsoleMonster.Export {
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size, theme, font and window frame.</param>
         /// <returns>The HTML.</returns>
-        public static string ToHtml(IWidget widget, ExportOptions? options = null) => HtmlFrameWriter.Write(Layers(widget, Ready(options)), Ready(options));
+        public static string ToHtml(IWidget widget, ExportOptions? options = null) {
+            ExportOptions ready = Ready(options);
+            return HtmlFrameWriter.Write(Layers(widget, ready), ready);
+        }
 
         /// <summary>Exports a rendered frame as an HTML page. Theme Auto keeps the frame's colours and lets default text follow the viewer.</summary>
         /// <param name="frame">The frame.</param>
         /// <param name="options">Theme, font and window frame (the size is the frame's).</param>
         /// <returns>The HTML.</returns>
-        public static string ToHtml(CellBuffer frame, ExportOptions? options = null) => HtmlFrameWriter.Write(Layers(frame, Ready(options)), Ready(options));
+        public static string ToHtml(CellBuffer frame, ExportOptions? options = null) {
+            ExportOptions ready = Ready(options);
+            return HtmlFrameWriter.Write(Layers(frame, ready), ready);
+        }
 
         /// <summary>Exports what a live session shows now as an HTML page.</summary>
         /// <param name="session">The session.</param>
@@ -87,13 +93,19 @@ namespace ConsoleMonster.Export {
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size, theme, font and window frame.</param>
         /// <returns>The SVG.</returns>
-        public static string ToSvg(IWidget widget, ExportOptions? options = null) => SvgFrameWriter.Write(Layers(widget, Ready(options)), Ready(options));
+        public static string ToSvg(IWidget widget, ExportOptions? options = null) {
+            ExportOptions ready = Ready(options);
+            return SvgFrameWriter.Write(Layers(widget, ready), ready);
+        }
 
         /// <summary>Exports a rendered frame as an SVG image.</summary>
         /// <param name="frame">The frame.</param>
         /// <param name="options">Theme, font and window frame.</param>
         /// <returns>The SVG.</returns>
-        public static string ToSvg(CellBuffer frame, ExportOptions? options = null) => SvgFrameWriter.Write(Layers(frame, Ready(options)), Ready(options));
+        public static string ToSvg(CellBuffer frame, ExportOptions? options = null) {
+            ExportOptions ready = Ready(options);
+            return SvgFrameWriter.Write(Layers(frame, ready), ready);
+        }
 
         /// <summary>Exports what a live session shows now as an SVG image.</summary>
         /// <param name="session">The session.</param>
@@ -240,6 +252,7 @@ namespace ConsoleMonster.Export {
             if (options == null) {
                 throw new ArgumentNullException(nameof(options));
             }
+            options = Ready(options);
             RenderContext context = CreateContext(options, theme, options.Height > 0 ? options.Height : 24);
             if (options.Height > 0) {
                 return FrameComposer.Compose(widget, options.Width, options.Height, context);
@@ -257,7 +270,8 @@ namespace ConsoleMonster.Export {
         }
 
         internal static ExportOptions Ready(ExportOptions? options) {
-            ExportOptions o = options ?? new ExportOptions();
+            ExportOptions o = options?.Clone() ?? new ExportOptions();
+            o.Width = Terminal.ResolveWidth(o.Width);
             o.Validate();
             return o;
         }

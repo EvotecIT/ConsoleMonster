@@ -15,8 +15,8 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A dashboard whose bar follows a copy loop</para>
     ///   <code>
     /// $files = Get-ChildItem C:\Reports -File
-    /// $dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }
-    /// Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {
+    /// $dashboard = New-ConsoleDashboard -Title 'Copy' -Content { New-ConsoleProgress -Label 'Reports' -Total $files.Count }
+    /// Invoke-ConsoleDashboard $dashboard -ArgumentList (,$files) {
     ///     param($Files)
     ///     foreach ($file in $Files) {
     ///         Copy-Item $file.FullName D:\Backup
@@ -28,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletUpdateConsoleProgress : LiveCmdlet {
         /// <summary><para type="description">The progress bar name (default progress).</para></summary>
         [Parameter(Position = 0)]
-        public string Name { get; set; } = "progress";
+        public string WidgetId { get; set; } = "progress";
 
         /// <summary><para type="description">The new value.</para></summary>
         [Parameter]
@@ -55,16 +55,16 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (Value.HasValue || Total > 0) {
-                Send(new LiveEvent(Name, "set", value: Value ?? 0, total: Total));
+                Send(new LiveEvent(WidgetId, "set", value: Value ?? 0, total: Total));
             }
             if (Increment != 0) {
-                Send(new LiveEvent(Name, "advance", value: Increment));
+                Send(new LiveEvent(WidgetId, "advance", value: Increment));
             }
             if (Label != null) {
-                Send(new LiveEvent(Name, "label", text: PSText.Markup(Label)));
+                Send(new LiveEvent(WidgetId, "label", text: PSText.Markup(Label)));
             }
             if (Status.HasValue) {
-                Send(new LiveEvent(Name, "state", state: Status.Value.ToString()));
+                Send(new LiveEvent(WidgetId, "state", status: Status.Value.ToString()));
             }
         }
     }

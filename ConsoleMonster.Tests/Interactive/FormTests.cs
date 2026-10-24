@@ -95,7 +95,7 @@ namespace ConsoleMonster.Tests.Interactive {
             NumberField count = form.Number("Count", "Concurrent rules");
             count.Default = initial;
             count.Required = true;
-            count.WholeNumber = true;
+            count.Integer = true;
             count.Minimum = 1;
             count.Maximum = 8;
             count.Parameter = "--count";

@@ -10,28 +10,28 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A mail domain with records and their state</para>
     ///   <code>
-    /// New-ConsoleTree '[bold]evotec.xyz[/]' {
-    ///     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
+    /// New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
+    ///     New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' -Content {
     ///         New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
     ///     }
     ///     New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Leaves from a list of names</para>
     ///   <code>
-    /// New-ConsoleTree 'Domain controllers' {
-    ///     New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }
-    ///     New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }
-    /// } | Write-ConsoleWidget</code>
+    /// New-ConsoleTree 'Domain controllers' -Content {
+    ///     New-ConsoleTreeNode 'ad.adatum.com' -Content { 'DC01', 'DC02' }
+    ///     New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' -Content { 'DC07' }
+    /// } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>A value shown through a presenter</para>
     ///   <code>
-    /// New-ConsoleTree 'Reports share' {
+    /// New-ConsoleTree 'Reports share' -Content {
     ///     New-ConsoleTreeNode 'Weekly' -Value 734003200 -Presenter Bytes
     ///     New-ConsoleTreeNode 'Archive' -Value 9663676416 -Presenter Bytes -Status Warn
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTreeNode")]
     [OutputType(typeof(TreeNode))]

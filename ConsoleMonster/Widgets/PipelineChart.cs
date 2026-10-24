@@ -136,17 +136,17 @@ namespace ConsoleMonster.Widgets {
             }
             Rows rows = new Rows();
             ChartSeries[] selected = Select(groups, g => g.Values[g.Values.Count - 1]).ToArray();
-            int labelWidth = selected.Max(g => DisplayWidth.Measure(g.Name));
+            int labelWidth = selected.Max(g => DisplayWidth.Measure(g.Key));
             int latestWidth = selected.Max(g => DisplayWidth.Measure(NumberFormat.Compact(g.Values[g.Values.Count - 1]) + (Unit ?? string.Empty)));
             int desiredWidth = selected.Max(g => g.Values.Count) + latestWidth + 1;
             foreach (ChartSeries series in selected) {
                 // The existing sparkline scales from zero. Signed trends use exact text rather than flattening negatives.
                 if (textOnly || series.Values.Any(v => v < 0)) {
-                    rows.Add(TextBlock.Plain((series.Name.Length == 0 ? string.Empty : series.Name + ": ") + string.Join(", ", series.Values.Select(Value))));
+                    rows.Add(TextBlock.Plain((series.Key.Length == 0 ? string.Empty : series.Key + ": ") + string.Join(", ", series.Values.Select(Value))));
                 } else {
-                    Sparkline sparkline = new Sparkline() { Token = series.Token, Unit = Unit, Capacity = series.Values.Count }.AddRange(series.Values);
+                    Sparkline sparkline = new Sparkline() { Role = series.Role, Unit = Unit, Capacity = series.Values.Count }.AddRange(series.Values);
                     int valueWidth = DisplayWidth.Measure(NumberFormat.Compact(series.Values[series.Values.Count - 1]) + (Unit ?? string.Empty));
-                    rows.Add(new TrendRow(series.Name, labelWidth, sparkline, valueWidth, desiredWidth, latestWidth + 2));
+                    rows.Add(new TrendRow(series.Key, labelWidth, sparkline, valueWidth, desiredWidth, latestWidth + 2));
                 }
             }
             return rows;
@@ -177,7 +177,7 @@ namespace ConsoleMonster.Widgets {
                 Columns columns = new Columns() { CollapseBelow = 0 };
                 // An omitted label must not reserve a track or its inter-column gap.
                 if (labelWidth > 0) {
-                    columns.Add(new TextBlock(_label) { IsMarkup = false, Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth));
+                    columns.Add(new TextBlock(_label) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }, LayoutSize.Fixed(labelWidth));
                 }
                 return columns.Add(_sparkline, LayoutSize.Fixed(chartWidth));
             }

@@ -46,7 +46,7 @@ namespace ConsoleMonster.Hosting {
             string title = _options.Title ?? _environment?.ApplicationName ?? "Application";
             HeaderBar header = new HeaderBar(title) {
                 Subtitle = _environment?.EnvironmentName,
-                ShowClock = true,
+                ShowElapsed = true,
                 Right = "ctrl+c stops"
             };
             List<IWidget> parts = new List<IWidget> { header };

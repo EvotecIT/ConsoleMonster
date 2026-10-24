@@ -16,7 +16,7 @@ namespace ConsoleMonster.Tests.Live {
         /// <summary>A one-cell region change writes only that cell, without invalidating the whole frame.</summary>
         [Fact]
         public void RegionReplacement_UsesCellDiffWithoutFullInvalidation() {
-            Slot slot = new Slot("result", new TextBlock("count: 1"));
+            RegionWidget slot = new RegionWidget("result", new TextBlock("count: 1"));
             using (DiffOutput output = new DiffOutput())
             using (LiveSession session = new LiveSession(slot, new LiveSessionOptions {
                 Output = output, Profile = output.Profile, CaptureConsole = false, TaskbarProgress = false,

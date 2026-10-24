@@ -24,7 +24,7 @@ namespace ConsoleMonster.Interactive {
                     if (!context.HasColor) {
                         style = dimmed ? Style.Plain : Style.Plain.With(TextDecoration.Bold);
                     } else if (dimmed) {
-                        style = context.Style(focusToken ?? ThemeToken.Focus).WithForeground(context.Style(ThemeToken.Muted).Foreground);
+                        style = context.Style(focusToken ?? ThemeToken.Focus).WithColor(context.Style(ThemeToken.Muted).Color);
                     } else {
                         style = context.Style(focusToken ?? ThemeToken.Focus).With(TextDecoration.Bold);
                     }

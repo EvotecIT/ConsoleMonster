@@ -24,6 +24,13 @@ namespace ConsoleMonster.PowerShell {
         }
 
         internal static void Import(PSCmdlet cmdlet, string path, bool onlyIfMissing) {
+            foreach (ConsoleViewRegistration registration in Read(cmdlet, path)) {
+                ConsoleFormatting.Register(registration, onlyIfMissing);
+            }
+        }
+
+        // Parse and validate the complete data file before either registering or removing its entries.
+        internal static IReadOnlyList<ConsoleViewRegistration> Read(PSCmdlet cmdlet, string path) {
             if (!path.EndsWith(".consoleviews.psd1", StringComparison.OrdinalIgnoreCase)) {
                 throw new PSArgumentException("View files must use the .consoleviews.psd1 extension.");
             }
@@ -58,7 +65,7 @@ namespace ConsoleMonster.PowerShell {
                 registrations.Add(new ConsoleViewRegistration(type, kind, properties.Count > 0 ? properties.ToArray() : null, groupBy, group));
             }
             // Validate the complete file before installing any entry.
-            foreach (ConsoleViewRegistration registration in registrations) { ConsoleFormatting.Register(registration, onlyIfMissing); }
+            return registrations;
         }
 
         private static IEnumerable Sequence(object? value) => value == null ? Array.Empty<object>() : value is string || value is IDictionary ? new[] { value } : value as IEnumerable ?? new[] { value };

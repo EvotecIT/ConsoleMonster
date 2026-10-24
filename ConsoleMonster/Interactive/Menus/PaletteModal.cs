@@ -40,7 +40,7 @@ namespace ConsoleMonster.Interactive {
             AddBindings(bindings, frame);
             rows.Add(new KeyFooter(bindings));
             Panel panel = DialogChrome.Frame(rows, _labels.Commands);
-            panel.Caption = Markup.Escape(_labels.SearchCommands);
+            panel.HeaderRight = Markup.Escape(_labels.SearchCommands);
             return panel;
         }
 

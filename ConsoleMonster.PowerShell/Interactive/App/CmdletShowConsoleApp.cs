@@ -16,18 +16,18 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     /// <para>Filter application data without leaving PowerShell.</para>
-    /// <code>Show-ConsoleApp {
-    ///     New-ConsoleTextInput -Name Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
+    /// <code>Show-ConsoleApp -Content {
+    ///     New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
     ///     New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
-    ///     New-ConsoleBinding { "Edits: $($State.Edits)" }
+    ///     New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
     /// } -PassThru</code>
     /// </example>
     /// <example>
     /// <para>Capture a scripted run without a physical console.</para>
     /// <code># Using the object directly
-    /// $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-    /// $keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')
-    /// Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $keys -Capture $capture -PassThru</code>
+    /// $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+    /// $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')
+    /// Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys -Capture $capture -PassThru</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
     [OutputType(typeof(Hashtable))]
@@ -107,7 +107,7 @@ namespace ConsoleMonster.PowerShell {
                     }, stop.Token);
                     if (PassThru.IsPresent) { WriteObject(PSAppScript.Snapshot(state), false); }
                 }
-            } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCancelledException || ex is InputClosedException) {
+            } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is InputClosedException) {
                 PSInteractive.Fail(this, ex, MyInvocation.MyCommand.Name);
                 throw;
             } finally {

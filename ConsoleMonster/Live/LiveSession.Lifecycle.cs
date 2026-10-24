@@ -198,7 +198,7 @@ namespace ConsoleMonster.Live {
 
         private void CaptureLine(string line, string level) {
             // Capture owns its own admission during shutdown, until both partial buffers have been flushed.
-            Enqueue(new LiveEvent("$log", "write", text: line, state: level));
+            Enqueue(new LiveEvent("$log", "write", text: line, status: level));
         }
 
         private void RestoreCapture() {

@@ -27,8 +27,8 @@ namespace ConsoleMonster.Interactive {
             _viewport = new AppViewport(layout, _focus);
             try {
                 foreach (InputControl control in _focus.Controls) {
-                    _inputs.Add(control.Name, control);
-                    state[control.Name] = control.CurrentValue;
+                    _inputs.Add(control.Key, control);
+                    state[control.Key] = control.CurrentValue;
                     control.ValueCommitted += Commit;
                     control.Invalidated += Invalidate;
                 }
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Interactive {
         private void Commit(AppValueChangedEventArgs change) {
             lock (_commitGate) {
                 // Concurrent value setters can notify in another order; commit the latest control value under one gate.
-                if (!_disposed) { _state[change.Name] = _inputs[change.Name].CurrentValue; }
+                if (!_disposed) { _state[change.Key] = _inputs[change.Key].CurrentValue; }
             }
         }
         private void StateChanged(object? sender, AppValueChangedEventArgs change) => Invalidate();

@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 if (liveEvent.Time > untilMilliseconds) {
                     break;
                 }
-                if (targets.TryGetValue(liveEvent.Target, out ILiveTarget? target)) {
+                if (targets.TryGetValue(liveEvent.WidgetId, out ILiveTarget? target)) {
                     target.Apply(liveEvent);
                 }
             }
@@ -33,8 +33,8 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         private static void Discover(IWidget widget, Dictionary<string, ILiveTarget> targets) {
-            if (widget is ILiveTarget target && !targets.ContainsKey(target.Name)) {
-                targets[target.Name] = target;
+            if (widget is ILiveTarget target && !targets.ContainsKey(target.WidgetId)) {
+                targets[target.WidgetId] = target;
             }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) {

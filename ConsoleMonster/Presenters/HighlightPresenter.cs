@@ -18,13 +18,13 @@ namespace ConsoleMonster.Presenters {
         public ITextHighlighter Highlighter { get; }
 
         /// <summary>An optional theme tone for type tokens, for signatures whose types are secondary context.</summary>
-        public Styling.ThemeToken? TypeTone { get; set; }
+        public Styling.ThemeToken? TypeRole { get; set; }
 
         /// <inheritdoc />
         public PresentedValue Present(object? value, PresenterContext context) {
             string text = PresenterValues.ToText(value, context.Culture);
             List<TextSpan> spans = new List<TextSpan>();
-            List<StyledLine> lines = HighlightStyles.ToLines(text, Highlighter, context.Render, 0, TypeTone);
+            List<StyledLine> lines = HighlightStyles.ToLines(text, Highlighter, context.Render, 0, TypeRole);
             for (int i = 0; i < lines.Count; i++) {
                 if (i > 0) {
                     spans.Add(new TextSpan(" ", Styling.Style.Plain));

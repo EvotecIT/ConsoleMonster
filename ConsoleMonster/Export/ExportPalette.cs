@@ -47,8 +47,8 @@ namespace ConsoleMonster.Export {
 
         /// <summary>The resolved foreground and background of a cell style (reverse applied), as CSS colours.</summary>
         public void Resolve(Style style, out string foreground, out string background, out bool defaultBackground) {
-            string? fg = ToCss(style.Foreground);
-            string? bg = ToCss(style.Background);
+            string? fg = ToCss(style.Color);
+            string? bg = ToCss(style.BackgroundColor);
             if ((style.Decoration & TextDecoration.Reverse) != 0) {
                 string? swap = fg;
                 fg = bg ?? Background;

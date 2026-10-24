@@ -16,7 +16,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Whether only whole numbers are accepted.</summary>
-        public bool WholeNumber { get; set; }
+        public bool Integer { get; set; }
 
         /// <summary>The smallest accepted value.</summary>
         public decimal? Minimum { get; set; }
@@ -39,9 +39,9 @@ namespace ConsoleMonster.Interactive {
         public override string Describe(decimal value) => Format(value);
 
         /// <summary>Full precision for the editor and stepping, independent of compact hints.</summary>
-        internal string FormatInput(decimal value) => DecimalInput.Format(value, WholeNumber, EffectiveCulture);
+        internal string FormatInput(decimal value) => DecimalInput.Format(value, Integer, EffectiveCulture);
 
-        internal string Format(decimal value) => value.ToString(WholeNumber ? "0" : "0.############", EffectiveCulture);
+        internal string Format(decimal value) => value.ToString(Integer ? "0" : "0.############", EffectiveCulture);
 
         internal string? Parse(string text, PromptLabels labels, out decimal value) {
             value = 0;
@@ -53,10 +53,10 @@ namespace ConsoleMonster.Interactive {
                 }
                 return labels.Required;
             }
-            if (!DecimalInput.TryParse(trimmed, WholeNumber, EffectiveCulture, out value)) {
-                return WholeNumber ? labels.NotAWholeNumber : labels.NotANumber;
+            if (!DecimalInput.TryParse(trimmed, Integer, EffectiveCulture, out value)) {
+                return Integer ? labels.NotAWholeNumber : labels.NotANumber;
             }
-            if (WholeNumber && decimal.Truncate(value) != value) {
+            if (Integer && decimal.Truncate(value) != value) {
                 return labels.NotAWholeNumber;
             }
             return Check(value, labels);

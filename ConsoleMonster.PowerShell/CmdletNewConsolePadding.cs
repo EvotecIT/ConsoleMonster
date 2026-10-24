@@ -9,11 +9,11 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Two cells left and right, one row above and below</para>
-    ///   <code>New-ConsolePanel -Title 'Padding' { New-ConsolePadding -Padding 2, 1 { 'two cells of padding' } } | Write-ConsoleWidget</code>
+    ///   <code>New-ConsolePanel -Title 'Padding' -Content { New-ConsolePadding -Padding 2, 1 -Content { 'two cells of padding' } } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Indent a block by four cells</para>
-    ///   <code>New-ConsolePadding -Padding 4, 0, 0, 0 { New-ConsoleText -Markup '[muted]indented note[/]' } | Write-ConsoleWidget</code>
+    ///   <code>New-ConsolePadding -Padding 4, 0, 0, 0 -Content { New-ConsoleText -Markup '[muted]indented note[/]' } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePadding")]
     [OutputType(typeof(IWidget))]

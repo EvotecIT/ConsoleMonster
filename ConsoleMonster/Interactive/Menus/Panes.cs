@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
             List<Choice> choices = new List<Choice>();
             foreach (MenuItem item in menu.Items) {
                 if (item.Kind == MenuItemKind.Separator) {
-                    group = string.IsNullOrEmpty(item.Title) ? " " : item.Title;
+                    group = string.IsNullOrEmpty(item.Label) ? " " : item.Label;
                     continue;
                 }
                 Choice choice = new Choice(item, Label(item)) { Group = group, Hotkey = item.HotkeyChar };
@@ -71,18 +71,18 @@ namespace ConsoleMonster.Interactive {
 
         private string Label(MenuItem item) {
             string? icon = item.IconText(_glyphs);
-            return icon == null ? item.Title : icon + " " + item.Title;
+            return icon == null ? item.Label : icon + " " + item.Label;
         }
 
         /// <summary>Re-reads badges, states and disabled reasons (they are computed by the app).</summary>
         public void Refresh() {
             foreach (MenuItem item in _items) {
                 Choice choice = _choices[item];
-                choice.Title = Label(item);
+                choice.Label = Label(item);
                 choice.DisabledReason = item.CurrentDisabledReason;
                 choice.Description = item.Description;
                 RichText? badge = item.CurrentBadge;
-                string? state = item.CurrentState;
+                string? state = item.CurrentDetail;
                 bool opens = item.Kind == MenuItemKind.Submenu || item.Kind == MenuItemKind.Form || item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect || item.Kind == MenuItemKind.Page || item.Kind == MenuItemKind.Review || item.Kind == MenuItemKind.Presets;
                 RichTextBuilder builder = new RichTextBuilder();
                 bool any = false;
@@ -244,7 +244,7 @@ namespace ConsoleMonster.Interactive {
 
         public ChoicePane Pane { get; }
 
-        public string Title => _item.Title;
+        public string Title => _item.Label;
 
         public string? Caption => Loading ? null : List.Multi ? PromptLabels.Format(_labels.SelectedCount, List.SelectedCount, List.Total) : null;
 
@@ -289,7 +289,7 @@ namespace ConsoleMonster.Interactive {
                 bindings.Add(new KeyBinding(_labels.KeyCancel, () => {
                     _cancel?.Cancel();
                     _load = null;
-                    _loadError = _labels.Cancelled;
+                    _loadError = _labels.Canceled;
                 }, new KeyChord(ConsoleKey.Escape)) { Order = 20 });
                 return;
             }
@@ -364,7 +364,7 @@ namespace ConsoleMonster.Interactive {
             }
             _load = null;
             if (load.IsCanceled) {
-                _loadError = _labels.Cancelled;
+                _loadError = _labels.Canceled;
             } else if (load.IsFaulted) {
                 _loadError = PromptLabels.Format(_labels.LoadFailed, load.Exception!.GetBaseException().Message);
             } else {
@@ -394,9 +394,9 @@ namespace ConsoleMonster.Interactive {
             _context = context;
         }
 
-        public string Title => _item.Title;
+        public string Title => _item.Label;
 
-        public string? Caption => _item.CurrentState;
+        public string? Caption => _item.CurrentDetail;
 
         public bool IsAnimating => true;
 
@@ -438,9 +438,9 @@ namespace ConsoleMonster.Interactive {
 
         public Action? Cancel { get; set; }
 
-        public string Title => _item.Title;
+        public string Title => _item.Label;
 
-        public string? Caption => _item.CurrentState;
+        public string? Caption => _item.CurrentDetail;
 
         public bool IsAnimating => Running;
 
@@ -462,7 +462,7 @@ namespace ConsoleMonster.Interactive {
                     IReadOnlyList<string> frames = context.Glyphs.SpinnerFrames;
                     return new StyledLine(new[] {
                         new TextSpan(frames[(int)(context.Tick % frames.Count)] + " ", context.Style(ThemeToken.Running)),
-                        new TextSpan(_item.Title + " " + context.Ellipsis, context.Style(ThemeToken.Text))
+                        new TextSpan(_item.Label + " " + context.Ellipsis, context.Style(ThemeToken.Text))
                     });
                 }));
             } else {
@@ -495,20 +495,20 @@ namespace ConsoleMonster.Interactive {
 
     /// <summary>The result of a run: status, summary, key figures, details and the next actions.</summary>
     internal sealed class ResultPane : IPane {
-        private readonly RunResult _result;
+        private readonly MenuRunResult _result;
         private readonly PromptLabels _labels;
         private readonly ChoiceList _next;
         private readonly Action<MenuItem> _activate;
         private readonly Action _back;
 
-        public ResultPane(RunResult result, PromptLabels labels, Action<MenuItem> activate, Action back) {
+        public ResultPane(MenuRunResult result, PromptLabels labels, Action<MenuItem> activate, Action back) {
             _result = result;
             _labels = labels;
             _activate = activate;
             _back = back;
             List<Choice> choices = new List<Choice>();
             foreach (MenuItem item in result.NextActions) {
-                choices.Add(new Choice(item, item.Title) { Description = item.Description, Hotkey = item.HotkeyChar });
+                choices.Add(new Choice(item, item.Label) { Description = item.Description, Hotkey = item.HotkeyChar });
             }
             choices.Add(new Choice(null, labels.Back));
             _next = new ChoiceList(choices, false) { Labels = labels };

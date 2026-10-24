@@ -105,7 +105,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>
-    /// The state of a run of many items (<see cref="ConsoleRun"/>, ForEach-ConsoleItem), safe to update from any thread: each
+    /// The state of a run of many items (<see cref="ConsoleRun"/>, Invoke-ConsoleRun), safe to update from any thread: each
     /// item is pending, running or finished with an outcome; failures keep their message. <see cref="Widgets.RunView"/> draws it.
     /// </summary>
     public sealed partial class RunTracker {

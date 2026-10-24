@@ -22,14 +22,14 @@ namespace ConsoleMonster.Overview {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
-            int width = Math.Min(120, constraints.MaxWidth);
+            int width = constraints.MaxWidth;
             int height = width >= 80 ? Math.Min(24, constraints.MaxHeight) : constraints.MaxHeight;
             return Build(width, context).Measure(new Constraints(width, height), context);
         }
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
-            int width = Math.Min(120, region.Width);
+            int width = region.Width;
             int height = width >= 80 ? Math.Min(24, region.Height) : region.Height;
             Build(width, context).Render(region.Sub(0, 0, width, height), context);
         }
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Overview {
                         string status = Pressure(used);
                         // At the two-column breakpoint retain the measured value before spending space on a bar.
                         if (width < labelWidth + valueWidth + statusWidth + 18) {
-                            ThemeToken tone = used >= 90 ? ThemeToken.Fail : used >= 80 ? ThemeToken.Warn : item.Tone;
+                            ThemeToken tone = used >= 90 ? ThemeToken.Fail : used >= 80 ? ThemeToken.Warn : item.Role;
                             body.Add(Truncated(TextBlock.Plain(Clean(item.Label) + ": " + Clean(item.Value) + " " + NumberFormat.Percent(used / 100) + (status.Length > 0 ? " " + status : string.Empty), tone)));
                             continue;
                         }
@@ -124,7 +124,7 @@ namespace ConsoleMonster.Overview {
                         if (valueWidth > 0) { row.Add(Truncated(TextBlock.Plain(Clean(item.Value), ThemeToken.Muted)), LayoutSize.Fixed(valueWidth)); }
                         body.Add(row);
                     } else {
-                        body.Add(Truncated(TextBlock.Plain(Clean(item.Label) + ": " + Clean(item.Value), item.Tone)));
+                        body.Add(Truncated(TextBlock.Plain(Clean(item.Label) + ": " + Clean(item.Value), item.Role)));
                     }
                 }
                 if (overflow) {
@@ -133,7 +133,7 @@ namespace ConsoleMonster.Overview {
                     else { body.Add(TextBlock.Plain(omitted, ThemeToken.Muted)); }
                 }
             }
-            return new Panel(body, Markup.Escape(Clean(section.Title))) { Height = Math.Min(height, body.Children.Count + 2), Footer = footer };
+            return new Panel(body, Markup.Escape(Clean(section.Title))) { Height = Math.Min(height, body.Children.Count + 2), Caption = footer };
         }
 
         private static string Pressure(double used) => used >= 90 ? "critical" : used >= 80 ? "high" : string.Empty;

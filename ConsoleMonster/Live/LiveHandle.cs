@@ -8,17 +8,17 @@ namespace ConsoleMonster.Live {
     public abstract class LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">Where events go (a live session, or an immediate dispatcher).</param>
-        /// <param name="target">The target widget name.</param>
-        protected LiveHandle(ILiveDispatcher dispatcher, string target) {
+        /// <param name="widgetId">The target widget name.</param>
+        protected LiveHandle(ILiveDispatcher dispatcher, string widgetId) {
             Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-            Target = target ?? throw new ArgumentNullException(nameof(target));
+            WidgetId = widgetId ?? throw new ArgumentNullException(nameof(widgetId));
         }
 
         /// <summary>Where events go.</summary>
         public ILiveDispatcher Dispatcher { get; }
 
         /// <summary>The target widget name.</summary>
-        public string Target { get; }
+        public string WidgetId { get; }
 
         /// <summary>Builds and posts an event for this handle's target.</summary>
         /// <param name="operation">The operation.</param>
@@ -28,7 +28,7 @@ namespace ConsoleMonster.Live {
         /// <param name="value">Value.</param>
         /// <param name="total">Total.</param>
         protected void Post(string operation, string? key = null, string? text = null, string? state = null, double value = 0, double total = 0) {
-            Dispatcher.Post(new LiveEvent(Target, operation, key, text, state, value, total));
+            Dispatcher.Post(new LiveEvent(WidgetId, operation, key, text, state, value, total));
         }
 
         /// <summary>Posts an operation with an in-process payload (see <see cref="LiveEvent.Payload"/>).</summary>
@@ -37,7 +37,7 @@ namespace ConsoleMonster.Live {
         /// <param name="key">The item key, or null.</param>
         /// <param name="text">A text form of the payload for recordings and stream output, or null.</param>
         protected void PostPayload(string operation, object? payload, string? key = null, string? text = null) {
-            Dispatcher.Post(new LiveEvent(Target, operation, key, text) { Payload = payload });
+            Dispatcher.Post(new LiveEvent(WidgetId, operation, key, text) { Payload = payload });
         }
     }
 }

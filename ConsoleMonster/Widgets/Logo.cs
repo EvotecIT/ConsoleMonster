@@ -27,10 +27,10 @@ namespace ConsoleMonster.Widgets {
         public string? Tagline { get; set; }
 
         /// <summary>The gradient start colour (default sky blue).</summary>
-        public Color From { get; set; } = Color.FromRgb(56, 189, 248);
+        public Color StartColor { get; set; } = Color.FromRgb(56, 189, 248);
 
         /// <summary>The gradient end colour (default violet).</summary>
-        public Color To { get; set; } = Color.FromRgb(192, 132, 252);
+        public Color EndColor { get; set; } = Color.FromRgb(192, 132, 252);
 
         /// <summary>Alignment of the banner and tagline (default left).</summary>
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
@@ -107,6 +107,6 @@ namespace ConsoleMonster.Widgets {
             return PixelFont.IsSet(Text[index], column, py);
         }
 
-        private Color Gradient(int px, int width) => From.Blend(To, width <= 1 ? 0 : (double)px / (width - 1));
+        private Color Gradient(int px, int width) => StartColor.Blend(EndColor, width <= 1 ? 0 : (double)px / (width - 1));
     }
 }

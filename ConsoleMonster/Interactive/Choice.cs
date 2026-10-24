@@ -11,19 +11,19 @@ namespace ConsoleMonster.Interactive {
     public sealed class Choice {
         /// <summary>Creates a choice.</summary>
         /// <param name="value">The value returned when chosen (any object).</param>
-        /// <param name="title">The title shown; null uses the value's text.</param>
-        public Choice(object? value, string? title = null) {
+        /// <param name="label">The title shown; null uses the value's text.</param>
+        public Choice(object? value, string? label = null) {
             Value = value;
-            Title = title ?? Convert.ToString(value, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
+            Label = label ?? Convert.ToString(value, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
         }
 
         /// <summary>The value returned when chosen.</summary>
         public object? Value { get; }
 
         /// <summary>The title, also what the filter matches.</summary>
-        public string Title { get; set; }
+        public string Label { get; set; }
 
-        /// <summary>A styled title shown instead of <see cref="Title"/> while no filter is active.</summary>
+        /// <summary>A styled title shown instead of <see cref="Label"/> while no filter is active.</summary>
         public RichText? RichTitle { get; set; }
 
         /// <summary>A sentence shown under the list while the choice has focus.</summary>
@@ -83,6 +83,6 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <inheritdoc />
-        public override string ToString() => Title;
+        public override string ToString() => Label;
     }
 }

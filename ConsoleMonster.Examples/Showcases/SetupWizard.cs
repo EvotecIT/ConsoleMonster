@@ -99,7 +99,7 @@ namespace ConsoleMonster.Examples.Showcases {
             server.Loader = (values, token) => LoadServersAsync(values.Get<string>("Region"), token);
             server.Help = "Loaded for the chosen region; Esc cancels loading.";
             NumberField port = connection.Number("Port", "Port");
-            port.WholeNumber = true;
+            port.Integer = true;
             port.Minimum = 1;
             port.Maximum = 65535;
             port.Default = 443m;
@@ -175,7 +175,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 }
                 bar.Complete();
                 Thread.Sleep(300);
-                RunResult result = new RunResult("Toolbox Agent installed") {
+                MenuRunResult result = new MenuRunResult("Toolbox Agent installed") {
                     Summary = Markup.Escape(values.Get<string>("Path")) + " · " + string.Join(", ", values.GetList<object>("Components")) + " · " + Markup.Escape(values.Get<string>("Server"))
                 };
                 result.Figure("steps done", steps.Length.ToString(System.Globalization.CultureInfo.CurrentCulture), StatusKind.Pass);

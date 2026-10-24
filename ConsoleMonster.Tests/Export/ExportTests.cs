@@ -174,9 +174,24 @@ namespace ConsoleMonster.Tests.Export {
         }
 
         [Fact]
+        public void AutomaticWidthUsesTheCurrentTargetAndKeepsFrameGeometry() {
+            var target = new global::ConsoleMonster.Output.RecordingTarget(TerminalProfile.Fixed(57, 24, ColorDepth.None, GlyphTier.Ascii));
+            using (Terminal.Use(target)) {
+                var options = new ExportOptions();
+                Assert.Equal(57, ConsoleExporter.Render(new Rule("Section"), options, Theme.Dark).Width);
+                Assert.Equal(0, options.Width); // Resolution does not mutate reusable options.
+                Assert.Equal(31, ConsoleExporter.Render(new Rule(), new ExportOptions { Width = 31 }, Theme.Dark).Width);
+                Assert.Equal(57, new global::ConsoleMonster.Output.WriterTarget(new StringWriter()).Profile.Width);
+                var frame = new CellBuffer(17, 3);
+                Assert.Contains("width:17ch;", ConsoleExporter.ToHtml(frame));
+            }
+            Assert.Equal(100, TerminalProfile.DefaultWidth);
+        }
+
+        [Fact]
         public void Options_RejectUnsafeFontFamilies() {
             Assert.Throws<ArgumentException>(() => ConsoleExporter.ToHtml(Scene(), new ExportOptions { FontFamily = "x;}</style><script>" }));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleExporter.ToSvg(Scene(), new ExportOptions { Width = 0 }));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleExporter.ToSvg(Scene(), new ExportOptions { Width = -1 }));
         }
 
         [Fact]
@@ -208,11 +223,11 @@ namespace ConsoleMonster.Tests.Export {
             steps.Set("test", "Test", StatusKind.Pending);
             StringWriter writer = new StringWriter();
             using (LiveRecorder recorder = new LiveRecorder(writer)) {
-                recorder.Write(new LiveEvent("steps", "set", key: "compile", state: "running", time: 1));
+                recorder.Write(new LiveEvent("steps", "set", key: "compile", status: "running", time: 1));
                 recorder.Write(new LiveEvent("build", "advance", value: 4, time: 400));
-                recorder.Write(new LiveEvent("steps", "set", key: "compile", state: "pass", time: 800));
+                recorder.Write(new LiveEvent("steps", "set", key: "compile", status: "pass", time: 800));
                 recorder.Write(new LiveEvent("build", "advance", value: 6, time: 1500));
-                recorder.Write(new LiveEvent("steps", "set", key: "test", state: "fail", time: 1600));
+                recorder.Write(new LiveEvent("steps", "set", key: "test", status: "fail", time: 1600));
             }
             recording = writer.ToString();
             return new Rows(progress, steps);

@@ -44,7 +44,7 @@ namespace ConsoleMonster.Tests.Interactive {
         public void LiveFilter_FocusAndCaretUseActiveTheme(bool light, ColorDepth depth) {
             Theme theme = light ? Theme.Light : Theme.Dark;
             ScreenCapture capture = Capture(60, GlyphTier.Full, depth, theme);
-            Assert.Equal(theme.Resolve(ThemeToken.Accent, depth).Foreground, capture.LastFrame![0, 2].Style.Foreground);
+            Assert.Equal(theme.Resolve(ThemeToken.Accent, depth).Color, capture.LastFrame![0, 2].Style.Color);
             Assert.True((capture.LastFrame[5, 3].Style.Decoration & TextDecoration.Reverse) != 0);
             Assert.Equal(" ", capture.Frames[0][2, 3].Glyph);
             Assert.True((capture.Frames[0][2, 3].Style.Decoration & TextDecoration.Reverse) != 0);

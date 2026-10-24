@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun")]
     [OutputType(typeof(RunSnapshot))]
     public sealed class CmdletCompleteConsoleRun : PSCmdlet {
-        /// <summary><para type="description">The handle returned by New-ConsoleRun.</para></summary>
+        /// <summary><para type="description">The handle returned by Start-ConsoleRun.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public LiveRun Run { get; set; } = null!;
         /// <summary><para type="description">Return the final structured snapshot.</para></summary>
         [Parameter] public SwitchParameter PassThru { get; set; }

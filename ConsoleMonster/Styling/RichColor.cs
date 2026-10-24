@@ -128,7 +128,7 @@ namespace ConsoleMonster.Styling {
         public bool TryGetRgb(ITheme? theme, out byte r, out byte g, out byte b) {
             Color color = Color;
             if (Role.HasValue) {
-                color = (theme ?? Theme.Dark).Resolve(Role.Value, Capabilities.ColorDepth.TrueColor).Foreground;
+                color = (theme ?? Theme.Dark).Resolve(Role.Value, Capabilities.ColorDepth.TrueColor).Color;
             }
             r = g = b = 0;
             switch (color.Kind) {

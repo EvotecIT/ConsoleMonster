@@ -79,7 +79,7 @@ namespace ConsoleMonster.Demos {
             SessionRecordingOptions source = options.Recording ?? throw new ArgumentNullException(nameof(options.Recording));
             if (source.InProcess || source.Arguments.Count != 0) { throw new ArgumentException("Demos require their own PowerShell PTY bootstrap; use Shell and Environment instead of Arguments or InProcess."); }
             SessionRecordingOptions child = new SessionRecordingOptions {
-                Path = source.Path, Folder = source.Folder, Name = source.Name, Width = source.Width, Height = source.Height,
+                Path = source.Path, Folder = source.Folder, Title = source.Title, Width = source.Width, Height = source.Height,
                 Shell = source.Shell ?? "pwsh", WorkingDirectory = source.WorkingDirectory, IdleLimit = source.IdleLimit,
                 MaxBytes = source.MaxBytes, RedactionText = source.RedactionText, Timeout = source.Timeout, CaptureInitiallyEnabled = false
             };

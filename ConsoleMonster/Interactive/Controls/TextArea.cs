@@ -17,9 +17,9 @@ namespace ConsoleMonster.Interactive {
         private int _layoutWidth;
 
         /// <summary>Creates a named multiline input using the shared text-area editor.</summary>
-        /// <param name="name">The application-state key.</param>
+        /// <param name="key">The application-state key.</param>
         /// <param name="value">The initial text.</param>
-        public TextArea(string name, string? value = null) : base(name) {
+        public TextArea(string key, string? value = null) : base(key) {
             _editor = new TextAreaEditor(value);
             _caret = new CaretSlot();
         }

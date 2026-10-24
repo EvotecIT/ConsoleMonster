@@ -111,8 +111,8 @@ namespace ConsoleMonster.Tests.Export {
 
         [Fact]
         public void ContentBearingContainersKeepTitlesCaptionsStatusAndFooters() {
-            Panel panel = new Panel(new TextBlock("body"), "Deployment result") { Caption = "3 hosts", Footer = "2 failures" };
-            Dashboard dashboard = new Dashboard("Run result", panel) { Subtitle = "Production", Status = "Failed", StatusLevel = StatusKind.Fail, Footer = "Review failures" };
+            Panel panel = new Panel(new TextBlock("body"), "Deployment result") { HeaderRight = "3 hosts", Caption = "2 failures" };
+            Dashboard dashboard = new Dashboard("Run result", panel) { Subtitle = "Production", Detail = "Failed", Status = StatusKind.Fail, Footer = "Review failures" };
             string markdown = ConsoleExporter.ToMarkdown(dashboard, new ExportOptions { Width = 100 });
             foreach (string value in new[] { "Run result", "Production", "Failed", "Deployment result", "3 hosts", "2 failures", "body", "Review failures" }) {
                 Assert.Contains(value, markdown);

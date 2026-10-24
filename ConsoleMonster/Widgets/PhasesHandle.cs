@@ -6,8 +6,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class PhasesHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The phases name.</param>
-        public PhasesHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The phases name.</param>
+        public PhasesHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Marks a phase as running (its duration is measured until the next state change).</summary>

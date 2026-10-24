@@ -17,7 +17,7 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("\r")]
         public void DirectWrite_SpanningMarkupKeepsLinesStylesAndRenderTimeTheme(string newline) {
             string markup = "[bold]first[[literal]]" + newline + newline + "second[/] third" + newline;
-            LogRegion log = new LogRegion { ShowTime = false };
+            LogRegion log = new LogRegion { ShowElapsed = false };
             TimeSpan time = TimeSpan.FromSeconds(3);
             log.Write(RichText.FromMarkup(markup, new RichStyle(RichColor.FromRole(ThemeToken.Pass))), "warning", time);
 
@@ -35,8 +35,8 @@ namespace ConsoleMonster.Tests.Live {
                     }
                     CellBuffer frame = new CellBuffer(60, 4);
                     log.Render(new Region(frame), context);
-                    Assert.Equal(context.Style(ThemeToken.Pass).Foreground, frame[10, 0].Style.Foreground);
-                    Assert.Equal(context.Style(ThemeToken.Pass).Foreground, frame[10, 2].Style.Foreground);
+                    Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[10, 0].Style.Color);
+                    Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[10, 2].Style.Color);
                     Assert.Equal(depth != ColorDepth.None, (frame[10, 0].Style.Decoration & TextDecoration.Bold) != 0);
                     Assert.Equal(depth != ColorDepth.None, (frame[10, 2].Style.Decoration & TextDecoration.Bold) != 0);
                 }
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void DirectWrite_NestedLinksAndLiteralSegmentsKeepTheirMeaning() {
-            LogRegion log = new LogRegion { ShowTime = false };
+            LogRegion log = new LogRegion { ShowElapsed = false };
             log.Write(RichText.Concat(RichText.Plain("[literal] "),
                 RichText.FromMarkup("[link=https://example.com/report][pass]first\nsecond[/][/]")));
             Assert.Equal(new[] { "[literal] first", "second" }, log.Entries.Select(e => e.Text));
@@ -58,12 +58,12 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void EntryTransfer_KeepsSelectedLineAndExpandsCallerCreatedMessages() {
-            LogRegion source = new LogRegion { ShowTime = false };
+            LogRegion source = new LogRegion { ShowElapsed = false };
             source.Write(RichText.FromMarkup("[pass]first\nsecond[/]"), "warn", TimeSpan.FromSeconds(3));
-            LogRegion all = new LogRegion { ShowTime = false };
+            LogRegion all = new LogRegion { ShowElapsed = false };
             foreach (LogEntry entry in source.Entries) { all.Write(entry); }
             Assert.Equal(new[] { "first", "second" }, all.Entries.Select(entry => entry.Text));
-            LogRegion selected = new LogRegion { ShowTime = false };
+            LogRegion selected = new LogRegion { ShowElapsed = false };
             selected.Write(source.Entries.Last());
             Assert.Equal("second", Assert.Single(selected.Entries).Text);
             Assert.Equal(1, selected.Entries.Single().LineIndex);
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Tests.Live {
         public void BareLinkAcrossLines_KeepsWholeSourceTargetWithoutInventingClickableLinks(bool throughStream) {
             string markup = "[link]https://example.com/a\nhttps://example.com/b[/]";
             RichText source = RichText.FromMarkup(markup);
-            LogRegion log = new LogRegion { ShowTime = false };
+            LogRegion log = new LogRegion { ShowElapsed = false };
             if (throughStream) {
                 using (LiveSession session = new LiveSession(log, LiveSessionTests.Options(new FakeOutput(false)))) {
                     session.Start();
@@ -110,7 +110,7 @@ namespace ConsoleMonster.Tests.Live {
             bool previous = Markup.Strict;
             try {
                 Markup.Strict = strict;
-                LogRegion log = new LogRegion { ShowTime = false };
+                LogRegion log = new LogRegion { ShowElapsed = false };
                 log.Write(new RichText(new[] { new RichSegment("[unknown]first\nsecond[/]", isMarkup: true) }));
                 log.Write("later");
                 Assert.Equal(new[] { "[unknown]first", "second[/]", "later" }, log.Entries.Select(e => e.Text));
@@ -128,7 +128,7 @@ namespace ConsoleMonster.Tests.Live {
             bool previous = Markup.Strict;
             try {
                 Markup.Strict = strict;
-                LogRegion log = new LogRegion { ShowTime = false };
+                LogRegion log = new LogRegion { ShowElapsed = false };
                 FakeOutput output = new FakeOutput(false);
                 using (LiveSession session = new LiveSession(log, LiveSessionTests.Options(output))) {
                     session.Start();

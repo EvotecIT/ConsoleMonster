@@ -38,7 +38,7 @@ namespace ConsoleMonster.Output {
 
     /// <summary>
     /// Drives the terminal's progress indicator with <c>OSC 9;4</c>: in Windows Terminal the tab and the taskbar button show
-    /// a percentage, an error, warnings or indeterminate work. Live sessions, <c>Write-ConsoleStatus</c> and
+    /// a percentage, an error, warnings or indeterminate work. Live sessions, <c>Show-ConsoleStatusLine</c> and
     /// <see cref="Terminal.Status(string, Action{StatusContext})"/> drive it automatically, and it is cleared when they end,
     /// on Ctrl+C and on process exit. It is only written to terminals known to show it (Windows Terminal, ConEmu), never in
     /// CI, redirected or plain output, and <c>CONSOLEMONSTER_TASKBAR=0</c> or <see cref="Enabled"/> turns it off.

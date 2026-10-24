@@ -10,16 +10,16 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public abstract class LiveWidget : IWidget, ILiveTarget {
         /// <summary>Creates a live widget.</summary>
-        /// <param name="name">The unique name events are addressed to.</param>
-        protected LiveWidget(string name) {
-            if (string.IsNullOrWhiteSpace(name)) {
-                throw new ArgumentException("A live widget needs a name.", nameof(name));
+        /// <param name="widgetId">The unique name events are addressed to.</param>
+        protected LiveWidget(string widgetId) {
+            if (string.IsNullOrWhiteSpace(widgetId)) {
+                throw new ArgumentException("A live widget needs a name.", nameof(widgetId));
             }
-            Name = name;
+            WidgetId = widgetId;
         }
 
         /// <inheritdoc />
-        public string Name { get; }
+        public string WidgetId { get; }
 
         /// <inheritdoc />
         public abstract Size Measure(Constraints constraints, RenderContext context);

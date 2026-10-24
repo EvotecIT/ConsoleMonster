@@ -62,7 +62,7 @@ namespace ConsoleMonster.Interactive {
             for (int y = 0; y < region.Height; y++) {
                 for (int x = 0; x < region.Width; x++) {
                     Cell cell = region.Get(x, y);
-                    region.SetStyle(x, y, new Style(dim.Foreground, default, TextDecoration.None));
+                    region.SetStyle(x, y, new Style(dim.Color, default, TextDecoration.None));
                     _ = cell;
                 }
             }

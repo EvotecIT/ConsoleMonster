@@ -109,12 +109,12 @@ namespace ConsoleMonster {
         /// <param name="value">The current value.</param>
         /// <param name="total">The total (0 for an unknown total).</param>
         /// <returns>The progress bar.</returns>
-        public static ProgressBar Progress(string label, double value = 0, double total = 100) => new ProgressBar(label) { Value = value, Total = total };
+        public static ProgressBar ProgressBar(string label, double value = 0, double total = 100) => new ProgressBar(label) { Value = value, Total = total };
 
         /// <summary>A list of labelled states (<see cref="StatusList"/>).</summary>
         /// <param name="items">The labels and their states, in order.</param>
         /// <returns>The status list.</returns>
-        public static StatusList Status(params (string Label, StatusKind Status)[] items) {
+        public static StatusList StatusList(params (string Label, StatusKind Status)[] items) {
             StatusList list = new StatusList();
             foreach ((string label, StatusKind status) in items ?? new (string, StatusKind)[0]) {
                 list.Add(label, status);

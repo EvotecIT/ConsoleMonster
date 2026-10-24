@@ -9,7 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A centred logo above a dashboard</para>
-    ///   <code>New-ConsoleAlign -Horizontal Center { New-ConsoleLogo -Text 'Monster' }</code>
+    ///   <code>New-ConsoleAlign -Horizontal Center -Content { New-ConsoleLogo -Text 'Monster' }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleAlign")]
     [OutputType(typeof(IWidget))]

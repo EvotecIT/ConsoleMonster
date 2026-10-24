@@ -11,7 +11,7 @@ using ConsoleMonster.Output;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Writes multicolour text to the console and, optionally, to a log file: Write-Color compatible, with markup, styles, gradients, padding, wrapping and structured logs.</para>
-    /// <para type="description">The parameters and aliases of Write-Color (PSWriteColor) work the same way: -Text pieces get -Color and -BackGroundColor per piece (pieces beyond the colours use the first colour), -StartTab, -StartSpaces, -LinesBefore, -LinesAfter, -ShowTime with -DateTimeFormat, -NoNewLine, -HorizontalCenter, -LogFile with -LogTime, -LogRetry and -Encoding, and -NoConsoleOutput. ConsoleColor names render exactly as Write-Host shows them. Beyond Write-Color: -Markup, -Style, -Link, -Role, hex and RGB colours, -Gradient, -PadLeft/-PadRight/-PadCenter with -PadCharacter (measured in terminal cells, so emoji and CJK pad correctly), -Wrap with a hanging indent under the time and prefix, -SplitLines with the following lines aligned under the first, and -LogFormat Text, Csv or JsonLines with -LogSeparator, -Level and -Category. Differences: the default colour is the terminal's own (Write-Color uses White), and a new log file is UTF-8 without a byte order mark by default (Write-Color writes UTF-16); appending to an existing log keeps its encoding, so Write-Color's UTF-16 logs stay UTF-16. In transcripts each call is one line; in jobs and remoting the colours travel with the output; redirected output is plain text. There is deliberately no Write-Color or wc alias.</para>
+    /// <para type="description">Writes literal text pieces with Color and BackgroundColor, optional Role and Decoration, links, gradients and terminal-cell padding. ShowTimestamp adds a wall-clock timestamp formatted with TimestampFormat. NoNewLine continues the current line. LogFile records text, CSV or JSON Lines; LogTimestamp and LogFormat control that destination independently. Redirected output is plain text, and jobs and remoting retain the structured rendering. New log files use UTF-8 without a byte order mark; existing logs keep their encoding.</para>
     /// </summary>
     /// <example>
     ///   <para>Write-Color style</para>
@@ -23,30 +23,30 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A multi-line message aligned under the time stamp</para>
-    ///   <code>Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTime -SplitLines "`n"</code>
+    ///   <code>Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleText")]
     public sealed class CmdletWriteConsoleText : PSCmdlet {
         /// <summary><para type="description">Text pieces, shown literally (strings, or rich text from New-ConsoleText).</para></summary>
         [Parameter(Position = 0, ValueFromPipeline = true)]
-        [Alias("T")]
+
         [AllowEmptyString]
         [AllowNull]
         public object[]? Text { get; set; }
 
         /// <summary><para type="description">Foreground colour per piece: ConsoleColor names (exactly as Write-Host shows them: DarkRed is ANSI red, Red bright red; grey spells Gray), theme roles, #RRGGBB, rgb(r,g,b), r,g,b, or a markup palette name (cadetblue; palette.darkred for the palette colour where the bare name is a ConsoleColor).</para></summary>
         [Parameter]
-        [Alias("C", "ForegroundColor", "FGC")]
+
         public object[]? Color { get; set; }
 
         /// <summary><para type="description">Background colour per piece.</para></summary>
         [Parameter]
-        [Alias("B", "BGC")]
-        public object[]? BackGroundColor { get; set; }
+
+        public object[]? BackgroundColor { get; set; }
 
         /// <summary><para type="description">Tabs before the text (eight cells each).</para></summary>
         [Parameter]
-        [Alias("Indent")]
+
         public int StartTab { get; set; }
 
         /// <summary><para type="description">Empty lines before the text.</para></summary>
@@ -63,18 +63,18 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A log file the text is appended to (plain text, see -LogFormat).</para></summary>
         [Parameter]
-        [Alias("L")]
+
         public string? LogFile { get; set; }
 
-        /// <summary><para type="description">The time format for -ShowTime and the log (default yyyy-MM-dd HH:mm:ss).</para></summary>
+        /// <summary><para type="description">The time format for -ShowTimestamp and the log (default yyyy-MM-dd HH:mm:ss).</para></summary>
         [Parameter]
-        [Alias("DateFormat", "TimeFormat")]
-        public string DateTimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
+
+        public string TimestampFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary><para type="description">Whether log lines start with the time (default $true).</para></summary>
         [Parameter]
-        [Alias("LogTimeStamp")]
-        public bool LogTime { get; set; } = true;
+
+        public bool LogTimestamp { get; set; } = true;
 
         /// <summary><para type="description">Attempts to write the log file before giving up with a warning (default 2).</para></summary>
         [Parameter]
@@ -87,7 +87,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Starts the line with the time in brackets.</para></summary>
         [Parameter]
-        public SwitchParameter ShowTime { get; set; }
+        public SwitchParameter ShowTimestamp { get; set; }
 
         /// <summary><para type="description">Leaves the line open, so the next output continues on it.</para></summary>
         [Parameter]
@@ -99,7 +99,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Writes only to the log file.</para></summary>
         [Parameter]
-        [Alias("HideConsole")]
+
         public SwitchParameter NoConsoleOutput { get; set; }
 
         /// <summary><para type="description">Markup added after the pieces ([bold lime]Ready[/] in [muted]3s[/]).</para></summary>
@@ -108,7 +108,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Decorations for the whole text: Bold, Dim, Italic, Underline, Strikethrough, Invert.</para></summary>
         [Parameter]
-        public string[]? Style { get; set; }
+        public string[]? Decoration { get; set; }
 
         /// <summary><para type="description">A hyperlink target for the whole text (OSC 8 where supported).</para></summary>
         [Parameter]
@@ -116,7 +116,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">A theme role for pieces without their own colour (Pass, Fail, Warn, Info, Muted, Accent...).</para></summary>
         [Parameter]
-        [Alias("Tone")]
+
         public ThemeToken? Role { get; set; }
 
         /// <summary><para type="description">Two colours: the text is coloured from the first to the second (per character; steps on 16-colour terminals).</para></summary>
@@ -145,6 +145,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The width for -Wrap and -HorizontalCenter (default the window width).</para></summary>
         [Parameter]
+        [ValidateRange(0, 1000)]
         public int Width { get; set; }
 
         /// <summary><para type="description">Splits the text at this separator; the following lines are aligned under the first, after the time and prefix.</para></summary>
@@ -170,15 +171,15 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            RichText body = PSRichText.Build(Text, Color, BackGroundColor, Markup, Style, Link, Role, Gradient);
+            RichText body = PSRichText.Build(Text, Color, BackgroundColor, Markup, Decoration, Link, Role, Gradient);
             DateTime now = DateTime.Now;
             ConsoleTextLayout layout = new ConsoleTextLayout {
                 StartTab = StartTab,
                 StartSpaces = StartSpaces,
                 LinesBefore = LinesBefore,
                 LinesAfter = LinesAfter,
-                Time = ShowTime.IsPresent ? now : (DateTime?)null,
-                TimeFormat = DateTimeFormat,
+                Time = ShowTimestamp.IsPresent ? now : (DateTime?)null,
+                TimestampFormat = TimestampFormat,
                 SplitLines = SplitLines,
                 Wrap = Wrap.IsPresent,
                 HorizontalCenter = HorizontalCenter.IsPresent,
@@ -201,8 +202,8 @@ namespace ConsoleMonster.PowerShell {
                     Encoding = ConsoleLogFile.ResolveEncoding(Encoding),
                     EncodingSpecified = MyInvocation.BoundParameters.ContainsKey(nameof(Encoding)),
                     Retries = LogRetry,
-                    IncludeTime = LogTime,
-                    TimeFormat = DateTimeFormat,
+                    IncludeTime = LogTimestamp,
+                    TimeFormat = TimestampFormat,
                     Warning = message => WriteWarning("Write-ConsoleText - " + message)
                 };
                 log.Append(new ConsoleLogRecord(now, string.Join("\n", parts.ToArray()), Level, Category));

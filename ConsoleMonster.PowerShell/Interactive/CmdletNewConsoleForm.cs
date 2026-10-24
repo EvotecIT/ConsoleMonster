@@ -10,18 +10,18 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A two-page wizard</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
-    ///     New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
-    ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
-    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
+    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+    ///     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
+    ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
     /// }</code>
     /// </example>
     /// <example>
     ///   <para>A form that comes with a preset</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
-    ///     New-ConsoleField Name 'Share name' -Required -Parameter Name
-    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly
+    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+    ///     New-ConsoleField Name 'Share name' -Required -ParameterName Name
+    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
     ///     New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
     /// }</code>
     /// </example>

@@ -14,7 +14,7 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Text {
     /// <summary>
-    /// The core APIs behind Write-ConsoleText, Write-ConsoleStatus, host colour mapping, Format-ConsoleCode and
+    /// The core APIs behind Write-ConsoleText, Show-ConsoleStatusLine, host colour mapping, Show-ConsoleCode and
     /// Invoke-ConsolePester, so C# hosts get the same behaviour as the cmdlets.
     /// </summary>
     public sealed class ConsoleTextCoreTests {
@@ -27,7 +27,7 @@ namespace ConsoleMonster.Tests.Text {
             ConsoleTextLayout layout = new ConsoleTextLayout {
                 StartTab = 1,
                 Time = new DateTime(2026, 10, 17, 14, 3, 0),
-                TimeFormat = "HH:mm",
+                TimestampFormat = "HH:mm",
                 SplitLines = "|",
                 LinesBefore = 1
             };
@@ -52,9 +52,9 @@ namespace ConsoleMonster.Tests.Text {
             RichText rich = RichText.Plain("own", new RichStyle(RichColor.FromRole(ThemeToken.Fail), RichColor.Default));
             RichText text = RichText.FromPieces(new object?[] { "a", rich, 3 }, new[] { RichColor.FromRole(ThemeToken.Pass) }, null, default);
             Assert.Equal("aown3", text.PlainText);
-            Assert.Equal(RichColor.FromRole(ThemeToken.Pass), text.Segments[0].Style.Foreground);
-            Assert.Equal(RichColor.FromRole(ThemeToken.Fail), text.Segments[1].Style.Foreground);
-            Assert.Equal(RichColor.FromRole(ThemeToken.Pass), text.Segments[2].Style.Foreground);
+            Assert.Equal(RichColor.FromRole(ThemeToken.Pass), text.Segments[0].Style.Color);
+            Assert.Equal(RichColor.FromRole(ThemeToken.Fail), text.Segments[1].Style.Color);
+            Assert.Equal(RichColor.FromRole(ThemeToken.Pass), text.Segments[2].Style.Color);
             Assert.Single(text.Split("q"));
             Assert.Equal(new[] { "one", "two" }, RichText.Plain("one, two").Split(", ").Select(p => p.PlainText).ToArray());
         }
@@ -105,9 +105,9 @@ namespace ConsoleMonster.Tests.Text {
         public void ConsoleColorMap_MapsRolesByMeaningAndOthersToTheNearest() {
             RenderContext context = Context();
             ConsoleColorMap map = new ConsoleColorMap(context);
-            Assert.Equal(ConsoleColor.Green, map.Foreground(context.Style(ThemeToken.Pass).Foreground));
-            Assert.Equal(ConsoleColor.Red, map.Foreground(context.Style(ThemeToken.Fail).Foreground));
-            Assert.Null(map.Foreground(context.Style(ThemeToken.Text).Foreground));
+            Assert.Equal(ConsoleColor.Green, map.Foreground(context.Style(ThemeToken.Pass).Color));
+            Assert.Equal(ConsoleColor.Red, map.Foreground(context.Style(ThemeToken.Fail).Color));
+            Assert.Null(map.Foreground(context.Style(ThemeToken.Text).Color));
             Assert.Contains(map.Foreground(Color.FromRgb(250, 10, 10)), new ConsoleColor?[] { ConsoleColor.Red, ConsoleColor.DarkRed });
             Assert.Null(new ConsoleColorMap(context, false).Foreground(Color.FromRgb(250, 10, 10)));
         }

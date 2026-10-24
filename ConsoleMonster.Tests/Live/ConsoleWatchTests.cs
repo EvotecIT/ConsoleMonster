@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Live {
             List<string> printed = new List<string>();
             int runs = ConsoleWatch.Run(i => new TextBlock("value " + i), new WatchOptions {
                 Count = 3,
-                Interactive = false,
+                Live = false,
                 Title = "demo",
                 Print = widget => printed.Add(Text(widget)),
                 Delay = (interval, token) => { }
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Tests.Live {
             Exception failure = refreshCancelled ? (Exception)new OperationCanceledException("not yet") : new InvalidOperationException("not yet");
             ConsoleWatch.Run(i => i == 1 ? throw failure : new TextBlock("ok now"), new WatchOptions {
                 Count = 2,
-                Interactive = false,
+                Live = false,
                 Print = widget => printed.Add(Text(widget)),
                 Delay = (interval, token) => { }
             });
@@ -62,21 +62,21 @@ namespace ConsoleMonster.Tests.Live {
                         stop.Cancel();
                     }
                     return new TextBlock("run " + i);
-                }, new WatchOptions { Interactive = false, Print = widget => { }, Delay = (interval, token) => { } }, stop.Token);
+                }, new WatchOptions { Live = false, Print = widget => { }, Delay = (interval, token) => { } }, stop.Token);
                 Assert.Equal(2, runs);
             }
         }
 
         [Fact]
         public void Options_IntervalIsAtLeastFiftyMilliseconds() {
-            Assert.Equal(WatchOptions.MinimumInterval, new WatchOptions { Interval = TimeSpan.Zero }.Interval);
-            Assert.Equal(WatchOptions.MinimumInterval, new WatchOptions { Interval = TimeSpan.FromSeconds(-1) }.Interval);
+            Assert.Equal(WatchOptions.MinimumInterval, new WatchOptions { PollInterval = TimeSpan.Zero }.PollInterval);
+            Assert.Equal(WatchOptions.MinimumInterval, new WatchOptions { PollInterval = TimeSpan.FromSeconds(-1) }.PollInterval);
         }
 
         [Fact]
         public void Run_AFrameWithAStatus_ShowsItInTheHeading() {
             List<string> printed = new List<string>();
-            ConsoleWatch.Run(i => new WatchFrame(new TextBlock("partial"), "2 errors"), new WatchOptions { Count = 1, Interactive = false, Print = widget => printed.Add(Text(widget)) });
+            ConsoleWatch.Run(i => new WatchFrame(new TextBlock("partial"), "2 errors"), new WatchOptions { Count = 1, Live = false, Print = widget => printed.Add(Text(widget)) });
             Assert.Contains("2 errors", printed[0]);
             Assert.Contains("partial", printed[0]);
         }
@@ -93,29 +93,29 @@ namespace ConsoleMonster.Tests.Live {
         [Fact]
         public void WatchView_Differences_TonesWholeChangedValuesOnly() {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 5, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
-            Color tone = context.Style(ThemeToken.Surface).Background;
+            Color tone = context.Style(ThemeToken.Surface).BackgroundColor;
             WatchView view = new WatchView { Differences = true };
             // Columns two spaces apart: "count" is unchanged; "42" changed as a whole, not only its "2".
             CellBuffer second = RenderTwice(view, context, "count  41  of  99", "count  42  of  9");
-            Assert.NotEqual(tone, second[0, 1].Style.Background);
-            Assert.Equal(tone, second[7, 1].Style.Background);
-            Assert.Equal(tone, second[8, 1].Style.Background);
+            Assert.NotEqual(tone, second[0, 1].Style.BackgroundColor);
+            Assert.Equal(tone, second[7, 1].Style.BackgroundColor);
+            Assert.Equal(tone, second[8, 1].Style.BackgroundColor);
             Assert.True((second[7, 1].Style.Decoration & TextDecoration.Bold) != 0);
-            Assert.NotEqual(tone, second[11, 1].Style.Background);
+            Assert.NotEqual(tone, second[11, 1].Style.BackgroundColor);
             // "99" became "9": the value is toned, the padding it left is not.
-            Assert.Equal(tone, second[15, 1].Style.Background);
-            Assert.NotEqual(tone, second[16, 1].Style.Background);
+            Assert.Equal(tone, second[15, 1].Style.BackgroundColor);
+            Assert.NotEqual(tone, second[16, 1].Style.BackgroundColor);
             // A changed line of text is one continuous span, spaces and unchanged words included, padding excluded.
             CellBuffer line = RenderTwice(new WatchView { Differences = true }, context, "queue-c is slow", "queue-b is draining");
             for (int x = 0; x < 19; x++) {
-                Assert.Equal(tone, line[x, 1].Style.Background);
+                Assert.Equal(tone, line[x, 1].Style.BackgroundColor);
             }
-            Assert.NotEqual(tone, line[19, 1].Style.Background);
+            Assert.NotEqual(tone, line[19, 1].Style.BackgroundColor);
             // The next run with the same values clears the tone.
             view.Update(new TextBlock("count  42  of  9"), 3);
             CellBuffer third = new CellBuffer(30, 2);
             view.Render(new Region(third), context);
-            Assert.NotEqual(tone, third[7, 1].Style.Background);
+            Assert.NotEqual(tone, third[7, 1].Style.BackgroundColor);
         }
 
         [Fact]

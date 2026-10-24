@@ -107,7 +107,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void Logs_LiteralUrlsAndPathsAndRichLabels_AreLinked() {
-            LogRegion log = new LogRegion { ShowTime = false };
+            LogRegion log = new LogRegion { ShowElapsed = false };
             log.Write("Saved /var/log/daily.txt; docs https://example.com/docs");
             log.Write(RichText.FromMarkup("[link=file:///tmp/daily.txt]Daily report[/]"));
             string encoded = Terminal.RenderEncoded(log, Profile, Theme.Dark);

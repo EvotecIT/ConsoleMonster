@@ -13,10 +13,10 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     public sealed class ChoiceField : Field {
         /// <summary>Creates a choice field.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <param name="multiple">Whether several values can be chosen.</param>
-        public ChoiceField(string name, string? label = null, bool multiple = false) : base(name, label) {
+        public ChoiceField(string key, string? label = null, bool multiple = false) : base(key, label) {
             Multiple = multiple;
         }
 
@@ -87,12 +87,12 @@ namespace ConsoleMonster.Interactive {
         public override string Display(object? value, PromptLabels labels) {
             if (!Multiple) {
                 Choice? c = Find(value);
-                return c?.Title ?? base.Display(value, labels);
+                return c?.Label ?? base.Display(value, labels);
             }
             List<string> titles = new List<string>();
             if (value is IEnumerable list && !(value is string)) {
                 foreach (object? item in list) {
-                    titles.Add(Find(item)?.Title ?? Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty);
+                    titles.Add(Find(item)?.Label ?? Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty);
                 }
             }
             if (titles.Count == 0) {
@@ -165,7 +165,7 @@ namespace ConsoleMonster.Interactive {
                 }
             }
             foreach (Choice c in Choices) {
-                if (string.Equals(c.Title, stored, StringComparison.Ordinal)) {
+                if (string.Equals(c.Label, stored, StringComparison.Ordinal)) {
                     return c;
                 }
             }

@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Live {
             StatusKind[] states = { StatusKind.Pass, StatusKind.Fail, StatusKind.Warn, StatusKind.Skip };
             string[] details = { "Healthy endpoint", "Connection refused", "Partial response", "Unsupported on this platform" };
             using (var run = new LiveRun(states.Select((state, i) => new RunItem("result-" + i)), new LiveRunOptions {
-                NoLive = noLive, ProgressInterval = TimeSpan.Zero,
+                Live = !(noLive), ProgressInterval = TimeSpan.Zero,
                 Session = new LiveSessionOptions { Profile = profile, Output = new LineOutput(output, plain), RecordWriter = recording,
                     CaptureConsole = false, HandleCancelKey = false, Discoverable = false }
             })) {
@@ -38,9 +38,9 @@ namespace ConsoleMonster.Tests.Live {
             Assert.True(!output.ToString().Contains("\u001b"), output.ToString().Replace("\u001b", "<ESC>"));
             LiveEvent[] events = LiveRecordingReader.Read(new System.IO.StringReader(recording.ToString()))
                 .Where(item => item.Text?.StartsWith("result-", StringComparison.Ordinal) == true).ToArray();
-            Assert.Equal(new[] { "pass", "error", "warn", "skip" }, events.Select(item => item.State));
+            Assert.Equal(new[] { "pass", "error", "warn", "skip" }, events.Select(item => item.Status));
             Assert.All(events, item => Assert.Null(item.Payload));
-            var replay = new LogRegion("run-log") { ShowTime = false };
+            var replay = new LogRegion("run-log") { ShowElapsed = false };
             var replayOutput = new StringTerminalWriter();
             LiveSession.Replay(replay, new System.IO.StringReader(recording.ToString()), new LiveSessionOptions {
                 Profile = plain, Output = new LineOutput(replayOutput, plain), CaptureConsole = false, HandleCancelKey = false, Discoverable = false
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Tests.Live {
             var target = new WriterTarget(writer, profile);
             using (Terminal.UseProfilePolicy(p => p.WithMode(noLive || borrowedPlain ? OutputMode.Interactive : OutputMode.Plain)))
             using (var run = new LiveRun(new[] { new RunItem("check", "node-01") }, new LiveRunOptions {
-                Title = "Policy run", NoLive = noLive, InteractiveKeys = true, ProgressEvery = 1, ProgressInterval = TimeSpan.Zero,
+                Title = "Policy run", Live = !(noLive), InteractiveKeys = true, ProgressEvery = 1, ProgressInterval = TimeSpan.Zero,
                 Session = new LiveSessionOptions {
                     Profile = explicitProfile ? profile : null, Target = target,
                     Output = borrowedPlain ? new LineOutput(target.Writer!, profile.WithMode(OutputMode.Plain)) : null,
@@ -240,7 +240,7 @@ namespace ConsoleMonster.Tests.Live {
                     if (value.Contains("closing log")) { Assert.False(session.IsRunning); throw failure; }
                     text.Append(value);
                 };
-                session.Start(); session.Post(new LiveEvent(target.Name, "write", text: "closing log")); session.Stop();
+                session.Start(); session.Post(new LiveEvent(target.WidgetId, "write", text: "closing log")); session.Stop();
                 Assert.Same(failure, session.Failure); Assert.Equal(1, session.EventsApplied);
                 Assert.Contains("summary survived", text.ToString());
             }
@@ -272,15 +272,15 @@ namespace ConsoleMonster.Tests.Live {
             var recording = new SingleWriteFailureRecorder();
             var output = new StringTerminalWriter();
             var profile = TerminalProfile.Fixed(80, 24, ColorDepth.None, mode: OutputMode.Plain);
-            var slot = new Slot("slot");
+            var slot = new RegionWidget("slot");
             var target = new FakeTarget();
             using (var session = new LiveSession(slot, new LiveSessionOptions {
                 Profile = profile, Output = new LineOutput(output, profile), RecordWriter = recording, Clock = () => TimeSpan.Zero,
                 Summary = TextBlock.Plain("summary survived"), CaptureConsole = false, HandleCancelKey = false
             })) {
-                session.Start(); session.Post(new LiveEvent(slot.Name, "set") { Payload = target });
+                session.Start(); session.Post(new LiveEvent(slot.WidgetId, "set") { Payload = target });
                 Assert.True(session.Flush(TimeSpan.FromSeconds(5)));
-                session.Post(new LiveEvent(target.Name, "changed", text: "changed"));
+                session.Post(new LiveEvent(target.WidgetId, "changed", text: "changed"));
                 Assert.True(session.Flush(TimeSpan.FromSeconds(5))); Assert.Null(session.Failure);
                 recording.FailNext = failure; session.Stop();
                 Assert.Equal(1, recording.FailedWrites); Assert.Same(failure, session.Failure);
@@ -309,7 +309,7 @@ namespace ConsoleMonster.Tests.Live {
                 Profile = profile, Output = new LineOutput(output, profile), RecordWriter = new System.IO.StringWriter(),
                 Summary = TextBlock.Plain("summary survived"), CaptureConsole = false, HandleCancelKey = false
             })) {
-                session.Start(); session.Post(new LiveEvent(target.Name, "tick", value: invalidRecording ? double.NaN : 0, text: "ordinary line")); session.Stop();
+                session.Start(); session.Post(new LiveEvent(target.WidgetId, "tick", value: invalidRecording ? double.NaN : 0, text: "ordinary line")); session.Stop();
                 Assert.Null(session.Failure); Assert.Equal(1, session.EventsApplied);
                 if (invalidRecording) { Assert.IsType<ArgumentException>(session.LastError); }
                 else { Assert.IsType<FormatException>(session.LastError); }
@@ -322,7 +322,7 @@ namespace ConsoleMonster.Tests.Live {
             var writer = new StringTerminalWriter();
             var profile = TerminalProfile.Fixed(80, 24, ColorDepth.None, mode: OutputMode.Plain);
             using (var run = new LiveRun(new[] { new RunItem("first"), new RunItem("last"), new RunItem("queued") }, new LiveRunOptions {
-                Title = "Cancellation test", NoLive = true, ProgressInterval = TimeSpan.Zero,
+                Title = "Cancellation test", Live = !(true), ProgressInterval = TimeSpan.Zero,
                 Session = new LiveSessionOptions { Profile = profile, Output = new LineOutput(writer, profile), CaptureConsole = false, HandleCancelKey = false }
             })) {
                 run.Started(0); run.Started(1); run.Finished(0, StatusKind.Pass);
@@ -345,7 +345,7 @@ namespace ConsoleMonster.Tests.Live {
                 Markup.Strict = strict;
                 var writer = new StringTerminalWriter();
                 var profile = TerminalProfile.Fixed(60, 24, ColorDepth.TrueColor);
-                var log = new LogRegion("log") { Scrollback = true, ShowTime = false };
+                var log = new LogRegion("log") { Scrollback = true, ShowElapsed = false };
                 using (var session = new LiveSession(log, new LiveSessionOptions {
                     Mode = LiveMode.Inline, Profile = profile, Output = new InlineOutput(writer, profile), CaptureConsole = false,
                     HandleCancelKey = false, PrintFinalState = false, WindowSource = () => new[] { 0, 0, 60, 24 }

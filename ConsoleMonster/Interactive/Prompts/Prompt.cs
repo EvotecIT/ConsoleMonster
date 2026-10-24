@@ -66,7 +66,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="options">Options; null uses <see cref="InteractiveOptions.Default"/>.</param>
         /// <param name="cancellationToken">Cancels the prompt.</param>
         /// <returns>The answer.</returns>
-        /// <exception cref="PromptCancelledException">The user cancelled.</exception>
+        /// <exception cref="PromptCanceledException">The user cancelled.</exception>
         /// <exception cref="PromptUnavailableException">Nobody can answer and there is no default.</exception>
         public T Show(InteractiveOptions? options = null, CancellationToken cancellationToken = default) {
             InteractiveOptions o = options ?? InteractiveOptions.Default;
@@ -101,7 +101,7 @@ namespace ConsoleMonster.Interactive {
             try {
                 value = Show(options, cancellationToken);
                 return true;
-            } catch (PromptCancelledException) {
+            } catch (PromptCanceledException) {
                 value = default!;
                 return false;
             }
@@ -133,8 +133,8 @@ namespace ConsoleMonster.Interactive {
                         throw;
                     }
                     surface.Complete(view.Summary(context));
-                    if (view.IsCancelled) {
-                        throw new PromptCancelledException(Title);
+                    if (view.IsCanceled) {
+                        throw new PromptCanceledException(Title);
                     }
                     return view.Result;
                 } finally {
@@ -149,7 +149,7 @@ namespace ConsoleMonster.Interactive {
             return new StyledLine(new[] {
                 new TextSpan(context.Glyphs.Get(Glyphs.Glyph.Cross) + " ", context.Style(ThemeToken.Muted)),
                 new TextSpan(Title, context.Style(ThemeToken.Muted)),
-                new TextSpan("  " + labels.Cancelled, context.Style(ThemeToken.Muted).With(TextDecoration.Italic))
+                new TextSpan("  " + labels.Canceled, context.Style(ThemeToken.Muted).With(TextDecoration.Italic))
             });
         }
 
@@ -183,12 +183,12 @@ namespace ConsoleMonster.Interactive {
         }
 
         protected void Decline() {
-            IsCancelled = true;
+            IsCanceled = true;
             IsDone = true;
         }
 
         public override IReadOnlyList<StyledLine>? Summary(RenderContext context) {
-            if (IsCancelled) {
+            if (IsCanceled) {
                 return new[] { Prompt.CancelledLine(context, Labels) };
             }
             return new[] {

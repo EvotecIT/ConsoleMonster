@@ -103,7 +103,7 @@ namespace ConsoleMonster.TestRuns {
                 body.Add(new Padding(Running(snapshot, context), 1, 0, 1, 0), LayoutSize.Fixed(1));
                 Rows side = new Rows();
                 side.Add(new Panel(new SlowestList(snapshot.Slowest), Text.Markup.Escape(context.Labels.TestsSlowest)) { PaddingTop = 1 }, LayoutSize.Fixed(Math.Max(1, _run.SlowestCount) + 3));
-                Histogram histogram = new Histogram(DurationEdges, "durations") { EdgeFormat = Milliseconds, Token = ThemeToken.Series1 };
+                Histogram histogram = new Histogram(DurationEdges, "durations") { EdgeFormat = Milliseconds, Role = ThemeToken.Series1 };
                 foreach (double duration in snapshot.Durations) {
                     histogram.Add(duration);
                 }
@@ -115,9 +115,9 @@ namespace ConsoleMonster.TestRuns {
             }
             StatusKind status = snapshot.Status;
             return new Dashboard(Title ?? Text.Markup.Escape(context.Labels.TestsTitle), body) {
-                Status = status == StatusKind.Running ? context.Labels.TestsStatusRunning : status == StatusKind.Fail ? context.Labels.TestsStatusFailed : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed,
-                StatusLevel = status,
-                ShowClock = true
+                Detail = status == StatusKind.Running ? context.Labels.TestsStatusRunning : status == StatusKind.Fail ? context.Labels.TestsStatusFailed : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed,
+                Status = status,
+                ShowElapsed = true
             };
         }
 
@@ -232,14 +232,14 @@ namespace ConsoleMonster.TestRuns {
                 }
             }
             string caption = Localization.WidgetLabels.Format(context.Labels.TestsFilesDone, done.ToString(CultureInfo.InvariantCulture), snapshot.Containers.Count.ToString(CultureInfo.InvariantCulture));
-            return new Panel(lanes, Text.Markup.Escape(context.Labels.TestsFiles)) { PaddingTop = 1, Caption = caption };
+            return new Panel(lanes, Text.Markup.Escape(context.Labels.TestsFiles)) { PaddingTop = 1, HeaderRight = caption };
         }
 
         private static Panel FailuresPanel(TestRunSnapshot snapshot, FailureList list) {
             int count = snapshot.Failures.Count;
             return new Panel(list, Text.Markup.Escape(Localization.WidgetLabels.Current.TestsFailures)) {
                 PaddingTop = 1,
-                Caption = count == 0 ? null : count.ToString(CultureInfo.InvariantCulture)
+                HeaderRight = count == 0 ? null : count.ToString(CultureInfo.InvariantCulture)
             };
         }
     }

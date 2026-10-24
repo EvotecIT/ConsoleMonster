@@ -206,8 +206,8 @@ namespace ConsoleMonster.Interactive {
             }
             string? group = _list.FocusedGroup;
             IWidget body = _preview ?? (focused != null && !string.IsNullOrEmpty(focused.Description) ? (IWidget)new UiParagraph(focused.Description!, ThemeToken.Text, 20) : group != null ? GroupSummary(group) : UiLine.Empty);
-            string title = focused != null ? Markup.Escape(focused.Title) : group != null ? Markup.Escape(group) : PreviewTitle ?? Labels.Preview;
-            Panel panel = new Panel(body, title) { BorderToken = ThemeToken.Border };
+            string title = focused != null ? Markup.Escape(focused.Label) : group != null ? Markup.Escape(group) : PreviewTitle ?? Labels.Preview;
+            Panel panel = new Panel(body, title) { BorderRole = ThemeToken.Border };
             panel.Render(region, context);
         }
 
@@ -247,7 +247,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     bool on = _list.IsSelected(c);
                     region.Write(0, y, (on ? g.Checked : g.Unchecked) + " ", context.Style(on ? ThemeToken.Accent : ThemeToken.Subtle));
-                    region.Write(4, y, TextWrapper.Truncate(c.Title, Math.Max(1, region.Width - 5), context.Ellipsis), context.Style(c.IsEnabled ? ThemeToken.Text : ThemeToken.Muted));
+                    region.Write(4, y, TextWrapper.Truncate(c.Label, Math.Max(1, region.Width - 5), context.Ellipsis), context.Style(c.IsEnabled ? ThemeToken.Text : ThemeToken.Muted));
                     y++;
                 }
             }

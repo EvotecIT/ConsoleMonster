@@ -107,8 +107,8 @@ namespace ConsoleMonster.Interactive {
                     Overflow = ColumnOverflow.Truncate,
                     MaxLines = 1
                 };
-                foreach (ToneRule rule in source.ToneRules) {
-                    column.ToneRules.Add(rule);
+                foreach (RoleRule rule in source.RoleRules) {
+                    column.RoleRules.Add(rule);
                 }
                 table.AddColumn(column);
             }
@@ -172,7 +172,7 @@ namespace ConsoleMonster.Interactive {
                     int y = rowLines[focused];
                     for (int x = 0; x < region.Width; x++) {
                         Cell cell = region.Get(x, y);
-                        Style style = context.HasColor ? cell.Style.WithBackground(focus.Background).With(TextDecoration.Bold) : cell.Style.With(TextDecoration.Reverse);
+                        Style style = context.HasColor ? cell.Style.WithBackgroundColor(focus.BackgroundColor).With(TextDecoration.Bold) : cell.Style.With(TextDecoration.Reverse);
                         region.SetStyle(x, y, style);
                     }
                 }
@@ -205,7 +205,7 @@ namespace ConsoleMonster.Interactive {
                     if (title.Length == 0 && !PresenterValues.IsEmpty(value)) {
                         title = row.Search![c];
                     }
-                    record.AddField(Markup.Strip(column.Header), TableCell.FromValue(value), column.Presenter, column.ToneRules.Count > 0 ? new List<ToneRule>(column.ToneRules) : null);
+                    record.AddField(Markup.Strip(column.Header), TableCell.FromValue(value), column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null);
                 }
             }
             Rows rows = new Rows();

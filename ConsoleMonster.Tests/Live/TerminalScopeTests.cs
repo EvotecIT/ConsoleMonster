@@ -43,11 +43,11 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Equal(2, target.Events[1].Value);
                 LiveEvent state = Assert.Single(nested.Events);
                 Assert.Equal("inner", state.Key);
-                Assert.Equal("pass", state.State);
+                Assert.Equal("pass", state.Status);
                 Assert.Equal("done", state.Text);
                 LiveEvent line = Assert.Single(log.Events);
                 Assert.Equal("write", line.Operation);
-                Assert.Equal("warn", line.State);
+                Assert.Equal("warn", line.Status);
                 Assert.Equal("log", line.Text);
             }
         }

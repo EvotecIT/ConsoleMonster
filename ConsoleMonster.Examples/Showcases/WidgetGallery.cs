@@ -66,7 +66,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 histogram.Add(Math.Exp((random.NextDouble() * 4) - 2.2));
             }
 
-            BarChart categories = new BarChart("categories") { BarToken = ThemeToken.Fail }
+            BarChart categories = new BarChart("categories") { Role = ThemeToken.Fail }
                 .Add("Domain controllers", 14)
                 .Add("Group Policy", 9)
                 .Add("Kerberos", 6)

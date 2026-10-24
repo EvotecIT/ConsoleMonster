@@ -41,12 +41,12 @@ namespace ConsoleMonster.Output {
 
         /// <summary>Creates a writer target.</summary>
         /// <param name="writer">The writer; the caller keeps ownership.</param>
-        /// <param name="width">Width in cells (default 80).</param>
+        /// <param name="width">Width in cells; zero resolves the current target, falling back to 100.</param>
         /// <param name="glyphs">The glyph tier (default ASCII, safe in any log).</param>
         /// <param name="colors">The colour depth (default none: plain text).</param>
         /// <param name="culture">The culture for numbers, dates and built-in labels; null for the current culture.</param>
-        public WriterTarget(TextWriter writer, int width = 80, GlyphTier glyphs = GlyphTier.Ascii, ColorDepth colors = ColorDepth.None, CultureInfo? culture = null)
-            : this(writer, TerminalProfile.Fixed(width, TerminalProfile.DefaultHeight, colors, glyphs, OutputMode.Stream).WithCulture(culture).WithLanguage(culture)) {
+        public WriterTarget(TextWriter writer, int width = 0, GlyphTier glyphs = GlyphTier.Ascii, ColorDepth colors = ColorDepth.None, CultureInfo? culture = null)
+            : this(writer, TerminalProfile.Fixed(Terminal.ResolveWidth(width), TerminalProfile.DefaultHeight, colors, glyphs, OutputMode.Stream).WithCulture(culture).WithLanguage(culture)) {
         }
 
         /// <summary>Creates a writer target with an explicit profile (its mode decides between line output and VT output).</summary>

@@ -100,7 +100,7 @@ namespace ConsoleMonster.Rendering {
                 if (cell.Glyph != " ") {
                     return x + 1;
                 }
-                if (depth != ColorDepth.None && (!cell.Style.Background.IsDefault || (cell.Style.Decoration & (TextDecoration.Underline | TextDecoration.Reverse | TextDecoration.Strikethrough)) != 0)) {
+                if (depth != ColorDepth.None && (!cell.Style.BackgroundColor.IsDefault || (cell.Style.Decoration & (TextDecoration.Underline | TextDecoration.Reverse | TextDecoration.Strikethrough)) != 0)) {
                     return x + 1;
                 }
             }

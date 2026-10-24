@@ -63,28 +63,28 @@ namespace ConsoleMonster.Replay {
             foreach (LiveEvent e in events) {
                 TimeSpan time = TimeSpan.FromMilliseconds(Math.Max(0, e.Time));
                 string text = e.Text == null ? string.Empty : e.IsMarkup ? ConsoleMonster.Text.Markup.Strip(e.Text) : e.Text;
-                if (e.Target == LiveSession.MarkerTarget) {
+                if (e.WidgetId == LiveSession.MarkerTarget) {
                     markers.Add(new ReplayMarker(time, ReplayMarkerKind.Marker, text));
                     continue;
                 }
-                if (e.State == "snapshot") {
+                if (e.Status == "snapshot") {
                     continue;
                 }
-                ReplayMarkerKind? severity = Severity(e.State);
-                bool log = e.Operation == "write" && (e.Target == "$log" || e.Key == null);
+                ReplayMarkerKind? severity = Severity(e.Status);
+                bool log = e.Operation == "write" && (e.WidgetId == "$log" || e.Key == null);
                 if (log) {
                     markers.Add(new ReplayMarker(time, severity ?? ReplayMarkerKind.Log, text, true));
                     continue;
                 }
-                if (e.State == null) {
+                if (e.Status == null) {
                     continue;
                 }
-                string id = e.Target + "\u0001" + (e.Key ?? string.Empty);
+                string id = e.WidgetId + "\u0001" + (e.Key ?? string.Empty);
                 states.TryGetValue(id, out ReplayMarkerKind? before);
                 states[id] = severity;
                 if (severity.HasValue && before != severity) {
-                    string what = e.Key == null ? e.Target : e.Target + " " + e.Key;
-                    markers.Add(new ReplayMarker(time, severity.Value, what + ": " + e.State!.ToLowerInvariant() + (text.Length > 0 ? " · " + text : string.Empty)));
+                    string what = e.Key == null ? e.WidgetId : e.WidgetId + " " + e.Key;
+                    markers.Add(new ReplayMarker(time, severity.Value, what + ": " + e.Status!.ToLowerInvariant() + (text.Length > 0 ? " · " + text : string.Empty)));
                 }
             }
             // Events are applied in queue order, which can differ slightly from their stamps: a stable sort keeps the order.

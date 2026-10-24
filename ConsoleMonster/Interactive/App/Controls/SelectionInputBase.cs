@@ -13,10 +13,10 @@ namespace ConsoleMonster.Interactive {
         private object? _value;
 
         /// <summary>Creates a selection input backed by the canonical choice editor.</summary>
-        /// <param name="name">The application-state key.</param>
+        /// <param name="key">The application-state key.</param>
         /// <param name="choices">The choices, configured before the application runs.</param>
         /// <param name="multiple">Whether more than one choice can be selected.</param>
-        protected SelectionInputBase(string name, IEnumerable<Choice> choices, bool multiple) : base(name) {
+        protected SelectionInputBase(string key, IEnumerable<Choice> choices, bool multiple) : base(key) {
             _multiple = multiple;
             _list = new ChoiceList(choices, multiple);
             _pane = new ChoicePane(_list, new CaretSlot());

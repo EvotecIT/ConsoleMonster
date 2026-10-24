@@ -4,18 +4,18 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a sparkline: a compact trend of recent values.</para>
-    /// <para type="description">One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Tone sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.</para>
+    /// <para type="description">One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Role sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.</para>
     /// </summary>
     /// <example>
     ///   <para>A labelled trend</para>
-    ///   <code>New-ConsoleSparkline -Label 'req/s' -Value 3, 5, 8, 13, 9, 7, 12 | Write-ConsoleWidget</code>
+    ///   <code>New-ConsoleSparkline -Label 'req/s' -Value 3, 5, 8, 13, 9, 7, 12 | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSparkline")]
     [OutputType(typeof(Sparkline))]
     public sealed class CmdletNewConsoleSparkline : PSCmdlet {
         /// <summary><para type="description">The live name (default sparkline).</para></summary>
         [Parameter(Position = 0)]
-        public string Name { get; set; } = "sparkline";
+        public string WidgetId { get; set; } = "sparkline";
 
         /// <summary><para type="description">Initial values, oldest first.</para></summary>
         [Parameter]
@@ -39,7 +39,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The colour as a theme role: Accent (default), Accent2, Pass, Fail, Warn or Series1 to Series6.</para></summary>
         [Parameter]
-        public Styling.ThemeToken? Tone { get; set; }
+        public Styling.ThemeToken? Role { get; set; }
 
         /// <summary><para type="description">The value at the top of the scale (default: the largest value).</para></summary>
         [Parameter]
@@ -60,9 +60,9 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Sparkline sparkline = new Sparkline(Name) { Label = PSText.Markup(Label), Height = Height, Unit = Unit, Max = Maximum, ShowLatest = !NoLatest.IsPresent };
-            if (Tone.HasValue) {
-                sparkline.Token = Tone.Value;
+            Sparkline sparkline = new Sparkline(WidgetId) { Label = PSText.Markup(Label), Height = Height, Unit = Unit, Maximum = Maximum, ShowLatest = !NoLatest.IsPresent };
+            if (Role.HasValue) {
+                sparkline.Role = Role.Value;
             }
             if (Value != null) {
                 sparkline.AddRange(Value);

@@ -68,7 +68,7 @@ namespace ConsoleMonster.Interactive {
                             Activate(target);
                             (PaneFor(target) as FormView)?.ApplyPreset(name);
                         }) {
-                            Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Title,
+                            Category = Labels.Presets + " " + InteractiveGlyphs.For(_context).Breadcrumb + " " + item.Label,
                             Description = Labels.BuiltIn
                         });
                     }

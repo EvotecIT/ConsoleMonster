@@ -69,7 +69,7 @@ namespace ConsoleMonster.Tests.Rendering {
             ConsoleMonster.Widgets.LogRegion log = new ConsoleMonster.Widgets.LogRegion();
             using (LiveSession session = new LiveSession(log, options)) {
                 session.Start();
-                session.Post(new LiveEvent("log", "write", text: "injected " + Hostile(), state: "warn"));
+                session.Post(new LiveEvent("log", "write", text: "injected " + Hostile(), status: "warn"));
             }
             string text = writer.ToString();
             Assert.Contains("injected abcde    f", text);

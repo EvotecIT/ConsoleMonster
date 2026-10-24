@@ -181,39 +181,39 @@ namespace ConsoleMonster.Live {
             if (target == null) { throw new ArgumentNullException(nameof(target)); }
             lock (_lifecycle) {
                 if (_state >= 2) { throw new InvalidOperationException("The session has stopped."); }
-                if (string.IsNullOrEmpty(target.Name) || target.Name == "$log" || !_targets.TryAdd(target.Name, target)) {
+                if (string.IsNullOrEmpty(target.WidgetId) || target.WidgetId == "$log" || !_targets.TryAdd(target.WidgetId, target)) {
                     throw new ArgumentException("Target names must be unique, nonempty, and must not be '$log'.", nameof(target));
                 }
                 if (target is ILogTarget) { lock (_logTargets) { _logTargets.Add(target); } }
-                if (_logTarget == null && target is ILogTarget && (_options.LogTarget == null || _options.LogTarget == target.Name)) {
+                if (_logTarget == null && target is ILogTarget && (_options.LogTarget == null || _options.LogTarget == target.WidgetId)) {
                     Volatile.Write(ref _logTarget, target);
                 }
             }
         }
 
         /// <summary>
-        /// A handle to the <see cref="Widgets.Slot"/> named <paramref name="name"/>: <c>session.Region("main").Set(widget)</c>
+        /// A handle to the <see cref="Widgets.RegionWidget"/> named <paramref name="widgetId"/>: <c>session.Region("main").Set(widget)</c>
         /// replaces its content between frames, from any thread.
         /// </summary>
-        /// <param name="name">The slot name.</param>
+        /// <param name="widgetId">The slot name.</param>
         /// <returns>The handle.</returns>
         /// <exception cref="ArgumentException">No slot has that name.</exception>
-        public Widgets.SlotHandle Region(string name) {
-            if (name == null) { throw new ArgumentNullException(nameof(name)); }
-            if (!_targets.TryGetValue(name, out ILiveTarget? target) || !(target is Widgets.Slot slot)) {
-                throw new ArgumentException("The session has no region (Slot) named '" + name + "'.", nameof(name));
+        public Widgets.RegionHandle Region(string widgetId) {
+            if (widgetId == null) { throw new ArgumentNullException(nameof(widgetId)); }
+            if (!_targets.TryGetValue(widgetId, out ILiveTarget? target) || !(target is Widgets.RegionWidget slot)) {
+                throw new ArgumentException("The session has no region (RegionWidget) named '" + widgetId + "'.", nameof(widgetId));
             }
             return slot.Handle(this);
         }
 
         // Live widgets inside newly shown content join the session, replacing older widgets with the same names.
         private void Adopt(IWidget widget) {
-            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.Name) && target.Name != "$log") {
+            if (widget is ILiveTarget target && !string.IsNullOrEmpty(target.WidgetId) && target.WidgetId != "$log") {
                 lock (_logTargets) {
-                    if (_targets.TryGetValue(target.Name, out ILiveTarget? previous)) { _logTargets.Remove(previous); }
+                    if (_targets.TryGetValue(target.WidgetId, out ILiveTarget? previous)) { _logTargets.Remove(previous); }
                     if (target is ILogTarget) { _logTargets.Add(target); }
                 }
-                _targets[target.Name] = target;
+                _targets[target.WidgetId] = target;
             }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) { Adopt(child); }
@@ -223,7 +223,7 @@ namespace ConsoleMonster.Live {
         // Removed content must stop receiving both named updates and the reserved log alias.
         private void Detach(IWidget widget) {
             if (widget is ILiveTarget target) {
-                ((ICollection<KeyValuePair<string, ILiveTarget>>)_targets).Remove(new KeyValuePair<string, ILiveTarget>(target.Name, target));
+                ((ICollection<KeyValuePair<string, ILiveTarget>>)_targets).Remove(new KeyValuePair<string, ILiveTarget>(target.WidgetId, target));
                 lock (_logTargets) { _logTargets.Remove(target); }
             }
             if (widget is IContainer container) {
@@ -232,13 +232,13 @@ namespace ConsoleMonster.Live {
         }
 
         /// <summary>Looks up a registered target, including the reserved log alias.</summary>
-        /// <param name="name">Target name.</param>
+        /// <param name="widgetId">Target name.</param>
         /// <param name="target">Matching target, or null.</param>
         /// <returns>Whether the target exists.</returns>
-        public bool TryGetTarget(string name, out ILiveTarget? target) {
-            if (name == null) { throw new ArgumentNullException(nameof(name)); }
-            if (name == "$log") { target = Volatile.Read(ref _logTarget); return target != null; }
-            return _targets.TryGetValue(name, out target);
+        public bool TryGetTarget(string widgetId, out ILiveTarget? target) {
+            if (widgetId == null) { throw new ArgumentNullException(nameof(widgetId)); }
+            if (widgetId == "$log") { target = Volatile.Read(ref _logTarget); return target != null; }
+            return _targets.TryGetValue(widgetId, out target);
         }
 
         /// <summary>Enqueues without locks or per-event signaling. Events may be queued before Start.</summary>
@@ -264,13 +264,13 @@ namespace ConsoleMonster.Live {
         /// <summary>Enqueues a line for the session log target.</summary>
         /// <param name="line">Text.</param>
         /// <param name="level">Stream or severity, default out.</param>
-        public void Write(string line, string level = "out") => Post(new LiveEvent("$log", "write", text: line, state: level));
+        public void Write(string line, string level = "out") => Post(new LiveEvent("$log", "write", text: line, status: level));
 
         /// <summary>Begins an ambient progress scope for this session.</summary>
-        /// <param name="target">Target name.</param>
+        /// <param name="widgetId">Target name.</param>
         /// <param name="key">Optional item key.</param>
         /// <returns>The scope lifetime.</returns>
-        public IDisposable Scope(string target, string? key = null) => TerminalScope.Begin(this, target, key);
+        public IDisposable Scope(string widgetId, string? key = null) => TerminalScope.Begin(this, widgetId, key);
 
         /// <summary>Forces the next live tick to redraw fully.</summary>
         public void Invalidate() => Interlocked.Exchange(ref _invalidate, 1);
@@ -338,7 +338,7 @@ namespace ConsoleMonster.Live {
             ILiveTarget? selected = null;
             lock (_logTargets) {
                 foreach (ILiveTarget candidate in _logTargets) {
-                    if (_options.LogTarget == null || candidate.Name == _options.LogTarget) { selected = candidate; break; }
+                    if (_options.LogTarget == null || candidate.WidgetId == _options.LogTarget) { selected = candidate; break; }
                 }
                 Volatile.Write(ref _logTarget, selected);
             }

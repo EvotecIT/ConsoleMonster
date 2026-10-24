@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Three charts in a row</para>
-    ///   <code>New-ConsoleGrid -Columns 3 { New-ConsoleSparkline -Name a; New-ConsoleSparkline -Name b; New-ConsoleSparkline -Name c }</code>
+    ///   <code>New-ConsoleGrid -Columns 3 -Content { New-ConsoleSparkline -WidgetId a; New-ConsoleSparkline -WidgetId b; New-ConsoleSparkline -WidgetId c }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleGrid")]
     [OutputType(typeof(IWidget))]

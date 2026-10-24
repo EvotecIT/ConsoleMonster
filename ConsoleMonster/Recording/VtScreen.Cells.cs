@@ -119,7 +119,7 @@ namespace ConsoleMonster.Sessions {
 
         private void ClearRow(CellBuffer screen, int y, int from, int to) {
             // Erased cells take the current background, as terminals do (back-colour erase).
-            Style blank = _style.Background.IsDefault ? Style.Plain : new Style(Color.Default, _style.Background);
+            Style blank = _style.BackgroundColor.IsDefault ? Style.Plain : new Style(Color.Default, _style.BackgroundColor);
             for (int x = Math.Max(0, from); x < Math.Min(Width, to); x++) {
                 screen.Set(x, y, " ", blank);
             }

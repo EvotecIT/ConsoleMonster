@@ -42,9 +42,9 @@ namespace ConsoleMonster.Live {
             session.StopOnCancellation = false;
             session.FramesPerSecond = 10; session.StreamHeartbeat = TimeSpan.Zero;
             session.Summary = new RunSummary(_tracker) { Title = _options.Title, ReportPath = _options.ReportPath };
-            session.LogTarget = Dashboard.Log.Name;
-            if (_options.NoLive && session.Output?.SupportsLiveFrames == true) { throw new ArgumentException("NoLive requires an append-only output.", nameof(options)); }
-            session.AppendOnly = _options.NoLive;
+            session.LogTarget = Dashboard.Log.WidgetId;
+            if (!_options.Live && session.Output?.SupportsLiveFrames == true) { throw new ArgumentException("NoLive requires an append-only output.", nameof(options)); }
+            session.AppendOnly = !_options.Live;
             _session = new LiveSession(Dashboard, session);
             _session.Start();
             IsLive = _session.SupportsLiveFrames;
@@ -107,14 +107,14 @@ namespace ConsoleMonster.Live {
         }
 
         private void Append(RunItemSnapshot item, bool force = false) {
-            if (!force && Dashboard.ProblemsOnly && item.State != StatusKind.Fail && item.State != StatusKind.Warn) { return; }
-            _session.Post(new LiveEvent(Dashboard.Log.Name, "write", text: item.ToString(), state: item.State == StatusKind.Fail ? "error" : item.State.ToString().ToLowerInvariant()) { Payload = new RunCompletion(item) });
+            if (!force && Dashboard.ProblemsOnly && item.Status != StatusKind.Fail && item.Status != StatusKind.Warn) { return; }
+            _session.Post(new LiveEvent(Dashboard.Log.WidgetId, "write", text: item.ToString(), status: item.Status == StatusKind.Fail ? "error" : item.Status.ToString().ToLowerInvariant()) { Payload = new RunCompletion(item) });
         }
 
         private void Progress() {
             RunSnapshot snapshot = _tracker.Snapshot();
             _lastProgress = snapshot.Elapsed; _sinceProgress = 0;
-            _session.Post(new LiveEvent(Dashboard.Log.Name, "write", text: "progress " + snapshot.ProgressLine()) {
+            _session.Post(new LiveEvent(Dashboard.Log.WidgetId, "write", text: "progress " + snapshot.ProgressLine()) {
                 Payload = new RunProgress(snapshot)
             });
         }
@@ -170,7 +170,7 @@ namespace ConsoleMonster.Live {
         public RunSnapshot Complete() {
             lock (_gate) {
                 if (_complete) { return _tracker.Snapshot(); }
-                foreach (RunItemSnapshot item in _tracker.Snapshot().Items.Where(item => !RunTracker.IsTerminal(item.State))) { Finished(item.Index, StatusKind.Skip, "Run ended before completion"); }
+                foreach (RunItemSnapshot item in _tracker.Snapshot().Items.Where(item => !RunTracker.IsTerminal(item.Status))) { Finished(item.Index, StatusKind.Skip, "Run ended before completion"); }
                 while (_held.Count > 0) { var held = _held.Dequeue(); if (OutputFailure == null) { Append(held, true); } }
                 _tracker.Complete(); _complete = true; _stop.Set();
             }

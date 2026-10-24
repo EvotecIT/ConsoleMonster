@@ -38,7 +38,7 @@ namespace ConsoleMonster.Markdown {
                         result.Append(MarkdownMessages.Format("Image", image.PlainAlt), style.WithLink(style.Link ?? image.Src));
                         break;
                     case CodeSpanInline code:
-                        result.Append(code.Text, style.WithForeground(ThemeToken.Accent));
+                        result.Append(code.Text, style.WithColor(ThemeToken.Accent));
                         break;
                     case HardBreakInline _:
                         result.Append("\n", style);

@@ -39,7 +39,7 @@ namespace ConsoleMonster.Layout {
         /// <summary>Returns a copy with a different minimum.</summary>
         /// <param name="min">Minimum cells.</param>
         /// <returns>The specification.</returns>
-        public LayoutSize WithMin(int min) => new LayoutSize(Kind, Value, min);
+        public LayoutSize WithMinimum(int min) => new LayoutSize(Kind, Value, min);
 
         /// <inheritdoc />
         public override string ToString() {

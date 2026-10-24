@@ -562,24 +562,24 @@ namespace ConsoleMonster.Sessions {
                     case 24: _style = _style.Without(TextDecoration.Underline); break;
                     case 27: _style = _style.Without(TextDecoration.Reverse); break;
                     case 29: _style = _style.Without(TextDecoration.Strikethrough); break;
-                    case 39: _style = _style.WithForeground(Color.Default); break;
-                    case 49: _style = _style.WithBackground(Color.Default); break;
+                    case 39: _style = _style.WithColor(Color.Default); break;
+                    case 49: _style = _style.WithBackgroundColor(Color.Default); break;
                     case 38:
                     case 48: {
                         if (Extended(p, ref i, out Color color)) {
-                            _style = code == 38 ? _style.WithForeground(color) : _style.WithBackground(color);
+                            _style = code == 38 ? _style.WithColor(color) : _style.WithBackgroundColor(color);
                         }
                         break;
                     }
                     default:
                         if (code >= 30 && code <= 37) {
-                            _style = _style.WithForeground(Color.FromAnsi16(code - 30));
+                            _style = _style.WithColor(Color.FromAnsi16(code - 30));
                         } else if (code >= 40 && code <= 47) {
-                            _style = _style.WithBackground(Color.FromAnsi16(code - 40));
+                            _style = _style.WithBackgroundColor(Color.FromAnsi16(code - 40));
                         } else if (code >= 90 && code <= 97) {
-                            _style = _style.WithForeground(Color.FromAnsi16(code - 90 + 8));
+                            _style = _style.WithColor(Color.FromAnsi16(code - 90 + 8));
                         } else if (code >= 100 && code <= 107) {
-                            _style = _style.WithBackground(Color.FromAnsi16(code - 100 + 8));
+                            _style = _style.WithBackgroundColor(Color.FromAnsi16(code - 100 + 8));
                         }
                         break;
                 }

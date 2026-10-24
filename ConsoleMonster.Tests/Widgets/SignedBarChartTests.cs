@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(-1)]
         [InlineData(-2)]
         public void NonpositiveMaximumIncludesZeroAndKeepsNegativeBarsVisible(double maximum) {
-            BarChart chart = new BarChart { Signed = true, Max = maximum, ShowValues = false };
+            BarChart chart = new BarChart { Signed = true, Maximum = maximum, ShowValues = false };
             chart.Add("loss", -1).Add("zero", 0).Add("gain", 1);
             string[] rows = Render(chart).Split('\n');
             Assert.EndsWith("|", rows[0], StringComparison.Ordinal);
@@ -30,7 +30,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(double.NegativeInfinity)]
         public void NonfiniteMaximumUsesFiniteSamplesForSignedAndUnsignedBars(double maximum) {
             foreach (bool signed in new[] { false, true }) {
-                BarChart chart = new BarChart { Signed = signed, Max = maximum, ShowValues = false };
+                BarChart chart = new BarChart { Signed = signed, Maximum = maximum, ShowValues = false };
                 BarChart automatic = new BarChart { Signed = signed, ShowValues = false };
                 foreach (BarChart bars in new[] { chart, automatic }) {
                     bars.Add("loss", -2).Add("zero", 0).Add("gain", 2);
@@ -47,7 +47,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void ExtremeFiniteSignedBoundsKeepBothBarsAndTheBaselineVisible() {
-            BarChart chart = new BarChart { Signed = true, Max = double.MaxValue, ShowValues = false };
+            BarChart chart = new BarChart { Signed = true, Maximum = double.MaxValue, ShowValues = false };
             chart.Add("loss", -double.MaxValue).Add("gain", double.MaxValue).Add("zero", 0);
             string[] rows = Render(chart).Split('\n');
             Assert.All(rows, row => Assert.Equal(18, row.IndexOf('|')));

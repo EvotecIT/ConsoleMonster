@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Two widgets stacked with a blank row between them</para>
-    ///   <code>New-ConsoleRows -Gap 1 { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -Data @{ Total = 12 } }</code>
+    ///   <code>New-ConsoleRows -Gap 1 -Content { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -InputObject @{ Total = 12 } }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRows")]
     [OutputType(typeof(IWidget))]

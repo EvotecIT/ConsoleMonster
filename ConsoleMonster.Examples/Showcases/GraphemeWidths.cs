@@ -46,7 +46,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 session.Post(new LiveEvent("facts", "set", "Width probe", text: session.WidthDecision ?? "not run (" + DisplayWidth.Profile + ")"));
                 session.Post(new LiveEvent("facts", "set", "Measuring with", text: DisplayWidth.Profile.ToString()));
                 Thread.Sleep(TimeSpan.FromSeconds(Math.Max(1, seconds)));
-                session.Post(new LiveEvent("spinner", "state", text: "columns held", state: "pass"));
+                session.Post(new LiveEvent("spinner", "state", text: "columns held", status: "pass"));
                 Thread.Sleep(300);
             }
         }

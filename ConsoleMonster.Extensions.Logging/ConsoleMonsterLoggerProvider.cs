@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ConsoleMonster.Extensions.Logging {
     /// <summary>
-    /// Writes Microsoft.Extensions.Logging entries the ConsoleMonster way: the level tag and colour of Write-ConsoleLog and
+    /// Writes Microsoft.Extensions.Logging entries the ConsoleMonster way: the level tag and colour of Write-ConsoleLogEntry and
     /// the log region, a timestamp, the category and scopes, then the message (and the exception under it). While a live
     /// session with a log region runs (a dashboard), entries go into that region, so they never print over the view;
     /// otherwise they are printed as lines, plain when the output is redirected. Thread-safe.
@@ -143,7 +143,7 @@ namespace ConsoleMonster.Extensions.Logging {
                 markup.Append("[/] ");
             }
             markup.Append(Markup.Escape(message.Replace("\r\n", " ").Replace('\n', ' ')));
-            session.Post(new LiveEvent(Options.LogRegion!, "write", text: markup.ToString(), state: level, isMarkup: true));
+            session.Post(new LiveEvent(Options.LogRegion!, "write", text: markup.ToString(), status: level, isMarkup: true));
             return true;
         }
 

@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named Boolean toggle for Show-ConsoleApp.</para>
     /// <para type="description">Emits a stable core Toggle widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para>
     /// </summary>
-    /// <example><para>Create an application input.</para><code>New-ConsoleToggle -Name Enabled -Label 'Enable checks' -Value $true</code></example>
+    /// <example><para>Create an application input.</para><code>New-ConsoleToggle -Key Enabled -Label 'Enable checks' -Value $true</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleToggle")]
     [OutputType(typeof(Toggle))]
     public sealed class CmdletNewConsoleToggle : AppInputCmdlet {
@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new Toggle(Name, Value));
+            Emit(new Toggle(Key, Value));
         }
     }
 }

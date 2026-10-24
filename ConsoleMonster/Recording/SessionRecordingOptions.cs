@@ -11,7 +11,7 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Folder used for automatic recording names.</summary>
         public string Folder { get; set; } = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "ConsoleMonster", "Recordings");
         /// <summary>Human-readable recording title.</summary>
-        public string Name { get; set; } = "Console session";
+        public string Title { get; set; } = "Console session";
         /// <summary>Child executable. Null selects $SHELL on Unix, falling back to zsh on macOS or sh on Linux; Windows uses its platform shell.</summary>
         public string? Shell { get; set; }
         /// <summary>Individual child arguments, quoted by the transport.</summary>
@@ -19,7 +19,7 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Named child environment overrides. Null removes a variable; values are never written to metadata.</summary>
         public IDictionary<string, string?> Environment { get; } = new Dictionary<string, string?>(StringComparer.Ordinal);
         /// <summary>Initial terminal width.</summary>
-        public int Width { get; set; } = 100;
+        public int Width { get; set; }
         /// <summary>Initial terminal height.</summary>
         public int Height { get; set; } = 30;
         /// <summary>Maximum cast bytes, including its header. Capture stops at the limit; the child keeps running.</summary>
@@ -38,6 +38,7 @@ namespace ConsoleMonster.Sessions {
         public bool InProcess { get; set; }
 
         internal void Validate() {
+            Width = Terminal.ResolveWidth(Width);
             if (Width < 2 || Width > 1000 || Height < 2 || Height > 1000 || (long)Width * Height > 250000) {
                 throw new ArgumentOutOfRangeException(nameof(Width), "Use 2–1000 cells per dimension and at most 250000 cells.");
             }

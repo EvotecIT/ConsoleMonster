@@ -26,8 +26,8 @@ namespace ConsoleMonster.Widgets {
         private int _idWidth;
 
         /// <summary>Creates an activity list.</summary>
-        /// <param name="name">The target name (default <see cref="ProgressTarget"/>).</param>
-        public ActivityList(string name = ProgressTarget) : base(name) {
+        /// <param name="widgetId">The target name (default <see cref="ProgressTarget"/>).</param>
+        public ActivityList(string widgetId = ProgressTarget) : base(widgetId) {
         }
 
         /// <summary>The most activities shown (default 8); more are summarised in one line.</summary>
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
             Activity activity = index >= 0 ? _activities[index] : new Activity(id) { Started = liveEvent.Time > 0 ? TimeSpan.FromMilliseconds(liveEvent.Time) : (TimeSpan?)null };
             activity.Parent = parent;
             activity.Title = string.IsNullOrEmpty(liveEvent.Text) ? activity.Title : liveEvent.Text!;
-            activity.Status = liveEvent.State;
+            activity.Status = liveEvent.Status;
             activity.Percent = liveEvent.Value;
             activity.SecondsLeft = liveEvent.Total;
             if (index < 0) {
@@ -99,7 +99,7 @@ namespace ConsoleMonster.Widgets {
             }
             // Stream lines only at whole tens of percent, so CI logs stay short.
             int percent = (int)liveEvent.Value;
-            return percent % 10 == 0 ? (liveEvent.Text ?? string.Empty) + " " + percent.ToString(CultureInfo.InvariantCulture) + "%" + (string.IsNullOrEmpty(liveEvent.State) ? string.Empty : " " + liveEvent.State) : null;
+            return percent % 10 == 0 ? (liveEvent.Text ?? string.Empty) + " " + percent.ToString(CultureInfo.InvariantCulture) + "%" + (string.IsNullOrEmpty(liveEvent.Status) ? string.Empty : " " + liveEvent.Status) : null;
         }
 
         /// <inheritdoc />

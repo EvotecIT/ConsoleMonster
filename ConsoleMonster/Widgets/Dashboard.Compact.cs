@@ -17,7 +17,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// The progress text for the compact status line (for example <c>218/332 · ✗12 ▲25</c>), or null to use
-        /// <see cref="Status"/>. Called on the render thread.
+        /// <see cref="Detail"/>. Called on the render thread.
         /// </summary>
         public Func<string>? CompactSummary { get; set; }
 
@@ -53,14 +53,14 @@ namespace ConsoleMonster.Widgets {
             foreach (TextSpan span in context.Markup(Title).Lines[0].WithBaseStyle(context.Style(ThemeToken.Title))) {
                 spans.Add(span);
             }
-            string? summary = CompactSummary != null ? CompactSummary() : (Status != null ? Markup.Strip(Status) : null);
+            string? summary = CompactSummary != null ? CompactSummary() : (Detail != null ? Markup.Strip(Detail) : null);
             if (!string.IsNullOrEmpty(summary)) {
                 spans.Add(new TextSpan(dot, muted));
                 foreach (TextSpan span in context.Markup(summary!).Lines[0]) {
                     spans.Add(span);
                 }
             }
-            if (ShowClock) {
+            if (ShowElapsed) {
                 spans.Add(new TextSpan(dot, muted));
                 spans.Add(new TextSpan(NumberFormat.Clock(context.Elapsed), context.Style(ThemeToken.Accent)));
             }

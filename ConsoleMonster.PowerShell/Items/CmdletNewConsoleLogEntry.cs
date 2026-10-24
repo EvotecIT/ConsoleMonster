@@ -4,25 +4,25 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Creates one log line with a level and a time, for New-ConsoleLog.</para>
-    /// <para type="description">Use it inside the script block of New-ConsoleLog to show a log printed once, or pipe a log made earlier to Add-ConsoleItem with these entries. -Level takes info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Verbose, Debug, Success, Skipped). -At is the time shown at the start of the line: a TimeSpan, a number of seconds, or a number with a unit (500ms, 2s, 1.5m, 1h). The message is shown literally; rich text from New-ConsoleText keeps its colours. In a running dashboard, write to the log with Write-ConsoleLog instead.</para>
+    /// <para type="synopsis">Creates one log line with a level and a time, for New-ConsoleLogRegion.</para>
+    /// <para type="description">Use it inside the script block of New-ConsoleLogRegion to show a log printed once, or pipe a log made earlier to Add-ConsoleItem with these entries. -Level takes info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Verbose, Debug, Success, Skipped). -AtSeconds is the source-relative time in seconds, including fractions. The message is shown literally; rich text from New-ConsoleText keeps its colours. In a running dashboard, write to the log with Write-ConsoleLogEntry instead.</para>
     /// </summary>
     /// <example>
     ///   <para>A short log printed once</para>
     ///   <code>
-    /// New-ConsoleLog -Height 5 {
-    ///     New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
-    ///     New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -At 31s
-    ///     New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
-    /// } | Write-ConsoleWidget</code>
+    /// New-ConsoleLogRegion -Height 5 -Content {
+    ///     New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2
+    ///     New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -AtSeconds 31
+    ///     New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44
+    /// } | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Entries from objects</para>
     ///   <code>
     /// $events = Import-Csv deploy-events.csv
-    /// New-ConsoleLog {
-    ///     foreach ($event in $events) { New-ConsoleLogEntry $event.Message -Level $event.Level -At $event.Seconds }
-    /// } | Write-ConsoleWidget</code>
+    /// New-ConsoleLogRegion -Content {
+    ///     foreach ($event in $events) { New-ConsoleLogEntry $event.Message -Level $event.Level -AtSeconds $event.Seconds }
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogEntry")]
     [OutputType(typeof(LogEntry))]
@@ -38,10 +38,10 @@ namespace ConsoleMonster.PowerShell {
         [ArgumentCompleter(typeof(Binding.LogLevelCompleter))]
         public string Level { get; set; } = "info";
 
-        /// <summary><para type="description">The time shown at the start of the line: a TimeSpan, seconds (2 or 1.5) or a number with a unit (500ms, 2s, 1.5m, 1h). Default 0.</para></summary>
+        /// <summary><para type="description">Source-relative seconds shown at the start of the line; default 0. Fractional seconds are accepted.</para></summary>
         [Parameter]
-        [Binding.TimeSpanTransformation]
-        public TimeSpan At { get; set; }
+        public double AtSeconds { get; set; }
+        private System.TimeSpan At => System.TimeSpan.FromSeconds(AtSeconds);
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

@@ -45,7 +45,7 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 CheckItem(index);
                 if (_finished.HasValue || IsTerminal(_states[index])) { return false; }
-                if (_states[index] != StatusKind.Running) { StartedCore(index, _items[index].Name); }
+                if (_states[index] != StatusKind.Running) { StartedCore(index, _items[index].Label); }
                 _phases[index] = phase ?? string.Empty;
                 return true;
             }
@@ -67,7 +67,7 @@ namespace ConsoleMonster.Live {
                 TimeSpan now = _clock();
                 _durations[index] = duration ?? (_running.TryGetValue(index, out RunActivity? active) ? now - active.Started : TimeSpan.Zero);
                 _messages[index] = message ?? string.Empty;
-                FinishedCore(index, outcome, _items[index].Name, message, timedOut);
+                FinishedCore(index, outcome, _items[index].Label, message, timedOut);
                 _doneItems++;
                 _completionOrder[index] = _doneItems;
                 _rate.Record(now, _doneItems);

@@ -10,9 +10,9 @@ namespace ConsoleMonster.Interactive {
     /// <summary>An on/off switch (a switch parameter in the equivalent command).</summary>
     public sealed class ToggleField : Field {
         /// <summary>Creates a toggle.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
-        public ToggleField(string name, string? label = null) : base(name, label) {
+        public ToggleField(string key, string? label = null) : base(key, label) {
             Default = false;
         }
 

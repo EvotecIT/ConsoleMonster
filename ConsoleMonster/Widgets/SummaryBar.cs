@@ -32,14 +32,14 @@ namespace ConsoleMonster.Widgets {
         private TimeSpan? _sessionElapsed;
 
         /// <summary>Creates a summary bar.</summary>
-        /// <param name="name">The live name (default <c>summary</c>).</param>
-        public SummaryBar(string name = "summary") : base(name) {
+        /// <param name="widgetId">The live name (default <c>summary</c>).</param>
+        public SummaryBar(string widgetId = "summary") : base(widgetId) {
         }
 
         /// <summary>Returns a thread-safe handle that queues progress and counter changes for a live session.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public SummaryBarHandle Handle(ILiveDispatcher dispatcher) => new SummaryBarHandle(dispatcher, Name);
+        public SummaryBarHandle Handle(ILiveDispatcher dispatcher) => new SummaryBarHandle(dispatcher, WidgetId);
 
         /// <summary>
         /// The value a <c>progress</c> event gives for done or total to keep what the bar has (any negative number or NaN
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Widgets {
                     _startedAt = TimeSpan.Zero;
                 }
             } else if (liveEvent.Operation == "counter" && !string.IsNullOrEmpty(liveEvent.Key)) {
-                StatusKind? status = StatusKinds.TryParse(liveEvent.State, out StatusKind parsed) ? parsed : (StatusKind?)null;
+                StatusKind? status = StatusKinds.TryParse(liveEvent.Status, out StatusKind parsed) ? parsed : (StatusKind?)null;
                 SetCounter(liveEvent.Key!, (int)liveEvent.Value, status);
             }
         }

@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(ThemeToken.Title)]
         [InlineData(ThemeToken.Header)]
         public void LightTheme_TextTokens_MeetTextContrastOnWhite(ThemeToken token) {
-            Color color = Theme.Light.Resolve(token, ColorDepth.TrueColor).Foreground;
+            Color color = Theme.Light.Resolve(token, ColorDepth.TrueColor).Color;
             Assert.True(Contrast(color) >= 4.5, token + " contrast " + Contrast(color).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
         }
 
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(ThemeToken.Series5)]
         [InlineData(ThemeToken.Series6)]
         public void LightTheme_GraphicTokens_MeetGraphicContrastOnWhite(ThemeToken token) {
-            Color color = Theme.Light.Resolve(token, ColorDepth.TrueColor).Foreground;
+            Color color = Theme.Light.Resolve(token, ColorDepth.TrueColor).Color;
             Assert.True(Contrast(color) >= 3.0, token + " contrast " + Contrast(color).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
         }
     }

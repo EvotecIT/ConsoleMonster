@@ -14,9 +14,9 @@ namespace ConsoleMonster.Tests.Live {
         internal Func<LiveEvent, string?> Description = e => e.Text;
         internal string? Summary;
 
-        internal FakeTarget(string name = "work") { Name = name; }
+        internal FakeTarget(string name = "work") { WidgetId = name; }
 
-        public string Name { get; }
+        public string WidgetId { get; }
 
         public void Apply(LiveEvent liveEvent) {
             Applying?.Invoke(liveEvent);

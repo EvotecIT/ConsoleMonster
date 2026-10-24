@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Interactive {
             menu.Item("Patch", i => i.Hotkey('p').Action(ctx => ctx.Run(new Dashboard("Patching", new ProgressBar("Overall", "overall") { Total = 2 }), run => {
                 Thread.Sleep(400);
                 log.Add("ran");
-                return new RunResult("Done");
+                return new MenuRunResult("Done");
             })));
             menu.Exit("Quit");
             return menu;
@@ -123,10 +123,10 @@ namespace ConsoleMonster.Tests.Interactive {
         [Theory]
         [MemberData(nameof(Tiers))]
         public void Dashboard_UsesTheSharedHeaderAndFooter(GlyphTier tier) {
-            Dashboard dashboard = new Dashboard("Patching", new ProgressBar("Overall", "overall")) { Subtitle = "5 servers", Status = "running", StatusLevel = StatusKind.Running };
+            Dashboard dashboard = new Dashboard("Patching", new ProgressBar("Overall", "overall")) { Subtitle = "5 servers", Detail = "running", Status = StatusKind.Running };
             CellBuffer frame = new CellBuffer(Width, Height);
             dashboard.Render(new Region(frame), Context(tier).WithClock(3, TimeSpan.FromSeconds(12)));
-            SameRow(Bar(new HeaderBar("Patching") { Subtitle = "5 servers", Status = "running", StatusLevel = StatusKind.Running, ShowClock = true }, tier, TimeSpan.FromSeconds(12)), frame, 0, "dashboard");
+            SameRow(Bar(new HeaderBar("Patching") { Subtitle = "5 servers", Detail = "running", Status = StatusKind.Running, ShowElapsed = true }, tier, TimeSpan.FromSeconds(12)), frame, 0, "dashboard");
             FooterLook(frame, Height - 1, tier, "dashboard");
             Assert.Contains("ctrl+c stop", frame.GetRowText(Height - 1));
         }
@@ -164,7 +164,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 for (int y = 0; y < surface.Value.Height && !found; y++) {
                     for (int x = 0; x < surface.Value.Width; x++) {
                         Cell cell = surface.Value[x, y];
-                        if (!cell.Style.Background.IsDefault && cell.Style.Background.Equals(focus.Background) && cell.Glyph != " ") {
+                        if (!cell.Style.BackgroundColor.IsDefault && cell.Style.BackgroundColor.Equals(focus.BackgroundColor) && cell.Glyph != " ") {
                             found = true;
                             break;
                         }

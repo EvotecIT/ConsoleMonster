@@ -12,9 +12,9 @@ namespace ConsoleMonster.Tests.Text {
             StyledLine line = Markup.Parse("[red]a[bold on blue]b[/]c[/]d").Lines[0];
             Assert.Equal("abcd", line.PlainText);
             Assert.Equal(4, line.Count);
-            Assert.Equal(Color.FromAnsi16(9), line[0].Style.Foreground);
-            Assert.Equal(line[0].Style.Foreground, line[1].Style.Foreground);
-            Assert.Equal(Color.FromAnsi16(12), line[1].Style.Background);
+            Assert.Equal(Color.FromAnsi16(9), line[0].Style.Color);
+            Assert.Equal(line[0].Style.Color, line[1].Style.Color);
+            Assert.Equal(Color.FromAnsi16(12), line[1].Style.BackgroundColor);
             Assert.Equal(TextDecoration.Bold, line[1].Style.Decoration);
             Assert.Equal(line[0].Style, line[2].Style);
             Assert.True(line[3].Style.IsPlain);
@@ -41,8 +41,8 @@ namespace ConsoleMonster.Tests.Text {
         public void ParsesRgbForegroundAndBackground(string specification, int r, int g, int b) {
             Assert.True(Markup.TryParseStyle(specification + " on " + specification, null, ColorDepth.TrueColor, out Style style));
             Color expected = Color.FromRgb((byte)r, (byte)g, (byte)b);
-            Assert.Equal(expected, style.Foreground);
-            Assert.Equal(expected, style.Background);
+            Assert.Equal(expected, style.Color);
+            Assert.Equal(expected, style.BackgroundColor);
         }
 
         [Theory]
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Text {
         [InlineData("color(108)", 108)]
         public void ParsesIndexedColors(string specification, int index) {
             Assert.True(Markup.TryParseStyle(specification, null, ColorDepth.TrueColor, out Style style));
-            Assert.Equal(Color.FromAnsi256(index), style.Foreground);
+            Assert.Equal(Color.FromAnsi256(index), style.Color);
         }
 
         [Fact]
@@ -80,8 +80,8 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void ExplicitDefaultResetsInheritedColorOnlyInItsScope() {
             StyledLine line = Markup.Parse("[bold red on blue]a[default on default]b[/]c[/]").Lines[0];
-            Assert.True(line[1].Style.Foreground.IsDefault);
-            Assert.True(line[1].Style.Background.IsDefault);
+            Assert.True(line[1].Style.Color.IsDefault);
+            Assert.True(line[1].Style.BackgroundColor.IsDefault);
             Assert.Equal(TextDecoration.Bold, line[1].Style.Decoration);
             Assert.Equal(line[0].Style, line[2].Style);
         }
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void RoleBackground_UsesTheRoleColour() {
             TextSpan span = Assert.Single(Markup.Parse("[white on fail]x[/]", Theme.Dark).Lines[0]);
-            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Foreground, span.Style.Background);
+            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Color, span.Style.BackgroundColor);
         }
 
         [Theory]

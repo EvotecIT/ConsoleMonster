@@ -18,16 +18,16 @@ namespace ConsoleMonster.Interactive {
         private int _viewportHeight = Constraints.Unbounded;
 
         /// <summary>Creates a named control.</summary>
-        /// <param name="name">The unique application-state key.</param>
+        /// <param name="key">The unique application-state key.</param>
         /// <param name="chrome">Whether to draw the public control's border and label.</param>
-        protected InputControl(string name, bool chrome = true) {
-            if (string.IsNullOrWhiteSpace(name)) { throw new ArgumentException(AppMessages.Get("ControlName"), nameof(name)); }
-            Name = name;
+        protected InputControl(string key, bool chrome = true) {
+            if (string.IsNullOrWhiteSpace(key)) { throw new ArgumentException(AppMessages.Get("ControlName"), nameof(key)); }
+            Key = key;
             _chrome = chrome;
         }
 
         /// <summary>The state key used by the application.</summary>
-        public string Name { get; }
+        public string Key { get; }
 
         /// <summary>The visible label, or null to use the name.</summary>
         public string? Label { get; set; }
@@ -143,12 +143,12 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 _bounds = region.Bounds;
                 if (!_chrome) { RenderContent(region, context); return; }
-                string title = Label ?? Name;
+                string title = Label ?? Key;
                 if (!_enabled) { title = PromptLabels.Format(PromptLabels.For(context.Profile.Language).Disabled, title); }
                 else if (_focused) { title = InteractiveGlyphs.For(context).Pointer + " " + title; }
                 int errorRows = string.IsNullOrEmpty(ValidationMessage) ? 0 : 1;
                 Panel panel = new Panel(new Content(this), Markup.Escape(title)) {
-                    BorderToken = _focused && _enabled ? ThemeToken.Accent : ThemeToken.Border
+                    BorderRole = _focused && _enabled ? ThemeToken.Accent : ThemeToken.Border
                 };
                 panel.Render(region.Sub(0, 0, region.Width, Math.Max(0, region.Height - errorRows)), context);
                 if (errorRows > 0 && region.Height > 0) {
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Interactive {
                             int px = region.Bounds.X + x;
                             int py = region.Bounds.Y + y;
                             Cell cell = region.Buffer[px, py];
-                            region.Buffer.SetStyle(px, py, cell.Style.WithForeground(context.Style(ThemeToken.Muted).Foreground).With(TextDecoration.Dim));
+                            region.Buffer.SetStyle(px, py, cell.Style.WithColor(context.Style(ThemeToken.Muted).Color).With(TextDecoration.Dim));
                         }
                     }
                 } else if (_focused && CurrentCaret is Caret caret && caret.X >= _contentBounds.X && caret.X < _contentBounds.Right && caret.Y >= _contentBounds.Y && caret.Y < _contentBounds.Bottom) {
@@ -173,7 +173,7 @@ namespace ConsoleMonster.Interactive {
 
         private void Notify(object? before, object? after) {
             if (!ValuesEqual(before, after)) {
-                AppValueChangedEventArgs change = new AppValueChangedEventArgs(Name, before, after);
+                AppValueChangedEventArgs change = new AppValueChangedEventArgs(Key, before, after);
                 ValueCommitted?.Invoke(change);
                 Changed?.Invoke(this, change);
             }

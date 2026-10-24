@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Create a PowerShell data file from the accessible preset and return its file information.</para>
-    /// <code>Set-ConsoleTheme -Name ColorBlindSafe
+    /// <code>Set-ConsoleTheme -Theme ColorBlindSafe
     /// Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleTheme", SupportsShouldProcess = true)]

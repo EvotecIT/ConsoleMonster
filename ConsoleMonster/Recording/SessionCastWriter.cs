@@ -40,7 +40,7 @@ namespace ConsoleMonster.Sessions {
             _redactor = new RecordingRedactor(options.Redact, options.RedactionText);
             Mode = mode;
             Path = System.IO.Path.GetFullPath(options.Path ?? System.IO.Path.Combine(options.Folder, "ConsoleRecording-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture) + "-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".cast"));
-            string header = "{\"version\":2,\"width\":" + options.Width + ",\"height\":" + options.Height + ",\"timestamp\":" + Started.ToUnixTimeSeconds() + ",\"title\":" + Json(_redactor.Apply(options.Name)) + ",\"idle_time_limit\":" + Seconds(options.IdleLimit.TotalSeconds) + ",\"env\":{\"TERM\":\"xterm-256color\"},\"consolemonster\":{\"recording\":true,\"mode\":" + Json(mode) + ",\"host\":" + Json(_redactor.Apply(Environment.MachineName)) + "}}\n";
+            string header = "{\"version\":2,\"width\":" + options.Width + ",\"height\":" + options.Height + ",\"timestamp\":" + Started.ToUnixTimeSeconds() + ",\"title\":" + Json(_redactor.Apply(options.Title)) + ",\"idle_time_limit\":" + Seconds(options.IdleLimit.TotalSeconds) + ",\"env\":{\"TERM\":\"xterm-256color\"},\"consolemonster\":{\"recording\":true,\"mode\":" + Json(mode) + ",\"host\":" + Json(_redactor.Apply(Environment.MachineName)) + "}}\n";
             if (Encoding.UTF8.GetByteCount(header) > options.MaxBytes) { throw new ArgumentException("The cast header exceeds MaxBytes. Use a shorter name or a larger cap."); }
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
             if (File.Exists(Path + ".json")) { throw new IOException("The recording sidecar already exists: " + Path + ".json"); }

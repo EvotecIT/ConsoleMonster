@@ -13,7 +13,7 @@ namespace ConsoleMonster.Tests.Live {
     public sealed class ReplayRecordingTests {
         [Fact]
         public void Recording_RegionSwap_RecordsAPictureAndLaterLiveChanges() {
-            Slot slot = new Slot("main", new TextBlock("starting"));
+            RegionWidget slot = new RegionWidget("main", new TextBlock("starting"));
             StringWriter recording = new StringWriter();
             LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
             options.RecordWriter = recording;
@@ -22,21 +22,21 @@ namespace ConsoleMonster.Tests.Live {
                 StatusList steps = new StatusList("steps");
                 steps.Set("deploy", "Deploy", StatusKind.Running);
                 session.Region("main").Set(steps);
-                session.Post(new LiveEvent("steps", "set", key: "deploy", state: "fail"));
+                session.Post(new LiveEvent("steps", "set", key: "deploy", status: "fail"));
                 session.Mark("Deploy failed");
                 session.Stop();
             }
             LiveEvent[] events = LiveRecordingReader.Read(new StringReader(recording.ToString())).ToArray();
-            LiveEvent[] pictures = events.Where(e => e.Target == "main" && e.Operation == "set").ToArray();
+            LiveEvent[] pictures = events.Where(e => e.WidgetId == "main" && e.Operation == "set").ToArray();
             Assert.True(pictures.Length >= 2, recording.ToString());
             Assert.All(pictures, e => Assert.True(e.IsMarkup));
             Assert.Contains("Deploy", pictures[0].Text);
-            Assert.Equal("snapshot", pictures[pictures.Length - 1].State);
-            Assert.Contains(events, e => e.Target == LiveSession.MarkerTarget && e.Text == "Deploy failed");
+            Assert.Equal("snapshot", pictures[pictures.Length - 1].Status);
+            Assert.Contains(events, e => e.WidgetId == LiveSession.MarkerTarget && e.Text == "Deploy failed");
 
             // Played back, the region shows the last picture.
-            Slot replayed = new Slot("main", new TextBlock("starting"));
-            foreach (LiveEvent e in events.Where(e => e.Target == "main")) {
+            RegionWidget replayed = new RegionWidget("main", new TextBlock("starting"));
+            foreach (LiveEvent e in events.Where(e => e.WidgetId == "main")) {
                 replayed.Apply(e);
             }
             string text = ConsoleMonster.Export.ConsoleExporter.ToText(ConsoleMonster.Rendering.FrameComposer.Compose(replayed, 40, 3, Terminal.CreateContext(ConsoleMonster.Capabilities.TerminalProfile.Fixed(40, 3), ConsoleMonster.Styling.Theme.Dark)));

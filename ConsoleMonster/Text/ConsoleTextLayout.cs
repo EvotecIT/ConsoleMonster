@@ -28,7 +28,7 @@ namespace ConsoleMonster.Text {
         public DateTime? Time { get; set; }
 
         /// <summary>The time format (default yyyy-MM-dd HH:mm:ss).</summary>
-        public string TimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
+        public string TimestampFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary>A separator the text is split at; the following parts are aligned under the first, after the prefix.</summary>
         public string? SplitLines { get; set; }
@@ -73,7 +73,7 @@ namespace ConsoleMonster.Text {
             }
             string prefix = new string(' ', (Math.Max(0, StartTab) * 8) + Math.Max(0, StartSpaces));
             if (Time.HasValue) {
-                prefix += "[" + Time.Value.ToString(TimeFormat, CultureInfo.CurrentCulture) + "] ";
+                prefix += "[" + Time.Value.ToString(TimestampFormat, CultureInfo.CurrentCulture) + "] ";
             }
             int prefixWidth = DisplayWidth.Measure(prefix);
             List<KeyValuePair<StyledLine, bool>> lines = new List<KeyValuePair<StyledLine, bool>>();

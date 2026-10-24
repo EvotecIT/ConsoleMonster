@@ -16,9 +16,9 @@ namespace ConsoleMonster.Interactive {
         private readonly bool _reservePlaceholderCell;
 
         /// <summary>Creates a named, focusable single-line input using the shared line editor.</summary>
-        /// <param name="name">The application-state key.</param>
+        /// <param name="key">The application-state key.</param>
         /// <param name="value">The initial text.</param>
-        public TextInput(string name, string? value = null) : base(name) {
+        public TextInput(string key, string? value = null) : base(key) {
             _editor = new LineEditor(value);
             _caret = new CaretSlot();
             _reservePlaceholderCell = true;
@@ -37,7 +37,7 @@ namespace ConsoleMonster.Interactive {
         public string? Mask { get; set; }
 
         /// <summary>The theme token for entered text.</summary>
-        public ThemeToken Token { get; set; } = ThemeToken.Text;
+        public ThemeToken Role { get; set; } = ThemeToken.Text;
 
         /// <summary>The text value; edits notify the application after the control lock is released.</summary>
         public string Value { get => Read(() => _editor.Text); set => Change(() => _editor.Text = value); }
@@ -62,7 +62,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             int width = region.Width;
-            Style style = context.Style(Token);
+            Style style = context.Style(Role);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
                 // Public controls paint their own caret; existing prompt compositions own its surrounding space.
                 int placeholderColumn = Focused && _reservePlaceholderCell ? 1 : 0;

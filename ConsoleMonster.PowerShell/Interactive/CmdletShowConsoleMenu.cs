@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Remembers selections and form answers between runs.</para></summary>
         [Parameter]
-        [Alias("Remember")]
+
         public SwitchParameter RememberLastChoices { get; set; }
 
         /// <summary><para type="description">The folder that holds the app's storage folder (default: per user).</para></summary>
@@ -60,7 +60,7 @@ namespace ConsoleMonster.PowerShell {
                     StorageRoot = StorageRoot,
                     CommandPalette = !NoCommandPalette.IsPresent
                 }, _stop.Token);
-            } catch (Exception ex) when (ex is PromptCancelledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
+            } catch (Exception ex) when (ex is PromptCanceledException || ex is PromptUnavailableException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Menu.Title);
             } catch (OperationCanceledException) {
                 // The pipeline was stopped (Ctrl+C); the screen has been restored.

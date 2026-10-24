@@ -21,7 +21,7 @@ namespace ConsoleMonster.TestHost {
                     report(new { phase = "signal_ready" });
                     run.CancellationToken.WaitHandle.WaitOne();
                     cancelled = run.CancellationToken.IsCancellationRequested;
-                    return new RunResult("Stopped");
+                    return new MenuRunResult("Stopped");
                 }, new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false });
                 report(new { phase = "menu_resumed", cancelled });
             }));

@@ -10,7 +10,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>A banner with a tagline</para>
-    ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -From '#22d3ee' -To '#a78bfa' | Write-ConsoleWidget</code>
+    ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogo")]
     [OutputType(typeof(Logo))]
@@ -25,11 +25,11 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Gradient start colour.</para></summary>
         [Parameter]
-        public string? From { get; set; }
+        public string? StartColor { get; set; }
 
         /// <summary><para type="description">Gradient end colour.</para></summary>
         [Parameter]
-        public string? To { get; set; }
+        public string? EndColor { get; set; }
 
         /// <summary><para type="description">Alignment: Left, Center or Right.</para></summary>
         [Parameter]
@@ -38,11 +38,11 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             Logo logo = new Logo(Text, PSText.Markup(Tagline)) { Alignment = Alignment };
-            if (From != null && Color.TryParse(From, out Color from)) {
-                logo.From = from;
+            if (StartColor != null && Color.TryParse(StartColor, out Color from)) {
+                logo.StartColor = from;
             }
-            if (To != null && Color.TryParse(To, out Color to)) {
-                logo.To = to;
+            if (EndColor != null && Color.TryParse(EndColor, out Color to)) {
+                logo.EndColor = to;
             }
             WriteObject(logo);
         }

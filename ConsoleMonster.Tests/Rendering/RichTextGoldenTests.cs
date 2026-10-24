@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Rendering {
             lane.DetailText = new RichTextBuilder().Append("copying ", ThemeToken.Muted).Append("Weekly.xlsx", ConsoleColor.Green).Build();
 
             // A log region takes its preferred height when the height is bounded (stable in live dashboards); match the content here.
-            LogRegion log = new LogRegion { ShowTime = false, Wrap = true, PreferredHeight = 2 };
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = true, PreferredHeight = 2 };
             log.Write(new RichTextBuilder().Append("DC03 ", ConsoleColor.Cyan).Append("replication failed", ThemeToken.Fail).Append(" - no inbound replication for 4h from DC02", ThemeToken.Muted).Build(), "err");
 
             BarChart bars = new BarChart();
@@ -121,7 +121,7 @@ namespace ConsoleMonster.Tests.Rendering {
             string dark = Terminal.RenderEncoded(Pass(), TerminalProfile.Fixed(20, 3, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
             string light = Terminal.RenderEncoded(Pass(), TerminalProfile.Fixed(20, 3, ColorDepth.TrueColor, GlyphTier.Full), Theme.Light);
             Assert.NotEqual(dark, light);
-            Color lightPass = Theme.Light.Resolve(ThemeToken.Pass, ColorDepth.TrueColor).Foreground;
+            Color lightPass = Theme.Light.Resolve(ThemeToken.Pass, ColorDepth.TrueColor).Color;
             Assert.Contains(";38;2;" + lightPass.R + ";" + lightPass.G + ";" + lightPass.B, light);
         }
     }

@@ -22,8 +22,8 @@ namespace ConsoleMonster.Widgets {
         private readonly Dictionary<string, Lane> _byKey = new Dictionary<string, Lane>(StringComparer.Ordinal);
 
         /// <summary>Creates a lanes widget.</summary>
-        /// <param name="name">The live name (default <c>lanes</c>).</param>
-        public Lanes(string name = "lanes") : base(name) {
+        /// <param name="widgetId">The live name (default <c>lanes</c>).</param>
+        public Lanes(string widgetId = "lanes") : base(widgetId) {
         }
 
         /// <summary>The lanes in insertion order.</summary>
@@ -169,7 +169,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a handle that updates these lanes through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
-        public LanesHandle Handle(ILiveDispatcher dispatcher) => new LanesHandle(dispatcher, Name);
+        public LanesHandle Handle(ILiveDispatcher dispatcher) => new LanesHandle(dispatcher, WidgetId);
 
         /// <summary>
         /// The overall progress for the terminal's indicator: the share of all steps done (finished lanes count in full),
@@ -229,7 +229,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
-            string line = Name + ": " + Localization.WidgetLabels.Format(labels.RunningCount, running.ToString(CultureInfo.InvariantCulture)) + ", "
+            string line = WidgetId + ": " + Localization.WidgetLabels.Format(labels.RunningCount, running.ToString(CultureInfo.InvariantCulture)) + ", "
                 + Localization.WidgetLabels.Format(labels.DoneCount, done.ToString(CultureInfo.InvariantCulture))
                 + (failed > 0 ? " (" + Localization.WidgetLabels.Format(labels.FailedCount, failed.ToString(CultureInfo.InvariantCulture)) + ")" : string.Empty)
                 + ", " + Localization.WidgetLabels.Format(labels.QueuedCount, queued.ToString(CultureInfo.InvariantCulture));
@@ -253,11 +253,11 @@ namespace ConsoleMonster.Widgets {
                     ApplyAdvance(Add(liveEvent.Key), liveEvent, now);
                     break;
                 case "state":
-                    ApplyState(Add(liveEvent.Key), liveEvent.State, liveEvent.Text, now);
+                    ApplyState(Add(liveEvent.Key), liveEvent.Status, liveEvent.Text, now);
                     break;
                 case "complete":
                     Lane lane = Add(liveEvent.Key);
-                    string state = liveEvent.State ?? (lane.Failed > 0 ? "fail" : lane.Warned > 0 ? "warn" : "pass");
+                    string state = liveEvent.Status ?? (lane.Failed > 0 ? "fail" : lane.Warned > 0 ? "warn" : "pass");
                     ApplyState(lane, state, liveEvent.Text, now);
                     break;
                 case "detail":
@@ -299,7 +299,7 @@ namespace ConsoleMonster.Widgets {
             }
             lane.Done += amount;
             lane.Meter.Record(now, lane.Done);
-            if (liveEvent.State != null && StatusKinds.TryParse(liveEvent.State, out StatusKind result)) {
+            if (liveEvent.Status != null && StatusKinds.TryParse(liveEvent.Status, out StatusKind result)) {
                 int steps = (int)Math.Max(1, Math.Round(amount));
                 switch (result) {
                     case StatusKind.Pass:

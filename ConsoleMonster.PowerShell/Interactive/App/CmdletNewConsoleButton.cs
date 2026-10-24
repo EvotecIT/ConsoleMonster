@@ -6,7 +6,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="synopsis">Creates a named action button for Show-ConsoleApp.</para>
     /// <para type="description">Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para>
     /// </summary>
-    /// <example><para>Create an application input.</para><code>New-ConsoleButton -Name Apply -OnClick { $State.Applied = $true }</code></example>
+    /// <example><para>Create an application input.</para><code>New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleButton")]
     [OutputType(typeof(Button))]
     public sealed class CmdletNewConsoleButton : AppInputCmdlet {
@@ -16,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            Emit(new Button(Name, Label), OnClick);
+            Emit(new Button(Key, Label), OnClick);
         }
     }
 }

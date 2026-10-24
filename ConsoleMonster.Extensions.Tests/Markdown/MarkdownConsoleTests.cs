@@ -73,7 +73,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             const string source = "[**Read** more][guide]\n\n[guide]: https://example.org/guide";
             CellBuffer plain = Render(source);
             Assert.Equal("Read more (https://example.org/guide)", plain.ToPlainText());
-            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Foreground, plain[10, 0].Style.Foreground);
+            Assert.Equal(Theme.Dark.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color, plain[10, 0].Style.Color);
             CellBuffer linked = Render(source, links: true);
             Assert.Equal("Read more", linked.ToPlainText());
             Assert.Equal("https://example.org/guide", linked[0, 0].Style.Link);

@@ -60,7 +60,7 @@ namespace ConsoleMonster.Interactive {
                     rows.Add(new Padding(new UiParagraph(text!, ThemeToken.Warn), 2, 0, 0, 0));
                 }
                 rows.Add(new UiLine(Confirmation) { Indent = 2 });
-                TextInput input = new TextInput(_editor, Caret) { Token = _prompt.Matches(_editor.Text) ? ThemeToken.Pass : ThemeToken.Text };
+                TextInput input = new TextInput(_editor, Caret) { Role = _prompt.Matches(_editor.Text) ? ThemeToken.Pass : ThemeToken.Text };
                 rows.Add(new Columns(new Sized(new UiLine(context => new StyledLine(new[] { PromptMark(context) })) { Indent = 2 }, LayoutSize.Fixed(4)), input) { Gap = 0 });
                 if (!string.IsNullOrEmpty(Error)) {
                     rows.Add(MessageLine(Error));

@@ -55,8 +55,8 @@ namespace ConsoleMonster.Tests.Testing {
         public void ActivityList_NestsChildrenAndForgetsCompletedActivities() {
             ActivityList list = new ActivityList();
             Assert.Equal(0, TestTerminal.Render(list, 60).Height);
-            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "1", text: "Backup", state: "File 3 of 10", value: 30, total: 42));
-            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "2/1", text: "Compressing", state: "chunk 1", value: 50, total: -1));
+            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "1", text: "Backup", status: "File 3 of 10", value: 30, total: 42));
+            list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "2/1", text: "Compressing", status: "chunk 1", value: 50, total: -1));
             list.Apply(new LiveEvent(ActivityList.ProgressTarget, "update", key: "3", text: "Waiting", value: -1, total: -1));
             Golden.Match("live/activities.txt", TestTerminal.RenderText(list, 70));
             list.Apply(new LiveEvent(ActivityList.ProgressTarget, "complete", key: "1"));

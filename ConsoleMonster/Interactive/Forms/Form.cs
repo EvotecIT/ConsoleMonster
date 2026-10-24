@@ -115,48 +115,48 @@ namespace ConsoleMonster.Interactive {
         public T Add<T>(T field) where T : Field => Current.Add(field);
 
         /// <summary>Adds a text field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public TextField Text(string name, string? label = null) => Current.Text(name, label);
+        public TextField Text(string key, string? label = null) => Current.Text(key, label);
 
         /// <summary>Adds a secret field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public SecretField Secret(string name, string? label = null) => Current.Secret(name, label);
+        public SecretField Secret(string key, string? label = null) => Current.Secret(key, label);
 
         /// <summary>Adds a number field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public NumberField Number(string name, string? label = null) => Current.Number(name, label);
+        public NumberField Number(string key, string? label = null) => Current.Number(key, label);
 
         /// <summary>Adds a toggle to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public ToggleField Toggle(string name, string? label = null) => Current.Toggle(name, label);
+        public ToggleField Toggle(string key, string? label = null) => Current.Toggle(key, label);
 
         /// <summary>Adds a single-choice field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <param name="choices">The choices, or null when a loader provides them.</param>
         /// <returns>The field.</returns>
-        public ChoiceField Select(string name, string? label = null, IEnumerable<Choice>? choices = null) => Current.Select(name, label, choices);
+        public ChoiceField Select(string key, string? label = null, IEnumerable<Choice>? choices = null) => Current.Select(key, label, choices);
 
         /// <summary>Adds a multi-choice field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <param name="choices">The choices, or null when a loader provides them.</param>
         /// <returns>The field.</returns>
-        public ChoiceField MultiSelect(string name, string? label = null, IEnumerable<Choice>? choices = null) => Current.MultiSelect(name, label, choices);
+        public ChoiceField MultiSelect(string key, string? label = null, IEnumerable<Choice>? choices = null) => Current.MultiSelect(key, label, choices);
 
         /// <summary>Adds a path field to the last page.</summary>
-        /// <param name="name">The key.</param>
+        /// <param name="key">The key.</param>
         /// <param name="label">The label.</param>
         /// <returns>The field.</returns>
-        public PathField Path(string name, string? label = null) => Current.Path(name, label);
+        public PathField Path(string key, string? label = null) => Current.Path(key, label);
 
         /// <summary>Every field, page by page.</summary>
         public IEnumerable<Field> Fields {
@@ -178,12 +178,12 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        /// <summary>Finds a field by name.</summary>
-        /// <param name="name">The name.</param>
+        /// <summary>Finds a field by key.</summary>
+        /// <param name="key">The key.</param>
         /// <returns>The field, or null.</returns>
-        public Field? Find(string name) {
+        public Field? Find(string key) {
             foreach (Field field in Fields) {
-                if (string.Equals(field.Name, name, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(field.Key, key, StringComparison.OrdinalIgnoreCase)) {
                     return field;
                 }
             }
@@ -195,12 +195,12 @@ namespace ConsoleMonster.Interactive {
         public FormValues GetValues() {
             FormValues values = new FormValues();
             foreach (Field field in Fields) {
-                values.Set(field.Name, field.Value, true);
+                values.Set(field.Key, field.Value, true);
             }
             FormValues result = new FormValues();
             foreach (Field field in Fields) {
                 bool visible = field.VisibleWhen == null || SafeVisible(field, values);
-                result.Set(field.Name, field.Value, visible);
+                result.Set(field.Key, field.Value, visible);
             }
             return result;
         }
@@ -219,7 +219,7 @@ namespace ConsoleMonster.Interactive {
             FormValues values = GetValues();
             List<string> arguments = new List<string>();
             foreach (Field field in Fields) {
-                if (string.IsNullOrEmpty(field.Parameter) || !values.IsVisible(field.Name) || field.IsEmpty(field.Value) || field.IsDefault(field.Value)) {
+                if (string.IsNullOrEmpty(field.Parameter) || !values.IsVisible(field.Key) || field.IsEmpty(field.Value) || field.IsDefault(field.Value)) {
                     continue;
                 }
                 object? value = field.ArgumentValue(field.Value);
@@ -246,7 +246,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 object? value = field.ToStored(field.Value);
                 if (value != null) {
-                    stored[field.Name] = value;
+                    stored[field.Key] = value;
                 }
             }
             return stored;

@@ -99,8 +99,8 @@ namespace ConsoleMonster.Styling {
             foreach (ThemeToken token in Theme.AllTokens()) {
                 ThemeStyle style = theme.Get(token);
                 tokens.Add(token.ToString(), new Dictionary<string, object?> {
-                    ["Foreground"] = ColorData(style.Foreground),
-                    ["Background"] = ColorData(style.Background),
+                    ["Foreground"] = ColorData(style.Color),
+                    ["Background"] = ColorData(style.BackgroundColor),
                     ["Decoration"] = style.Decoration.ToString()
                 });
             }
@@ -115,8 +115,8 @@ namespace ConsoleMonster.Styling {
             Style rgb = theme.Resolve(token, ColorDepth.TrueColor);
             Style ansi16 = theme.Resolve(token, ColorDepth.Ansi16);
             Style ansi256 = theme.Resolve(token, ColorDepth.Ansi256);
-            ThemeStyle captured = new ThemeStyle(CaptureColor(rgb.Foreground, ansi16.Foreground, ansi256.Foreground),
-                CaptureColor(rgb.Background, ansi16.Background, ansi256.Background), rgb.Decoration);
+            ThemeStyle captured = new ThemeStyle(CaptureColor(rgb.Color, ansi16.Color, ansi256.Color),
+                CaptureColor(rgb.BackgroundColor, ansi16.BackgroundColor, ansi256.BackgroundColor), rgb.Decoration);
             if (!captured.Resolve(ColorDepth.TrueColor).Equals(rgb) || !captured.Resolve(ColorDepth.Ansi16).Equals(ansi16)
                 || !captured.Resolve(ColorDepth.Ansi256).Equals(ansi256) || !theme.Resolve(token, ColorDepth.None).Equals(Style.Plain)) {
                 throw new ArgumentException("Theme token '" + token + "' cannot be exported losslessly as a ThemeStyle.", nameof(theme));

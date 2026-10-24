@@ -5,8 +5,8 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// What Format-ConsoleTable, Format-ConsoleList, Format-ConsoleTree, Format-ConsoleJson, Format-ConsoleCode and
-    /// Format-ConsoleError write to the pipeline in PowerShell 7.2 and later: the rendered view, drawn in colour when it
+    /// What Show-ConsoleTable, Show-ConsoleList, Show-ConsoleTree, Show-ConsoleJson, Show-ConsoleCode and
+    /// Show-ConsoleError write to the pipeline in PowerShell 7.2 and later: the rendered view, drawn in colour when it
     /// reaches the console (through ConsoleMonster's format view) and as plain text when it is captured (Out-String,
     /// Out-File, <c>&gt;</c>, a variable shown later), as PowerShell's $PSStyle.OutputRendering decides.
     /// </summary>

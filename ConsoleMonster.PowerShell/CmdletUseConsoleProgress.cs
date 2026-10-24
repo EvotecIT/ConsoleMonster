@@ -65,6 +65,9 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
         [ValidateRange(1, 60)]
         public int FramesPerSecond { get; set; } = 15;
 
+        /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
+        [Parameter] public SwitchParameter NoLive { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
@@ -90,6 +93,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
             ActivityList activities = new ActivityList();
             LiveSessionOptions options = new LiveSessionOptions {
                 Mode = LiveMode.Inline,
+                AppendOnly = NoLive.IsPresent,
                 PrintFinalState = Keep.IsPresent,
                 FramesPerSecond = FramesPerSecond,
                 // Ctrl+C stops the script the PowerShell way; the session is stopped (and the area cleared) in finally.
@@ -158,7 +162,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
                 return;
             }
             foreach (string line in _pending.ToString().Replace("\r\n", "\n").Split('\n')) {
-                _session.Post(new LiveEvent("$log", "write", text: line, state: "host", isMarkup: true));
+                _session.Post(new LiveEvent("$log", "write", text: line, status: "host", isMarkup: true));
             }
             _pending.Clear();
         }

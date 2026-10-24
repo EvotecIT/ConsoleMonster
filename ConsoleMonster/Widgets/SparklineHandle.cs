@@ -5,8 +5,8 @@ namespace ConsoleMonster.Widgets {
     public sealed class SparklineHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="target">The widget name.</param>
-        public SparklineHandle(ILiveDispatcher dispatcher, string target) : base(dispatcher, target) {
+        /// <param name="widgetId">The widget name.</param>
+        public SparklineHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) {
         }
 
         /// <summary>Appends a value.</summary>

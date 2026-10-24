@@ -10,9 +10,9 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A form with two built-in presets</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'Report' -Command 'Export-AppReport' {
-    ///     New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -Parameter Period
-    ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -Parameter Path
+    /// $form = New-ConsoleForm 'Report' -Command 'Export-AppReport' -Content {
+    ///     New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -ParameterName Period
+    ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -ParameterName Path
     ///     New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week'; Path = 'D:\Reports\Weekly' } -Description 'Every Monday.'
     ///     New-ConsoleFormPreset 'Monthly' -Values @{ Period = 'Month'; Path = 'D:\Reports\Monthly' }
     /// }

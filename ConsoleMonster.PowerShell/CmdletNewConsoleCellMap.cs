@@ -13,15 +13,15 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Forty items part-way through a run</para>
     ///   <code>
     /// $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-    /// New-ConsoleCellMap -Status $states -Count 40 | Write-ConsoleWidget</code>
+    /// New-ConsoleCellMap -Status $states -Count 40 | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>States from objects</para>
-    ///   <code>$results | ForEach-Object Result | New-ConsoleCellMap | Write-ConsoleWidget</code>
+    ///   <code>$results | ForEach-Object Result | New-ConsoleCellMap | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>A grid of three servers by four checks, with the server names beside the rows</para>
-    ///   <code>New-ConsoleCellMap -Name checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Write-ConsoleWidget</code>
+    ///   <code>New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -Status Pass, Pass, Fail, Warn, Pass | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCellMap")]
     [OutputType(typeof(CellMap))]
@@ -29,7 +29,7 @@ namespace ConsoleMonster.PowerShell {
         private readonly List<object> _states = new List<object>();
 
         /// <summary><para type="description">The item states, in order: Pass, Fail, Warn, Skip, Info, Running or Pending (pipeline input works too).</para></summary>
-        [Parameter(Position = 0, ValueFromPipeline = true)]
+        [Parameter(Position = 1, ValueFromPipeline = true)]
         public object[]? Status { get; set; }
 
         /// <summary><para type="description">The total number of items; cells beyond the given states are pending.</para></summary>
@@ -57,8 +57,8 @@ namespace ConsoleMonster.PowerShell {
         public int LegendLines { get; set; } = 1;
 
         /// <summary><para type="description">The live name (default cells).</para></summary>
-        [Parameter]
-        public string Name { get; set; } = "cells";
+        [Parameter(Position = 0)]
+        public string WidgetId { get; set; } = "cells";
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -71,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            CellMap map = new CellMap(Name) { MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
+            CellMap map = new CellMap(WidgetId) { MaxRows = MaxRows, ShowLegend = !NoLegend.IsPresent, Columns = Math.Max(0, Columns), LegendLines = Math.Max(1, LegendLines) };
             if (RowLabels != null) {
                 foreach (string label in RowLabels) {
                     map.RowLabels.Add(label ?? string.Empty);

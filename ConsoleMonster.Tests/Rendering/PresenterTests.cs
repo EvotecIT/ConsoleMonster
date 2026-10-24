@@ -72,16 +72,16 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Boolean_Tiers_SymbolPlusWord() {
             Assert.Equal("✓ yes", CellPresenters.Boolean.Present(true, Context()).Text);
             Assert.Equal("no", CellPresenters.Boolean.Present(false, Context(GlyphTier.Ascii)).Text);
-            Assert.Equal(ThemeToken.Warn, new BooleanPresenter(trueIsProblem: true).Present(true, Context()).Tone);
+            Assert.Equal(ThemeToken.Warn, new BooleanPresenter(trueIsProblem: true).Present(true, Context()).Role);
         }
 
         [Fact]
         public void ToneRule_WithoutColour_AddsTheStatusSymbol() {
-            ToneRule[] rules = { ToneRule.Above(100, ThemeToken.Warn) };
+            RoleRule[] rules = { RoleRule.Above(100, ThemeToken.Warn) };
             PresentedValue colour = CellPresenters.Present(133, new NumberPresenter("ms"), rules, Context());
             PresentedValue plain = CellPresenters.Present(133, new NumberPresenter("ms"), rules, Context(GlyphTier.Ascii, ColorDepth.None));
             Assert.Equal("133 ms", colour.Text);
-            Assert.Equal(ThemeToken.Warn, colour.Tone);
+            Assert.Equal(ThemeToken.Warn, colour.Role);
             Assert.Equal("[WARN] 133 ms", plain.Text);
             Assert.Equal("12 ms", CellPresenters.Present(12, new NumberPresenter("ms"), rules, Context(GlyphTier.Ascii, ColorDepth.None)).Text);
         }

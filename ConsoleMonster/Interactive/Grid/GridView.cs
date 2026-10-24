@@ -81,7 +81,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         public override IReadOnlyList<StyledLine>? Summary(RenderContext context) {
-            if (IsCancelled || !Accepted) {
+            if (IsCanceled || !Accepted) {
                 return null;
             }
             int count = ChosenItems().Count;
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Interactive {
             TextInput input = new TextInput(_filter, _modals.Count == 0 ? frame.Caret : null) { Placeholder = Labels.TypeToFilter, Focused = _modals.Count == 0 };
             Columns filter = new Columns(new Sized(new UiLine(context => new StyledLine(new[] { new TextSpan(InteractiveGlyphs.For(context).Pointer + " ", context.Style(ThemeToken.Accent)) })), LayoutSize.Fixed(2)), input) { Gap = 0 };
             rows.Add(new Padding(filter, 1, 1, 1, 0), LayoutSize.Fixed(2));
-            Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderToken = ThemeToken.Accent };
+            Panel panel = new Panel(new GridBody(this), SortTitle()) { BorderRole = ThemeToken.Accent };
             rows.Add(panel, LayoutSize.Fraction());
             List<KeyBinding> bindings = new List<KeyBinding>();
             AddBindings(bindings, frame);
@@ -173,7 +173,7 @@ namespace ConsoleMonster.Interactive {
                 _filter.Text = string.Empty;
                 return;
             }
-            IsCancelled = true;
+            IsCanceled = true;
             IsDone = true;
         }
 

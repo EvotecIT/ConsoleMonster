@@ -18,11 +18,11 @@ namespace ConsoleMonster.Live.Tails {
 
         /// <summary>Creates a view that initially follows the newest entry.</summary>
         /// <param name="capacity">Maximum retained history entries. Pending updates are not discarded.</param>
-        /// <param name="name">Unique live-session target name.</param>
+        /// <param name="widgetId">Unique live-session target name.</param>
         /// <param name="highlight">Optional literal, ordinal case-insensitive substring to emphasize.</param>
-        public LogTailView(int capacity = 1000, string name = "tail", string? highlight = null) : base(name) {
+        public LogTailView(int capacity = 1000, string widgetId = "tail", string? highlight = null) : base(widgetId) {
             if (capacity < 1) { throw new ArgumentOutOfRangeException(nameof(capacity)); }
-            _log = new LogRegion { Capacity = capacity, ShowTime = false, ShowTimestamp = true, HighlightText = highlight };
+            _log = new LogRegion { Capacity = capacity, ShowElapsed = false, ShowTimestamp = true, HighlightText = highlight };
         }
 
         /// <summary>Whether the viewport follows new entries. Read after dispatch or on the render thread.</summary>
@@ -44,7 +44,7 @@ namespace ConsoleMonster.Live.Tails {
         public void Post(ILiveDispatcher dispatcher, TailedLogEntry entry) {
             if (dispatcher == null) { throw new ArgumentNullException(nameof(dispatcher)); }
             if (entry == null) { throw new ArgumentNullException(nameof(entry)); }
-            dispatcher.Post(new LiveEvent(Name, "append") { Payload = entry });
+            dispatcher.Post(new LiveEvent(WidgetId, "append") { Payload = entry });
         }
 
         /// <summary>Queues a recognized navigation key. Quit keys are handled by the runner.</summary>
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Live.Tails {
             if (input == null) { throw new ArgumentNullException(nameof(input)); }
             string? operation = LogTailKeys.Operation(input);
             if (operation == null) { return false; }
-            dispatcher.Post(new LiveEvent(Name, operation));
+            dispatcher.Post(new LiveEvent(WidgetId, operation));
             return true;
         }
 

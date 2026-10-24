@@ -8,23 +8,23 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     ///   <para>Lanes for three servers with 40 steps each</para>
-    ///   <code>New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02', 'DC03' -Total 40</code>
+    ///   <code>New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02', 'DC03' -Total 40</code>
     /// </example>
     /// <example>
     ///   <para>Lanes at different points, printed once</para>
     ///   <code>
-    /// New-ConsoleLanes {
+    /// New-ConsoleLanes -Content {
     ///     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
     ///     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
     ///     New-ConsoleLane 'DC03' -Total 40
-    /// } | Write-ConsoleWidget</code>
+    /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLanes")]
     [OutputType(typeof(Lanes))]
     public sealed class CmdletNewConsoleLanes : PSCmdlet {
         /// <summary><para type="description">The live name (default lanes). A script block here is taken as -Content.</para></summary>
         [Parameter(Position = 0)]
-        public object Name { get; set; } = "lanes";
+        public string WidgetId { get; set; } = "lanes";
 
         /// <summary><para type="description">A script block that emits the lanes: New-ConsoleLane calls, or names.</para></summary>
         [Parameter(Position = 1)]
@@ -61,9 +61,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter CollapseWhenFinished { get; set; }
 
-        /// <summary><para type="description">The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).</para></summary>
+        /// <summary><para type="description">The display disappears once every lane has finished (with Invoke-ConsoleDashboard -Transient nothing is left).</para></summary>
         [Parameter]
         public SwitchParameter Transient { get; set; }
+
+        /// <summary><para type="description">Shared CountColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        [Parameter] public Layout.ColumnFormat? CountColumn { get; set; }
+        /// <summary><para type="description">Shared PercentColumn layout settings from New-ConsoleColumnFormat.</para></summary>
+        [Parameter] public Layout.ColumnFormat? PercentColumn { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -74,9 +79,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            object? name = PSText.Unwrap(Name);
-            ScriptBlock? content = name is ScriptBlock script ? script : Content;
-            Lanes lanes = new Lanes(name is ScriptBlock || name == null ? "lanes" : PSWidgets.ToText(name)) {
+            ScriptBlock? content = Content;
+            Lanes lanes = new Lanes(WidgetId) {
                 Shape = Shape,
                 Columns = Column == null ? null : ProgressColumns.FromNames(Column),
                 HideCompleted = HideCompleted.IsPresent,
@@ -96,6 +100,8 @@ namespace ConsoleMonster.PowerShell {
             }
             PSItems.AddAll(this, lanes, PSItems.Items(content));
             PSItems.AddAll(this, lanes, _piped);
+            if (CountColumn != null) { lanes.CountColumn = CountColumn; }
+            if (PercentColumn != null) { lanes.PercentColumn = PercentColumn; }
             WriteObject(lanes);
         }
     }

@@ -7,7 +7,7 @@ namespace ConsoleMonster.Live {
     /// </summary>
     public interface ILiveTarget {
         /// <summary>The unique name events are addressed to.</summary>
-        string Name { get; }
+        string WidgetId { get; }
 
         /// <summary>Applies an event to the widget's state.</summary>
         /// <param name="liveEvent">The event.</param>

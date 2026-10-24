@@ -65,8 +65,8 @@ namespace ConsoleMonster.Tests.Changes {
                 Assert.True(removedRow >= 0 && addedRow >= 0);
                 int oldColumn = lines[removedRow].IndexOf("old", System.StringComparison.Ordinal);
                 int newColumn = lines[addedRow].IndexOf("new", System.StringComparison.Ordinal);
-                Assert.NotEqual(frame[oldColumn - 2, removedRow].Style.Foreground, frame[oldColumn, removedRow].Style.Foreground);
-                Assert.NotEqual(frame[oldColumn, removedRow].Style.Foreground, frame[newColumn, addedRow].Style.Foreground);
+                Assert.NotEqual(frame[oldColumn - 2, removedRow].Style.Color, frame[oldColumn, removedRow].Style.Color);
+                Assert.NotEqual(frame[oldColumn, removedRow].Style.Color, frame[newColumn, addedRow].Style.Color);
                 Assert.Equal(TextDecoration.Bold, frame[oldColumn, removedRow].Style.Decoration & TextDecoration.Bold);
             }
         }
@@ -88,9 +88,9 @@ namespace ConsoleMonster.Tests.Changes {
                 Assert.Contains("+ value " + after + " tail", text);
                 Cell removed = FindGlyph(frame, before);
                 Cell added = FindGlyph(frame, after);
-                Assert.Equal(theme.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Foreground, removed.Style.Foreground);
-                Assert.Equal(theme.Resolve(ThemeToken.Pass, ColorDepth.TrueColor).Foreground, added.Style.Foreground);
-                Assert.NotEqual(removed.Style.Foreground, added.Style.Foreground);
+                Assert.Equal(theme.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Color, removed.Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Pass, ColorDepth.TrueColor).Color, added.Style.Color);
+                Assert.NotEqual(removed.Style.Color, added.Style.Color);
                 Assert.Equal(TextDecoration.Bold, removed.Style.Decoration & TextDecoration.Bold);
                 Assert.Equal(TextDecoration.Bold, added.Style.Decoration & TextDecoration.Bold);
             }

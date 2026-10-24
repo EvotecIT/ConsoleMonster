@@ -18,7 +18,7 @@ namespace ConsoleMonster.Tests.Widgets {
             BarChart bars = Assert.IsType<BarChart>(chart.Build());
             Assert.Equal(new[] { "first", "second", "same" }, bars.Items.Select(i => i.Label));
             Assert.Equal(new[] { 8.0, 8, 3 }, bars.Items.Select(i => i.Value));
-            Assert.Equal(new[] { ThemeToken.Series1, ThemeToken.Series2, ThemeToken.Series3 }, bars.Items.Select(i => i.Token!.Value));
+            Assert.Equal(new[] { ThemeToken.Series1, ThemeToken.Series2, ThemeToken.Series3 }, bars.Items.Select(i => i.Role!.Value));
             chart.WithTop(0).WithSort(PipelineChartSort.None);
             Assert.Equal(new[] { "same", "first", "second", "same (2)" }, Assert.IsType<BarChart>(chart.Build()).Items.Select(i => i.Label));
             chart.WithSort(PipelineChartSort.Ascending).WithTop(1);

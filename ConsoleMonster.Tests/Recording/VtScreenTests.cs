@@ -136,8 +136,8 @@ namespace ConsoleMonster.Tests.Sessions {
             VtScreen screen = new VtScreen(12, 3);
             screen.Feed("\x1b[31mA\x1b[38;5;256mB\x1b[48;5;2147483647mC");
             CellBuffer frame = screen.Snapshot();
-            Assert.Equal(frame[0, 0].Style.Foreground, frame[1, 0].Style.Foreground);
-            Assert.Equal(frame[0, 0].Style.Background, frame[2, 0].Style.Background);
+            Assert.Equal(frame[0, 0].Style.Color, frame[1, 0].Style.Color);
+            Assert.Equal(frame[0, 0].Style.BackgroundColor, frame[2, 0].Style.BackgroundColor);
             SessionRecording cast = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":12,\"height\":3}\n[0,\"o\",\"\\u001b[38;5;256mVisible\"]"));
             Assert.Contains("Visible", cast.ExportFinalSvg());
         }

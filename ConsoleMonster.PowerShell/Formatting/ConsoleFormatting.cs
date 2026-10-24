@@ -39,7 +39,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>The view.</summary>
         public ConsoleViewKind View { get; }
 
-        /// <summary>The properties, as in Format-ConsoleTable, or null for the default display set.</summary>
+        /// <summary>The properties, as in Show-ConsoleTable, or null for the default display set.</summary>
         public object[]? Property { get; }
 
         /// <summary>A property name or script block that groups rows under headings, or null.</summary>
@@ -58,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Registered and built-in types (files, processes, services, dictionaries) shown as ConsoleMonster views (the default).</summary>
         Output = 1,
 
-        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Format-ConsoleError), following $ErrorView.</summary>
+        /// <summary>Errors that reach the console shown with ConsoleMonster's error view (Show-ConsoleError), following $ErrorView.</summary>
         ErrorView = 2,
 
         /// <summary>Write-Progress drawn as ConsoleMonster's progress area (Write-Progress becomes an alias of Write-ConsoleProgress).</summary>
@@ -102,7 +102,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>
         /// Whether Out-ConsoleDefault takes over the built-in types (files, processes, services). Enable-ConsoleFormatting
-        /// -NoBuiltIn turns it off; the built-in views still pick the columns of Format-ConsoleTable and the other commands.
+        /// -NoBuiltIn turns it off; the built-in views still pick the columns of Show-ConsoleTable and the other commands.
         /// </summary>
         internal static bool TakeOverBuiltIns { get => FormattingSessionState.Current.TakeOverBuiltIns; set => FormattingSessionState.Current.TakeOverBuiltIns = value; }
 

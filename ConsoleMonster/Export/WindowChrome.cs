@@ -76,10 +76,10 @@ namespace ConsoleMonster.Export {
 
         internal static void AppendTokens(StringBuilder css, string scope, ExportOptions options, bool light) {
             ITheme theme = light ? options.LightTheme ?? Theme.Light : options.DarkTheme ?? Theme.Dark;
-            string surface = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).Background) ?? (light ? "#e5e7eb" : "#1f2a3c");
-            string muted = ExportPalette.ToCss(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Foreground) ?? (light ? "#6b7280" : "#a1a1aa");
-            string title = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).Foreground) ?? (light ? ExportPalette.Light.Foreground : ExportPalette.Dark.Foreground);
-            string tab = ExportPalette.ToCss(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).Background) ?? (light ? ExportPalette.Light.Background : ExportPalette.Dark.Background);
+            string surface = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).BackgroundColor) ?? (light ? "#e5e7eb" : "#1f2a3c");
+            string muted = ExportPalette.ToCss(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color) ?? (light ? "#6b7280" : "#a1a1aa");
+            string title = ExportPalette.ToCss(theme.Resolve(ThemeToken.Surface, ColorDepth.TrueColor).Color) ?? (light ? ExportPalette.Light.Foreground : ExportPalette.Dark.Foreground);
+            string tab = ExportPalette.ToCss(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).BackgroundColor) ?? (light ? ExportPalette.Light.Background : ExportPalette.Dark.Background);
             css.Append(scope).Append("{--cm-chrome:").Append(surface).Append(";--cm-chrome-fg:").Append(muted).Append(";--cm-chrome-title:").Append(title).Append(";--cm-tab:").Append(tab)
                 .Append(";--cm-desk:").Append(light ? "#c9c9cf" : "#3a3a3f").Append(";--cm-close:").Append(light ? "#ff5f57" : "#ce534c")
                 .Append(";--cm-minimise:").Append(light ? "#febc2e" : "#c59a2a").Append(";--cm-zoom:").Append(light ? "#28c840" : "#26a443").Append("}\n");

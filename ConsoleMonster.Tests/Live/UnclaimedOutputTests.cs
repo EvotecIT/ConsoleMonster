@@ -80,8 +80,8 @@ namespace ConsoleMonster.Tests.Live {
                             if (expected.All(frame.Contains)) { visible.TrySetResult(true); }
                         };
                         session.Start();
-                        session.Post(new LiveEvent("$log", "write", text: "host-first" + newline + "host-second", state: "host"));
-                        session.Post(new LiveEvent("$log", "write", text: "warning-first" + newline + "warning-second", state: "warn"));
+                        session.Post(new LiveEvent("$log", "write", text: "host-first" + newline + "host-second", status: "host"));
+                        session.Post(new LiveEvent("$log", "write", text: "warning-first" + newline + "warning-second", status: "warn"));
                         // HostColors emits a balanced styled segment per physical line.
                         session.Post(new LiveEvent("$log", "write", text: "[pass]colour-first[/]" + newline + "[pass]colour-second[/]", isMarkup: true));
                         session.Post(new LiveEvent("work", "fence"));
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Tests.Live {
                 };
                 session.Start();
                 Console.WriteLine("console-line");
-                session.Post(new LiveEvent("$log", "write", text: "[pass]host-line[/]", state: "host", isMarkup: true));
+                session.Post(new LiveEvent("$log", "write", text: "[pass]host-line[/]", status: "host", isMarkup: true));
                 session.Write("warning-line", "warn");
                 await Observed(visible.Task);
                 Assert.True(session.IsRunning);

@@ -27,7 +27,7 @@ namespace ConsoleMonster.Widgets {
                 }
                 text += "· ETA " + (_snapshot.Remaining.HasValue ? NumberFormat.Duration(_snapshot.Remaining.Value) : "--");
             }
-            new TextBlock(Markup.Escape("progress " + text)) { Token = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }.Render(region, context);
+            new TextBlock(Markup.Escape("progress " + text)) { Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }.Render(region, context);
         }
     }
 }

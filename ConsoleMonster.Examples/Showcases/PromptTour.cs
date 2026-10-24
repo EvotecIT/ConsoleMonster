@@ -53,7 +53,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 new SecretPrompt("Password for svc-backup") { MinLength = 8 }.Show();
             }
             if (All("number")) {
-                new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 }.Show();
+                new NumberPrompt("Port") { Integer = true, Minimum = 1, Maximum = 65535, Default = 443 }.Show();
             }
             if (All("path")) {
                 new PathPrompt("Report folder") { Kind = PathKind.Folder, Default = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) }.Show();

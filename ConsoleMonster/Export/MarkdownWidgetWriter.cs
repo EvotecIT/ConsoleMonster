@@ -45,7 +45,7 @@ namespace ConsoleMonster.Export {
 
         // Only layout-only wrappers are transparent. Content-bearing or third-party containers retain their full frame.
         private static bool Transparent(IWidget widget) => widget is Rows || widget is Columns || widget is Grid || widget is Stack
-            || widget is Align || widget is Padding || widget is Sized || widget is Prioritized || widget is Slot;
+            || widget is Align || widget is Padding || widget is Sized || widget is Prioritized || widget is RegionWidget;
 
         private static void Table(StringBuilder output, Table table, RenderContext context) {
             TableLayout layout = table.SemanticLayout(context);

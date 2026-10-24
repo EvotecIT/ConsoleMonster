@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Rendering {
             for (int i = 0; i < 10; i++) {
                 lanes.Add("l" + i, "lane " + i, 5);
             }
-            lanes.Apply(new global::ConsoleMonster.Live.LiveEvent("lanes", "state", "l9", state: "running", time: 1));
+            lanes.Apply(new global::ConsoleMonster.Live.LiveEvent("lanes", "state", "l9", status: "running", time: 1));
             CellBuffer frame = FrameComposer.Compose(lanes, 80, 4, Context());
             string text = frame.ToPlainText();
             Assert.Contains("lane 9", text);
@@ -67,8 +67,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void SixteenColourThemeUsesExplicitFallbacks() {
             Style pass = Theme.Dark.Resolve(ThemeToken.Pass, ColorDepth.Ansi16);
-            Assert.Equal(ColorKind.Ansi16, pass.Foreground.Kind);
-            Assert.Equal(10, pass.Foreground.Index);
+            Assert.Equal(ColorKind.Ansi16, pass.Color.Kind);
+            Assert.Equal(10, pass.Color.Index);
             Assert.True(Theme.Dark.Resolve(ThemeToken.Fail, ColorDepth.None).IsPlain);
         }
 

@@ -49,7 +49,7 @@ namespace ConsoleMonster.Tests.Interactive {
                 Thread.Sleep(350);
                 during?.Invoke(run);
                 Thread.Sleep(350);
-                return new RunResult("Done");
+                return new MenuRunResult("Done");
             })));
             menu.Exit("Quit");
             return menu;
@@ -59,7 +59,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [InlineData(GlyphTier.Full, "›", "·")]
         [InlineData(GlyphTier.Ascii, ">", "|")]
         public void ShellRun_Dashboard_TitlesThePanelSaysRunningInTheBreadcrumbAndCaptionsSubtitleStatusAndClock(GlyphTier tier, string crumb, string separator) {
-            Dashboard dashboard = new Dashboard("[bold]Patching[/]", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "4 servers", Status = "copying files", StatusLevel = StatusKind.Running };
+            Dashboard dashboard = new Dashboard("[bold]Patching[/]", new ProgressBar("Overall", "overall") { Total = 2 }) { Subtitle = "4 servers", Detail = "copying files", Status = StatusKind.Running };
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "status", text: "verifying"))).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q", tier), StorageRoot = Storage() });
 
@@ -109,11 +109,11 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         // A menu whose run moves a simulated clock 83 s and returns a result without a duration.
-        private static Menu Clocked(SimulatedClock clock, LiveSessionOptions options, Action<RunResult> done) {
+        private static Menu Clocked(SimulatedClock clock, LiveSessionOptions options, Action<MenuRunResult> done) {
             Menu menu = new Menu("Toolbox");
             menu.Item("Patch", i => i.Hotkey('p').Action(ctx => done(ctx.Run(new ProgressBar("Overall", "overall") { Total = 2 }, run => {
                 clock.Advance(83);
-                return new RunResult("Done");
+                return new MenuRunResult("Done");
             }, options))));
             menu.Exit("Quit");
             return menu;
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void ShellRun_SimulatedClock_GivesTheResultTheClocksTime() {
             SimulatedClock clock = new SimulatedClock();
-            RunResult? result = null;
+            MenuRunResult? result = null;
             ScreenCapture capture = new ScreenCapture(Width, Height);
             Clocked(clock, clock.ToSessionOptions(), r => result = r).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:600 Escape Ctrl+Q"), StorageRoot = Storage() });
             Assert.NotNull(result);
@@ -135,7 +135,7 @@ namespace ConsoleMonster.Tests.Interactive {
             SimulatedClock clock = new SimulatedClock();
             LiveSessionOptions options = ConsoleMonster.Tests.Live.LiveSessionTests.Options(new ConsoleMonster.Tests.Live.FakeOutput(false));
             options.Clock = clock.Read;
-            RunResult? result = null;
+            MenuRunResult? result = null;
             RecordingSurface surface = new RecordingSurface(80, 20, true);
             PromptHarness.Guard(surface, () => {
                 Clocked(clock, options, r => result = r).Run(new MenuOptions { Layout = MenuLayout.Inline, Interactive = PromptHarness.Options("p End Enter", surface) });
@@ -159,7 +159,7 @@ namespace ConsoleMonster.Tests.Interactive {
         public void FormRun_AfterSubmit_TitlesThePanelWithTheDashboard() {
             Form form = new Form("Settings") { Review = false };
             form.Page("General").Text("Name", "Name");
-            Dashboard dashboard = new Dashboard("Applying settings", new ProgressBar("Overall", "overall") { Total = 1 }) { Subtitle = "lab-east", Status = "saving" };
+            Dashboard dashboard = new Dashboard("Applying settings", new ProgressBar("Overall", "overall") { Total = 1 }) { Subtitle = "lab-east", Detail = "saving" };
             ScreenCapture capture = new ScreenCapture(Width, Height);
             FormResult result;
             try {
@@ -167,7 +167,7 @@ namespace ConsoleMonster.Tests.Interactive {
                     Interactive = Options(capture, "Enter Enter wait:1100 Enter"),
                     AfterSubmit = ctx => ctx.Run(dashboard, run => {
                         Thread.Sleep(700);
-                        return new RunResult("Saved");
+                        return new MenuRunResult("Saved");
                     })
                 });
             } catch (InputClosedException) {

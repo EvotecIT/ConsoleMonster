@@ -84,14 +84,14 @@ namespace ConsoleMonster.Interactive {
                     _pending[pair.Key] = pair.Value;
                 }
                 foreach (Field dependent in StaleDependents(before)) {
-                    bool given = TryGet(copy, dependent.Name, out object? wanted);
+                    bool given = TryGet(copy, dependent.Key, out object? wanted);
                     if (dependent is ChoiceField choice && choice.Loader != null) {
                         choice.Choices.Clear();
                         choice.Value = choice.Multiple ? new List<object?>() : null;
                         if (given) {
-                            _pending[dependent.Name] = RestorationValue(dependent, wanted, stored);
+                            _pending[dependent.Key] = RestorationValue(dependent, wanted, stored);
                         } else {
-                            _pending.Remove(dependent.Name);
+                            _pending.Remove(dependent.Key);
                         }
                     } else if (!given) {
                         dependent.Value = Reset(dependent);
@@ -137,7 +137,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 object? value = RestorationValue(field, pair.Value, stored);
                 if (field is ChoiceField choice && choice.Loader != null && choice.Choices.Count == 0) {
-                    pending[field.Name] = value;
+                    pending[field.Key] = value;
                     continue;
                 }
                 if (TryRestore(field, value, out object? restored)) {
@@ -236,7 +236,7 @@ namespace ConsoleMonster.Interactive {
             while (changed.Count > 0) {
                 Field source = changed.Dequeue();
                 foreach (Field field in Fields) {
-                    if (!ReferenceEquals(field, source) && !stale.Contains(field) && DependsOnField(field, source.Name)) {
+                    if (!ReferenceEquals(field, source) && !stale.Contains(field) && DependsOnField(field, source.Key)) {
                         stale.Add(field);
                         changed.Enqueue(field);
                     }

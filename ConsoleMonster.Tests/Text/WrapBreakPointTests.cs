@@ -70,7 +70,7 @@ namespace ConsoleMonster.Tests.Text {
             text.AppendLine("Key/value list (44 cells)");
             text.AppendLine(Terminal.RenderText(list, TerminalProfile.Fixed(44, 40, ColorDepth.None, GlyphTier.Full).WithCulture(CultureInfo.InvariantCulture), Theme.Dark));
 
-            LogRegion log = new LogRegion { Wrap = true, ShowTime = false, PreferredHeight = 20, MaxLinesPerEntry = 3 };
+            LogRegion log = new LogRegion { Wrap = true, ShowElapsed = false, PreferredHeight = 20, MaxLinesPerEntry = 3 };
             foreach (string value in values) {
                 log.Write("resolved " + value, "warn");
             }

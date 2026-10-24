@@ -40,10 +40,10 @@ namespace ConsoleMonster.Building {
         }
 
         /// <summary>Builds the dashboard.</summary>
-        /// <param name="name">The live name of the dashboard (default <c>dashboard</c>).</param>
+        /// <param name="widgetId">The live name of the dashboard (default <c>dashboard</c>).</param>
         /// <returns>The dashboard.</returns>
-        public Dashboard BuildDashboard(string name = "dashboard") {
-            return new Dashboard(_title, Build(), name) { Subtitle = _subtitle, Footer = _footer };
+        public Dashboard BuildDashboard(string widgetId = "dashboard") {
+            return new Dashboard(_title, Build(), widgetId) { Subtitle = _subtitle, Footer = _footer };
         }
     }
 }

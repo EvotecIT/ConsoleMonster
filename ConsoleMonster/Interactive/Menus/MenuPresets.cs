@@ -65,7 +65,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The selections of a menu tree, by item path ("Parent/Item"), in stored form.</summary>
         public static void Collect(Menu menu, string path, Dictionary<string, object?> values) {
             foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
+                string key = path + item.Label;
                 if (item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) {
                     List<string> stored = new List<string>();
                     foreach (object? v in item.Selection) {
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Restores selections by item path; values no enabled choice matches are left out.</summary>
         public static void Restore(Menu menu, string path, IDictionary<string, object?> values) {
             foreach (MenuItem item in menu.Items) {
-                string key = path + item.Title;
+                string key = path + item.Label;
                 if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && values.TryGetValue(key, out object? stored) && stored is System.Collections.IEnumerable list) {
                     HashSet<string> wanted = new HashSet<string>(StringComparer.Ordinal);
                     foreach (object? v in list) {
