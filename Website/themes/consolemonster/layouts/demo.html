@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{ include "head" }}
+  {{ assets.preloads_html }}
+  {{ assets.critical_css_html }}
+  {{ include "theme-tokens" }}
+  {{ extra_css_html }}
+  {{ assets.css_html }}
+  {{ opengraph_html }}
+  {{ structured_data_html }}
+  {{ head_html }}
+</head><body class="cm-body cm-body--demo{{ if body_class != "" }} {{ body_class }}{{ end }}">
+{{ include "site-header" }}
+<main id="main" class="cm-main">
+{{~ ## One demo (front matter `demo: <slug>`, an entry of data.gallery.items): its recording, the line that runs it, the
+     whole program in both languages, what to change first, files for slides, and more demos of the same kind. ## ~}}
+{{~ g = data.gallery; d = null; for i in g.items; if i.slug == page.meta.demo; d = i; end; end ~}}
+{{~ cat = null; for c in g.categories; if c.id == d.category; cat = c; end; end ~}}
+{{~ capture side ~}}
+<p class="cm-reel__crumbs"><a href="/demos/">Demos</a> <span aria-hidden="true">›</span> {{ cat.title }}</p>
+<ul class="cm-reel__chips cm-reel__chips--stage" aria-label="Details">
+  <li class="cm-reel__chip cm-reel__chip--{{ d.kind }}">{{ if d.kind == "live" }}Live{{ else if d.kind == "app" }}Interactive{{ else }}Static{{ end }}</li>
+  <li class="cm-reel__chip">{{ d.size.w }}×{{ d.size.h }}</li>
+  {{~ for l in d.languages ~}}<li class="cm-reel__chip">{{ if l == "powershell" }}PowerShell{{ else }}C#{{ end }}</li>{{~ end ~}}
+  {{~ if d.addon ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ d.addon }}</li>{{~ end ~}}
+</ul>
+{{~ end ~}}
+{{~ capture art ~}}
+{{~ player_data = d.player; player_title = d.title; player_meta = [d.size.w + "×" + d.size.h, "24-bit", "Full"]; player_label = d.pitch; player_class = "cm-window--center"; player_max = 14; player_autoplay = true ~}}
+{{ include "player" }}
+{{~ end ~}}
+{{~ stage_title = d.title; stage_lede = d.pitch; stage_side = side; stage_art = art; stage_wide = true ~}}
+{{ include "stage" }}
+
+<div class="cm-wrap cm-page cm-reel-page">
+  <section class="cm-showcase" aria-labelledby="run-title">
+    <div class="cm-showcase__head">
+      <h2 id="run-title">Run it</h2>
+      <p>One line runs the demo as it is. The second gives you its source to change.</p>
+    </div>
+    <div class="cm-lang" data-lang="powershell">
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = null; code_full = null; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\n" + d.run.powershell + "\nGet-ConsoleDemo " + d.slug + " -Path ./" + d.slug + ".ps1   # a copy to edit" ~}}
+      {{ include "code" }}
+    </div>
+    <div class="cm-lang" data-lang="csharp">
+      {{~ code_lang = "powershell"; code_label = "Terminal"; code_file = null; code_full = null; code_text = "dotnet new install ConsoleMonster.Templates\n" + d.run.csharp + "\ncd " + (d.slug | string.capitalize | string.replace "-" "") + "; dotnet run" ~}}
+      {{ include "code" }}
+    </div>
+  </section>
+
+  {{~ if d.source ~}}
+  <section class="cm-showcase" aria-labelledby="source-title">
+    <div class="cm-showcase__head">
+      <h2 id="source-title">The program</h2>
+      <p>The whole demo in one file, with its sample data inline. Both versions draw the same cells.</p>
+    </div>
+    {{~ if d.source.powershell ~}}
+    <div class="cm-lang" data-lang="powershell">
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.source.powershell.file; code_text = d.source.powershell.text; code_full = null ~}}
+      {{ include "code" }}
+    </div>
+    {{~ end ~}}
+    {{~ if d.source.csharp ~}}
+    <div class="cm-lang" data-lang="csharp">
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.source.csharp.file; code_text = d.source.csharp.text; code_full = null ~}}
+      {{ include "code" }}
+    </div>
+    {{~ end ~}}
+  </section>
+  {{~ end ~}}
+
+  {{~ if d.makeItYours && d.makeItYours.size > 0 ~}}
+  <section class="cm-showcase" aria-labelledby="yours-title">
+    <div class="cm-showcase__head">
+      <h2 id="yours-title">Make it yours</h2>
+      <p>Start with these, then look at the rest of the file.</p>
+    </div>
+    <ol class="cm-reel__steps">
+      {{~ for m in d.makeItYours ~}}<li><strong>{{ m.title }}</strong> {{ m.body }}</li>{{~ end ~}}
+    </ol>
+  </section>
+  {{~ end ~}}
+
+  {{~ if d.media ~}}
+  <section class="cm-showcase" aria-labelledby="slides-title">
+    <div class="cm-showcase__head">
+      <h2 id="slides-title">Use it in a talk</h2>
+      <p>The same recording as files your slides can play. GIF works in PowerPoint, Keynote and Google Slides; MP4 is sharper in PowerPoint and Keynote.</p>
+    </div>
+    <ul class="cm-reel__media">
+      {{~ for m in d.media ~}}<li><a class="cm-btn" href="{{ m.url }}" download>{{ m.label }}</a> <span>{{ m.note }}</span></li>{{~ end ~}}
+    </ul>
+  </section>
+  {{~ end ~}}
+
+  <section class="cm-showcase" aria-labelledby="more-title">
+    <div class="cm-showcase__head">
+      <h2 id="more-title">More {{ cat.title | string.downcase }}</h2>
+    </div>
+    <ul class="cm-reels__grid">
+      {{~ n = 0; for i in g.items; if i.slug != d.slug && n < 3 && i.category == d.category; n = n + 1 ~}}
+      <li>{{~ reel = i ~}}{{ include "reel-card" }}</li>
+      {{~ end; end ~}}
+      {{~ for i in g.items; if i.slug != d.slug && n < 3 && i.category != d.category; n = n + 1 ~}}
+      <li>{{~ reel = i ~}}{{ include "reel-card" }}</li>
+      {{~ end; end ~}}
+    </ul>
+    <p class="cm-reel__all"><a href="/demos/">All demos</a></p>
+  </section>
+</div>
+</main>{{ include "site-footer" }}
+{{ assets.js_html }}
+{{ extra_scripts_html }}
+</body>
+</html>

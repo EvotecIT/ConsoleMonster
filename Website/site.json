@@ -300,6 +300,13 @@
         ]
       },
       {
+        "Match": "/demos/**",
+        "Bundles": [
+          "replays",
+          "pages"
+        ]
+      },
+      {
         "Match": "/interactive/**",
         "Bundles": [
           "replays",
@@ -442,6 +449,13 @@
                 "Description": "Recorded runs, replayed frame by frame."
               },
               {
+                "Id": "demos",
+                "Title": "Demos",
+                "Url": "/demos/",
+                "Meta": { "key": 3 },
+                "Description": "Ready-made programs to run, copy and make your own."
+              },
+              {
                 "Id": "runs",
                 "Title": "Live runs",
                 "Url": "/docs/live-runs/",
@@ -514,6 +528,7 @@
           { "Title": "Widgets", "Url": "/widgets/" },
           { "Title": "Tables", "Url": "/tables/" },
           { "Title": "Live dashboards", "Url": "/live/" },
+          { "Title": "Demos", "Url": "/demos/" },
           { "Title": "Live runs", "Url": "/docs/live-runs/" },
           { "Title": "Interactive", "Url": "/interactive/" },
           { "Title": "PowerShell", "Url": "/powershell/" }
