@@ -29,7 +29,8 @@ def main():
         "[Console]::WriteLine('CM-BASELINE')",
         "[Console]::ReadLine() > $null",
         "$before = & stty -g",
-        "Start-ConsoleRecording -Shell /bin/sh -Path " + quote(cast) + " -Name PTY-check -TimeoutSeconds 30 | Out-Null",
+        # Use the same interactive shell for the WINCH trap on macOS and Linux.
+        "Start-ConsoleRecording -Shell /bin/bash -Path " + quote(cast) + " -Name PTY-check -TimeoutSeconds 30 | Out-Null",
         "$after = & stty -g",
         "@{before=$before; after=$after} | ConvertTo-Json | Set-Content " + quote(directory / "mode.json"),
         "[Console]::WriteLine('CM-RETURNED')",
@@ -145,8 +146,12 @@ def main():
     finally:
         if status is None:
             os.kill(pid, signal.SIGKILL)
+            # Darwin can keep the exiting child's terminal output open until the master hangs up.
+            os.close(master)
+            master = None
             os.waitpid(pid, 0)
-        os.close(master)
+        if master is not None:
+            os.close(master)
         os.close(slave)
         (directory / "terminal.bin").write_bytes(data)
 

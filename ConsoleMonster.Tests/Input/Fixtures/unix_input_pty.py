@@ -171,6 +171,8 @@ def main():
                         os.write(master, b"\x03")
                     elif phase == "live_pass":
                         receipt["live_keyboard_cancelled_work"] = True
+                    elif phase == "live_closed_input_pass":
+                        receipt["live_closed_input_survived"] = True
                     elif phase == "relay_invalid_pass":
                         receipt["relay_invalid_descriptor_error"] = True
                     elif phase == "signal_ready":
@@ -265,6 +267,7 @@ def main():
                               and receipt.get("menu_navigation_after_work") is True
                               and receipt.get("live_signals_enabled") is True
                               and receipt.get("live_keyboard_cancelled_work") is True
+                              and receipt.get("live_closed_input_survived") is True
                               and receipt.get("relay_invalid_descriptor_error") is True
                               and (receipt.get("restored_after_exit") is True
                                    or receipt.get("pty_revoked_after_exit") is True))

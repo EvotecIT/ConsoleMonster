@@ -22,8 +22,8 @@ public static class RecordingCleanupProbe {
                     (Action)(() => step("output")), (Action)(() => step("title"))
                 });
                 if (failure != "none") throw new InvalidOperationException("Cleanup swallowed its failure.");
-            } catch (TargetInvocationException error) when (error.InnerException is IOException) {
-                if (failure == "none") throw;
+            } catch (TargetInvocationException error) {
+                if (!(error.InnerException is IOException) || failure == "none") throw;
             }
             if (string.Join(",", calls) != "input,recorder,output,title") {
                 throw new InvalidOperationException("A failed cleanup skipped another resource: " + string.Join(",", calls));
