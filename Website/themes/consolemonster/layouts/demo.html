@@ -91,7 +91,7 @@
         <div class="cm-reel-steps__text"><h3>Save the program</h3><p>Download it, or copy it from above into <code>{{ ps_file }}</code>.</p></div>
         <div class="cm-reel-steps__file">
           {{~ if d.powershellDownload ~}}<a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.powershellDownload }}" download="{{ ps_file }}">Download {{ ps_file }}</a>{{~ end ~}}
-          {{~ if ps && ps.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ ps.repo }}">View on GitHub</a>{{~ end ~}}
+          {{~ if ps && ps.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ ps.repo }}" aria-label="View {{ ps_file }} on GitHub">View on GitHub</a>{{~ end ~}}
         </div>
       </li>
       <li>
@@ -112,7 +112,7 @@
         <div class="cm-reel-steps__text"><h3>Replace Program.cs</h3><p>Download it, or copy the program from above.</p></div>
         <div class="cm-reel-steps__file">
           {{~ if d.csharpDownload ~}}<a class="cm-btn cm-btn--small cm-reel-steps__dl" href="{{ d.csharpDownload }}" download="Program.cs">Download Program.cs</a>{{~ end ~}}
-          {{~ if cs && cs.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ cs.repo }}">View on GitHub</a>{{~ end ~}}
+          {{~ if cs && cs.repo ~}}<a class="cm-reel-steps__gh" href="https://github.com/EvotecIT/ConsoleMonster/blob/master/{{ cs.repo }}" aria-label="View Program.cs on GitHub">View on GitHub</a>{{~ end ~}}
         </div>
       </li>
       <li>
