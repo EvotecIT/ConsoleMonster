@@ -49,6 +49,10 @@ namespace ConsoleMonster.Clipboard {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 };
+                if (OS == ClipboardOS.MacOS && Path.GetFileName(executable) == "pbcopy") {
+                    process.StartInfo.EnvironmentVariables.Remove("LC_ALL");
+                    process.StartInfo.EnvironmentVariables["LC_CTYPE"] = "UTF-8";
+                }
                 process.OutputDataReceived += (_, __) => { };
                 process.ErrorDataReceived += (_, __) => { };
                 try {

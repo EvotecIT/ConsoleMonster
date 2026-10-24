@@ -49,6 +49,26 @@ namespace ConsoleMonster.Tests.Clipboard {
         }
 
         [Fact]
+        public void SshUsesOsc52WithoutTouchingTheRemoteClipboard() {
+            FakePlatform platform = new FakePlatform(ClipboardOS.MacOS);
+            platform.Variables["SSH_TTY"] = "/dev/ttys001";
+            string? sequence = null;
+            Assert.True(new ClipboardService(platform).TryCopy("zażółć 日本", out string? error, value => sequence = value));
+            Assert.Null(error);
+            Assert.Equal("\u001b]52;c;" + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("zażółć 日本")) + "\u0007", sequence);
+            Assert.Empty(platform.Lookups);
+            Assert.Null(platform.Launched);
+        }
+
+        [Fact]
+        public void LocalProviderDoesNotUseOsc52() {
+            FakePlatform platform = new FakePlatform(ClipboardOS.MacOS);
+            platform.Executables["pbcopy"] = "/mock/pbcopy";
+            Assert.True(new ClipboardService(platform).TryCopy("command", out _, _ => throw new InvalidOperationException("OSC 52 is reserved for SSH.")));
+            Assert.Equal("/mock/pbcopy", platform.Launched);
+        }
+
+        [Fact]
         public void HeadlessLinuxDoesNotLaunchProviders() {
             FakePlatform platform = new FakePlatform(ClipboardOS.Linux);
             platform.Executables["xclip"] = "/mock/xclip";

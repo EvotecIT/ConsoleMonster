@@ -39,6 +39,8 @@
 - Renderings (what `Format-Console*` writes on PowerShell 7.2+) are out of band at `Out-Default`, so they show on their own also between the rows of another table; widgets keep `Format-List *`.
 - Linux and macOS: locale-aware glyphs (LC_ALL, LC_CTYPE, LANG), no cursor queries on Unix, portable display paths; CI on Linux for every push and macOS for pull requests.
 #### Behaviour changes
+- macOS recordings acquire a controlling terminal, so Ctrl+C, `/dev/tty` prompts and resize signals reach the child. Recording titles are set once, and terminal input is restored before recorder finalization. Unix API recordings use `$SHELL` or the platform shell and default missing child locales to UTF-8.
+- Live runs preserve Unix Ctrl+C handling with keyboard controls enabled. Form and menu command copying uses `ClipboardService` with pbcopy, wl-copy or xclip; SSH uses OSC 52. The duplicate `Interactive.Clipboard` API is removed, and pbcopy receives a UTF-8 locale.
 - Frame exports extend a uniform native terminal background through the surrounding padding, so Light captures fill the window body without an inset panel.
 - A single object in `Format-ConsoleTable` stays a one-row table, as with `Format-Table` (a single dictionary is still shown as a record); use `-View Record` for labelled fields.
 - `TableColumn.MaxLines = 0` now follows `Table.WrapLines` (3 by default) instead of meaning no limit; use `TableColumn.Unlimited` (in PowerShell column hashtables `MaxLines = 0` keeps meaning no limit).

@@ -39,7 +39,7 @@ namespace ConsoleMonster.Interactive {
             _host = host ?? throw new ArgumentNullException(nameof(host));
             _store = store;
             _remember = remember;
-            _copy = copy ?? (text => Clipboard.TrySetText(text));
+            _copy = copy ?? InteractiveClipboard.ForTarget(Terminal.Target);
             if (_form.Pages.Count == 0) {
                 _form.Pages.Add(new FormPage(_form.Title));
             }

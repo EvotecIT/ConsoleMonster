@@ -23,6 +23,9 @@ namespace ConsoleMonster.Input {
         /// <inheritdoc />
         public string Name => "console keys";
 
+        /// <summary>Preserves Ctrl+C signals for live work while reading other keys on Unix.</summary>
+        public void EnableCancelKeyProcessing() => _unix?.EnableCancelKeyProcessing();
+
         void IConsoleInputMode.Suspend() => _unix?.Suspend();
 
         void IConsoleInputMode.Resume() => _unix?.Resume();
