@@ -5,6 +5,7 @@ using System.IO;
 namespace ConsoleMonster.Sessions {
     /// <summary>Local terminal recording settings. Input bytes are never recorded.</summary>
     public sealed class SessionRecordingOptions {
+        internal bool CaptureInitiallyEnabled { get; set; } = true;
         /// <summary>Native asciicast v2 output. Null creates a timestamped name in <see cref="Folder"/>.</summary>
         public string? Path { get; set; }
         /// <summary>Folder used for automatic recording names.</summary>

@@ -16,6 +16,11 @@ Describe 'Whole-session recording' {
         { [RecordingCleanupProbe]::Validate($command) } | Should -Not -Throw
     }
 
+    It 'restores the demo title and removes temporary output after task or cleanup failures' {
+        $command = (Get-Command Start-ConsoleDemo).ImplementingType.BaseType
+        { [RecordingCleanupProbe]::ValidateDemo($command) } | Should -Not -Throw
+    }
+
     It 'relays native Unix signals, resizes and no-echo input and restores the terminal and title' -Skip:([Environment]::OSVersion.Platform -eq 'Win32NT') {
         $probe = Join-Path $PSScriptRoot 'Support/recording_terminal_pty.py'
         $module = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'

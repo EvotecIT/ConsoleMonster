@@ -15,7 +15,9 @@ namespace ConsoleMonster.Sessions {
         private uint _mode, _codePage;
         private bool _disposed;
         /// <summary>Enters raw input mode on the current physical terminal. Dispose restores its exact prior mode.</summary>
-        public TerminalInputRelay() {
+        public TerminalInputRelay() : this(false) { }
+        /// <summary>Optionally retains the child's output newline processing while reading raw input.</summary>
+        public TerminalInputRelay(bool preserveOutputProcessing) {
             if (Console.IsInputRedirected) { throw new InvalidOperationException("Raw input needs a physical terminal."); }
             if (_windows) {
                 _input = GetStdHandle(-10);
@@ -31,6 +33,12 @@ namespace ConsoleMonster.Sessions {
                     if (tcgetattr(0, _termios) != 0) { throw Error(); }
                     byte[] copy = new byte[256]; Marshal.Copy(_termios, copy, 0, copy.Length); Marshal.Copy(copy, 0, raw, copy.Length);
                     cfmakeraw(raw);
+                    if (preserveOutputProcessing) {
+                        // cfmakeraw also clears c_oflag. A demo child still needs ONLCR so native programs and
+                        // Console.WriteLine advance to column zero. Darwin uses 64-bit tcflag_t; Linux uses 32-bit.
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) { Marshal.WriteInt64(raw, 8, Marshal.ReadInt64(_termios, 8)); }
+                        else { Marshal.WriteInt32(raw, 4, Marshal.ReadInt32(_termios, 4)); }
+                    }
                     if (tcsetattr(0, 0, raw) != 0) { throw Error(); }
                 } catch { Marshal.FreeHGlobal(_termios); _termios = IntPtr.Zero; throw; }
                 finally { Marshal.FreeHGlobal(raw); }

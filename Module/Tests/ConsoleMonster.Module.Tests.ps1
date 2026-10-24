@@ -27,7 +27,7 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 134
+        $commands.Count | Should -Be 136
         $commands.Name | Should -Contain 'Show-ConsoleMarkdown'
         foreach ($name in 'New-ConsoleRun', 'Update-ConsoleRun', 'Wait-ConsoleRun', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleObject'
@@ -36,7 +36,7 @@ Describe 'ConsoleMonster module' {
         $commands.Name | Should -Contain 'Export-ConsoleTheme'
         foreach ($name in 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
             'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
-            'Start-ConsoleRecording', 'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker') {
+            'Start-ConsoleRecording', 'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsoleDemo', 'Start-ConsoleDemo') {
             $commands.Name | Should -Contain $name
         }
         $commands.Name | Should -Contain 'Out-ConsoleChart'

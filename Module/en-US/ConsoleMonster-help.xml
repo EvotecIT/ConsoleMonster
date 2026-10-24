@@ -133,9 +133,9 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$log = New-ConsoleLog -Height 5&#xD;
-$log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -At 2s }&#xD;
-$log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -At 31s }&#xD;
+        <dev:code>$log = New-ConsoleLog -Height 5
+$log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -At 2s }
+$log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -At 31s }
 $log | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Add log lines as the script goes, then show the log</maml:para>
@@ -143,10 +143,10 @@ $log | Write-ConsoleWidget</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$tree = New-ConsoleTree 'Shares'&#xD;
-foreach ($share in Get-SmbShare) {&#xD;
-    $tree | Add-ConsoleItem { New-ConsoleTreeNode $share.Name -Detail $share.Path }&#xD;
-}&#xD;
+        <dev:code>$tree = New-ConsoleTree 'Shares'
+foreach ($share in Get-SmbShare) {
+    $tree | Add-ConsoleItem { New-ConsoleTreeNode $share.Name -Detail $share.Path }
+}
 $tree | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Grow a tree in a loop</maml:para>
@@ -593,8 +593,8 @@ $tree | Write-ConsoleWidget</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>It 'renders the report table' {&#xD;
-    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80&#xD;
+        <dev:code>It 'renders the report table' {
+    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
 }</dev:code>
         <dev:remarks>
           <maml:para>A table snapshot in a Pester test</maml:para>
@@ -1952,17 +1952,58 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:verb>Export</command:verb>
       <command:noun>ConsoleFrame</command:noun>
       <maml:description>
-        <maml:para>Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.</maml:para>
+        <maml:para>Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</maml:para>
         <maml:para>Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.</maml:para>
+      <maml:para>Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</maml:para>
       <maml:para>Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Export-ConsoleFrame</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ChromeStyle</maml:name>
           <maml:description>
@@ -1982,9 +2023,37 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>[ConsoleMonster.Export.WindowChromeStyle]::MacOS</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FontFamily</maml:name>
+          <maml:description>
+            <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FontSize</maml:name>
           <maml:description>
-            <maml:para>The font size in pixels (default 14).</maml:para>
+            <maml:para>Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -1996,7 +2065,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Format</maml:name>
           <maml:description>
-            <maml:para>The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</maml:para>
+            <maml:para>The format: Png, Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2004,6 +2073,7 @@ $tree | Write-ConsoleWidget</dev:code>
             <command:parameterValue required="false" variableLength="false">Svg</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -2050,7 +2120,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
           <maml:name>Path</maml:name>
           <maml:description>
-            <maml:para>The file to write (UTF-8 without a byte order mark). Without it the document goes to the pipeline.</maml:para>
+            <maml:para>The file to write (binary PNG, or UTF-8 text without a byte order mark). Without it PNG bytes or the text document go to the pipeline.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -2060,15 +2130,34 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preset</maml:name>
+          <maml:description>
+            <maml:para>Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Docs</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide16x9</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide4x3</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Social</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>Auto (both renderings, following the viewer), Dark or Light.</maml:para>
+            <maml:para>Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ExportTheme</maml:name>
@@ -2116,6 +2205,47 @@ $tree | Write-ConsoleWidget</dev:code>
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Background</maml:name>
+        <maml:description>
+          <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundColor</maml:name>
+        <maml:description>
+          <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundEndColor</maml:name>
+        <maml:description>
+          <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ChromeStyle</maml:name>
         <maml:description>
           <maml:para>MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</maml:para>
@@ -2134,9 +2264,37 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>[ConsoleMonster.Export.WindowChromeStyle]::MacOS</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fit</maml:name>
+        <maml:description>
+          <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FontFamily</maml:name>
+        <maml:description>
+          <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FontSize</maml:name>
         <maml:description>
-          <maml:para>The font size in pixels (default 14).</maml:para>
+          <maml:para>Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -2148,7 +2306,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Format</maml:name>
         <maml:description>
-          <maml:para>The format: Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</maml:para>
+          <maml:para>The format: Png, Html, Svg, Markdown (a fenced preformatted block) or Text (default: from the -Path extension, including .md/.markdown, else Html).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -2156,6 +2314,7 @@ $tree | Write-ConsoleWidget</dev:code>
           <command:parameterValue required="false" variableLength="false">Svg</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -2202,7 +2361,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
         <maml:name>Path</maml:name>
         <maml:description>
-          <maml:para>The file to write (UTF-8 without a byte order mark). Without it the document goes to the pipeline.</maml:para>
+          <maml:para>The file to write (binary PNG, or UTF-8 text without a byte order mark). Without it PNG bytes or the text document go to the pipeline.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -2212,15 +2371,34 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preset</maml:name>
+        <maml:description>
+          <maml:para>Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Docs</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Slide16x9</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Slide4x3</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Social</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Theme</maml:name>
         <maml:description>
-          <maml:para>Auto (both renderings, following the viewer), Dark or Light.</maml:para>
+          <maml:para>Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ExportTheme</maml:name>
@@ -2280,6 +2458,11 @@ $tree | Write-ConsoleWidget</dev:code>
       </command:returnValue>
       <command:returnValue>
         <dev:type>
+          <maml:name>System.Byte[]</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
           <maml:name>System.IO.FileInfo</maml:name>
         </dev:type>
       </command:returnValue>
@@ -2313,17 +2496,82 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:verb>Export</command:verb>
       <command:noun>ConsoleRecording</command:noun>
       <maml:description>
-        <maml:para>Exports a terminal session or dashboard recording to a player, SVG or asciicast.</maml:para>
-        <maml:para>Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
+        <maml:para>Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</maml:para>
+        <maml:para>PNG selects the final frame, -At a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Exports a terminal session or dashboard recording to a player, SVG or asciicast.</maml:para>
-      <maml:para>Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
+      <maml:para>Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</maml:para>
+      <maml:para>PNG selects the final frame, -At a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Session">
         <maml:name>Export-ConsoleRecording</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>At</maml:name>
+          <maml:description>
+            <maml:para>Source recording time for PNG, before playback speed or idle compression.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+          <dev:type>
+            <maml:name>TimeSpan</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Chapter</maml:name>
+          <maml:description>
+            <maml:para>Exports the completed view of this chapter as PNG.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ChromeStyle</maml:name>
           <maml:description>
@@ -2345,7 +2593,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="OutFile">
           <maml:name>Destination</maml:name>
           <maml:description>
-            <maml:para>The file to write. Without it the document goes to the pipeline.</maml:para>
+            <maml:para>The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -2357,7 +2605,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FinalFrame</maml:name>
           <maml:description>
-            <maml:para>With a session cast, exports the final visible frame as static SVG.</maml:para>
+            <maml:para>With a session cast, exports the final visible frame as static SVG or PNG.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -2367,9 +2615,37 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FontFamily</maml:name>
+          <maml:description>
+            <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Format</maml:name>
           <maml:description>
-            <maml:para>Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
+            <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2380,6 +2656,10 @@ $tree | Write-ConsoleWidget</dev:code>
             <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FencedText</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -2403,6 +2683,30 @@ $tree | Write-ConsoleWidget</dev:code>
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IdleLimit</maml:name>
+          <maml:description>
+            <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>LoopCount</maml:name>
+          <maml:description>
+            <maml:para>Total animation plays: zero repeats forever, one plays once.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2436,6 +2740,36 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>PerChapter</maml:name>
+          <maml:description>
+            <maml:para>Writes numbered PNG slides to the destination directory, one per chapter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preset</maml:name>
+          <maml:description>
+            <maml:para>Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Docs</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide16x9</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide4x3</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Social</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Speed</maml:name>
           <maml:description>
             <maml:para>Playback speed baked into the export (default 1).</maml:para>
@@ -2450,13 +2784,14 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>Dark (default) or Light.</maml:para>
+            <maml:para>Dark (default), Light or HighContrast.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ExportTheme</maml:name>
@@ -2491,7 +2826,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>WindowChrome</maml:name>
           <maml:description>
-            <maml:para>Draws a window frame with a title bar (Html and Svg).</maml:para>
+            <maml:para>Draws a window frame with a title bar in HTML, SVG and graphics exports.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -2503,6 +2838,47 @@ $tree | Write-ConsoleWidget</dev:code>
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Dashboard">
         <maml:name>Export-ConsoleRecording</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundColor</maml:name>
+          <maml:description>
+            <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>BackgroundEndColor</maml:name>
+          <maml:description>
+            <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ChromeStyle</maml:name>
           <maml:description>
@@ -2536,7 +2912,35 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="OutFile">
           <maml:name>Destination</maml:name>
           <maml:description>
-            <maml:para>The file to write. Without it the document goes to the pipeline.</maml:para>
+            <maml:para>The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Fit</maml:name>
+          <maml:description>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>FontFamily</maml:name>
+          <maml:description>
+            <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -2548,7 +2952,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Format</maml:name>
           <maml:description>
-            <maml:para>Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
+            <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2559,6 +2963,10 @@ $tree | Write-ConsoleWidget</dev:code>
             <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">FencedText</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -2582,6 +2990,30 @@ $tree | Write-ConsoleWidget</dev:code>
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IdleLimit</maml:name>
+          <maml:description>
+            <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>LoopCount</maml:name>
+          <maml:description>
+            <maml:para>Total animation plays: zero repeats forever, one plays once.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2615,6 +3047,24 @@ $tree | Write-ConsoleWidget</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Preset</maml:name>
+          <maml:description>
+            <maml:para>Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Docs</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide16x9</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Slide4x3</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Social</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Speed</maml:name>
           <maml:description>
             <maml:para>Playback speed baked into the export (default 1).</maml:para>
@@ -2629,13 +3079,14 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>Dark (default) or Light.</maml:para>
+            <maml:para>Dark (default), Light or HighContrast.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
           <command:parameterValueGroup>
             <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ExportTheme</maml:name>
@@ -2670,7 +3121,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>WindowChrome</maml:name>
           <maml:description>
-            <maml:para>Draws a window frame with a title bar (Html and Svg).</maml:para>
+            <maml:para>Draws a window frame with a title bar in HTML, SVG and graphics exports.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -2682,6 +3133,71 @@ $tree | Write-ConsoleWidget</dev:code>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>At</maml:name>
+        <maml:description>
+          <maml:para>Source recording time for PNG, before playback speed or idle compression.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>TimeSpan</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Background</maml:name>
+        <maml:description>
+          <maml:para>Slide background: Theme (default), Solid or Gradient.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Theme</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Solid</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gradient</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundColor</maml:name>
+        <maml:description>
+          <maml:para>Solid background or gradient start as #RGB or #RRGGBB.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>BackgroundEndColor</maml:name>
+        <maml:description>
+          <maml:para>Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Chapter</maml:name>
+        <maml:description>
+          <maml:para>Exports the completed view of this chapter as PNG.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ChromeStyle</maml:name>
         <maml:description>
@@ -2715,7 +3231,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="OutFile">
         <maml:name>Destination</maml:name>
         <maml:description>
-          <maml:para>The file to write. Without it the document goes to the pipeline.</maml:para>
+          <maml:para>The file to write, or a directory with -PerChapter. Graphics require a destination; text formats can go to the pipeline.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -2727,7 +3243,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FinalFrame</maml:name>
         <maml:description>
-          <maml:para>With a session cast, exports the final visible frame as static SVG.</maml:para>
+          <maml:para>With a session cast, exports the final visible frame as static SVG or PNG.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -2737,9 +3253,37 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fit</maml:name>
+        <maml:description>
+          <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Content</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>FontFamily</maml:name>
+        <maml:description>
+          <maml:para>Installed raster font; omitted uses embedded JetBrains Mono.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Format</maml:name>
         <maml:description>
-          <maml:para>Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
+          <maml:para>Png, Gif, Apng, Mp4, Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -2750,6 +3294,10 @@ $tree | Write-ConsoleWidget</dev:code>
           <command:parameterValue required="false" variableLength="false">Text</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Markdown</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">FencedText</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Png</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Gif</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Apng</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Mp4</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -2773,6 +3321,30 @@ $tree | Write-ConsoleWidget</dev:code>
         <maml:name>Height</maml:name>
         <maml:description>
           <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>IdleLimit</maml:name>
+        <maml:description>
+          <maml:para>Maximum unchanged-frame delay in graphics exports; zero preserves timing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>LoopCount</maml:name>
+        <maml:description>
+          <maml:para>Total animation plays: zero repeats forever, one plays once.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -2806,6 +3378,36 @@ $tree | Write-ConsoleWidget</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>PerChapter</maml:name>
+        <maml:description>
+          <maml:para>Writes numbered PNG slides to the destination directory, one per chapter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Preset</maml:name>
+        <maml:description>
+          <maml:para>Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Docs</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Slide16x9</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Slide4x3</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Social</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Speed</maml:name>
         <maml:description>
           <maml:para>Playback speed baked into the export (default 1).</maml:para>
@@ -2820,13 +3422,14 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Theme</maml:name>
         <maml:description>
-          <maml:para>Dark (default) or Light.</maml:para>
+          <maml:para>Dark (default), Light or HighContrast.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
         <command:parameterValueGroup>
           <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ExportTheme</maml:name>
@@ -2861,7 +3464,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>WindowChrome</maml:name>
         <maml:description>
-          <maml:para>Draws a window frame with a title bar (Html and Svg).</maml:para>
+          <maml:para>Draws a window frame with a title bar in HTML, SVG and graphics exports.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -2898,7 +3501,7 @@ $tree | Write-ConsoleWidget</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg&#xD;
+        <dev:code>Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Svg -Destination .\run.svg
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -Destination .\run.html -Width 120 -Height 36</dev:code>
         <dev:remarks>
           <maml:para>An animated SVG and an HTML player of the same run</maml:para>
@@ -2998,7 +3601,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Export-ConsoleTheme -Path ./team-theme.json&#xD;
+        <dev:code>Export-ConsoleTheme -Path ./team-theme.json
             Set-ConsoleTheme -Path ./team-theme.json</dev:code>
         <dev:remarks>
           <maml:para>Export the current theme, edit its token definitions and apply it.</maml:para>
@@ -3006,7 +3609,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Set-ConsoleTheme -Name ColorBlindSafe&#xD;
+        <dev:code>Set-ConsoleTheme -Name ColorBlindSafe
             Export-ConsoleTheme -Path ./accessible.psd1 -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Create a PowerShell data file from the accessible preset and return its file information.</maml:para>
@@ -5475,6 +6078,273 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Invoke-ConsoleDemo</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>ConsoleDemo</command:noun>
+      <maml:description>
+        <maml:para>Types a scripted PowerShell demo into a real terminal and records it.</maml:para>
+        <maml:para>Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Types a scripted PowerShell demo into a real terminal and records it.</maml:para>
+      <maml:para>Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Invoke-ConsoleDemo</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Destination</maml:name>
+          <maml:description>
+            <maml:para>Destination asciicast v2 recording. Existing recordings are never overwritten.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Terminal height in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IdleLimit</maml:name>
+          <maml:description>
+            <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>Plain PowerShell demo file with optional # demo: directives.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Redact</maml:name>
+          <maml:description>
+            <maml:para>Output patterns redacted before recording.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Seed</maml:name>
+          <maml:description>
+            <maml:para>Seed for repeatable character timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shell</maml:name>
+          <maml:description>
+            <maml:para>Child PowerShell executable. Defaults to the current PowerShell.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StepTimeoutSeconds</maml:name>
+          <maml:description>
+            <maml:para>Maximum wait for a semantic prompt or output pattern.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Width</maml:name>
+          <maml:description>
+            <maml:para>Terminal width in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Destination</maml:name>
+        <maml:description>
+          <maml:para>Destination asciicast v2 recording. Existing recordings are never overwritten.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Terminal height in cells.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>IdleLimit</maml:name>
+        <maml:description>
+          <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>Plain PowerShell demo file with optional # demo: directives.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Redact</maml:name>
+        <maml:description>
+          <maml:para>Output patterns redacted before recording.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Seed</maml:name>
+        <maml:description>
+          <maml:para>Seed for repeatable character timing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Shell</maml:name>
+        <maml:description>
+          <maml:para>Child PowerShell executable. Defaults to the current PowerShell.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StepTimeoutSeconds</maml:name>
+        <maml:description>
+          <maml:para>Maximum wait for a semantic prompt or output pattern.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Width</maml:name>
+        <maml:description>
+          <maml:para>Terminal width in cells.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.IO.FileInfo</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Invoke-ConsoleDemo -Path ./demo.ps1 -Destination ./talk.cast -Seed 42</dev:code>
+        <dev:remarks>
+          <maml:para>Record a talk</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Invoke-ConsolePester</command:name>
       <command:verb>Invoke</command:verb>
       <command:noun>ConsolePester</command:noun>
@@ -5924,9 +6794,9 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$c = New-PesterConfiguration&#xD;
-$c.Run.Path = '.\Tests'&#xD;
-$c.Filter.Tag = 'Unit'&#xD;
+        <dev:code>$c = New-PesterConfiguration
+$c.Run.Path = '.\Tests'
+$c.Filter.Tag = 'Unit'
 $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.html -PassThru</dev:code>
         <dev:remarks>
           <maml:para>A configuration, on the full screen, with the final dashboard saved</maml:para>
@@ -6136,6 +7006,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
             <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>ExportTheme</maml:name>
@@ -6366,6 +7237,7 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
           <command:parameterValue required="false" variableLength="false">Auto</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>ExportTheme</maml:name>
@@ -6683,9 +7555,9 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Name { "web$('{0:d2}' -f $_)" } {&#xD;
-    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)&#xD;
-    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }&#xD;
+        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Name { "web$('{0:d2}' -f $_)" } {
+    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
+    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
 }</dev:code>
         <dev:remarks>
           <maml:para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</maml:para>
@@ -6833,11 +7705,11 @@ $r = Invoke-ConsolePester -Configuration $c -FullScreen -ExportHtml .\pester.htm
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsolePanel -Title 'Running' { New-ConsoleActivityList -Name running -MaxVisible 4 } }&#xD;
-Start-ConsoleDashboard $dashboard {&#xD;
-    Update-ConsoleActivity -Name running -Id 1 -Activity 'SRV01 · Free space'&#xD;
-    Start-Sleep -Seconds 1&#xD;
-    Update-ConsoleActivity -Name running -Id 1 -Complete&#xD;
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsolePanel -Title 'Running' { New-ConsoleActivityList -Name running -MaxVisible 4 } }
+Start-ConsoleDashboard $dashboard {
+    Update-ConsoleActivity -Name running -Id 1 -Activity 'SRV01 · Free space'
+    Start-Sleep -Seconds 1
+    Update-ConsoleActivity -Name running -Id 1 -Complete
 }</dev:code>
         <dev:remarks>
           <maml:para>The checks running on four workers</maml:para>
@@ -7480,10 +8352,10 @@ Start-ConsoleDashboard $dashboard {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>New-ConsoleBarChart -Stacked {&#xD;
-    New-ConsoleBarItem 'Passed' 412 -Tone Pass&#xD;
-    New-ConsoleBarItem 'Warnings' 51 -Tone Warn&#xD;
-    New-ConsoleBarItem 'Failed' 23 -Tone Fail&#xD;
+        <dev:code>New-ConsoleBarChart -Stacked {
+    New-ConsoleBarItem 'Passed' 412 -Tone Pass
+    New-ConsoleBarItem 'Warnings' 51 -Tone Warn
+    New-ConsoleBarItem 'Failed' 23 -Tone Fail
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Results split, each segment in its status colour</maml:para>
@@ -7661,10 +8533,10 @@ Start-ConsoleDashboard $dashboard {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleBarChart -Stacked {&#xD;
-    New-ConsoleBarItem 'Passed' 412 -Tone Pass&#xD;
-    New-ConsoleBarItem 'Warnings' 51 -Tone Warn&#xD;
-    New-ConsoleBarItem 'Failed' 23 -Tone Fail&#xD;
+        <dev:code>New-ConsoleBarChart -Stacked {
+    New-ConsoleBarItem 'Passed' 412 -Tone Pass
+    New-ConsoleBarItem 'Warnings' 51 -Tone Warn
+    New-ConsoleBarItem 'Failed' 23 -Tone Fail
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Results as a stacked bar</maml:para>
@@ -7672,9 +8544,9 @@ Start-ConsoleDashboard $dashboard {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleBarChart -Unit ' ms' {&#xD;
-    New-ConsoleBarItem 'Cloudflare' 12&#xD;
-    New-ConsoleBarItem 'Quad9' 64 -Tone Warn&#xD;
+        <dev:code>New-ConsoleBarChart -Unit ' ms' {
+    New-ConsoleBarItem 'Cloudflare' 12
+    New-ConsoleBarItem 'Quad9' 64 -Tone Warn
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>One bar picked out</maml:para>
@@ -8212,7 +9084,7 @@ Start-ConsoleDashboard $dashboard {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4&#xD;
+        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
 New-ConsoleCellMap -Status $states -Count 40 | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Forty items part-way through a run</maml:para>
@@ -8404,11 +9276,11 @@ New-ConsoleCellMap -Status $states -Count 40 | Write-ConsoleWidget</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }&#xD;
-$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }&#xD;
-New-ConsoleLineChart -Height 7 {&#xD;
-    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent&#xD;
-    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail&#xD;
+        <dev:code>$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }
+$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }
+New-ConsoleLineChart -Height 7 {
+    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent
+    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Two series computed in the script</maml:para>
@@ -8416,8 +9288,8 @@ New-ConsoleLineChart -Height 7 {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLineChart -Scatter -Unit 'ms' {&#xD;
-    Get-Content latency.txt | New-ConsoleChartSeries 'latency'&#xD;
+        <dev:code>New-ConsoleLineChart -Scatter -Unit 'ms' {
+    Get-Content latency.txt | New-ConsoleChartSeries 'latency'
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Values from the pipeline</maml:para>
@@ -8493,17 +9365,17 @@ New-ConsoleLineChart -Height 7 {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleMenuItem 'Run checks' -Action {&#xD;
-    $clock = New-ConsoleClock -Speed 7&#xD;
-    $dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsoleSummaryBar -Total 3; New-ConsoleLog -Height 5 }&#xD;
-    $null = $MenuContext.Run($dashboard, {&#xD;
-        foreach ($done in 1..3) {&#xD;
-            $clock.Wait(4.5)&#xD;
-            Update-ConsoleSummaryBar -Done $done -Counter @{ passed = $done }&#xD;
-            Write-ConsoleLog "Check $done passed"&#xD;
-        }&#xD;
-        New-ConsoleRunResult 'Checks finished'&#xD;
-    }, $clock)&#xD;
+        <dev:code>New-ConsoleMenuItem 'Run checks' -Action {
+    $clock = New-ConsoleClock -Speed 7
+    $dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsoleSummaryBar -Total 3; New-ConsoleLog -Height 5 }
+    $null = $MenuContext.Run($dashboard, {
+        foreach ($done in 1..3) {
+            $clock.Wait(4.5)
+            Update-ConsoleSummaryBar -Done $done -Counter @{ passed = $done }
+            Write-ConsoleLog "Check $done passed"
+        }
+        New-ConsoleRunResult 'Checks finished'
+    }, $clock)
 }</dev:code>
         <dev:remarks>
           <maml:para>A menu run on a simulated clock seven times faster than real time</maml:para>
@@ -8511,10 +9383,10 @@ New-ConsoleLineChart -Height 7 {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$clock = New-ConsoleClock -Speed 10&#xD;
-Start-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {&#xD;
-    param($Clock, $Entries)&#xD;
-    foreach ($entry in $Entries) { $Clock.WaitUntil($entry.Seconds); Write-ConsoleLog $entry.Text }&#xD;
+        <dev:code>$clock = New-ConsoleClock -Speed 10
+Start-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {
+    param($Clock, $Entries)
+    foreach ($entry in $Entries) { $Clock.WaitUntil($entry.Seconds); Write-ConsoleLog $entry.Text }
 }</dev:code>
         <dev:remarks>
           <maml:para>A dashboard replaying logged work at its recorded pace, ten times faster</maml:para>
@@ -8717,10 +9589,10 @@ Start-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 {&#xD;
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check' }&#xD;
-    New-ConsolePanel -Title 'Slowest' { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Took' }&#xD;
-    New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8 -Height 5 }&#xD;
+        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 {
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check' }
+    New-ConsolePanel -Title 'Slowest' { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Took' }
+    New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8 -Height 5 }
 }</dev:code>
         <dev:remarks>
           <maml:para>Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells</maml:para>
@@ -9957,7 +10829,7 @@ Start-ConsoleDashboard $dashboard -Clock $clock -ArgumentList $clock, $entries {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site&#xD;
+        <dev:code>New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Parameter Site
 New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices { param($Values) Get-AppServer -Site $Values.Site } -Display Name -Parameter Server</dev:code>
         <dev:remarks>
           <maml:para>Dependent fields: picking a site loads its servers</maml:para>
@@ -9965,7 +10837,7 @@ New-ConsoleField Server 'Servers' -Type MultiSelect -DependsOn Site -LoadChoices
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleField Notify 'Send an email' -Type Toggle&#xD;
+        <dev:code>New-ConsoleField Notify 'Send an email' -Type Toggle
 New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -match '@' }</dev:code>
         <dev:remarks>
           <maml:para>A conditional field</maml:para>
@@ -9973,11 +10845,11 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {&#xD;
-    param($Values)&#xD;
-    Get-AppServer -Domain $Values.Domain | ForEach-Object {&#xD;
-        [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }&#xD;
-    }&#xD;
+        <dev:code>New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+    param($Values)
+    Get-AppServer -Domain $Values.Domain | ForEach-Object {
+        [pscustomobject] @{ Name = $_.Name; Site = $_.Site; Role = $_.Role; Offline = $_.OfflineReason; Online = -not $_.OfflineReason }
+    }
 } -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online</dev:code>
         <dev:remarks>
           <maml:para>Loaded servers grouped by site, with their role as a badge, offline ones disabled and online ones selected; the command shows their names</maml:para>
@@ -10286,10 +11158,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {&#xD;
-    New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name&#xD;
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path&#xD;
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly&#xD;
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+    New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
 }</dev:code>
         <dev:remarks>
           <maml:para>A two-page wizard</maml:para>
@@ -10297,10 +11169,10 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {&#xD;
-    New-ConsoleField Name 'Share name' -Required -Parameter Name&#xD;
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly&#xD;
-    New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'&#xD;
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+    New-ConsoleField Name 'Share name' -Required -Parameter Name
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Parameter ReadOnly
+    New-ConsoleFormPreset 'Archive' -Values @{ Name = 'Archive'; ReadOnly = $true } -Description 'A read-only archive share.'
 }</dev:code>
         <dev:remarks>
           <maml:para>A form that comes with a preset</maml:para>
@@ -10448,12 +11320,12 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Report' -Command 'Export-AppReport' {&#xD;
-    New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -Parameter Period&#xD;
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -Parameter Path&#xD;
-    New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week'; Path = 'D:\Reports\Weekly' } -Description 'Every Monday.'&#xD;
-    New-ConsoleFormPreset 'Monthly' -Values @{ Period = 'Month'; Path = 'D:\Reports\Monthly' }&#xD;
-}&#xD;
+        <dev:code>$form = New-ConsoleForm 'Report' -Command 'Export-AppReport' {
+    New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -Parameter Period
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -Parameter Path
+    New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week'; Path = 'D:\Reports\Weekly' } -Description 'Every Monday.'
+    New-ConsoleFormPreset 'Monthly' -Values @{ Period = 'Month'; Path = 'D:\Reports\Monthly' }
+}
 Read-ConsoleForm $form -Preset Weekly</dev:code>
         <dev:remarks>
           <maml:para>A form with two built-in presets</maml:para>
@@ -10956,10 +11828,10 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleKeyValue {&#xD;
-    New-ConsoleKeyValueItem 'Version' '0.0.4 [muted]→[/] [bold]2.0.0[/]' -Markup&#xD;
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip&#xD;
-    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn&#xD;
+        <dev:code>New-ConsoleKeyValue {
+    New-ConsoleKeyValueItem 'Version' '0.0.4 [muted]→[/] [bold]2.0.0[/]' -Markup
+    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
+    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Pairs with status marks</maml:para>
@@ -10967,8 +11839,8 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleKeyValue ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) {&#xD;
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip&#xD;
+        <dev:code>New-ConsoleKeyValue ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) {
+    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A hashtable and pairs together</maml:para>
@@ -11182,10 +12054,10 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleKeyValue {&#xD;
-    New-ConsoleKeyValueItem 'Module' '[bold]ConsoleMonster[/]' -Markup&#xD;
-    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip&#xD;
-    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn&#xD;
+        <dev:code>New-ConsoleKeyValue {
+    New-ConsoleKeyValueItem 'Module' '[bold]ConsoleMonster[/]' -Markup
+    New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
+    New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Facts with status marks</maml:para>
@@ -11193,9 +12065,9 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleKeyValue {&#xD;
-    New-ConsoleKeyValueItem 'Package size' 1482113 -Presenter Bytes&#xD;
-    New-ConsoleKeyValueItem 'Built in' (New-TimeSpan -Seconds 48) -Presenter Duration&#xD;
+        <dev:code>New-ConsoleKeyValue {
+    New-ConsoleKeyValueItem 'Package size' 1482113 -Presenter Bytes
+    New-ConsoleKeyValueItem 'Built in' (New-TimeSpan -Seconds 48) -Presenter Duration
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Values formatted by presenters</maml:para>
@@ -11505,10 +12377,10 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLanes {&#xD;
-    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40&#xD;
-    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'&#xD;
-    New-ConsoleLane 'DC03' -Total 40&#xD;
+        <dev:code>New-ConsoleLanes {
+    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
+    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
+    New-ConsoleLane 'DC03' -Total 40
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Three servers at different points</maml:para>
@@ -11843,10 +12715,10 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLanes {&#xD;
-    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40&#xD;
-    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'&#xD;
-    New-ConsoleLane 'DC03' -Total 40&#xD;
+        <dev:code>New-ConsoleLanes {
+    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
+    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
+    New-ConsoleLane 'DC03' -Total 40
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Lanes at different points, printed once</maml:para>
@@ -12138,11 +13010,11 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }&#xD;
-$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }&#xD;
-New-ConsoleLineChart -Height 7 {&#xD;
-    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent&#xD;
-    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail&#xD;
+        <dev:code>$completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }
+$failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }
+New-ConsoleLineChart -Height 7 {
+    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent
+    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Two series with their own tones</maml:para>
@@ -12157,7 +13029,7 @@ New-ConsoleLineChart -Height 7 {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$samples = foreach ($i in 0..59) { 40 + ($i * 37) % 23 }&#xD;
+        <dev:code>$samples = foreach ($i in 0..59) { 40 + ($i * 37) % 23 }
 New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'latency' $samples -Tone Accent2 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A scatter of latency samples</maml:para>
@@ -12422,7 +13294,7 @@ New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'lat
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal&#xD;
+        <dev:code>New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal
 New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual'; Flexible = $true; Markup = $true } -MaxRows 5</dev:code>
         <dev:remarks>
           <maml:para>The slowest checks with a right-aligned time, and failures whose last column takes the spare width and reads markup</maml:para>
@@ -12642,10 +13514,10 @@ New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLog -Height 5 {&#xD;
-    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s&#xD;
-    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s&#xD;
-    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -At 53s&#xD;
+        <dev:code>New-ConsoleLog -Height 5 {
+    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
+    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
+    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -At 53s
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A short log printed once</maml:para>
@@ -12776,10 +13648,10 @@ New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLog -Height 5 {&#xD;
-    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s&#xD;
-    New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -At 31s&#xD;
-    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s&#xD;
+        <dev:code>New-ConsoleLog -Height 5 {
+    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
+    New-ConsoleLogEntry 'DC02: replication partner DC05 last success 3h ago' -Level Warning -At 31s
+    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A short log printed once</maml:para>
@@ -12787,9 +13659,9 @@ New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$events = Import-Csv deploy-events.csv&#xD;
-New-ConsoleLog {&#xD;
-    foreach ($event in $events) { New-ConsoleLogEntry $event.Message -Level $event.Level -At $event.Seconds }&#xD;
+        <dev:code>$events = Import-Csv deploy-events.csv
+New-ConsoleLog {
+    foreach ($event in $events) { New-ConsoleLogEntry $event.Message -Level $event.Level -At $event.Seconds }
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Entries from objects</maml:para>
@@ -13202,11 +14074,11 @@ New-ConsoleLog {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Backup helper' {&#xD;
-    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }&#xD;
-    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
-    New-ConsoleMenuItem -Exit&#xD;
-}&#xD;
+        <dev:code>$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
+    New-ConsoleMenuItem -Exit
+}
 Show-ConsoleMenu $menu -Layout Classic</dev:code>
         <dev:remarks>
           <maml:para>A small script menu</maml:para>
@@ -13214,12 +14086,12 @@ Show-ConsoleMenu $menu -Layout Classic</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Backup helper' {&#xD;
-    New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'&#xD;
-    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets&#xD;
-    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
-    New-ConsoleMenuItem -Exit&#xD;
-}&#xD;
+        <dev:code>$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
+    New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
+    New-ConsoleMenuItem -Exit
+}
 Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <dev:remarks>
           <maml:para>An app with built-in presets for its form</maml:para>
@@ -13526,8 +14398,8 @@ Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Review</maml:name>
           <maml:description>
-            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
+            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
 Description and RunText.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -13905,8 +14777,8 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Review</maml:name>
         <maml:description>
-          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
+          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
 Description and RunText.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -14249,17 +15121,17 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {&#xD;
-    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target&#xD;
-    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress&#xD;
-}&#xD;
-$menu = New-ConsoleMenu 'Backup helper' {&#xD;
-    New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {&#xD;
-        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })&#xD;
-    }&#xD;
-    New-ConsoleMenuItem 'Presets' -Presets&#xD;
-    New-ConsoleMenuItem 'Back up' -Form $form&#xD;
-    New-ConsoleMenuItem -Exit&#xD;
+        <dev:code>$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target
+    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress
+}
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {
+        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })
+    }
+    New-ConsoleMenuItem 'Presets' -Presets
+    New-ConsoleMenuItem 'Back up' -Form $form
+    New-ConsoleMenuItem -Exit
 }</dev:code>
         <dev:remarks>
           <maml:para>A preset that fills in a form, with what it sets as the preview</maml:para>
@@ -14267,9 +15139,9 @@ $menu = New-ConsoleMenu 'Backup helper' {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'&#xD;
-$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {&#xD;
-    New-ConsoleMenuItem 'Presets' -Presets&#xD;
+        <dev:code>$targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'
+$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {
+    New-ConsoleMenuItem 'Presets' -Presets
 }</dev:code>
         <dev:remarks>
           <maml:para>A preset that selects servers in a selection item</maml:para>
@@ -15145,11 +16017,11 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsolePhases {&#xD;
-    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'&#xD;
-    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'&#xD;
-    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'&#xD;
-    New-ConsoleStatusItem 'Report'&#xD;
+        <dev:code>New-ConsolePhases {
+    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
+    New-ConsoleStatusItem 'Collect' -Status Pass -Detail '14s'
+    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
+    New-ConsoleStatusItem 'Report'
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A run part-way through</maml:para>
@@ -15437,10 +16309,10 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleRows {&#xD;
-    New-ConsoleProgress 'Build' -Value 64 -Total 100&#xD;
-    New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass&#xD;
-    New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block&#xD;
+        <dev:code>New-ConsoleRows {
+    New-ConsoleProgress 'Build' -Value 64 -Total 100
+    New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass
+    New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Several bars, one of them finished</maml:para>
@@ -16231,14 +17103,14 @@ $menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'F
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$files = @(Get-ChildItem *.log)&#xD;
-$run = New-ConsoleRun -Items $files -Title 'Archive logs' -Name Name -Target DirectoryName&#xD;
-try {&#xD;
-    for ($i = 0; $i -lt $files.Count; $i++) {&#xD;
-        Update-ConsoleRun $run -Index $i -State Running -Phase 'archiving'&#xD;
-        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -State Pass }&#xD;
-        catch { Update-ConsoleRun $run -Index $i -State Fail -Message $_.Exception.Message }&#xD;
-    }&#xD;
+        <dev:code>$files = @(Get-ChildItem *.log)
+$run = New-ConsoleRun -Items $files -Title 'Archive logs' -Name Name -Target DirectoryName
+try {
+    for ($i = 0; $i -lt $files.Count; $i++) {
+        Update-ConsoleRun $run -Index $i -State Running -Phase 'archiving'
+        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -State Pass }
+        catch { Update-ConsoleRun $run -Index $i -State Fail -Message $_.Exception.Message }
+    }
 } finally { Complete-ConsoleRun $run }</dev:code>
         <dev:remarks>
           <maml:para>Track a script without changing its output</maml:para>
@@ -16507,15 +17379,15 @@ try {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleMenuItem 'Back up now' -Action {&#xD;
-    $dashboard = New-ConsoleDashboard -Title 'Backup' { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }&#xD;
-    $null = $MenuContext.Run($dashboard, {&#xD;
-        Update-ConsoleStatus 'Scan files' -Status Pass&#xD;
-        Update-ConsoleStatus 'Copy changes' -Status Pass&#xD;
-        New-ConsoleRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{&#xD;
-            'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }&#xD;
-        }&#xD;
-    })&#xD;
+        <dev:code>New-ConsoleMenuItem 'Back up now' -Action {
+    $dashboard = New-ConsoleDashboard -Title 'Backup' { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
+    $null = $MenuContext.Run($dashboard, {
+        Update-ConsoleStatus 'Scan files' -Status Pass
+        Update-ConsoleStatus 'Copy changes' -Status Pass
+        New-ConsoleRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
+            'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
+        }
+    })
 }</dev:code>
         <dev:remarks>
           <maml:para>A backup run that reports what it did</maml:para>
@@ -17276,7 +18148,7 @@ try {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }&#xD;
+        <dev:code>$d = New-ConsoleDashboard -Title 'Sync' { New-ConsoleSpinner -Label 'Resolving DNS' }
 Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -Detail '42 zones' }</dev:code>
         <dev:remarks>
           <maml:para>A spinner inside a dashboard, finished from the script</maml:para>
@@ -17448,9 +18320,9 @@ Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -D
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStack {&#xD;
-    New-ConsoleLineChart -Name latency&#xD;
-    New-ConsoleAlign -Horizontal Right { New-ConsoleText -Markup '[pass]LIVE[/]' }&#xD;
+        <dev:code>New-ConsoleStack {
+    New-ConsoleLineChart -Name latency
+    New-ConsoleAlign -Horizontal Right { New-ConsoleText -Markup '[pass]LIVE[/]' }
 }</dev:code>
         <dev:remarks>
           <maml:para>A chart with a status badge in its top-right corner</maml:para>
@@ -17616,10 +18488,10 @@ Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -D
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStatusList {&#xD;
-    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'&#xD;
-    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'&#xD;
-    New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending&#xD;
+        <dev:code>New-ConsoleStatusList {
+    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
+    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
+    New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A build checklist</maml:para>
@@ -17627,10 +18499,10 @@ Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -D
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsolePhases {&#xD;
-    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'&#xD;
-    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'&#xD;
-    New-ConsoleStatusItem 'Report'&#xD;
+        <dev:code>New-ConsolePhases {
+    New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
+    New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
+    New-ConsoleStatusItem 'Report'
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Phases of a run</maml:para>
@@ -17802,11 +18674,11 @@ Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -D
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStatusList {&#xD;
-    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'&#xD;
-    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'&#xD;
-    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'&#xD;
-    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running&#xD;
+        <dev:code>New-ConsoleStatusList {
+    New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
+    New-ConsoleStatusItem 'Compile ConsoleMonster' -Status Pass -Detail '4.7 s'
+    New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
+    New-ConsoleStatusItem 'Pack ConsoleMonster.2.0.0.nupkg' -Status Running
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A build checklist</maml:para>
@@ -17828,7 +18700,7 @@ Start-ConsoleDashboard $d { Start-Sleep 2; Update-ConsoleSpinner -Status Pass -D
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'&#xD;
+        <dev:code>$steps = New-ConsoleStatusList -Item 'Scan files', 'Copy changes', 'Verify'
 Start-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' { $steps }) { Update-ConsoleStatus 'Scan files' -Status Pass -Detail '2.4 s' }</dev:code>
         <dev:remarks>
           <maml:para>A live checklist: items start pending and are updated from the dashboard script</maml:para>
@@ -19854,15 +20726,15 @@ Start-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' { $steps }) { Updat
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' {&#xD;
-    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {&#xD;
-        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'&#xD;
-    }&#xD;
-    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' {&#xD;
-        'include:spf.protection.outlook.com'&#xD;
-        'include:_spf.salesforce.com'&#xD;
-    }&#xD;
-    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'&#xD;
+        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' {
+    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
+        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
+    }
+    New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups' {
+        'include:spf.protection.outlook.com'
+        'include:_spf.salesforce.com'
+    }
+    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A mail domain with records and their state</maml:para>
@@ -19877,12 +20749,12 @@ Start-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' { $steps }) { Updat
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$groups = @(&#xD;
-    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(&#xD;
-        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }&#xD;
-        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }&#xD;
-    ) }&#xD;
-)&#xD;
+        <dev:code>$groups = @(
+    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(
+        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
+        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
+    ) }
+)
 $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -DetailProperty Note | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Hierarchical objects with a status per node</maml:para>
@@ -20127,11 +20999,11 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' {&#xD;
-    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {&#xD;
-        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'&#xD;
-    }&#xD;
-    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'&#xD;
+        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' {
+    New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records' {
+        New-ConsoleTreeNode 'evotec-xyz.mail.protection.outlook.com' -Detail 'priority 0'
+    }
+    New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A mail domain with records and their state</maml:para>
@@ -20139,9 +21011,9 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleTree 'Domain controllers' {&#xD;
-    New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }&#xD;
-    New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }&#xD;
+        <dev:code>New-ConsoleTree 'Domain controllers' {
+    New-ConsoleTreeNode 'ad.adatum.com' { 'DC01', 'DC02' }
+    New-ConsoleTreeNode 'eu.ad.adatum.com' -Status Warn -Detail 'one offline' { 'DC07' }
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Leaves from a list of names</maml:para>
@@ -20149,9 +21021,9 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleTree 'Reports share' {&#xD;
-    New-ConsoleTreeNode 'Weekly' -Value 734003200 -Presenter Bytes&#xD;
-    New-ConsoleTreeNode 'Archive' -Value 9663676416 -Presenter Bytes -Status Warn&#xD;
+        <dev:code>New-ConsoleTree 'Reports share' {
+    New-ConsoleTreeNode 'Weekly' -Value 734003200 -Presenter Bytes
+    New-ConsoleTreeNode 'Archive' -Value 9663676416 -Presenter Bytes -Status Warn
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>A value shown through a presenter</maml:para>
@@ -20167,23 +21039,23 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:noun>ConsoleChart</command:noun>
       <maml:description>
         <maml:para>Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.</maml:para>
-        <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.&#xD;
-Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;&#xD;
-samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every&#xD;
-valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean&#xD;
-and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.&#xD;
-No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text&#xD;
+        <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.
+Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;
+samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every
+valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean
+and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.
+No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text
 because the existing sparkline renderer scales from zero. Output uses the normal ConsoleMonster formatting route.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.</maml:para>
-      <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.&#xD;
-Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;&#xD;
-samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every&#xD;
-valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean&#xD;
-and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.&#xD;
-No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text&#xD;
+      <maml:para>Select one numeric property, including a calculated property, or pipe numbers directly.
+Bars show value labels in theme colours. Sorting is stable and happens before Top. Sparkline labels identify groups;
+samples within each group retain arrival order, so sort timestamped input before piping it. Histogram uses every
+valid sample regardless of Sort or Top, and integral data has whole-number bucket edges. Null, malformed, boolean
+and non-finite values produce a non-terminating error and are skipped; an empty input produces no output.
+No-colour output lists numeric values, bucket counts or all trend samples. Signed trends also use numerical text
 because the existing sparkline renderer scales from zero. Output uses the normal ConsoleMonster formatting route.</maml:para>
     </maml:description>
     <command:syntax>
@@ -21387,7 +22259,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices&#xD;
+        <dev:code>$answers = Read-ConsoleForm $form -AppName 'ShareTool' -RememberLastChoices
 if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code>
         <dev:remarks>
           <maml:para>Run a wizard and use the answers</maml:para>
@@ -23676,9 +24548,9 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shaper</maml:name>
           <maml:description>
-            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
-ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,&#xD;
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
+            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
+ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -23843,9 +24715,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shaper</maml:name>
         <maml:description>
-          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
-ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,&#xD;
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
+          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
+ordered dictionary of the fields worth showing. It applies in every command (Format-ConsoleTable, -List, -Tree,
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -24256,8 +25128,8 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$last = Read-ConsoleForm $form -PassThru&#xD;
-Set-ConsoleFormValue $form $last&#xD;
+        <dev:code>$last = Read-ConsoleForm $form -PassThru
+Set-ConsoleFormValue $form $last
 Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Start a form from the answers of its last run</maml:para>
@@ -25299,10 +26171,10 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp {&#xD;
-                New-ConsoleTextInput -Name Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }&#xD;
-                New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status&#xD;
-                New-ConsoleBinding { "Edits: $($State.Edits)" }&#xD;
+        <dev:code>Show-ConsoleApp {
+                New-ConsoleTextInput -Name Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
+                New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
+                New-ConsoleBinding { "Edits: $($State.Edits)" }
             } -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Filter application data without leaving PowerShell.</maml:para>
@@ -25310,9 +26182,9 @@ Read-ConsoleForm $form</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Using the object directly&#xD;
-            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)&#xD;
-            $keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')&#xD;
+        <dev:code># Using the object directly
+            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
+            $keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')
             Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $keys -Capture $capture -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Capture a scripted run without a physical console.</maml:para>
@@ -27725,16 +28597,283 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$d = New-ConsoleDashboard -Title 'Patch' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }&#xD;
-'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {&#xD;
-    param($Server)&#xD;
-    Update-ConsoleLane -Key $Server -Status Running -Total 5&#xD;
-    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }&#xD;
-    Write-Host "$Server patched"&#xD;
-    Update-ConsoleLane -Key $Server -Complete&#xD;
+        <dev:code>$d = New-ConsoleDashboard -Title 'Patch' { New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }; New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog } }
+'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
+    param($Server)
+    Update-ConsoleLane -Key $Server -Status Running -Total 5
+    1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }
+    Write-Host "$Server patched"
+    Update-ConsoleLane -Key $Server -Complete
 }</dev:code>
         <dev:remarks>
           <maml:para>Three servers processed in parallel, three at a time</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Start-ConsoleDemo</command:name>
+      <command:verb>Start</command:verb>
+      <command:noun>ConsoleDemo</command:noun>
+      <maml:description>
+        <maml:para>Presents a scripted demo one command at a time in a real shell.</maml:para>
+        <maml:para>Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -Record saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Presents a scripted demo one command at a time in a real shell.</maml:para>
+      <maml:para>Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -Record saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Start-ConsoleDemo</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Terminal height in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>IdleLimit</maml:name>
+          <maml:description>
+            <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+          <dev:type>
+            <maml:name>Double</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>Plain PowerShell demo file with optional # demo: directives.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Record</maml:name>
+          <maml:description>
+            <maml:para>Optional asciicast recording path.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Redact</maml:name>
+          <maml:description>
+            <maml:para>Output patterns redacted before recording.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Seed</maml:name>
+          <maml:description>
+            <maml:para>Seed for repeatable character timing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Shell</maml:name>
+          <maml:description>
+            <maml:para>Child PowerShell executable. Defaults to the current PowerShell.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StepTimeoutSeconds</maml:name>
+          <maml:description>
+            <maml:para>Maximum wait for a semantic prompt or output pattern.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Width</maml:name>
+          <maml:description>
+            <maml:para>Terminal width in cells.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Terminal height in cells.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>IdleLimit</maml:name>
+        <maml:description>
+          <maml:para>Longest recorded idle gap in seconds; zero preserves actual timing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>Plain PowerShell demo file with optional # demo: directives.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Record</maml:name>
+        <maml:description>
+          <maml:para>Optional asciicast recording path.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Redact</maml:name>
+        <maml:description>
+          <maml:para>Output patterns redacted before recording.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Seed</maml:name>
+        <maml:description>
+          <maml:para>Seed for repeatable character timing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Shell</maml:name>
+        <maml:description>
+          <maml:para>Child PowerShell executable. Defaults to the current PowerShell.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StepTimeoutSeconds</maml:name>
+        <maml:description>
+          <maml:para>Maximum wait for a semantic prompt or output pattern.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Width</maml:name>
+        <maml:description>
+          <maml:para>Terminal width in cells.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.IO.FileInfo</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Start-ConsoleDemo -Path ./demo.ps1 -Record ./talk.cast</dev:code>
+        <dev:remarks>
+          <maml:para>Present and record</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -28232,7 +29371,7 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Write-Host 'Deployment finished'&#xD;
+        <dev:code>Write-Host 'Deployment finished'
             Stop-ConsoleRecording</dev:code>
         <dev:remarks>
           <maml:para>Finish from inside the recorded child shell</maml:para>
@@ -28533,7 +29672,7 @@ Read-ConsoleForm $form</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Update-ConsoleActivity -Name running -Id 7 -Activity 'SRV01 · Cert chain'&#xD;
+        <dev:code>Update-ConsoleActivity -Name running -Id 7 -Activity 'SRV01 · Cert chain'
 Update-ConsoleActivity -Name running -Id 7 -Complete</dev:code>
         <dev:remarks>
           <maml:para>Show a check while it runs, then remove it</maml:para>
@@ -28847,7 +29986,7 @@ Update-ConsoleActivity -Name running -Id 7 -Complete</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Update-ConsoleCell -Name checks -Index 7 -Status Running&#xD;
+        <dev:code>Update-ConsoleCell -Name checks -Index 7 -Status Running
 Update-ConsoleCell -Name checks -Index 7 -Status Pass</dev:code>
         <dev:remarks>
           <maml:para>A check starts and passes on the second server of a grid with five checks per row</maml:para>
@@ -28855,7 +29994,7 @@ Update-ConsoleCell -Name checks -Index 7 -Status Pass</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Update-ConsoleCell -Name files -Count 40&#xD;
+        <dev:code>Update-ConsoleCell -Name files -Count 40
 Update-ConsoleCell -Name files -Index 0, 1, 2 -Status Pass</dev:code>
         <dev:remarks>
           <maml:para>Grow a map as items are found, then mark them</maml:para>
@@ -29605,14 +30744,14 @@ Update-ConsoleCell -Name files -Index 0, 1, 2 -Status Pass</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$files = Get-ChildItem C:\Reports -File&#xD;
-$dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }&#xD;
-Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {&#xD;
-    param($Files)&#xD;
-    foreach ($file in $Files) {&#xD;
-        Copy-Item $file.FullName D:\Backup&#xD;
-        Update-ConsoleProgress -Increment 1&#xD;
-    }&#xD;
+        <dev:code>$files = Get-ChildItem C:\Reports -File
+$dashboard = New-ConsoleDashboard -Title 'Copy' { New-ConsoleProgress 'Reports' -Total $files.Count }
+Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {
+    param($Files)
+    foreach ($file in $Files) {
+        Copy-Item $file.FullName D:\Backup
+        Update-ConsoleProgress -Increment 1
+    }
 }</dev:code>
         <dev:remarks>
           <maml:para>A dashboard whose bar follows a copy loop</maml:para>
@@ -30027,7 +31166,7 @@ Start-ConsoleDashboard $dashboard -ArgumentList (,$files) {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Update-ConsoleSpinner -Detail 'zone 4'&#xD;
+        <dev:code>Update-ConsoleSpinner -Detail 'zone 4'
 Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
         <dev:remarks>
           <maml:para>Report progress, then finish</maml:para>
@@ -30785,11 +31924,11 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Use-ConsoleProgress {&#xD;
-    foreach ($i in 1..50) {&#xD;
-        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)&#xD;
-        Start-Sleep -Milliseconds 50&#xD;
-    }&#xD;
+        <dev:code>Use-ConsoleProgress {
+    foreach ($i in 1..50) {
+        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
+        Start-Sleep -Milliseconds 50
+    }
 }</dev:code>
         <dev:remarks>
           <maml:para>An existing loop, unchanged</maml:para>
@@ -33380,7 +34519,7 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }&#xD;
+        <dev:code>foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
 Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete</dev:code>
         <dev:remarks>
           <maml:para>A copy loop with a spinner and elapsed time</maml:para>
@@ -35046,9 +36185,9 @@ Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Co
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Write-ConsoleTree 'Replication' {&#xD;
-    New-ConsoleTreeNode 'DC01' -Status Pass -Detail 'last sync 42s ago'&#xD;
-    New-ConsoleTreeNode 'DC02' -Status Warn -Detail 'last sync 42 min ago'&#xD;
+        <dev:code>Write-ConsoleTree 'Replication' {
+    New-ConsoleTreeNode 'DC01' -Status Pass -Detail 'last sync 42s ago'
+    New-ConsoleTreeNode 'DC02' -Status Warn -Detail 'last sync 42 min ago'
 }</dev:code>
         <dev:remarks>
           <maml:para>Nodes with a status and a detail</maml:para>

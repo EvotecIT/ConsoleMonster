@@ -23,5 +23,6 @@
         <ProjectReference Include="..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
         <Compile Include="..\ConsoleMonster.Tests\Rendering\Golden.cs" Link="Rendering\Golden.cs" />
         <None Include="..\ConsoleMonster.Tests\Fixtures\Markdown\everyday.md" Link="Fixtures\everyday.md" CopyToOutputDirectory="PreserveNewest" />
+        <ProjectReference Include="../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj" />
     </ItemGroup>
 </Project>

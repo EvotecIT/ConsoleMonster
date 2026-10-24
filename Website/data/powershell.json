@@ -665,12 +665,17 @@
     },
     {
       "verb": "Start",
-      "count": 3,
+      "count": 4,
       "commands": [
         {
           "name": "Start-ConsoleDashboard",
           "synopsis": "Runs a console dashboard live while a script does the work.",
           "url": "/powershell/commands/start-consoledashboard/"
+        },
+        {
+          "name": "Start-ConsoleDemo",
+          "synopsis": "Presents a scripted demo one command at a time in a real shell.",
+          "url": "/powershell/commands/start-consoledemo/"
         },
         {
           "name": "Start-ConsoleRecording",
@@ -848,12 +853,12 @@
       "commands": [
         {
           "name": "Export-ConsoleFrame",
-          "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.",
+          "synopsis": "Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.",
           "url": "/powershell/commands/export-consoleframe/"
         },
         {
           "name": "Export-ConsoleRecording",
-          "synopsis": "Exports a terminal session or dashboard recording to a player, SVG or asciicast.",
+          "synopsis": "Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.",
           "url": "/powershell/commands/export-consolerecording/"
         },
         {
@@ -865,8 +870,13 @@
     },
     {
       "verb": "Invoke",
-      "count": 3,
+      "count": 4,
       "commands": [
+        {
+          "name": "Invoke-ConsoleDemo",
+          "synopsis": "Types a scripted PowerShell demo into a real terminal and records it.",
+          "url": "/powershell/commands/invoke-consoledemo/"
+        },
         {
           "name": "Invoke-ConsolePester",
           "synopsis": "Runs Pester tests with a live ConsoleMonster dashboard and a summary table.",
