@@ -150,10 +150,12 @@ namespace ConsoleMonster.Widgets {
                 }
                 if (Signed && NumberFormat.IsFinite(item.Value)) { min = Math.Min(min, item.Value); }
             }
-            labelWidth = Math.Min(labelWidth, Math.Max(4, region.Width / 3));
             if (ShowValues) {
                 valueWidth = _valueColumn.Resolve(valueWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Max!.Value)) : 0);
             }
+            // Leave a small useful bar, rather than reserving two thirds of every row for empty space.
+            int suffix = ShowValues ? valueWidth + 2 : 1;
+            labelWidth = Math.Min(labelWidth, Math.Max(0, region.Width - suffix - 4));
             int barX = labelWidth + 1;
             int barWidth = region.Width - barX - (ShowValues ? valueWidth + 1 : 0);
             Style muted = context.Style(ThemeToken.Muted);

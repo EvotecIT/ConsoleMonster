@@ -174,7 +174,7 @@ namespace ConsoleMonster.Examples.Showcases {
             format.Parameter = "Format";
             PathField report = run.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
-            report.Default = @"C:\Reports\Fleet";
+            report.Default = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Reports", "Fleet");
             report.Parameter = "ReportPath";
             ToggleField notify = run.Toggle("Notify", "Email the report");
             notify.Parameter = "Notify";
@@ -403,7 +403,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 Checks = FleetData.Checks.Where(c => chosen.Contains(c.Id)).ToList();
                 Parallel = (int)values.Get<decimal>("Parallel", 4m);
                 Format = values.Get<string>("Format") ?? "Html";
-                ReportFolder = values.Get<string>("Report") ?? @"C:\Reports\Fleet";
+                ReportFolder = values.Get<string>("Report") ?? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Reports", "Fleet");
                 Notify = values.Get<bool>("Notify");
                 Email = values.Get<string>("Email");
             }

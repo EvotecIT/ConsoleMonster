@@ -27,7 +27,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Cells between the key column and the values (default 2).</summary>
         public int Gap { get; set; } = 2;
 
-        /// <summary>The widest the key column may be, as a fraction of the width (default 0.4).</summary>
+        /// <summary>Preferred key fraction when the natural label and value widths cannot both fit (default 0.4).</summary>
         public double MaxKeyFraction { get; set; } = 0.4;
 
         /// <summary>
@@ -120,11 +120,11 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int keyWidth = KeyWidth(constraints.MaxWidth);
+            int keyWidth = KeyWidth(constraints.MaxWidth, context);
             int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - Gap);
             int height = 0;
             int width = 0;
-            int numberWidth = NumberWidth(context);
+            int numberWidth = NumberWidth(context, constraints.MaxWidth);
             foreach (KeyValueItem item in _items) {
                 IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 height += Math.Max(1, lines.Count);
@@ -137,10 +137,10 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
-            int keyWidth = KeyWidth(region.Width);
+            int keyWidth = KeyWidth(region.Width, context);
             int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
             Style keyStyle = context.Style(ThemeToken.Muted);
-            int numberWidth = NumberWidth(context);
+            int numberWidth = NumberWidth(context, region.Width);
             int y = 0;
             foreach (KeyValueItem item in _items) {
                 if (y >= region.Height) {
@@ -158,16 +158,26 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private int KeyWidth(int width) {
+        private int KeyWidth(int width, RenderContext context) {
             int longest = 0;
             foreach (KeyValueItem item in _items) {
                 longest = Math.Max(longest, DisplayWidth.Measure(item.Key));
             }
-            int cap = Math.Max(4, (int)(width * MaxKeyFraction));
-            return Math.Min(longest, cap);
+            int values = 0;
+            int numbers = NumberWidth(context, width);
+            foreach (KeyValueItem item in _items) {
+                foreach (StyledLine line in ValueLines(item, int.MaxValue / 2, numbers, context)) {
+                    values = Math.Max(values, line.Width);
+                }
+            }
+            int available = Math.Max(0, width - Math.Max(0, Gap));
+            if (longest + values <= available) { return longest; }
+            // Keep values on one line if possible, then spend the remaining cells on labels.
+            int preferred = Math.Min(longest, Math.Max(4, (int)(width * MaxKeyFraction)));
+            return Math.Max(0, Math.Min(preferred, available - Math.Min(values, Math.Max(1, available - preferred))));
         }
 
-        private int NumberWidth(RenderContext context) {
+        private int NumberWidth(RenderContext context, int width) {
             if (NumberColumn.Alignment == HorizontalAlignment.Left) {
                 return 0;
             }
@@ -184,7 +194,15 @@ namespace ConsoleMonster.Widgets {
                 }
                 widest = Math.Max(widest, DisplayWidth.Measure(number));
             }
-            return widest == 0 ? 0 : _numberColumn.Resolve(widest);
+            if (widest == 0) { return 0; }
+            int resolved = _numberColumn.Resolve(widest);
+            int keyWidth = 0, valueWidth = 0;
+            foreach (KeyValueItem item in _items) {
+                keyWidth = Math.Max(keyWidth, DisplayWidth.Measure(item.Key));
+                foreach (StyledLine line in ValueLines(item, int.MaxValue / 2, resolved, context)) { valueWidth = Math.Max(valueWidth, line.Width); }
+            }
+            // Numeric alignment is optional when it would force otherwise fitting labels or values to wrap.
+            return keyWidth + Gap + valueWidth <= width ? resolved : 0;
         }
 
         // The leading number of a value with an optional sign or "~" and an optional unit ("8.4", "~12s", "77%", "6 064 519"):

@@ -78,11 +78,11 @@ Certificate
 +-------------------------------+---------+---------+----------+----------+------------------------+
 | Artifact                      | Kind    |    Size | Built in | Created  | Path                   |
 +-------------------------------+---------+---------+----------+----------+------------------------+
-| ConsoleMonster.2.0.0.nupkg    | NuGet   | 1.41 MB |     48 s | 12 m ago | C:\Support...0.0.nupkg |
-| ConsoleMonster.2.0.0.snupkg   | Symbols |  393 KB |    3.1 s | 12 m ago | C:\Support....0.snupkg |
-| ConsoleMonster-2.0.0.zip      | Module  | 2.77 MB |     12 s | 11 m ago | C:\Support...2.0.0.zip |
-| ConsoleMonster.PowerShell.dll | Binary  |  184 KB |     23 s | 3 h ago  | C:\Support...Shell.dll |
-| en-US\ConsoleMonster-help.xml | Help    |   94 KB |    6.4 s | 2 d ago  | C:\Support...-help.xml |
+| ConsoleMonster.2.0.0.nupkg    | NuGet   | 1.41 MB |     48 s | 12 m ago | /build/Con...0.0.nupkg |
+| ConsoleMonster.2.0.0.snupkg   | Symbols |  393 KB |    3.1 s | 12 m ago | /build/Con....0.snupkg |
+| ConsoleMonster-2.0.0.zip      | Module  | 2.77 MB |     12 s | 11 m ago | /build/Con...2.0.0.zip |
+| ConsoleMonster.PowerShell.dll | Binary  |  184 KB |     23 s | 3 h ago  | /build/Con...Shell.dll |
+| en-US\ConsoleMonster-help.xml | Help    |   94 KB |    6.4 s | 2 d ago  | /build/Con...-help.xml |
 +-------------------------------+---------+---------+----------+----------+------------------------+
 | Total                         |         | 4.89 MB | 1 m 33 s |          |                        |
 +-------------------------------+---------+---------+----------+----------+------------------------+

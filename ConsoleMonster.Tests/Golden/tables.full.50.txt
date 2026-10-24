@@ -5,16 +5,14 @@ evotec.xyz
   TTL         5 m 00 s
   Data        104.21.48.12
   Latency     12 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
-              A.json
+  Cache file  /var/cache/dns/evotec.xyz/A.json
 
 evotec.xyz
   Type        AAAA
   TTL         5 m 00 s
   Data        2606:4700:3036::6815:300c
   Latency     14 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
-              AAAA.json
+  Cache file  /var/cache/dns/evotec.xyz/AAAA.json
 
 evotec.xyz
   Type        MX
@@ -23,8 +21,7 @@ evotec.xyz
               evotec-xyz.mail.protection.outlook.
               com
   Latency     18 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
-              MX.json
+  Cache file  /var/cache/dns/evotec.xyz/MX.json
 
 evotec.xyz
   Type        TXT
@@ -36,8 +33,7 @@ evotec.xyz
               include:mailgun.org ip4:51.38.120.9
               ip4:51.38.120.10 -all
   Latency     21 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
-              TXT.json
+  Cache file  /var/cache/dns/evotec.xyz/TXT.json
 
 _dmarc.evotec.xyz
   Type        TXT
@@ -46,7 +42,7 @@ _dmarc.evotec.xyz
               rua=mailto:dmarc@evotec.xyz;
               ruf=mailto:forensic@evotec.xyz; fo=1
   Latency     ▴ 133 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+  Cache file  /var/cache/dns/evotec.xyz/
               _dmarc.TXT.json
 
 selector1._domainkey.evotec.xyz
@@ -55,7 +51,7 @@ selector1._domainkey.evotec.xyz
   Data        selector1-evotec-xyz._domainkey.
               evotecpl.onmicrosoft.com
   Latency     16 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
+  Cache file  /var/cache/dns/evotec.xyz/
               selector1._domainkey.CNAME.json
 
 evotec.xyz
@@ -63,8 +59,7 @@ evotec.xyz
   TTL         1 h 00 m
   Data        0 issue "letsencrypt.org"
   Latency     15 ms
-  Cache file  C:\ProgramData\DnsCache\evotec.xyz\
-              CAA.json
+  Cache file  /var/cache/dns/evotec.xyz/CAA.json
 
 evotec.xyz · mail security checks  ·  7 records
 
@@ -207,9 +202,8 @@ ConsoleMonster.2.0.0.nupkg
   Size      1.41 MB
   Built in  48 s
   Created   12 m ago
-  Path      C:\Support\GitHub\ConsoleMonster\
-            Artefacts\Packed\
-            ConsoleMonster.2.0.0.nupkg
+  Path      /build/ConsoleMonster/Artefacts/
+            Packed/ConsoleMonster.2.0.0.nupkg
   SHA256    9f2c4e81a7d03b6e
 
 ConsoleMonster.2.0.0.snupkg
@@ -217,9 +211,8 @@ ConsoleMonster.2.0.0.snupkg
   Size      393 KB
   Built in  3.1 s
   Created   12 m ago
-  Path      C:\Support\GitHub\ConsoleMonster\
-            Artefacts\Packed\
-            ConsoleMonster.2.0.0.snupkg
+  Path      /build/ConsoleMonster/Artefacts/
+            Packed/ConsoleMonster.2.0.0.snupkg
   SHA256    41ab09cd77e2f310
 
 ConsoleMonster-2.0.0.zip
@@ -227,9 +220,8 @@ ConsoleMonster-2.0.0.zip
   Size      2.77 MB
   Built in  12 s
   Created   11 m ago
-  Path      C:\Support\GitHub\ConsoleMonster\
-            Artefacts\Packed\
-            ConsoleMonster-2.0.0.zip
+  Path      /build/ConsoleMonster/Artefacts/
+            Packed/ConsoleMonster-2.0.0.zip
   SHA256    c0ffee4251de9a07
 
 ConsoleMonster.PowerShell.dll
@@ -237,10 +229,9 @@ ConsoleMonster.PowerShell.dll
   Size      184 KB
   Built in  23 s
   Created   3 h ago
-  Path      C:\Support\GitHub\ConsoleMonster\
-            Sources\ConsoleMonster.PowerShell\bin\
-            Release\net8.0\
-            ConsoleMonster.PowerShell.dll
+  Path      /build/ConsoleMonster/Sources/
+            ConsoleMonster.PowerShell/bin/Release/
+            net8.0/ConsoleMonster.PowerShell.dll
   SHA256    77aa13f9b2c46e5d
 
 en-US\ConsoleMonster-help.xml
@@ -248,9 +239,8 @@ en-US\ConsoleMonster-help.xml
   Size      94 KB
   Built in  6.4 s
   Created   2 d ago
-  Path      C:\Support\GitHub\ConsoleMonster\
-            Artefacts\Packed\en-US\
-            ConsoleMonster-help.xml
+  Path      /build/ConsoleMonster/Artefacts/
+            Packed/en-US\ConsoleMonster-help.xml
   SHA256    0be4d29c6a1f8873
 
 Total

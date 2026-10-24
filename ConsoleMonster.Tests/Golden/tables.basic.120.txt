@@ -2,20 +2,20 @@
 ┌──────────────────────────┬───────┬──────────┬──────────────────────────────────────┬──────────┬──────────────────────┐
 │ Name                     │ Type  │      TTL │ Data                                 │  Latency │ Cache file           │
 ├──────────────────────────┼───────┼──────────┼──────────────────────────────────────┼──────────┼──────────────────────┤
-│ evotec.xyz               │ A     │ 5 m 00 s │ 104.21.48.12                         │    12 ms │ C:\Program…yz\A.json │
-│ evotec.xyz               │ AAAA  │ 5 m 00 s │ 2606:4700:3036::6815:300c            │    14 ms │ C:\Program…AAAA.json │
-│ evotec.xyz               │ MX    │ 1 h 00 m │ 10                                   │    18 ms │ C:\Program…z\MX.json │
+│ evotec.xyz               │ A     │ 5 m 00 s │ 104.21.48.12                         │    12 ms │ /var/cache…yz/A.json │
+│ evotec.xyz               │ AAAA  │ 5 m 00 s │ 2606:4700:3036::6815:300c            │    14 ms │ /var/cache…AAAA.json │
+│ evotec.xyz               │ MX    │ 1 h 00 m │ 10                                   │    18 ms │ /var/cache…z/MX.json │
 │                          │       │          │ evotec-xyz.mail.protection.outlook.  │          │                      │
 │                          │       │          │ com                                  │          │                      │
-│ evotec.xyz               │ TXT   │ 1 h 00 m │ v=spf1                               │    21 ms │ C:\Program…\TXT.json │
+│ evotec.xyz               │ TXT   │ 1 h 00 m │ v=spf1                               │    21 ms │ /var/cache…/TXT.json │
 │                          │       │          │ include:spf.protection.outlook.com   │          │                      │
 │                          │       │          │ include:_spf.google.com…             │          │                      │
-│ _dmarc.evotec.xyz        │ TXT   │ 1 h 00 m │ v=DMARC1; p=reject;                  │ ! 133 ms │ C:\Program….TXT.json │
+│ _dmarc.evotec.xyz        │ TXT   │ 1 h 00 m │ v=DMARC1; p=reject;                  │ ! 133 ms │ /var/cache….TXT.json │
 │                          │       │          │ rua=mailto:dmarc@evotec.xyz;         │          │                      │
 │                          │       │          │ ruf=mailto:forensic@evotec.xyz; fo=1 │          │                      │
-│ selector1._d….evotec.xyz │ CNAME │ 1 h 00 m │ selector1-evotec-xyz._domainkey.     │    16 ms │ C:\Program…NAME.json │
+│ selector1._d….evotec.xyz │ CNAME │ 1 h 00 m │ selector1-evotec-xyz._domainkey.     │    16 ms │ /var/cache…NAME.json │
 │                          │       │          │ evotecpl.onmicrosoft.com             │          │                      │
-│ evotec.xyz               │ CAA   │ 1 h 00 m │ 0 issue "letsencrypt.org"            │    15 ms │ C:\Program…\CAA.json │
+│ evotec.xyz               │ CAA   │ 1 h 00 m │ 0 issue "letsencrypt.org"            │    15 ms │ /var/cache…/CAA.json │
 └──────────────────────────┴───────┴──────────┴──────────────────────────────────────┴──────────┴──────────────────────┘
 
  evotec.xyz · mail security checks
@@ -76,11 +76,11 @@ Certificate
 ┌───────────────────────────────┬─────────┬─────────┬──────────┬──────────┬─────────────────────────────┬──────────────┐
 │ Artifact                      │ Kind    │    Size │ Built in │ Created  │ Path                        │ SHA256       │
 ├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┼─────────────────────────────┼──────────────┤
-│ ConsoleMonster.2.0.0.nupkg    │ NuGet   │ 1.41 MB │     48 s │ 12 m ago │ C:\Support\Gi…r.2.0.0.nupkg │ 9f2c4e81a7d… │
-│ ConsoleMonster.2.0.0.snupkg   │ Symbols │  393 KB │    3.1 s │ 12 m ago │ C:\Support\Gi….2.0.0.snupkg │ 41ab09cd77e… │
-│ ConsoleMonster-2.0.0.zip      │ Module  │ 2.77 MB │     12 s │ 11 m ago │ C:\Support\Gi…ter-2.0.0.zip │ c0ffee4251d… │
-│ ConsoleMonster.PowerShell.dll │ Binary  │  184 KB │     23 s │ 3 h ago  │ C:\Support\Gi…owerShell.dll │ 77aa13f9b2c… │
-│ en-US\ConsoleMonster-help.xml │ Help    │   94 KB │    6.4 s │ 2 d ago  │ C:\Support\Gi…ster-help.xml │ 0be4d29c6a1… │
+│ ConsoleMonster.2.0.0.nupkg    │ NuGet   │ 1.41 MB │     48 s │ 12 m ago │ /build/Consol…r.2.0.0.nupkg │ 9f2c4e81a7d… │
+│ ConsoleMonster.2.0.0.snupkg   │ Symbols │  393 KB │    3.1 s │ 12 m ago │ /build/Consol….2.0.0.snupkg │ 41ab09cd77e… │
+│ ConsoleMonster-2.0.0.zip      │ Module  │ 2.77 MB │     12 s │ 11 m ago │ /build/Consol…ter-2.0.0.zip │ c0ffee4251d… │
+│ ConsoleMonster.PowerShell.dll │ Binary  │  184 KB │     23 s │ 3 h ago  │ /build/Consol…owerShell.dll │ 77aa13f9b2c… │
+│ en-US\ConsoleMonster-help.xml │ Help    │   94 KB │    6.4 s │ 2 d ago  │ /build/Consol…ster-help.xml │ 0be4d29c6a1… │
 ├───────────────────────────────┼─────────┼─────────┼──────────┼──────────┼─────────────────────────────┼──────────────┤
 │ Total                         │         │ 4.89 MB │ 1 m 33 s │          │                             │              │
 └───────────────────────────────┴─────────┴─────────┴──────────┴──────────┴─────────────────────────────┴──────────────┘

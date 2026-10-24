@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Building;
@@ -20,6 +21,8 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <summary>Builds the wizard.</summary>
         /// <returns>The form.</returns>
         public static Form Build() {
+            bool windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bool mac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             Form form = new Form("Install Toolbox Agent") {
                 Command = "Install-ToolboxAgent",
                 Description = "Sets up the agent that runs toolbox tasks on this machine.",
@@ -29,23 +32,23 @@ namespace ConsoleMonster.Examples.Showcases {
             FormPage location = form.Page("Location", "Where the agent and its data go.");
             PathField path = location.Path("Path", "Install folder");
             path.PathKind = PathKind.Folder;
-            path.Default = @"C:\Program Files\Toolbox Agent";
+            path.Default = windows ? @"C:\Program Files\Toolbox Agent" : "/usr/local/lib/toolbox-agent";
             path.Required = true;
             path.Parameter = "Path";
             path.Help = "Created when it does not exist. Tab completes folder names.";
             PathField data = location.Path("Data", "Data folder");
             data.PathKind = PathKind.Folder;
-            data.Default = @"C:\ProgramData\Toolbox Agent";
+            data.Default = windows ? @"C:\ProgramData\Toolbox Agent" : mac ? "/Library/Application Support/Toolbox Agent" : "/var/lib/toolbox-agent";
             data.Parameter = "DataPath";
             data.Help = "Logs, reports and the local queue. Needs a few hundred MB.";
-            ToggleField shortcuts = location.Toggle("Shortcuts", "Start menu shortcuts");
+            ToggleField shortcuts = location.Toggle("Shortcuts", windows ? "Start menu shortcuts" : "Command-line shortcuts");
             shortcuts.Default = true;
             shortcuts.Parameter = "Shortcuts";
 
             FormPage components = form.Page("Components", "Pick what to install. You can add more later.");
             ChoiceField parts = components.MultiSelect("Components", "Components", new[] {
                 new Choice("Agent", "Agent service") { Group = "Core", Selected = true, Description = "Runs tasks and reports results. Required.", Badge = RichText.Plain("18 MB") },
-                new Choice("Cli", "Command-line tools") { Group = "Core", Selected = true, Description = "toolbox.exe and the PowerShell module.", Badge = RichText.Plain("6 MB") },
+                new Choice("Cli", "Command-line tools") { Group = "Core", Selected = true, Description = windows ? "toolbox.exe and the PowerShell module." : "toolbox and the PowerShell module.", Badge = RichText.Plain("6 MB") },
                 new Choice("Html", "HTML reports") { Group = "Reporting", Selected = true, Description = "Interactive reports with tables and charts.", Badge = RichText.Plain("4 MB") },
                 new Choice("Pdf", "PDF export") { Group = "Reporting", Description = "Prints reports to PDF.", Badge = RichText.Plain("31 MB") },
                 new Choice("Teams", "Teams notifications") { Group = "Integrations", Description = "Posts run summaries to a Teams channel.", Badge = RichText.Plain("1 MB") },
@@ -57,17 +60,20 @@ namespace ConsoleMonster.Examples.Showcases {
             parts.Help = "Space toggles, Ctrl+A selects all, Enter closes the list.";
 
             FormPage service = form.Page("Service", "How the agent runs.");
-            ChoiceField account = service.Select("Account", "Service account", new[] {
+            ChoiceField account = service.Select("Account", "Service account", windows ? new[] {
                 new Choice("LocalSystem", "Local System") { Description = "Full rights on this machine; no password." },
                 new Choice("NetworkService", "Network Service") { Description = "Limited rights; uses the computer account on the network." },
                 new Choice("Custom", "A specific account") { Description = "A domain or local account you name." }
+            } : new[] {
+                new Choice("Dedicated", "Dedicated service user") { Description = "A restricted toolbox user for this service." },
+                new Choice("Custom", "A specific user") { Description = "An existing local user you name." }
             });
-            account.Default = "NetworkService";
+            account.Default = windows ? "NetworkService" : "Dedicated";
             account.Parameter = "Account";
             TextField user = service.Text("UserName", "User name");
             user.VisibleWhen = v => Equals(v["Account"], "Custom");
             user.Required = true;
-            user.Placeholder = @"CONTOSO\svc-toolbox";
+            user.Placeholder = windows ? @"CONTOSO\svc-toolbox" : "toolbox";
             user.Parameter = "UserName";
             SecretField password = service.Secret("Password", "Password");
             password.VisibleWhen = v => Equals(v["Account"], "Custom");

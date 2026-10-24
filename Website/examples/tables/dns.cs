@@ -3,7 +3,7 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
-const string Cache = @"C:\ProgramData\DnsCache\evotec.xyz\";
+const string Cache = "/var/cache/dns/evotec.xyz/";
 Table table = new Table()
     .WithTitle("[bold]evotec.xyz[/] [muted]· DNS records via Cloudflare DoH[/]")
     .AddColumn("Name", c => c

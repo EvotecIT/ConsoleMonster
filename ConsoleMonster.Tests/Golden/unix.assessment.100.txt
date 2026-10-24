@@ -1,0 +1,37 @@
+ Nightly checks · ad.adatum.com forest assessment · 12 target…  ● evaluating 332 rules on 6 workers
+
+ ✓ Discover 2.8s › ✓ Collect 4.0s › ⠋ Evaluate › ○ Report
+
+╭─ Targets ────────────────────────────────────── 6 workers ─╮ ╭─ Results ─────────────────────────╮
+│ ⠋ ad.adatum.com (dom…  ━━━━━━━━╾────────  50%  ✓ 7 ✗ 0 ▴ 1 │ │ ███████████████████████████▓▓▓▓▒░ │
+│ ✗ eu.ad.adatum.com (…  ━━━━━━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1 │ │ █ Passed   101  82%               │
+│ ⠹ DC01.ad.adatum.com   ━━━━━━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3 │ │ ▓ Warnings  14  11%               │
+│ ⠸ DC02.ad.adatum.com   ━━━━━━━━━━━━━━━╾─  90%  ✓20 ✗ 0 ▴ 6 │ │ ▒ Failed     4   3%               │
+│ ⠼ DC03.ad.adatum.com   ━━━━━━━━━━━╾─────  66%  ✓16 ✗ 3 ▴ 1 │ │ ░ Skipped    4   3%               │
+│ ⠴ DC04.ad.adatum.com   ━━━━━━━━━━━━━────  76%  ✓20 ✗ 0 ▴ 2 │ │ ───────────────────────────────── │
+│ ⠦ DC05.ad.adatum.com   ─────────────────   0%  ✓ 0 ✗ 0 ▴ 0 │ │ Evaluated         123 / 332       │
+│ ○ DC06.ad.adatum.com   ─────────────────                   │ │ Average rate      7.2 rules/s     │
+│ ○ DC07.eu.ad.adatum.…  ─────────────────                   │ │ Remaining        ~29s             │
+│ ○ DC08.eu.ad.adatum.…  ─────────────────                   │ │ Targets done        1 / 12        │
+│ ○ DC09.eu.ad.adatum.…  ─────────────────                   │ │ Targets failing     1             │
+│ ○ DC10.eu.ad.adatum.…  ─────────────────                   │ │                                   │
+╰────────────────────────────────────────────────────────────╯ ╰───────────────────────────────────╯
+╭─ Throughput ─────────── rules/s ─╮ ╭─ Rule duration ────────────╮ ╭─ Failures by category ───────╮
+│ 11│          ⡜⡄  ⣄        ⡄      │ │ 39│   ███ ▄▄▄              │ │ Domain controllers ▆▆▆▆▆▆▆ 1 │
+│   │ ⢠⠳⡀ ⡠⣀  ⢠⠃⠸⡀⡸⠈⢢⢀⡠⢄⡀  ⢸⠸⡀ ⢠⠒⠉ │ │   │   ███ ███              │ │ Replication        ▆▆▆▆▆▆▆ 1 │
+│   │ ⡜ ⠱⠊  ⠑⠢⠎  ⠱⠁  ⠁  ⠈⢢ ⡇ ⢇⢀⠇   │ │   │   ███ ███              │ │ DNS                ▆▆▆▆▆▆▆ 1 │
+│   │⢠⠃                   ⠙  ⠘⡜    │ │   │▅▅ ███ ███ ▂▂▂          │ │ Kerberos                   0 │
+│   │⡜                             │ │   │██ ███ ███ ███          │ │ Security                   0 │
+│  0│⣀⣀⣀⣀⣀⣀⠤⠢⢄⣀⣀⣀⣀⠤⠢⢄⣀⣀⣀⣀⣀⣀⣀⡠⠔⠢⢄⠤⠒ │ │   │██ ███ ███ ███ ▅▅▅      │ │ Group Policy               0 │
+│   └───────────────────────────── │ │  0│██ ███ ███ ███ ███ ▁▁▁  │ │ Accounts           ▆▆▆▆▆▆▆ 1 │
+│    █ completed   █ failed        │ │    0s     0.5s    2s    8s │ │ PKI                        0 │
+╰──────────────────────────────────╯ ╰────────────────────────────╯ ╰──────────────────────────────╯
+╭─ Log ────────────────────────────────────────────────────────────────────────────────────────────╮
+│ 00:21 ▴ WARN DC01.ad.adatum.com: Event log sizes - Directory Service log under 64 MB             │
+│ 00:21 ✗ ERR  DC03.ad.adatum.com: Lingering objects failed - 3 lingering objects in the configur… │
+│ 00:22 ▴ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use default cost 100      │
+│ 00:23        DC05.ad.adatum.com: evaluating 30 rules                                             │
+│ 00:23 ✗ ERR  DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record mi… │
+│ 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\Administrators   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+ Ctrl+C stop
