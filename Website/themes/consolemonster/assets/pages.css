@@ -377,3 +377,33 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-reel__chip--showcase { background: color-mix(in srgb, var(--cm-accent-2) 22%, transparent); color: var(--cm-ink); }
 .cm-reel__chip--static { background: var(--cm-hover); }
 .cm-reel__usecase { margin: 0 0 var(--cm-space-3); color: var(--cm-ink-2); font-size: 15px; }
+
+/* Demo page sections (layouts/demo.html): a header row with the title, a short line and, at its right, the section's one
+   PowerShell | C# switch. Steps are numbered rows: what to do on the left, the command or file to act on at the right. */
+.cm-reel-sec__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--cm-space-3) var(--cm-space-5); margin: 0 0 var(--cm-space-5); }
+.cm-reel-sec__head h2 { margin: 0; }
+.cm-reel-sec__head p { margin: var(--cm-space-2) 0 0; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-reel-sec__lang { margin-left: 0; flex: none; }
+.cm-reel-steps { display: grid; gap: var(--cm-space-3); margin: 0; padding: 0; list-style: none; counter-reset: cm-step; }
+.cm-js .cm-reel-steps.cm-reel__cmd[data-lang="csharp"], .cm-js[data-lang="csharp"] .cm-reel-steps.cm-reel__cmd[data-lang="powershell"] { display: none; }
+.cm-js[data-lang="csharp"] .cm-reel-steps.cm-reel__cmd[data-lang="csharp"] { display: grid; }
+.cm-reel-steps > li { counter-increment: cm-step; display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1.25fr); align-items: center; gap: var(--cm-space-2) var(--cm-space-4); padding: var(--cm-space-4); border-radius: 10px; background: var(--cm-surface); box-shadow: inset 0 0 0 1px var(--cm-line); }
+.cm-reel-steps > li::before { content: counter(cm-step); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--cm-accent); color: var(--cm-accent-ink); font: 700 14px/1 var(--cm-mono); align-self: start; }
+.cm-reel-steps__text h3 { margin: 0; font: 600 15px/1.3 var(--cm-mono); }
+.cm-reel-steps__text p { margin: 4px 0 0; color: var(--cm-ink-2); font-size: 14px; line-height: 1.45; }
+.cm-reel-steps__text p:first-child { margin-top: 0; color: var(--cm-ink); font-size: 15px; }
+.cm-reel-steps > li > .cm-code { margin: 0; }
+.cm-reel-steps__file { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cm-space-2) var(--cm-space-4); }
+.cm-reel-steps__dl { margin-left: 0; }
+.cm-reel-steps__gh { color: var(--cm-muted); font: 500 13px/1.3 var(--cm-mono); }
+.cm-reel-steps--plain > li { grid-template-columns: 34px minmax(0, 1fr); }
+.cm-reel-shortcut { margin-top: var(--cm-space-5); padding: var(--cm-space-4); border-radius: 10px; box-shadow: inset 0 0 0 1px var(--cm-line); background: transparent; }
+.cm-reel-shortcut__lead { margin: 0 0 var(--cm-space-3); color: var(--cm-ink-2); }
+.cm-reel-shortcut__lead strong { color: var(--cm-ink); }
+.cm-reel-shortcut__cmds { display: grid; gap: var(--cm-space-2); }
+.cm-js .cm-reel-shortcut__cmds[data-lang="csharp"], .cm-js[data-lang="csharp"] .cm-reel-shortcut__cmds[data-lang="powershell"] { display: none; }
+.cm-js[data-lang="csharp"] .cm-reel-shortcut__cmds[data-lang="csharp"] { display: grid; }
+@media (max-width: 760px) {
+  .cm-reel-steps > li { grid-template-columns: 30px minmax(0, 1fr); }
+  .cm-reel-steps > li > .cm-code, .cm-reel-steps > li > .cm-reel-steps__file { grid-column: 2; }
+}

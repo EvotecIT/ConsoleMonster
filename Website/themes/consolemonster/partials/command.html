@@ -1,0 +1,4 @@
+{{~ ## One command on one line with its own Copy, for steps and cards. Set cmd_text and cmd_lang (powershell, or bash for a
+     terminal command such as dotnet). Long commands scroll sideways inside the line rather than wrapping. ## ~}}
+<figure class="cm-code cm-code--line" data-lang="{{ cmd_lang }}"><pre class="code-block language-{{ cmd_lang }}"><code class="language-{{ cmd_lang }}">{{ cmd_text | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
+{{~ cmd_text = null; cmd_lang = null ~}}

@@ -87,6 +87,15 @@
   // Prism's PowerShell grammar has no token for parameters (-Title, -Scope); ConsoleMonster's own highlighter colours
   // them as keys. Operators such as -eq and -join keep their own token.
   var EXTEND = {
+    // Prism's bash grammar colours flags and builtins, but not other commands (dotnet, git): the first word of a command
+    // line or after && ; | is coloured as a function, like a cmdlet in PowerShell.
+    bash: function (p) {
+      if (p.languages.bash && !p.languages.bash['cm-command']) {
+        p.languages.insertBefore('bash', 'function', {
+          'cm-command': { pattern: /(^|[;&|]\s*|&&\s*)[A-Za-z][\w.-]*(?=\s|$)/m, lookbehind: true, alias: 'function' }
+        });
+      }
+    },
     powershell: function (p) {
       if (p.languages.powershell && !p.languages.powershell.parameter) {
         p.languages.insertBefore('powershell', 'operator', {
