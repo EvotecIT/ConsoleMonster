@@ -225,7 +225,7 @@
 /* Try it (partials/try.html, also the source column of a demo): the examples' tabs and the PowerShell | C# switch on one
    row, then the install line, the program and its Run line, then the output it printed. The language switch is the
    reader's: it stays on every page (site.js keeps it in <html data-lang>), and without JavaScript both languages show. */
-.cm-try { display: grid; gap: var(--cm-space-3); min-width: 0; }
+.cm-try { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-3); min-width: 0; }
 .cm-prose .cm-try { margin: 1.4em 0 var(--cm-space-6); }
 .cm-prose .cm-demo .cm-try { margin: 0; }
 .cm-try__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cm-space-2) var(--cm-space-3); }
@@ -237,7 +237,7 @@
 .cm-js[data-lang="csharp"] .cm-try__code[data-lang="csharp"] { display: grid; }
 /* The same lines in both languages on a docs page (<div class="cm-lang" data-lang="powershell"> around a fence, then its
    C# twin): site.js puts the two under one switch, and the reader's language shows. */
-.cm-langpair { display: grid; gap: var(--cm-space-2); margin: 1.4em 0 1.6em; min-width: 0; }
+.cm-langpair { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cm-space-2); margin: 1.4em 0 1.6em; min-width: 0; }
 .cm-langpair > .cm-try__bar { justify-content: flex-end; }
 .cm-prose .cm-langpair .cm-code { margin: 0; }
 .cm-js .cm-lang[data-lang="csharp"], .cm-js[data-lang="csharp"] .cm-lang[data-lang="powershell"] { display: none; }
