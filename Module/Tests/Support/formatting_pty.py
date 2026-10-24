@@ -10,7 +10,8 @@ import sys
 import termios
 import time
 
-runtime, script, output = sys.argv[1:]
+runtime, script, output = sys.argv[1:4]
+timeout_seconds = float(sys.argv[4]) if len(sys.argv) > 4 else 30
 pid, master = pty.fork()
 if pid == 0:
     os.environ.update(TERM="xterm-256color", COLORTERM="truecolor", COLUMNS="120", LINES="40")
@@ -21,7 +22,7 @@ fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
 data = bytearray()
 status = None
 try:
-    deadline = time.monotonic() + 30
+    deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         if select.select([master], [], [], 0.05)[0]:
             try:
@@ -47,7 +48,7 @@ try:
                 data.extend(chunk)
             break
     else:
-        raise TimeoutError("PowerShell formatting did not complete within 30 seconds")
+        raise TimeoutError(f"PowerShell formatting did not complete within {timeout_seconds:g} seconds")
 finally:
     if status is None:
         done, observed = os.waitpid(pid, os.WNOHANG)

@@ -39,7 +39,7 @@ $source = $source.Replace('__VIEWS__', ($views -join ','))
 $scriptPath = Join-Path $OutputDirectory 'capture.ps1'
 $ansiPath = Join-Path $OutputDirectory 'all-views.ansi'
 [IO.File]::WriteAllText($scriptPath, $source, [Text.UTF8Encoding]::new($true))
-& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath
+& python3 (Join-Path $PSScriptRoot 'formatting_pty.py') ([Diagnostics.Process]::GetCurrentProcess().Path) $scriptPath $ansiPath 120
 if ($LASTEXITCODE -ne 0) { throw "Terminal capture failed with exit code $LASTEXITCODE." }
 $ansi = [IO.File]::ReadAllText($ansiPath)
 $matches = [regex]::Matches($ansi, '### ([a-z-]+) (before|after) ###')
