@@ -39,12 +39,12 @@ namespace ConsoleMonster.PowerShell {
         [Alias("OutFile")]
         public string? Destination { get; set; }
 
-        /// <summary><para type="description">Screen width in cells (default 100).</para></summary>
+        /// <summary><para type="description">Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
         [ValidateRange(10, 1000)]
         public int Width { get; set; } = 100;
 
-        /// <summary><para type="description">Screen height in cells (default 30).</para></summary>
+        /// <summary><para type="description">Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
         [ValidateRange(3, 1000)]
         public int Height { get; set; } = 30;

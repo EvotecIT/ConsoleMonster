@@ -25,7 +25,7 @@ namespace ConsoleMonster.Sessions {
         public long MaxBytes { get; set; } = 64 * 1024 * 1024;
         /// <summary>Longest playback gap. Zero preserves original timing.</summary>
         public TimeSpan IdleLimit { get; set; } = TimeSpan.FromSeconds(2);
-        /// <summary>Maximum child lifetime, including interactive sessions.</summary>
+        /// <summary>Maximum time spent waiting for the child in WaitForExit.</summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromHours(24);
         /// <summary>Additional regular expressions, applied before any recording data is written.</summary>
         public IList<string> Redact { get; } = new List<string>();

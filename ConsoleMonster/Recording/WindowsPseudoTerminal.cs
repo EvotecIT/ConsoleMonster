@@ -75,6 +75,7 @@ namespace ConsoleMonster.Sessions {
             return result.Append('\\', slashes * 2).Append('"').ToString();
         }
         public int Read(byte[] bytes) => _output!.Read(bytes, 0, bytes.Length);
+        internal uint ProcessId => _process.ProcessId;
         public void Write(byte[] bytes) { _input!.Write(bytes, 0, bytes.Length); _input.Flush(); }
         public void Resize(int width, int height) { int hr = ResizePseudoConsole(_pty, new Coord(width, height)); if (hr != 0) { throw new Win32Exception(hr); } }
         public bool HasExited => _process.Process != IntPtr.Zero && WaitForSingleObject(_process.Process, 0) == 0;

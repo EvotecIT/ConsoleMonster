@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Sessions {
                     // before the first read would deadlock that drain, even for a short-lived child.
                     Thread.Sleep(100);
                     while ((count = terminal.Read(bytes)) > 0) { output.Append(Encoding.UTF8.GetString(bytes, 0, count)); }
-                    Assert.True(terminal.HasExited);
+                    Assert.True(SpinWait.SpinUntil(() => terminal.HasExited, TimeSpan.FromSeconds(10)), "The drained synthetic child did not exit.");
                     Assert.Equal(exitCode, terminal.ExitCode);
                     Assert.Contains("Complete output before exit", output.ToString());
                 }

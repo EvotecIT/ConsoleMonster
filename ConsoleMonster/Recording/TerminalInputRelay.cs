@@ -57,7 +57,7 @@ namespace ConsoleMonster.Sessions {
                 count = read(0, bytes, (UIntPtr)bytes.Length).ToInt32();
                 if (count < 0) { throw Error(); }
             }
-            char[] chars = new char[4096];
+            char[] chars = new char[Encoding.UTF8.GetMaxCharCount(4096)];
             return new string(chars, 0, _decoder.GetChars(bytes, 0, count, chars, 0, false));
         }
         /// <summary>Restores the terminal mode and code page without changing other terminals.</summary>

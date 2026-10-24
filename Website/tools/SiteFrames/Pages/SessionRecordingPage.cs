@@ -9,6 +9,7 @@ namespace SiteFrames.Pages {
     /// <summary>Deterministic exports from the real Invoke-ConsoleRecording demo capture.</summary>
     internal static class SessionRecordingPage {
         public static void Render(Site site) {
+            RenderCommandExample(site);
             string cast = Path.Combine(site.Captures, "recording", "session.cast");
             if (!File.Exists(cast)) { throw new FileNotFoundException("Run Website/examples/recording/record-session.ps1 and save its cast under captures/recording.", cast); }
             SessionRecording recording = SessionRecording.Read(cast);
@@ -18,6 +19,7 @@ namespace SiteFrames.Pages {
             string data = recording.ExportPlayerData(options);
             List<TimedFrame> frames = new List<TimedFrame>();
             foreach (RecordedFrame frame in recording.CaptureFrames(options)) { frames.Add(new TimedFrame(frame.Start, frame.Frame)); }
+            frames = ReplayFit.Trim(frames);
             List<(long Time, string Label)> markers = new List<(long Time, string Label)>();
             JsonObject player = (JsonObject)JsonNode.Parse(data)!;
             if (player["markers"] is JsonArray chapters) {
@@ -35,10 +37,27 @@ namespace SiteFrames.Pages {
             }
             JsonObject entry = new JsonObject {
                 ["title"] = "Console session", ["url"] = "/replays/session-recording.json",
-                ["start"] = duration, ["poster"] = site.Frame(recording.FinalFrame(), null),
+                ["start"] = duration, ["hero"] = ReplayFit.Hero(frames),
+                ["poster"] = site.Frame(frames[frames.Count - 1].Frame, null),
                 ["powershellRepo"] = "Website/examples/recording/record-session.ps1"
             };
             site.WriteJson(site.Data("session-recording"), new JsonObject { ["session"] = entry });
+        }
+
+        private static void RenderCommandExample(Site site) {
+            string folder = Path.Combine(site.Website, "examples", "recording");
+            string script = Site.ReadText(Path.Combine(folder, "record-command.ps1"));
+            string program = Site.ReadText(Path.Combine(folder, "RecordCommand.cs"));
+            Capture.CSharpRunner.Compile(Path.Combine(folder, "RecordCommand.cs"));
+            SessionRecording recording = SessionRecording.Read(Path.Combine(site.Captures, "recording", "command.cast"));
+            var (frame, _) = Site.Fit(recording.FinalFrame(), null);
+            Figures.Add("session-command", new JsonObject {
+                ["title"] = "Command review", ["label"] = "A native Git command and coloured PowerShell output",
+                ["meta"] = new JsonArray("Native output", "asciicast v2"), ["frame"] = site.Frame(frame, null),
+                ["file"] = "record-command.ps1", ["script"] = script, ["csharp"] = program
+            });
+            site.Write(site.Static("examples/recording/record-command.ps1"), script);
+            site.Write(site.Static("examples/recording/RecordCommand.cs"), program);
         }
     }
 }

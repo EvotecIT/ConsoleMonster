@@ -66,7 +66,8 @@ namespace ConsoleMonster.PowerShell {
                     }
                     shell.EndInvoke(running);
                 }
-                catch (RuntimeException error) { host.UI.WriteErrorLine(error.Message); }
+                catch (PipelineStoppedException) when (cancelled() || host._recorder.HasExited) { }
+                catch (RuntimeException error) { host.UI.WriteErrorLine(error.Message); throw; }
             }
         }
         public override Guid InstanceId { get; } = Guid.NewGuid();

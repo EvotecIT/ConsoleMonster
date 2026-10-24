@@ -52,20 +52,21 @@ namespace ConsoleMonster.Sessions {
         public int ExitCode { get; private set; }
         /// <summary>Whether the recorded child sent Stop-ConsoleRecording.</summary>
         public bool StopRequested => _writer.StopRequested;
-        /// <summary>Live unredacted output for the physical terminal only. It must not be persisted by subscribers.</summary>
+        /// <summary>Live unredacted terminal output, with private recording controls consumed. Subscribers must not persist it.</summary>
         public event Action<string>? Output;
 
         private void ReadOutput() {
             Decoder decoder = new UTF8Encoding(false).GetDecoder();
-            byte[] bytes = new byte[8192]; char[] chars = new char[8192];
+            byte[] bytes = new byte[8192]; char[] chars = new char[Encoding.UTF8.GetMaxCharCount(8192)];
             try {
                 while (true) {
                     int count = _terminal!.Read(bytes);
                     if (count <= 0) { break; }
                     int length = decoder.GetChars(bytes, 0, count, chars, 0, false);
                     string text = new string(chars, 0, length);
-                    lock (_gate) { _writer.Append(text); }
-                    Output?.Invoke(text);
+                    string visible;
+                    lock (_gate) { visible = _writer.Append(text); }
+                    if (visible.Length > 0) { Output?.Invoke(visible); }
                     if (_writer.StopRequested) { _stopping = true; _terminal.Stop(); }
                 }
             } catch (IOException) when (_stopping || (_terminal?.HasExited ?? true)) {

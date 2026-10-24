@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using ConsoleMonster.Export;
 using ConsoleMonster.Sessions;
+using ConsoleMonster.Serialization;
+using System.Collections.Generic;
 using Xunit;
 using ConsoleMonster.Tests.Rendering;
 
@@ -83,9 +85,10 @@ namespace ConsoleMonster.Tests.Sessions {
                 recorder.CapturePowerShellOutput("sk-abcdefgh12345678\r\n");
                 recorder.CapturePowerShellOutput("password=colour-\u001b[31msplit-secret\u001b[0m\r\n");
                 recorder.CapturePowerShellOutput("Server=localhost;Password='quoted secret value';Database=sample\r\n");
+                recorder.CapturePowerShellOutput("Server=localhost;Password=unquoted secret value;Database=sample\r\n");
             }
             string cast = File.ReadAllText(options.Path!), metadata = File.ReadAllText(options.Path + ".json");
-            foreach (string secret in new[] { "synthetic-token", "sample-key", "private-project", "chapter-secret", "title-secret", "sk-abcdefgh12345678", "colour-", "split-secret", "quoted secret value" }) {
+            foreach (string secret in new[] { "synthetic-token", "sample-key", "private-project", "chapter-secret", "title-secret", "sk-abcdefgh12345678", "colour-", "split-secret", "quoted secret value", "unquoted secret value" }) {
                 Assert.DoesNotContain(secret, cast); Assert.DoesNotContain(secret, metadata);
             }
             Assert.Contains("[REDACTED]", cast);
@@ -404,7 +407,9 @@ namespace ConsoleMonster.Tests.Sessions {
                 }
                 StringBuilder live = new StringBuilder();
                 using (SessionRecorder recorder = SessionRecorder.Start(options, text => { lock (live) { live.Append(text); if (live.ToString().Contains("Password:")) { prompt.Set(); } } })) {
-                    Assert.True(prompt.Wait(TimeSpan.FromSeconds(15)), "The child did not reach its password prompt. Output: " + live);
+                    bool reachedPrompt = prompt.Wait(TimeSpan.FromSeconds(15));
+                    if (!reachedPrompt && recorder.HasExited) { recorder.WaitForExit(); }
+                    Assert.True(reachedPrompt, "The child did not reach its password prompt. Output: " + live);
                     recorder.Resize(40, 10);
                     recorder.SendInput("input-secret" + (windows ? "\r" : "\n"));
                     recorder.WaitForExit();

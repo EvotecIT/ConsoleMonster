@@ -27,7 +27,7 @@ namespace ConsoleMonster.Export {
         /// <summary>Plain text (frames only).</summary>
         Text = 2,
 
-        /// <summary>An asciicast v3 file for standard terminal players (recordings only).</summary>
+        /// <summary>An asciicast file for terminal players: v2 for terminal sessions, v3 for dashboard recordings.</summary>
         Asciicast = 3,
 
         /// <summary>Semantic Markdown tables, records and trees; rendered frames retain a fenced fallback.</summary>

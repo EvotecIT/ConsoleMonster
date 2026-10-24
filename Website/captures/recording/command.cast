@@ -1,0 +1,11 @@
+{"version":2,"width":88,"height":10,"timestamp":1792775872,"title":"Command review","idle_time_limit":2,"env":{"TERM":"xterm-256color"},"consolemonster":{"recording":true,"mode":"ConPTY","host":"[REDACTED]"}}
+[0.039139,"o","\u001b[?9001h\u001b[?1004h"]
+[0.816235,"m","Inspect"]
+[0.817629,"o","\u001b[?25l\u001b[2J\u001b[m\u001b[H\u001b]0;C:\\Program Files\\PowerShell\\7\\pwsh.exe\u0007\u001b[?25h"]
+[0.855095,"o","g"]
+[0.861064,"m","Report"]
+[0.876437,"o","it version 2.55.0.windows.5\r"]
+[0.876437,"o","\n"]
+[0.876437,"o","Review complete\r"]
+[0.876437,"o","\n"]
+[0.987929,"o","\u001b[?9001l\u001b[?1004l"]
