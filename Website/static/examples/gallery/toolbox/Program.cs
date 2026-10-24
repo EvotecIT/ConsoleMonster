@@ -42,8 +42,8 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new() {
     ["FS01/DiskCleanup"] = (StatusKind.Warn, "1.4 GB remains"),
 };
 List<HistoryRow> history = [
-    new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
-    new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
+    new(When: "Mon 19 Oct 21:04", Servers: 3, Tasks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
+    new(When: "Tue 20 Oct 07:30", Servers: 2, Tasks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
 ];
 string reportRoot = OperatingSystem.IsWindows() ? @"C:\Reports\Toolbox" : "/tmp/reports/toolbox";
 Node[] targets = inventory.Where(n => n.Domain == "lab.example.test" && n.Offline == "").Take(4).ToArray();
@@ -53,8 +53,8 @@ int parallel = 3;
 bool notify = false, dryRun = false;
 
 List<Work> Plan() => checks.SelectMany(c => targets.Select(n => {
-    var outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
-    return new Work(n, c, outcome.Item1, outcome.Item2);
+    (StatusKind Status, string Actual) outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
+    return new Work(n, c, outcome.Status, outcome.Actual);
 })).ToList();
 StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail
     : work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass;
@@ -73,7 +73,7 @@ IWidget Findings(IEnumerable<Work> work) {
 IWidget History() {
     Table table = TableOf(new[] { "When", "Servers", "Tasks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(h.When, h.Servers.ToString(), h.Checks.ToString(),
+        table.AddRow(h.When, h.Servers.ToString(), h.Tasks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed", h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
 }
@@ -132,8 +132,8 @@ void Execute(MenuContext context, List<Work> work) {
         RunResult result = Result(work); completed = true; return result;
     });
     if (!completed) return;
-    history.Add(new("Tue 20 Oct 09:30", work.Select(w => w.Node.Name).Distinct().Count(), work.Select(w => w.Check.Id).Distinct().Count(),
-        work.Count(w => w.Status == StatusKind.Pass), work.Count(w => w.Status == StatusKind.Warn), work.Count(w => w.Status == StatusKind.Fail), outcome.Elapsed));
+    history.Add(new(When: "Tue 20 Oct 09:30", Servers: work.Select(w => w.Node.Name).Distinct().Count(), Tasks: work.Select(w => w.Check.Id).Distinct().Count(),
+        Passed: work.Count(w => w.Status == StatusKind.Pass), Warnings: work.Count(w => w.Status == StatusKind.Warn), Failed: work.Count(w => w.Status == StatusKind.Fail), Elapsed: outcome.Elapsed));
 }
 RunResult Result(List<Work> work) {
     RunResult result = new("Run finished", Verdict(work)) {
@@ -214,4 +214,4 @@ record Node(string Name, string Domain, string Site, string Role, string Detail,
 }
 record Check(string Id, string Name, string Category, string Description, string Expected, double Minutes, bool Changes);
 record Work(Node Node, Check Check, StatusKind Status, string Actual);
-record HistoryRow(string When, int Servers, int Checks, int Passed, int Warnings, int Failed, TimeSpan Elapsed);
+record HistoryRow(string When, int Servers, int Tasks, int Passed, int Warnings, int Failed, TimeSpan Elapsed);

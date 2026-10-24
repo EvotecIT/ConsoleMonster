@@ -303,15 +303,20 @@ Dashboard dashboard = new Dashboard("[bold]Nightly checks[/]", body) {
 
 // Behaviour: post each synthetic event in a bounded live run, paced at 4x.
 using LiveSession session = new LiveSession(dashboard);
-session.Run(live => {
-    long previous = 0;
-    foreach (LiveEvent update in events) {
-        int delay = (int)((update.Time - previous) / 4);
-        live.Cancellation.ThrowIfCancellationRequested();
-        live.Post(update);
-        live.Delay(TimeSpan.FromMilliseconds(delay));
-        previous = update.Time;
-    }
-});
+try {
+    session.Run(live => {
+        long previous = 0;
+        foreach (LiveEvent update in events) {
+            int delay = (int)((update.Time - previous) / 4);
+            live.Cancellation.ThrowIfCancellationRequested();
+            live.Post(update);
+            live.Delay(TimeSpan.FromMilliseconds(delay));
+            previous = update.Time;
+        }
+    });
+} catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+    // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+    return;
+}
 
 record SyntheticRule(string Category, string Name, string FailReason, string WarnReason, double Weight = 1);

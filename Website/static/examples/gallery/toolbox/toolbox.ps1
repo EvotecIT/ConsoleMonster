@@ -31,15 +31,15 @@ $catalog = @(
     [pscustomobject] @{ Id = 'Uptime'; Name = 'Uptime and reboots'; Category = 'Health'; Description = 'Reports unexpected reboots in the last 30 days.'; Expected = '0 unexpected'; Minutes = 1.0; Changes = $false }
 )
 $findings = @{
-    'FS02/PatchStatus' = @('Fail', '3 updates missing for 41 days')
-    'WEB01/Certificates' = @('Warn', 'expires in 24 days')
-    'SQL01/DiskSpace' = @('Fail', '4% free on data volume')
-    'FS11/Services' = @('Warn', '1 service restarted')
-    'FS01/DiskCleanup' = @('Warn', '1.4 GB remains')
+    'FS02/PatchStatus' = [pscustomobject] @{ Status = 'Fail'; Actual = '3 updates missing for 41 days' }
+    'WEB01/Certificates' = [pscustomobject] @{ Status = 'Warn'; Actual = 'expires in 24 days' }
+    'SQL01/DiskSpace' = [pscustomobject] @{ Status = 'Fail'; Actual = '4% free on data volume' }
+    'FS11/Services' = [pscustomobject] @{ Status = 'Warn'; Actual = '1 service restarted' }
+    'FS01/DiskCleanup' = [pscustomobject] @{ Status = 'Warn'; Actual = '1.4 GB remains' }
 }
 $history = @(
-    [pscustomobject] @{ When = 'Mon 19 Oct 21:04'; Servers = 3; Tasks = 4; Result = '10 passed · 1 warn · 1 failed'; Duration = '00:06:12' }
-    [pscustomobject] @{ When = 'Tue 20 Oct 07:30'; Servers = 2; Tasks = 3; Result = '6 passed · 0 warn · 0 failed'; Duration = '00:01:06' }
+    [pscustomobject] @{ When = 'Mon 19 Oct 21:04'; Servers = 3; Tasks = 4; Passed = 10; Warnings = 1; Failed = 1; Elapsed = (New-TimeSpan -Seconds 372) }
+    [pscustomobject] @{ When = 'Tue 20 Oct 07:30'; Servers = 2; Tasks = 3; Passed = 6; Warnings = 0; Failed = 0; Elapsed = (New-TimeSpan -Seconds 66) }
 )
 $reportRoot = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { 'C:\Reports\Toolbox' } else { '/tmp/reports/toolbox' }
 $plan = @{
@@ -62,7 +62,7 @@ function Get-Work {
             $node = $plan.Targets[$ni]
             $check = $plan.Checks[$ci]
             $outcome = $findings["$($node.Name)/$($check.Id)"]
-            [pscustomobject] @{ Node = $node; Check = $check; Status = $(if ($outcome) { $outcome[0] } else { 'Pass' }); Actual = $(if ($outcome) { $outcome[1] } else { $check.Expected }) }
+            [pscustomobject] @{ Node = $node; Check = $check; Status = $(if ($outcome) { $outcome.Status } else { 'Pass' }); Actual = $(if ($outcome) { $outcome.Actual } else { $check.Expected }) }
         }
     }
 }
@@ -106,8 +106,8 @@ function Get-History {
         @{ Name = 'When'; Presenter = 'Text' }
         @{ Name = 'Servers'; Presenter = 'Text' }
         @{ Name = 'Tasks'; Presenter = 'Text' }
-        @{ Name = 'Result'; Presenter = 'Text' }
-        @{ Name = 'Duration'; Presenter = 'Text' }
+        @{ Name = 'Result'; Expression = { "$($_.Passed) passed · $($_.Warnings) warn · $($_.Failed) failed" }; Presenter = 'Text' }
+        @{ Name = 'Duration'; Expression = { $_.Elapsed.ToString('hh\:mm\:ss') }; Presenter = 'Text' }
     )
     $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
 }
@@ -268,7 +268,7 @@ function Invoke-Work {
     if (-not $runState.Finished) {
         return
     }
-    $plan.History += [pscustomobject] @{ When = 'Tue 20 Oct 09:30'; Duration = '{0:hh\:mm\:ss}' -f $outcome.Elapsed; Servers = [string] @($Work.Node.Name | Select-Object -Unique).Count; Tasks = [string] @($Work.Check.Id | Select-Object -Unique).Count; Result = "$(@($Work | Where-Object -Property Status -EQ -Value Pass).Count) passed · $(@($Work | Where-Object -Property Status -EQ -Value Warn).Count) warn · $(@($Work | Where-Object -Property Status -EQ -Value Fail).Count) failed" }
+    $plan.History += [pscustomobject] @{ When = 'Tue 20 Oct 09:30'; Servers = @($Work.Node.Name | Select-Object -Unique).Count; Tasks = @($Work.Check.Id | Select-Object -Unique).Count; Passed = @($Work | Where-Object -Property Status -EQ -Value Pass).Count; Warnings = @($Work | Where-Object -Property Status -EQ -Value Warn).Count; Failed = @($Work | Where-Object -Property Status -EQ -Value Fail).Count; Elapsed = $outcome.Elapsed }
 }
 function Get-Result {
     param(

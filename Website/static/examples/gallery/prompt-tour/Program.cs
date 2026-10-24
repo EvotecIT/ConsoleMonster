@@ -110,25 +110,30 @@ LogRegion log = new LogRegion { PreferredHeight = 6 };
 Dashboard dashboard = new DashboardBuilder("[bold]Patching[/]").Subtitle("5 servers")
     .Panel("Servers", lanes).Panel("Log", log, fill: true).BuildDashboard();
 using (LiveSession session = new LiveSession(dashboard)) {
-    session.Run(live => {
-        for (int tick = 1; tick <= 6; tick++) {
-            live.Cancellation.ThrowIfCancellationRequested();
-            foreach (Server host in servers.Take(5)) {
-                lanes.Handle(live).Advance(host.Name,
-                    host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass, "step " + tick);
+    try {
+        session.Run(live => {
+            for (int tick = 1; tick <= 6; tick++) {
+                live.Cancellation.ThrowIfCancellationRequested();
+                foreach (Server host in servers.Take(5)) {
+                    lanes.Handle(live).Advance(host.Name,
+                        host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass, "step " + tick);
+                }
+                log.Handle(live).Write("step " + tick + " done");
+                live.Delay(TimeSpan.FromMilliseconds(350));
+                if (tick == 3) {
+                    log.Handle(live).Error("WEB01: update verification failed");
+                    bool go = new ConfirmPrompt("WEB01 failed. Continue with the other servers?", true) {
+                        Description = "The patch dashboard pauses for your answer, then resumes."
+                    }.Show();
+                    log.Handle(live).Write(go ? "continuing" : "stopping after this step");
+                    if (!go) break;
+                }
             }
-            log.Handle(live).Write("step " + tick + " done");
-            live.Delay(TimeSpan.FromMilliseconds(350));
-            if (tick == 3) {
-                log.Handle(live).Error("WEB01: update verification failed");
-                bool go = new ConfirmPrompt("WEB01 failed. Continue with the other servers?", true) {
-                    Description = "The patch dashboard pauses for your answer, then resumes."
-                }.Show();
-                log.Handle(live).Write(go ? "continuing" : "stopping after this step");
-                if (!go) break;
-            }
-        }
-    });
+        });
+    } catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+        // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+        return;
+    }
 }
 
 record Server(string Name, string Site, string Role, string OS, string? Offline = null);

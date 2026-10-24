@@ -48,8 +48,8 @@ int parallel = 3;
 bool notify = false;
 
 List<Work> Plan() => checks.SelectMany((c, ci) => targets.Select((n, ni) => {
-    var outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
-    return new Work(n, c, ni * checks.Length + ci, outcome.Item1, outcome.Item2, Math.Round(c.Seconds * (1 + ni * .17), 1));
+    (StatusKind Status, string Actual) outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
+    return new Work(n, c, ni * checks.Length + ci, outcome.Status, outcome.Actual, Math.Round(c.Seconds * (1 + ni * .17), 1));
 })).ToList();
 StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail
     : work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass;
@@ -146,8 +146,8 @@ void Execute(MenuContext context, List<Work> work) {
         RunResult result = Result(work); completed = true; return result;
     });
     if (!completed) return;
-    history.Add(new("Tue 20 Oct 09:30", work.Select(w => w.Node.Name).Distinct().Count(), work.Select(w => w.Check.Id).Distinct().Count(),
-        work.Count(w => w.Status == StatusKind.Pass), work.Count(w => w.Status == StatusKind.Warn), work.Count(w => w.Status == StatusKind.Fail), outcome.Elapsed));
+    history.Add(new(When: "Tue 20 Oct 09:30", Servers: work.Select(w => w.Node.Name).Distinct().Count(), Checks: work.Select(w => w.Check.Id).Distinct().Count(),
+        Passed: work.Count(w => w.Status == StatusKind.Pass), Warnings: work.Count(w => w.Status == StatusKind.Warn), Failed: work.Count(w => w.Status == StatusKind.Fail), Elapsed: outcome.Elapsed));
 }
 RunResult Result(List<Work> work) {
     RunResult result = new("Fleet check finished", Verdict(work)) {

@@ -33,9 +33,14 @@ IWidget Frame(int tick) {
 // Behaviour: update each frame in a bounded live run.
 Slot screen = new Slot("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
-session.Run(live => {
-    for (int tick = 0; tick <= 2 && !live.Cancellation.IsCancellationRequested; tick++) {
-        screen.Handle(live).Set(Frame(tick));
-        live.Delay(TimeSpan.FromMilliseconds(1000));
-    }
-});
+try {
+    session.Run(live => {
+        for (int tick = 0; tick <= 2 && !live.Cancellation.IsCancellationRequested; tick++) {
+            screen.Handle(live).Set(Frame(tick));
+            live.Delay(TimeSpan.FromMilliseconds(1000));
+        }
+    });
+} catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+    // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+    return;
+}
