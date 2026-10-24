@@ -112,7 +112,7 @@ namespace ConsoleMonster.Demos {
         private void OnOutput(string text) {
             bool display = !_hidden;
             lock (_gate) {
-                _prompts.Feed(text); _received.Append(text);
+                _prompts.Feed(text, c => _received.Append(c), () => _received.Clear());
                 if (_received.Length > 1024 * 1024) { _received.Remove(0, _received.Length - 512 * 1024); }
                 Monitor.PulseAll(_gate);
             }
@@ -141,7 +141,7 @@ namespace ConsoleMonster.Demos {
             if (hidden) { ClearInput(); _hidden = true; _recorder.SetCaptureEnabled(false); }
             try {
                 long before;
-                lock (_gate) { before = _prompts.PromptCount; if (!_typed) { _received.Clear(); } }
+                lock (_gate) { before = _prompts.PromptCount; if (!_typed) { _received.Clear(); _prompts.BeginInput(); } }
                 if (!_typed) {
                     if (hidden) { _recorder.SendInput(command.Replace("\n", "\r")); }
                     else {

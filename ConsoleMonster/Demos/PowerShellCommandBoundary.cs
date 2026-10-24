@@ -8,14 +8,16 @@ namespace ConsoleMonster.Demos {
         private char _quote;
         private char _here;
         private bool _comment;
+        private bool _continuation;
         internal bool Complete { get; private set; }
         internal bool Feed(string line) {
+            bool closedHereString = false;
             if (_here != '\0') {
                 if (!line.StartsWith(_here + "@", StringComparison.Ordinal)) { return Complete = false; }
-                _here = '\0'; line = line.Substring(2);
+                _here = '\0'; closedHereString = true; line = line.Substring(2);
             }
             bool continuation = false;
-            string significant = string.Empty;
+            string significant = closedHereString || _quote != '\0' ? "text" : string.Empty;
             for (int i = 0; i < line.Length; i++) {
                 char c = line[i];
                 char next = i + 1 < line.Length ? line[i + 1] : '\0';
@@ -38,7 +40,9 @@ namespace ConsoleMonster.Demos {
             }
             string[] operators = { "|", ",", "+", "=", "&&", "||", "-and", "-or", "-f" };
             foreach (string op in operators) { if (significant.EndsWith(op, StringComparison.OrdinalIgnoreCase)) { continuation = true; } }
-            return Complete = _brackets.Count == 0 && _quote == '\0' && _here == '\0' && !_comment && !continuation;
+            // Blank and comment-only lines do not finish a pending pipeline or operator.
+            if (significant.Length > 0 || continuation) { _continuation = continuation; }
+            return Complete = _brackets.Count == 0 && _quote == '\0' && _here == '\0' && !_comment && !_continuation;
         }
     }
 }

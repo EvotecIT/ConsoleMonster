@@ -31,6 +31,41 @@ namespace ConsoleMonster.Tests.Demos {
             Assert.Contains("42", nextLine.Steps[0].Text);
         }
         [Theory]
+        [InlineData("# keep this pipeline together")]
+        [InlineData("")]
+        [InlineData("<# a block comment #>")]
+        public void CommentsAndBlankLinesDoNotFinishAContinuedPipeline(string middle) {
+            var script = DemoScript.Parse("'one' |\n" + middle + "\n  ForEach-Object { $_.ToUpperInvariant() }");
+            Assert.Single(script.Steps);
+            Assert.Contains("ForEach-Object", script.Steps[0].Text);
+            Assert.Equal(2, DemoScript.Parse("$value = @'\ntext\n'@\nWrite-Output $value").Steps.Count);
+        }
+        [Fact]
+        public void SemanticOutputExcludesTypedInputAndPromptsButKeepsLateOutputAtEveryChunkBoundary() {
+            const string stream = "typed-READY\u001b]133;C\aactual\r\n\u001b]133;D;0\a\u001b]133;A\aprompt-READY> \u001b]133;B\alate\r\n";
+            for (int split = 0; split <= stream.Length; split++) {
+                var detector = new SemanticPromptDetector();
+                var output = new StringBuilder();
+                detector.BeginInput();
+                detector.Feed(stream.Substring(0, split), c => output.Append(c), () => output.Clear());
+                detector.Feed(stream.Substring(split), c => output.Append(c), () => output.Clear());
+                Assert.Equal("actual\r\nlate\r\n", output.ToString());
+            }
+        }
+        [Fact]
+        public void OutputWaitCannotMatchAnAssignmentOrTheVisiblePrompt() {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
+            string folder = Path.Combine(Path.GetTempPath(), "cm-wait-proof-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
+            try {
+                var script = DemoScript.Parse("# demo: setup\nfunction prompt { 'PROMPT-READY> ' }\n# demo: wpm 1000\n$null = 'INPUT-READY'\n# demo: wait INPUT-READY|PROMPT-READY");
+                var error = Assert.Throws<TimeoutException>(() => ConsoleDemo.Record(script, new DemoOptions {
+                    Recording = new SessionRecordingOptions { Shell = "pwsh", Path = Path.Combine(folder, "wait.cast") },
+                    StepTimeout = TimeSpan.FromSeconds(10)
+                }));
+                Assert.Contains("output matching", error.Message);
+            } finally { Directory.Delete(folder, true); }
+        }
+        [Theory]
         [InlineData("# demo: wpm NaN")]
         [InlineData("# demo: pause -1")]
         [InlineData("# demo: typo x")]

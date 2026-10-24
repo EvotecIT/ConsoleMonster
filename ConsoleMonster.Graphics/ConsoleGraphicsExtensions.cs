@@ -32,12 +32,6 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Saves a recording's final frame, or the frame at a source time.</summary>
         public static void SavePng(this SessionRecording recording, string path, GraphicsExportOptions? options = null, TimeSpan? at = null) =>
             (at.HasValue ? recording.FrameAt(at.Value) : recording.FinalFrame()).SavePng(path, options);
-        /// <summary>Returns the completed view of a chapter, immediately before the next chapter begins.</summary>
-        public static CellBuffer ChapterFrame(this SessionRecording recording, int index) {
-            IReadOnlyList<RecordingMarker> chapters = recording.Chapters;
-            if (index < 0 || index >= chapters.Count) { throw new ArgumentOutOfRangeException(nameof(index)); }
-            return index + 1 < chapters.Count ? recording.FrameAt(chapters[index + 1].Time > TimeSpan.Zero ? chapters[index + 1].Time - TimeSpan.FromTicks(1) : TimeSpan.Zero) : recording.FinalFrame();
-        }
         /// <summary>Saves one numbered PNG per chapter. Destination is a directory; chapter labels never become paths.</summary>
         public static IReadOnlyList<string> SaveChapterPngs(this SessionRecording recording, string directory, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             if (recording.Chapters.Count == 0) { throw new InvalidOperationException("The recording has no chapters. Add # demo: chapter directives."); }
@@ -92,7 +86,8 @@ namespace ConsoleMonster.Graphics {
             RasterAnimationSource source = new RasterAnimationSource(first.Width, first.Height, frames.Count, (index, cancellation) => {
                 cancellation.ThrowIfCancellationRequested();
                 double duration = frames[index].Duration;
-                if (index < frames.Count - 1 && settings.IdleLimit > TimeSpan.Zero) { duration = Math.Min(duration, settings.IdleLimit.TotalMilliseconds); }
+                double hold = index == frames.Count - 1 ? Math.Min(duration, settings.Playback.HoldLastFrame.TotalMilliseconds) : 0;
+                if (settings.IdleLimit > TimeSpan.Zero) { duration = Math.Min(duration - hold, settings.IdleLimit.TotalMilliseconds) + hold; }
                 return new RasterAnimationFrame(index == 0 ? first : GraphicsRenderer.Render(frames[index].Frame, settings, layout), TimeSpan.FromMilliseconds(Math.Max(10, duration)));
             });
             if (format == GraphicsFormat.Mp4) { FfmpegWriter.Write(path, source, settings.Playback.FramesPerSecond, token); return; }

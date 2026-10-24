@@ -89,6 +89,18 @@ namespace ConsoleMonster.Sessions {
             foreach (CastEvent item in _events) { if (item.Time > time.TotalSeconds) { break; } Apply(screen, item); }
             return screen.Snapshot();
         }
+        /// <summary>Reconstructs a completed chapter, stopping before the next marker in source event order.</summary>
+        public CellBuffer ChapterFrame(int index) {
+            if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            VtScreen screen = new VtScreen(Width, Height, false);
+            int chapter = -1;
+            foreach (CastEvent item in _events) {
+                if (item.Kind == "m" && ++chapter > index) { return screen.Snapshot(); }
+                Apply(screen, item);
+            }
+            if (chapter < index) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            return screen.Snapshot();
+        }
         /// <summary>Chapter times in the source recording.</summary>
         public IReadOnlyList<RecordingMarker> Chapters {
             get {

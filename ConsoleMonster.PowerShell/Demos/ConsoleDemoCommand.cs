@@ -81,11 +81,22 @@ namespace ConsoleMonster.PowerShell {
                     if (!temporary) { WriteObject(new FileInfo(output)); }
                 } finally {
                     linked.Cancel(); relay.Stop();
-                    if (run != null) { try { run.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } }
-                    if (title != null) { try { Host.UI.RawUI.WindowTitle = title; } catch (NotImplementedException) { } }
-                    if (temporary) { if (File.Exists(output)) { File.Delete(output); } if (File.Exists(output + ".json")) { File.Delete(output + ".json"); } }
-                    _stop.Dispose();
+                    FinishDemo(run,
+                        () => { if (title != null) { try { Host.UI.RawUI.WindowTitle = title; } catch (NotImplementedException) { } } },
+                        () => {
+                            if (!temporary) { return; }
+                            try { if (File.Exists(output)) { File.Delete(output); } }
+                            finally { if (File.Exists(output + ".json")) { File.Delete(output + ".json"); } }
+                        }, _stop);
                 }
+            }
+        }
+        // Every owned resource is released even when the task or an earlier cleanup fails.
+        private static void FinishDemo(Task<string>? run, Action restoreTitle, Action removeRecording, IDisposable stop) {
+            try { if (run != null) { try { run.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } } }
+            finally {
+                try { restoreTitle(); }
+                finally { try { removeRecording(); } finally { stop.Dispose(); } }
             }
         }
         /// <inheritdoc />

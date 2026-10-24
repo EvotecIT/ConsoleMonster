@@ -79,6 +79,30 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             } finally { Directory.Delete(folder, true); }
         }
         [Fact]
+        public void ChapterSnapshotsKeepEventOrderWhenTimestampsAreEqual() {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n[0,\"m\",\"First\"]\n[1,\"o\",\"one\"]\n[1,\"m\",\"Second\"]\n[1,\"o\",\"two\"]\n[1,\"m\",\"Third\"]\n[1,\"o\",\"three\"]\n"));
+            Assert.Equal("one", ConsoleExporter.ToText(recording.ChapterFrame(0)).Trim());
+            Assert.Equal("onetwo", ConsoleExporter.ToText(recording.ChapterFrame(1)).Trim());
+            Assert.Equal("onetwothree", ConsoleExporter.ToText(recording.ChapterFrame(2)).Trim());
+            Assert.Throws<ArgumentOutOfRangeException>(() => recording.ChapterFrame(3));
+        }
+        [Theory]
+        [InlineData(2, 2, 400)]
+        [InlineData(2, 0, 200)]
+        [InlineData(0, 2, 0)]
+        public void FinalSourceIdleIsCappedSeparatelyFromTheRequestedHold(int idle, int hold, int expectedDelay) {
+            var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n[1,\"o\",\"done\"]\n[61,\"m\",\"End\"]\n"));
+            string path = Path.Combine(Path.GetTempPath(), "cm-idle-" + Guid.NewGuid().ToString("N") + ".gif");
+            try {
+                recording.SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
+                    IdleLimit = TimeSpan.FromSeconds(idle), Playback = new RecordingExportOptions { HoldLastFrame = TimeSpan.FromSeconds(hold) }
+                });
+                int last = GifDelays(File.ReadAllBytes(path), out _).Last();
+                if (idle == 0) { Assert.InRange(last, 6100, 6200); }
+                else { Assert.Equal(expectedDelay, last); }
+            } finally { File.Delete(path); }
+        }
+        [Fact]
         public void ResizedTerminalExportsUseOneCanvasWithoutCropping() {
             var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":10,\"height\":3}\n[0.1,\"o\",\"small\"]\n[0.5,\"r\",\"20x5\"]\n[0.6,\"o\",\"\\r\\nlarge\\u001b[5;20HZ\"]\n"));
             string folder = Path.Combine(Path.GetTempPath(), "cm-resize-" + Guid.NewGuid().ToString("N"));
