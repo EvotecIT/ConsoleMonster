@@ -246,6 +246,9 @@ namespace ConsoleMonster.Export {
             }
             List<ExportLayer> layers = new List<ExportLayer>();
             switch (options.Theme) {
+                case ExportTheme.HighContrast:
+                    layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.HighContrast), ExportPalette.HighContrast, null));
+                    break;
                 case ExportTheme.Dark:
                     layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.Dark), ExportPalette.Dark, null));
                     break;
@@ -266,7 +269,7 @@ namespace ConsoleMonster.Export {
             if (frame == null) {
                 throw new ArgumentNullException(nameof(frame));
             }
-            ExportPalette palette = options.Theme == ExportTheme.Dark ? ExportPalette.Dark : options.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Adaptive;
+            ExportPalette palette = options.Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : options.Theme == ExportTheme.Dark ? ExportPalette.Dark : options.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Adaptive;
             return new List<ExportLayer> { new ExportLayer(frame, palette, null) };
         }
 

@@ -82,6 +82,21 @@ namespace ConsoleMonster.Sessions {
         }
         /// <summary>Reconstructs the last visible frame, including cursor movement, colour and resizes.</summary>
         public CellBuffer FinalFrame() => Replay().Snapshot();
+        /// <summary>Reconstructs the screen at a source recording time, before playback speed or idle compression.</summary>
+        public CellBuffer FrameAt(TimeSpan time) {
+            if (time < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(time)); }
+            VtScreen screen = new VtScreen(Width, Height, false);
+            foreach (CastEvent item in _events) { if (item.Time > time.TotalSeconds) { break; } Apply(screen, item); }
+            return screen.Snapshot();
+        }
+        /// <summary>Chapter times in the source recording.</summary>
+        public IReadOnlyList<RecordingMarker> Chapters {
+            get {
+                List<RecordingMarker> result = new List<RecordingMarker>();
+                foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Add(new RecordingMarker(TimeSpan.FromSeconds(item.Time), item.Data)); } }
+                return result.AsReadOnly();
+            }
+        }
         /// <summary>Reconstructs print-once terminal scrollback and the final main screen.</summary>
         public CellBuffer Transcript() => Replay(true).Transcript();
         private VtScreen Replay(bool keepScrollback = false) {
@@ -185,7 +200,7 @@ namespace ConsoleMonster.Sessions {
             frames.Add(new RecordedFrame(buffer, time));
         }
         /// <summary>Shares the core replay/sampling with the site's existing row renderer.</summary>
-        internal List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null) => Frames(Ready(options));
+        public List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null) => Frames(Ready(options));
         private static CellBuffer Pad(CellBuffer source, int width, int height) {
             CellBuffer frame = new CellBuffer(width, height);
             for (int y = 0; y < source.Height; y++) { for (int x = 0; x < source.Width; x++) { Cell cell = source[x, y]; if (!cell.IsContinuation) { frame.Set(x, y, cell.Glyph ?? " ", cell.Style, Math.Max(1, (int)cell.Width)); } } }

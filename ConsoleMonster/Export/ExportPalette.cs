@@ -20,6 +20,7 @@ namespace ConsoleMonster.Export {
         public static ExportPalette Dark { get; } = new ExportPalette("dark", "#cccccc", "#0c0c0c", false);
 
         public static ExportPalette Light { get; } = new ExportPalette("light", "#24292f", "#ffffff", false);
+        public static ExportPalette HighContrast { get; } = new ExportPalette("high-contrast", "#ffffff", "#000000", false);
 
         /// <summary>Defaults as CSS variables (<c>--cm-fg</c>, <c>--cm-bg</c>) that switch with prefers-color-scheme.</summary>
         public static ExportPalette Adaptive { get; } = new ExportPalette("auto", "var(--cm-fg)", "var(--cm-bg)", true);

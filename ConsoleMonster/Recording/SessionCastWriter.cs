@@ -128,6 +128,8 @@ namespace ConsoleMonster.Sessions {
             _deferred.Clear();
         }
         private Arrival Now() => new Arrival(_clock.Elapsed.TotalSeconds, ++_sequence);
+        // Hidden demo setup consumes real time, but must not become a blank opening or an idle playback gap.
+        internal void ResumeCapture() { _lastReal = _clock.Elapsed.TotalSeconds; }
         private void Queue(BufferedEvent item) {
             if (_pending.Length > 0 || _control.Length > 0) { _deferred.Add(item); }
             else { Event(item); }

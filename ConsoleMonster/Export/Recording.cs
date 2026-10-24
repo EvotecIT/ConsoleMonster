@@ -13,6 +13,11 @@ namespace ConsoleMonster.Export {
     /// dashboard definition) at a fixed size and frame rate.
     /// </summary>
     public static class Recording {
+        /// <summary>Replays dashboard events into distinct timed cell grids for image add-ons and other consumers.</summary>
+        public static List<RecordedFrame> CaptureFrames(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
+            if (events == null) { throw new ArgumentNullException(nameof(events)); }
+            return RecordingFrames.Capture(root, new List<LiveEvent>(events), options ?? new RecordingExportOptions());
+        }
         /// <summary>Exports a recording as an HTML player.</summary>
         /// <param name="root">The widget tree the recording was made with.</param>
         /// <param name="jsonLines">The recording.</param>

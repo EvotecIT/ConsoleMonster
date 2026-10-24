@@ -161,7 +161,7 @@ namespace ConsoleMonster.Export {
                     }
                     drawn = true;
                     double centre = left + (cw * (cell.Width == 2 ? 1 : 0.5));
-                    if (cell.Glyph.Length == 1) {
+                    if (cell.Glyph.Length == 1 && !options.IndividualTextElements) {
                         if (xs.Length > 0) {
                             xs.Append(' ');
                         }
