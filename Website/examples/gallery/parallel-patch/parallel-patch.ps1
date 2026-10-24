@@ -79,7 +79,7 @@ function New-PatchSummary {
                 LegendLines = 2
                 RowLabels = 'web01–10', 'web11–20', 'web21–30', 'web31–40'
             }
-            New-ConsoleCellMap -Status @mapOptions
+            New-ConsoleCellMap @mapOptions
         }
         $laneHosts = if ($finished) { $servers | Select-Object -Last $throttle } else { $servers | Select-Object -First $throttle }
         New-ConsolePanel -Title $(if ($finished) { 'Last eight hosts' } else { 'Worker lanes' }) -Content {
