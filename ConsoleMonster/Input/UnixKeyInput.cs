@@ -19,6 +19,7 @@ namespace ConsoleMonster.Input {
         private readonly Stopwatch _quiet = new Stopwatch();
         private bool _active;
         private bool _disposed;
+        private bool _cancelKeyProcessing;
 
         private UnixKeyInput(int descriptor, IntPtr saved) { _descriptor = descriptor; _saved = saved; }
 
@@ -74,6 +75,13 @@ namespace ConsoleMonster.Input {
             if (_active) { Restore(); _active = false; }
         }
 
+        /// <summary>Lets the TTY deliver SIGINT while a live runner reads its other keys.</summary>
+        internal void EnableCancelKeyProcessing() {
+            if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
+            _cancelKeyProcessing = true;
+            Activate();
+        }
+
         internal void Resume() {
             if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
             _events.Clear();
@@ -90,6 +98,11 @@ namespace ConsoleMonster.Input {
                 Marshal.Copy(_saved, attributes, 0, attributes.Length);
                 Marshal.Copy(attributes, 0, raw, attributes.Length);
                 UnixInputNative.MakeRaw(raw);
+                if (_cancelKeyProcessing) {
+                    int localOffset = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 24 : 12;
+                    byte signalFlag = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? (byte)0x80 : (byte)1;
+                    Marshal.WriteByte(raw, localOffset, (byte)(Marshal.ReadByte(raw, localOffset) | signalFlag));
+                }
                 // cfmakeraw also disables output processing. Keep output exactly as the caller configured it.
                 int outputOffset = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 8 : 4;
                 int outputSize = outputOffset;

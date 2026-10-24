@@ -246,7 +246,8 @@ namespace ConsoleMonster.Interactive {
             _input = input;
             _context = context;
             _token = token;
-            Pane = new FormView(form, this, store, remember, null, options.Preset);
+            Pane = new FormView(form, this, store, remember,
+                InteractiveClipboard.ForTarget((options.Interactive ?? InteractiveOptions.Default).ResolveTarget()), options.Preset);
             Pane.Submitted = result => {
                 Result = result;
                 if (_options.AfterSubmit != null && _surface != null && _context != null && _input != null) {

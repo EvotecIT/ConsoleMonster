@@ -24,6 +24,8 @@ namespace ConsoleMonster.TestHost {
         private static int Main(string[] args) {
             try {
                 switch (args[0]) {
+                    case "unix-recording-child": return UnixRecordingChildProbe.Run();
+                    case "copy-command": InteractiveClipboardProbe.Run(args[1], args[2]); break;
                     case "fallback": Fallback(); break;
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;

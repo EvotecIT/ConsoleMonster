@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using ConsoleMonster.Clipboard;
+using ConsoleMonster.Interactive;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Clipboard {
@@ -49,6 +50,23 @@ namespace ConsoleMonster.Tests.Clipboard {
             Command command = Windows ? PowerShell("Start-Sleep -Seconds 60") : Shell("while :; do :; done");
             Assert.False(new ClipboardPlatform().Run(command.Executable, command.Arguments, new string('x', 1000000), 200, out string? error));
             Assert.Contains("timed out", error!);
+        }
+
+        [Fact]
+        public void MacPbcopyReceivesUtf8LocaleWithoutInheritedLcAll() {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) { return; }
+            string directory = Path.Combine(Path.GetTempPath(), "consolemonster-pbcopy-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            string executable = Path.Combine(directory, "pbcopy");
+            string output = Path.Combine(directory, "received");
+            try {
+                File.WriteAllText(executable, "#!/bin/sh\nprintf '%s|%s\\n' \"$LC_CTYPE\" \"${LC_ALL-unset}\" > '" + output.Replace("'", "'\\''") + "'\ncat >> '" + output.Replace("'", "'\\''") + "'\n", new UTF8Encoding(false));
+                using (var chmod = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("/bin/chmod", "700 " + CommandLine.Quote(executable, CommandStyle.Windows)) { UseShellExecute = false })!) {
+                    chmod.WaitForExit(); Assert.Equal(0, chmod.ExitCode);
+                }
+                Assert.True(new ClipboardPlatform().Run(executable, string.Empty, "zażółć 日本", out string? error), error);
+                Assert.Equal("UTF-8|unset\nzażółć 日本", File.ReadAllText(output));
+            } finally { Directory.Delete(directory, true); }
         }
 
         private static Command PowerShell(string script) => new Command(

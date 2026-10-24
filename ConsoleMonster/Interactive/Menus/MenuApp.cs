@@ -24,6 +24,7 @@ namespace ConsoleMonster.Interactive {
         private readonly IPromptSurface _surface;
         private readonly RenderContext _context;
         private readonly CancellationToken _token;
+        private readonly Func<string, bool> _copy;
         private readonly List<Modal> _modals = new List<Modal>();
         private readonly Dictionary<MenuItem, IPane> _panes = new Dictionary<MenuItem, IPane>();
         private readonly Dictionary<Menu, MenuListPane> _lists = new Dictionary<Menu, MenuListPane>();
@@ -45,6 +46,7 @@ namespace ConsoleMonster.Interactive {
             _screen = surface as ScreenSurface;
             _context = context;
             _token = token;
+            _copy = InteractiveClipboard.ForTarget((options.Interactive ?? InteractiveOptions.Default).ResolveTarget());
             Layout = layout;
             _sidebar = new MenuListPane(root, ActivateFromSidebar, labels, compact: true, context.Glyphs);
             _sidebar.List.ShowInactiveFocus = true;
@@ -197,7 +199,7 @@ namespace ConsoleMonster.Interactive {
                     pane = ListFor(item.SubmenuDefinition!);
                     break;
                 case MenuItemKind.Form:
-                    FormView form = new FormView(item.FormDefinition!, this, _store, _options.RememberLastChoices);
+                    FormView form = new FormView(item.FormDefinition!, this, _store, _options.RememberLastChoices, _copy);
                     form.Submitted = result => OnFormSubmitted(item, result);
                     pane = form;
                     break;
@@ -209,7 +211,7 @@ namespace ConsoleMonster.Interactive {
                     pane = new PagePane(item, () => Context(item));
                     break;
                 case MenuItemKind.Review:
-                    pane = new ReviewPane(item, () => Context(item), Labels, action => Invoke(item, action, null), text => Clipboard.TrySetText(text), _store == null ? null : (Action)PromptPresetName, ShowToast, Back);
+                    pane = new ReviewPane(item, () => Context(item), Labels, action => Invoke(item, action, null), _copy, _store == null ? null : (Action)PromptPresetName, ShowToast, Back);
                     break;
                 case MenuItemKind.Presets:
                     pane = new PresetsPane(item, Labels, ListMenuPresets, ApplyMenuPreset, DeleteMenuPreset);

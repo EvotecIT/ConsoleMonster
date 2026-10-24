@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -22,6 +21,7 @@ namespace ConsoleMonster.Sessions {
             IntPtr actions = Marshal.AllocHGlobal(1024), attributes = Marshal.AllocHGlobal(1024);
             bool actionsReady = false, attributesReady = false;
             List<IntPtr> allocations = new List<IntPtr>();
+            MacTerminalLauncher? launcher = null;
             try {
                 int opened = _mac ? OpenMac(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size) : OpenLinux(out _master, out slave, IntPtr.Zero, IntPtr.Zero, ref size);
                 if (opened != 0) { throw Error(); }
@@ -32,30 +32,31 @@ namespace ConsoleMonster.Sessions {
                 byte[] tty = new byte[1024];
                 Check(ttyname_r(slave, tty, (UIntPtr)tty.Length));
                 string ttyPath = Encoding.UTF8.GetString(tty, 0, Array.IndexOf(tty, (byte)0));
-                // Open after setsid, inside the child file actions, to acquire a controlling terminal.
+                // Linux acquires its controlling tty on open after setsid. The macOS exec shim
+                // explicitly calls setsid + TIOCSCTTY once it is outside the CLR.
                 Check(posix_spawn_file_actions_addopen(actions, 0, ttyPath, 2, 0));
                 for (int fd = 1; fd <= 2; fd++) { Check(posix_spawn_file_actions_adddup2(actions, 0, fd)); }
                 Check(posix_spawn_file_actions_addclose(actions, _master));
                 Check(posix_spawn_file_actions_addclose(actions, slave));
-                Check(posix_spawnattr_setflags(attributes, (short)(_mac ? 0x400 : 0x80))); // POSIX_SPAWN_SETSID
-                string shell = options.Shell ?? "/bin/bash";
-                List<string> args = new List<string> { shell };
+                Check(posix_spawnattr_setflags(attributes, (short)(_mac ? 0 : 0x80))); // Linux POSIX_SPAWN_SETSID
+                string shell = options.Shell ?? UnixChildEnvironment.DefaultShell(Environment.GetEnvironmentVariable("SHELL"), _mac);
+                List<string> args = new List<string>();
+                if (_mac) { launcher = new MacTerminalLauncher(); launcher.AddFileActions(actions, CloseOnExec); args.Add(launcher.Executable); }
+                args.Add(shell);
                 foreach (string arg in options.Arguments) { args.Add(arg); }
-                List<string> env = new List<string>();
-                foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables()) {
-                    if (!string.Equals((string)entry.Key, "TERM", StringComparison.Ordinal) && !options.Environment.ContainsKey((string)entry.Key)) { env.Add(entry.Key + "=" + entry.Value); }
-                }
-                if (!options.Environment.ContainsKey("TERM")) { env.Add("TERM=xterm-256color"); }
-                foreach (KeyValuePair<string, string?> entry in options.Environment) { if (entry.Value != null) { env.Add(entry.Key + "=" + entry.Value); } }
+                List<string> env = UnixChildEnvironment.Build(options, Environment.GetEnvironmentVariables(), _mac);
                 // chdir is a child-only spawn action; never changes the process-wide working directory.
                 Check(posix_spawn_file_actions_addchdir_np(actions, options.WorkingDirectory));
-                int result = posix_spawnp(out _pid, shell, actions, attributes, Strings(args, allocations), Strings(env, allocations));
+                int result = posix_spawnp(out _pid, launcher?.Executable ?? shell, actions, attributes, Strings(args, allocations), Strings(env, allocations));
                 Check(result);
+                launcher?.WaitForExec();
+                launcher?.Dispose(); launcher = null;
                 // Keep the replica open until the reader drains the child. Darwin can discard unread terminal
                 // output on the last replica close, including when a fast child exits before the reader starts.
                 _slave = slave;
                 slave = -1;
             } catch {
+                if (_pid > 0) { kill(-_pid, 9); kill(_pid, 9); while (waitpid(_pid, out _, 0) < 0 && Marshal.GetLastWin32Error() == 4) { } _pid = 0; }
                 if (_master >= 0) { close(_master); _master = -1; }
                 throw;
             } finally {
@@ -64,6 +65,7 @@ namespace ConsoleMonster.Sessions {
                 if (attributesReady) { posix_spawnattr_destroy(attributes); }
                 Marshal.FreeHGlobal(actions); Marshal.FreeHGlobal(attributes);
                 foreach (IntPtr pointer in allocations) { Marshal.FreeHGlobal(pointer); }
+                launcher?.Dispose();
             }
         }
         private static IntPtr Strings(IList<string> values, List<IntPtr> allocations) {

@@ -145,8 +145,9 @@ namespace ConsoleMonster.Live {
                     try {
                         input = ConsoleInput.Acquire((session.Target ?? Terminal.Target).Input);
                         if (input.Source is WindowsConsoleInput windows) { windows.EnableCancelKeyProcessing(); }
+                        else if (input.Source is ConsoleKeyInput console) { console.EnableCancelKeyProcessing(); }
                         Dashboard.ShowKeys = true;
-                    } catch (Exception ex) when (ex is InvalidOperationException || ex is System.IO.IOException) {
+                    } catch (Exception ex) when (ex is InputClosedException || ex is InvalidOperationException || ex is System.IO.IOException) {
                         input?.Dispose(); input = null; /* A host without usable input still gets the dashboard. */
                     }
                 }

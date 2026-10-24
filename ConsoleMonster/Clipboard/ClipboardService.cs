@@ -3,7 +3,7 @@ using System;
 namespace ConsoleMonster.Clipboard {
     /// <summary>
     /// Copies serialized output as Unicode clipboard text. Uses the Windows clipboard, macOS pbcopy, or Linux
-    /// wl-copy/xclip without a runtime package dependency. SSH sessions are refused to protect the remote host's clipboard.
+    /// wl-copy/xclip without a runtime package dependency. SSH uses an explicitly supplied OSC 52 writer only.
     /// </summary>
     public sealed class ClipboardService {
         private readonly IClipboardPlatform _platform;
@@ -18,12 +18,18 @@ namespace ConsoleMonster.Clipboard {
         /// <summary>Copies text, Markdown source or HTML source as text, returning a diagnostic instead of throwing for unavailable providers.</summary>
         /// <param name="text">The serialized document. It is passed through standard input, never through command arguments.</param>
         /// <param name="error">Null on success; an actionable diagnostic on failure (without the copied content).</param>
+        /// <param name="osc52">Optional terminal writer for SSH sessions. Delivery is sent, not acknowledged by the terminal.</param>
         /// <returns>True only if the clipboard provider reports success.</returns>
-        public bool TryCopy(string text, out string? error) {
+        public bool TryCopy(string text, out string? error, Action<string>? osc52 = null) {
             if (text == null) {
                 throw new ArgumentNullException(nameof(text));
             }
             if (Has("SSH_CONNECTION") || Has("SSH_CLIENT") || Has("SSH_TTY")) {
+                if (osc52 != null) {
+                    osc52("\u001b]52;c;" + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(text)) + "\u0007");
+                    error = null;
+                    return true;
+                }
                 error = "No local clipboard is available over SSH. Export to a string or file and copy it on your local machine.";
                 return false;
             }

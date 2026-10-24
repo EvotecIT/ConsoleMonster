@@ -87,7 +87,9 @@ try {
     }
     lease.Dispose();
     lease = null;
+    UnixLiveRunProbe.Run(Report);
     UnixMenuProbe.Run(Report);
+    UnixRecordingRelayProbe.Run(Report);
 } catch (Exception ex) {
     result = 1;
     Report(new { phase = "failure", error = ex.ToString() });

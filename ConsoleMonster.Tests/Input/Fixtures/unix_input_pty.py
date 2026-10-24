@@ -129,6 +129,7 @@ def main():
                     raw_terminal.extend(data)
                     continue
                 report_bytes.extend(data)
+                (options.output / "probe.jsonl").write_bytes(report_bytes)
                 pending.extend(data)
                 while b"\n" in pending:
                     line, _, pending = pending.partition(b"\n")
@@ -158,6 +159,22 @@ def main():
                         os.write(master, TAILS[event["name"]])
                     elif phase == "menu_ready":
                         os.write(master, b"\r")
+                    elif phase == "live_ready":
+                        # ShowKeys is set before the first read activates raw mode. Wait for the
+                        # actual mode, then prove SIGINT is preserved during raw key polling.
+                        end = time.monotonic() + 5
+                        while attrs(slave)[3] & termios.ICANON:
+                            if time.monotonic() > end:
+                                raise TimeoutError("Live input did not enter raw mode")
+                            time.sleep(0.01)
+                        receipt["live_signals_enabled"] = bool(attrs(slave)[3] & termios.ISIG)
+                        os.write(master, b"\x03")
+                    elif phase == "live_pass":
+                        receipt["live_keyboard_cancelled_work"] = True
+                    elif phase == "live_closed_input_pass":
+                        receipt["live_closed_input_survived"] = True
+                    elif phase == "relay_invalid_pass":
+                        receipt["relay_invalid_descriptor_error"] = True
                     elif phase == "signal_ready":
                         suspended = attrs(slave)
                         receipt["termios_while_suspended"] = suspended
@@ -221,6 +238,12 @@ def main():
                 if status is None:
                     os.kill(pid, signal.SIGKILL)
                     signals_sent.append("SIGKILL")
+                    # Darwin can wait for terminal output to drain while a process exits. On
+                    # failure the reader loop has stopped, so hang up the master before reaping.
+                    if master in selector.get_map():
+                        selector.unregister(master)
+                    os.close(master)
+                    master = None
                     _, status = os.waitpid(pid, 0)
         receipt.update(exit_code=os.waitstatus_to_exitcode(status), disposed_observed=disposed,
                        finished_observed=finished, elapsed_seconds=round(time.monotonic() - started, 3),
@@ -228,7 +251,8 @@ def main():
         # Child reaped before closing the owned PTY and IPC descriptors.
         selector.close()
         for fd in (master, slave, report_r, control_w):
-            os.close(fd)
+            if fd is not None:
+                os.close(fd)
         receipt["cleanup"]["pty_and_pipes_closed"] = True
         receipt["success"] = (receipt["exit_code"] == 0 and not receipt["errors"]
                               and receipt["passed"] == list(CASES)
@@ -241,6 +265,10 @@ def main():
                               and receipt.get("keyboard_cancelled_work") is True
                               and receipt.get("raw_mode_resumed") is True
                               and receipt.get("menu_navigation_after_work") is True
+                              and receipt.get("live_signals_enabled") is True
+                              and receipt.get("live_keyboard_cancelled_work") is True
+                              and receipt.get("live_closed_input_survived") is True
+                              and receipt.get("relay_invalid_descriptor_error") is True
                               and (receipt.get("restored_after_exit") is True
                                    or receipt.get("pty_revoked_after_exit") is True))
         (options.output / "probe.jsonl").write_bytes(report_bytes)

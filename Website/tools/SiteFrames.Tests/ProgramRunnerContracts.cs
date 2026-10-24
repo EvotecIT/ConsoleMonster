@@ -10,6 +10,7 @@ using Xunit;
 
 namespace SiteFrames.Tests {
     /// <summary>The shown C# programs compile as a reader's project would, and only clean programs make frames.</summary>
+    [Collection("Interactive process defaults")]
     public sealed class ProgramRunnerContracts : IDisposable {
         [Fact]
         public void Program_CompilesAndRunsTheOptionalMarkdownAddon() {
@@ -34,8 +35,8 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void CompactErrorProgramCompilesAndExportsAllReviewSizesAndThemes() {
-            // CSharpRunner temporarily owns process-wide console writers. Keep its executable-example proofs in this
-            // existing class so xUnit does not run another renderer against those same writers and compiler cache.
+            // CSharpRunner owns process-wide console writers. The collection also keeps unrelated README diagnostics
+            // from being captured as stray program output while these executable examples run.
             string directory = Path.Combine(_folder, "error-frames");
             Site site = new Site(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../..")));
             ErrorFigures.ExportReview(site, directory);
