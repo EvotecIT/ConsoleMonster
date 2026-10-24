@@ -1,0 +1,21 @@
+Deployment [literal]
+------------------------------------------------------------
+
+Read the guide (https://example.org/guide) before
+continuing.
+
+| Keep the rollback plan close.
+
+3. Verify the target.
+4. Deploy the approved build.
+
++- powershell ---------------------------------------------+
+| Get-Service | Select-Object Name                         |
++----------------------------------------------------------+
+
++-------+---------+
+| Host  | State   |
++-------+---------+
+| LAB01 | Ready   |
+| LAB02 | Waiting |
++-------+---------+
