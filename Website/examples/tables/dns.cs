@@ -21,7 +21,7 @@ Table table = new Table()
     .AddColumn("Latency", c => c
         .WithPriority(3)
         .WithPresenter(new NumberPresenter("ms"))
-        .AddToneRules(ToneRule.Above(100, ThemeToken.Warn)))
+        .AddRoleRules(RoleRule.Above(100, ThemeToken.Warn)))
     .AddColumn("Cache file", c => c
         .WithPriority(1)
         .WithOverflow(ColumnOverflow.TruncateMiddle)

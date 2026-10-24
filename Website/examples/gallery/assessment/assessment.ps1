@@ -260,7 +260,7 @@ foreach ($event in $visible) {
                 state {
                     $lane.Status = $event.State
                     $lane.Detail = $event.Text
-                    $laneTimes[$key].Started = [timespan]::FromMilliseconds($event.Time)
+                    $laneTimes[$key].Started = $event.Time / 1000.0
                 }
                 advance {
                     $lane.Done++
@@ -271,7 +271,7 @@ foreach ($event in $visible) {
                 complete {
                     $lane.Status = if ($lane.Failed) { 'Fail' } elseif ($lane.Warned) { 'Warn' } else { 'Pass' }
                     $lane.Done = $lane.Total
-                    $laneTimes[$key].Finished = [timespan]::FromMilliseconds($event.Time)
+                    $laneTimes[$key].Finished = $event.Time / 1000.0
                 }
             }
         }
@@ -280,69 +280,69 @@ foreach ($event in $visible) {
         findings { $findings[$key] += $event.Value }
     }
 }
-$lanes = New-ConsoleLanes {
+$lanes = New-ConsoleLanes -Content {
     foreach ($lane in $laneState.Values) {
-        New-ConsoleLane @lane -Started $laneTimes[$lane.Key].Started -Finished $laneTimes[$lane.Key].Finished
+        New-ConsoleLane @lane -StartedSeconds $laneTimes[$lane.Key].Started -FinishedSeconds $laneTimes[$lane.Key].Finished
     }
 }
-$dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle 'ad.adatum.com forest assessment · 12 targets · 332 rules' -Footer '[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]' {
-    New-ConsolePadding -Padding 1, 0, 1, 1 {
-        New-ConsolePhases {
+$dashboard = New-ConsoleDashboard -Title '[bold]Nightly checks[/]' -Subtitle 'ad.adatum.com forest assessment · 12 targets · 332 rules' -Footer '[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]' -Content {
+    New-ConsolePadding -Padding 1, 0, 1, 1 -Content {
+        New-ConsolePhases -Content {
             foreach ($phase in $phaseState.Keys) {
                 New-ConsoleStatusItem $phase -Status $phaseState[$phase].Status -Detail $phaseState[$phase].Detail
             }
         }
     }
-    New-ConsoleColumns {
-        New-ConsolePanel -Title Targets -Caption '6 workers' -Weight 2.3 { $lanes }
-        New-ConsolePanel -Title Results {
-            New-ConsoleBarChart -Name results -Stacked -Data $results
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title Targets -HeaderRight '6 workers' -Weight 2.3 -Content { $lanes }
+        New-ConsolePanel -Title Results -Content {
+            New-ConsoleBarChart -WidgetId results -Stacked -InputObject $results
             New-ConsoleRule
-            New-ConsoleKeyValue -Name summary -Data $summary
+            New-ConsoleKeyValue -WidgetId summary -InputObject $summary
         }
     }
-    New-ConsoleColumns {
-        New-ConsolePanel -Title Throughput -Caption 'rules/s' -Weight 1.2 {
-            New-ConsoleLineChart -Name throughput -Height 7 {
-                New-ConsoleChartSeries completed -Value $rateValues.completed -Tone Accent
-                New-ConsoleChartSeries failed -Value $rateValues.failed -Tone Fail
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title Throughput -HeaderRight 'rules/s' -Weight 1.2 -Content {
+            New-ConsoleLineChart -WidgetId throughput -Height 7 -Content {
+                New-ConsoleChartSeries completed -Value $rateValues.completed -Role Accent
+                New-ConsoleChartSeries failed -Value $rateValues.failed -Role Fail
             }
         }
-        New-ConsolePanel -Title 'Rule duration' {
-            New-ConsoleHistogram -Name durations -Height 6 -Unit s -Edge 0, 0.25, 0.5, 1, 2, 4, 8 -Value $durationValues
+        New-ConsolePanel -Title 'Rule duration' -Content {
+            New-ConsoleHistogram -WidgetId durations -Height 6 -Unit s -Edge 0, 0.25, 0.5, 1, 2, 4, 8 -Value $durationValues
         }
-        New-ConsolePanel -Title 'Failures by category' {
-            New-ConsoleBarChart -Name findings -Tone Fail -Data $findings
+        New-ConsolePanel -Title 'Failures by category' -Content {
+            New-ConsoleBarChart -WidgetId findings -Role Fail -InputObject $findings
         }
     }
-    New-ConsolePanel -Title Log -Fill {
-        New-ConsoleLog -Height 6 {
+    New-ConsolePanel -Title Log -Fill -Content {
+        New-ConsoleLogRegion -Height 6 -Content {
             foreach ($entry in $logEntries) {
-                New-ConsoleLogEntry $entry.Text -Level $entry.State -At ($entry.Time / 1000.0)
+                New-ConsoleLogEntry $entry.Text -Level $entry.State -AtSeconds ($entry.Time / 1000.0)
             }
         }
     }
 }
-$dashboard.ShowClock = $false
-$dashboard.Status = $statusText
-$dashboard.StatusLevel = $statusLevel
+$dashboard.ShowElapsed = $false
+$dashboard.Detail = $statusText
+$dashboard.Status = $statusLevel
 
 # Behaviour: native events update individual widgets; the complete run is bounded and paced at 4x.
 if ($snapshot) {
-    $dashboard | Write-ConsoleWidget
+    $dashboard | Show-Console
     return
 }
-Start-ConsoleDashboard $dashboard -ArgumentList (, $events) {
+Invoke-ConsoleDashboard $dashboard -ArgumentList (, $events) {
     param($Events)
     $previous = 0
     foreach ($event in $Events) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
         $delay = [int][Math]::Truncate(($event.Time - $previous) / 4)
         if ($delay -gt 0) { Start-Sleep -Milliseconds $delay }
-        $fields = @{ Target = $event.Target; Operation = $event.Operation; Value = $event.Value; Total = $event.Total }
+        $fields = @{ WidgetId = $event.Target; Operation = $event.Operation; Value = $event.Value; Total = $event.Total }
         if ($null -ne $event.Key) { $fields.Key = $event.Key }
         if ($null -ne $event.Text) { $fields.Text = $event.Text }
-        if ($null -ne $event.State) { $fields.State = $event.State }
+        if ($null -ne $event.State) { $fields.Status = $event.State }
         Send-ConsoleEvent @fields
         $previous = $event.Time
     }

@@ -21,7 +21,7 @@ foreach (var item in hostData) hostSummary.Add(item.Label, item.Value);
 
 Rows layout = new Rows(
     new Logo("HELLO", "[muted]A little context before your next command.[/]"),
-    new Panel(hostSummary, "Host summary") { Caption = "local workspace" },
+    new Panel(hostSummary, "Host summary") { HeaderRight = "local workspace" },
     new Panel(new TextBlock(git), "Git | comet-notes"),
     new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
     new TextBlock("[muted]Ready when you are.[/]")) { Gap = 1 };

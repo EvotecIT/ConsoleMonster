@@ -27,32 +27,32 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 138
+        $commands.Count | Should -Be 134
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 137
+        $cmdlets.Count | Should -Be 134
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
-        ($commands | Where-Object CommandType -EQ Alias).Name | Should -BeExactly 'ForEach-ConsoleItem'
+        ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
         foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo') { $cmdlets.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleMarkdown'
-        foreach ($name in 'New-ConsoleRun', 'Update-ConsoleRun', 'Wait-ConsoleRun', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
+        foreach ($name in 'Start-ConsoleRun', 'Update-ConsoleRun', 'Wait-ConsoleRun', 'Complete-ConsoleRun') { $commands.Name | Should -Contain $name }
         $commands.Name | Should -Contain 'Show-ConsoleObject'
         $commands.Name | Should -Contain 'Show-ConsoleOverview'
         $commands.Name | Should -Contain 'Compare-ConsoleText'
         $commands.Name | Should -Contain 'Export-ConsoleTheme'
         foreach ($name in 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
             'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
-            'Start-ConsoleRecording', 'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsoleDemo', 'Start-ConsoleDemo') {
+            'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsolePresentation', 'Show-ConsolePresentation') {
             $commands.Name | Should -Contain $name
         }
-        $commands.Name | Should -Contain 'Out-ConsoleChart'
+        $commands.Name | Should -Contain 'Show-ConsoleChart'
         $commands.Name | Should -Contain 'Copy-ConsoleOutput'
         $commands.Name | Should -Contain 'Out-ConsoleFormatCommand'
         $commands.Name | Should -Contain 'New-ConsoleTreeNode'
         $commands.Name | Should -Contain 'Add-ConsoleItem'
         $commands.Name | Should -Contain 'Invoke-ConsolePester'
-        $commands.Name | Should -Contain 'Write-ConsoleTable'
-        $commands.Name | Should -Contain 'Start-ConsoleDashboard'
+        $commands.Name | Should -Contain 'Show-ConsoleTable'
+        $commands.Name | Should -Contain 'Invoke-ConsoleDashboard'
         ($commands.Name | Where-Object { $_ -notlike '*-Console*' }) | Should -BeNullOrEmpty
     }
 
@@ -62,18 +62,18 @@ Describe 'ConsoleMonster module' {
 @(
     [pscustomobject] @{ Name = 'alpha'; Count = 7; Result = 'pass' }
     [pscustomobject] @{ Name = 'beta'; Count = 1234; Result = 'fail' }
-) | Write-ConsoleTable -Border Minimal -StatusProperty Result
+) | Show-ConsoleTable -Border Minimal -StatusProperty Result
 '@
         $text | Should -Match 'Name\s+Count\s+Result'
         $text | Should -Match 'alpha\s+7'
-        # Write-ConsoleTable formats numbers in the culture, as Format-ConsoleTable does.
+        # Show-ConsoleTable formats numbers in the culture, as Show-ConsoleTable does.
         $text | Should -Match 'beta\s+1,234'
         $text | Should -Match (([char] 0xD7) + ' fail')
     }
 
     It 'renders plain ASCII without escape sequences in plain mode' {
         $text = Invoke-ConsoleChild -Environment @{ CONSOLEMONSTER_MODE = 'plain'; CONSOLEMONSTER_COLOR = 'truecolor' } -Script @'
-New-ConsolePanel -Title 'Plain' { New-ConsoleStatusList -Data ([ordered] @{ SPF = 'pass'; DNSSEC = 'fail' }) } | Write-ConsoleWidget
+New-ConsolePanel -Title 'Plain' -Content { New-ConsoleStatusList -InputObject ([ordered] @{ SPF = 'pass'; DNSSEC = 'fail' }) } | Show-Console
 '@
         $text | Should -Match '\[PASS\] SPF'
         $text | Should -Match '\[FAIL\] DNSSEC'
@@ -91,8 +91,8 @@ $p = Get-ConsoleCapability
 
     It 'runs a dashboard in redirected output, capturing Write-Host and returning script output' {
         $text = Invoke-ConsoleChild -Script @'
-$d = New-ConsoleDashboard -Title 'Test' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-$result = Start-ConsoleDashboard $d {
+$d = New-ConsoleDashboard -Title 'Test' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+$result = Invoke-ConsoleDashboard $d {
     Update-ConsoleLane -Key one -Status Running
     Write-Host 'hello from the runspace'
     Update-ConsoleLane -Key one -Result Pass
@@ -110,10 +110,10 @@ $result = Start-ConsoleDashboard $d {
         $job = Start-Job -ArgumentList $script:ModulePath -ScriptBlock {
             param($ModulePath)
             Import-Module $ModulePath -Force
-            Write-ConsoleMarkup '[pass]from the job[/]'
-            [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Write-ConsoleTable -Border Minimal
-            $d = New-ConsoleDashboard -Title 'Job dashboard' { New-ConsoleLanes -Name lanes }
-            Start-ConsoleDashboard $d { Update-ConsoleLane -Key srv1 -Result Pass; Update-ConsoleLane -Key srv1 -Complete }
+            Write-ConsoleText -Markup '[pass]from the job[/]'
+            [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Show-ConsoleTable -Border Minimal
+            $d = New-ConsoleDashboard -Title 'Job dashboard' -Content { New-ConsoleLanes -WidgetId lanes }
+            Invoke-ConsoleDashboard $d { Update-ConsoleLane -Key srv1 -Result Pass; Update-ConsoleLane -Key srv1 -Complete }
             'pipeline output'
         }
         $null = Wait-Job $job -Timeout 180
@@ -133,11 +133,11 @@ $result = Start-ConsoleDashboard $d {
         $transcript = Join-Path $TestDrive 'transcript.txt'
         $text = Invoke-ConsoleChild -Script @"
 Start-Transcript -Path '$transcript' | Out-Null
-Write-ConsoleMarkup 'in the transcript'
+Write-ConsoleText -Markup 'in the transcript'
 Stop-Transcript | Out-Null
-`$assigned = Write-ConsoleMarkup 'assigned line'
+`$assigned = Write-ConsoleText -Markup 'assigned line'
 "ASSIGNED=[`$assigned]"
-`$captured = @(Write-ConsoleMarkup 'captured line' 6>&1 | ForEach-Object { "`$_" })
+`$captured = @(Write-ConsoleText -Markup 'captured line' 6>&1 | ForEach-Object { "`$_" })
 "CAPTURED=[`$(`$captured -join '|')]"
 "@
         Get-Content -LiteralPath $transcript -Raw | Should -Match 'in the transcript'
@@ -157,7 +157,7 @@ Stop-Transcript | Out-Null
             )
             foreach ($case in @(@('COLOUR', $null, $null), @('NO_COLOR', 'NO_COLOR', '1'), @('NONE', 'CONSOLEMONSTER_COLOR', 'none'))) {
                 if ($case[1]) { [Environment]::SetEnvironmentVariable($case[1], $case[2]) }
-                $records = @($checks | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' } 6>&1)
+                $records = @($checks | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' } 6>&1)
                 $records | Where-Object { $_.MessageData -is [System.Management.Automation.HostInformationMessage] } | ForEach-Object { $case[0] + '=' + $_.MessageData.Message.Trim() + '|' + $_.MessageData.ForegroundColor + '|' + $_.MessageData.NoNewLine }
                 if ($case[1]) { [Environment]::SetEnvironmentVariable($case[1], $null) }
             }
@@ -177,7 +177,7 @@ Stop-Transcript | Out-Null
         $transcript = Join-Path $TestDrive 'coloured-transcript.txt'
         $null = Invoke-ConsoleChild -Script @"
 Start-Transcript -Path '$transcript' | Out-Null
-[pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'DKIM'; Status = 'warn' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+[pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'DKIM'; Status = 'warn' } | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
 Stop-Transcript | Out-Null
 "@
         $content = Get-Content -LiteralPath $transcript -Raw
@@ -191,7 +191,7 @@ Stop-Transcript | Out-Null
             param($ModulePath)
             foreach ($name in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'TERM') { [Environment]::SetEnvironmentVariable($name, $null) }
             Import-Module $ModulePath -Force
-            [pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' } | Format-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+            [pscustomobject] @{ Check = 'SPF'; Status = 'pass' } , [pscustomobject] @{ Check = 'MTA-STS'; Status = 'fail' } | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
         }
         $null = Wait-Job $job -Timeout 180
         # The job's information records are what Receive-Job 6>&1 returns, read without replaying host calls onto this console.
@@ -204,9 +204,9 @@ Stop-Transcript | Out-Null
 
     It 'reports updates to an unknown widget name once, through the host, after the dashboard ends' {
         $text = Invoke-ConsoleChild -Script @'
-$d = New-ConsoleDashboard -Title 'Typos' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-Start-ConsoleDashboard $d -WarningVariable dashboardWarnings -WarningAction SilentlyContinue {
-    1..5 | ForEach-Object { Update-ConsoleLane -Name lanez -Key one -Result Pass }
+$d = New-ConsoleDashboard -Title 'Typos' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+Invoke-ConsoleDashboard $d -WarningVariable dashboardWarnings -WarningAction SilentlyContinue {
+    1..5 | ForEach-Object { Update-ConsoleLane -WidgetId lanez -Key one -Result Pass }
 }
 "WARNINGS=$(@($dashboardWarnings).Count)"
 $dashboardWarnings | ForEach-Object { "W: $_" }
@@ -217,8 +217,8 @@ $dashboardWarnings | ForEach-Object { "W: $_" }
 
     It 'processes every input item with -Parallel' {
         $text = Invoke-ConsoleChild -Script @'
-$d = New-ConsoleDashboard -Title 'Parallel' { New-ConsoleLanes }
-$results = 1..60 | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
+$d = New-ConsoleDashboard -Title 'Parallel' -Content { New-ConsoleLanes }
+$results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     param($Item)
     Update-ConsoleLane -Key "item$Item" -Result Pass
     $Item * 10
@@ -231,17 +231,17 @@ $results = 1..60 | Start-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
     It 'records a dashboard run with -RecordPath and replays the recording' {
         $recording = Join-Path $TestDrive 'run.jsonl'
         $text = Invoke-ConsoleChild -Script @"
-`$d = New-ConsoleDashboard -Title 'Recorded' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-Start-ConsoleDashboard `$d -RecordPath '$recording' {
+`$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
     Update-ConsoleLane -Key one -Status Running
-    Write-ConsoleLog -Message 'checking one' -Level Info
+    Write-ConsoleLogEntry -Message 'checking one' -Level Info
     Update-ConsoleLane -Key one -Result Pass
     Update-ConsoleLane -Key two -Result Fail
     Update-ConsoleLane -Key one -Complete
     Update-ConsoleLane -Key two -Complete
 }
-`$r = New-ConsoleDashboard -Title 'Replayed' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-Start-ConsoleReplay `$r -Path '$recording' -Speed 1000
+`$r = New-ConsoleDashboard -Title 'Replayed' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+Show-ConsoleReplay -PlaybackMode Automatic `$r -Path '$recording' -Speed 1000
 'REPLAY-DONE'
 "@
         Test-Path -LiteralPath $recording | Should -BeTrue

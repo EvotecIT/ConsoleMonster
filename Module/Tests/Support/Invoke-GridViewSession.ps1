@@ -18,11 +18,11 @@
 param($path, $body)
 $ErrorActionPreference = 'Stop'
 Import-Module $path
-$savedDefault = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$savedDefault = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
 $sessionDefault = $savedDefault.Clone()
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = $sessionDefault
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $sessionDefault
 try { & ([scriptblock]::Create($body)) }
-finally { [ConsoleMonster.Interactive.InteractiveOptions]::Default = $savedDefault }
+finally { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $savedDefault }
 '@).AddArgument($module).AddArgument($Script)
         $result = @($ps.Invoke())
         if ($ps.HadErrors) { throw ($ps.Streams.Error | Out-String) }

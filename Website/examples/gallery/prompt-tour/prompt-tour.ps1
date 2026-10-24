@@ -42,9 +42,9 @@ $promptOptions = if ($snapshot) { @{ StaticSnapshot = $true } } else { @{} }
 
 # Layout: the prompts themselves draw choices, validation, masks and editing hints.
 $taskPreview = {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleText $_.Description
-        New-ConsoleKeyValue {
+        New-ConsoleKeyValue -Content {
             New-ConsoleKeyValueItem Group $_.Category
             New-ConsoleKeyValueItem Duration "about $($_.Minutes) min per server"
             New-ConsoleKeyValueItem Changes $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }) -Markup
@@ -61,14 +61,14 @@ $taskBadge = {
 $first = if ($snapshot) { $Step } else { 0 }
 $last = if ($snapshot) { $Step } else { 8 }
 foreach ($page in $first..$last) {
-    if (-not $snapshot) { Write-ConsoleRule "[bold]$($page + 1) / 9 · $($titles[$page])[/]" }
+    if (-not $snapshot) { Show-ConsoleRule "[bold]$($page + 1) / 9 · $($titles[$page])[/]" }
     switch ($page) {
         0 {
-            $server = Read-ConsoleSelection 'Target server' -Choices $servers -Display Name -GroupBy Site -Badge { New-ConsoleText $_.Role -Role Muted } -Disabled { $_.Offline } -Describe { "$($_.Role) server · $($_.OS)" } -Description 'Type to filter; offline servers show why they cannot be picked.' -Default $servers[0] @promptOptions
+            $server = Read-ConsoleSelect 'Target server' -Choices $servers -Display Name -GroupBy Site -Badge { New-ConsoleText $_.Role -Role Muted } -DisabledReason { $_.Offline } -Describe { "$($_.Role) server · $($_.OS)" } -Description 'Type to filter; offline servers show why they cannot be picked.' -Default $servers[0] @promptOptions
             if (-not $snapshot) { Write-ConsoleText "returned: $($server.Name) (Server)" }
         }
         1 {
-            $selected = @(Read-ConsoleMultiSelection Tasks -Choices $tasks -Display Name -GroupBy Category -Describe Description -Badge $taskBadge -Selected @($tasks | Where-Object Id -In PatchStatus, DiskSpace) -Minimum 1 -Preview $taskPreview @promptOptions)
+            $selected = @(Read-ConsoleMultiSelect Tasks -Choices $tasks -Display Name -GroupBy Category -Describe Description -Badge $taskBadge -Selected @($tasks | Where-Object Id -In PatchStatus, DiskSpace) -Minimum 1 -Preview $taskPreview @promptOptions)
             if (-not $snapshot) { Write-ConsoleText "returned: $($selected.Id -join ', ')" }
         }
         2 { $null = Read-ConsoleConfirm 'Restart the report agent on FS01?' -Default $true @promptOptions }
@@ -87,23 +87,23 @@ foreach ($page in $first..$last) {
                 break
             }
             $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
-            $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' {
-                New-ConsolePanel -Title Servers { New-ConsoleLanes -Lane $hosts -Total 6 }
-                New-ConsolePanel -Title Log -Fill { New-ConsoleLog -Height 6 }
+            $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
+                New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Lane $hosts -Total 6 }
+                New-ConsolePanel -Title Log -Fill -Content { New-ConsoleLogRegion -Height 6 }
             }
-            Start-ConsoleDashboard $dashboard -ArgumentList (,$hosts) {
+            Invoke-ConsoleDashboard $dashboard -ArgumentList (,$hosts) {
                 param($Hosts)
                 for ($tick = 1; $tick -le 6; $tick++) {
                     foreach ($hostName in $Hosts) {
                         $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
                         Update-ConsoleLane -Key $hostName -Result $status -Detail "step $tick"
                     }
-                    Write-ConsoleLog "step $tick done"
+                    Write-ConsoleLogEntry "step $tick done"
                     Start-Sleep -Milliseconds 350
                     if ($tick -eq 3) {
-                        Write-ConsoleLog 'WEB01: update verification failed' -Level Error
+                        Write-ConsoleLogEntry 'WEB01: update verification failed' -Level Error
                         $go = Read-ConsoleConfirm 'WEB01 failed. Continue with the other servers?' -Default $true -Description 'The patch dashboard pauses for your answer, then resumes.'
-                        Write-ConsoleLog $(if ($go) { 'continuing' } else { 'stopping after this step' })
+                        Write-ConsoleLogEntry $(if ($go) { 'continuing' } else { 'stopping after this step' })
                         if (-not $go) { break }
                     }
                 }

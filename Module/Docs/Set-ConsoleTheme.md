@@ -13,7 +13,7 @@ Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark te
 ## SYNTAX
 ### Name (Default)
 ```powershell
-Set-ConsoleTheme [-Name] <string> [<CommonParameters>]
+Set-ConsoleTheme [-Theme] <string> [<CommonParameters>]
 ```
 
 ### Path
@@ -30,7 +30,7 @@ Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark te
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleTheme -Name Light
+Set-ConsoleTheme -Theme Light
 ```
 
 Use the light theme
@@ -44,22 +44,6 @@ Load a team theme exported as JSON or a PowerShell data file.
 
 ## PARAMETERS
 
-### -Name
-The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.
-
-```yaml
-Type: String
-Parameter Sets: Name
-Aliases: None
-Possible values: Dark, Light, HighContrast, ColorBlindSafe
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Path
 A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.
 
@@ -71,6 +55,22 @@ Possible values:
 
 Required: True
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Theme
+The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.
+
+```yaml
+Type: String
+Parameter Sets: Name
+Aliases: None
+Possible values: Dark, Light, HighContrast, ColorBlindSafe
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

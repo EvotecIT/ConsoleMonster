@@ -4,42 +4,42 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Format-ConsoleList
+# Show-ConsoleList
 ## SYNOPSIS
 Formats pipeline objects as record views (labelled values) and writes them to the host.
 
-Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Format-ConsoleTable. Redirected output is plain text.
+Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Show-ConsoleTable. Redirected output is plain text.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleList [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Title <Object>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-PassThru] [-As <string>] [<CommonParameters>]
+Show-ConsoleList [[-InputObject] <psobject>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-ShowEmpty] [-Depth <int>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-PassThru] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Formats pipeline objects as record views (labelled values) and writes them to the host.
 
-Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Format-ConsoleTable. Redirected output is plain text.
+Each object becomes a section titled by its key column (the first property, or one marked Key = $true) with the other properties as aligned label/value fields; empty values are hidden unless -ShowEmpty is given. Values go through presenters (statuses, sizes, durations, dates...), and complex values (nested objects, collections) expand as indented sections and nested tables down to -Depth levels. -Property works like Format-List, including calculated properties and the column option keys of Show-ConsoleTable. Redirected output is plain text.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Process -Id $PID | Format-ConsoleList -Property Name, Id, @{ Name = 'WorkingSet64'; Presenter = 'Bytes' }, StartTime, Modules -Depth 1
+Get-Process -Id $PID | Show-ConsoleList -Property Name, Id, @{ Name = 'WorkingSet64'; Presenter = 'Bytes' }, StartTime, Modules -Depth 1
 ```
 
 A process as a record
 
 ## PARAMETERS
 
-### -As
-Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -PassThru.
+### -AsString
+Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
 
 ```yaml
-Type: String
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Text, Markdown, Html
+Possible values:
 
 Required: False
 Position: named
@@ -48,8 +48,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -AsString
-Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
+### -AsWidget
+Returns the record view without drawing it.
 
 ```yaml
 Type: SwitchParameter
@@ -122,7 +122,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -154,7 +154,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

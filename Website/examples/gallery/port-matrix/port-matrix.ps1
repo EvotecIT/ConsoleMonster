@@ -14,13 +14,13 @@ $states = @(
 )
 
 # Layout: a compact map provides the overview; a table explains exceptions.
-$report = New-ConsoleRows -Gap 1 {
+$report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]Application connectivity[/] [muted]· core services[/]'
-    New-ConsolePanel -Title ($ports -join '   |   ') {
+    New-ConsolePanel -Title ($ports -join '   |   ') -Content {
         New-ConsoleCellMap -Status $states -Columns 3 -RowLabels $hosts -LegendLines 2
     }
-    New-ConsolePanel -Title 'Exceptions to investigate' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Exceptions to investigate' -Content {
+        New-ConsoleStatusList -Content {
             New-ConsoleStatusItem 'api-01 → SQL 5432' -Status Fail -Detail 'Connection refused · check listener and access policy'
             New-ConsoleStatusItem 'api-01 → Cache 6379' -Status Warn -Detail '180 ms · expected under 50 ms'
         }
@@ -29,4 +29,4 @@ $report = New-ConsoleRows -Gap 1 {
 }
 
 # Behaviour: print the collected observations once; collectors belong before the layout.
-$report | Write-ConsoleWidget
+$report | Show-Console

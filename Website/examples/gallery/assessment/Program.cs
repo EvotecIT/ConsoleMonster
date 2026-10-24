@@ -290,26 +290,26 @@ LineChart throughput = new LineChart("throughput") { Height = 7 };
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
 Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations") { Height = 6, Unit = "s" };
-BarChart findings = new BarChart("findings") { BarToken = ThemeToken.Fail };
+BarChart findings = new BarChart("findings") { Role = ThemeToken.Fail };
 foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) findings.Add(category, 0);
 Lanes lanes = new Lanes { MaxLabelWidth = 28 };
 LogRegion log = new LogRegion { PreferredHeight = 6 };
 Rows body = new Rows(new Padding(phases, 1, 0, 1, 1),
-    new Columns().Add(new Panel(lanes, "Targets") { Caption = "6 workers" }, LayoutSize.Fraction(2.3))
+    new Columns().Add(new Panel(lanes, "Targets") { HeaderRight = "6 workers" }, LayoutSize.Fraction(2.3))
         .Add(new Panel(new Rows(results, new Rule(), summary), "Results")),
-    new Columns().Add(new Panel(throughput, "Throughput") { Caption = "rules/s" }, LayoutSize.Fraction(1.2))
+    new Columns().Add(new Panel(throughput, "Throughput") { HeaderRight = "rules/s" }, LayoutSize.Fraction(1.2))
         .Add(new Panel(durations, "Rule duration")).Add(new Panel(findings, "Failures by category")))
     .Add(new Panel(log, "Log"), LayoutSize.Fraction());
 Dashboard dashboard = new Dashboard("[bold]Nightly checks[/]", body) {
-    Subtitle = "ad.adatum.com forest assessment · 12 targets · 332 rules", ShowClock = false,
+    Subtitle = "ad.adatum.com forest assessment · 12 targets · 332 rules", ShowElapsed = false,
     Footer = "[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]"
 };
 
 // Behaviour: a snapshot applies the same timestamped updates as the bounded native live run.
 if (snapshot) {
     var targets = new ILiveTarget[] { dashboard, phases, results, summary, throughput, durations, findings, lanes, log }
-        .ToDictionary(target => target.Name);
-    foreach (LiveEvent update in events.Where(update => update.Time <= cutoff)) targets[update.Target].Apply(update);
+        .ToDictionary(target => target.WidgetId);
+    foreach (LiveEvent update in events.Where(update => update.Time <= cutoff)) targets[update.WidgetId].Apply(update);
     Terminal.Write(dashboard);
     return;
 }

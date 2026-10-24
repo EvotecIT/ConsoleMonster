@@ -29,7 +29,7 @@
             }.GetNewClosure()
             try {
                 Set-Item -LiteralPath Function:global:Get-WinEvent -Value $source
-                $lines = @(Watch-ConsoleLog -LogName 'ConsoleMonster-Synthetic' -Tail $Tail -Count $Count -Interval 0.05 -Plain)
+                $lines = @(Watch-ConsoleLog -LogName 'ConsoleMonster-Synthetic' -Tail $Tail -Count $Count -PollIntervalSeconds 0.05 -NoLive)
                 [pscustomobject]@{ Lines = $lines; Queries = $queries.ToArray(); Remaining = $responses.Count }
             } finally {
                 if ($previous) { Set-Item -LiteralPath Function:global:Get-WinEvent -Value $previous.ScriptBlock }
@@ -41,10 +41,10 @@
     It 'returns the requested completed history as ordinary strings without interpreting markup' {
         $path = Join-Path $TestDrive 'literal [name].log'
         [IO.File]::WriteAllText($path, "INFO first`nWARN [red]literal[/] | data`nERROR last`nunfinished", [Text.UTF8Encoding]::new($true))
-        $lines = @(Watch-ConsoleLog -Path $path -Tail 2 -Count 1 -Plain)
+        $lines = @(Watch-ConsoleLog -Path $path -Tail 2 -Count 1 -NoLive)
         $lines | Should -Be @('WARN [red]literal[/] | data', 'ERROR last')
         @($lines | Where-Object { $_ -isnot [string] }) | Should -BeNullOrEmpty
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
         [IO.File]::Delete($path)
         Test-Path -LiteralPath $path | Should -BeFalse
     }
@@ -52,7 +52,7 @@
     It 'filters literally and does not add highlighting or terminal controls to piped output' {
         $path = Join-Path $TestDrive 'filter.log'
         [IO.File]::WriteAllText($path, "INFO [db] ready`nWARN [DB] retry`nERROR unrelated`n", [Text.UTF8Encoding]::new($false))
-        $lines = @(Watch-ConsoleLog -LiteralPath $path -Filter '[db]' -Highlight ready -Count 1 | ForEach-Object { $_ })
+        $lines = @(Watch-ConsoleLog -Path $path -Filter '[db]' -Highlight ready -Count 1 | ForEach-Object { $_ })
         $lines | Should -Be @('INFO [db] ready', 'WARN [DB] retry')
         ($lines -join '') | Should -Not -Match ([regex]::Escape([string][char]27))
     }
@@ -61,47 +61,47 @@
         $path = Join-Path $TestDrive 'timestamp.log'
         $original = '2026-10-22T09:31:09+02:00 WARN [red]literal[/]'
         [IO.File]::WriteAllText($path, $original + "`n", [Text.UTF8Encoding]::new($false))
-        @(Watch-ConsoleLog -Path $path -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz' -Count 1 -Plain) | Should -Be @($original)
+        @(Watch-ConsoleLog -Path $path -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz' -Count 1 -NoLive) | Should -Be @($original)
         foreach ($set in (Get-Command Watch-ConsoleLog).ParameterSets) {
             $set.Parameters.Name | Should -Contain 'TimestampFormat'
         }
         foreach ($width in 60, 120) {
-            $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 4)
-            $target = [ConsoleMonster.Output.RecordingTarget]::new($profile, '')
+            $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 4)
+            $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile, '')
             Use-ConsoleTarget -Target $target {
                 Watch-ConsoleLog -Path $path -TimestampFormat 'yyyy-MM-dd HH:mm:ss zzz' -Count 1
             }
             $target.Output | Should -Match '2026-10-22 09:31:09 \+02:00'
             $target.Output | Should -Match '\[red\]literal\[/\]'
         }
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
     It 'uses the shared encoding names for a BOMless file and gives an existing BOM precedence' {
         $path = Join-Path $TestDrive 'encoding.log'
         [IO.File]::WriteAllText($path, "INFO Zażółć`n", [Text.UnicodeEncoding]::new($false, $false))
-        @(Watch-ConsoleLog -Path $path -Encoding unicode -Count 1 -Plain) | Should -Be @('INFO Zażółć')
+        @(Watch-ConsoleLog -Path $path -Encoding unicode -Count 1 -NoLive) | Should -Be @('INFO Zażółć')
         [IO.File]::WriteAllText($path, "WARN 日本語`n", [Text.UTF32Encoding]::new($true, $true))
-        @(Watch-ConsoleLog -Path $path -Encoding ascii -Count 1 -Plain) | Should -Be @('WARN 日本語')
+        @(Watch-ConsoleLog -Path $path -Encoding ascii -Count 1 -NoLive) | Should -Be @('WARN 日本語')
     }
 
     It 'does not acquire a configured keyboard source in plain mode, including empty snapshots' {
         $path = Join-Path $TestDrive 'empty.log'
         [IO.File]::WriteAllText($path, '')
-        $previous = [ConsoleMonster.Input.ConsoleInput]::Override
-        $keys = [ConsoleMonster.Input.ScriptedInput]::new('q')
+        $previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override
+        $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('q')
         try {
-            [ConsoleMonster.Input.ConsoleInput]::Override = $keys
-            @(Watch-ConsoleLog -Path $path -Count 2 -Interval 0.05 -Plain) | Should -BeNullOrEmpty
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $keys
+            @(Watch-ConsoleLog -Path $path -Count 2 -PollIntervalSeconds 0.05 -NoLive) | Should -BeNullOrEmpty
             $keys.Remaining | Should -Be 1
-            [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
-        } finally { [ConsoleMonster.Input.ConsoleInput]::Override = $previous }
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
+        } finally { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $previous }
     }
 
     It 'rejects a non-file provider before acquiring keyboard input' {
-        { Watch-ConsoleLog -Path 'Variable:PSVersionTable' -Count 1 -Plain -ErrorAction Stop } |
+        { Watch-ConsoleLog -Path 'Variable:PSVersionTable' -Count 1 -NoLive -ErrorAction Stop } |
             Should -Throw -ExpectedMessage '*FileSystem provider*'
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
     It 'reads synthetic event history oldest first and follows each newer record once' {
@@ -143,7 +143,7 @@
 
     It 'rejects event-log wildcards rather than mixing unrelated record ID sequences' {
         $failure = $null
-        try { Watch-ConsoleLog -LogName '*' -Count 1 -Plain -ErrorAction Stop }
+        try { Watch-ConsoleLog -LogName '*' -Count 1 -NoLive -ErrorAction Stop }
         catch { $failure = $_ }
         $failure.FullyQualifiedErrorId | Should -BeLike 'ParameterArgumentValidationError,*'
     }
@@ -164,7 +164,7 @@
             $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
             $arguments = @('host', $runtime, '-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)
             $quoted = foreach ($argument in $arguments) {
-                [ConsoleMonster.Interactive.CommandLine]::Quote($argument, [ConsoleMonster.Interactive.CommandStyle]::Windows)
+                ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.CommandLine'))::Quote($argument, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.CommandStyle'))::Windows)
             }
             $info = [Diagnostics.ProcessStartInfo]::new($hostPath, ($quoted -join ' '))
             $info.UseShellExecute = $false

@@ -4,39 +4,39 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# New-ConsoleLog
+# New-ConsoleLogRegion
 ## SYNOPSIS
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLog. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLog [[-Name] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Height <int>] [-Capacity <int>] [-NoTime] [-Wrap] [<CommonParameters>]
+New-ConsoleLogRegion [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Height <int>] [-Capacity <int>] [-NoElapsed] [-Wrap] [-LevelColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Start-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLog. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
+Printed once, the lines come from a script block of New-ConsoleLogEntry calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. To add lines to a log made earlier, pipe it to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLog -Height 5 {
-    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -At 2s
-    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -At 44s
-    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -At 53s
-} | Write-ConsoleWidget
+New-ConsoleLogRegion -Height 5 -Content {
+    New-ConsoleLogEntry 'Discovered 4 domain controllers in 2 domains' -Level Info -AtSeconds 2
+    New-ConsoleLogEntry 'DC02: USN rollback check failed (event 2095)' -Level Error -AtSeconds 44
+    New-ConsoleLogEntry 'Using cached schema snapshot' -Level Verbose -AtSeconds 53
+} | Show-Console
 ```
 
 A short log printed once
 
 ### EXAMPLE 2
 ```powershell
-New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 ```
 
 A log that fills the rest of a dashboard
@@ -107,23 +107,23 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default log). A script block here is taken as -Content.
+### -LevelColumn
+Shared LevelColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
-Type: Object
+Type: ColumnFormat
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoTime
+### -NoElapsed
 Hide the time at the start of each line.
 
 ```yaml
@@ -134,6 +134,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live widget identifier (default log).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

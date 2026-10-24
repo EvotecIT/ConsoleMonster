@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Format-ConsoleTable
+# Show-ConsoleTable
 ## SYNOPSIS
 Formats pipeline objects as a width-aware table and writes it to the host.
 
@@ -13,7 +13,7 @@ Columns come from -Property (like Format-Table: names, wildcards and calculated 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Format-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-AsString] [-PassThru] [-AsWidget] [-As <string>] [-ShowGroupColumn] [-NoSort] [-View <string>] [-Wrap] [<CommonParameters>]
+Show-ConsoleTable [[-Property] <Object[]>] [-InputObject <psobject>] [-GroupBy <Object>] [-Total] [-Top <int>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-CardsBelow <int>] [-Width <int>] [-Culture <cultureinfo>] [-NoHeaderSeparator] [-AsString] [-PassThru] [-AsWidget] [-StatusProperty <string>] [-Expand] [-ShowGroupColumn] [-NoSort] [-Wrap] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,35 +25,19 @@ Columns come from -Property (like Format-Table: names, wildcards and calculated 
 
 ### EXAMPLE 1
 ```powershell
-Get-ChildItem -File | Sort-Object Length -Descending | Format-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }
+Get-ChildItem -File | Sort-Object Length -Descending | Show-ConsoleTable -Top 10 -Total -Property Name, @{ Name = 'Length'; Presenter = 'Bytes'; Aggregate = 'Sum' }, @{ Name = 'FullName'; Overflow = 'TruncateMiddle'; Priority = 1 }
 ```
 
 Largest files, sizes as bytes, paths shortened in the middle
 
 ### EXAMPLE 2
 ```powershell
-Get-Service | Format-ConsoleTable -GroupBy Status -Property Name, DisplayName, StartType
+Get-Service | Show-ConsoleTable -GroupBy Status -Property Name, DisplayName, StartType
 ```
 
 Services grouped by status
 
 ## PARAMETERS
-
-### -As
-Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString, -AsWidget or -PassThru.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Markdown, Html
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -AsString
 Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
@@ -140,6 +124,22 @@ The culture for numbers and dates, for example en-US or pl-PL (labels stay Engli
 
 ```yaml
 Type: CultureInfo
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Expand
+Uses the full available width.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -263,6 +263,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -StatusProperty
+A property displayed as a semantic status marker.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Title
 A title above the table (markup).
 
@@ -303,22 +319,6 @@ Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -View
-How the rows are laid out: Table (default; one object stays a one-row table, as with Format-Table), or Record (Cards is the same) for each object as labelled fields, as a single object used to be shown and as narrow windows show rows; -Top, the "Showing" line and -Total still apply.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Table, Record, Cards
 
 Required: False
 Position: named

@@ -21,8 +21,8 @@ that product. Gaps are closed with general extension points, not per-product shi
   a `Write-Progress` bridge.
 - `Terminal.Status`, screen and cursor helpers, and markup without a newline.
 - Prompts, forms and wizards, menus and the app shell, a multi-line text area and an interactive grid.
-- Exceptions and PowerShell errors, a dependency-free highlighting engine (`CodeView`, `Format-ConsoleCode`,
-  `Format-ConsoleJson`), and Pester runs with a live dashboard.
+- Exceptions and PowerShell errors, a dependency-free highlighting engine (`CodeView`, `Show-ConsoleCode`,
+  `Show-ConsoleJson`), and Pester runs with a live dashboard.
 - Export to HTML, SVG, text and asciicast, with the HTML recording player as one native script and a data format that
   sites reuse; public test helpers (`TestTerminal`, `GoldenFile`, `ScreenCapture`,
   `Assert-ConsoleOutput`).
@@ -34,7 +34,7 @@ that product. Gaps are closed with general extension points, not per-product shi
 - Built-in labels in English, Polish, German, Spanish, French and Italian, following the UI language, including the
   test-run view.
 - Replaceable regions (`Slot`, `LiveSession.Region`, `New-ConsoleRegion`, `Set-ConsoleRegion`) and keyed live tables
-  (`LiveTable`, `New-ConsoleLiveTable`, `Update-ConsoleTable`) with stable widths, a recent-rows window and sorting.
+  (`LiveTable`, `New-ConsoleLiveTable`, `Update-ConsoleLiveTable`) with stable widths, a recent-rows window and sorting.
 - Emoji and symbol fallback per glyph tier, extensible by apps, with opt-in `:shortcode:` emoji in markup and an
   `Emoji` cell presenter.
 - `Use-ConsoleTarget` to send PowerShell output to a file, a writer, a target or a string.
@@ -44,7 +44,7 @@ that product. Gaps are closed with general extension points, not per-product shi
   (`Enable-ConsoleFormatting`, `Register-ConsoleView`) for files, processes, services and registered types.
 - Rewinding runs: `Show-ConsoleReplay` (`ReplayPlayer` in C#), an in-terminal player for recordings with play/pause,
   speed, frame stepping, a timeline to scrub, jumps to markers, failures, warnings and log entries, and log search;
-  opt-in automatic recording of the last runs (`LiveSessionOptions.AutoRecord`, `Start-ConsoleDashboard -AutoRecord`);
+  opt-in automatic recording of the last runs (`LiveSessionOptions.AutoRecord`, `Invoke-ConsoleDashboard -AutoRecord`);
   region swaps recorded as pictures so they replay faithfully.
 - Object comparison and the what-if pattern: `Compare-ConsoleObject` (`ObjectDiff`, `ChangeView`) matches objects by
   key and shows property-level changes with counts (summary, table, side by side, unified), and `Show-ConsoleChanges`
@@ -68,7 +68,7 @@ repositories.
    Linux and macOS parity. (Done.)
 2. **Live runs.** Generic widgets for running many items: an outcome grid (one cell per item, a shape per state), a
    summary bar, an activity list and lane options; the test-run view built from them; `Watch-Console` to re-run a
-   script block as a live view; `ForEach-ConsoleItem -Parallel` with a live view and ordinary output objects
+   script block as a live view; `Invoke-ConsoleRun -Parallel` with a live view and ordinary output objects
    (`ConsoleRun.ForEachAsync` in C#). (Done.)
 3. **Better defaults.** `Enable-ConsoleFormatting` can also install the error view for `$ErrorView` and `Write-Progress`
    rendering, each opt-in; `Show-ConsoleHelp` renders PowerShell's own help objects. (Done.)
@@ -91,9 +91,7 @@ Next:
 
 ## Ownership
 
-ConsoleMonster renders terminals. HTML belongs to HtmlForgeX, and Markdown, Word and Excel belong to OfficeIMO. Step 6
-means bridges outside the core: ConsoleMonster never emits semantic HTML or Markdown itself. Its HTML and SVG frame
-export stays, because it is a picture of the terminal, not a document.
+ConsoleMonster owns terminal views and their text, Markdown, HTML and SVG exports. Markdown export preserves table and tree semantics where the view supplies them; HTML and SVG exports reproduce the terminal frame. OfficeIMO reads Markdown through the optional ConsoleMonster.Markdown package. Full document authoring belongs to OfficeIMO, and application HTML belongs to HtmlForgeX.
 
 ## Decided: command-line parsing
 
@@ -111,14 +109,13 @@ Grouped under the step they would join; the rest stays unscheduled.
 - With better defaults (step 3): collapsing long JSON arrays; one shared highlighting engine for tools that keep their
   own today (PSPublishModule could consume ConsoleMonster's).
 - With .NET (step 4): an AOT-compiled `cmon` command-line tool.
-- With one definition, every output (step 6): raster export through ChartForgeX as a bridge in a separate package (the
-  cell grid of any widget, frame or recording rasterized to PNG and the other raster formats ChartForgeX supports).
+- Raster output is available through the optional ConsoleMonster.Graphics package: PNG, GIF, APNG and optional ffmpeg MP4. Further ChartForgeX integration remains a separate proposal.
 - Unscheduled, terminal work:
   - images drawn into the cell grid through ChartForgeX, in the same separate package as raster export;
   - QR codes and barcodes in the terminal through CodeGlyphX;
   - interactive terminal charts through ChartForgeX (zoom and pan, a crosshair, charts linked to tables);
-  - a documentation viewer for Markdown and examples in the terminal, with OfficeIMO reading the Markdown;
-  - mouse support.
+  - extend the existing Markdown viewer and embedded demo gallery with richer documentation navigation;
+  - extend the existing application mouse support to additional interactive viewers.
 
 ## Not planned
 

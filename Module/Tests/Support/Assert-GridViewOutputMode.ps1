@@ -8,16 +8,16 @@ try {
     if ($PSEdition -eq 'Desktop') {
         $assembly = [Reflection.Assembly]::LoadFrom($AssemblyPath)
     } else {
-        $context = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext([ConsoleMonster.Interactive.Grid].Assembly)
+        $context = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Grid')).Assembly)
         $assembly = $context.LoadFromAssemblyPath($AssemblyPath)
     }
-    $verify = $assembly.GetType('ConsoleMonster.TestHost.GridOutputModeProbe', $true).GetMethod('Verify')
+    $verify = $assembly.GetType('ConsoleMonster.TestHost.GridOutputModeProbe').GetMethod('Verify')
     . (Join-Path $PSScriptRoot 'Invoke-GridViewSession.ps1')
     $body = @'
-$options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
-$options.Input = [ConsoleMonster.Input.ScriptedInput]::new('__KEYS__')
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+$options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('__KEYS__')
 $options.Mode = [ConsoleMonster.Interactive.InteractionMode]::Rich
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
 Enable-ConsoleFormatting -Feature GridView
 if ('__ENTRY__' -eq 'Fallback') { $picked = @($row | Out-GridView -PassThru -ErrorAction Stop) }
@@ -31,7 +31,7 @@ if ('__SCENARIO__' -eq 'Accepted') {
     if ($picked.Count -ne 1 -or -not [object]::ReferenceEquals($picked[0], $row)) { throw 'The selected row changed.' }
 } elseif ($picked.Count -ne 0) { throw 'A cancelled grid returned a row.' }
 Disable-ConsoleFormatting
-if ([ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'The grid input lease survived.' }
+if (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'The grid input lease survived.' }
 'SELECTION_OK'
 '@
     $keys = if ($Scenario -eq 'Accepted') { 'F10' } else { 'Escape' }

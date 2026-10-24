@@ -89,7 +89,7 @@ namespace SiteFrames.Capture {
             CellBuffer frame = new CellBuffer(width, last + 2);
             frame.Blit(captured, 0, 0, width, Math.Min(captured.Height, frame.Height), 0, 0);
             if (frame.Height > captured.Height) {
-                ConsoleMonster.Styling.Style blank = new ConsoleMonster.Styling.Style(default, captured[0, 0].Style.Background);
+                ConsoleMonster.Styling.Style blank = new ConsoleMonster.Styling.Style(default, captured[0, 0].Style.BackgroundColor);
                 for (int x = 0; x < width; x++) { frame.Set(x, frame.Height - 1, " ", blank); }
             }
             return frame;

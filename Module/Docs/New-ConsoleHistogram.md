@@ -13,7 +13,7 @@ Creates a histogram of values counted into buckets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleHistogram -Edge <double[]> [-Value <double[]>] [-Height <int>] [-Unit <string>] [-Tone <ThemeToken>] [-Name <string>] [<CommonParameters>]
+New-ConsoleHistogram [[-WidgetId] <string>] -Edge <double[]> [-Value <double[]>] [-Height <int>] [-Unit <string>] [-Role <ThemeToken>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Creates a histogram of values counted into buckets.
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Write-ConsoleWidget
+New-ConsoleHistogram -Edge 0, 0.25, 0.5, 1, 2, 4 -Unit s -Value (1..200 | ForEach-Object { Get-Random -Maximum 4.0 }) | Show-Console
 ```
 
 Request durations in seconds
@@ -64,23 +64,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default histogram).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Tone
+### -Role
 The colour as a theme role: Series1 (default), Accent, Pass, Fail, Warn and the other series colours.
 
 ```yaml
@@ -123,6 +107,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default histogram).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -18,11 +18,11 @@ Describe 'ConsoleMonster changes, replay and engine fixes' {
     It 'records each log line once when a dashboard runs with redirected output' {
         $recording = Join-Path $TestDrive 'redirected.jsonl'
         $text = Invoke-ChangesChild @"
-`$d = New-ConsoleDashboard -Title 'Redirected' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-Start-ConsoleDashboard `$d -RecordPath '$recording' {
-    Write-ConsoleLog -Message 'first line' -Level info
+`$d = New-ConsoleDashboard -Title 'Redirected' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
+    Write-ConsoleLogEntry -Message 'first line' -Level info
     Start-Sleep -Milliseconds 400
-    Write-ConsoleLog -Message 'second line' -Level warn
+    Write-ConsoleLogEntry -Message 'second line' -Level warn
     Start-Sleep -Milliseconds 400
 } | Out-Null
 "@
@@ -62,11 +62,11 @@ $after | Compare-ConsoleObject -ReferenceObject $before -Property Name -View Sum
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'anna' }, [pscustomobject]@{ Name = 'bob' })
 $after = @([pscustomobject]@{ Name = 'anna' })
-"WHATIF=$(Show-ConsoleChanges -Before $before -After $after -Property Name -WhatIf)"
-"FORCE=$(Show-ConsoleChanges -Before $before -After $after -Property Name -Force)"
-"CONFIRMFALSE=$(Show-ConsoleChanges -Before $before -After $after -Property Name -Confirm:$false)"
-"NONE=$(Show-ConsoleChanges -Before $after -After $after -Property Name -Force)"
-try { Show-ConsoleChanges -Before $before -After $after -Property Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
+"WHATIF=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -WhatIf)"
+"FORCE=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -Force)"
+"CONFIRMFALSE=$(Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name -Confirm:$false)"
+"NONE=$(Show-ConsoleChanges -ReferenceObject $after -DifferenceObject $after -Property Name -Force)"
+try { Show-ConsoleChanges -ReferenceObject $before -DifferenceObject $after -Property Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
 '@
         $text | Should -Match 'WHATIF=False'
         $text | Should -Match 'FORCE=True'
@@ -79,18 +79,18 @@ try { Show-ConsoleChanges -Before $before -After $after -Property Name | Out-Nul
     It 'prints the markers of a recording with Show-ConsoleReplay outside an interactive console' {
         $recording = Join-Path $TestDrive 'replay.jsonl'
         $text = Invoke-ChangesChild @"
-`$d = New-ConsoleDashboard -Title 'Recorded' { New-ConsoleLanes -Name lanes; New-ConsoleLog }
-Start-ConsoleDashboard `$d -RecordPath '$recording' {
+`$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
+Invoke-ConsoleDashboard `$d -RecordPath '$recording' {
     Update-ConsoleLane -Key one -Status Running
-    Send-ConsoleEvent -Target '`$marker' -Operation mark -Text 'Wave 2 started'
-    Write-ConsoleLog -Message 'disk almost full' -Level warn
+    Send-ConsoleEvent -WidgetId '`$marker' -Operation mark -Text 'Wave 2 started'
+    Write-ConsoleLogEntry -Message 'disk almost full' -Level warn
     Update-ConsoleLane -Key two -Result Fail
     Update-ConsoleLane -Key one -Complete
     Update-ConsoleLane -Key two -Complete
 }
 Show-ConsoleReplay `$d '$recording'
 'REPLAY-DONE'
-"AUTORECORD=`$((Get-Command Start-ConsoleDashboard).Parameters.ContainsKey('AutoRecord'))"
+"AUTORECORD=`$((Get-Command Invoke-ConsoleDashboard).Parameters.ContainsKey('AutoRecord'))"
 "@
         $text | Should -Match 'REPLAY-DONE'
         $text | Should -Not -Match 'no widget named'
@@ -102,14 +102,14 @@ Show-ConsoleReplay `$d '$recording'
 
     It 'keeps labels when $null or empty strings are passed' {
         $text = Invoke-ChangesChild @'
-$phases = [ConsoleMonster.Widgets.Phases]::new()
+$phases = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.Phases'))::new()
 $null = $phases.Set('discover', 'Running', 'Discover servers', '3 found')
 $null = $phases.Set('discover', 'Pass', $null, '2.1s')
-$status = [ConsoleMonster.Widgets.StatusList]::new()
+$status = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.StatusList'))::new()
 $null = $status.Set('dc01', 'DC01 replication', 'Running', 'checking')
 $null = $status.Set('dc01', '', 'Pass', $null)
-Write-ConsoleWidget $phases
-Write-ConsoleWidget $status
+Show-Console $phases
+Show-Console $status
 '@
         $text | Should -Match 'Discover servers'
         $text | Should -Match '2\.1s'
@@ -120,8 +120,8 @@ Write-ConsoleWidget $status
     It 'shows identifier columns without thousands separators' {
         $text = Invoke-ChangesChild @'
 [System.Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
-[pscustomobject]@{ Name = 'svc'; ProcessId = 12345; LocalPort = 50123; WorkingSet = 1234567 } | Format-ConsoleTable
-[pscustomobject]@{ Name = 'x'; Code = 40000 } | Format-ConsoleTable -Property Name, @{ Name = 'Code'; Expression = { $_.Code }; Identifier = $true }
+[pscustomobject]@{ Name = 'svc'; ProcessId = 12345; LocalPort = 50123; WorkingSet = 1234567 } | Show-ConsoleTable
+[pscustomobject]@{ Name = 'x'; Code = 40000 } | Show-ConsoleTable -Property Name, @{ Name = 'Code'; Expression = { $_.Code }; Identifier = $true }
 '@
         $text | Should -Match '12345'
         $text | Should -Match '50123'

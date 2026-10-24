@@ -13,7 +13,7 @@ Emits a stable core Button widget. Place inputs in the outer layout, outside dep
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleButton [-Name] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Emits a stable core Button widget. Place inputs in the outer layout, outside dep
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleButton -Name Apply -OnClick { $State.Applied = $true }
+New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }
 ```
 
 Create an application input.
@@ -48,6 +48,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Key
+Unique key in the application's state and final hashtable.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Label
 Visible label; defaults to the name using the core control's labels.
 
@@ -59,22 +75,6 @@ Possible values:
 
 Required: False
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Unique key in the application's state and final hashtable.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

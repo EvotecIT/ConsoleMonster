@@ -27,14 +27,14 @@
     }
 
     It 'groups members and preserves complete overloaded signatures' {
-        $text = $script:members | Format-ConsoleTable -AsString -Width 160
+        $text = $script:members | Show-ConsoleTable -AsString -Width 160
         $text | Should -Match 'Method'
         $text | Should -Match 'Property'
         $text | Should -Match 'string Substring\(int startIndex\), string Substring\(int startIndex, int length\)'
         $text | Should -Match 'int Length \{get;\}'
         $worker = [System.ComponentModel.BackgroundWorker]::new()
         try {
-            $worker | Get-Member -Name DoWork | Format-ConsoleTable -AsString -Width 160 | Should -Match 'Event.*1'
+            $worker | Get-Member -Name DoWork | Show-ConsoleTable -AsString -Width 160 | Should -Match 'Event.*1'
         } finally {
             $worker.Dispose()
         }
@@ -44,7 +44,7 @@
         $other = @([datetime]'2026-10-22' | Get-Member -Name Day, AddDays)
         $rows = @($script:members) + $other
         foreach ($width in 60, 120) {
-            $layout = $rows | Format-ConsoleTable -AsWidget
+            $layout = $rows | Show-ConsoleTable -AsWidget
             $widgets = @($layout.Children)
             $widgets.Count | Should -Be 2
             $widgets[0].Title | Should -Be 'TypeName: System.String'
@@ -63,7 +63,7 @@
             $native = Convert-TestNativeView -Rows $script:members
             $nativeText = $native | Export-ConsoleFrame -Format Text -Width $width
             $nativeText | Should -Match 'TypeName: System.String'
-            # Format-Table keeps the selected native view's TypeName group, while Format-ConsoleTable above uses sections.
+            # Format-Table keeps the selected native view's TypeName group, while Show-ConsoleTable above uses sections.
             $native.GroupHeadersAsRows | Should -BeFalse
             $nativeText | Should -Match 'Substring'
             $nativeText | Should -Match 'Length'
@@ -71,7 +71,7 @@
     }
 
     It 'groups command kinds together by module with literal type chips' {
-        $text = $script:commands | Format-ConsoleTable -AsString -Width 120
+        $text = $script:commands | Show-ConsoleTable -AsString -Width 120
         $text | Should -Match 'Demo.Inventory'
         $text | Should -Match '\[Function\]'
         $text | Should -Match '\[Alias\]'
@@ -81,17 +81,17 @@
     It 'shows module versions paths and exported counts using the link presenter' {
         $value = [psobject]::AsPSObject($script:demoModule)
         $value | Add-Member -NotePropertyName Path -NotePropertyValue 'C:\Demo\Inventory\Demo.Inventory.psm1' -Force
-        $widget = $value | Format-ConsoleTable -AsWidget
+        $widget = $value | Show-ConsoleTable -AsWidget
         $text = $widget | Export-ConsoleFrame -Format Text -Width 160
         $text | Should -Match 'Version'
         $text | Should -Match 'C:\\Demo\\Inventory\\Demo.Inventory.psm1'
         $text | Should -Match 'Commands'
         $text | Should -Match '\s3\s'
-        $widget.Columns[3].Presenter | Should -BeOfType ([ConsoleMonster.Presenters.LinkPresenter])
+        $widget.Columns[3].Presenter | Should -BeOfType (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Presenters.LinkPresenter')))
     }
 
     It 'shows history identifiers durations statuses and literal command text' {
-        $text = $script:history | Format-ConsoleTable -AsString -Width 120
+        $text = $script:history | Show-ConsoleTable -AsString -Width 120
         $text | Should -Match '101'
         $text | Should -Match '2[.,]0 s'
         $text | Should -Match 'Completed'
@@ -102,7 +102,7 @@
     It 'honours explicit properties and calculated expressions for every built-in family' {
         foreach ($rows in @($script:members), @($script:commands), @($script:modules), @($script:history)) {
             $script:reads = 0
-            $text = $rows | Format-ConsoleTable -Property @{ Label = 'Chosen'; Expression = { $script:reads++; 'literal [pass]value[/]' } } -AsString
+            $text = $rows | Show-ConsoleTable -Property @{ Label = 'Chosen'; Expression = { $script:reads++; 'literal [pass]value[/]' } } -AsString
             $text | Should -Match 'Chosen'
             $text | Should -Match '\[pass\]value\[/\]'
             $script:reads | Should -Be $rows.Count
@@ -138,13 +138,13 @@
     It 'lets user registrations override built-ins and restores them after removal' {
         try {
             Register-ConsoleView -TypeName Microsoft.PowerShell.Commands.MemberDefinition -View Table -Property @{ Name = 'OwnerChoice'; Expression = { 'custom' } }
-            $text = $script:members | Format-ConsoleTable -AsString
+            $text = $script:members | Show-ConsoleTable -AsString
             $text | Should -Match 'OwnerChoice'
             $text | Should -Not -Match 'Definition'
         } finally {
-            Register-ConsoleView -TypeName Microsoft.PowerShell.Commands.MemberDefinition -Remove
+            Unregister-ConsoleView -TypeName Microsoft.PowerShell.Commands.MemberDefinition
         }
-        $script:members | Format-ConsoleTable -AsString | Should -Match 'Definition'
+        $script:members | Show-ConsoleTable -AsString | Should -Match 'Definition'
     }
 
     It 'preserves the native empty shape when an explicit wildcard matches no history properties' {

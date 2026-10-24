@@ -1,14 +1,14 @@
 ---
 title: Coming from Format-Table
-description: "Format-ConsoleTable, Format-ConsoleList and Format-ConsoleTree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
+description: "Show-ConsoleTable, Show-ConsoleList and Show-ConsoleTree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
 slug: format-table
 card: format-consoletable
 order: 4
 ---
 
-The three Format cmdlets take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Format-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Write-ConsoleWidget` or `Export-ConsoleFrame`.
+The three Format cmdlets take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Show-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `-AsWidget` returns the widget for `Show-Console` or `Export-ConsoleFrame`.
 
-{{< cm-frame ids="format-table,format-consoletable" caption="The same four objects in PowerShell 7, 100 columns wide: Format-Table -AutoSize, then Format-ConsoleTable with -GroupBy, -Total and column options." >}}
+{{< cm-frame ids="format-table,format-consoletable" caption="The same four objects in PowerShell 7, 100 columns wide: Format-Table -AutoSize, then Show-ConsoleTable with -GroupBy, -Total and column options." >}}
 
 ## -Property
 
@@ -23,7 +23,7 @@ Real pipeline data needs no preparation: sizes and dates get their presenters au
 ```powershell
 Import-Module ConsoleMonster
 
-Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
+Get-ChildItem C:\Windows\Logs -Recurse -File | Show-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
@@ -44,17 +44,17 @@ Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Exte
 
 ## Export as Markdown, HTML or text
 
-`-As Markdown` returns the table as a GitHub-flavoured Markdown document instead of drawing it, with sizes and dates written as the console table shows them. `-As Html` returns a self-contained page and `-As Text` the console layout in a fenced block. It works inside scripts and on Windows PowerShell 5.1, and `Format-ConsoleList`, `Format-ConsoleTree`, `Format-ConsoleCode`, `Format-ConsoleJson` and `Format-ConsoleError` take it too.
+`-AsString` returns plain text and `-AsWidget` returns a composable view. To create a document, pipe ordinary objects or a widget to `Export-ConsoleFrame -Format Markdown`, `Html` or `FencedText`. Markdown preserves table semantics; FencedText preserves the console layout in a text fence. This works inside scripts and on Windows PowerShell 5.1 and PowerShell 7.
 
 {{< cm-frame id="export-markdown" caption="`export-markdown.ps1` writes its table as Markdown; this is the text it printed." >}}
 
-`Copy-ConsoleOutput -As Markdown` puts the same document on the clipboard (Windows, macOS with `pbcopy`, Linux with `wl-copy` or `xclip`), and `Export-ConsoleFrame -Path report.md` writes it to a file:
+`Copy-ConsoleOutput -Format Markdown` puts the same document on the clipboard (Windows, macOS with `pbcopy`, Linux with `wl-copy` or `xclip`), and `Export-ConsoleFrame -Path report.md` writes it to a file:
 
 ```powershell
 Import-Module ConsoleMonster
 
-Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Copy-ConsoleOutput -As Markdown
-Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./services.md
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./services.md
 ```
 
 ## Format-Table itself
@@ -67,4 +67,4 @@ Columns hide by priority and a footer names them; below 60 cells, when the minim
 
 {{< cm-frame id="narrow" script="false" caption="`format-consoletable.ps1`, the second script at the top of this page, in a 56-column console." >}}
 
-The [tables page](/tables/) shows each behaviour at six widths, and the [PowerShell page](/powershell/) compares Format-List with Format-ConsoleList.
+The [tables page](/tables/) shows each behaviour at six widths, and the [PowerShell page](/powershell/) compares Format-List with Show-ConsoleList.

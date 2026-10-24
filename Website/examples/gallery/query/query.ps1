@@ -32,10 +32,10 @@ $checks = @(
 $resolvers = [ordered] @{ 'Edge west' = 12; 'Edge east' = 18; 'Cache north' = 24; 'Cache south' = 31; 'Local resolver' = 47 }
 
 # Layout: keep the dense report readable through wrapping and two balanced panels.
-$report = New-ConsoleRows -Gap 1 {
+$report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]DNS query results[/] [muted]· example.test[/]'
-    New-ConsolePadding -Padding 1, 0 {
-        New-ConsoleKeyValue {
+    New-ConsolePadding -Padding 1, 0 -Content {
+        New-ConsoleKeyValue -Content {
             New-ConsoleKeyValueItem Domain '[bold]example.test[/]' -Markup
             New-ConsoleKeyValueItem Resolver 'Edge west DNS over HTTPS [muted](192.0.2.53)[/]' -Markup
             New-ConsoleKeyValueItem 'Query time' '38 ms [muted]for 7 record types[/]' -Markup
@@ -44,32 +44,32 @@ $report = New-ConsoleRows -Gap 1 {
         }
     }
     $records | New-ConsoleTable -Property Name, Type, TTL, Data -Expand -NoHeaderSeparator
-    New-ConsoleColumns {
-        New-ConsolePanel -Title Delegation {
-            New-ConsoleTree '[bold].[/] [muted]root[/]' {
-                New-ConsoleTreeNode '[bold]test.[/]' -Detail 'reserved namespace' {
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title Delegation -Content {
+            New-ConsoleTree '[bold].[/] [muted]root[/]' -Content {
+                New-ConsoleTreeNode '[bold]test.[/]' -Detail 'reserved namespace' -Content {
                     New-ConsoleTreeNode 'ns.test' -Detail '192.0.2.42'
-                    New-ConsoleTreeNode '[bold]example.test.[/]' -Detail '2 name servers' {
+                    New-ConsoleTreeNode '[bold]example.test.[/]' -Detail '2 name servers' -Content {
                         New-ConsoleTreeNode 'ns1.example.test' -Status Pass -Detail '198.51.100.103 · 12 ms'
                         New-ConsoleTreeNode 'ns2.example.test' -Status Pass -Detail '203.0.113.149 · 14 ms'
-                        New-ConsoleTreeNode mail -Detail 'MX target' {
+                        New-ConsoleTreeNode mail -Detail 'MX target' -Content {
                             New-ConsoleTreeNode 'mail.example.test' -Status Pass -Detail '192.0.2.17'
                         }
                     }
                 }
             }
         }
-        New-ConsolePanel -Title 'Mail security' -Caption $domain {
-            New-ConsoleRows -Gap 0 {
-                New-ConsoleStatusList {
+        New-ConsolePanel -Title 'Mail security' -HeaderRight $domain -Content {
+            New-ConsoleRows -Gap 0 -Content {
+                New-ConsoleStatusList -Content {
                     foreach ($check in $checks) { New-ConsoleStatusItem $check[0] -Status $check[1] -Detail $check[2] }
                 }
                 New-ConsoleRule
-                New-ConsoleBarChart -Name latency -Unit ' ms' -Data $resolvers
+                New-ConsoleBarChart -WidgetId latency -Unit ' ms' -InputObject $resolvers
             }
         }
     }
 }
 
 # Behaviour: a print-once report works interactively and in redirected snapshots.
-$report | Write-ConsoleWidget
+$report | Show-Console

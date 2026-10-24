@@ -13,7 +13,7 @@ Install ConsoleMonster, then browse and run the PowerShell demos:
 Import-Module ConsoleMonster
 Get-ConsoleDemo | Select-Object Slug, Title, Category
 Show-ConsoleDemo fleet
-Get-ConsoleDemo fleet -Path ./fleet.ps1
+Export-ConsoleDemo fleet -Path ./fleet.ps1 -PassThru
 ```
 
 Use `Get-ConsoleDemo | Where-Object Tier -eq showcase` to browse the larger

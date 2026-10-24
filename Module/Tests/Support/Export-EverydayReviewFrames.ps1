@@ -55,13 +55,13 @@ foreach ($kind in 'Table','List') {
 }
 
 $markdownColumns = @('Name', 'State', @{Name='Bytes';Aggregate='Sum'}, 'Date','Duration','Tags')
-$valueRows | Format-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -Total -As Markdown |
+$valueRows | Show-ConsoleTable -Property $markdownColumns -GroupBy State -ShowGroupColumn -Total -AsWidget | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-table.md') -Encoding UTF8
-$valueRows | Format-ConsoleList -Property $valueColumns -As Markdown |
+$valueRows | Show-ConsoleList -Property $valueColumns -AsWidget | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-list.md') -Encoding UTF8
-$valueRows[0] | Format-ConsoleTree -Title 'Service' -As Markdown |
+$valueRows[0] | Show-ConsoleTree -Title 'Service' -AsWidget | Export-ConsoleFrame -Format Markdown |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-markdown-tree.md') -Encoding UTF8
-$valueRows | Format-ConsoleTable -Property $valueColumns -As Text -Width 100 |
+$valueRows | Show-ConsoleTable -Property $valueColumns -AsWidget -Width 100 | Export-ConsoleFrame -Format FencedText |
     Set-Content -LiteralPath (Join-Path $OutputDirectory '3-text-layout.md') -Encoding UTF8
 
 $alignmentRows = @(
@@ -75,28 +75,28 @@ Save-Frame '1-alignment-after' ($alignmentRows | Microsoft.PowerShell.Utility\Fo
 
 $moduleBefore = Get-EverydayValue | Microsoft.PowerShell.Utility\Format-Table -Property Name, State, Site, HiddenDetail | Out-String -Width 96
 Save-Frame '2-module-views-before' (New-ConsoleText $moduleBefore.TrimEnd())
-$moduleAfter = Get-EverydayValue | Format-ConsoleTable -AsWidget
+$moduleAfter = Get-EverydayValue | Show-ConsoleTable -AsWidget
 Save-Frame '2-module-views-after' $moduleAfter
 
-$table = $rows | Format-ConsoleTable -Property Name, State, Site -AsWidget
-Save-Frame '3-export-before' (New-ConsoleText ($rows | Format-ConsoleTable -Property Name, State, Site -AsString -Width 96))
+$table = $rows | Show-ConsoleTable -Property Name, State, Site -AsWidget
+Save-Frame '3-export-before' (New-ConsoleText ($rows | Show-ConsoleTable -Property Name, State, Site -AsString -Width 96))
 Save-Frame '3-export-after' $table
-$rows | Format-ConsoleTable -Property Name, State, Site -As Markdown -Width 96 | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.md') -Encoding UTF8
-$rows | Format-ConsoleTable -Property Name, State, Site -As Html -Width 96 | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.html') -Encoding UTF8
+$rows | Show-ConsoleTable -Property Name, State, Site -AsWidget -Width 96 | Export-ConsoleFrame -Format Markdown | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.md') -Encoding UTF8
+$rows | Show-ConsoleTable -Property Name, State, Site -AsWidget -Width 96 | Export-ConsoleFrame -Format Html | Set-Content -LiteralPath (Join-Path $OutputDirectory '3-export-result.html') -Encoding UTF8
 
-$plain = $rows | Format-ConsoleTable -Property Name, State -AsString -Width 96
+$plain = $rows | Show-ConsoleTable -Property Name, State -AsString -Width 96
 Save-Frame '3-clipboard-before' (New-ConsoleText $plain)
 $savedSsh = [Environment]::GetEnvironmentVariable('SSH_CONNECTION', 'Process')
 try {
     [Environment]::SetEnvironmentVariable('SSH_CONNECTION', 'synthetic-review-session', 'Process')
     $copyErrors = @()
-    $plain | Copy-ConsoleOutput -As Markdown -ErrorAction SilentlyContinue -ErrorVariable copyErrors
+    $plain | Copy-ConsoleOutput -Format Markdown -ErrorAction SilentlyContinue -ErrorVariable copyErrors
     Save-Frame '3-clipboard-after-ssh' (New-ConsolePanel -Title 'Copy-ConsoleOutput over SSH' -Content (New-ConsoleText ($copyErrors[0].ToString())))
 } finally { [Environment]::SetEnvironmentVariable('SSH_CONNECTION', $savedSsh, 'Process') }
 
 $beforeLinks = $rows | Microsoft.PowerShell.Utility\Format-Table Name, Url | Out-String -Width 96
 Save-Frame '4-links-before' (New-ConsoleText $beforeLinks.TrimEnd())
-$links = $rows | Format-ConsoleTable -AsWidget -Property Name, @{
+$links = $rows | Show-ConsoleTable -AsWidget -Property Name, @{
     Name = 'Report'
     Expression = { New-ConsoleText 'Open report' -Link $_.Url }
 }, @{ Name = 'Path'; Expression = 'Path'; Presenter = 'Link' }
@@ -116,7 +116,7 @@ All data is synthetic. Each before/after pair has a `.txt` console frame and a s
 | Nested tree | | | [Bullet list](3-markdown-tree.md) |
 | Exact console layout | | | [Fenced text](3-text-layout.md) |
 
-- Item 1: `1-table-*`, `1-list-*`, `1-wide-*`, `1-alignment-*`. `1-values-table-*` and `1-values-list-*` show statuses, bytes, dates, durations and collections. The after frames use captured native expression values and the same adapter as direct-host interception. The actual attached-console test separately compares the ordinary enabled Format-Table cells to Format-ConsoleTable.
+- Item 1: `1-table-*`, `1-list-*`, `1-wide-*`, `1-alignment-*`. `1-values-table-*` and `1-values-list-*` show statuses, bytes, dates, durations and collections. The after frames use captured native expression values and the same adapter as direct-host interception. The actual attached-console test separately compares the ordinary enabled Format-Table cells to Show-ConsoleTable.
 - Item 2: `2-module-views-*`. The example module has no ConsoleMonster dependency. These are plumbing examples, not the final ADX/Cx/CertNoob/TestimoX designs.
 - Item 3: `3-export-*`, plus the actual `3-export-result.md` and `3-export-result.html` documents. Open `3-markdown-table.md` (GFM alignment, groups and totals), `3-markdown-list.md`, `3-markdown-tree.md` and `3-text-layout.md` (the exact layout inside a text fence).
 - Clipboard: `3-clipboard-before.*` and `3-clipboard-after-ssh.*` show the actual graceful refusal. No real clipboard was overwritten.

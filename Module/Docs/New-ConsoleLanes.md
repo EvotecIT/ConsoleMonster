@@ -13,7 +13,7 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLanes [[-Name] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [<CommonParameters>]
+New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Lane <Object[]>] [-Total <double>] [-Shape <BarShape>] [-Column <string[]>] [-HideCompleted] [-CollapseWhenFinished] [-Transient] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,18 +25,18 @@ Each lane shows a status marker (a spinner while running), a progress bar, pass/
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02', 'DC03' -Total 40
+New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02', 'DC03' -Total 40
 ```
 
 Lanes for three servers with 40 steps each
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleLanes {
+New-ConsoleLanes -Content {
     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
     New-ConsoleLane 'DC03' -Total 40
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Lanes at different points, printed once
@@ -91,6 +91,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CountColumn
+Shared CountColumn layout settings from New-ConsoleColumnFormat.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -HideCompleted
 Finished lanes leave the display and are counted in the summary line.
 
@@ -139,17 +155,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default lanes). A script block here is taken as -Content.
+### -PercentColumn
+Shared PercentColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
-Type: Object
+Type: ColumnFormat
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -188,7 +204,7 @@ Accept wildcard characters: False
 ```
 
 ### -Transient
-The display disappears once every lane has finished (with Start-ConsoleDashboard -Transient nothing is left).
+The display disappears once every lane has finished (with Invoke-ConsoleDashboard -Transient nothing is left).
 
 ```yaml
 Type: SwitchParameter
@@ -198,6 +214,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default lanes). A script block here is taken as -Content.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

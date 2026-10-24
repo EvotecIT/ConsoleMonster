@@ -25,7 +25,7 @@ Describe 'Markdown reader adapter contracts' {
             $expected = Show-ConsoleMarkdown -Content '# Saved notes' -AsString -Width 60
             Show-ConsoleMarkdown -Path './notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
             Show-ConsoleMarkdown -Path 'TestDrive:/notes [final].md' -AsString -Width 60 | Should -BeExactly $expected
-            Show-ConsoleMarkdown -LiteralPath ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 | Should -BeExactly $expected
+            Show-ConsoleMarkdown -Path ('Microsoft.PowerShell.Core\FileSystem::' + $path) -AsString -Width 60 | Should -BeExactly $expected
         } finally {
             Pop-Location
         }
@@ -55,7 +55,7 @@ Get-Service | Select-Object Name
         $actual | Should -Match 'powershell'
         $actual | Should -Match 'Get-Service'
         foreach ($line in ($actual -split '\r?\n')) {
-            [ConsoleMonster.Text.DisplayWidth]::Measure($line) | Should -BeLessOrEqual 60
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($line) | Should -BeLessOrEqual 60
         }
     }
 
@@ -82,7 +82,7 @@ Get-Service | Select-Object Name
         $core | Should -Not -Contain 'OfficeIMO.Markdown'
         $core | Should -Not -Contain 'OfficeIMO.Core'
         $core | Should -Not -Contain 'ConsoleMonster.Markdown'
-        [ConsoleMonster.Markdown.MarkdownConsole].Assembly.GetReferencedAssemblies().Name | Should -Contain 'OfficeIMO.Markdown'
+        ([AppDomain]::CurrentDomain.GetAssemblies().Where({ $_.GetName().Name -eq 'ConsoleMonster.Markdown' })[0].GetType('ConsoleMonster.Markdown.MarkdownConsole')).Assembly.GetReferencedAssemblies().Name | Should -Contain 'OfficeIMO.Markdown'
     }
 
     It 'uses the same reader for explicit about-topic help' {

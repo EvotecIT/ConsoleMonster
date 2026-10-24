@@ -9,16 +9,16 @@ Describe 'Large run progress' {
         $code = @'
 Import-Module '__MODULE__' -Force
 $items = @([pscustomobject]@{Name='Alpha';Target='host-1';Group='DNS'}, [pscustomobject]@{Name='Beta';Target='host-2';Group='DNS'}, [pscustomobject]@{Name='Gamma';Target='host-3';Group='Storage'})
-$run = New-ConsoleRun -Items $items -Name { $_.Name } -Target Target -Group Group -Title 'Batch checks' -NoLive -ProgressEvery 2 -ProgressSeconds 0 -ReportPath 'reports/checks.html'
+$run = Start-ConsoleRun -Items $items -Label { $_.Name } -Target Target -Group Group -Title 'Batch checks' -NoLive -ProgressEvery 2 -ProgressIntervalSeconds 0 -ReportPath 'reports/checks.html'
 try {
-    Update-ConsoleRun $run -Index 0 -State Running -Phase 'collecting'
-    Update-ConsoleRun $run -Index 0 -State Pass
-    Update-ConsoleRun $run -Index 1 -State Warn -Message 'Partial response [literal]'
-    Update-ConsoleRun $run -Index 1 -State Fail -Message 'duplicate ignored'
+    Update-ConsoleRun $run -Index 0 -Status Running -Phase 'collecting'
+    Update-ConsoleRun $run -Index 0 -Status Pass
+    Update-ConsoleRun $run -Index 1 -Status Warn -Message 'Partial response [literal]'
+    Update-ConsoleRun $run -Index 1 -Status Fail -Message 'duplicate ignored'
     $value = 42
 } finally { $summary = Complete-ConsoleRun $run -PassThru }
 "COUNTS=$($summary.Passed),$($summary.Warned),$($summary.Failed),$($summary.Skipped)"
-"METADATA=$($summary.Items[0].Item.Name),$($summary.Items[1].Item.Target),$($summary.Items[2].Item.Group)"
+"METADATA=$($summary.Items[0].Item.Label),$($summary.Items[1].Item.Target),$($summary.Items[2].Item.Group)"
 "VALUE=$value"
 Complete-ConsoleRun $run
 '@
@@ -37,16 +37,16 @@ Complete-ConsoleRun $run
     ) {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = New-ConsoleRun -Items @('one check') -NoLive -ProgressSeconds 0
+$run = Start-ConsoleRun -Items @('one check') -NoLive -ProgressIntervalSeconds 0
 try {
     try {
-        Update-ConsoleRun $run -Index 0 -State '__STATE__' -ErrorAction Stop
+        Update-ConsoleRun $run -Index 0 -Status '__STATE__' -ErrorAction Stop
         throw 'The unsupported state was accepted'
     } catch {
         "STATE_ERROR=$($_.FullyQualifiedErrorId)"
     }
     "UNCHANGED=$($run.Snapshot().Done),$($run.Snapshot().Running.Count)"
-    Update-ConsoleRun $run -Index 0 -State Pass
+    Update-ConsoleRun $run -Index 0 -Status Pass
     "VALID=$($run.Snapshot().Passed)"
 } finally { Complete-ConsoleRun $run }
 '@
@@ -61,7 +61,7 @@ try {
 Import-Module '__MODULE__' -Force
 $script:offeredRun = $null
 try {
-    New-ConsoleRun -Items @('unpublished') -NoLive -ErrorAction Stop | ForEach-Object {
+    Start-ConsoleRun -Items @('unpublished') -NoLive -ErrorAction Stop | ForEach-Object {
         $script:offeredRun = $_
         throw 'Handle publication failed'
     }
@@ -82,14 +82,14 @@ try {
 Import-Module '__MODULE__' -Force
 $run = $null
 try {
-    $run = New-ConsoleRun -Items @('unpublished') -NoLive -InformationAction Stop -ErrorAction Stop
+    $run = Start-ConsoleRun -Items @('unpublished') -NoLive -InformationAction Stop -ErrorAction Stop
     throw 'The host-output failure was ignored'
 } catch {
     "HOST_ERROR=$($_.FullyQualifiedErrorId)"
 }
 "NO_HANDLE=$($null -eq $run)"
-$next = New-ConsoleRun -Items @('next check') -NoLive -ProgressSeconds 0
-try { Update-ConsoleRun $next -Index 0 -State Pass }
+$next = Start-ConsoleRun -Items @('next check') -NoLive -ProgressIntervalSeconds 0
+try { Update-ConsoleRun $next -Index 0 -Status Pass }
 finally { $summary = Complete-ConsoleRun $next -PassThru }
 "NEXT=$($summary.Passed),$($summary.IsFinished)"
 '@
@@ -102,7 +102,7 @@ finally { $summary = Complete-ConsoleRun $next -PassThru }
     It 'accepts an empty run and completes without inventing work' {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = New-ConsoleRun -Items @() -NoLive -ProgressSeconds 0
+$run = Start-ConsoleRun -Items @() -NoLive -ProgressIntervalSeconds 0
 $summary = Complete-ConsoleRun $run -PassThru
 "EMPTY=$($summary.Total),$($summary.Done),$($summary.IsFinished)"
 '@
@@ -112,7 +112,7 @@ $summary = Complete-ConsoleRun $run -PassThru
     It 'receives timed host progress while a background worker is running' {
         $code = @'
 Import-Module '__MODULE__' -Force
-$run = New-ConsoleRun -Items @('slow check') -NoLive -ProgressEvery 0 -ProgressSeconds 0.1
+$run = Start-ConsoleRun -Items @('slow check') -NoLive -ProgressEvery 0 -ProgressIntervalSeconds 0.1
 $worker = [powershell]::Create()
 $null = $worker.AddScript('param($run) Start-Sleep -Milliseconds 800; $run.Finished(0, [ConsoleMonster.Styling.StatusKind]::Pass, "worker done")').AddArgument($run)
 try {
@@ -135,9 +135,9 @@ try {
 $ErrorActionPreference = 'Stop'
 Import-Module '__MODULE__' -Force
 Add-Type -Path '__FIXTURE__'
-$run = New-ConsoleRun -Items @('deferred check') -NoLive -ProgressSeconds 0
+$run = Start-ConsoleRun -Items @('deferred check') -NoLive -ProgressIntervalSeconds 0
 try {
-$queues = [ConsoleMonster.PowerShell.CmdletCompleteConsoleRun].Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
+$queues = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletCompleteConsoleRun')).Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
 $lookup = $queues.GetType().GetMethod('TryGetValue')
 $arguments = [object[]]@($run.PSObject.BaseObject, $null)
 if (-not $lookup.Invoke($queues, $arguments)) { throw 'The host writer was not registered' }
@@ -145,7 +145,7 @@ $writer = $arguments[1]
 $gate = $writer.GetType().GetField('_gate', 'Instance,NonPublic').GetValue($writer)
 $hold = New-Object HeldMonitor -ArgumentList $gate
 try {
-    try { Update-ConsoleRun $run -Index 0 -State Pass -ErrorAction Stop }
+    try { Update-ConsoleRun $run -Index 0 -Status Pass -ErrorAction Stop }
     catch { "UPDATE_ERROR=$($_.Exception.Message)" }
     try {
         Complete-ConsoleRun $run -ErrorAction Stop
@@ -177,13 +177,13 @@ Complete-ConsoleRun $run
         $code = @'
 $ErrorActionPreference = 'Stop'
 Import-Module '__MODULE__' -Force
-$run = New-ConsoleRun -Items @('final check') -NoLive -ProgressSeconds 0
+$run = Start-ConsoleRun -Items @('final check') -NoLive -ProgressIntervalSeconds 0
 try {
     try {
         Complete-ConsoleRun $run -InformationAction Stop -ErrorAction Stop
         throw 'The final host-output failure was ignored'
     } catch { "FINAL_HOST_ERROR=$($_.FullyQualifiedErrorId)" }
-    $queues = [ConsoleMonster.PowerShell.CmdletCompleteConsoleRun].Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
+    $queues = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletCompleteConsoleRun')).Assembly.GetType('ConsoleMonster.PowerShell.LiveRunHostQueues').GetField('Queues', 'Static,NonPublic').GetValue($null)
     $arguments = [object[]]@($run.PSObject.BaseObject, $null)
     "REMOVED=$(-not $queues.GetType().GetMethod('TryGetValue').Invoke($queues, $arguments))"
     Complete-ConsoleRun $run

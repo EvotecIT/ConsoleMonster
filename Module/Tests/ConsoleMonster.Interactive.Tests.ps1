@@ -38,8 +38,8 @@
 
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
-$profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 30, 'None', 'Ascii')
-$target = [ConsoleMonster.Output.RecordingTarget]::new($profile)
+$profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 30, 'None', 'Ascii')
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
 Use-ConsoleTarget -Target $target {
     $answers = @(
         Read-ConsoleText 'Project' -Default orbit -StaticSnapshot
@@ -49,12 +49,12 @@ Use-ConsoleTarget -Target $target {
         Read-ConsolePath 'Folder' -Default './orbit' -StaticSnapshot
         Read-ConsoleConfirm 'Continue?' -Default $true -StaticSnapshot
         Read-ConsoleConfirm 'Remove?' -TypedConfirmation orbit -StaticSnapshot
-        Read-ConsoleSelection 'Target' -Choices api, worker -StaticSnapshot
-        Read-ConsoleMultiSelection 'Checks' -Choices dns, tls -StaticSnapshot
+        Read-ConsoleSelect 'Target' -Choices api, worker -StaticSnapshot
+        Read-ConsoleMultiSelect 'Checks' -Choices dns, tls -StaticSnapshot
     )
     if ($answers.Count) { throw 'A prompt snapshot returned an answer' }
 }
-if ([ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'A snapshot retained the input lease' }
+if (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'A snapshot retained the input lease' }
 foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', 'Remove?', 'Target', 'Checks') {
     if (-not $target.Output.Contains($title)) { throw "Missing prompt: $title" }
 }
@@ -66,7 +66,7 @@ foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', '
     Context 'Without a user (redirected input, -NonInteractive)' {
         It 'returns the default instead of waiting' {
             $text = Invoke-PromptChild -Script @'
-$v = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging' -Default 'Staging'
+$v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging' -Default 'Staging'
 "value=$v"
 $c = Read-ConsoleConfirm 'Go?' -Default $true
 "confirm=$c"
@@ -84,7 +84,7 @@ $t = Read-ConsoleText 'Name' -Default 'srv01'
         It 'fails with a message that names the parameter to pass' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 try {
-    Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging' -ParameterName '-Environment' -ErrorAction Stop
+    Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging' -ParameterName '-Environment' -ErrorAction Stop
 } catch {
     "id=$($_.FullyQualifiedErrorId.Split(',')[0])"
     "message=$($_.Exception.Message)"
@@ -97,9 +97,9 @@ try {
         It 'returns the chosen objects themselves, not their text' {
             $text = Invoke-PromptChild -Script @'
 $items = @([pscustomobject] @{ Name = 'a'; Size = 1 }, [pscustomobject] @{ Name = 'b'; Size = 2 }, [pscustomobject] @{ Name = 'c'; Size = 3 })
-$picked = @(Read-ConsoleMultiSelection 'Items' -Choices $items -Display Name -Selected 'a', 'c')
+$picked = @(Read-ConsoleMultiSelect 'Items' -Choices $items -Display Name -Selected 'a', 'c')
 "count=$($picked.Count) sizes=$(($picked | ForEach-Object Size) -join ',') type=$($picked[0].GetType().Name)"
-$one = $items | Read-ConsoleSelection 'One' -Display Name -Default 'b'
+$one = $items | Read-ConsoleSelect 'One' -Display Name -Default 'b'
 "one=$($one.Size)"
 '@
             $text | Should -Match 'count=2 sizes=1,3 type=PSCustomObject'
@@ -108,16 +108,16 @@ $one = $items | Read-ConsoleSelection 'One' -Display Name -Default 'b'
 
         It 'fills a form from its defaults and reports the first field that needs a value' {
             $text = Invoke-PromptChild -Script @'
-$form = New-ConsoleForm 'Share' -Command 'New-Share' {
-    New-ConsoleField Name 'Share name' -Default 'Reports' -Parameter Name
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Default $true -Parameter ReadOnly
-    New-ConsoleField Audit 'Audit access' -Type Toggle -Parameter Audit
+$form = New-ConsoleForm 'Share' -Command 'New-Share' -Content {
+    New-ConsoleField Name 'Share name' -Default 'Reports' -ParameterName Name
+    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Default $true -ParameterName ReadOnly
+    New-ConsoleField Audit 'Audit access' -Type Toggle -ParameterName Audit
 }
 $answers = Read-ConsoleForm $form
 "name=$($answers.Name) readonly=$($answers.ReadOnly)"
 $result = Read-ConsoleForm $form -PassThru
 "command=$($result.CommandLine)"
-$missing = New-ConsoleForm 'Share' { New-ConsoleField Path 'Folder' -Required -Parameter Path }
+$missing = New-ConsoleForm 'Share' -Content { New-ConsoleField Path 'Folder' -Required -ParameterName Path }
 try { Read-ConsoleForm $missing -ErrorAction Stop } catch { "error=$($_.Exception.Message)" }
 '@
             $text | Should -Match 'name=Reports readonly=True'
@@ -127,7 +127,7 @@ try { Read-ConsoleForm $missing -ErrorAction Stop } catch { "error=$($_.Exceptio
 
         It 'refuses to show a menu without a user' {
             $text = Invoke-PromptChild -Script @'
-$menu = New-ConsoleMenu 'Tool' { New-ConsoleMenuItem 'Run' -Action { 'ran' } }
+$menu = New-ConsoleMenu 'Tool' -Content { New-ConsoleMenuItem 'Run' -Action { 'ran' } }
 try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.Message)" }
 '@
             $text | Should -Match "error=Menu 'Tool' needs an interactive session\."
@@ -137,7 +137,7 @@ try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.M
     Context 'Accessible and line modes' {
         It 'numbers the choices and reads the answer as a line' {
             $text = Invoke-PromptChild -InputText "9`n2`n" -Script @'
-$v = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Mode Accessible
+$v = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Mode Accessible
 "value=$v"
 '@
             $text | Should -Match '1\) Production'
@@ -163,7 +163,7 @@ $v = Read-ConsoleText 'Reason' -Multiline -Mode Accessible
 
         It 'accepts several numbers for a multi-selection' {
             $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
-$v = @(Read-ConsoleMultiSelection 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible)
+$v = @(Read-ConsoleMultiSelect 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible)
 "value=$($v -join '+')"
 '@
             $text | Should -Match 'value=a\+c'
@@ -173,14 +173,14 @@ $v = @(Read-ConsoleMultiSelection 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible
     Context 'Scripted keys (the rich prompts without a terminal)' {
         It 'drives a selection and a multi-selection with keys' {
             $text = Invoke-PromptChild -Script @'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Down Enter')
-$v = Read-ConsoleSelection 'Pick' -Choices 'alpha', 'beta', 'gamma'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Space Down Down Space Enter')
-$m = @(Read-ConsoleMultiSelection 'Pick' -Choices 'alpha', 'beta', 'gamma')
-$keys = [ConsoleMonster.Input.ScriptedInput]::new('"bad" Enter Ctrl+U "good" Enter'); $keys.Paced = $true
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = $keys
-$t = Read-ConsoleText 'Name' -Validate { if ($_ -eq 'bad') { 'not that one' } }
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('"s3cret" Enter')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter')
+$v = Read-ConsoleSelect 'Pick' -Choices 'alpha', 'beta', 'gamma'
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space Down Down Space Enter')
+$m = @(Read-ConsoleMultiSelect 'Pick' -Choices 'alpha', 'beta', 'gamma')
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"bad" Enter Ctrl+U "good" Enter'); $keys.Paced = $true
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = $keys
+$t = Read-ConsoleText 'Name' -Validator { if ($_ -eq 'bad') { 'not that one' } }
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"s3cret" Enter')
 $s = Read-ConsoleSecret 'Token'
 "value=$v multi=$($m -join '+') text=$t secret=$($s.GetType().Name) length=$($s.Length)"
 '@
@@ -191,11 +191,11 @@ $s = Read-ConsoleSecret 'Token'
         It 'returns the original objects chosen in Show-ConsoleGrid' {
             $text = Invoke-PromptChild -Script @'
 $rows = 1..12 | ForEach-Object { [pscustomobject] @{ Name = 'SRV{0:00}' -f $_; Role = @('web', 'sql', 'dc')[$_ % 3]; Cpu = ($_ * 37) % 100 } }
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('"sql" Space Down Space Ctrl+Enter')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"sql" Space Down Space Ctrl+Enter')
 $picked = @($rows | Show-ConsoleGrid -Title 'Servers')
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+Home Ctrl+Enter')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Home Ctrl+Enter')
 $top = @($rows | Show-ConsoleGrid -Property Name, Cpu -SortBy Cpu -Descending -OutputMode Single)
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+Enter')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Enter')
 $none = @($rows | Show-ConsoleGrid -OutputMode None)
 "picked=$($picked.Name -join '+') type=$($picked[0].GetType().Name) top=$($top.Name) none=$($none.Count)"
 try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($_.FullyQualifiedErrorId.Split(',')[0])" }
@@ -221,27 +221,27 @@ try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($
             $text | Should -Match 'WARNED=.*interactive console'
         }
 
-        It 'cancels with a PromptCancelled error on Esc' {
+        It 'cancels with a PromptCanceled error on Esc' {
             $text = Invoke-PromptChild -Script @'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Escape')
-try { Read-ConsoleSelection 'Pick' -Choices 'a', 'b' -ErrorAction Stop } catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Escape')
+try { Read-ConsoleSelect 'Pick' -Choices 'a', 'b' -ErrorAction Stop } catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
 '@
-            $text | Should -Match 'id=PromptCancelled'
+            $text | Should -Match 'id=PromptCanceled'
         }
 
         It 'applies a built-in menu preset from the presets list and shows it in the review command' {
             # A fixed screen captured in memory: the preset list with its preview, then the form's review with the command.
             $text = Invoke-PromptChild -Script @'
-$keys = [ConsoleMonster.Input.ScriptedInput]::new('wait:200 Enter wait:200 Down wait:200 Enter wait:200 Escape wait:200 Down wait:200 Enter wait:200 PageDown wait:400'); $keys.RealTime = $true
-$options = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:200 Enter wait:200 Down wait:200 Enter wait:200 Escape wait:200 Down wait:200 Enter wait:200 PageDown wait:400'); $keys.RealTime = $true
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
 $options.Input = $keys; $options.Mode = 'Rich'
-$capture = [ConsoleMonster.Interactive.ScreenCapture]::new(120, 30, $false); $options.Capture = $capture
-$options.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(120, 30, 'TrueColor', 'Full')
-$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {
-    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Default 'Daily' -Parameter Target
-    New-ConsoleField Copies 'Copies' -Type Number -Integer -Default 1 -Parameter Copies
+$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(120, 30, $false); $options.Capture = $capture
+$options.Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(120, 30, 'TrueColor', 'Full')
+$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' -Content {
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Default 'Daily' -ParameterName Target
+    New-ConsoleField Copies 'Copies' -Type Number -Integer -Default 1 -ParameterName Copies
 }
-$menu = New-ConsoleMenu 'Backup helper' {
+$menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuPreset 'Quick' -Form $form -Values @{ Copies = 2 } -Preview 'quick preview'
     New-ConsoleMenuPreset 'Sunday' -Form $form -Values @{ Target = 'Weekly'; Copies = 4 } -Preview { New-ConsoleText 'sunday preview' }
     New-ConsoleMenuItem 'Presets' -Presets
@@ -263,17 +263,17 @@ foreach ($phrase in 'built in', 'sunday preview', "Preset 'Sunday' applied", 'St
 
         It 'runs a menu run on a simulated clock whose result takes the clock''s time' {
             $text = Invoke-PromptChild -Script @'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('r q')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('r q')
 $script:result = $null
-$menu = New-ConsoleMenu 'Tool' {
+$menu = New-ConsoleMenu 'Tool' -Content {
     New-ConsoleMenuItem 'Run' -Hotkey r -Action {
-        $clock = New-ConsoleClock -Speed 0
-        $dashboard = New-ConsoleDashboard -Title 'Checks' { New-ConsoleSummaryBar -Total 2; New-ConsoleActivityList -Name running }
+        $clock = New-ConsoleSimulatedClock -Speed 0
+        $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsoleSummaryBar -Total 2; New-ConsoleActivityList -WidgetId running }
         $script:result = $MenuContext.Run($dashboard, {
-            Update-ConsoleActivity -Name running -Id 1 -Activity 'first check'
+            Update-ConsoleActivity -WidgetId running -Id 1 -Activity 'first check'
             $clock.Wait(42)
             Update-ConsoleSummaryBar -Done 2 -Counter @{ passed = 2 }
-            New-ConsoleRunResult 'Checks finished'
+            New-ConsoleMenuRunResult 'Checks finished'
         }, $clock)
     }
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
@@ -290,9 +290,9 @@ Show-ConsoleMenu $menu -Layout Inline
         It 'runs a menu whose scriptblock actions see the script scope' {
             $text = Invoke-PromptChild -Script @'
 $script:log = [System.Collections.Generic.List[string]]::new()
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('b q')
-$menu = New-ConsoleMenu 'Tool' {
-    New-ConsoleMenuItem 'Build' -Hotkey b -Action { $script:log.Add('built ' + $MenuContext.Item.Title) }
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('b q')
+$menu = New-ConsoleMenu 'Tool' -Content {
+    New-ConsoleMenuItem 'Build' -Hotkey b -Action { $script:log.Add('built ' + $MenuContext.Item.Label) }
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
 }
 Show-ConsoleMenu $menu -Layout Inline
@@ -312,25 +312,25 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'builds choices with a muted badge, a disabled reason, a selection and a command-line value that keeps the object''s properties' {
-            $field = New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -Disabled Retired -Selected { $_.Id -eq 'CertChain' } -Parameter Check
+            $field = New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -DisabledReason Retired -Selected { $_.Id -eq 'CertChain' } -ParameterName Check
             $choices = @($field.Choices)
-            ($choices | ForEach-Object Title) -join ',' | Should -Be 'Time offset,Free space,Cert chain'
+            ($choices | ForEach-Object Label) -join ',' | Should -Be 'Time offset,Free space,Cert chain'
             ($choices | ForEach-Object { [string] $_.Value }) -join ',' | Should -Be 'TimeOffset,FreeSpace,CertChain'
             $choices[0].Value.Category | Should -Be 'Identity'
             $choices[0].Badge.PlainText | Should -Be '~0.8 s'
             $choices[0].Badge.ToMarkup() | Should -Match '(?i)muted'
             $choices[1].DisabledReason | Should -Be 'replaced by Volume health'
             $choices[0].DisabledReason | Should -BeNullOrEmpty
-            @($choices | Where-Object Selected).Title | Should -Be 'Cert chain'
+            @($choices | Where-Object Selected).Label | Should -Be 'Cert chain'
         }
 
         It 'marks loaded choices with property names: badge, disabled reason and selection' {
-            $domain = New-ConsoleField Domain 'Domain' -Type Select -Choices 'corp.example.test' -Default 'corp.example.test' -Parameter Domain
-            $servers = New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -Parameter ComputerName -LoadChoices {
+            $domain = New-ConsoleField Domain 'Domain' -Type Select -Choices 'corp.example.test' -Default 'corp.example.test' -ParameterName Domain
+            $servers = New-ConsoleField Servers 'Servers' -Type MultiSelect -DependsOn Domain -ParameterName ComputerName -LoadChoices {
                 param($Values)
                 [pscustomobject] @{ Name = 'SRV01'; Role = 'Web'; Offline = $null; Online = $true; Domain = $Values.Domain }
                 [pscustomobject] @{ Name = 'SRV02'; Role = 'File'; Offline = 'offline since 07:12'; Online = $false; Domain = $Values.Domain }
-            } -Display Name -CommandValue Name -Badge Role -Disabled Offline -Selected Online
+            } -Display Name -CommandValue Name -Badge Role -DisabledReason Offline -Selected Online
             $form = New-ConsoleForm 'Fleet' -Field $domain, $servers
             $loaded = @($servers.Loader.Invoke($form.GetValues(), [System.Threading.CancellationToken]::None).GetAwaiter().GetResult())
             $loaded.Count | Should -Be 2
@@ -344,9 +344,9 @@ Show-ConsoleMenu $menu -Layout Inline
 
         It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {
             $extra = New-ConsoleFormPreset 'Storage only' -Values @{ Checks = 'Free space' } -Description 'Only the storage check.'
-            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra {
-                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -Parameter Check
-                New-ConsoleField Parallel 'Servers at a time' -Type Number -Integer -Default 4 -Parameter ThrottleLimit
+            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra -Content {
+                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
+                New-ConsoleField Parallel 'Servers at a time' -Type Number -Integer -Default 4 -ParameterName ThrottleLimit
                 New-ConsoleFormPreset 'Nightly' -Values @{ Checks = 'TimeOffset', 'Cert chain'; Parallel = 8 } -Preview { 'two checks, eight at a time' }
             }
             ($form.Presets | ForEach-Object Name) -join ',' | Should -Be 'Storage only,Nightly'
@@ -359,11 +359,11 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'sets form values from a hashtable or an earlier run and refuses anything else' {
-            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' {
-                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -Parameter Check
-                New-ConsoleField Notify 'Email the report' -Type Toggle -Parameter Notify
+            $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Content {
+                New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id -ParameterName Check
+                New-ConsoleField Notify 'Email the report' -Type Toggle -ParameterName Notify
             }
-            Set-ConsoleFormValue -Form $form -Value @{ Checks = @('Free space'); Notify = $true; Unknown = 1 }
+            Set-ConsoleFormValue -Form $form -Values @{ Checks = @('Free space'); Notify = $true; Unknown = 1 }
             $form.BuildCommand() | Should -Be 'Invoke-FleetCheck -Check FreeSpace -Notify'
             $earlier = $form.GetValues()
             Set-ConsoleFormValue $form @{ Checks = @(); Notify = $false }
@@ -374,13 +374,13 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'creates menu presets with form values, selections and a preview, and adds them to the menu' {
-            $form = New-ConsoleForm 'Fleet' { New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id }
+            $form = New-ConsoleForm 'Fleet' -Content { New-ConsoleField Checks 'Checks' -Type MultiSelect -Choices $script:Checks -Display Name -CommandValue Id }
             $targets = New-ConsoleMenuItem 'Targets' -MultiSelect ([pscustomobject] @{ Name = 'SRV01' }), ([pscustomobject] @{ Name = 'SRV02' }) -Display Name
             $first = New-ConsoleMenuPreset 'First' -Form $form -Values @{ Checks = 'Time offset' } -Item $targets -Selection 'SRV02' -Description 'The first wave.' -Preview { New-ConsoleText 'preview' }
             $first.Description | Should -Be 'The first wave.'
             $first.Preview | Should -Not -BeNullOrEmpty
             $second = New-ConsoleMenuPreset 'Second' -Form $form -Values @{ Checks = 'FreeSpace' }
-            $menu = New-ConsoleMenu 'Fleet' -Item $targets -Preset $first {
+            $menu = New-ConsoleMenu 'Fleet' -Item $targets -Preset $first -Content {
                 $second
                 New-ConsoleMenuItem 'Presets' -Presets
             }
@@ -395,14 +395,14 @@ Show-ConsoleMenu $menu -Layout Inline
                 [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
                 [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
             )
-            $item = New-ConsoleMenuItem Targets -MultiSelect $objects -Display Name -ChoiceBadge Role -ChoiceDisabled Offline
+            $item = New-ConsoleMenuItem Targets -MultiSelect $objects -Display Name -ChoiceBadge Role -ChoiceDisabledReason Offline
             $item.Choices[0].Badge.PlainText | Should -Be 'Web'
             $item.Choices[0].IsEnabled | Should -BeTrue
             $item.Choices[1].DisabledReason | Should -Be 'maintenance'
             $loadedItem = New-ConsoleMenuItem Targets -LoadChoices {
                 [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
                 [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
-            } -Display Name -ChoiceBadge Role -ChoiceDisabled Offline -Selected api
+            } -Display Name -ChoiceBadge Role -ChoiceDisabledReason Offline -Selected api
             $loaded = @($loadedItem.ChoicesLoader.Invoke($null, [threading.cancellationtoken]::None).GetAwaiter().GetResult())
             $loaded[0].Badge.PlainText | Should -Be 'Web'
             $loaded[0].Selected | Should -BeTrue
@@ -415,11 +415,11 @@ Show-ConsoleMenu $menu -Layout Inline
 $targets = New-ConsoleMenuItem Targets -MultiSelect 'api', 'db'
 $tasks = New-ConsoleMenuItem Tasks -MultiSelect 'health', 'logs'
 $preset = New-ConsoleMenuPreset Nightly -Selections @{ $targets = @('db'); $tasks = @('health', 'logs') }
-$menu = New-ConsoleMenu 'Multi-selection preset' -Item $targets, $tasks -Preset $preset {
+$menu = New-ConsoleMenu 'Multi-selection preset' -Item $targets, $tasks -Preset $preset -Content {
     New-ConsoleMenuItem Presets -Hotkey p -Presets
     New-ConsoleMenuItem Quit -Hotkey q -Exit
 }
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('p Enter q')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('p Enter q')
 Show-ConsoleMenu $menu -Layout Inline
 "targets=$($targets.Selection -join ',') tasks=$($tasks.Selection -join ',')"
 '@
@@ -444,16 +444,16 @@ Show-ConsoleMenu $menu -Layout Inline
             $text = Invoke-PromptChild -Script @'
 $targets = @([pscustomobject] @{ Name = 'SRV01' }, [pscustomobject] @{ Name = 'SRV02' })
 $preset = New-ConsoleFormPreset 'Second' -Values @{ Target = $targets[1] }
-$form = New-ConsoleForm 'Deployment' -Preset $preset { New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name }
+$form = New-ConsoleForm 'Deployment' -Preset $preset -Content { New-ConsoleField Target 'Target' -Type Select -Choices $targets -Display Name }
 Set-ConsoleFormValue $form $form.Presets[0].Values
 "form=$($form.GetValues()['Target'].Name)"
 $item = New-ConsoleMenuItem 'Targets' -MultiSelect $targets -Display Name
 $menuPreset = New-ConsoleMenuPreset 'Second' -Item $item -Selection $targets[1] -Form $form -Values @{ Target = $targets[1] }
-$menu = New-ConsoleMenu 'Deployment' -Item $item -Preset $menuPreset {
+$menu = New-ConsoleMenu 'Deployment' -Item $item -Preset $menuPreset -Content {
     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
     New-ConsoleMenuItem 'Quit' -Hotkey q -Exit
 }
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('p Enter q')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('p Enter q')
 Show-ConsoleMenu $menu -Layout Inline
 "menu=$(@($item.Selection | ForEach-Object Name) -join ',') formAfter=$($form.GetValues()['Target'].Name)"
 '@
@@ -462,18 +462,18 @@ Show-ConsoleMenu $menu -Layout Inline
         }
 
         It 'colours run result figures by status and keeps a given elapsed time' {
-            $result = New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; servers = 11 }) -FigureStatus @{ passed = 'Success'; Warnings = 'Warn' } -Elapsed 86s
+            $result = New-ConsoleMenuRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; servers = 11 }) -FigureStatus @{ passed = 'Success'; Warnings = 'Warn' } -ElapsedSeconds 86
             $result.Elapsed | Should -Be ([timespan]::FromSeconds(86))
             ($result.Figures | ForEach-Object Key) -join ',' | Should -Be 'passed,warnings,servers'
             $result.FigureStatus['passed'] | Should -Be 'Pass'
             $result.FigureStatus['warnings'] | Should -Be 'Warn'
             $result.FigureStatus.ContainsKey('servers') | Should -BeFalse
-            (New-ConsoleRunResult 'Real time').Elapsed | Should -Be ([timespan]::Zero)
-            { New-ConsoleRunResult 'Bad' -Figure @{ failed = 1 } -FigureStatus @{ failed = 'Purple' } -ErrorAction Stop } | Should -Throw '*not a status*'
+            (New-ConsoleMenuRunResult 'Real time').Elapsed | Should -Be ([timespan]::Zero)
+            { New-ConsoleMenuRunResult 'Bad' -Figure @{ failed = 1 } -FigureStatus @{ failed = 'Purple' } -ErrorAction Stop } | Should -Throw '*not a status*'
         }
 
         It 'moves a simulated clock without sleeping at speed 0, paces it at a speed, and converts it to session options' {
-            $clock = New-ConsoleClock -Speed 0
+            $clock = New-ConsoleSimulatedClock -Speed 0
             $watch = [System.Diagnostics.Stopwatch]::StartNew()
             $clock.Wait(90)
             $clock.Advance(1.5)
@@ -482,9 +482,9 @@ Show-ConsoleMenu $menu -Layout Inline
             $watch.ElapsedMilliseconds | Should -BeLessThan 1000
             $clock.Elapsed | Should -Be ([timespan]::FromSeconds(91.5))
             "$clock" | Should -Be '00:01:31'
-            $options = [ConsoleMonster.Live.LiveSessionOptions] $clock
+            $options = [Management.Automation.LanguagePrimitives]::ConvertTo($clock, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSessionOptions')))
             $options.Clock.Invoke() | Should -Be ([timespan]::FromSeconds(91.5))
-            $paced = New-ConsoleClock -Speed 20
+            $paced = New-ConsoleSimulatedClock -Speed 20
             $watch.Restart()
             $paced.Wait(4)
             $watch.ElapsedMilliseconds | Should -BeGreaterOrEqual 150

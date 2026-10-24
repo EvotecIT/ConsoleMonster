@@ -56,7 +56,7 @@ Enable-ConsoleFormatting -Feature All -ProfileSnippet | Add-Content -Path $PROFI
 
 ## Tables, lists and trees
 
-`Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` take pipeline input and fit the window.
+`Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` take pipeline input and fit the window.
 `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless you turn on `-Feature FormatCommands`.
 
 <!-- example: Website/examples/powershell/files.ps1 -->
@@ -66,7 +66,7 @@ Import-Module ConsoleMonster
 # A few of PowerShell's own files, grouped by extension.
 Get-ChildItem -Path $PSHOME -File |
     Where-Object Extension -in '.exe', '.json', '.ps1' |
-    Format-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension
+    Show-ConsoleTable -Property Name, Length, LastWriteTime -GroupBy Extension
 ```
 
 <picture>
@@ -79,19 +79,19 @@ Get-ChildItem -Path $PSHOME -File |
 ## Widgets
 
 Every widget is a `New-Console*` command: panels, trees, charts, logs, lanes and more. Containers take a script block
-of children, and items share `-Status`, `-Detail` and `-Tone`.
+of children, and items share `-Status`, `-Detail` and `-Role`.
 
 <!-- example: Website/examples/widgets/bar.ps1 -->
 ```powershell
 Import-Module ConsoleMonster
 
-New-ConsoleBarChart -Tone Fail ([ordered] @{
+New-ConsoleBarChart -Role Fail -InputObject ([ordered] @{
     'Domain controllers' = 14
     'Group Policy'       = 9
     'Kerberos'           = 6
     'DNS'                = 4
     'PKI'                = 2
-}) | Write-ConsoleWidget
+}) | Show-Console
 ```
 
 <picture>
@@ -110,7 +110,7 @@ Import-Module ConsoleMonster
 # Forty servers, eight at a time: three fail and one hangs past the four-second limit.
 $servers = 1..40 | ForEach-Object { 'web{0:d2}' -f $_ }
 $run = @{ Parallel = $true; ThrottleLimit = 8; TimeoutSeconds = 4; Title = 'Patching' }
-$results = $servers | ForEach-ConsoleItem @run -ErrorAction SilentlyContinue {
+$results = $servers | Invoke-ConsoleRun @run -ErrorAction SilentlyContinue {
     Start-Sleep -Milliseconds (500 + ([int] $_.Substring(3) * 137) % 900)
     if ($_ -in 'web13', 'web26', 'web39') { throw "$_ did not come back" }
     if ($_ -eq 'web22') { Start-Sleep -Seconds 10 }
@@ -166,7 +166,7 @@ Import-Module ConsoleMonster
 Get-ChildItem -Path $PSHOME -File |
     Sort-Object -Property Length -Descending |
     Select-Object -First 5 |
-    Format-ConsoleTable -Property Name, Length, LastWriteTime -As Markdown
+    Show-ConsoleTable -Property Name, Length, LastWriteTime -AsWidget | Export-ConsoleFrame -Format Markdown
 ```
 
 <picture>
@@ -185,10 +185,10 @@ Any thread can update the screen and one thread draws it, so parallel work never
 ```powershell
 Import-Module ConsoleMonster
 
-$dashboard = New-ConsoleDashboard -Title 'Workers' {
-    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+$dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
+    New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
-1..8 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
+1..8 | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 8 {
     param($Number)
     Start-Sleep -Milliseconds (Get-Random -Maximum 800)
     Write-Host "worker $Number finished"

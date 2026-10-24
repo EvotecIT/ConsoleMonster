@@ -86,12 +86,12 @@ $r = Invoke-ConsolePester -Path $fixtures -PassThru -WarningVariable warnings -W
         $text | Should -Match '(?s)Tests Passed: 2,.*Failed: 1'
     }
 
-    It 'runs quietly with -Output None and with -NoLiveView keeps Pester''s own output' {
+    It 'runs quietly with -Output None and with -NoLive keeps Pester''s own output' {
         $text = Invoke-PesterChild @'
 $quiet = Invoke-ConsolePester -Path $fixtures -Output None -PassThru
 "QUIET=$($quiet.FailedCount)"
 '---'
-$plain = Invoke-ConsolePester -Path $fixtures -NoLiveView -PassThru
+$plain = Invoke-ConsolePester -Path $fixtures -NoLive -PassThru
 "PLAIN=$($plain.FailedCount)"
 '@
         $quietPart, $plainPart = $text -split '---'

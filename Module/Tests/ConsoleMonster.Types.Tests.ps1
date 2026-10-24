@@ -12,7 +12,7 @@ Describe 'Every input type through every command' {
         $casesPath = Join-Path $PSScriptRoot 'Support\TypeCases.ps1'
         $sweepPath = Join-Path $PSScriptRoot 'Support\Invoke-TypeSweep.ps1'
         $runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
-        $script:Commands = @('Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleJson', 'Show-Console', 'Out-ConsoleDefault', 'Compare-ConsoleObject')
+        $script:Commands = @('Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree', 'Show-ConsoleJson', 'Show-Console', 'Out-ConsoleDefault', 'Compare-ConsoleObject')
         $script = @(
             "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
             "[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
@@ -52,35 +52,35 @@ Describe 'Every input type through every command' {
     }
 
     It 'never reveals the length of a secure string' {
-        foreach ($command in 'Format-ConsoleTable', 'Format-ConsoleList', 'Format-ConsoleTree', 'Format-ConsoleJson', 'Show-Console') {
+        foreach ($command in 'Show-ConsoleTable', 'Show-ConsoleList', 'Show-ConsoleTree', 'Show-ConsoleJson', 'Show-Console') {
             ($script:Cells["SecureString|$command"].Text -join "`n") | Should -Not -Match 'Length' -Because $command
         }
     }
 
     It 'shows dictionaries as their keys and values' {
-        ($script:Cells['Hashtable|Format-ConsoleTable'].Text -join "`n") | Should -Match 'Count\s+3'
-        ($script:Cells['ListOfHashtables|Format-ConsoleTable'].Text -join "`n") | Should -Match 'Name\W+Size'
-        ($script:Cells['NestedDictionary|Format-ConsoleTable'].Text -join "`n") | Should -Match 'Port=8080, Tls=yes'
-        ($script:Cells['NonStringKeys|Format-ConsoleJson'].Text -join "`n") | Should -Match '"Monday": "start"'
-        ($script:Cells['Ordered|Format-ConsoleList'].Text -join "`n") | Should -Match '(?s)Zulu.*Alpha.*Mike'
+        ($script:Cells['Hashtable|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Count\s+3'
+        ($script:Cells['ListOfHashtables|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Name\W+Size'
+        ($script:Cells['NestedDictionary|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Port=8080, Tls=yes'
+        ($script:Cells['NonStringKeys|Show-ConsoleJson'].Text -join "`n") | Should -Match '"Monday": "start"'
+        ($script:Cells['Ordered|Show-ConsoleList'].Text -join "`n") | Should -Match '(?s)Zulu.*Alpha.*Mike'
     }
 
     It 'shows collections as their items and nested records by their title' {
-        ($script:Cells['PSCustomObject|Format-ConsoleTable'].Text -join "`n") | Should -Match 'a, b'
-        ($script:Cells['PSCustomObject|Format-ConsoleTable'].Text -join "`n") | Should -Match 'Jan \(7\)'
-        ($script:Cells['ListAsOneObject|Format-ConsoleTable'].Text -join "`n") | Should -Match '(?s)1.*2.*3'
-        ($script:Cells['ArrayOfArrays|Format-ConsoleTable'].Text -join "`n") | Should -Match '1, 2'
-        ($script:Cells['DataRows|Format-ConsoleTable'].Text -join "`n") | Should -Not -Match 'RowState|ItemArray'
-        ($script:Cells['XmlDocument|Format-ConsoleTable'].Text -join "`n") | Should -Match 'web01, web02'
+        ($script:Cells['PSCustomObject|Show-ConsoleTable'].Text -join "`n") | Should -Match 'a, b'
+        ($script:Cells['PSCustomObject|Show-ConsoleTable'].Text -join "`n") | Should -Match 'Jan \(7\)'
+        ($script:Cells['ListAsOneObject|Show-ConsoleTable'].Text -join "`n") | Should -Match '(?s)1.*2.*3'
+        ($script:Cells['ArrayOfArrays|Show-ConsoleTable'].Text -join "`n") | Should -Match '1, 2'
+        ($script:Cells['DataRows|Show-ConsoleTable'].Text -join "`n") | Should -Not -Match 'RowState|ItemArray'
+        ($script:Cells['XmlDocument|Show-ConsoleTable'].Text -join "`n") | Should -Match 'web01, web02'
     }
 
     It 'marks a failing getter instead of losing the record' {
-        ($script:Cells['ThrowingGetter|Format-ConsoleList'].Text -join "`n") | Should -Match 'script getter failed'
-        ($script:Cells['ThrowingGetter|Format-ConsoleTable'].Text -join "`n") | Should -Match 'script getter failed'
+        ($script:Cells['ThrowingGetter|Show-ConsoleList'].Text -join "`n") | Should -Match 'script getter failed'
+        ($script:Cells['ThrowingGetter|Show-ConsoleTable'].Text -join "`n") | Should -Match 'script getter failed'
     }
 
     It 'stops reading getters that stall instead of waiting for all of them' {
-        $cell = $script:Cells['SlowGetters|Format-ConsoleTable']
+        $cell = $script:Cells['SlowGetters|Show-ConsoleTable']
         $cell.Error | Should -BeNullOrEmpty
         $cell.Ms | Should -BeLessThan 5000
         ($cell.Text -join "`n") | Should -Match 'slow'

@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named region whose content can be replaced while a dashboard runs.
 
-Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -Name with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
+Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRegion [-Name] <string> [[-Content] <scriptblock>] [-Widget <IWidget>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsoleRegion [-WidgetId] <string> [[-Content] <scriptblock>] [-Widget <IWidget>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a named region whose content can be replaced while a dashboard runs.
 
-Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -Name with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
+Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Set-ConsoleRegion -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Title 'Result' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
+New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
 ```
 
 A panel whose content switches from a spinner to a table
@@ -80,22 +80,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The region name used by Set-ConsoleRegion.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Weight
 The share of the remaining space in a row or column layout.
 
@@ -125,6 +109,22 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The region name used by Set-ConsoleRegion.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

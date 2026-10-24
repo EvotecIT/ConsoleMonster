@@ -110,7 +110,7 @@ for (int page = snapshot ? step : 0; page <= (snapshot ? step : 8); page++) {
             });
             break;
         case 5:
-            Ask(new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 });
+            Ask(new NumberPrompt("Port") { Integer = true, Minimum = 1, Maximum = 65535, Default = 443 });
             break;
         case 6:
             Ask(new PathPrompt("Report folder") { Kind = PathKind.Folder, Default = reportFolder });

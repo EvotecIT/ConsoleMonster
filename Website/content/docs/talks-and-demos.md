@@ -49,14 +49,14 @@ The driver wraps the shell's actual prompt in OSC 133 semantic marks. It never s
 
 ```powershell
 Import-Module ConsoleMonster
-Invoke-ConsoleDemo -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
+Invoke-ConsolePresentation -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
 Export-ConsoleRecording -Path ./talk.cast -Format Gif -Preset Slide16x9 -WindowChrome -Destination ./talk.gif
 Export-ConsoleRecording -Path ./talk.cast -Format Mp4 -Preset Slide16x9 -WindowChrome -Destination ./talk.mp4
 ```
 
 PNG, GIF and APNG run without an external executable. MP4 pipes RGBA frames to `ffmpeg` on PATH and writes H.264 with `yuv420p` pixels and fast-start metadata; it has no audio track. If ffmpeg is missing, use GIF or install ffmpeg separately. It is never a package dependency.
 
-`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF uses a shared quantised palette. `-IdleLimit 2` caps unchanged-frame delays while the final frame has its own hold. Use zero to keep original timing. `-LoopCount 0` loops indefinitely; one plays once. MP4 is a single pass; choose repetition in your slide tool. APNG preserves full-colour pixels for software that supports it.
+`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF uses a shared quantised palette. `-IdleLimitSeconds 2` caps unchanged-frame delays while the final frame has its own hold. Use zero to keep original timing. `-LoopCount 0` loops indefinitely; one plays once. MP4 is a single pass; choose repetition in your slide tool. APNG preserves full-colour pixels for software that supports it.
 
 | Preset | Canvas |
 |---|---|
@@ -83,7 +83,7 @@ Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows
 ```powershell
 # Final frame, or a moment in source-recording time.
 Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Destination ./final.png
-Export-ConsoleRecording ./talk.cast -Format Png -At '00:00:04' -Preset Slide16x9 -Destination ./moment.png
+Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -Destination ./moment.png
 
 # A chapter's completed view, or numbered slides for every chapter.
 Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -Destination ./report.png
@@ -98,8 +98,8 @@ New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset S
 ## Present live
 
 ```powershell
-Start-ConsoleDemo -Path ./demo.ps1
-Start-ConsoleDemo -Path ./demo.ps1 -Record ./on-stage.cast
+Show-ConsolePresentation -Path ./demo.ps1
+Show-ConsolePresentation -Path ./demo.ps1 -RecordingPath ./on-stage.cast
 ```
 
 The terminal title shows the current step. Commands run in a dedicated real PowerShell shell; closing the demo stops that child and restores the title. Without `-Record`, temporary recording files are removed on exit.

@@ -17,7 +17,7 @@ $tasks = @(
 $baseline = ($tasks | ForEach-Object { "$($_.Task) | $($_.State) | $($_.Minutes) min" }) -join "`n"
 
 # Layout: compose the screen from the data above.
-$screen = New-ConsoleRows -Gap 1 {
+$screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
     New-ConsoleText -Markup '[bold]Before[/] [muted]| plain text[/]'
     New-ConsoleText $baseline
@@ -27,4 +27,4 @@ $screen = New-ConsoleRows -Gap 1 {
 }
 
 # Live updates: this static screen prints once and returns immediately.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

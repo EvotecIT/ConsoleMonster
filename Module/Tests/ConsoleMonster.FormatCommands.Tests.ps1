@@ -31,7 +31,7 @@
 $layout = @{}
 ($layoutJson = '__LAYOUT__' | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $layout[$_.Name] = $_.Value }
 foreach ($width in 20, 21, 40, 41, 80) {
-    $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 40, 'None')
+    $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 40, 'None')
     [ConsoleMonster.Terminal]::Profile = $profile
     foreach ($length in 5, 16, 20) {
         $values = 1..7 | ForEach-Object { [pscustomobject]@{ Name = "$_-" + ('x' * $length); Group = if ($_ -lt 4) { 'A' } else { 'B' } } }

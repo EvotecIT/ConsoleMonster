@@ -13,7 +13,7 @@ Sends a "set" update to the named widget. For a key/value list the value is show
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Set-ConsoleValue [-Key] <string> [-Value] <Object> [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Set-ConsoleValue [[-WidgetId] <string>] [-Key] <string> [-Value] <Object> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Sends a "set" update to the named widget. For a key/value list the value is show
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleValue -Name summary -Key 'Evaluated' -Value '154 / 332'
+Set-ConsoleValue -WidgetId summary -Key 'Evaluated' -Value '154 / 332'
 ```
 
 Update a summary pair
@@ -42,23 +42,7 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The widget name (default keyvalue).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -90,7 +74,23 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 1
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The widget name (default keyvalue).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

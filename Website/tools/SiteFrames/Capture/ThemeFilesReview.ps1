@@ -45,17 +45,17 @@ foreach ($scheme in 'Dark', 'Light') {
             } else {
                 $theme = $teamTheme
             }
-            $options = [ConsoleMonster.Export.ExportOptions]::new()
+            $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportOptions'))::new()
             $options.Width = $width
             $options.Theme = $scheme
             $options.Culture = $culture
             $options.WindowChrome = $true
             $options.Title = $stage + '-' + $scheme.ToLowerInvariant() + '-' + $width + ' | Build queue (sample data)'
-            $frame = [ConsoleMonster.Export.ConsoleExporter]::Render($themeReport, $options, $theme)
+            $frame = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::Render($themeReport, $options, $theme)
             $name = $stage + '-' + $scheme.ToLowerInvariant() + '-' + $width
-            $html = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($frame, $options)
-            $svg = [ConsoleMonster.Export.ConsoleExporter]::ToSvg($frame, $options)
-            $text = [ConsoleMonster.Export.ConsoleExporter]::ToText($frame)
+            $html = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToHtml($frame, $options)
+            $svg = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToSvg($frame, $options)
+            $text = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToText($frame)
             [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.html')), $html, [Text.UTF8Encoding]::new($false))
             [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.svg')), $svg, [Text.UTF8Encoding]::new($false))
             [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name + '.txt')), $text, [Text.UTF8Encoding]::new($false))

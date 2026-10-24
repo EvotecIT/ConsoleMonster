@@ -14,14 +14,14 @@ $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -
 $tasks = @('Health report', 'Inspect queue', 'Preview cleanup')
 $selected = $tasks[$Step]
 # Layout: construct the widgets shown on screen.
-Show-ConsoleApp {
-    New-ConsoleRows -Gap 1 {
+Show-ConsoleApp -Content {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Server toolbox[/] [muted]· operations[/]'
-        New-ConsoleSelect -Name Task -Label Task -Choices $tasks -Value $selected
+        New-ConsoleSelect -Key Task -Label Task -Choices $tasks -Value $selected
         # Live updates: rebuild this section when an input or button changes state.
-        New-ConsoleBinding {
+        New-ConsoleBinding -Content {
             param($State)
-            New-ConsolePanel -Title Preview {
+            New-ConsolePanel -Title Preview -Content {
                 switch ([string] $State.Task) {
                     'Health report' { '[pass]web-01 reachable[/]'; 'CPU 24% · memory 61%' }
                     'Inspect queue' { '[accent]12 jobs waiting[/]'; 'Oldest job 4 minutes' }

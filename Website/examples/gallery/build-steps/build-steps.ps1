@@ -13,9 +13,9 @@ Import-Module ConsoleMonster
 $stages = @('Restore', 'Compile', 'Test', 'Package')
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
-        New-ConsolePanel -Title 'Release checklist' {
+        New-ConsolePanel -Title 'Release checklist' -Content {
             foreach ($index in 0..3) {
                 $status = if ($index -lt $Tick) { 'pass' } elseif ($index -eq $Tick) { 'accent' } else { 'muted' }
                 $label = if ($index -lt $Tick) { 'complete' } elseif ($index -eq $Tick) { 'running' } else { 'pending' }
@@ -23,7 +23,7 @@ function New-DemoFrame($Tick) {
             }
         }
         New-ConsoleProgress -Label Overall -Value $Tick -Total 4
-        New-ConsoleKeyValue -Data ([ordered] @{
+        New-ConsoleKeyValue -InputObject ([ordered] @{
             'Project' = 'Orbit.Tools'
             'Version' = '1.2.0'
             'Artifacts' = './artifacts/'
@@ -35,16 +35,16 @@ function New-DemoFrame($Tick) {
 
 # Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-DemoFrame $Step | Write-ConsoleWidget
+    New-DemoFrame $Step | Show-Console
     return
 }
 $frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })
-$screen = New-ConsoleRegion -Name demo -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+$screen = New-ConsoleRegion -WidgetId demo -Widget $frames[0]
+Invoke-ConsoleDashboard $screen -ArgumentList (, $frames) {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
-        Set-ConsoleRegion -Name demo -Widget $frame
+        Set-ConsoleRegion -WidgetId demo -Widget $frame
         Start-Sleep -Milliseconds 650
     }
 }

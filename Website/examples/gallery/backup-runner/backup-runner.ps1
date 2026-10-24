@@ -17,7 +17,7 @@ function New-BackupFrame($Tick) {
         $attempts = if ($Tick -eq 0) { 0 } elseif ($Tick -eq 2 -and $job.Retry) { 2 } else { 1 }
         [pscustomobject] @{ Job = $job.Name; Size = $job.Size; Attempts = $attempts; Status = $status }
     }
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule '[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]'
         New-ConsoleTable -InputObject $rows -Property Job, Size, Attempts, Status -Expand
         if ($Tick -eq 0) { '[muted]4 jobs queued · destination ./backups/nightly[/]' }
@@ -28,7 +28,7 @@ function New-BackupFrame($Tick) {
 
 # Behaviour: headless snapshots do not start workers. Live jobs emit their result on success.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-BackupFrame $Step | Write-ConsoleWidget
+    New-BackupFrame $Step | Show-Console
     return
 }
 $pending = $jobs
@@ -36,7 +36,7 @@ $completed = @()
 $attemptErrors = @()
 foreach ($attempt in 1..2) {
     if ($pending.Count -eq 0) { break }
-    $results = @($pending | ForEach-ConsoleItem -Parallel -ThrottleLimit 2 -Name Name -Title "Backup attempt $attempt" -ErrorAction SilentlyContinue -ErrorVariable failures {
+    $results = @($pending | Invoke-ConsoleRun -Parallel -ThrottleLimit 2 -Label Name -Title "Backup attempt $attempt" -ErrorAction SilentlyContinue -ErrorVariable failures {
         Start-Sleep -Milliseconds 250
         if ($_.Retry -and $using:attempt -eq 1) { throw 'Destination busy; retry this job' }
         [pscustomobject] @{ Name = $_.Name; Archive = "./backups/nightly/$($_.Name).zip" }
@@ -46,4 +46,4 @@ foreach ($attempt in 1..2) {
     $pending = @($pending | Where-Object { $_.Name -notin $results.Name })
 }
 # $completed holds archive results; $pending and $attemptErrors retain unresolved work and diagnostics.
-New-BackupFrame 2 | Write-ConsoleWidget
+New-BackupFrame 2 | Show-Console

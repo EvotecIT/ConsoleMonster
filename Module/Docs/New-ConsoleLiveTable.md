@@ -8,32 +8,32 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a table whose rows change while a dashboard runs.
 
-Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Format-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleLiveTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Show-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLiveTable [[-Name] <string>] [-Column <Object[]>] [-Table <Table>] [-Title <Object>] [-Border <TableBorder>] [-MaxRows <int>] [-SortBy <Object>] [-Descending] [<CommonParameters>]
+New-ConsoleLiveTable [[-WidgetId] <string>] [-Column <Object[]>] [-Table <Table>] [-Title <Object>] [-Border <TableBorder>] [-MaxRows <int>] [-SortBy <Object>] [-Descending] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a table whose rows change while a dashboard runs.
 
-Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Format-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
+Rows have stable keys and are added, updated, removed or cleared with Update-ConsoleLiveTable. Column widths only grow, so rows never jitter. -Column takes header texts or column hashtables (Alignment, Width, Flexible, Markup and the other column options of Show-ConsoleTable). -MaxRows keeps only the most recent rows; -SortBy keeps rows sorted by a column.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Duration' -MaxRows 20
+New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State', 'Duration' -MaxRows 20
 ```
 
 The 20 most recent jobs, newest state first
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal
-New-ConsoleLiveTable -Name failures -Column 'Server', 'Check', @{ Name = 'Actual'; Flexible = $true; Markup = $true } -MaxRows 5
+New-ConsoleLiveTable -WidgetId slowest -Column 'Check', 'Server', @{ Name = 'Took'; Alignment = 'Right' } -Border Minimal
+New-ConsoleLiveTable -WidgetId failures -Column 'Server', 'Check', @{ Name = 'Actual'; Flexible = $true; Markup = $true } -MaxRows 5
 ```
 
 The slowest checks with a right-aligned time, and failures whose last column takes the spare width and reads markup
@@ -57,7 +57,7 @@ Accept wildcard characters: False
 ```
 
 ### -Column
-The columns, in order: header texts, or hashtables with Name (the header) and the column options of Format-ConsoleTable, such as Alignment (Right for numbers and times), Width, MinWidth, MaxWidth, Flexible (takes the spare width), Overflow, Presenter and Markup (string values are markup, [fail]9 days[/]).
+The columns, in order: header texts, or hashtables with Name (the header) and the column options of Show-ConsoleTable, such as Alignment (Right for numbers and times), Width, MinWidth, MaxWidth, Flexible (takes the spare width), Overflow, Presenter and Markup (string values are markup, [fail]9 days[/]).
 
 ```yaml
 Type: Object[]
@@ -99,22 +99,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live name used by Update-ConsoleTable (default table).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -163,6 +147,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name used by Update-ConsoleLiveTable (default table).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -13,12 +13,12 @@ Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagF
 ## SYNTAX
 ### Simple (Default)
 ```powershell
-Invoke-ConsolePester [[-Path] <string[]>] [-ExcludePath <string[]>] [-TagFilter <string[]>] [-ExcludeTagFilter <string[]>] [-FullNameFilter <string[]>] [-Container <Object[]>] [-Output <string>] [-CI] [-PassThru] [-FullScreen] [-ExportHtml <string>] [-Title <string>] [-NoLiveView] [<CommonParameters>]
+Invoke-ConsolePester [[-Path] <string[]>] [-ExcludePath <string[]>] [-TagFilter <string[]>] [-ExcludeTagFilter <string[]>] [-FullNameFilter <string[]>] [-Container <Object[]>] [-Output <string>] [-CI] [-PassThru] [-FullScreen] [-ExportHtml <string>] [-Title <string>] [-NoLive] [<CommonParameters>]
 ```
 
 ### Advanced
 ```powershell
-Invoke-ConsolePester -Configuration <Object> [-FullScreen] [-ExportHtml <string>] [-Title <string>] [-NoLiveView] [<CommonParameters>]
+Invoke-ConsolePester -Configuration <Object> [-FullScreen] [-ExportHtml <string>] [-Title <string>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -117,7 +117,7 @@ Leave out tests with these tags (Filter.ExcludeTag).
 ```yaml
 Type: String[]
 Parameter Sets: Simple
-Aliases: ExcludeTag
+Aliases: None
 Possible values:
 
 Required: False
@@ -175,7 +175,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoLiveView
+### -NoLive
 Runs Pester unchanged with its own output, followed by the summary table (no adapter).
 
 ```yaml
@@ -245,7 +245,7 @@ Run only tests with these tags (Filter.Tag).
 ```yaml
 Type: String[]
 Parameter Sets: Simple
-Aliases: Tag
+Aliases: None
 Possible values:
 
 Required: False

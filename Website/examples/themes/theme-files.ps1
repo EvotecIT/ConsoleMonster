@@ -44,7 +44,7 @@ if (-not $Path) {
 if ($ExportDirectory) {
     $null = New-Item -ItemType Directory -Path $ExportDirectory -Force
     foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
-        Set-ConsoleTheme -Name $preset
+        Set-ConsoleTheme -Theme $preset
         Export-ConsoleTheme -Path (Join-Path $ExportDirectory ($preset + '.json'))
     }
 }
@@ -55,10 +55,10 @@ $targets = @(
     [pscustomobject]@{ Target = 'worker-01'; Status = 'Warn'; Detail = 'Restart scheduled' }
 )
 
-$themeReport = New-ConsoleRows -Gap 1 {
+$themeReport = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleText -Markup '[accent]Build queue[/] [muted]sample data[/]'
-    New-ConsolePanel -Title 'Checks' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Checks' -Content {
+        New-ConsoleStatusList -Content {
             New-ConsoleStatusItem 'Restore packages' -Status Pass -Detail 'complete'
             New-ConsoleStatusItem 'Run smoke checks' -Status Warn -Detail '1 retry'
             New-ConsoleStatusItem 'Deploy api-west' -Status Fail -Detail 'blocked'
@@ -66,19 +66,19 @@ $themeReport = New-ConsoleRows -Gap 1 {
         }
     }
     $targets | New-ConsoleTable -Property Target, Status, Detail -StatusProperty Status -Title 'Targets' -Expand
-    New-ConsolePanel -Title 'Recent log' {
-        New-ConsoleLog -Height 3 {
-            New-ConsoleLogEntry 'Loaded deployment plan' -Level Info -At 1s
-            New-ConsoleLogEntry 'Smoke check needed one retry' -Level Warning -At 3s
-            New-ConsoleLogEntry 'api-west health probe timed out' -Level Error -At 5s
+    New-ConsolePanel -Title 'Recent log' -Content {
+        New-ConsoleLogRegion -Height 3 -Content {
+            New-ConsoleLogEntry 'Loaded deployment plan' -Level Info -AtSeconds 1
+            New-ConsoleLogEntry 'Smoke check needed one retry' -Level Warning -AtSeconds 3
+            New-ConsoleLogEntry 'api-west health probe timed out' -Level Error -AtSeconds 5
         }
     }
 }
 
-Set-ConsoleTheme -Name $BaseTheme
-New-ConsoleRule -Title ('Before: built-in ' + $BaseTheme) | Write-ConsoleWidget -Width $Width
-$themeReport | Write-ConsoleWidget -Width $Width
+Set-ConsoleTheme -Theme $BaseTheme
+New-ConsoleRule -Title ('Before: built-in ' + $BaseTheme) | Show-Console -Width $Width
+$themeReport | Show-Console -Width $Width
 
 Set-ConsoleTheme -Path $Path
-New-ConsoleRule -Title ('After: team ' + $BaseTheme.ToLowerInvariant()) | Write-ConsoleWidget -Width $Width
-$themeReport | Write-ConsoleWidget -Width $Width
+New-ConsoleRule -Title ('After: team ' + $BaseTheme.ToLowerInvariant()) | Show-Console -Width $Width
+$themeReport | Show-Console -Width $Width

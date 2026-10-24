@@ -4,84 +4,52 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Write-ConsoleKeyValue
+# Show-ConsoleRule
 ## SYNOPSIS
-Writes an aligned key/value list.
+Writes a horizontal rule, optionally with a title.
 
-Same parameters as New-ConsoleKeyValue; the list is written immediately.
+A quick section separator for scripts.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleKeyValue [[-Data] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Markup] [-Name <string>] [<CommonParameters>]
+Show-ConsoleRule [[-Title] <Object>] [-Width <int>] [-Alignment <HorizontalAlignment>] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Writes an aligned key/value list.
+Writes a horizontal rule, optionally with a title.
 
-Same parameters as New-ConsoleKeyValue; the list is written immediately.
+A quick section separator for scripts.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Get-Item $PROFILE | Select-Object Name, Length, LastWriteTime | Write-ConsoleKeyValue
+Show-ConsoleRule 'Step 2: collect'
 ```
 
-Show an object's properties
+A section header
 
 ## PARAMETERS
 
-### -Content
-A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -Data.
+### -Alignment
+Alignment of the section title.
 
 ```yaml
-Type: ScriptBlock
+Type: HorizontalAlignment
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values:
-
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Data
-A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -InputObject
-An object from the pipeline whose properties become the pairs.
-
-```yaml
-Type: PSObject
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
+Possible values: Left, Center, Right
 
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Markup
-Treat values as markup.
+### -AsString
+Returns plain text without drawing.
 
 ```yaml
 Type: SwitchParameter
@@ -96,11 +64,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name used by Set-ConsoleValue (default keyvalue).
+### -AsWidget
+Returns the rule widget without drawing.
 
 ```yaml
-Type: String
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+The title (markup allowed).
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Width
+The width in cells (default the window), to match other output laid out with -Width.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -117,7 +117,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 

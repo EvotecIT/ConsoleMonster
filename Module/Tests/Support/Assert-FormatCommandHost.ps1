@@ -26,7 +26,7 @@ function Assert-DirectRoute {
         [bool] $Expected
     )
     process {
-        $actual = [ConsoleMonster.PowerShell.FormatCommandRouter]::IsDirectHost($PSCmdlet)
+        $actual = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.FormatCommandRouter'))::IsDirectHost($PSCmdlet)
         if ($actual -ne $Expected) { throw "Output route was $actual, expected $Expected" }
         $InputObject
     }
@@ -90,13 +90,13 @@ try {
             [pscustomobject]@{Name='two';State='Fail';Bytes=4096L;Date=[datetime]'2026-10-22';Duration=[timespan]::FromMinutes(3);Tags=@('x','y')}
         )
         $columns = @('Name','State','Bytes','Date','Duration','Tags')
-        $wanted = $values | Format-ConsoleTable -Property $columns -AsString -Width ([Console]::BufferWidth)
+        $wanted = $values | Show-ConsoleTable -Property $columns -AsString -Width ([Console]::BufferWidth)
         $wanted = ($wanted -replace "`r", '').TrimEnd("`n") + "`n"
         $lineCount = @($wanted.TrimEnd("`n") -split "`n").Count
         $frameWidth = @($wanted.TrimEnd("`n") -split "`n" | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
         $values | Format-Table -Property $columns
         $actual = [ConsoleMonsterTestConsoleFrame]::LastFrame($lineCount, $frameWidth)
-        if ($actual -cne $wanted) { throw "Direct-host Format-Table cells differ from Format-ConsoleTable.`nExpected:`n$wanted`nActual:`n$actual" }
+        if ($actual -cne $wanted) { throw "Direct-host Format-Table cells differ from Show-ConsoleTable.`nExpected:`n$wanted`nActual:`n$actual" }
         'DIRECT_HOST_CELL_PARITY_OK'
     }
     Disable-ConsoleFormatting

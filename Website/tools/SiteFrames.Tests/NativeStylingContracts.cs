@@ -43,7 +43,7 @@ namespace SiteFrames.Tests {
             Assert.Equal(3, frame.Height);
             Assert.Equal("last", frame.GetRowText(1).Trim());
             Assert.Equal(string.Empty, frame.GetRowText(2).Trim());
-            Assert.Equal(frame[0, 0].Style.Background, frame[0, 2].Style.Background);
+            Assert.Equal(frame[0, 0].Style.BackgroundColor, frame[0, 2].Style.BackgroundColor);
         }
     }
 }

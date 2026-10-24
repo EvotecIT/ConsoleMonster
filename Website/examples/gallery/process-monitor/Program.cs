@@ -39,7 +39,7 @@ if (args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.I
     Terminal.Write(Frame(step));
     return;
 }
-Slot screen = new Slot("processes", Frame(0));
+RegionWidget screen = new RegionWidget("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
 session.Run(live => {
     for (int tick = 0; tick <= 2 && !live.Cancellation.IsCancellationRequested; tick++) {

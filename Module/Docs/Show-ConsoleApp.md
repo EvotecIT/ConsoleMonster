@@ -25,10 +25,10 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleApp {
-    New-ConsoleTextInput -Name Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
+Show-ConsoleApp -Content {
+    New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
     New-ConsoleTable -Bind { $services | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
-    New-ConsoleBinding { "Edits: $($State.Edits)" }
+    New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
 } -PassThru
 ```
 
@@ -37,9 +37,9 @@ Filter application data without leaving PowerShell.
 ### EXAMPLE 2
 ```powershell
 # Using the object directly
-            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-$keys = [ConsoleMonster.Input.ScriptedInput]::new('"abc" Escape')
-Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $keys -Capture $capture -PassThru
+            $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"abc" Escape')
+Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $keys -Capture $capture -PassThru
 ```
 
 Capture a scripted run without a physical console.

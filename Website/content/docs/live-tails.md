@@ -38,7 +38,7 @@ The tail reads only completed lines, recognises each line's timestamp and level,
 `-Filter` selects lines containing a literal, ordinal case-insensitive substring. `-Highlight` emphasizes a literal substring in the live view. Neither accepts a regular expression. Highlighting never changes plain output.
 
 ```powershell
-Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Filter ERROR -Count 1 -Plain
+Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Filter ERROR -Count 1 -NoLive
 Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Highlight DATABASE
 ```
 
@@ -71,7 +71,7 @@ The core `ConsoleLogTail.Run` invokes its reader synchronously on the caller's t
 File tails recognize completed CR/LF/CRLF lines and UTF-8/UTF-16/UTF-32 byte-order marks. Without a BOM, `-Encoding` chooses the file fallback, defaulting to `utf8`; a recognized BOM takes precedence. The accepted names match `Write-ConsoleText`: `unknown`, `string`, `unicode`, `bigendianunicode`, `utf8`, `utf8BOM`, `utf8NoBOM`, `utf32`, `ascii`, `default`, and `oem`. This parameter applies only to `-Path`.
 
 ```powershell
-Watch-ConsoleLog -Path ./legacy.log -Encoding unicode -Count 1 -Plain
+Watch-ConsoleLog -Path ./legacy.log -Encoding unicode -Count 1 -NoLive
 ```
 
 Partial lines wait for their terminator and can use unbounded memory. Observed rotation or truncation restarts reading at the path; unread data in the old renamed file is not drained. An unobserved truncate/regrow with identical checkpoint bytes can look like an append. File identity supports Windows and x64/arm64 Linux/macOS.

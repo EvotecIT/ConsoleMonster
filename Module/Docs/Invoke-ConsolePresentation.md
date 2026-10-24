@@ -4,33 +4,49 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Start-ConsoleDemo
+# Invoke-ConsolePresentation
 ## SYNOPSIS
-Presents a scripted demo one command at a time in a real shell.
+Types a scripted PowerShell demo into a real terminal and records it.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -Record saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleDemo [-Path] <string> [-Record <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <int>] [-IdleLimit <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
+Invoke-ConsolePresentation [-Path] <string> [-Destination] <string> [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <int>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Presents a scripted demo one command at a time in a real shell.
+Types a scripted PowerShell demo into a real terminal and records it.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -Record saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Start-ConsoleDemo -Path ./demo.ps1 -Record ./talk.cast
+Invoke-ConsolePresentation -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
 ```
 
-Present and record
+Record a talk
 
 ## PARAMETERS
+
+### -Destination
+Destination asciicast v2 recording. Existing recordings are never overwritten.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Height
 Terminal height in cells.
@@ -48,7 +64,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -IdleLimit
+### -IdleLimitSeconds
 Longest recorded idle gap in seconds; zero preserves actual timing.
 
 ```yaml
@@ -75,22 +91,6 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Record
-Optional asciicast recording path.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

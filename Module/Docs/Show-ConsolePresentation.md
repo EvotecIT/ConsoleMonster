@@ -4,100 +4,36 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Write-ConsoleException
+# Show-ConsolePresentation
 ## SYNOPSIS
-Writes an error or exception readably (Format-ConsoleError without -AsWidget).
+Presents a scripted demo one command at a time in a real shell.
 
-The same view as Format-ConsoleError: type, message, position, script stack, frames with file:line links, collapsed framework frames and inner errors.
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -RecordingPath saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleException [[-InputObject] <Object>] [-ShowFrameworkFrames] [-MaxFrames <int>] [-NoStack] [-Compact] [-AsString] [-As <string>] [-Width <int>] [<CommonParameters>]
+Show-ConsolePresentation [-Path] <string> [-RecordingPath <string>] [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <int>] [-IdleLimitSeconds <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Writes an error or exception readably (Format-ConsoleError without -AsWidget).
+Presents a scripted demo one command at a time in a real shell.
 
-The same view as Format-ConsoleError: type, message, position, script stack, frames with file:line links, collapsed framework frames and inner errors.
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -RecordingPath saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-try { [int]::Parse('x') } catch { Write-ConsoleException $_ }
+Show-ConsolePresentation -Path ./demo.ps1 -RecordingPath ./talk.cast
 ```
 
-In a catch block
+Present and record
 
 ## PARAMETERS
 
-### -As
-Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Markdown, Html
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AsString
-Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Compact
-Uses the message-first everyday error layout, highlighted invocation and folded inner exceptions. Stacks remain hidden unless -ShowFrameworkFrames is requested.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -InputObject
-An ErrorRecord, an exception or a message (pipeline input).
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -MaxFrames
-The most app frames shown per error (default 8).
+### -Height
+Terminal height in cells.
 
 ```yaml
 Type: Int32
@@ -112,11 +48,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NoStack
-Leaves out the stack frames: type, message and position only.
+### -IdleLimitSeconds
+Longest recorded idle gap in seconds; zero preserves actual timing.
 
 ```yaml
-Type: SwitchParameter
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -128,11 +64,91 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowFrameworkFrames
-Shows framework frames (System, Microsoft, the PowerShell engine) instead of collapsing them.
+### -Path
+Plain PowerShell demo file with optional # demo: directives.
 
 ```yaml
-Type: SwitchParameter
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RecordingPath
+Optional asciicast recording path.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Redact
+Output patterns redacted before recording.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Seed
+Seed for repeatable character timing.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Shell
+Child PowerShell executable. Defaults to the current PowerShell.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StepTimeoutSeconds
+Maximum wait for a semantic prompt or output pattern.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -145,7 +161,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Lays the output out for this width instead of the terminal's.
+Terminal width in cells.
 
 ```yaml
 Type: Int32
@@ -165,11 +181,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Object`
+- `None`
 
 ## OUTPUTS
 
-- `None`
+- `System.IO.FileInfo`
 
 ## RELATED LINKS
 

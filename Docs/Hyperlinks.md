@@ -9,13 +9,13 @@ give a link a short label. Literal log messages also recognize visible URLs and 
 ```powershell
 Import-Module ConsoleMonster
 
-Get-ChildItem -File | Format-ConsoleTable -Property Name, Length, @{
+Get-ChildItem -File | Show-ConsoleTable -Property Name, Length, @{
     Name = 'FullName'
     Header = 'Open file'
     Presenter = 'Link'
 }
 
-Get-Item ./report.txt | Format-ConsoleList -Property Name, @{
+Get-Item ./report.txt | Show-ConsoleList -Property Name, @{
     Name = 'FullName'
     Presenter = 'Link'
 }
@@ -26,14 +26,14 @@ Write-ConsoleText 'Project documentation' -Link 'https://example.com/docs'
 Inside a running ConsoleMonster dashboard, logs accept both literal messages and labelled rich text:
 
 ```powershell
-Write-ConsoleLog 'Saved /var/log/report.txt; see https://example.com/docs'
-Write-ConsoleLog (New-ConsoleText 'Open report' -Link 'file:///var/log/report.txt')
+Write-ConsoleLogEntry 'Saved /var/log/report.txt; see https://example.com/docs'
+Write-ConsoleLogEntry (New-ConsoleText 'Open report' -Link 'file:///var/log/report.txt')
 ```
 
 Use `New-ConsoleText -Link` in a calculated property when the label should differ from the destination:
 
 ```powershell
-Get-ChildItem -File | Format-ConsoleTable -Property Name, @{
+Get-ChildItem -File | Show-ConsoleTable -Property Name, @{
     Name = 'Report'
     Expression = { New-ConsoleText 'Open' -Link $_.FullName }
 }

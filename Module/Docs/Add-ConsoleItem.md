@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.
 
-The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLog and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Write-ConsoleWidget. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatus, Write-ConsoleLog...) instead.
+The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLogRegion and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatusItem, Write-ConsoleLogEntry...) instead.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,16 +19,16 @@ Add-ConsoleItem [-Item] <Object> -InputObject <psobject> [-KeyProperty <string>]
 ## DESCRIPTION
 Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.
 
-The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLog and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Write-ConsoleWidget. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatus, Write-ConsoleLog...) instead.
+The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLogRegion and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Show-Console. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatusItem, Write-ConsoleLogEntry...) instead.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$log = New-ConsoleLog -Height 5
-$log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -At 2s }
-$log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -At 31s }
-$log | Write-ConsoleWidget
+$log = New-ConsoleLogRegion -Height 5
+$log | Add-ConsoleItem { New-ConsoleLogEntry 'Discovered 4 domain controllers' -AtSeconds 2 }
+$log | Add-ConsoleItem { New-ConsoleLogEntry 'DC02 lags by 42 minutes' -Level Warning -AtSeconds 31 }
+$log | Show-Console
 ```
 
 Add log lines as the script goes, then show the log
@@ -39,14 +39,14 @@ $tree = New-ConsoleTree 'Shares'
 foreach ($share in Get-SmbShare) {
     $tree | Add-ConsoleItem { New-ConsoleTreeNode $share.Name -Detail $share.Path }
 }
-$tree | Write-ConsoleWidget
+$tree | Show-Console
 ```
 
 Grow a tree in a loop
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleSparkline -Label 'req/s' | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Write-ConsoleWidget
+New-ConsoleSparkline -Label 'req/s' | Add-ConsoleItem 3, 5, 8, 13, 9 -PassThru | Show-Console
 ```
 
 Values for a sparkline, written on

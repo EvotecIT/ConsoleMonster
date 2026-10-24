@@ -181,7 +181,7 @@ namespace SiteFrames.Pages {
                 entry["csharpDownload"] = "/examples/gallery/" + demo.Slug + "/Program.cs";
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
-                    ["export"] = "Get-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
+                    ["export"] = "Export-ConsoleDemo " + demo.Slug + " -Path ./" + demo.Slug + ".ps1",
                     ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug
                 };
                 if (demo.Steps > 1) {

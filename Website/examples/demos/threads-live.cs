@@ -8,7 +8,7 @@ using ConsoleMonster.Widgets;
 string[] servers = Enumerable.Range(1, 12).Select(n => $"web{n:00}").ToArray();
 string[] steps = { "copying", "stopping", "swapping", "starting" };
 Dashboard dashboard = new DashboardBuilder("Patching the web farm")
-    .Panel("Servers", new Lanes(), out Lanes lanes, caption: "12 at once")
+    .Panel("Servers", new Lanes(), out Lanes lanes, headerRight: "12 at once")
     .Panel("Log", new LogRegion(), fill: true)
     .BuildDashboard();
 foreach (string server in servers) {

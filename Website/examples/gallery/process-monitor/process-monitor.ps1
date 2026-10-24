@@ -16,11 +16,11 @@ function New-ProcessFrame($Tick) {
     $rows = foreach ($process in $processes) {
         [pscustomobject] @{ Name = $process.Name; Pid = $process.Pid; 'CPU %' = $process.Cpu + $Tick * 3; 'Memory MiB' = $process.Memory + $Tick * 16 }
     }
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule '[bold]Process monitor[/] [muted]· refresh 1s[/]'
         New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
-        New-ConsolePanel -Title 'CPU history' {
+        New-ConsolePanel -Title 'CPU history' -Content {
             New-ConsoleSparkline -Label 'CPU %' -Value @($cpuHistory + (56 + $Tick * 5))
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
@@ -29,16 +29,16 @@ function New-ProcessFrame($Tick) {
 
 # Behaviour: one deterministic snapshot in CI; three refreshes in a terminal.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-ProcessFrame $Step | Write-ConsoleWidget
+    New-ProcessFrame $Step | Show-Console
     return
 }
 $frames = @(0..2 | ForEach-Object { New-ProcessFrame $_ })
-$screen = New-ConsoleRegion -Name processes -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+$screen = New-ConsoleRegion -WidgetId processes -Widget $frames[0]
+Invoke-ConsoleDashboard $screen -ArgumentList (, $frames) {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
-        Set-ConsoleRegion -Name processes -Widget $frame
+        Set-ConsoleRegion -WidgetId processes -Widget $frame
         Start-Sleep -Milliseconds 1000
     }
 }

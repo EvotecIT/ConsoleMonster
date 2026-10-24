@@ -20,16 +20,16 @@ $hosts = @(
 )
 $query = @('', 'sql', 'missing')[$Step]
 # Layout: construct the widgets shown on screen.
-Show-ConsoleApp {
-    New-ConsoleRows -Gap 1 {
+Show-ConsoleApp -Content {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Fleet health[/] [muted]· production inventory[/]'
-        New-ConsolePanel -Title 'Fleet summary' {
+        New-ConsolePanel -Title 'Fleet summary' -Content {
             '[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]'
         }
 
-        New-ConsoleTextInput -Name Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'
+        New-ConsoleTextInput -Key Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'
         # Live updates: rebuild this section when an input or button changes state.
-        New-ConsoleBinding {
+        New-ConsoleBinding -Content {
             param($State)
             $queryText = [string] $State.Query
             $rows = @($hosts | Where-Object {

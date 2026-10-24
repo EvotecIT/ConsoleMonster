@@ -11,11 +11,11 @@ $repositories = @(
 )
 
 # Layout: numeric columns keep local changes separate from branch divergence.
-$report = New-ConsoleRows -Gap 1 {
+$report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]Repository workspace[/] [muted]· ./work[/]'
     New-ConsoleTable -InputObject $repositories -Property Repository, Branch, Modified, Staged, Ahead, Behind -Expand
-    New-ConsolePanel -Title 'Suggested next steps' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Suggested next steps' -Content {
+        New-ConsoleStatusList -Content {
             New-ConsoleStatusItem 'orbit-api' -Status Info -Detail 'Review the staged diff before committing'
             New-ConsoleStatusItem 'orbit-cli' -Status Warn -Detail 'Working tree clean; inspect four incoming commits'
             New-ConsoleStatusItem 'orbit-docs' -Status Info -Detail 'Two local edits need review'
@@ -25,4 +25,4 @@ $report = New-ConsoleRows -Gap 1 {
 }
 
 # Behaviour: print once. Keep cached summaries fresh in a separate local collection step.
-$report | Write-ConsoleWidget
+$report | Show-Console

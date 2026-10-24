@@ -13,12 +13,12 @@ The new widget is shown from the next frame on; the surrounding frame stays, and
 ## SYNTAX
 ### Content (Default)
 ```powershell
-Set-ConsoleRegion [-Name] <string> [[-Content] <scriptblock>] [-Widget <IWidget>] [-Session <LiveSession>] [<CommonParameters>]
+Set-ConsoleRegion [-WidgetId] <string> [[-Content] <scriptblock>] [-Widget <IWidget>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Clear
 ```powershell
-Set-ConsoleRegion [-Name] <string> -Clear [-Session <LiveSession>] [<CommonParameters>]
+Set-ConsoleRegion [-WidgetId] <string> -Clear [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,7 +30,7 @@ The new widget is shown from the next frame on; the surrounding frame stays, and
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleRegion -Name main { $rows | Format-ConsoleTable -AsWidget }
+Set-ConsoleRegion -WidgetId main -Content { $rows | Show-ConsoleTable -AsWidget }
 ```
 
 Show a table when the query finishes
@@ -69,22 +69,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The region name.
-
-```yaml
-Type: String
-Parameter Sets: Content, Clear
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Session
 The live session to update. Defaults to $ConsoleSession or the running dashboard.
 
@@ -114,6 +98,22 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The region name.
+
+```yaml
+Type: String
+Parameter Sets: Content, Clear
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

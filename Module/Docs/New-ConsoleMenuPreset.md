@@ -25,13 +25,13 @@ Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) a
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {
-    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target
-    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress
+$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' -Content {
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -ParameterName Target
+    New-ConsoleField Compress 'Compress' -Type Toggle -ParameterName Compress
 }
-$menu = New-ConsoleMenu 'Backup helper' {
+$menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {
-        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })
+        New-ConsoleKeyValue -InputObject ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })
     }
     New-ConsoleMenuItem 'Presets' -Presets
     New-ConsoleMenuItem 'Back up' -Form $form
@@ -44,7 +44,7 @@ A preset that fills in a form, with what it sets as the preview
 ### EXAMPLE 2
 ```powershell
 $targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'
-$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {
+$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') -Content {
     New-ConsoleMenuItem 'Presets' -Presets
 }
 ```

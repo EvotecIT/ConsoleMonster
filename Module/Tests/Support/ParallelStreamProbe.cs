@@ -18,7 +18,7 @@ public sealed class ParallelStreamProbe : ILiveTarget {
     public static string ActivityFrame;
     public static LogRegion Log;
     public static ActivityList Activities;
-    public string Name { get { return "parallel-test-fence"; } }
+    public string WidgetId { get { return "parallel-test-fence"; } }
 
     public static void Attach() {
         lock (Gate) {

@@ -1,4 +1,4 @@
-﻿Describe 'Format-Console cmdlets' {
+﻿Describe 'Structured Show-Console cmdlets' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -24,13 +24,13 @@
         }
     }
 
-    It 'exports the Format cmdlets' {
+    It 'exports the structured Show cmdlets' {
         Import-Module $script:ModulePath -Force
-        (Get-Command -Module ConsoleMonster -Name Format-Console*).Name | Sort-Object | Should -Be @('Format-ConsoleCode', 'Format-ConsoleError', 'Format-ConsoleJson', 'Format-ConsoleList', 'Format-ConsoleTable', 'Format-ConsoleTree')
+        (Get-Command -Module ConsoleMonster -Name Show-ConsoleCode,Show-ConsoleError,Show-ConsoleJson,Show-ConsoleList,Show-ConsoleTable,Show-ConsoleTree).Name | Sort-Object | Should -Be @('Show-ConsoleCode', 'Show-ConsoleError', 'Show-ConsoleJson', 'Show-ConsoleList', 'Show-ConsoleTable', 'Show-ConsoleTree')
     }
 
     It 'formats a table with presenters and a totals row as plain text' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Total -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Total -Width 100 -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }, @{ Name = 'Time'; Presenter = 'Duration' }"
         $text | Should -Match 'Size'
         $text | Should -Match '1\.41 MB'
         $text | Should -Match 'Total\s+\|\s+\|\s+4\.23 MB\s+\|\s+1 m 01 s'
@@ -39,12 +39,12 @@
 
     It 'formats numbers with -Culture and CONSOLEMONSTER_CULTURE instead of the current culture' {
         $props = "Name, @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes' }"
-        $polish = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Culture pl-PL -Width 100 -Property $props"
+        $polish = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Culture pl-PL -Width 100 -Property $props"
         $polish | Should -Match '1,41 MB'
         $env:CONSOLEMONSTER_CULTURE = 'pl-PL'
         try {
-            $fromEnvironment = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Width 100 -Property $props"
-            $explicit = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Culture en-US -Width 100 -Property $props"
+            $fromEnvironment = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Width 100 -Property $props"
+            $explicit = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Culture en-US -Width 100 -Property $props"
         } finally {
             $env:CONSOLEMONSTER_CULTURE = $null
         }
@@ -54,16 +54,16 @@
 
     It 'hides low-priority columns with a footer and switches to cards when narrow' {
         $props = "Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes'; Priority = 5 }, @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 0; MinWidth = 24 }"
-        $hidden = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Width 60 -CardsBelow 0 -Property $props"
+        $hidden = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Width 60 -CardsBelow 0 -Property $props"
         $hidden | Should -Match '\+1 column \(Path\)'
-        $cards = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -Width 40 -Property $props"
+        $cards = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -Width 40 -Property $props"
         $cards | Should -Match '3 records'
         $cards | Should -Match 'Docs\.zip'
         $cards | Should -Match 'Path\s+C:\\Build'
     }
 
     It 'evaluates calculated properties, groups with subtotals and limits to the top rows' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
         # Groups are sorted by key: the two Module rows come first and -Top 2 shows only them.
         $text | Should -Match 'Module\D{1,8}2'
         $text | Should -Not -Match 'nupkg'
@@ -72,7 +72,7 @@
     }
 
     It 'keeps the input order of groups with -NoSort' {
-        $text = Invoke-FormatChild -Script "`$artifacts | Format-ConsoleTable -GroupBy Kind -NoSort -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
+        $text = Invoke-FormatChild -Script "`$artifacts | Show-ConsoleTable -GroupBy Kind -NoSort -Total -Top 2 -Width 90 -Property Name, @{ Name = 'KB'; Expression = { [math]::Round(`$_.Length / 1KB) }; Aggregate = 'Sum' }"
         $text | Should -Match 'NuGet\D{1,8}1'
         $text | Should -Match 'Subtotal\s+\|\s+1,447'
         $text | Should -Match 'Showing 2 of 3'
@@ -82,11 +82,11 @@
         # The process view's ProcessName column is an alias of Name; a calculated { $_.Kind } column reads Kind.
         $text = Invoke-FormatChild -Script @'
 $p = Get-Process -Id $PID
-'== byname'; @($p, $p) | Format-ConsoleTable -GroupBy Name -Width 100
-'== byalias'; @($p, $p) | Format-ConsoleTable -GroupBy ProcessName -Width 100
-'== shown'; @($p, $p) | Format-ConsoleTable -GroupBy Name -ShowGroupColumn -Width 100
-'== single'; $p | Format-ConsoleTable -GroupBy Name -Width 100
-'== calculated'; $artifacts | Format-ConsoleTable -GroupBy Kind -Width 100 -Property @{ Name = 'Label'; Expression = { $_.Kind } }, Name
+'== byname'; @($p, $p) | Show-ConsoleTable -GroupBy Name -Width 100
+'== byalias'; @($p, $p) | Show-ConsoleTable -GroupBy ProcessName -Width 100
+'== shown'; @($p, $p) | Show-ConsoleTable -GroupBy Name -ShowGroupColumn -Width 100
+'== single'; $p | Show-ConsoleTable -GroupBy Name -Width 100
+'== calculated'; $artifacts | Show-ConsoleTable -GroupBy Kind -Width 100 -Property @{ Name = 'Label'; Expression = { $_.Kind } }, Name
 '@
         $parts = $text -split '== \w+'
         $parts[1] | Should -Not -Match 'ProcessName'
@@ -101,7 +101,7 @@ $p = Get-Process -Id $PID
     }
 
     It 'shows the numbers of a column with the decimals the column needs' {
-        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Cpu = 7.0 }, [pscustomobject] @{ Name = 'b'; Cpu = 11.75 }, [pscustomobject] @{ Name = 'c'; Cpu = 3 }) | Format-ConsoleTable -Width 60"
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Cpu = 7.0 }, [pscustomobject] @{ Name = 'b'; Cpu = 11.75 }, [pscustomobject] @{ Name = 'c'; Cpu = 3 }) | Show-ConsoleTable -Width 60"
         $text | Should -Match '\|\s+7\.00 \|'
         $text | Should -Match '\|\s+11\.75 \|'
         $text | Should -Match '\|\s+3\.00 \|'
@@ -109,32 +109,32 @@ $p = Get-Process -Id $PID
 
     It 'wraps long text onto three lines unless -Wrap is given, and keeps short values whole' {
         $script = "`$rows = @([pscustomobject] @{ Name = 'a'; Enabled = `$true; Notes = ('word ' * 60) }, [pscustomobject] @{ Name = 'b'; Enabled = `$false; Notes = 'short' })"
-        $default = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50"
-        $all = Invoke-FormatChild -Script "$script; `$rows | Format-ConsoleTable -Width 50 -Wrap"
+        $default = Invoke-FormatChild -Script "$script; `$rows | Show-ConsoleTable -Width 50"
+        $all = Invoke-FormatChild -Script "$script; `$rows | Show-ConsoleTable -Width 50 -Wrap"
         @($default -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -Be 5
         $default | Should -Match '\.\.\. \|'
         @($all -split "`n" | Where-Object { $_ -match '^\|' }).Count | Should -BeGreaterThan 5
         $default | Should -Match '\| yes\s+\|'
     }
 
-    It 'marks status fields in Format-ConsoleList records too' {
-        $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Format-ConsoleList -Width 60"
+    It 'marks status fields in Show-ConsoleList records too' {
+        $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Show-ConsoleList -Width 60"
         $text | Should -Match 'Status\s+\[FAIL\] Failed'
         $text | Should -Match 'Health\s+\[PASS\] Healthy'
     }
 
-    It 'marks status columns with PowerShell''s own words in Format-ConsoleTable' {
-        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Format-ConsoleTable -Width 60"
+    It 'marks status columns with PowerShell''s own words in Show-ConsoleTable' {
+        $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Show-ConsoleTable -Width 60"
         $text | Should -Match '\[PASS\] Success'
         $text | Should -Match '\[WARN\] Warning'
         $text | Should -Match '\[FAIL\] Error'
     }
 
-    It 'keeps one object a table unless -View Record, and puts object content in a panel' {
+    It 'uses a table or record command explicitly and puts object content in a panel' {
         $text = Invoke-FormatChild -Script @'
-'== one'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -Width 60
-'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Format-ConsoleTable -View Record -Width 60
-'== panel'; New-ConsolePanel -Title 'Server' -Content ([pscustomobject] @{ Name = 'alpha'; Port = 8080 }) | Write-ConsoleWidget -Width 60
+'== one'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Show-ConsoleTable -Width 60
+'== record'; [pscustomobject] @{ Name = 'alpha'; Port = 8080; Size = 3 } | Show-ConsoleList -Width 60
+'== panel'; New-ConsolePanel -Title 'Server' -Content ([pscustomobject] @{ Name = 'alpha'; Port = 8080 }) | Show-Console -Width 60
 '@
         $parts = $text -split '== \w+'
         $parts[1] | Should -Match '\| Name\s+\| Port \| Size \|'
@@ -145,14 +145,14 @@ $p = Get-Process -Id $PID
         $parts[3] | Should -Match 'Port\s+8080'
     }
 
-    It 'opens one level of a wide object in Format-ConsoleTree unless -Depth is given' {
+    It 'opens one level of a wide object in Show-ConsoleTree unless -Depth is given' {
         $fixture = (Join-Path $PSScriptRoot 'Support/WideTreeFixture.cs').Replace("'", "''")
         $text = Invoke-FormatChild -Script (@'
 Add-Type -Path '__FIXTURE__'
 $wide = [ConsoleMonsterWideTreeFixture]::new()
-"DEFAULT=$(($wide | Format-ConsoleTree -AsString).Split("`n").Count)"
-"DEEP=$(($wide | Format-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
-"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Format-ConsoleTree -AsString).Split("`n").Count)"
+"DEFAULT=$(($wide | Show-ConsoleTree -AsString).Split("`n").Count)"
+"DEEP=$(($wide | Show-ConsoleTree -Depth 3 -AsString).Split("`n").Count)"
+"SMALL=$(([pscustomobject] @{ a = 1; b = @{ c = @{ d = 1 } } } | Show-ConsoleTree -AsString).Split("`n").Count)"
 '@.Replace('__FIXTURE__', $fixture))
         [int] ($text -replace '(?s).*DEFAULT=(\d+).*', '$1') | Should -BeLessThan 300
         [int] ($text -replace '(?s).*DEEP=(\d+).*', '$1') | Should -BeGreaterThan 300
@@ -160,7 +160,7 @@ $wide = [ConsoleMonsterWideTreeFixture]::new()
     }
 
     It 'passes objects through with -PassThru' {
-        $text = Invoke-FormatChild -Script "`$out = `$artifacts | Format-ConsoleTable -Width 80 -PassThru; 'COUNT=' + @(`$out).Count"
+        $text = Invoke-FormatChild -Script "`$out = `$artifacts | Show-ConsoleTable -Width 80 -PassThru; 'COUNT=' + @(`$out).Count"
         $text | Should -Match 'COUNT=3'
     }
 
@@ -169,7 +169,7 @@ $wide = [ConsoleMonsterWideTreeFixture]::new()
 $o = [pscustomobject] @{ Name = 'svc1'; Status = 'Running'; Secret = 'x'; Path = 'C:\svc1.exe' }
 $set = [System.Management.Automation.PSPropertySet]::new('DefaultDisplayPropertySet', [string[]] @('Name', 'Status'))
 $o | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value ([System.Management.Automation.PSMemberInfo[]] @($set))
-@($o, $o) | Format-ConsoleTable -Width 60
+@($o, $o) | Show-ConsoleTable -Width 60
 '@
         $text = Invoke-FormatChild -Script $script
         $text | Should -Match 'Name\s+\|\s+Status'
@@ -177,7 +177,7 @@ $o | Add-Member -MemberType MemberSet -Name PSStandardMembers -Value ([System.Ma
     }
 
     It 'formats a record list and hides empty values' {
-        $text = Invoke-FormatChild -Script "`$artifacts[0] | Format-ConsoleList -Width 80 -Property Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes' }, Notes"
+        $text = Invoke-FormatChild -Script "`$artifacts[0] | Show-ConsoleList -Width 80 -Property Name, Kind, @{ Name = 'Length'; Presenter = 'Bytes' }, Notes"
         $text | Should -Match 'ConsoleMonster\.2\.0\.0\.nupkg'
         $text | Should -Match 'Length\s+1\.41 MB'
         $text | Should -Not -Match 'Notes'
@@ -193,9 +193,9 @@ $cert = [pscustomobject] @{
         [pscustomobject] @{ Subject = 'CN=R11'; Key = 'RSA 2048' }
     )
 }
-$cert | Format-ConsoleTree -MaxItems 2 -Title 'mail.evotec.xyz' -Width 80
+$cert | Show-ConsoleTree -MaxItems 2 -Title 'mail.evotec.xyz' -Width 80
 '=====SPLIT====='
-$cert | Format-ConsoleTree -AsInspector -Title 'mail.evotec.xyz' -Width 80
+$cert | Show-ConsoleObject -StaticSnapshot -Title 'mail.evotec.xyz' -Width 80
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='
@@ -210,7 +210,7 @@ $cert | Format-ConsoleTree -AsInspector -Title 'mail.evotec.xyz' -Width 80
         $script = @'
 $h = @{ Name = 'root'; Child = @{ A = 1 } }
 $h.Self = $h
-$h | Format-ConsoleTree -Depth 3 -Width 80
+$h | Show-ConsoleTree -Depth 3 -Width 80
 '@
         $text = Invoke-FormatChild -Script $script
         $text | Should -Match 'Name\s+root'
@@ -221,9 +221,9 @@ $h | Format-ConsoleTree -Depth 3 -Width 80
 
     It 'keeps the title and caption when a single dictionary is shown as a record' {
         $script = @'
-@{ a = 1 } | Format-ConsoleTable -Title 'Config' -Caption 'from defaults' -Width 60 -AsString
+@{ a = 1 } | Show-ConsoleTable -Title 'Config' -Caption 'from defaults' -Width 60 -AsString
 '=====SPLIT====='
-@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | Format-ConsoleTable -Title 'Config' -Width 60 -AsString
+@(@{ a = 1 }, [pscustomobject] @{ Name = 'svc'; Port = 8080 }) | Show-ConsoleTable -Title 'Config' -Width 60 -AsString
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='
@@ -238,13 +238,13 @@ $h | Format-ConsoleTree -Depth 3 -Width 80
 
     It 'shows a lone dictionary without a heading unless the caller gives a title' {
         $script = @'
-@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleTable -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleTable -Width 60 -AsString
 '=====SPLIT====='
-@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleList -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleList -Width 60 -AsString
 '=====SPLIT====='
-@{ Domain = 'evotec.xyz'; Records = 14 } | Format-ConsoleTable -Title 'Mail' -Width 60 -AsString
+@{ Domain = 'evotec.xyz'; Records = 14 } | Show-ConsoleTable -Title 'Mail' -Width 60 -AsString
 '=====SPLIT====='
-@{ Name = 'alpha'; Port = 8080 } | Format-ConsoleList -Width 60 -AsString
+@{ Name = 'alpha'; Port = 8080 } | Show-ConsoleList -Width 60 -AsString
 '@
         $text = Invoke-FormatChild -Script $script
         $parts = $text -split '=====SPLIT====='

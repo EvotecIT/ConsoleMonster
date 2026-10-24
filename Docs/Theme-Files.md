@@ -10,7 +10,7 @@ their colours and decorations follow the selected theme.
 ```powershell
 Import-Module ConsoleMonster
 
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Export-ConsoleTheme -Path ./team-theme.json -PassThru
 # Edit team-theme.json, then apply it.
 Set-ConsoleTheme -Path ./team-theme.json
@@ -58,10 +58,10 @@ Import-Module ConsoleMonster
 
 $null = New-Item -ItemType Directory -Path ./presets -Force
 foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
-    Set-ConsoleTheme -Name $preset
+    Set-ConsoleTheme -Theme $preset
     Export-ConsoleTheme -Path (Join-Path ./presets ($preset + '.json'))
 }
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 ```
 
 Use `.psd1` instead of `.json` to export the same presets as PowerShell data.

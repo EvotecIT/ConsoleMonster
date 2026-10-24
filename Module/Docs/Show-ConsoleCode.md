@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Format-ConsoleCode
+# Show-ConsoleCode
 ## SYNOPSIS
 Shows source text with syntax highlighting, line numbers and highlighted lines.
 
@@ -13,12 +13,12 @@ Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, 
 ## SYNTAX
 ### Text (Default)
 ```powershell
-Format-ConsoleCode [[-InputObject] <Object>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-Wrap] [-MaxLines <int>] [-Title <string>] [-NoTitle] [-AsString] [-Width <int>] [-AsWidget] [-As <string>] [<CommonParameters>]
+Show-ConsoleCode [[-InputObject] <Object>] [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-Wrap] [-MaxLines <int>] [-Title <string>] [-NoTitle] [-AsString] [-Width <int>] [-AsWidget] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Format-ConsoleCode -Path <string> [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-Wrap] [-MaxLines <int>] [-Title <string>] [-NoTitle] [-AsString] [-Width <int>] [-AsWidget] [-As <string>] [<CommonParameters>]
+Show-ConsoleCode -Path <string> [-Language <string>] [-LineNumbers] [-Highlight <string[]>] [-FirstLine <int>] [-Wrap] [-MaxLines <int>] [-Title <string>] [-NoTitle] [-AsString] [-Width <int>] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,35 +30,19 @@ Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, 
 
 ### EXAMPLE 1
 ```powershell
-Format-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
+Show-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
 ```
 
 A script with line numbers and two lines marked
 
 ### EXAMPLE 2
 ```powershell
-Get-Content .\agent.log -Tail 20 | Format-ConsoleCode -Language Log
+Get-Content .\agent.log -Tail 20 | Show-ConsoleCode -Language Log
 ```
 
 A log file's last lines
 
 ## PARAMETERS
-
-### -As
-Returns semantic Markdown, fenced Text with the exact console layout, or a self-contained Html page. Cannot be combined with -AsString or -AsWidget.
-
-```yaml
-Type: String
-Parameter Sets: Text, Path
-Aliases: None
-Possible values: Text, Markdown, Html
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -AsString
 Writes the view as one string of plain text instead of drawing it, to keep it in a variable or a file from any script, function or PowerShell version. Without it, PowerShell 7.2+ captures a view typed at the prompt ($x = ..., > file, Out-File); inside scripts and functions, and on Windows PowerShell 5.1, the view is drawn on the screen. Piped into another command (Out-Host, Out-String, Select-String) the view goes on as plain lines, without colour. Cannot be combined with -PassThru.
@@ -210,7 +194,7 @@ A file to show.
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases: FullName
+Aliases: None
 Possible values:
 
 Required: True

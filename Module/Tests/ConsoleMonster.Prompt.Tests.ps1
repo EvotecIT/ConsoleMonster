@@ -17,8 +17,8 @@ Describe 'Opt-in shell prompt contracts' {
 $original = ${function:global:prompt}
 $snippet = Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet
 if (($snippet -join "`n") -notmatch 'Enable-ConsoleFormatting -Feature Prompt') { throw 'Missing opt-in' }
-if ([int][ConsoleMonster.PowerShell.ConsoleFormattingFeature]::Prompt -ne 512) { throw 'Wrong reserved bit' }
-if (([int][ConsoleMonster.PowerShell.ConsoleFormattingFeature]::All -band 512) -ne 0) { throw 'All includes Prompt' }
+if ([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::Prompt -ne 512) { throw 'Wrong reserved bit' }
+if (([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::All -band 512) -ne 0) { throw 'All includes Prompt' }
 if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Snippet installed a prompt' }
 'OPT_IN_OK'
 '@ | Should -Match 'OPT_IN_OK'
@@ -170,7 +170,7 @@ if (${function:global:prompt}.ToString() -cne $original.ToString()) { throw 'Fin
     It 'caches git with a controlled clock, coalesces probes and never shows another directory state' {
         Invoke-PromptChild @'
 $flags = [Reflection.BindingFlags]'Instance,Static,NonPublic,Public'
-$type = [ConsoleMonster.PowerShell.CmdletEnableConsoleFormatting].Assembly.GetType('ConsoleMonster.PowerShell.PromptGitCache')
+$type = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.CmdletEnableConsoleFormatting')).Assembly.GetType('ConsoleMonster.PowerShell.PromptGitCache')
 $script:now = 100L
 $script:probes = 0
 $queue = [Collections.Generic.List[Action]]::new()

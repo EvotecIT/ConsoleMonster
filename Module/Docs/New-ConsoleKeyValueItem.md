@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates one key/value pair, with an optional status or presenter, for New-ConsoleKeyValue.
 
-Use it inside the script block of New-ConsoleKeyValue or Write-ConsoleKeyValue when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleKeyValue or Show-ConsoleList when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,27 +19,27 @@ New-ConsoleKeyValueItem [-Key] <string> [[-Value] <Object>] [-Status <StatusKind
 ## DESCRIPTION
 Creates one key/value pair, with an optional status or presenter, for New-ConsoleKeyValue.
 
-Use it inside the script block of New-ConsoleKeyValue or Write-ConsoleKeyValue when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleKeyValue or Show-ConsoleList when a pair needs more than a hashtable gives: a status marker before the value (-Status), markup in the value (-Markup), or a value formatted by a presenter (-Presenter Bytes, Duration, Date...). Values are shown literally unless -Markup is used. To add pairs to a list made earlier, pipe the list to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleKeyValue {
+New-ConsoleKeyValue -Content {
     New-ConsoleKeyValueItem 'Module' '[bold]ConsoleMonster[/]' -Markup
     New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
     New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Facts with status marks
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleKeyValue {
+New-ConsoleKeyValue -Content {
     New-ConsoleKeyValueItem 'Package size' 1482113 -Presenter Bytes
     New-ConsoleKeyValueItem 'Built in' (New-TimeSpan -Seconds 48) -Presenter Duration
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Values formatted by presenters

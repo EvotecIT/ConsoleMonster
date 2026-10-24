@@ -13,7 +13,7 @@ Pairs come from a hashtable (use [ordered] to keep order), from an object's prop
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleKeyValue [[-Data] <Object>] [[-Content] <scriptblock>] [-Markup] [-Name <string>] [<CommonParameters>]
+New-ConsoleKeyValue [[-WidgetId] <string>] [[-InputObject] <Object>] [[-Content] <scriptblock>] [-Markup] [-NumberColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,27 +25,27 @@ Pairs come from a hashtable (use [ordered] to keep order), from an object's prop
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleKeyValue ([ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = 'not signed' }) | Write-ConsoleWidget
+New-ConsoleKeyValue -InputObject ([ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = 'not signed' }) | Show-Console
 ```
 
 A summary block
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleKeyValue {
+New-ConsoleKeyValue -Content {
     New-ConsoleKeyValueItem 'Version' '0.0.4 [muted]→[/] [bold]2.0.0[/]' -Markup
     New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
     New-ConsoleKeyValueItem 'Tests' '1 skipped on PowerShell 7' -Status Warn
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Pairs with status marks
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleKeyValue ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) {
+New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'netstandard2.0, net472, net8.0' }) -Content {
     New-ConsoleKeyValueItem 'Signing' 'skipped' -Status Skip
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 A hashtable and pairs together
@@ -53,7 +53,7 @@ A hashtable and pairs together
 ## PARAMETERS
 
 ### -Content
-A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -Data.
+A script block that emits New-ConsoleKeyValueItem pairs (or hashtables), added after -InputObject.
 
 ```yaml
 Type: ScriptBlock
@@ -62,13 +62,13 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Data
+### -InputObject
 A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
 
 ```yaml
@@ -78,9 +78,9 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -100,11 +100,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name used by Set-ConsoleValue (default keyvalue).
+### -NumberColumn
+Shared NumberColumn layout settings from New-ConsoleColumnFormat.
 
 ```yaml
-Type: String
+Type: ColumnFormat
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -116,12 +116,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -WidgetId
+The live name used by Set-ConsoleValue (default keyvalue).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- `None`
+- `System.Object`
 
 ## OUTPUTS
 

@@ -13,7 +13,7 @@ Updates a spinner in a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleSpinner [[-Name] <string>] [-Label <Object>] [-Detail <Object>] [-Restart] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleSpinner [[-WidgetId] <string>] [-Label <Object>] [-Detail <Object>] [-Restart] [-Status <StatusKind>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -65,22 +65,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The spinner name (default spinner).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Restart
 Restart the clock and return to running.
 
@@ -124,6 +108,22 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The spinner name (default spinner).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

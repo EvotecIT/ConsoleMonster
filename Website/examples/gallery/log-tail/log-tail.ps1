@@ -19,9 +19,9 @@ $messages = @(
 )
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Application log[/] [muted]· worker events[/]'
-        New-ConsolePanel -Title './logs/worker.log' {
+        New-ConsolePanel -Title './logs/worker.log' -Content {
             foreach ($line in $messages[0..$Tick]) { $line }
         }
         "[muted]$($Tick + 1) / 5 events · Ctrl+C stops the live run[/]"
@@ -30,16 +30,16 @@ function New-DemoFrame($Tick) {
 
 # Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-DemoFrame $Step | Write-ConsoleWidget
+    New-DemoFrame $Step | Show-Console
     return
 }
 $frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })
-$screen = New-ConsoleRegion -Name demo -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+$screen = New-ConsoleRegion -WidgetId demo -Widget $frames[0]
+Invoke-ConsoleDashboard $screen -ArgumentList (, $frames) {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
-        Set-ConsoleRegion -Name demo -Widget $frame
+        Set-ConsoleRegion -WidgetId demo -Widget $frame
         Start-Sleep -Milliseconds 650
     }
 }

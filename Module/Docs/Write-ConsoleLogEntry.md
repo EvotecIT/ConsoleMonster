@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Write-ConsoleLog
+# Write-ConsoleLogEntry
 ## SYNOPSIS
 Writes a line to the log region of a running dashboard.
 
@@ -13,7 +13,7 @@ Writes a line to the log region of a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLog [-Message] <Object> [-Level <string>] [-Name <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Writes a line to the log region of a running dashboard.
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleLog 'DC03 responded slowly' -Level warn
+Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn
 ```
 
 Log a warning
@@ -49,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -Level
-The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Write-ConsoleStatus).
+The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Show-ConsoleStatusLine).
 
 ```yaml
 Type: String
@@ -80,11 +80,11 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Name
-The log name; defaults to the dashboard's log region.
+### -Session
+The live session to update. Defaults to $ConsoleSession or the running dashboard.
 
 ```yaml
-Type: String
+Type: LiveSession
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -96,11 +96,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Session
-The live session to update. Defaults to $ConsoleSession or the running dashboard.
+### -WidgetId
+The log name; defaults to the dashboard's log region.
 
 ```yaml
-Type: LiveSession
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

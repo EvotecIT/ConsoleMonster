@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Update-ConsoleTable
+# Update-ConsoleLiveTable
 ## SYNOPSIS
 Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in the running dashboard.
 
@@ -13,17 +13,17 @@ Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in 
 ## SYNTAX
 ### Row (Default)
 ```powershell
-Update-ConsoleTable [-Key] <string> [[-Value] <Object[]>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleLiveTable [[-WidgetId] <string>] [-Key] <string> [[-Value] <Object[]>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Remove
 ```powershell
-Update-ConsoleTable [-Key] <string> -Remove [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleLiveTable [[-WidgetId] <string>] [-Key] <string> -Remove [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Clear
 ```powershell
-Update-ConsoleTable -Clear [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleLiveTable [[-WidgetId] <string>] -Clear [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ Adds, updates, removes or clears rows of a live table (New-ConsoleLiveTable) in 
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleTable -Name jobs -Key $job.Id -Value $job.Name, 'Running', $elapsed
+Update-ConsoleLiveTable -WidgetId jobs -Key $job.Id -Value $job.Name, 'Running', $elapsed
 ```
 
 Track a job from start to finish
@@ -68,23 +68,7 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live table name (default table).
-
-```yaml
-Type: String
-Parameter Sets: Row, Remove, Clear
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -132,7 +116,23 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 1
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live table name (default table).
+
+```yaml
+Type: String
+Parameter Sets: Row, Remove, Clear
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

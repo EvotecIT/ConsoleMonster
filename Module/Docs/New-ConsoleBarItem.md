@@ -8,43 +8,59 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates one bar of a bar chart, or one segment of a stacked bar, with its own tone.
 
-Use it inside the script block of New-ConsoleBarChart when a bar or a segment needs its own colour: -Tone takes a theme role (Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted, Series1 to Series6). Without -Tone the chart's colour is used, and a stacked bar picks the next series colour. The label is shown literally; rich text from New-ConsoleText keeps its colours. To add bars to a chart made earlier, pipe the chart to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleBarChart when a bar or a segment needs its own colour: -Role takes a theme role (Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted, Series1 to Series6). Without -Role the chart's colour is used, and a stacked bar picks the next series colour. The label is shown literally; rich text from New-ConsoleText keeps its colours. To add bars to a chart made earlier, pipe the chart to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleBarItem [-Label] <Object> [-Value] <double> [-Tone <ThemeToken>] [<CommonParameters>]
+New-ConsoleBarItem [-Label] <Object> [-Value] <double> [-Role <ThemeToken>] [-Key <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates one bar of a bar chart, or one segment of a stacked bar, with its own tone.
 
-Use it inside the script block of New-ConsoleBarChart when a bar or a segment needs its own colour: -Tone takes a theme role (Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted, Series1 to Series6). Without -Tone the chart's colour is used, and a stacked bar picks the next series colour. The label is shown literally; rich text from New-ConsoleText keeps its colours. To add bars to a chart made earlier, pipe the chart to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleBarChart when a bar or a segment needs its own colour: -Role takes a theme role (Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted, Series1 to Series6). Without -Role the chart's colour is used, and a stacked bar picks the next series colour. The label is shown literally; rich text from New-ConsoleText keeps its colours. To add bars to a chart made earlier, pipe the chart to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleBarChart -Stacked {
-    New-ConsoleBarItem 'Passed' 412 -Tone Pass
-    New-ConsoleBarItem 'Warnings' 51 -Tone Warn
-    New-ConsoleBarItem 'Failed' 23 -Tone Fail
-} | Write-ConsoleWidget
+New-ConsoleBarChart -Stacked -Content {
+    New-ConsoleBarItem 'Passed' 412 -Role Pass
+    New-ConsoleBarItem 'Warnings' 51 -Role Warn
+    New-ConsoleBarItem 'Failed' 23 -Role Fail
+} | Show-Console
 ```
 
 Results as a stacked bar
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleBarChart -Unit ' ms' {
+New-ConsoleBarChart -Unit ' ms' -Content {
     New-ConsoleBarItem 'Cloudflare' 12
-    New-ConsoleBarItem 'Quad9' 64 -Tone Warn
-} | Write-ConsoleWidget
+    New-ConsoleBarItem 'Quad9' 64 -Role Warn
+} | Show-Console
 ```
 
 One bar picked out
 
 ## PARAMETERS
+
+### -Key
+Stable item identity for updates; defaults to the visible label.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Label
 The label (shown literally; rich text from New-ConsoleText keeps its colours).
@@ -62,7 +78,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Tone
+### -Role
 The colour as a theme role: Pass, Fail, Warn, Skip, Info, Accent, Accent2, Muted or Series1 to Series6.
 
 ```yaml

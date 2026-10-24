@@ -8,9 +8,9 @@
 )
 
 # Capture-only interop: the public example remains a native PowerShell script.
-$profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($Columns, 12)
+$profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($Columns, 12)
 $keys = if ($Navigation) { 'wait:300 PgUp wait:300 End wait:300 q' } else { '' }
-$target = [ConsoleMonster.Output.RecordingTarget]::new($profile, $keys)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile, $keys)
 if ($Navigation) { $target.Input.RealTime = $true }
 $target.Theme = [ConsoleMonster.Styling.Theme]::FromName($Appearance)
 if ($Navigation) {

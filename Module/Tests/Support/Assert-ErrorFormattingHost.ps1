@@ -54,7 +54,7 @@ switch ($Phase) {
             throw [InvalidOperationException]::new('Inventory load failed.', [IO.IOException]::new('Synthetic source unavailable.', [Exception]::new('Synthetic root cause.')))
         }
         function global:v {
-            $widget = $Error[0] | Format-ConsoleError -Compact -AsWidget
+            $widget = $Error[0] | Show-ConsoleError -Compact -AsWidget
             $widget.ShowStack = $global:cmDetailedError
             $expected = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Terminal]::Profile.WithSize(($Host.UI.RawUI.WindowSize.Width - 1), 200))
             $expected = ($expected -replace "`r", '').TrimEnd("`n") + "`n"

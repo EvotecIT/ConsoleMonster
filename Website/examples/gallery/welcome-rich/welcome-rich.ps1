@@ -19,12 +19,12 @@ $hostSummary = [ordered]@{
 $git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'
 
 # Layout: compose the screen from the data above.
-$screen = New-ConsoleRows -Gap 1 {
+$screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleLogo 'HELLO' -Tagline '[muted]A little context before your next command.[/]'
-    New-ConsolePanel -Title 'Host summary' -Caption 'local workspace' {
-        New-ConsoleKeyValue -Data $hostSummary
+    New-ConsolePanel -Title 'Host summary' -HeaderRight 'local workspace' -Content {
+        New-ConsoleKeyValue -InputObject $hostSummary
     }
-    New-ConsolePanel -Title 'Git | comet-notes' {
+    New-ConsolePanel -Title 'Git | comet-notes' -Content {
         New-ConsoleText -Markup $git
     }
     New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'
@@ -32,4 +32,4 @@ $screen = New-ConsoleRows -Gap 1 {
 }
 
 # Live updates: this static screen prints once and returns immediately.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

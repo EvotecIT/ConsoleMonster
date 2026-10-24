@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
 
-What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.
+What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleMenuItem [[-Title] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-State <Object>] [-Disabled <Object>] [-Submenu <Object>] [-Form <Form>] [-OnSubmit <scriptblock>] [-Select <Object[]>] [-MultiSelect <Object[]>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabled <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [-Page <scriptblock>] [-Review <scriptblock>] [-Presets] [-Separator] [-Exit] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Submenu <Object>] [-Form <Form>] [-OnSubmit <scriptblock>] [-Select <Object[]>] [-MultiSelect <Object[]>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [-Page <scriptblock>] [-Review <scriptblock>] [-Presets] [-Separator] [-Exit] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
 
-What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -State can be scriptblocks, recomputed every time the menu draws; -Disabled returns why the item is unavailable.
+What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
 ## EXAMPLES
 
@@ -103,8 +103,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ChoiceDisabled
-Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -Disabled.
+### -ChoiceDisabledReason
+Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -DisabledReason.
 
 ```yaml
 Type: Object
@@ -151,7 +151,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Disabled
+### -Detail
+State text ("24 selected"): a string or a scriptblock recomputed whenever the menu draws.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisabledReason
 Why the item is unavailable: a string, or a scriptblock returning the reason (nothing when available).
 
 ```yaml
@@ -184,7 +200,7 @@ Accept wildcard characters: False
 ```
 
 ### -Exit
-Makes the exit item (-Title defaults to Exit).
+Makes the exit item (-Label defaults to Exit).
 
 ```yaml
 Type: SwitchParameter
@@ -274,6 +290,22 @@ Possible values: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Label
+The title.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -474,7 +506,7 @@ Accept wildcard characters: False
 ```
 
 ### -Separator
-Makes a divider (with -Title as its heading, if given).
+Makes a divider (with -Label as its heading, if given).
 
 ```yaml
 Type: SwitchParameter
@@ -505,22 +537,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -State
-State text ("24 selected"): a string or a scriptblock recomputed whenever the menu draws.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Submenu
 A submenu: a menu from New-ConsoleMenu, or a scriptblock of New-ConsoleMenuItem calls.
 
@@ -532,22 +548,6 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Title
-The title.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

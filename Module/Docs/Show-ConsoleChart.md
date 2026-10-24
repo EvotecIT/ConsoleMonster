@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Out-ConsoleChart
+# Show-ConsoleChart
 ## SYNOPSIS
 Draws horizontal bars, a histogram or grouped sparklines from pipeline objects.
 
@@ -19,7 +19,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Out-ConsoleChart [[-Property] <Object>] [-InputObject <psobject>] [-Label <Object>] [-Type <PipelineChartType>] [-Top <int>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-Width <int>] [-AsString] [-AsWidget] [<CommonParameters>]
+Show-ConsoleChart [[-Property] <Object>] [-InputObject <psobject>] [-Label <Object>] [-Type <PipelineChartType>] [-Top <int>] [-Sort <PipelineChartSort>] [-Bins <int>] [-Unit <string>] [-Width <int>] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,28 +37,28 @@ because the existing sparkline renderer scales from zero. Output uses the normal
 
 ### EXAMPLE 1
 ```powershell
-Get-Process | Out-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10
+Get-Process | Show-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10
 ```
 
 The ten busiest processes, highest CPU first
 
 ### EXAMPLE 2
 ```powershell
-Get-ChildItem -File | Out-ConsoleChart -Property @{ Name = 'KB'; Expression = { $_.Length / 1KB } } -Type Histogram -Bins 8
+Get-ChildItem -File | Show-ConsoleChart -Property @{ Name = 'KB'; Expression = { $_.Length / 1KB } } -Type Histogram -Bins 8
 ```
 
 Distribution of file sizes with a calculated property
 
 ### EXAMPLE 3
 ```powershell
-$samples | Sort-Object Time | Out-ConsoleChart -Property Latency -Label Server -Type Sparkline
+$samples | Sort-Object Time | Show-ConsoleChart -Property Latency -Label Server -Type Sparkline
 ```
 
 One trend per server, in timestamp order
 
 ### EXAMPLE 4
 ```powershell
-1, 3, 2, 5 | Out-ConsoleChart -Type Histogram -Bins 4 -AsString
+1, 3, 2, 5 | Show-ConsoleChart -Type Histogram -Bins 4 -AsString
 ```
 
 Capture a chart as plain text on Windows PowerShell 5.1 or PowerShell 7

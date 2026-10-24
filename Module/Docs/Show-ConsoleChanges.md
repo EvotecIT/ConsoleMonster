@@ -8,31 +8,31 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows the changes an action would make and asks before making them: the what-if pattern.
 
-Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.
+Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -ReferenceObject $current -DifferenceObject $planned -Property Name) { apply }.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleChanges [-Before] <Object[]> [-After] <Object[]> [-Property <string[]>] [-Ignore <string[]>] [-View <ChangeViewMode>] [-Title <Object>] [-Question <string>] [-TypedConfirmation <string>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-ConsoleChanges [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> [-Property <string[]>] [-Ignore <string[]>] [-View <ChangeViewMode>] [-Title <Object>] [-Question <string>] [-TypedConfirmation <string>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Shows the changes an action would make and asks before making them: the what-if pattern.
 
-Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.
+Compares -ReferenceObject with -DifferenceObject (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -ReferenceObject $current -DifferenceObject $planned -Property Name) { apply }.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }
+if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') { Set-Members $planned }
 ```
 
 Preview a group membership change
 
 ## PARAMETERS
 
-### -After
+### -DifferenceObject
 The objects after the change.
 
 ```yaml
@@ -43,22 +43,6 @@ Possible values:
 
 Required: True
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Before
-The current objects.
-
-```yaml
-Type: Object[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -123,6 +107,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReferenceObject
+The current objects.
+
+```yaml
+Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

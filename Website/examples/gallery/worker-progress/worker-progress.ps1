@@ -14,17 +14,17 @@ $workerCount = 8
 
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Worker stress dashboard[/] [muted]· worker pool[/]'
-        New-ConsoleColumns {
-            New-ConsolePanel -Title Workers {
+        New-ConsoleColumns -Content {
+            New-ConsolePanel -Title Workers -Content {
                 foreach ($worker in 1..$workerCount) {
                     $value = [Math]::Min(100, 12 + $worker * 5 + $Tick * 17)
-                    New-ConsoleProgress -Name ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100
+                    New-ConsoleProgress -WidgetId ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100
                 }
             }
-            New-ConsolePanel -Title Session {
-                New-ConsoleKeyValue -Markup -Data ([ordered] @{
+            New-ConsolePanel -Title Session -Content {
+                New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
                     'Updates' = [string] (800 + $Tick * 320)
                     'Queue' = [string] (24 - $Tick * 5)
                     'Workers' = '8'
@@ -39,16 +39,16 @@ function New-DemoFrame($Tick) {
 
 # Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-DemoFrame $Step | Write-ConsoleWidget
+    New-DemoFrame $Step | Show-Console
     return
 }
 $frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })
-$screen = New-ConsoleRegion -Name demo -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+$screen = New-ConsoleRegion -WidgetId demo -Widget $frames[0]
+Invoke-ConsoleDashboard $screen -ArgumentList (, $frames) {
     param($Frames)
     foreach ($frame in $Frames) {
         if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
-        Set-ConsoleRegion -Name demo -Widget $frame
+        Set-ConsoleRegion -WidgetId demo -Widget $frame
         Start-Sleep -Milliseconds 650
     }
 }

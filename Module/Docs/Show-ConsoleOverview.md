@@ -8,12 +8,12 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows a compact, read-only summary of the local host.
 
-Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows, capped at 120 columns. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
+Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
 
 ## SYNTAX
 ### Render (Default)
 ```powershell
-Show-ConsoleOverview [[-Section] <string[]>] [-Width <int>] [-AsString] [-BudgetMilliseconds <int>] [<CommonParameters>]
+Show-ConsoleOverview [[-Section] <string[]>] [-Width <int>] [-AsString] [-BudgetMilliseconds <int>] [-AsWidget] [<CommonParameters>]
 ```
 
 ### Object
@@ -24,7 +24,7 @@ Show-ConsoleOverview [[-Section] <string[]>] [-AsObject] [-BudgetMilliseconds <i
 ## DESCRIPTION
 Shows a compact, read-only summary of the local host.
 
-Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows, capped at 120 columns. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
+Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
 
 ## EXAMPLES
 
@@ -83,6 +83,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -AsWidget
+Returns the view widget without drawing or acquiring input.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Render
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -BudgetMilliseconds
 The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
 
@@ -116,7 +132,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Layout width in cells, capped at 120; zero uses the terminal width.
+Layout width in cells; zero resolves the terminal width, with a 100-cell fallback.
 
 ```yaml
 Type: Int32

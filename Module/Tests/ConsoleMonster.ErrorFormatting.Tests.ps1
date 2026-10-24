@@ -67,7 +67,7 @@ Disable-ConsoleFormatting
 
     It 'excludes Errors from All and prints its explicit Detailed profile snippet' {
         $text = Invoke-ErrorFormattingChild @'
-$flags = [ConsoleMonster.PowerShell.ConsoleFormattingFeature]
+$flags = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))
 if (($flags::All -band $flags::Errors) -ne 0) { throw 'Errors became implicit.' }
 $snippet = Enable-ConsoleFormatting -Feature Errors -Detailed -ProfileSnippet
 if ($snippet[-1] -cne 'Enable-ConsoleFormatting -Feature Errors -Detailed') { throw 'Wrong profile snippet.' }
@@ -95,8 +95,8 @@ if (${function:global:Out-Default}.ToString() -cne $saved) { throw 'Removal did 
     It 'maps the original invocation and folds causes through the shared compact view' {
         $text = Invoke-ErrorFormattingChild @'
 try { [int]::Parse('abc') } catch { $record = $_ }
-$widget = $record | Format-ConsoleError -Compact -AsWidget
-$text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Testing.TestTerminal]::Profile(120))
+$widget = $record | Show-ConsoleError -Compact -AsWidget
+$text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(120))
 if ($text -notmatch '^Error: Exception calling' -or $text -notmatch '\^+' -or $text -notmatch '\[int\]::Parse') { throw 'Missing compact invocation.' }
 if ($text -notmatch '\+1 inner exception' -or $text -match 'Caused by') { throw 'Causes were not folded.' }
 if ($widget.ShowStack) { throw 'Compact default exposed stacks.' }
@@ -133,14 +133,14 @@ try {
         $text = Invoke-ErrorFormattingChild @'
 $expression = "[int]::Parse('" + ('abc' * 45) + "')"
 $record = & ([scriptblock]::Create('try { ' + $expression + ' } catch { $_ }'))
-$widget = $record | Format-ConsoleError -Compact -AsWidget
-$text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Testing.TestTerminal]::Profile(200))
+$widget = $record | Show-ConsoleError -Compact -AsWidget
+$text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne $expression.Length) { throw 'Original single-line extent was shortened.' }
 $multi = "[int]::Parse(`n    'abc'`n)"
 $record = & ([scriptblock]::Create('try { ' + $multi + ' } catch { $_ }'))
-$widget = $record | Format-ConsoleError -Compact -AsWidget
-$text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Testing.TestTerminal]::Profile(200))
+$widget = $record | Show-ConsoleError -Compact -AsWidget
+$text = [ConsoleMonster.Terminal]::RenderText($widget, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Profile(200))
 $marker = @($text -split "`n" | Where-Object { $_.TrimStart().StartsWith('^') })
 if ($marker.Count -ne 1 -or $marker[0].Trim().Length -ne '[int]::Parse('.Length) { throw 'Multiline extent did not end at the source line boundary.' }
 'ORIGINAL_EXTENT_OK'

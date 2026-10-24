@@ -4,6 +4,6 @@ Enable-ConsoleFormatting -Feature Errors
 try {
     [int]::Parse('production')
 } catch {
-    $_ | Format-ConsoleError -Compact
+    $_ | Show-ConsoleError -Compact
 }
 Disable-ConsoleFormatting -Feature Errors

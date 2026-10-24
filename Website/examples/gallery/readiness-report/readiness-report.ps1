@@ -20,22 +20,22 @@ $checks = @(
 $scores = [ordered]@{ Configuration = 100; Coverage = 72; Recovery = 35 }
 
 # Layout: compose the screen from the data above.
-$screen = New-ConsoleRows -Gap 1 {
+$screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]Readiness assessment[/] [muted]| workspace[/]'
     New-ConsoleText -Markup '[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]'
-    New-ConsolePanel -Title 'Checks' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Checks' -Content {
+        New-ConsoleStatusList -Content {
             foreach ($check in $checks) {
                 New-ConsoleStatusItem $check.Name -Status $check.Status -Detail $check.Detail
             }
         }
     }
-    New-ConsolePanel -Title 'Readiness by area' -Caption 'score / 100' {
-        New-ConsoleBarChart -Data $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
+    New-ConsolePanel -Title 'Readiness by area' -HeaderRight 'score / 100' -Content {
+        New-ConsoleBarChart -InputObject $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
     }
     New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'
     New-ConsoleText -Markup '[muted]Review owner: Platform team · next review: Friday[/]'
 }
 
 # Live updates: this static screen prints once and returns immediately.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

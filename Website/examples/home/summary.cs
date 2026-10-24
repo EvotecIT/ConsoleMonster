@@ -17,4 +17,4 @@ Terminal.Write(new Panel(new Rows()
             .Add("Skipped", 14, ThemeToken.Skip))
         .Add(new Sparkline().WithLabel("rules/s").WithUnit("/s").AddRange(rate)),
     "[bold]Nightly checks[/]")
-    .WithCaption("lab01.contoso.com"));
+    .WithHeaderRight("lab01.contoso.com"));

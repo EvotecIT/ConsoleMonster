@@ -24,9 +24,9 @@ $hosts = @(
     [pscustomobject] @{ Host = 'SQL02'; Role = 'Database'; Status = 'Fail' }
 )
 
-Show-ConsoleApp {
-    New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host name'
-    New-ConsoleBinding {
+Show-ConsoleApp -Content {
+    New-ConsoleTextInput -Key Query -Label Query -Placeholder 'Host name'
+    New-ConsoleBinding -Content {
         param($State)
         $query = [string] $State.Query
         $matching = @($hosts | Where-Object {

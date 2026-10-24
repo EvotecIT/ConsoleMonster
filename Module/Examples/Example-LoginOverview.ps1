@@ -151,10 +151,10 @@ $common = @{}
 if ($Width -gt 0) {
     $common.Width = $Width
 }
-Write-ConsoleRule @common -Title "[bold]$($data.Host)[/] [muted]· $(Get-Date -Format 'yyyy-MM-dd HH:mm')[/]"
+Show-ConsoleRule @common -Title "[bold]$($data.Host)[/] [muted]· $(Get-Date -Format 'yyyy-MM-dd HH:mm')[/]"
 New-ConsoleColumns -Gap 2 -Content {
-    New-ConsolePanel -Title 'System' -Widget (New-ConsoleKeyValue -Data $facts)
-    New-ConsolePanel -Title 'Health' -Widget (New-ConsoleStatusList -Data $health)
-} | Write-ConsoleWidget @common
+    New-ConsolePanel -Title 'System' -Widget (New-ConsoleKeyValue -InputObject $facts)
+    New-ConsolePanel -Title 'Health' -Widget (New-ConsoleStatusList -InputObject $health)
+} | Show-Console @common
 # Disk use with thresholds: 80 % and more is a warning, 90 % and more critical.
-New-ConsolePanel -Title 'Disk use' -Widget (New-ConsoleBarChart -Data $data.Disks -Unit '%' -Warning 80 -Critical 90) | Write-ConsoleWidget @common
+New-ConsolePanel -Title 'Disk use' -Widget (New-ConsoleBarChart -InputObject $data.Disks -Unit '%' -Warning 80 -Critical 90) | Show-Console @common

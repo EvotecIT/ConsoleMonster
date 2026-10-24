@@ -58,7 +58,7 @@ IWidget report = new Rows(
     new Rule("[bold]DNS query results[/] [muted]· example.test[/]"),
     new Padding(summary, 1, 0, 1, 0), table,
     new Columns(new Panel(delegation, "Delegation"),
-        new Panel(new Rows(mail, new Rule(), latency) { Gap = 0 }, "Mail security") { Caption = domain })) { Gap = 1 };
+        new Panel(new Rows(mail, new Rule(), latency) { Gap = 0 }, "Mail security") { HeaderRight = domain })) { Gap = 1 };
 
 // Behaviour: a print-once report works interactively and in redirected snapshots.
 Terminal.Write(report);

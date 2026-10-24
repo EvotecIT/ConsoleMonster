@@ -81,18 +81,18 @@ function Get-Findings($Work) {
     # Explicit text presenters keep the automatic PowerShell value shaping aligned with C#.
     $columns = @('Server', 'Check', 'Expected' | ForEach-Object { @{ Name = $_; Presenter = 'Text' } })
     $columns += @{ Name = 'Actual'; Flexible = $true }
-    if ($rows.Count) { $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget }
-    else { New-ConsoleLiveTable -Name findings -Column $columns -Border Minimal }
+    if ($rows.Count) { $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget }
+    else { New-ConsoleLiveTable -WidgetId findings -Column $columns -Border Minimal }
 }
 function Get-History {
     $rows = @(for ($index = $plan.History.Count - 1; $index -ge 0; $index--) { $plan.History[$index] })
     $columns = @('When', 'Servers', 'Checks', 'Result', 'Duration' | ForEach-Object { @{ Name = $_; Presenter = 'Text' } })
-    $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
+    $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
 }
 function Get-Preview($Check) {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleText $Check.Description
-        New-ConsoleKeyValue -Markup -Data ([ordered] @{
+        New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
             Group = $Check.Category; Expected = $Check.Expected; Duration = "about $(Format-Seconds $Check.Seconds)"
             Changes = $(if ($Check.Changes) { '[warn]yes[/]' } else { '[pass]no[/]' }); Parameter = $Check.Id
         })
@@ -108,9 +108,9 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
         warnings = @($finished | Where-Object Status -EQ Warn).Count
         failed = @($finished | Where-Object Status -EQ Fail).Count
     }
-    New-ConsoleRows {
-        New-ConsoleSummaryBar -Done $Done -Total $Work.Count -Counter $counter -Elapsed ([timespan]::FromSeconds($Done * .24 / $plan.Parallel))
-        New-ConsolePhases {
+    New-ConsoleRows -Content {
+        New-ConsoleSummaryBar -Done $Done -Total $Work.Count -Counter $counter -ElapsedSeconds ($Done * .24 / $plan.Parallel)
+        New-ConsolePhases -Content {
             $names = @('Discover', 'Connect', 'Check', 'Report')
             for ($i = 0; $i -lt $names.Count; $i++) {
                 $status = if ($i -lt $Phase) { if ($i -eq 2) { Get-Verdict $finished } else { 'Pass' } }
@@ -118,7 +118,7 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
                 New-ConsoleStatusItem $names[$i] -Status $status
             }
         }
-        $lanes = New-ConsoleLanes -Name lanes {
+        $lanes = New-ConsoleLanes -WidgetId lanes -Content {
             foreach ($category in @($Work.Check.Category | Select-Object -Unique)) {
                 $planned = @($Work | Where-Object { $_.Check.Category -eq $category })
                 $ready = @($finished | Where-Object { $_.Check.Category -eq $category })
@@ -128,23 +128,23 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
                     -Passed @($ready | Where-Object Status -EQ Pass).Count -Warned @($ready | Where-Object Status -EQ Warn).Count -Failed @($ready | Where-Object Status -EQ Fail).Count
             }
         }
-        New-ConsoleColumns -CollapseBelow 100 {
-            New-ConsolePanel -Title 'Check map' {
+        New-ConsoleColumns -CollapseBelow 100 -Content {
+            New-ConsolePanel -Title 'Check map' -Content {
                 $states = @('Pending') * ($plan.Targets.Count * $plan.Checks.Count)
                 for ($i = 0; $i -lt $states.Count; $i++) { if ($i -notin $Work.Cell) { $states[$i] = 'Skip' } }
                 foreach ($w in $finished) { $states[$w.Cell] = $w.Status }
                 foreach ($w in $active) { $states[$w.Cell] = 'Running' }
                 New-ConsoleCellMap -Status $states -Columns $plan.Checks.Count -RowLabels $plan.Targets.Name -LegendLines 2
             }
-            New-ConsolePanel -Title Categories -Weight 1.15 {
+            New-ConsolePanel -Title Categories -Weight 1.15 -Content {
                 $lanes; New-ConsoleRule
-                New-ConsoleKeyValue -Data ([ordered] @{
+                New-ConsoleKeyValue -InputObject ([ordered] @{
                     Domain = $plan.Domain; Servers = "$($plan.Targets.Count) · $(@($plan.Targets.Site | Select-Object -Unique).Count) sites"
                     Checks = "$($plan.Checks.Count) · $($Work.Count) in all"; Report = $plan.Format.ToUpperInvariant()
                 })
             }
-            New-ConsolePanel -Title Running -Weight 0.95 {
-                New-ConsoleStatusList {
+            New-ConsolePanel -Title Running -Weight 0.95 -Content {
+                New-ConsoleStatusList -Content {
                     foreach ($w in $active) { New-ConsoleStatusItem "$($w.Node.Name) · $($w.Check.Name)" -Status Running }
                     if (-not @($active).Count) {
                         $text = if ($Phase -ge 3) { 'Checks complete' } else { 'Waiting for connections' }
@@ -153,20 +153,20 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
                 }
             }
         }
-        New-ConsoleColumns -FixedWidth 0, 0, 20 -CollapseBelow 100 {
-            New-ConsolePanel -Title Findings -Weight 1.5 { Get-Findings $finished }
-            New-ConsolePanel -Title 'Slowest checks' {
+        New-ConsoleColumns -FixedWidth 0, 0, 20 -CollapseBelow 100 -Content {
+            New-ConsolePanel -Title Findings -Weight 1.5 -Content { Get-Findings $finished }
+            New-ConsolePanel -Title 'Slowest checks' -Content {
                 $rows = @($finished | Sort-Object @{ Expression = 'Seconds'; Descending = $true }, Order | Select-Object -First 5 | ForEach-Object {
                     [pscustomobject] @{ Check = $_.Check.Name; Server = $_.Node.Name; Took = Format-Seconds $_.Seconds }
                 })
                 $columns = @('Check', 'Server', 'Took' | ForEach-Object { @{ Name = $_; Presenter = 'Text' } })
-                if ($rows.Count) { $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget }
-                else { New-ConsoleLiveTable -Name slowest -Column $columns -Border Minimal }
+                if ($rows.Count) { $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget }
+                else { New-ConsoleLiveTable -WidgetId slowest -Column $columns -Border Minimal }
             }
-            New-ConsolePanel -Title Durations { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8, 16 -Height 5 -Value @($finished | ForEach-Object Seconds) }
+            New-ConsolePanel -Title Durations -Content { New-ConsoleHistogram -WidgetId durations -Edge 0, 2, 4, 8, 16 -Height 5 -Value @($finished | ForEach-Object Seconds) }
         }
-        New-ConsolePanel -Title Log {
-            New-ConsoleLog -NoTime -Height 7 {
+        New-ConsolePanel -Title Log -Content {
+            New-ConsoleLogRegion -NoElapsed -Height 7 -Content {
                 New-ConsoleLogEntry "Inventory: $($plan.Domain) · $($plan.Targets.Count) servers · $($Work.Count) checks"
                 if ($Phase -ge 1) { New-ConsoleLogEntry "Connecting up to $($plan.Parallel) servers at a time" }
                 foreach ($w in @($finished | Select-Object -Last 5)) {
@@ -186,42 +186,42 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
 function Get-Dashboard($Work, [int] $Done, [int] $Phase) {
     New-ConsoleDashboard -Title '[bold]Fleet health check[/]' `
         -Subtitle "$($plan.Domain) · $($plan.Targets.Count) servers · $($plan.Checks.Count) checks" `
-        -Footer 'Ctrl+C cancel · results keep the findings' { Get-RunBody $Work $Done $Phase }
+        -Footer 'Ctrl+C cancel · results keep the findings' -Content { Get-RunBody $Work $Done $Phase }
 }
 
 # Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 function Invoke-Work($Context, $Work) {
     $plan.CompletedWork = @($Work)
     $dashboard = New-ConsoleDashboard -Title '[bold]Fleet health check[/]' -Subtitle $plan.Domain `
-        -Footer 'Ctrl+C cancel · results keep the findings' {
-        New-ConsoleRegion -Name body { Get-RunBody $Work 0 0 }
+        -Footer 'Ctrl+C cancel · results keep the findings' -Content {
+        New-ConsoleRegion -WidgetId body -Content { Get-RunBody $Work 0 0 }
     }
     $runState = @{ Finished = $false }
     $outcome = $Context.Run($dashboard, {
         param($Run)
         $phase = 0; $done = 0
         foreach ($phase in 0, 1) {
-            Set-ConsoleRegion -Name body { Get-RunBody $Work 0 $phase }
+            Set-ConsoleRegion -WidgetId body -Content { Get-RunBody $Work 0 $phase }
             Start-Sleep -Milliseconds 240
             if ($Run.CancellationToken.IsCancellationRequested) {
-                return New-ConsoleRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
+                return New-ConsoleMenuRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
             }
         }
         foreach ($group in @($Work | Group-Object { $_.Check.Id })) {
             for ($offset = 0; $offset -lt $group.Count; $offset += $plan.Parallel) {
-                Set-ConsoleRegion -Name body { Get-RunBody $Work $done 2 }
+                Set-ConsoleRegion -WidgetId body -Content { Get-RunBody $Work $done 2 }
                 Start-Sleep -Milliseconds 240
                 if ($Run.CancellationToken.IsCancellationRequested) {
-                    return New-ConsoleRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
+                    return New-ConsoleMenuRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
                 }
                 $done += [math]::Min($plan.Parallel, $group.Count - $offset)
             }
         }
         foreach ($phase in 3, 4) {
-            Set-ConsoleRegion -Name body { Get-RunBody $Work $done $phase }
+            Set-ConsoleRegion -WidgetId body -Content { Get-RunBody $Work $done $phase }
             Start-Sleep -Milliseconds 240
             if ($Run.CancellationToken.IsCancellationRequested) {
-                return New-ConsoleRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
+                return New-ConsoleMenuRunResult 'Run cancelled' -Status Warn -Summary "$done of $($Work.Count) operations completed."
             }
         }
         $result = Get-Result $Work
@@ -240,15 +240,15 @@ function Get-Result($Work) {
     # Retain the current run for next actions on the menu's owning thread.
     $next = [ordered] @{
         'View report' = {
-            $MenuContext.ShowResult((New-ConsoleRunResult "Report · $($plan.Format.ToUpperInvariant())" `
+            $MenuContext.ShowResult((New-ConsoleMenuRunResult "Report · $($plan.Format.ToUpperInvariant())" `
                 -Status (Get-Verdict $plan.CompletedWork) -Summary $plan.Report -Details (Get-Findings $plan.CompletedWork)))
         }
     }
     if (@($Work | Where-Object Status -EQ Fail).Count) {
         $next['Rerun failed checks'] = { Invoke-Work $MenuContext @($plan.CompletedWork | Where-Object Status -EQ Fail) }
     }
-    $next['View history'] = { $MenuContext.ShowResult((New-ConsoleRunResult 'Run history' -Details (Get-History))) }
-    New-ConsoleRunResult 'Fleet check finished' -Status (Get-Verdict $Work) -Summary $summary -Details (Get-Findings $Work) `
+    $next['View history'] = { $MenuContext.ShowResult((New-ConsoleMenuRunResult 'Run history' -Details (Get-History))) }
+    New-ConsoleMenuRunResult 'Fleet check finished' -Status (Get-Verdict $Work) -Summary $summary -Details (Get-Findings $Work) `
         -Figure ([ordered] @{ passed = @($Work | Where-Object Status -EQ Pass).Count
             warnings = @($Work | Where-Object Status -EQ Warn).Count; failed = @($Work | Where-Object Status -EQ Fail).Count }) `
         -FigureStatus @{ passed = 'Pass'; warnings = $(if (@($Work | Where-Object Status -EQ Warn).Count) { 'Warn' } else { 'Pass' })
@@ -257,24 +257,24 @@ function Get-Result($Work) {
 function Get-OptionFields([string] $Page) {
     $pageOption = @{}
     if ($Page) { $pageOption.Page = $Page }
-    New-ConsoleField @pageOption Parallel 'Servers at a time' -Type Number -Integer -Minimum 1 -Maximum 16 -Default 3 -Parameter ThrottleLimit
-    New-ConsoleField @pageOption Report 'Report folder' -Type Path -Kind Folder -Default $reportRoot -Parameter ReportPath
+    New-ConsoleField @pageOption Parallel 'Servers at a time' -Type Number -Integer -Minimum 1 -Maximum 16 -Default 3 -ParameterName ThrottleLimit
+    New-ConsoleField @pageOption Report 'Report folder' -Type Path -Kind Folder -Default $reportRoot -ParameterName ReportPath
     New-ConsoleField @pageOption Format 'Report format' -Type Select -Choices @(
         [pscustomobject] @{ Id = 'Html'; Name = 'HTML' }; [pscustomobject] @{ Id = 'Csv'; Name = 'CSV' }; [pscustomobject] @{ Id = 'Json'; Name = 'JSON' }
-    ) -Display Name -CommandValue Id -Default Html -Parameter Format
-    New-ConsoleField @pageOption Notify 'Email the report' -Type Toggle -Parameter Notify
-    New-ConsoleField @pageOption Email Recipient -Default 'ops@example.test' -Parameter To -Required `
-        -VisibleWhen { $Values.Notify } -Validate { if ($_ -notlike '*@*') { 'Enter an email address' } }
+    ) -Display Name -CommandValue Id -Default Html -ParameterName Format
+    New-ConsoleField @pageOption Notify 'Email the report' -Type Toggle -ParameterName Notify
+    New-ConsoleField @pageOption Email Recipient -Default 'ops@example.test' -ParameterName To -Required `
+        -VisibleWhen { $Values.Notify } -Validator { if ($_ -notlike '*@*') { 'Enter an email address' } }
 
 }
 function Set-Options($Values) {
     foreach ($name in 'Parallel', 'Report', 'Format', 'Notify', 'Email') { $plan[$name] = $Values[$name] }
 }
 $checkForm = New-ConsoleForm 'New check' -Command Invoke-FleetCheck -SubmitText 'Run checks' `
-    -Description 'Choose the scope, checks and run options.' {
-    New-ConsoleField Domain Domain -Page Scope -Type Select -Choices @($inventory.Domain | Select-Object -Unique) -Default $plan.Domain -Parameter Domain
-    New-ConsoleField Servers Servers -Page Scope -Type MultiSelect -DependsOn Domain -Minimum 1 -Parameter ComputerName `
-        -Display Name -CommandValue Name -GroupBy Site -Badge Role -Disabled Offline -Selected Online `
+    -Description 'Choose the scope, checks and run options.' -Content {
+    New-ConsoleField Domain Domain -Page Scope -Type Select -Choices @($inventory.Domain | Select-Object -Unique) -Default $plan.Domain -ParameterName Domain
+    New-ConsoleField Servers Servers -Page Scope -Type MultiSelect -DependsOn Domain -Minimum 1 -ParameterName ComputerName `
+        -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Selected Online `
         -Describe { "$($_.Role) · $($_.Detail)" } -Default $plan.Targets.Name -ArgumentList (, $inventory) -LoadChoices {
             param($Values, $Inventory)
             Start-Sleep -Milliseconds 350
@@ -282,18 +282,18 @@ $checkForm = New-ConsoleForm 'New check' -Command Invoke-FleetCheck -SubmitText 
         }
     New-ConsoleField Checks Checks -Page Checks -Type MultiSelect -Choices $catalog -Display Name -CommandValue Id `
         -GroupBy Category -Describe Description -Badge { "~$(Format-Seconds $_.Seconds)" } -Preview { Get-Preview $_ } `
-        -Default $plan.Checks.Id -Minimum 1 -Parameter Check
+        -Default $plan.Checks.Id -Minimum 1 -ParameterName Check
     Get-OptionFields -Page Options
 }
-$menu = New-ConsoleMenu 'Fleet health check' -Layout Shell -Subtitle 'Tue 20 Oct 2026 · 09:30' {
+$menu = New-ConsoleMenu 'Fleet health check' -Layout Shell -Subtitle 'Tue 20 Oct 2026 · 09:30' -Content {
     New-ConsoleMenuPreset 'Morning · identity & DNS' -Form $checkForm -Values @{
         Servers = @($inventory | Where-Object Role -EQ 'Domain controller' | ForEach-Object Name)
         Checks = @('SecureChannel', 'TimeOffset', 'ForwardRecord'); Parallel = 2
-    } -Preview { New-ConsoleKeyValue -Data ([ordered] @{ Scope = 'Domain controllers'; Checks = 'Identity and DNS' }) }
+    } -Preview { New-ConsoleKeyValue -InputObject ([ordered] @{ Scope = 'Domain controllers'; Checks = 'Identity and DNS' }) }
     New-ConsoleMenuPreset 'Nightly · all sites' -Form $checkForm -Values @{
         Servers = @($inventory | Where-Object { $_.Domain -eq $plan.Domain -and -not $_.Offline } | ForEach-Object Name)
         Checks = $catalog.Id; Parallel = 3; Notify = $true
-    } -Preview { New-ConsoleKeyValue -Data ([ordered] @{ Scope = 'Every online server'; Checks = 'All categories' }) }
+    } -Preview { New-ConsoleKeyValue -InputObject ([ordered] @{ Scope = 'Every online server'; Checks = 'All categories' }) }
     New-ConsoleMenuPreset 'Patch Tuesday · updates' -Form $checkForm -Values @{ Checks = @('MissingUpdates', 'AutoServices'); Format = 'Csv' }
     New-ConsoleMenuPreset 'Certificates · web tier' -Form $checkForm -Values @{ Servers = @('WEB01'); Checks = @('CertExpiry', 'CertChain', 'ForwardRecord') }
     New-ConsoleMenuItem Presets -Hotkey p -IconName Favorite -Presets
@@ -304,7 +304,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Layout Shell -Subtitle 'Tue 20 Oct
         Set-Options $Values
         Invoke-Work $MenuContext @(Get-Work)
     }
-    New-ConsoleMenuItem History -Hotkey h -IconName List -State { "$($plan.History.Count) runs" } -Page { Get-History }
+    New-ConsoleMenuItem History -Hotkey h -IconName List -Detail { "$($plan.History.Count) runs" } -Page { Get-History }
     New-ConsoleMenuItem -Separator
     New-ConsoleMenuItem Quit -Exit
 }
@@ -313,5 +313,5 @@ if ($StaticSnapshot) {
     $done = if ($Step -lt 2) { 0 } elseif ($Step -eq 2) { [math]::Min($work.Count, $plan.Targets.Count + 2) }
         elseif ($Step -eq 3) { [int] [math]::Floor($work.Count * 2 / 3) } else { $work.Count }
     $phase = if ($Step -lt 2) { $Step } elseif ($Step -lt 4) { 2 } elseif ($Step -eq 4) { 3 } else { 4 }
-    Get-Dashboard $work $done $phase | Write-ConsoleWidget
+    Get-Dashboard $work $done $phase | Show-Console
 } else { Show-ConsoleMenu $menu -Layout Shell -AppName 'Fleet health check gallery' }

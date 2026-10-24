@@ -25,9 +25,9 @@ Give the presets to New-ConsoleForm (-Preset, or emit them in its scriptblock ne
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'Report' -Command 'Export-AppReport' {
-    New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -Parameter Period
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -Parameter Path
+$form = New-ConsoleForm 'Report' -Command 'Export-AppReport' -Content {
+    New-ConsoleField Period 'Period' -Type Select -Choices 'Day', 'Week', 'Month' -ParameterName Period
+    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -ParameterName Path
     New-ConsoleFormPreset 'Weekly' -Values @{ Period = 'Week'; Path = 'D:\Reports\Weekly' } -Description 'Every Monday.'
     New-ConsoleFormPreset 'Monthly' -Values @{ Period = 'Month'; Path = 'D:\Reports\Monthly' }
 }

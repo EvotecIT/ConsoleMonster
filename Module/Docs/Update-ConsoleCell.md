@@ -13,17 +13,17 @@ Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashbo
 ## SYNTAX
 ### Set (Default)
 ```powershell
-Update-ConsoleCell [-Index] <int[]> [-Status] <StatusKind> [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleCell [[-WidgetId] <string>] [-Index] <int[]> [-Status] <StatusKind> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Add
 ```powershell
-Update-ConsoleCell -Add [-Status <StatusKind>] [-Times <int>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleCell [[-WidgetId] <string>] -Add [-Status <StatusKind>] [-Times <int>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ### Count
 ```powershell
-Update-ConsoleCell -Count <int> [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleCell [[-WidgetId] <string>] -Count <int> [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,16 +35,16 @@ Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashbo
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleCell -Name checks -Index 7 -Status Running
-Update-ConsoleCell -Name checks -Index 7 -Status Pass
+Update-ConsoleCell -WidgetId checks -Index 7 -Status Running
+Update-ConsoleCell -WidgetId checks -Index 7 -Status Pass
 ```
 
 A check starts and passes on the second server of a grid with five checks per row
 
 ### EXAMPLE 2
 ```powershell
-Update-ConsoleCell -Name files -Count 40
-Update-ConsoleCell -Name files -Index 0, 1, 2 -Status Pass
+Update-ConsoleCell -WidgetId files -Count 40
+Update-ConsoleCell -WidgetId files -Index 0, 1, 2 -Status Pass
 ```
 
 Grow a map as items are found, then mark them
@@ -93,23 +93,7 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The cell map name (default cells).
-
-```yaml
-Type: String
-Parameter Sets: Set, Add, Count
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -141,7 +125,7 @@ Aliases: None
 Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -158,6 +142,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The cell map name (default cells).
+
+```yaml
+Type: String
+Parameter Sets: Set, Add, Count
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

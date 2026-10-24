@@ -40,7 +40,7 @@ if (snapshot) {
     Terminal.Write(Frame(step));
     return;
 }
-Slot screen = new Slot("demo", Frame(0));
+RegionWidget screen = new RegionWidget("demo", Frame(0));
 using LiveSession session = new LiveSession(screen);
 session.Run(live => {
     for (int tick = 0; tick <= 4 && !live.Cancellation.IsCancellationRequested; tick++) {

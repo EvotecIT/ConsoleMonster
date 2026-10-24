@@ -159,12 +159,12 @@ $domainChoices = foreach ($domain in $domains.Keys) {
     }
 }
 $domainSettings = @{
-    Name         = 'Domain'
+    Key         = 'Domain'
     Label        = 'Domain'
     Type         = 'Select'
     Page         = 'Scope'
     Required     = $true
-    Parameter    = 'Domain'
+    ParameterName    = 'Domain'
     Choices      = $domainChoices
     Display      = 'Name'
     CommandValue = 'Name'
@@ -176,13 +176,13 @@ $domainField = New-ConsoleField @domainSettings
 # The servers load in their own runspace when the domain changes: grouped by site, offline ones disabled,
 # online ones chosen.
 $serversSettings = @{
-    Name         = 'Servers'
+    Key         = 'Servers'
     Label        = 'Servers'
     Type         = 'MultiSelect'
     Page         = 'Scope'
     DependsOn    = 'Domain'
     Minimum      = 1
-    Parameter    = 'ComputerName'
+    ParameterName    = 'ComputerName'
     Help         = 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.'
     ArgumentList = $servers, $loadDelay
     LoadChoices  = {
@@ -206,12 +206,12 @@ $serversSettings = @{
     GroupBy      = 'Site'
     Badge        = 'Role'
     Describe     = 'Detail'
-    Disabled     = 'Offline'
+    DisabledReason     = 'Offline'
     Selected     = 'Online'
 }
 $serversField = New-ConsoleField @serversSettings
 $checksSettings = @{
-    Name         = 'Checks'
+    Key         = 'Checks'
     Label        = 'Checks'
     Type         = 'MultiSelect'
     Page         = 'Checks'
@@ -221,13 +221,13 @@ $checksSettings = @{
     GroupBy      = 'Category'
     Describe     = 'About'
     Minimum      = 1
-    Parameter    = 'Check'
+    ParameterName    = 'Check'
     Badge        = { '~{0} s' -f $_.Seconds.ToString('0.#', [cultureinfo]::InvariantCulture) }
     Selected     = { $_.Id -in 'SecureChannel', 'TimeOffset', 'ForwardRecord' }
     Help         = 'Grouped by category; the preview shows what a healthy server reports.'
     Preview      = {
         New-ConsoleText $_.About
-        New-ConsoleKeyValue -Markup -Data ([ordered] @{
+        New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
                 Category  = $_.Category
                 Healthy   = "[pass]$($_.Expected)[/]"
                 Typical   = "about $($_.Seconds) s per server"
@@ -237,7 +237,7 @@ $checksSettings = @{
 }
 $checksField = New-ConsoleField @checksSettings
 $parallelSettings = @{
-    Name      = 'Parallel'
+    Key      = 'Parallel'
     Label     = 'Servers at a time'
     Type      = 'Number'
     Page      = 'Options'
@@ -245,7 +245,7 @@ $parallelSettings = @{
     Minimum   = 1
     Maximum   = 16
     Default   = 4
-    Parameter = 'ThrottleLimit'
+    ParameterName = 'ThrottleLimit'
 }
 $parallelField = New-ConsoleField @parallelSettings
 $formats = @(
@@ -254,7 +254,7 @@ $formats = @(
     [pscustomobject] @{ Value = 'Json'; Title = 'JSON' }
 )
 $formatSettings = @{
-    Name         = 'Format'
+    Key         = 'Format'
     Label        = 'Report format'
     Type         = 'Select'
     Page         = 'Options'
@@ -262,20 +262,20 @@ $formatSettings = @{
     Display      = 'Title'
     CommandValue = 'Value'
     Default      = 'Html'
-    Parameter    = 'Format'
+    ParameterName    = 'Format'
 }
 $formatField = New-ConsoleField @formatSettings
 $reportField = New-ConsoleField Report 'Report folder' -Type Path -Kind Folder -Page Options `
-    -Default (Join-Path Reports Fleet) -Parameter ReportPath
-$notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -Parameter Notify
+    -Default (Join-Path Reports Fleet) -ParameterName ReportPath
+$notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -ParameterName Notify
 $emailSettings = @{
-    Name        = 'Email'
+    Key        = 'Email'
     Label       = 'Recipient'
     Page        = 'Options'
     Default     = 'ops@contoso.com'
-    Parameter   = 'To'
+    ParameterName   = 'To'
     VisibleWhen = { $Values.Notify }
-    Validate    = { if ($_ -notmatch '@') { 'Enter an email address' } }
+    Validator    = { if ($_ -notmatch '@') { 'Enter an email address' } }
 }
 $emailField = New-ConsoleField @emailSettings
 $formSettings = @{
@@ -290,7 +290,7 @@ $formSettings = @{
 }
 $form = New-ConsoleForm @formSettings
 
-$menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30' {
+$menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30' -Content {
     # Built-in presets fill in the form (servers are chosen once the domain's servers load);
     # people can save their own.
     foreach ($preset in $presets) {
@@ -299,13 +299,13 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                 Where-Object { -not $_.Offline -and (-not $preset.Role -or $_.Role -eq $preset.Role) } |
                 ForEach-Object Name
         )
-        $preview = New-ConsoleRows -Gap 1 {
+        $preview = New-ConsoleRows -Gap 1 -Content {
             $categoryNames = $checks |
                 Where-Object { $preset.Checks -contains $_.Id } |
                 ForEach-Object Category |
                 Select-Object -Unique
             $checkNames = foreach ($id in @($preset.Checks)) { ($checks | Where-Object Id -EQ $id).Name }
-            New-ConsoleKeyValue -Markup -Data ([ordered] @{
+            New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
                     Servers  = $preset.Scope
                     Checks   = "$(@($preset.Checks).Count) [muted]· $(@($categoryNames) -join ', ')[/]"
                     Workers  = "$($preset.Parallel) servers at a time"
@@ -355,17 +355,17 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
 
         # The dashboard: one row per server and one column per check in the map, the categories with the plan,
         # what runs now.
-        $dashboard = New-ConsoleDashboard -Title '[bold]Fleet health check[/]' -Subtitle $plan.Domain {
+        $dashboard = New-ConsoleDashboard -Title '[bold]Fleet health check[/]' -Subtitle $plan.Domain -Content {
             New-ConsoleSummaryBar -Total $plan.Total -BarWidth 24 -Counter ([ordered] @{
                     passed   = 0
                     warnings = 0
                     failed   = 0
                 })
             New-ConsolePhases -Phase 'Discover', 'Connect', 'Check', 'Report'
-            New-ConsoleColumns {
-                New-ConsolePanel -Title 'Check map' -Weight 1.0 {
+            New-ConsoleColumns -Content {
+                New-ConsolePanel -Title 'Check map' -Weight 1.0 -Content {
                     $map = @{
-                        Name        = 'cells'
+                        WidgetId    = 'cells'
                         Count       = $plan.Total
                         Columns     = $plan.Checks.Count
                         RowLabels   = $plan.Servers.Name
@@ -373,15 +373,15 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                     }
                     New-ConsoleCellMap @map
                 }
-                New-ConsolePanel -Title 'Categories' -Weight 1.15 {
-                    New-ConsoleRows {
-                        New-ConsoleLanes -Name categories {
+                New-ConsolePanel -Title 'Categories' -Weight 1.15 -Content {
+                    New-ConsoleRows -Content {
+                        New-ConsoleLanes -WidgetId categories -Content {
                             foreach ($category in $plan.Categories) {
                                 New-ConsoleLane $category -Total $laneTotal[$category]
                             }
                         }
                         New-ConsoleRule
-                        New-ConsoleKeyValue -Markup -Data ([ordered] @{
+                        New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
                                 Domain  = "[accent]$($plan.Domain)[/]"
                                 Servers = "$($plan.Servers.Count) [muted]· $siteCount sites[/]"
                                 Checks  = "$($plan.Checks.Count) [muted]· $($plan.Total) in all[/]"
@@ -389,28 +389,28 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                             })
                     }
                 }
-                New-ConsolePanel -Title 'Running' -Weight 0.95 -Caption "$($plan.Parallel) workers" {
-                    New-ConsoleActivityList -Name running -MaxVisible 8
+                New-ConsolePanel -Title 'Running' -Weight 0.95 -HeaderRight "$($plan.Parallel) workers" -Content {
+                    New-ConsoleActivityList -WidgetId running -MaxVisible 8
                 }
             }
-            New-ConsoleColumns -FixedWidth 0, 0, 17 {
-                New-ConsolePanel -Title 'Failures' -Weight 1.52 {
+            New-ConsoleColumns -FixedWidth 0, 0, 17 -Content {
+                New-ConsolePanel -Title 'Failures' -Weight 1.52 -Content {
                     $actualColumn = @{ Name = 'Actual'; Flexible = $true; Markup = $true }
                     $columns = 'Server', 'Check', 'Expected', $actualColumn
-                    New-ConsoleLiveTable -Name failures -Column $columns -MaxRows 5 -Border Minimal
+                    New-ConsoleLiveTable -WidgetId failures -Column $columns -MaxRows 5 -Border Minimal
                 }
-                New-ConsolePanel -Title 'Slowest checks' -Weight 1 {
+                New-ConsolePanel -Title 'Slowest checks' -Weight 1 -Content {
                     $tookColumn = @{ Name = 'Took'; Alignment = 'Right' }
-                    New-ConsoleLiveTable -Name slowest -Column 'Check', 'Server', $tookColumn -Border Minimal
+                    New-ConsoleLiveTable -WidgetId slowest -Column 'Check', 'Server', $tookColumn -Border Minimal
                 }
-                New-ConsolePanel -Title 'Durations' {
-                    New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8, 16 -Height 5
+                New-ConsolePanel -Title 'Durations' -Content {
+                    New-ConsoleHistogram -WidgetId durations -Edge 0, 2, 4, 8, 16 -Height 5
                 }
             }
-            New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog -Height 6 }
+            New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion -Height 6 }
         }
         # The run moves a simulated clock: the header, the summary bar, the log and the results show its time.
-        $clock = New-ConsoleClock -Speed $Speed
+        $clock = New-ConsoleSimulatedClock -Speed $Speed
         $checkRun = {
             #region more
             $random = New-Object System.Random 20261020
@@ -472,43 +472,43 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             }
 
             # Discover: the inventory and the plan.
-            Send-ConsoleEvent dashboard status -Text 'discovering' -State Running
+            Send-ConsoleEvent dashboard status -Text 'discovering' -Status Running
             Update-ConsolePhase -Key Discover -Status Running
-            Write-ConsoleLog "Reading the inventory of $($plan.Domain)" -Highlight Smart
+            Write-ConsoleLogEntry "Reading the inventory of $($plan.Domain)" -Highlight Smart
             $clock.Wait(0.8)
             $inDomain = @($servers | Where-Object Domain -EQ $plan.Domain)
             $inSites = @($inDomain.Site | Select-Object -Unique).Count
             $found = "$($inDomain.Count) servers in $inSites sites; $($plan.Servers.Count) selected"
-            Write-ConsoleLog $found -Highlight Smart
+            Write-ConsoleLogEntry $found -Highlight Smart
             foreach ($offline in @($inDomain | Where-Object Offline)) {
-                Write-ConsoleLog "$($offline.Name) skipped: $($offline.Offline)" -Level warn -Highlight Smart
+                Write-ConsoleLogEntry "$($offline.Name) skipped: $($offline.Offline)" -Level warn -Highlight Smart
             }
             $clock.Wait(0.9)
             $size = "$($plan.Servers.Count) servers, $($plan.Checks.Count) checks"
             $planned = "$($plan.Total) checks planned: $size, $($plan.Parallel) at a time"
-            Write-ConsoleLog $planned -Highlight Smart
+            Write-ConsoleLogEntry $planned -Highlight Smart
             $clock.Wait(0.5)
             Update-ConsolePhase -Key Discover -Status Pass -Detail "$($plan.Servers.Count) servers"
 
             # Connect: a remote session per server, several at a time.
-            Send-ConsoleEvent dashboard status -Text 'connecting' -State Running
+            Send-ConsoleEvent dashboard status -Text 'connecting' -Status Running
             Update-ConsolePhase -Key Connect -Status Running
             & $schedule $plan.Servers.Count { param($S) $connect[$S] } {
                 param($S, $C)
                 $name = $plan.Servers[$S].Name
-                Update-ConsoleActivity -Name running -Id (1000 + $S) -Activity "Connecting $name"
+                Update-ConsoleActivity -WidgetId running -Id (1000 + $S) -Activity "Connecting $name"
             } {
                 param($S, $C, $Took)
                 $server = $plan.Servers[$S]
-                Update-ConsoleActivity -Name running -Id (1000 + $S) -Complete
+                Update-ConsoleActivity -WidgetId running -Id (1000 + $S) -Completed
                 $address = "$($server.Name) ($($server.Address))"
-                Write-ConsoleLog "Connected to $address in $(& $format $Took)" -Highlight Smart
+                Write-ConsoleLogEntry "Connected to $address in $(& $format $Took)" -Highlight Smart
             } { param($S) }
             $connected = "$($plan.Servers.Count)/$($plan.Servers.Count)"
             Update-ConsolePhase -Key Connect -Status Pass -Detail $connected
 
             # Check: every server runs its checks in order; the busiest part of the screen.
-            Send-ConsoleEvent dashboard status -Text 'checking' -State Running
+            Send-ConsoleEvent dashboard status -Text 'checking' -Status Running
             Update-ConsolePhase -Key Check -Status Running
             $tally = @{ Done = 0; Passed = 0; Warned = 0; Failed = 0 }
             $laneDone = @{}
@@ -523,10 +523,10 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                 $check = $plan.Checks[$C]
                 $doing = "$($plan.Servers[$S].Name) · $($check.Name)"
                 Update-ConsoleCell -Index ($S * $plan.Checks.Count + $C) -Status Running
-                Update-ConsoleActivity -Name running -Id ($S * 100 + $C) -Activity $doing
+                Update-ConsoleActivity -WidgetId running -Id ($S * 100 + $C) -Activity $doing
                 if (-not $laneDone.ContainsKey($check.Category)) {
                     $laneDone[$check.Category] = 0
-                    Update-ConsoleLane -Name categories -Key $check.Category -Status Running -Detail $doing
+                    Update-ConsoleLane -WidgetId categories -Key $check.Category -Status Running -Detail $doing
                 }
             } {
                 param($S, $C, $Took)
@@ -537,13 +537,13 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                 $status = if ($outcome) { $outcome[0] } else { 'Pass' }
                 $tally.Done++
                 $serverSeconds[$S] += $Took
-                Update-ConsoleActivity -Name running -Id ($S * 100 + $C) -Complete
+                Update-ConsoleActivity -WidgetId running -Id ($S * 100 + $C) -Completed
                 Update-ConsoleCell -Index ($S * $plan.Checks.Count + $C) -Status $status
                 $done = "$($server.Name) · $($check.Name)"
-                Update-ConsoleLane -Name categories -Key $check.Category -Result $status -Detail $done
+                Update-ConsoleLane -WidgetId categories -Key $check.Category -Result $status -Detail $done
                 $laneDone[$check.Category]++
                 if ($laneDone[$check.Category] -eq $laneTotal[$check.Category]) {
-                    Update-ConsoleLane -Name categories -Key $check.Category -Complete
+                    Update-ConsoleLane -WidgetId categories -Key $check.Category -Complete
                 }
                 switch ($status) {
                     'Fail' {
@@ -556,14 +556,14 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                             Actual   = $actual
                         }
                         $row = $server.Name, $check.Name, $check.Expected, $actual
-                        Update-ConsoleTable -Name failures -Key $key -Value $row
+                        Update-ConsoleLiveTable -WidgetId failures -Key $key -Value $row
                         $finding = "${done}: $($outcome[1]), expected $($check.Expected)"
-                        Write-ConsoleLog $finding -Level err -Highlight Smart
+                        Write-ConsoleLogEntry $finding -Level err -Highlight Smart
                     }
                     'Warn' {
                         $tally.Warned++
                         $finding = "${done}: $($outcome[1]), expected $($check.Expected)"
-                        Write-ConsoleLog $finding -Level warn -Highlight Smart
+                        Write-ConsoleLogEntry $finding -Level warn -Highlight Smart
                     }
                     default { $tally.Passed++ }
                 }
@@ -572,7 +572,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                         warnings = $tally.Warned
                         failed   = $tally.Failed
                     })
-                Add-ConsoleValue -Name durations -Value $Took
+                Add-ConsoleValue -WidgetId durations -Value $Took
                 # The slowest five so far, slowest first; the table changes only when the list does.
                 $slow = $state.Slow
                 if ($slow.Count -lt 5 -or $Took -gt $slow[-1].Seconds) {
@@ -590,35 +590,35 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                     for ($rank = 0; $rank -lt $slow.Count; $rank++) {
                         $shown = $slow[$rank].Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's'
                         $row = $slow[$rank].Check, $slow[$rank].Server, $shown
-                        Update-ConsoleTable -Name slowest -Key "$($rank + 1)" -Value $row
+                        Update-ConsoleLiveTable -WidgetId slowest -Key "$($rank + 1)" -Value $row
                     }
                 }
             } {
                 param($S)
                 $name = $plan.Servers[$S].Name
                 $spent = & $format $serverSeconds[$S]
-                Write-ConsoleLog "$name finished $($plan.Checks.Count) checks in $spent" -Highlight Smart
+                Write-ConsoleLogEntry "$name finished $($plan.Checks.Count) checks in $spent" -Highlight Smart
             }
             $overall = if ($tally.Failed) { 'Fail' } elseif ($tally.Warned) { 'Warn' } else { 'Pass' }
             Update-ConsolePhase -Key Check -Status $overall -Detail "$($tally.Failed) failed"
 
             # Report: the file, then the email.
-            Send-ConsoleEvent dashboard status -Text 'writing the report' -State Running
+            Send-ConsoleEvent dashboard status -Text 'writing the report' -Status Running
             Update-ConsolePhase -Key Report -Status Running
             foreach ($step in 1..4) {
                 $writing = "Writing $($plan.ReportFile)"
-                Update-ConsoleActivity -Name running -Id 9000 -Activity $writing -Percent ($step * 25)
+                Update-ConsoleActivity -WidgetId running -Id 9000 -Activity $writing -PercentComplete ($step * 25)
                 $clock.Wait(0.6)
             }
-            Update-ConsoleActivity -Name running -Id 9000 -Complete
-            Write-ConsoleLog "Report saved: $($plan.ReportPath) (412 KB)" -Highlight Smart
+            Update-ConsoleActivity -WidgetId running -Id 9000 -Completed
+            Write-ConsoleLogEntry "Report saved: $($plan.ReportPath) (412 KB)" -Highlight Smart
             if ($plan.Notify) {
                 $clock.Wait(0.5)
-                Write-ConsoleLog "Report emailed to $($plan.Email)" -Highlight Smart
+                Write-ConsoleLogEntry "Report emailed to $($plan.Email)" -Highlight Smart
             }
             Update-ConsolePhase -Key Report -Status Pass -Detail $plan.Format.ToUpper()
             $counts = "$($tally.Failed) failed · $($tally.Warned) warnings"
-            Send-ConsoleEvent dashboard status -Text $counts -State $overall
+            Send-ConsoleEvent dashboard status -Text $counts -Status $overall
             # The finished screen stays a moment, with the clock standing still.
             $clock.Hold(1.2)
 
@@ -645,7 +645,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             $details = if ($state.Findings.Count) {
                 $actualColumn = @{ Name = 'Actual'; Flexible = $true; Markup = $true }
                 $columns = 'Server', 'Check', 'Expected', $actualColumn
-                $state.Findings.Values | Format-ConsoleTable -Property $columns -Border Minimal -AsWidget
+                $state.Findings.Values | Show-ConsoleTable -Property $columns -Border Minimal -AsWidget
             }
             $next = [ordered] @{
                 'Open the report' = { $MenuContext.Toast("Opened $script:lastReport", 'Info') }
@@ -675,13 +675,13 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                 Details      = $details
                 Next         = $next
             }
-            New-ConsoleRunResult @result
+            New-ConsoleMenuRunResult @result
         }
         $null = $MenuContext.Run($dashboard, $checkRun, $clock)
     }
     $historyState = { "$(@($script:history).Count) runs" }
     New-ConsoleMenuItem 'History' -Hotkey h -IconName List -Description 'Earlier runs, newest first.' `
-        -State $historyState -Page {
+        -Detail $historyState -Page {
         $rows = for ($i = @($script:history).Count - 1; $i -ge 0; $i--) {
             $run = @($script:history)[$i]
             $tone = if ($run.Failed) { 'fail' } elseif ($run.Warnings) { 'warn' } else { 'pass' }
@@ -702,7 +702,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             @{ Name = 'Result'; Markup = $true }
             @{ Name = 'Took'; Alignment = 'Right' }
         )
-        $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
+        $rows | Show-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
     }
     New-ConsoleMenuItem -Separator
     New-ConsoleMenuItem 'Quit' -Exit

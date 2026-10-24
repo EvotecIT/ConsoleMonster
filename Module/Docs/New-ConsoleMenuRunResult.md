@@ -4,33 +4,33 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# New-ConsoleRunResult
+# New-ConsoleMenuRunResult
 ## SYNOPSIS
 Creates the result a menu run returns: a title, a status, a summary, figures and next actions.
 
-Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.
+Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -ElapsedSeconds overrides it.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRunResult [-Title] <string> [-Status <StatusKind>] [-Summary <string>] [-Figure <IDictionary>] [-Next <IDictionary>] [-FigureStatus <IDictionary>] [-Elapsed <TimeSpan>] [-Details <IWidget>] [<CommonParameters>]
+New-ConsoleMenuRunResult [-Title] <string> [-Status <StatusKind>] [-Summary <string>] [-Figure <IDictionary>] [-Next <IDictionary>] [-FigureStatus <IDictionary>] [-ElapsedSeconds <Double>] [-Details <IWidget>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates the result a menu run returns: a title, a status, a summary, figures and next actions.
 
-Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -Elapsed overrides it.
+Return it from the script block of $MenuContext.Run (a live dashboard started from a menu action): when the run ends, the menu shows it as a result screen with the figures as large values and the next actions as items. -Figure maps labels to values (use [ordered] to keep order); -Next maps action titles to script blocks, which run with $MenuContext like any menu action. -FigureStatus colours the figures that need attention (Pass, Warn, Fail by label). -Status takes the shared status vocabulary (default Pass). The time shown with the result is the run's time on its session clock (real time, or a simulated clock given to the run); -ElapsedSeconds overrides it.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 New-ConsoleMenuItem 'Back up now' -Action {
-    $dashboard = New-ConsoleDashboard -Title 'Backup' { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
+    $dashboard = New-ConsoleDashboard -Title 'Backup' -Content { New-ConsoleStatusList -Item 'Scan files', 'Copy changes' }
     $null = $MenuContext.Run($dashboard, {
-        Update-ConsoleStatus 'Scan files' -Status Pass
-        Update-ConsoleStatus 'Copy changes' -Status Pass
-        New-ConsoleRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
+        Update-ConsoleStatusItem -Key 'Scan files' -Status Pass
+        Update-ConsoleStatusItem -Key 'Copy changes' -Status Pass
+        New-ConsoleMenuRunResult 'Backup finished' -Summary '1 284 files copied, 312 MB.' -Figure ([ordered] @{ files = '1 284'; copied = '312 MB' }) -Next @{
             'Show where the log is' = { $MenuContext.Toast('Log: D:\Backups\backup.log') }
         }
     })
@@ -41,7 +41,7 @@ A backup run that reports what it did
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; failed = 0 }) -FigureStatus @{ passed = 'Pass'; warnings = 'Warn' }
+New-ConsoleMenuRunResult 'Checks finished' -Status Warn -Figure ([ordered] @{ passed = 41; warnings = 3; failed = 0 }) -FigureStatus @{ passed = 'Pass'; warnings = 'Warn' }
 ```
 
 Coloured figures
@@ -64,11 +64,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Elapsed
-How long the run took, shown with the result and kept in the history (a TimeSpan, seconds, or a number with a unit such as 86s). Default: the time on the run's session clock, which is real time, or the simulated clock's time when the run was given one (New-ConsoleClock).
+### -ElapsedSeconds
+Elapsed seconds shown with the result and kept in history; defaults to the run session clock. Fractional seconds are accepted.
 
 ```yaml
-Type: TimeSpan
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -185,7 +185,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-- `ConsoleMonster.Interactive.RunResult`
+- `ConsoleMonster.Interactive.MenuRunResult`
 
 ## RELATED LINKS
 

@@ -44,7 +44,7 @@ if ($Phase -eq 'Initialize') {
     Import-Module (Join-Path $PSScriptRoot '../../ConsoleMonster.psd1')
     Import-Module (Join-Path $PSScriptRoot '../Fixtures/HelpFormatting/HelpFormatting.psd1')
     . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
-    if ([ConsoleMonster.Input.ConsoleInput]::IsAcquired -or $null -ne [ConsoleMonster.Input.ConsoleInput]::Override) {
+    if (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired -or $null -ne ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override) {
         throw 'The fresh host must have no input lease or override.'
     }
     if (-not ('ConsoleMonsterHelpLeaseObserver' -as [type])) {
@@ -102,14 +102,14 @@ public sealed class ConsoleMonsterHelpLeaseObserver : IDisposable {
         Host = $Host.Name
         ResultPath = $ResultPath
         SavedProfile = [ConsoleMonster.Terminal]::Profile
-        SavedInput = [ConsoleMonster.Input.ConsoleInput]::Override
+        SavedInput = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override
         NativeHelp = (Get-Command help).Definition
         Checks = [Collections.Generic.List[string]]::new()
         Cancel = @{}
         Quit = @{}
     }
     Enable-ConsoleFormatting -Feature Help
-    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed([Console]::BufferWidth, 10, 'None')
+    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed([Console]::BufferWidth, 10, 'None')
     [IO.File]::WriteAllText($ResultPath + '.pid.txt', [string]$PID)
     'HELP_CANCELLATION_INITIALIZED'
     return
@@ -133,7 +133,7 @@ if ($Phase -eq 'Cancel' -or $Phase -eq 'Quit') {
     $readyPath = $ResultPath + '.' + $Phase.ToLowerInvariant() + '.ready.json'
     if (Test-Path -LiteralPath $readyPath) { throw 'Use a new receipt path; readiness evidence already exists.' }
     $observer = [ConsoleMonsterHelpLeaseObserver]::new(
-        [ConsoleMonster.Input.ConsoleInput], [ConsoleMonsterTestConsoleFrame], $readyPath)
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput')), [ConsoleMonsterTestConsoleFrame], $readyPath)
     try {
         & {
             help Get-HelpFormattingValue -Full
@@ -145,7 +145,7 @@ if ($Phase -eq 'Cancel' -or $Phase -eq 'Quit') {
         throw
     } finally {
         $attempt.AfterMode = [ConsoleMonsterTestConsoleFrame]::InputMode()
-        $attempt.IsAcquiredAfter = [ConsoleMonster.Input.ConsoleInput]::IsAcquired
+        $attempt.IsAcquiredAfter = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired
         $attempt.FinallyRan = $true
         $observer.Dispose()
         $attempt.ObserverError = $observer.Error
@@ -163,7 +163,7 @@ if ($Phase -eq 'VerifyCancellation' -or $Phase -eq 'Finish') {
     if (-not $ready.IsAcquired -or -not $ready.OverrideIsNull -or ($ready.InputMode -band 7) -ne 0) {
         throw 'The keyboard was not owned in raw mode with processed/line/echo input disabled.'
     }
-    if ($attempt.AfterMode -ne $attempt.BeforeMode -or $attempt.IsAcquiredAfter -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) {
+    if ($attempt.AfterMode -ne $attempt.BeforeMode -or $attempt.IsAcquiredAfter -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) {
         throw 'The keyboard phase did not restore the exact mode and release the lease.'
     }
     if ($attempt.AfterMarker -ne ($name -eq 'Quit')) { throw 'Ctrl+C must stop the pipeline; q must return normally.' }
@@ -176,11 +176,11 @@ if ($Phase -eq 'VerifyCancellation' -or $Phase -eq 'Finish') {
     $state.Checks.Add("$name real keyboard, raw lease, AFTER marker, exact mode restoration")
 
     # A long ordinary Get-Help in this NEW prompt pipeline must not request even one pager key.
-    $sentinel = [ConsoleMonster.Input.ScriptedInput]::new('q Space')
-    [ConsoleMonster.Input.ConsoleInput]::Override = $sentinel
+    $sentinel = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('q Space')
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $sentinel
     try {
         & { Get-Help Get-HelpFormattingValue -Full } | Out-Default
-        if ($sentinel.Remaining -ne 2 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) {
+        if ($sentinel.Remaining -ne 2 -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) {
             throw 'Paging leaked into ordinary Get-Help in the fresh pipeline.'
         }
         $attempt.FreshPipelineRemainingKeys = $sentinel.Remaining
@@ -188,7 +188,7 @@ if ($Phase -eq 'VerifyCancellation' -or $Phase -eq 'Finish') {
         if ($attempt.FreshPipelineMode -ne $attempt.BeforeMode) { throw 'Fresh-pipeline help changed the input mode.' }
         $state.Checks.Add("$name fresh-pipeline ordinary Get-Help consumes no pager input")
     } finally {
-        [ConsoleMonster.Input.ConsoleInput]::Override = $state.SavedInput
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $state.SavedInput
     }
     [pscustomobject]@{
         Runtime = $state.Runtime
@@ -196,8 +196,8 @@ if ($Phase -eq 'VerifyCancellation' -or $Phase -eq 'Finish') {
         Pid = $state.Pid
         InputRedirected = [Console]::IsInputRedirected
         OutputRedirected = [Console]::IsOutputRedirected
-        AssemblyPath = [ConsoleMonster.PowerShell.HelpHostFormatting].Assembly.Location
-        AssemblySha256 = (Get-FileHash ([ConsoleMonster.PowerShell.HelpHostFormatting].Assembly.Location)).Hash
+        AssemblyPath = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.HelpHostFormatting')).Assembly.Location
+        AssemblySha256 = (Get-FileHash (((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.HelpHostFormatting')).Assembly.Location)).Hash
         Cancel = $state.Cancel
         Quit = $state.Quit
         Checks = @($state.Checks)
@@ -210,7 +210,7 @@ if ($Phase -eq 'VerifyCancellation' -or $Phase -eq 'Finish') {
 
 Disable-ConsoleFormatting
 [ConsoleMonster.Terminal]::Profile = $state.SavedProfile
-[ConsoleMonster.Input.ConsoleInput]::Override = $state.SavedInput
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $state.SavedInput
 if ((Get-Command help).Definition -cne $state.NativeHelp) { throw 'The native help function was not restored.' }
 Remove-Variable ConsoleMonsterHelpCancellation -Scope Global
 'HELP_CANCELLATION_CLEANUP_OK'

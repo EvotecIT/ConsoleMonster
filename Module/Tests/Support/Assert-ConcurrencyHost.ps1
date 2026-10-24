@@ -16,7 +16,7 @@ try {
     Enable-ConsoleFormatting -Feature FormatCommands
     $count = 0
     foreach ($width in 40, 41, 80) {
-        $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 40, 'None')
+        $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 40, 'None')
         [ConsoleMonster.Terminal]::Profile = $profile
         $values = 1..4 | ForEach-Object { [pscustomobject]@{ Name = "$_-" + ('x' * 18) } }
         foreach ($layout in @(@{Column = 2}, @{Column = 3}, @{AutoSize = $true})) {

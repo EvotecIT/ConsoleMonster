@@ -4,53 +4,77 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Write-ConsoleTree
+# Show-ConsoleTree
 ## SYNOPSIS
-Writes a console tree from New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.
+Shows a hierarchy from objects, dictionaries or explicit tree nodes.
 
-Same parameters as New-ConsoleTree (nodes in a script block, hierarchical objects from the pipeline with -ChildrenProperty or -Children, or -Data hashtables); the tree is written immediately instead of returned.
+Use ChildrenProperty or Children for a hierarchy, Content for New-ConsoleTreeNode definitions, or InputObject for a nested dictionary or object graph. Object inspection is bounded by Depth, MaxItems and MaxNodes. Show-ConsoleObject provides the keyboard explorer.
 
 ## SYNTAX
-### Nodes
+### Nodes (Default)
 ```powershell
-Write-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [<CommonParameters>]
-```
-
-### Data
-```powershell
-Write-ConsoleTree [-Data] <IDictionary> [-Title <Object>] [<CommonParameters>]
+Show-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [-Include <string[]>] [-Exclude <string[]>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [<CommonParameters>]
 ```
 
 ### Objects
 ```powershell
-Write-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-NameProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [<CommonParameters>]
+Show-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-Include <string[]>] [-Exclude <string[]>] [-Width <int>] [-Culture <cultureinfo>] [-AsString] [-AsWidget] [-PassThru] [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Writes a console tree from New-ConsoleTreeNode calls, hierarchical objects or nested hashtables.
+Shows a hierarchy from objects, dictionaries or explicit tree nodes.
 
-Same parameters as New-ConsoleTree (nodes in a script block, hierarchical objects from the pipeline with -ChildrenProperty or -Children, or -Data hashtables); the tree is written immediately instead of returned.
+Use ChildrenProperty or Children for a hierarchy, Content for New-ConsoleTreeNode definitions, or InputObject for a nested dictionary or object graph. Object inspection is bounded by Depth, MaxItems and MaxNodes. Show-ConsoleObject provides the keyboard explorer.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleTree -Title 'Forest' -Data ([ordered] @{ 'ad.adatum.com' = @('DC01', 'DC02'); 'eu.ad.adatum.com' = @('DC07') })
+$configuration | Show-ConsoleTree -Depth 4
 ```
 
-Write a small hierarchy
+Display an object graph.
 
 ### EXAMPLE 2
 ```powershell
-Write-ConsoleTree 'Replication' {
-    New-ConsoleTreeNode 'DC01' -Status Pass -Detail 'last sync 42s ago'
-    New-ConsoleTreeNode 'DC02' -Status Warn -Detail 'last sync 42 min ago'
-}
+Show-ConsoleTree 'Checks' -Content { New-ConsoleTreeNode 'DNS' -Status Pass }
 ```
 
-Nodes with a status and a detail
+Show explicit nodes.
 
 ## PARAMETERS
+
+### -AsString
+Returns one plain-text string without drawing.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsWidget
+Returns the tree widget without drawing.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Children
 A script block that returns an object's children; $_ is the object. Use it when children have to be looked up (Get-ChildItem, Get-ADGroupMember).
@@ -100,24 +124,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Data
-Nested hashtables describing the tree: a nested hashtable becomes child nodes, an array leaf nodes, any other value a muted note after the key.
+### -Culture
+Culture used for values.
 
 ```yaml
-Type: IDictionary
-Parameter Sets: Data
+Type: CultureInfo
+Parameter Sets: Nodes, Objects
 Aliases: None
 Possible values:
 
-Required: True
-Position: 0
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Depth
-How many levels of children are followed below each object (default 5).
+Levels of children to follow: New-ConsoleTree defaults to 5. Show-ConsoleTree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.
 
 ```yaml
 Type: Int32
@@ -148,6 +172,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Exclude
+Member names to omit without reading their getters.
+
+```yaml
+Type: String[]
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Include
+Member names to include when inspecting an object graph.
+
+```yaml
+Type: String[]
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputObject
 Hierarchical objects (pipeline input); each becomes a top-level node. Nodes from New-ConsoleTreeNode go in as they are.
 
@@ -161,6 +217,22 @@ Required: True
 Position: named
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -LabelProperty
+The property shown as the node label (default: the object's name, as tables title a record: Name, DisplayName, Title...).
+
+```yaml
+Type: String
+Parameter Sets: Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -196,12 +268,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NameProperty
-The property shown as the node label (default: the object's name, as tables title a record: Name, DisplayName, Title...).
+### -PassThru
+Returns the original pipeline objects after drawing.
 
 ```yaml
-Type: String
-Parameter Sets: Objects
+Type: SwitchParameter
+Parameter Sets: Nodes, Objects
 Aliases: None
 Possible values:
 
@@ -233,12 +305,28 @@ The root label (markup allowed; rich text from New-ConsoleText keeps its colours
 
 ```yaml
 Type: Object
-Parameter Sets: Nodes, Data, Objects
+Parameter Sets: Nodes, Objects
 Aliases: None
 Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Width
+Layout width in cells; zero resolves the current target, falling back to 100.
+
+```yaml
+Type: Int32
+Parameter Sets: Nodes, Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

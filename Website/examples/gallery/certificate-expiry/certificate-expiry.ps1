@@ -11,12 +11,12 @@ $certificates = @(
 )
 
 # Layout: put urgent renewals beside the inventory, with thresholds visible.
-$report = New-ConsoleRows -Gap 1 {
+$report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule '[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]'
     '[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]'
     New-ConsoleTable -InputObject $certificates -Property Name, Expires, Days, Owner, Status -Expand
-    New-ConsolePanel -Title 'Renewal policy' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Renewal policy' -Content {
+        New-ConsoleStatusList -Content {
             New-ConsoleStatusItem 'vpn.example.test' -Status Fail -Detail 'Network · renew before Monday'
             New-ConsoleStatusItem 'api.example.test' -Status Warn -Detail 'Platform · schedule renewal this week'
         }
@@ -25,4 +25,4 @@ $report = New-ConsoleRows -Gap 1 {
 }
 
 # Behaviour: print once; connect your own inventory reader before rendering.
-$report | Write-ConsoleWidget
+$report | Show-Console

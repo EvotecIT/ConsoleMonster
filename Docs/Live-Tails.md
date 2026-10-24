@@ -15,7 +15,7 @@ Watch-ConsoleLog -Path ./service.log -Highlight database
 For a finite snapshot, use `-Count 1`. This counts one **source poll**, not one line. Every matching completed line available in that poll is returned.
 
 ```powershell
-Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 -Plain
+Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1 -NoLive
 ```
 
 `-Path` is a single literal FileSystem path; wildcards are not expanded. `-Filter` and `-Highlight` are literal, ordinal case-insensitive substrings, not regular expressions. A filter selects lines; a highlight changes only live presentation. Pipes and redirects preserve raw text, including timestamp and level prefixes and markup-like characters.

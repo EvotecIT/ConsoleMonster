@@ -20,7 +20,7 @@ $samples = $tick * 8
 $posted = $tick * 128000L
 
 # Layout: all thirty-two lanes, the update sparkline, CPU chart and session counters remain visible.
-$lanes = New-ConsoleLanes -Name workers {
+$lanes = New-ConsoleLanes -WidgetId workers -Content {
     foreach ($id in 0..31) {
         $lane = @{
             Key = "w$id"
@@ -52,22 +52,22 @@ $stats = [ordered]@{
     'Stray writes' = ($tick * 4).ToString($culture)
     'Dropped / errors' = '0 / 0'
 }
-$dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle '32 workers · captured tool output · 6s' -Footer '[muted]32 workers    15 frames/s    Ctrl+C stop[/]' {
-    New-ConsoleColumns {
-        New-ConsolePanel -Title Workers -Weight 2.2 { $lanes }
-        New-ConsolePanel -Title Session {
-            New-ConsoleKeyValue -Name stats -Data $stats
+$dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle '32 workers · captured tool output · 6s' -Footer '[muted]32 workers    15 frames/s    Ctrl+C stop[/]' -Content {
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title Workers -Weight 2.2 -Content { $lanes }
+        New-ConsolePanel -Title Session -Content {
+            New-ConsoleKeyValue -WidgetId stats -InputObject $stats
             New-ConsoleRule 'updates/s'
             $values = @($sampleRates | Select-Object -First $samples)
-            New-ConsoleSparkline -Name rate -Height 3 -Unit '/s' -Value $values
+            New-ConsoleSparkline -WidgetId rate -Height 3 -Unit '/s' -Value $values
             New-ConsoleRule 'CPU % (100% = one core)'
-            New-ConsoleLineChart -Name cpu -Height 6 -Minimum 0 -Unit '%' {
-                New-ConsoleChartSeries cpu -Tone Accent2 -Value @($sampleCpu | Select-Object -First $samples)
+            New-ConsoleLineChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
+                New-ConsoleChartSeries cpu -Role Accent2 -Value @($sampleCpu | Select-Object -First $samples)
             }
         }
     }
-    New-ConsolePanel -Title 'Captured output' -Fill {
-        New-ConsoleLog -Height 6 -NoTime {
+    New-ConsolePanel -Title 'Captured output' -Fill -Content {
+        New-ConsoleLogRegion -Height 6 -NoElapsed -Content {
             for ($i = 0; $i -lt $tick * 4; $i++) {
                 $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
                 New-ConsoleLogEntry ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5]) -Level $level
@@ -75,14 +75,14 @@ $dashboard = New-ConsoleDashboard -Title '[bold]Stress test[/]' -Subtitle '32 wo
         }
     }
 }
-$dashboard.ShowClock = $false
+$dashboard.ShowElapsed = $false
 
 # Behaviour: each runspace posts native lane updates; worker zero samples real session and process counters.
 if ($snapshot) {
-    $dashboard | Write-ConsoleWidget
+    $dashboard | Show-Console
     return
 }
-0..31 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $workers -ArgumentList $seconds, $actions, $messages {
+0..31 | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit $workers -ArgumentList $seconds, $actions, $messages {
     param($Id, $Seconds, $Actions, $Messages)
     $culture = [cultureinfo]::InvariantCulture
     $watch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -93,16 +93,16 @@ if ($snapshot) {
     $lastPosted = 0L
     $process = Get-Process -Id $PID
     $lastCpu = $process.TotalProcessorTime.TotalSeconds
-    Update-ConsoleLane -Name workers -Key $key -Status Running -Detail starting
+    Update-ConsoleLane -WidgetId workers -Key $key -Status Running -Detail starting
     try {
         while ($watch.Elapsed.TotalSeconds -lt $Seconds -and -not $ConsoleSession.Cancellation.IsCancellationRequested) {
             # Batch equal outcomes without giving up result counters or queue coalescing.
             $fail = (Get-Random -Minimum 0 -Maximum 3)
             $warn = (Get-Random -Minimum 1 -Maximum 5)
             $pass = 40 - $fail - $warn
-            Update-ConsoleLane -Name workers -Key $key -Result Pass -Steps $pass -Detail ($Actions[$done % 5] + " item $done")
-            if ($warn) { Update-ConsoleLane -Name workers -Key $key -Result Warn -Steps $warn }
-            if ($fail) { Update-ConsoleLane -Name workers -Key $key -Result Fail -Steps $fail }
+            Update-ConsoleLane -WidgetId workers -Key $key -Result Pass -Steps $pass -Detail ($Actions[$done % 5] + " item $done")
+            if ($warn) { Update-ConsoleLane -WidgetId workers -Key $key -Result Warn -Steps $warn }
+            if ($fail) { Update-ConsoleLane -WidgetId workers -Key $key -Result Fail -Steps $fail }
             $done += 40
             if ($Id -lt 4 -and $done % 400 -eq 0) {
                 $line = "stray-${Id}-${done}: FakeLib: " + $Messages[($done / 400) % $Messages.Count]
@@ -116,24 +116,24 @@ if ($snapshot) {
                 $core = ($cpuNow - $lastCpu) / $interval * 100
                 $posted = $ConsoleSession.EventsPosted
                 $rate = ($posted - $lastPosted) / $interval
-                Add-ConsoleValue -Name rate -Value $rate
-                Add-ConsoleValue -Name cpu -Key cpu -Value $core
-                Set-ConsoleValue -Name stats -Key 'Updates posted' -Value $posted.ToString('#,0', $culture)
-                Set-ConsoleValue -Name stats -Key 'Updates applied' -Value $ConsoleSession.EventsApplied.ToString('#,0', $culture)
-                Set-ConsoleValue -Name stats -Key 'Update rate' -Value ($rate.ToString('#,0', $culture) + '/s')
-                Set-ConsoleValue -Name stats -Key Frames -Value $ConsoleSession.FramesRendered.ToString('#,0', $culture)
-                Set-ConsoleValue -Name stats -Key 'Frame rate' -Value (($ConsoleSession.FramesRendered / $now).ToString('0.0', $culture) + ' fps')
-                Set-ConsoleValue -Name stats -Key CPU -Value ($core.ToString('#,0', $culture) + '%')
-                Set-ConsoleValue -Name stats -Key 'CPU share' -Value (($core / [Environment]::ProcessorCount).ToString('0.0', $culture) + '% of ' + [Environment]::ProcessorCount + ' cores')
-                Set-ConsoleValue -Name stats -Key 'Stray writes' -Value 'capturing 4 writers'
-                Set-ConsoleValue -Name stats -Key 'Dropped / errors' -Value ($ConsoleSession.EventsDropped.ToString() + ' / ' + $ConsoleSession.ApplyErrors)
+                Add-ConsoleValue -WidgetId rate -Value $rate
+                Add-ConsoleValue -WidgetId cpu -Key cpu -Value $core
+                Set-ConsoleValue -WidgetId stats -Key 'Updates posted' -Value $posted.ToString('#,0', $culture)
+                Set-ConsoleValue -WidgetId stats -Key 'Updates applied' -Value $ConsoleSession.EventsApplied.ToString('#,0', $culture)
+                Set-ConsoleValue -WidgetId stats -Key 'Update rate' -Value ($rate.ToString('#,0', $culture) + '/s')
+                Set-ConsoleValue -WidgetId stats -Key Frames -Value $ConsoleSession.FramesRendered.ToString('#,0', $culture)
+                Set-ConsoleValue -WidgetId stats -Key 'Frame rate' -Value (($ConsoleSession.FramesRendered / $now).ToString('0.0', $culture) + ' fps')
+                Set-ConsoleValue -WidgetId stats -Key CPU -Value ($core.ToString('#,0', $culture) + '%')
+                Set-ConsoleValue -WidgetId stats -Key 'CPU share' -Value (($core / [Environment]::ProcessorCount).ToString('0.0', $culture) + '% of ' + [Environment]::ProcessorCount + ' cores')
+                Set-ConsoleValue -WidgetId stats -Key 'Stray writes' -Value 'capturing 4 writers'
+                Set-ConsoleValue -WidgetId stats -Key 'Dropped / errors' -Value ($ConsoleSession.EventsDropped.ToString() + ' / ' + $ConsoleSession.ApplyErrors)
                 $lastSample = $now
                 $lastCpu = $cpuNow
                 $lastPosted = $posted
             }
             Start-Sleep -Milliseconds 8
         }
-        Update-ConsoleLane -Name workers -Key $key -Status Pass
+        Update-ConsoleLane -WidgetId workers -Key $key -Status Pass
     } finally {
         $process.Dispose()
     }

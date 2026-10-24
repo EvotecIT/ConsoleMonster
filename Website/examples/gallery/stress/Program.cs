@@ -43,16 +43,16 @@ KeyValueList stats = new KeyValueList("stats").Add("Updates posted", Number(post
     .Add("Stray writes", (step * 4).ToString(CultureInfo.InvariantCulture)).Add("Dropped / errors", "0 / 0");
 Sparkline rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
 rate.AddRange(sampleRates.Take(samples));
-LineChart cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
+LineChart cpu = new LineChart("cpu") { Height = 6, Minimum = 0, Unit = "%" };
 cpu.AddSeries("cpu", ThemeToken.Accent2);
 foreach (double value in sampleCpu.Take(samples)) cpu.Add("cpu", value);
-LogRegion output = new LogRegion { PreferredHeight = 6, ShowTime = false };
+LogRegion output = new LogRegion { PreferredHeight = 6, ShowElapsed = false };
 if (snapshot) for (int i = 0; i < step * 4; i++) output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5], i % 7 == 0 ? "err" : "info");
 Rows body = new Rows(new Columns().Add(new Panel(lanes, "Workers"), LayoutSize.Fraction(2.2))
     .Add(new Panel(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), "Session")))
     .Add(new Panel(output, "Captured output"), LayoutSize.Fraction());
 Dashboard dashboard = new Dashboard("[bold]Stress test[/]", body) {
-    Subtitle = "32 workers · captured tool output · 6s", ShowClock = false,
+    Subtitle = "32 workers · captured tool output · 6s", ShowElapsed = false,
     Footer = "[muted]32 workers    15 frames/s    Ctrl+C stop[/]"
 };
 

@@ -13,7 +13,7 @@ Set -Status Running when a phase starts; its duration is measured until it gets 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsolePhase [-Key] <string> [-Status <StatusKind>] [-Detail <string>] [-Name <string>] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsolePhase [[-WidgetId] <string>] [-Key] <string> [-Status <StatusKind>] [-Detail <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -58,23 +58,7 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The phases widget name (default phases).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -107,6 +91,22 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The phases widget name (default phases).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

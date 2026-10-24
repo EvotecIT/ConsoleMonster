@@ -56,7 +56,7 @@ Describe 'ConsoleMonster gallery runner' {
             )
 
             $path = Join-Path $TestDrive "interactive-$Slug.ps1"
-            $null = Get-ConsoleDemo $Slug -Path $path
+            $null = Export-ConsoleDemo $Slug -Path $path -PassThru
             $body = @(
                 "`$slug = '$($Slug.Replace("'", "''"))'"
                 "`$keys = '$($Keys.Replace("'", "''"))'"
@@ -64,8 +64,8 @@ Describe 'ConsoleMonster gallery runner' {
                 @'
 Set-Location ([IO.Path]::GetDirectoryName($path))
 $demo = Get-ConsoleDemo $slug
-$capture = [ConsoleMonster.Interactive.ScreenCapture]::new($demo.Terminal.Width, $demo.Terminal.Height)
-$inputSource = [ConsoleMonster.Input.ScriptedInput]::new($keys)
+$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new($demo.Terminal.Width, $demo.Terminal.Height)
+$inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new($keys)
 $inputSource.Paced = $true
 $state = & $path -AppOptions @{
     InputSource = $inputSource
@@ -78,7 +78,7 @@ $state = & $path -AppOptions @{
     Frame = $capture.LastFrame.ToPlainText()
     FrameCount = $capture.Frames.Count
     Remaining = $inputSource.Remaining
-    InputAcquired = [ConsoleMonster.Input.ConsoleInput]::IsAcquired
+    InputAcquired = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired
 } | ConvertTo-Json -Depth 4 -Compress
 '@
             )
@@ -131,7 +131,7 @@ $state = & $path -AppOptions @{
 
     It 'exports the canonical script verbatim and returns its file information' {
         $path = Join-Path $TestDrive 'readiness-report.ps1'
-        $file = Get-ConsoleDemo readiness-report -Path $path
+        $file = Export-ConsoleDemo readiness-report -Path $path -PassThru
         $file | Should -BeOfType [IO.FileInfo]
         $file.FullName | Should -Be $path
         $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/readiness-report/readiness-report.ps1'
@@ -147,31 +147,31 @@ $state = & $path -AppOptions @{
     It 'preserves an existing file unless Force is explicit and honors WhatIf' {
         $path = Join-Path $TestDrive 'existing.ps1'
         [IO.File]::WriteAllText($path, 'keep my edits')
-        { Get-ConsoleDemo fleet-filter -Path $path } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Export-ConsoleDemo fleet-filter -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
         [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        Get-ConsoleDemo fleet-filter -Path $path -Force -WhatIf
+        Export-ConsoleDemo fleet-filter -Path $path -Force -WhatIf -PassThru
         [IO.File]::ReadAllText($path) | Should -BeExactly 'keep my edits'
-        $null = Get-ConsoleDemo fleet-filter -Path $path -Force
+        $null = Export-ConsoleDemo fleet-filter -Path $path -Force -PassThru
         [IO.File]::ReadAllText($path) | Should -Not -BeExactly 'keep my edits'
         $unused = Join-Path $TestDrive 'whatif.ps1'
-        Get-ConsoleDemo fleet-filter -Path $unused -WhatIf
+        Export-ConsoleDemo fleet-filter -Path $unused -WhatIf -PassThru
         Test-Path -LiteralPath $unused | Should -BeFalse
     }
 
     It 'rejects unknown exports, wildcard exports and missing destination directories without creating files' {
         $path = Join-Path $TestDrive 'unknown.ps1'
-        { Get-ConsoleDemo no-such-demo -Path $path } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
-        { Get-ConsoleDemo 'welcome-*' -Path $path } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
+        { Export-ConsoleDemo no-such-demo -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
+        { Export-ConsoleDemo 'welcome-*' -Path $path -PassThru } | Should -Throw -ErrorId 'ConsoleDemoNotFound*'
         Test-Path -LiteralPath $path | Should -BeFalse
-        { Get-ConsoleDemo fleet-filter -Path (Join-Path $TestDrive 'missing/demo.ps1') } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
-        { Get-ConsoleDemo fleet-filter -Path 'Variable:GalleryDemoExport' } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Export-ConsoleDemo fleet-filter -Path (Join-Path $TestDrive 'missing/demo.ps1') -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
+        { Export-ConsoleDemo fleet-filter -Path 'Variable:GalleryDemoExport' -PassThru } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
     }
 
     It 'exports <Slug> byte for byte and runs its embedded static snapshot' -ForEach @(
         Get-ChildItem (Join-Path $PSScriptRoot '../../Website/examples/gallery/*/metadata.json') | ForEach-Object { @{ Slug = $_.Directory.Name } }
     ) {
         $path = Join-Path $TestDrive "$Slug.ps1"
-        $null = Get-ConsoleDemo $Slug -Path $path -Force
+        $null = Export-ConsoleDemo $Slug -Path $path -Force -PassThru
         $canonical = Join-Path $PSScriptRoot "../../Website/examples/gallery/$Slug/$Slug.ps1"
         [Convert]::ToBase64String([IO.File]::ReadAllBytes($path)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($canonical)))
         $text = Invoke-GalleryChild -Body "Show-ConsoleDemo '$Slug' -StaticSnapshot -Step 0"
@@ -180,7 +180,7 @@ $state = & $path -AppOptions @{
 
     It 'forwards Step and produces the same deterministic snapshot as an exported standalone script' {
         $path = Join-Path $TestDrive 'standalone.ps1'
-        $null = Get-ConsoleDemo build-steps -Path $path
+        $null = Export-ConsoleDemo build-steps -Path $path -PassThru
         $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1'
         $exported = Invoke-GalleryChild -Body "Set-Location '$($TestDrive.Replace("'", "''"))'; & '$($path.Replace("'", "''"))' -StaticSnapshot -Step 1"
         $embedded | Should -Match 'Restore\s+complete'

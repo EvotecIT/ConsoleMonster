@@ -6,25 +6,20 @@ schema: 2.0.0
 ---
 # Get-ConsoleDemo
 ## SYNOPSIS
-Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.
+Lists the copyable ConsoleMonster gallery demos .
 
-Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. With -Path, an exact slug exports the canonical self-contained script as UTF-8; ConsoleMonster must be installed to run it. The parent directory must exist. Existing files are preserved unless -Force is supplied.
+Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
 
 ## SYNTAX
-### List (Default)
+### __AllParameterSets
 ```powershell
-Get-ConsoleDemo [[-Slug] <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
-```
-
-### Export
-```powershell
-Get-ConsoleDemo [-Slug] <string> -Path <string> [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-ConsoleDemo [[-Slug] <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.
+Lists the copyable ConsoleMonster gallery demos .
 
-Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. With -Path, an exact slug exports the canonical self-contained script as UTF-8; ConsoleMonster must be installed to run it. The parent directory must exist. Existing files are preserved unless -Force is supplied.
+Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. Use Export-ConsoleDemo to save a script.
 
 ## EXAMPLES
 
@@ -42,54 +37,14 @@ Get-ConsoleDemo 'welcome-*'
 
 List the welcome demos.
 
-### EXAMPLE 3
-```powershell
-Get-ConsoleDemo assessment -Path ./assessment.ps1
-            ./assessment.ps1 -StaticSnapshot -Step 0
-```
-
-Export a demo to customize and run.
-
 ## PARAMETERS
-
-### -Force
-Allows replacing the destination file when exporting.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Export
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-Literal filesystem destination for the script. Returns the exported FileInfo.
-
-```yaml
-Type: String
-Parameter Sets: Export
-Aliases: None
-Possible values:
-
-Required: True
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Slug
 Slug or wildcard pattern to list. Export requires one exact slug.
 
 ```yaml
 Type: String
-Parameter Sets: List, Export
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -110,7 +65,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 - `System.Management.Automation.PSObject`
-- `System.IO.FileInfo`
 
 ## RELATED LINKS
 

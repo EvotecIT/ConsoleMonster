@@ -25,7 +25,7 @@ The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, 
 
 ### EXAMPLE 1
 ```powershell
-$menu = New-ConsoleMenu 'Backup helper' {
+$menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { Start-Backup }
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
     New-ConsoleMenuItem -Exit
@@ -37,7 +37,7 @@ A small script menu
 
 ### EXAMPLE 2
 ```powershell
-$menu = New-ConsoleMenu 'Backup helper' {
+$menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuPreset 'Weekly' -Form $settings -Values @{ Target = 'Weekly'; Compress = $true } -Description 'The Sunday backup.'
     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings

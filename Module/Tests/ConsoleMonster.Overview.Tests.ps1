@@ -10,19 +10,25 @@
             param([Parameter(Mandatory)][ValidateSet('Completed', 'Pending')][string] $Mode)
             $body = @'
 $name = if ($mode -eq 'Completed') { 'PesterComplete' } else { 'PesterHeld' }
-$held = [System.Threading.Tasks.TaskCompletionSource[ConsoleMonster.Overview.OverviewSection]]::new()
-$resources = [ConsoleMonster.Overview.OverviewSection]::new($name, 'Controlled resources', [ConsoleMonster.Overview.OverviewItem[]]@(
-    [ConsoleMonster.Overview.OverviewItem]::new('CPU', '8 logical CPUs', 24),
-    [ConsoleMonster.Overview.OverviewItem]::new('Memory', '12 / 32 GiB', 37.5)
-))
+$sectionType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewSection')
+$taskType = [System.Threading.Tasks.Task`1].MakeGenericType($sectionType)
+$sourceType = [System.Threading.Tasks.TaskCompletionSource`1].MakeGenericType($sectionType)
+$held = [Activator]::CreateInstance($sourceType)
+$items = @(
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewItem'))::new('CPU', '8 logical CPUs', 24),
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewItem'))::new('Memory', '12 / 32 GiB', 37.5)
+)
+$itemType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewItem')
+$typedItems = [Management.Automation.LanguagePrimitives]::ConvertTo($items, $itemType.MakeArrayType())
+$resources = $sectionType::new($name, 'Controlled resources', $typedItems)
 try {
     if ($mode -eq 'Completed') { $held.SetResult($resources) }
     # A compiled expression delegate does not need a PowerShell runspace on the probe's pool thread.
-    $providerType = [Func[System.Threading.CancellationToken, System.Threading.Tasks.Task[ConsoleMonster.Overview.OverviewSection]]]
+    $providerType = [Func`2].MakeGenericType([System.Threading.CancellationToken], $taskType)
     $token = [System.Linq.Expressions.Expression]::Parameter([System.Threading.CancellationToken], 'token')
-    $body = [System.Linq.Expressions.Expression]::Constant($held.Task, [System.Threading.Tasks.Task[ConsoleMonster.Overview.OverviewSection]])
+    $body = [System.Linq.Expressions.Expression]::Constant($held.Task, $taskType)
     $provider = [System.Linq.Expressions.Expression]::Lambda($providerType, $body, [System.Linq.Expressions.ParameterExpression[]]@($token)).Compile()
-    [void][ConsoleMonster.Overview.OverviewSectionRegistry]::Default.Register($name, 'Controlled resources', $provider)
+    [void]([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Overview.OverviewSectionRegistry'))::Default.Register($name, 'Controlled resources', $provider)
     $budget = if ($mode -eq 'Completed') { 750 } else { 1 }
     $snapshot = Show-ConsoleOverview -Section $name -BudgetMilliseconds $budget -AsObject
     [pscustomobject]@{
@@ -102,7 +108,7 @@ try {
         $text.GetType().FullName | Should -Be 'System.String'
         $text.IndexOf([char]27) | Should -Be -1
         foreach ($line in $text.Split([char]10)) {
-            [ConsoleMonster.Text.DisplayWidth]::Measure($line) | Should -BeLessOrEqual 60
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($line) | Should -BeLessOrEqual 60
         }
     }
 

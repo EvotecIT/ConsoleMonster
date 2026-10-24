@@ -25,7 +25,7 @@ The content keeps its measured size and is placed within the space the parent gi
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleAlign -Horizontal Center { New-ConsoleLogo -Text 'Monster' }
+New-ConsoleAlign -Horizontal Center -Content { New-ConsoleLogo -Text 'Monster' }
 ```
 
 A centred logo above a dashboard

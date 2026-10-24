@@ -13,7 +13,7 @@ Shows a bar with sub-cell precision for the glyph tier, the percentage and value
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleProgress [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Status <StatusKind>] [-Name <string>] [-Shape <BarShape>] [-Column <string[]>] [<CommonParameters>]
+New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] [-Value <double>] [-Total <double>] [-Status <StatusKind>] [-Shape <BarShape>] [-Column <string[]>] [-CountColumn <ColumnFormat>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,18 +25,18 @@ Shows a bar with sub-cell precision for the glyph tier, the percentage and value
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Write-ConsoleWidget
+New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Show-Console
 ```
 
 A static progress bar
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleRows {
-    New-ConsoleProgress 'Build' -Value 64 -Total 100
-    New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass
-    New-ConsoleProgress 'Upload' -Value 3 -Total 8 -Shape Block
-} | Write-ConsoleWidget
+New-ConsoleRows -Content {
+    New-ConsoleProgress -Label 'Build' -Value 64 -Total 100
+    New-ConsoleProgress -Label 'Docs' -Value 100 -Total 100 -Status Pass
+    New-ConsoleProgress -Label 'Upload' -Value 3 -Total 8 -Shape Block
+} | Show-Console
 ```
 
 Several bars, one of them finished
@@ -59,6 +59,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CountColumn
+Shared count-column settings from New-ConsoleColumnFormat.
+
+```yaml
+Type: ColumnFormat
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Label
 The label (markup allowed).
 
@@ -69,23 +85,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live name (default progress).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -124,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -Total
-The total (default 100).
+The total (default 0: terminal width, falling back to 100).
 
 ```yaml
 Type: Double
@@ -150,6 +150,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default progress).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Stops recording from inside the recorded child shell.
 
-Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Start-ConsoleRecording session.
+Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Stop-ConsoleRecording [<CommonParameters>]
 ## DESCRIPTION
 Stops recording from inside the recorded child shell.
 
-Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Start-ConsoleRecording session.
+Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.
 
 ## EXAMPLES
 

@@ -13,10 +13,10 @@ A last cell times a table of objects whose getters stall.
 The cases from Support\TypeCases.ps1 (Name and Make, a script that creates the input).
 #>
 $commands = [ordered] @{
-    'Format-ConsoleTable'   = { param($x, $y) $x | Format-ConsoleTable -Width 120 }
-    'Format-ConsoleList'    = { param($x, $y) $x | Format-ConsoleList -Width 120 }
-    'Format-ConsoleTree'    = { param($x, $y) $x | Format-ConsoleTree -Width 120 }
-    'Format-ConsoleJson'    = { param($x, $y) $x | Format-ConsoleJson -Width 120 }
+    'Show-ConsoleTable'   = { param($x, $y) $x | Show-ConsoleTable -Width 120 }
+    'Show-ConsoleList'    = { param($x, $y) $x | Show-ConsoleList -Width 120 }
+    'Show-ConsoleTree'    = { param($x, $y) $x | Show-ConsoleTree -Width 120 }
+    'Show-ConsoleJson'    = { param($x, $y) $x | Show-ConsoleJson -Width 120 }
     'Show-Console'          = { param($x, $y) $x | Show-Console -Width 120 }
     'Out-ConsoleDefault'    = { param($x, $y) $x | Out-ConsoleDefault -Force }
     'Compare-ConsoleObject' = { param($x, $y) Compare-ConsoleObject -ReferenceObject $x -DifferenceObject $y }
@@ -38,14 +38,14 @@ foreach ($case in $TypeCases) {
     }
 }
 # Getters that stall (remote objects): the table must not wait for all of them.
-'@@CELL SlowGetters|Format-ConsoleTable'
+'@@CELL SlowGetters|Show-ConsoleTable'
 $slow = [pscustomobject] @{ Name = 'slow' }
 foreach ($i in 1..8) {
     $slow | Add-Member -MemberType ScriptProperty -Name ('P' + $i) -Value { Start-Sleep -Milliseconds 700; 1 }
 }
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 try {
-    $slow | Format-ConsoleTable -Width 120
+    $slow | Show-ConsoleTable -Width 120
 } catch {
     '@@ERR ' + $_.Exception.Message
 }

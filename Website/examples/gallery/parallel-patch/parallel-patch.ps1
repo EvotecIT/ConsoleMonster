@@ -25,17 +25,17 @@ function New-PatchFrame([int] $Phase, $Actual) {
         else { 'Pending' }
     })
     $failed = @($states | Where-Object { $_ -eq 'Fail' }).Count
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         New-ConsoleRule '[bold]Patching the web farm[/]'
         '40 hosts · throttle 8 · per-host timeout 4s'
         New-ConsoleSummaryBar -Done $done -Total 40 -Counter ([ordered] @{
             passed = $done - $failed; failed = $failed; running = $active; pending = 40 - $done - $active
         })
-        New-ConsolePanel -Title 'Host outcomes' {
+        New-ConsolePanel -Title 'Host outcomes' -Content {
             New-ConsoleCellMap -Status $states -Columns 10 -LegendLines 2 -RowLabels 'web01–10', 'web11–20', 'web21–30', 'web31–40'
         }
-        New-ConsolePanel -Title $(if ($Phase -eq 3) { 'Last eight hosts' } else { 'Worker lanes' }) {
-            New-ConsoleLanes {
+        New-ConsolePanel -Title $(if ($Phase -eq 3) { 'Last eight hosts' } else { 'Worker lanes' }) -Content {
+            New-ConsoleLanes -Content {
                 foreach ($lane in 0..7) {
                     $n = if ($Phase -eq 3) { 33 + $lane } else { $done + $lane + 1 }
                     $status = $states[$n - 1]
@@ -50,10 +50,10 @@ function New-PatchFrame([int] $Phase, $Actual) {
                 }
             }
         }
-        New-ConsolePanel -Title 'Retained failures' {
+        New-ConsolePanel -Title 'Retained failures' -Content {
             if (-not $failed) { '[muted]No failures recorded[/]' }
             else {
-                New-ConsoleStatusList {
+                New-ConsoleStatusList -Content {
                     foreach ($n in 1..40) {
                         if ($states[$n - 1] -eq 'Fail') {
                             $detail = if ($n -eq $timeoutHost) { '4s timeout · retry separately' } else { 'Restart verification failed' }
@@ -70,10 +70,10 @@ function New-PatchFrame([int] $Phase, $Actual) {
 
 # Behaviour: the native run monitor owns scheduling, cancellation and the live UI.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-PatchFrame $Step | Write-ConsoleWidget
+    New-PatchFrame $Step | Show-Console
     return
 }
-$successes = @($servers | ForEach-ConsoleItem -Parallel -ThrottleLimit $throttle -TimeoutSeconds $timeoutSeconds -Title 'Patching the web farm' -ErrorAction SilentlyContinue -ErrorVariable retainedErrors {
+$successes = @($servers | Invoke-ConsoleRun -Parallel -ThrottleLimit $throttle -TimeoutSeconds $timeoutSeconds -Title 'Patching the web farm' -ErrorAction SilentlyContinue -ErrorVariable retainedErrors {
     $n = [int] $_.Substring(3)
     Start-Sleep -Milliseconds (500 + $n * 137 % 900)
     if ($n -in $using:restartFailures) { throw "$_ restart verification failed" }
@@ -84,4 +84,4 @@ $successes = @($servers | ForEach-ConsoleItem -Parallel -ThrottleLimit $throttle
 $outcomes = foreach ($server in $servers) {
     [pscustomobject] @{ Host = $server; Status = if ($server -in $successes) { 'Pass' } else { 'Fail' } }
 }
-New-PatchFrame 3 $outcomes | Write-ConsoleWidget
+New-PatchFrame 3 $outcomes | Show-Console

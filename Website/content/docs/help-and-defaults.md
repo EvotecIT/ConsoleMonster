@@ -12,7 +12,7 @@ summary: "Show-ConsoleHelp, the error view and the progress area, each opt-in."
 
 These features change how PowerShell's own output looks for the session, never what commands return. Each is opt-in and undone by `Disable-ConsoleFormatting`.
 
-> The default output of `Enable-ConsoleFormatting` changes only objects that reach the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless `-Feature FormatCommands` is on. That one is never part of `All`; see [Everyday PowerShell output](/guides/everyday-powershell/#format-table-format-list-and-format-wide). For ConsoleMonster's views on demand, use `Format-ConsoleTable` or `Format-ConsoleList`.
+> The default output of `Enable-ConsoleFormatting` changes only objects that reach the console without a format command: `Format-Table`, `Format-List` and `Format-Wide` stay PowerShell's own unless `-Feature FormatCommands` is on. That one is never part of `All`; see [Everyday PowerShell output](/guides/everyday-powershell/#format-table-format-list-and-format-wide). For ConsoleMonster's views on demand, use `Show-ConsoleTable` or `Show-ConsoleList`.
 
 1. Turn it on for this session, choosing the features you want:
 
@@ -93,7 +93,7 @@ Enable-ConsoleFormatting -Feature Errors -Detailed  # include stacks and causes
 Disable-ConsoleFormatting -Feature Errors
 
 # The same view on demand, including inside a catch block or an export.
-try { [int]::Parse('production') } catch { $_ | Format-ConsoleError -Compact }
+try { [int]::Parse('production') } catch { $_ | Show-ConsoleError -Compact }
 ```
 
 `Errors` is excluded from `All`. Error-producing cmdlets remain native, and `$Error`, `-ErrorVariable`, `2>`,
@@ -103,7 +103,7 @@ remoting, CI and transcript output retains native rendering. `$ErrorView` stays 
 
 {{< cm-demo id="errors" heading="h2" >}}
 
-With `-Feature ErrorView`, errors that reach the console use the same view as `Format-ConsoleError`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.
+With `-Feature ErrorView`, errors that reach the console use the same view as `Show-ConsoleError`: the exception type, the message, the category, the lines of the script around the failing statement, and the call stack with framework frames folded. It follows `$ErrorView`: `DetailedView` adds the stack, and `CategoryView` keeps PowerShell's own view.
 
 {{< cm-demo id="progress" heading="h2" >}}
 
@@ -115,7 +115,7 @@ With `-Feature Streams`, PowerShell's own warning, verbose and debug messages (a
 
 {{< cm-frame ids="streams-ps5,streams-ps7" caption="The same script on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
 
-Only the colours change. `Write-Warning`, `Write-Verbose` and `Write-Debug` stay PowerShell's commands, with their `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes, preferences, redirection and transcripts. PowerShell 7.2 and later set `$PSStyle.Formatting`; Windows PowerShell 5.1 and PowerShell 7.0 and 7.1 set the host's `$Host.PrivateData` colours, and hosts without them (remoting, headless) are left alone. `Disable-ConsoleFormatting -Feature Streams` puts back exactly the values it changed. For rich messages in your own scripts, with status symbols and markup, use [`Write-ConsoleStatus`](/powershell/commands/write-consolestatus/) or [`Write-ConsoleLog`](/powershell/commands/write-consolelog/).
+Only the colours change. `Write-Warning`, `Write-Verbose` and `Write-Debug` stay PowerShell's commands, with their `WARNING:`, `VERBOSE:` and `DEBUG:` prefixes, preferences, redirection and transcripts. PowerShell 7.2 and later set `$PSStyle.Formatting`; Windows PowerShell 5.1 and PowerShell 7.0 and 7.1 set the host's `$Host.PrivateData` colours, and hosts without them (remoting, headless) are left alone. `Disable-ConsoleFormatting -Feature Streams` puts back exactly the values it changed. For rich messages in your own scripts, with status symbols and markup, use [`Show-ConsoleStatusLine`](/powershell/commands/write-consolestatus/) or [`Write-ConsoleLogEntry`](/powershell/commands/write-consolelog/).
 
 ## Minimal shell prompt
 
@@ -123,7 +123,7 @@ Opt in with `Prompt`; it is excluded from `All` and does not enable default outp
 
 ```powershell
 Import-Module ConsoleMonster
-Set-ConsoleTheme -Name Dark  # use Light for a light terminal background
+Set-ConsoleTheme -Theme Dark  # use Light for a light terminal background
 Enable-ConsoleFormatting -Feature Prompt
 Enable-ConsoleFormatting -Feature Prompt -ProfileSnippet  # prints profile lines
 ```

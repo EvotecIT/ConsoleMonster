@@ -12,7 +12,7 @@ Import-Module ConsoleMonster
 $servers = @('web-01', 'web-02', 'web-03', 'job-01', 'sql-01', 'sql-02')
 # Layout: construct the widgets shown on screen.
 function New-PatchFrame($Tick) {
-    New-ConsoleRows -Gap 1 {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Parallel patch run[/] [muted]· throttle 3[/]'
         $rows = foreach ($server in $servers) {
             $stage = @('Queued', 'Patching', 'Finished')[$Tick]
@@ -26,14 +26,14 @@ function New-PatchFrame($Tick) {
 }
 # Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-PatchFrame $Step | Write-ConsoleWidget
+    New-PatchFrame $Step | Show-Console
     return
 }
-$results = $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 3 -TimeoutSeconds 3 -Title 'Patch run' -ErrorAction SilentlyContinue -ErrorVariable failures {
+$results = $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 3 -TimeoutSeconds 3 -Title 'Patch run' -ErrorAction SilentlyContinue -ErrorVariable failures {
     Start-Sleep -Milliseconds 350
     if ($_ -eq 'web-03') { throw "$_ restart check failed" }
     "$_ preview passed"
 }
 # $results contains successes; $failures retains error records including the failed host.
 # Keep both for retry/reporting. No patch command runs here.
-New-PatchFrame 2 | Write-ConsoleWidget
+New-PatchFrame 2 | Show-Console

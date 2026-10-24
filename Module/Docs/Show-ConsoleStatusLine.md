@@ -4,36 +4,36 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Write-ConsoleStatus
+# Show-ConsoleStatusLine
 ## SYNOPSIS
 Shows one status line that updates in place, with an optional spinner, clock and elapsed time.
 
-Each call replaces the line (Write-Color style pieces, colours, -Markup, -Style and -Role as in Write-ConsoleText). -Spinner, -ShowClock and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
+Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleStatus [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Style <string[]>] [-Role <ThemeToken>] [-Status <StatusKind>] [-Spinner] [-ShowClock] [-ShowElapsed] [-ClockFormat <string>] [-Complete] [<CommonParameters>]
+Show-ConsoleStatusLine [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Object[]>] [-Markup <string>] [-Decoration <string[]>] [-Role <ThemeToken>] [-Status <StatusKind>] [-Spinner] [-ShowTimestamp] [-ShowElapsed] [-TimestampFormat <string>] [-Complete] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Shows one status line that updates in place, with an optional spinner, clock and elapsed time.
 
-Each call replaces the line (Write-Color style pieces, colours, -Markup, -Style and -Role as in Write-ConsoleText). -Spinner, -ShowClock and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
+Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-foreach ($file in $files) { Write-ConsoleStatus 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
-Write-ConsoleStatus "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete
+foreach ($file in $files) { Show-ConsoleStatusLine 'Copying ', $file.Name -Color Gray, Cyan -Spinner -ShowElapsed; Copy-Item $file.FullName $target }
+Show-ConsoleStatusLine "Copied $($files.Count) files" -Status Pass -ShowElapsed -Complete
 ```
 
 A copy loop with a spinner and elapsed time
 
 ### EXAMPLE 2
 ```powershell
-Write-ConsoleStatus 'You have waited ' -Color Green -BackgroundColor Blue -ShowClock -ShowElapsed; Start-Sleep 5; Write-ConsoleStatus 'Done' -Status Pass -Complete
+Show-ConsoleStatusLine 'You have waited ' -Color Green -BackgroundColor Blue -ShowTimestamp -ShowElapsed; Start-Sleep 5; Show-ConsoleStatusLine 'Done' -Status Pass -Complete
 ```
 
 A waiting line with a clock (PSWriteColor issue #15)
@@ -46,23 +46,7 @@ Background colour per piece.
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: B, BGC
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ClockFormat
-The clock format (default HH:mm:ss).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: DateTimeFormat
+Aliases: None
 Possible values:
 
 Required: False
@@ -78,7 +62,7 @@ Foreground colour per piece.
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: C, ForegroundColor, FGC
+Aliases: None
 Possible values:
 
 Required: False
@@ -93,6 +77,22 @@ Writes the final version of the line and ends it.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Decoration
+Decorations: Bold, Dim, Italic, Underline, Strikethrough, Invert.
+
+```yaml
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -126,7 +126,7 @@ A theme role for pieces without their own colour.
 ```yaml
 Type: ThemeToken
 Parameter Sets: __AllParameterSets
-Aliases: Tone
+Aliases: None
 Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, Skip, Running, Pending, Border, Title, Header, Highlight, Surface, SurfaceAccent, Series1, Series2, Series3, Series4, Series5, Series6, Focus
 
 Required: False
@@ -136,8 +136,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowClock
-Shows the time of day, refreshed every second.
+### -ShowElapsed
+Shows the time since the status line started.
 
 ```yaml
 Type: SwitchParameter
@@ -152,8 +152,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ShowElapsed
-Shows the time since the status line started.
+### -ShowTimestamp
+Shows the time of day, refreshed every second.
 
 ```yaml
 Type: SwitchParameter
@@ -200,33 +200,33 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Style
-Decorations: Bold, Dim, Italic, Underline, Strikethrough, Invert.
-
-```yaml
-Type: String[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Text
 Text pieces, shown literally (strings, or rich text from New-ConsoleText).
 
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: T
+Aliases: None
 Possible values:
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TimestampFormat
+The clock format (default HH:mm:ss).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

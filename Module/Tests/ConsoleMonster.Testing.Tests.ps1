@@ -20,26 +20,26 @@
 
     It 'Assert-ConsoleOutput creates a golden file, then passes and fails with a readable diff' {
         $golden = Join-Path $TestDrive 'panel.txt'
-        { New-ConsolePanel -Title 'Box' { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 } | Should -Throw '*was created*'
+        { New-ConsolePanel -Title 'Box' -Content { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 } | Should -Throw '*was created*'
         Get-Content -LiteralPath $golden -Raw | Should -Match 'hello'
-        New-ConsolePanel -Title 'Box' { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20
-        $failure = { New-ConsolePanel -Title 'Box' { New-ConsoleText 'hallo' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 } | Should -Throw -PassThru
+        New-ConsolePanel -Title 'Box' -Content { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20
+        $failure = { New-ConsolePanel -Title 'Box' -Content { New-ConsoleText 'hallo' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 } | Should -Throw -PassThru
         $failure.Exception.Message | Should -Match 'at line 2'
         $failure.Exception.Message | Should -Match 'CONSOLEMONSTER_UPDATE_GOLDEN=1'
-        $text = New-ConsolePanel -Title 'Box' { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 -Glyphs Full -PassThru
+        $text = New-ConsolePanel -Title 'Box' -Content { New-ConsoleText 'hello' } | Assert-ConsoleOutput -GoldenPath $golden -Width 20 -Glyphs Full -PassThru
         $text | Should -Match '╭─ Box'
     }
 
-    It 'Format-ConsoleTable -AsWidget keeps -Culture' {
+    It 'Show-ConsoleTable -AsWidget keeps -Culture' {
         $text = [pscustomobject] @{ Name = 'A'; Size = 1234.5 } , [pscustomobject] @{ Name = 'B'; Size = 2.25 } |
-            Format-ConsoleTable -AsWidget -Culture ([cultureinfo] 'pl-PL') | Export-ConsoleFrame -Format Text -Width 40
+            Show-ConsoleTable -AsWidget -Culture ([cultureinfo] 'pl-PL') | Export-ConsoleFrame -Format Text -Width 40
         $text | Should -Match '1.234,5'
     }
 
     It 'shows Write-Progress from a dashboard runspace as an activity (stream lines when redirected)' {
         $text = Invoke-ConsoleChild -Script @'
-$d = New-ConsoleDashboard -Title 'Copy' { New-ConsoleLog }
-Start-ConsoleDashboard $d -Inline {
+$d = New-ConsoleDashboard -Title 'Copy' -Content { New-ConsoleLogRegion }
+Invoke-ConsoleDashboard $d -Inline {
     Write-Progress -Activity 'Copying' -Status 'file 5 of 10' -PercentComplete 50
     Write-Progress -Activity 'Copying' -Completed
 }

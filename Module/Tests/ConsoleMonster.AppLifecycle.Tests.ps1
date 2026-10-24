@@ -14,44 +14,44 @@ Describe 'Application editing and renderer failure contracts' {
             $context = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext([ConsoleMonster.Terminal].Assembly)
             $assembly = $context.LoadFromAssemblyPath($assemblyPath)
         }
-        $script:FailureProbeType = $assembly.GetType('ConsoleMonster.TestHost.RendererFailureProbe', $true)
+        $script:FailureProbeType = $assembly.GetType('ConsoleMonster.TestHost.RendererFailureProbe')
     }
 
     It 'keeps cleared text-area navigation and insertion valid without another frame' {
-        $area = [ConsoleMonster.Interactive.TextArea]::new('Notes', "one`ntwo`nthree")
-        $null = [ConsoleMonster.Testing.TestTerminal]::Render($area, 20)
+        $area = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.TextArea'))::new('Notes', "one`ntwo`nthree")
+        $null = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Testing.TestTerminal'))::Render($area, 20)
         $area.Value = ''
         $context = [ConsoleMonster.Terminal]::CreateContext()
-        $area.HandleInput([ConsoleMonster.Input.InputEvent]::Press([ConsoleKey]::DownArrow), $context) | Should -BeTrue
-        $area.HandleInput([ConsoleMonster.Input.InputEvent]::Character('x'), $context) | Should -BeTrue
+        $area.HandleInput(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.InputEvent'))::Press([ConsoleKey]::DownArrow), $context) | Should -BeTrue
+        $area.HandleInput(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.InputEvent'))::Character('x'), $context) | Should -BeTrue
         $area.Value | Should -Be 'x'
     }
 
     It 'returns every keyboard-only edit through Show-ConsoleApp' {
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+Home Ctrl+Delete*3 Down "x" Escape')
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $result = Show-ConsoleApp {
-            New-ConsoleTextArea -Name Notes -Value "one`ntwo`nthree"
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Home Ctrl+Delete*3 Down "x" Escape')
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleTextArea -Key Notes -Value "one`ntwo`nthree"
         } -InputSource $inputSource -Capture $capture -NoMouse -PassThru -ErrorAction Stop
         $result.Notes | Should -Be 'x'
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
     It 'propagates a renderer-thread failure without returning a successful partial state' {
         $probe = [Activator]::CreateInstance($script:FailureProbeType)
         try {
-            $live = [ConsoleMonster.Live.LiveSessionOptions]::new()
+            $live = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveSessionOptions'))::new()
             $live.Output = $probe
             $live.CaptureConsole = $false
             $live.TaskbarProgress = $false
             $output = [Collections.Generic.List[object]]::new()
             {
-                Show-ConsoleApp { New-ConsoleTextInput -Name Query } -InputSource $probe -Profile $probe.Profile `
+                Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -InputSource $probe -Profile $probe.Profile `
                     -Live $live -NoMouse -PassThru -ErrorAction Stop | ForEach-Object { $output.Add($_) }
             } | Should -Throw -ExpectedMessage '*Synthetic renderer failure*'
             $output.Count | Should -Be 0
             $probe.Ended | Should -BeTrue
-            [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
         } finally { $probe.Dispose() }
     }
 }

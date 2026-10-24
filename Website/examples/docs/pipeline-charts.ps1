@@ -14,13 +14,13 @@ $samples = for ($i = 0; $i -lt $west.Count; $i++) {
     [pscustomobject]@{ Host = 'api-east'; Latency = $east[$i] }
 }
 
-New-ConsoleRows {
+New-ConsoleRows -Content {
     New-ConsoleText -Markup '[bold]CPU time - highest first[/]'
-    $processes | Out-ConsoleChart -Property CPU -Sort Descending -Top 3 -Unit ' s' -AsWidget
+    $processes | Show-ConsoleChart -Property CPU -Sort Descending -Top 3 -Unit ' s' -AsWidget
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Response-time distribution[/]'
-    $latency | Out-ConsoleChart -Type Histogram -Bins 6 -Unit ' ms' -AsWidget
+    $latency | Show-ConsoleChart -Type Histogram -Bins 6 -Unit ' ms' -AsWidget
     New-ConsoleText ''
     New-ConsoleText -Markup '[bold]Latency over time (ms) - one line per host[/]'
-    $samples | Out-ConsoleChart -Property Latency -Label Host -Type Sparkline -AsWidget
-} | Write-ConsoleWidget
+    $samples | Show-ConsoleChart -Property Latency -Label Host -Type Sparkline -AsWidget
+} | Show-Console

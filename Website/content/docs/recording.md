@@ -51,7 +51,7 @@ This longer, real `Invoke-ConsoleRecording` capture inspects a synthetic Git rep
 
 {{< cm-session-recording >}}
 
-The [recording script](/examples/recording/record-session.ps1) uses `Invoke-ConsoleDemo` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=[REDACTED] (redacted)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
+The [recording script](/examples/recording/record-session.ps1) uses `Invoke-ConsolePresentation` with a [plain PowerShell demo](/examples/recording/demo.ps1). It types commands into one real child terminal and detects readiness through OSC 133 marks, so the visible prompt can change on any operating system. The synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=[REDACTED] (redacted)` before the cast is written. See [Talks and demos](/docs/talks-and-demos/) for directives, presenter controls and slide exports.
 
 Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). To reproduce the typed session, save both source files together in an empty folder.
 
@@ -60,7 +60,7 @@ Download the [HTML player](/recordings/session.html), [animated SVG](/recordings
 Start a recording in your terminal, enter commands in the child, then stop it:
 
 ```powershell
-Start-ConsoleRecording -Path ./interactive.cast -Name 'Deployment'
+Invoke-ConsoleRecording -Interactive -RecordingPath ./interactive.cast -Title 'Deployment'
 git --version
 Add-ConsoleRecordingMarker 'Deploy'
 Stop-ConsoleRecording
@@ -91,14 +91,14 @@ Invoke-ConsoleRecording {
     Write-Host 'account=sample-account'
     Write-Host 'api_key=synthetic-demo-value'
 } -Destination ./redacted.html -Redact 'sample-account' `
-    -IdleLimit 2 -MaxBytes 10485760 -TimeoutSeconds 600
+    -IdleLimitSeconds 2 -MaxBytes 10485760 -TimeoutSeconds 600
 ```
 
 Redaction runs before writing the cast or chapter metadata, including secrets split across reads or colour codes. A record ends at a newline, carriage return or recording control. Records longer than 64 KiB without a boundary are suppressed; a pattern timeout masks the record. Review a recording before sharing it because patterns cannot recognize every secret.
 
 `-RedactionText` chooses a replacement such as seven bullets; the default is `[REDACTED]`. Match only the value when surrounding context should stay visible. Replacement text cannot contain control characters. In C#, set `SessionRecordingOptions.RedactionText`.
 
-`-IdleLimit` compresses longer gaps; zero preserves timing. `-MaxBytes` caps the cast, including its header. At the cap, the cast stays valid and a warning appears; the child continues while further output is omitted. `-TimeoutSeconds` stops the child after the specified time.
+`-IdleLimitSeconds` compresses longer gaps; zero preserves timing. `-MaxBytes` caps the cast, including its header. At the cap, the cast stays valid and a warning appears; the child continues while further output is omitted. `-TimeoutSeconds` stops the child after the specified time.
 
 ### Use the limited in-process fallback
 
@@ -125,7 +125,7 @@ Each command below runs on its own after installing ConsoleMonster. It creates t
 
 ```powershell
 Import-Module ConsoleMonster
-New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
     Export-ConsoleFrame -Path ./build-macos.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle MacOS
 ```
 
@@ -133,7 +133,7 @@ New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
 
 ```powershell
 Import-Module ConsoleMonster
-New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
     Export-ConsoleFrame -Path ./build-windows.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Windows
 ```
 
@@ -141,7 +141,7 @@ New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
 
 ```powershell
 Import-Module ConsoleMonster
-New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
     Export-ConsoleFrame -Path ./build-linux.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Linux
 ```
 
@@ -178,7 +178,7 @@ File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 che
 
 ### Record dashboard updates
 
-A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Start-ConsoleDashboard -RecordPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Start-ConsoleReplay`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
+A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
 
 {{< cm-demo id="record" heading="h4" >}}
 

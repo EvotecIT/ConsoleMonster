@@ -12,14 +12,14 @@ if ($Formatted) {
     Enable-ConsoleFormatting -Feature Help
 }
 if ($Paged) {
-    $keys = [ConsoleMonster.Input.ScriptedInput]::new('wait:300 Space wait:150 b wait:150 q Space')
+    $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:300 Space wait:150 b wait:150 q Space')
     $keys.RealTime = $true
-    [ConsoleMonster.Input.ConsoleInput]::Override = $keys
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $keys
 }
 try {
     & { . $ExamplePath } | Out-Default
-    if ($Paged -and ([ConsoleMonster.Input.ConsoleInput]::Override.Remaining -ne 1 -or
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired)) {
+    if ($Paged -and (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override.Remaining -ne 1 -or
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired)) {
         throw 'Help pager did not navigate forward/back, quit and release input.'
     }
 } catch {
@@ -29,5 +29,5 @@ try {
     throw
 } finally {
     Disable-ConsoleFormatting
-    [ConsoleMonster.Input.ConsoleInput]::Override = $null
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $null
 }

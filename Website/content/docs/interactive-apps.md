@@ -25,8 +25,8 @@ The input has a name, and that name is the key in the application's state. The b
 <div class="cm-lang" data-lang="powershell">
 
 ```powershell
-New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'
-New-ConsoleBinding {
+New-ConsoleTextInput -Key Query -Label Query -Placeholder 'Host, role, site or status'
+New-ConsoleBinding -Content {
     param($State)
     $matches = @(& $matchingHosts $State)
     "[bold]$($matches.Count)[/] of $($hosts.Count) hosts"

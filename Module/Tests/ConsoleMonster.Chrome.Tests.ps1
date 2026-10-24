@@ -13,9 +13,9 @@ Describe 'ConsoleMonster window styles' {
         @{ Style = 'None'; Scheme = 'Dark'; Bar = 0 }
         @{ Style = 'None'; Scheme = 'Light'; Bar = 0 }
     ) {
-        $html = New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+        $html = New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
             Export-ConsoleFrame -Format Html -Width 36 -Theme $Scheme -ChromeStyle $Style -Title 'Build report'
-        [xml] $svg = New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+        [xml] $svg = New-ConsolePanel -Title 'Build' -Content { New-ConsoleText '8 of 8 checks passed' } |
             Export-ConsoleFrame -Format Svg -Width 36 -Theme $Scheme -ChromeStyle $Style
         [double] $svg.svg.height | Should -Be (3 * 16.8 + 24 + $Bar)
         if ($Style -eq 'None') {
@@ -50,7 +50,7 @@ Describe 'ConsoleMonster window styles' {
         (Export-ConsoleRecording -Path $cast -Format PlayerData -ChromeStyle $Style -WindowChrome:$false | ConvertFrom-Json).chrome | Should -BeFalse
         $recording = Join-Path $TestDrive ($Style + '.jsonl')
         [IO.File]::WriteAllLines($recording, @('{"consolemonster":"recording","version":1}', '{"t":20,"target":"build","op":"advance","value":1}'))
-        $dashboard = New-ConsoleDashboard -Title 'Build' { New-ConsoleProgress -Name build -Label 'Build' -Total 1 }
+        $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleProgress -WidgetId build -Label 'Build' -Total 1 }
         $dashboardData = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format PlayerData -ChromeStyle $Style | ConvertFrom-Json
         $dashboardData.chromeStyle | Should -Be $Style.ToLowerInvariant()
         $dashboardData.chrome | Should -Be ($Style -ne 'None')
@@ -76,14 +76,14 @@ Describe 'ConsoleMonster window styles' {
         [double] $svg.svg.height | Should -Be ([double] $plain.svg.height + $Bar)
     }
 
-    It 'keeps Invoke chrome on by default and lets explicit false override a style' {
+    It 'keeps Invoke chrome on by default and lets NoWindowChrome hide it' {
         $default = Join-Path $TestDrive 'default-invoke.json'
         Invoke-ConsoleRecording { Write-Host 'Build complete' } -Destination $default -InProcess -WarningAction SilentlyContinue | Out-Null
         $data = Get-Content -LiteralPath $default -Raw | ConvertFrom-Json
         $data.chrome | Should -BeTrue
         $data.chromeStyle | Should -Be 'macos'
         $hidden = Join-Path $TestDrive 'hidden-invoke.json'
-        Invoke-ConsoleRecording { Write-Host 'Build complete' } -Destination $hidden -ChromeStyle Windows -WindowChrome:$false -InProcess -WarningAction SilentlyContinue | Out-Null
+        Invoke-ConsoleRecording { Write-Host 'Build complete' } -Destination $hidden -ChromeStyle Windows -NoWindowChrome -InProcess -WarningAction SilentlyContinue | Out-Null
         $data = Get-Content -LiteralPath $hidden -Raw | ConvertFrom-Json
         $data.chrome | Should -BeFalse
         $data.chromeStyle | Should -Be 'none'

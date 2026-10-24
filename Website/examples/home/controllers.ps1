@@ -8,7 +8,7 @@ $controllers = @(
     [pscustomobject] @{ Name = 'DC04.eu.ad.adatum.com'; Site = 'Dublin'; Status = 'Fail'; Latency = 0; LastSync = [timespan]::FromHours(4) }
     #endregion
 )
-$controllers | Format-ConsoleTable -Title '[bold]Domain controllers[/]' -Property @(
+$controllers | Show-ConsoleTable -Title '[bold]Domain controllers[/]' -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Site'; Priority = 2 }
     @{ Name = 'Status'; Presenter = 'Status'; Priority = 9 }

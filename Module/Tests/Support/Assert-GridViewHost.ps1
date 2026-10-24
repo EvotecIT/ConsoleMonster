@@ -50,13 +50,13 @@ Disable-ConsoleFormatting
 Enable-ConsoleFormatting -Feature GridView
 $rows = @([pscustomobject]@{Name='alpha';Id=1}, [pscustomobject]@{Name='beta';Id=2})
 $file = '__PATH__/empty.txt'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = $true
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.NonInteractive = $true
 $rows | Out-GridView -PassThru -WarningAction SilentlyContinue > $file
 if ((Get-Item $file).Length -ne 0) { throw 'Display leaked into file success stream.' }
 $text = $rows | Out-GridView -PassThru -WarningAction SilentlyContinue | Out-String
 if ($text) { throw 'Display text leaked into success output.' }
 Start-Transcript -LiteralPath '__PATH__/transcript.txt' | Out-Null
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = $false
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.NonInteractive = $false
 try { $picked = @($rows | Out-GridView -OutputMode Single -WarningAction SilentlyContinue) }
 finally { Stop-Transcript | Out-Null }
 if ($picked.Count -ne 0) { throw 'Transcript fabricated a selection.' }

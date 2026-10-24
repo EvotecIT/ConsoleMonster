@@ -18,13 +18,13 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ## What a session takes care of
 
 - **Threads.** Handles (`lanes.Handle(session)`) post events from any thread. An ambient `TerminalScope` lets deep code report status without passing the session around. [Threads and concurrency](/docs/threads/) explains the model and what is safe from which thread.
-- **Console output.** `Console.Out` and `Console.Error` are captured into the log region while the session runs (`CaptureConsole`, on by default). In PowerShell, `Start-ConsoleDashboard` runs the script in a runspace whose `Write-Host`, warnings, errors and verbose output land there too.
+- **Console output.** `Console.Out` and `Console.Error` are captured into the log region while the session runs (`CaptureConsole`, on by default). In PowerShell, `Invoke-ConsoleDashboard` runs the script in a runspace whose `Write-Host`, warnings, errors and verbose output land there too.
 - **The end.** The screen is restored, also on Ctrl+C and exceptions, and the final state (or `LiveSessionOptions.Summary`) is printed to the scrollback.
 - **Problems.** Updates for unknown names, failed updates and frames that could not be laid out are counted (`GetCounters()`) and reported once the screen is restored.
 
 ## Inline areas and Write-Progress
 
-`LiveMode.Inline` (`Start-ConsoleDashboard -Inline`) draws an area as tall as its content below the cursor; output scrolls above it and the final state stays in the scrollback, or nothing with `-Transient`. `Write-Progress` in a dashboard script shows as nested activities, and `Use-ConsoleProgress` renders an existing script's `Write-Progress` inline without changing it.
+`LiveMode.Inline` (`Invoke-ConsoleDashboard -Inline`) draws an area as tall as its content below the cursor; output scrolls above it and the final state stays in the scrollback, or nothing with `-Transient`. `Write-Progress` in a dashboard script shows as nested activities, and `Use-ConsoleProgress` renders an existing script's `Write-Progress` inline without changing it.
 
 ## Progress columns
 
@@ -35,8 +35,8 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ```powershell
 Import-Module ConsoleMonster
 
-New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted | Write-ConsoleWidget
-New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Write-ConsoleWidget
+New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted | Show-Console
+New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Show-Console
 ```
 
 </div>
@@ -62,7 +62,7 @@ Rate and remaining time are smoothed over a moving window (10 seconds by default
 
 ## Replaceable regions and live tables
 
-A `Slot` is a named region whose widget is replaced while the session runs; the swap goes through the update queue, so it is thread-safe and lands between frames. `LiveTable` is a table whose rows have stable keys and are added, updated, removed or cleared; its column widths only grow, `MaxRows` keeps the most recent rows and `SortColumn` keeps them sorted.
+A `RegionWidget` is a named region whose widget is replaced while the session runs; the swap goes through the update queue, so it is thread-safe and lands between frames. `LiveTable` is a table whose rows have stable keys and are added, updated, removed or cleared; its column widths only grow, `MaxRows` keeps the most recent rows and `SortColumn` keeps them sorted.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -71,16 +71,16 @@ $controllers = @(
     [pscustomobject] @{ Name = 'DC01'; Site = 'Warsaw'; Status = 'Pass' }
     [pscustomobject] @{ Name = 'DC02'; Site = 'Dublin'; Status = 'Warn' }
 )
-$d = New-ConsoleDashboard -Title 'Domain health' {
-    New-ConsolePanel -Title 'Domain controllers' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
-    New-ConsolePanel -Title 'Jobs' -Fill { New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+$d = New-ConsoleDashboard -Title 'Domain health' -Content {
+    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
 }
-Start-ConsoleDashboard $d -ArgumentList (, $controllers) {
+Invoke-ConsoleDashboard $d -ArgumentList (, $controllers) {
     param($Controllers)
-    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
+    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
     Start-Sleep -Seconds 1
-    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Value 'dns', 'Done', ([timespan]::FromSeconds(1))
-    Set-ConsoleRegion -Name main { $Controllers | Format-ConsoleTable -AsWidget }
+    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Done', ([timespan]::FromSeconds(1))
+    Set-ConsoleRegion -WidgetId main -Content { $Controllers | Show-ConsoleTable -AsWidget }
     Start-Sleep -Seconds 1
 }
 ```

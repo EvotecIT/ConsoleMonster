@@ -4,38 +4,31 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Read-ConsoleSelection
+# Read-ConsoleMultiSelect
 ## SYNOPSIS
-Asks the user to pick one of the choices and returns the chosen object.
+Asks the user to pick any number of the choices and returns the chosen objects.
 
-Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-Disabled) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
+Everything Read-ConsoleSelect does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleSelection [-Title] <string> [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-Disabled <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleMultiSelect [-Title] <string> [[-Choices] <Object[]>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Asks the user to pick one of the choices and returns the chosen object.
+Asks the user to pick any number of the choices and returns the chosen objects.
 
-Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-Disabled) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
+Everything Read-ConsoleSelect does, plus checkboxes: Space toggles (on a group it toggles the whole group, shown as [–] when partly selected; Left and Right collapse and expand groups), Ctrl+A selects all shown, Ctrl+N none, Ctrl+T inverts, Ctrl+O shows only the selected ones. -Minimum and -Maximum are enforced, and a live count shows how many are selected. The chosen objects are written to the pipeline in list order.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$service = Get-Service | Read-ConsoleSelection 'Service to restart' -Display DisplayName -Describe Name -GroupBy Status
+$tasks = Read-ConsoleMultiSelect 'Tasks' -Choices $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Minimum 1
 ```
 
-Pick a service
-
-### EXAMPLE 2
-```powershell
-$environment = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'
-```
-
-Strings with a default
+Grouped tasks with a preview
 
 ## PARAMETERS
 
@@ -61,7 +54,7 @@ The choices: any objects (strings, services, records). The chosen objects themse
 ```yaml
 Type: Object[]
 Parameter Sets: __AllParameterSets
-Aliases: Items, InputObject
+Aliases: None
 Possible values:
 
 Required: False
@@ -71,11 +64,11 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Default
-The default: one of the choices, or its displayed text.
+### -Collapsed
+Starts with every group collapsed.
 
 ```yaml
-Type: Object
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -93,7 +86,7 @@ A sentence for the focused choice: a property name or a scriptblock.
 ```yaml
 Type: Object
 Parameter Sets: __AllParameterSets
-Aliases: DescriptionProperty
+Aliases: None
 Possible values:
 
 Required: False
@@ -119,7 +112,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Disabled
+### -DisabledReason
 Returns why a choice is unavailable ($_ is the choice), or nothing when it is available.
 
 ```yaml
@@ -141,7 +134,7 @@ What to show for a choice: a property name or a scriptblock ($_ is the choice). 
 ```yaml
 Type: Object
 Parameter Sets: __AllParameterSets
-Aliases: DisplayProperty
+Aliases: None
 Possible values:
 
 Required: False
@@ -172,6 +165,38 @@ A key that picks a choice directly: a property name or a scriptblock returning a
 
 ```yaml
 Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Maximum
+The most choices accepted.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Minimum
+The fewest choices accepted.
+
+```yaml
+Type: Int32
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -221,7 +246,7 @@ The parameter of your script that supplies this value without a prompt (named in
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Parameter
+Aliases: None
 Possible values:
 
 Required: False
@@ -236,6 +261,22 @@ Content for the preview pane ($_ is the focused choice): text, rich text, a widg
 
 ```yaml
 Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Selected
+Pre-selected choices: the objects or their displayed texts, or a scriptblock returning $true for selected ones.
+
+```yaml
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -269,7 +310,7 @@ The question.
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Prompt, Question
+Aliases: None
 Possible values:
 
 Required: True
