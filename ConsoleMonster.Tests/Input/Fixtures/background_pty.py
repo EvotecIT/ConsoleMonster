@@ -11,7 +11,7 @@ import termios
 import time
 
 host, runtime, root = sys.argv[1:]
-for scenario in ("light", "dark", "timeout", "partial", "abandoned", "host"):
+for scenario in ("light", "dark", "timeout", "partial", "abandoned", "malformed", "host"):
     receipt = Path(root) / scenario
     master, slave = pty.openpty()
     if sys.platform == "darwin":
@@ -49,6 +49,8 @@ for scenario in ("light", "dark", "timeout", "partial", "abandoned", "host"):
                 if scenario in ("partial", "abandoned"):
                     os.write(master, b"a\x1b]11;rgb:ffff/")
                     partial_at = time.monotonic() + (.2 if scenario == "partial" else .6)
+                elif scenario == "malformed":
+                    os.write(master, b"a\x1b]11;rgb:ffff/\x03\r\x07")
                 else:
                     os.write(master, b"a" + (b"\x1b]11;rgb:" + rgb + b"\x1b\\" if scenario != "timeout" else b"") + b"bc\r")
                 replied = True
@@ -62,7 +64,7 @@ for scenario in ("light", "dark", "timeout", "partial", "abandoned", "host"):
                 if scenario != "host":
                     assert termios.tcgetattr(slave) == before, (scenario, "termios was not restored", before, termios.tcgetattr(slave))
                 actual = receipt.with_suffix(".value").read_text()
-                expected = "native|abc" if scenario == "host" else ("COLORFGBG|True" if scenario in ("timeout", "partial", "abandoned") else "OSC 11|" + str(scenario == "light")) + "|abc"
+                expected = "native|abc" if scenario == "host" else "COLORFGBG|True|a" if scenario == "malformed" else ("COLORFGBG|True" if scenario in ("timeout", "partial", "abandoned") else "OSC 11|" + str(scenario == "light")) + "|abc"
                 assert data.count(b"\x1b]11;?\x07") == (0 if scenario == "host" else 1), (scenario, "query crossed the input ownership boundary")
                 assert actual == expected, (scenario, actual, expected, bytes(data))
                 receipt.with_suffix(".ack").write_text("yes")

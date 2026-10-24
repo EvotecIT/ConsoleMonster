@@ -6,11 +6,11 @@ using ConsoleMonster.Output;
 
 namespace ConsoleMonster.TestHost {
     internal static class BackgroundProbe {
-        internal static int Run(string receipt, bool hostInput) {
+        internal static int Run(string receipt, string scenario) {
             string input = string.Empty;
             // Resolve ordinary output first: a later owned probe must refresh any cached fallback appearance.
             _ = Terminal.Theme;
-            if (hostInput) {
+            if (scenario == "host") {
                 Console.Write("HOST_READY");
                 Thread.Sleep(150);
                 TerminalBackground.TryDetect(out _);
@@ -23,12 +23,15 @@ namespace ConsoleMonster.TestHost {
                     throw new InvalidOperationException("The input-startup background did not refresh the theme.");
                 }
                 DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+                bool controlC = false;
                 while (DateTime.UtcNow < deadline) {
                     InputEvent? next = lease.Source.Read(TimeSpan.FromMilliseconds(100), CancellationToken.None);
                     if (next == null) { continue; }
+                    if (next.Is(ConsoleKey.C, KeyModifiers.Control)) { controlC = true; }
                     if (next.Is(ConsoleKey.Enter)) { break; }
                     if (next.IsText) { input += next.Char; }
                 }
+                if (scenario == "malformed" && !controlC) { throw new InvalidOperationException("The malformed reply consumed Ctrl+C."); }
                 File.WriteAllText(receipt + ".value", background.Source + "|" + background.IsLight + "|" + input);
             }
             File.WriteAllText(receipt + ".restored", "yes");

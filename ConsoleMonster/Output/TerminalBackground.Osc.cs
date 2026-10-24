@@ -62,8 +62,9 @@ namespace ConsoleMonster.Output {
                     if (end < 0) { end = text.IndexOf("\u001b\\", start, StringComparison.Ordinal); terminator = 2; }
                     if (end < 0) { continue; }
                     string reply = text.Substring(start, end + terminator - start);
+                    if (!TryParseOsc11(reply, out TerminalBackgroundInfo info)) { return null; }
                     received.Remove(start, reply.Length);
-                    return TryParseOsc11(reply, out TerminalBackgroundInfo info) ? info : null;
+                    return info;
                 }
                 return null;
             } finally {
