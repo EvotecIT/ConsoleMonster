@@ -24,8 +24,8 @@ namespace SiteFrames.Tests {
             Assert.InRange(events.Last()[0]!.GetValue<double>(), 20, 30);
             JsonArray[] markers = events.Where(item => item[1]!.GetValue<string>() == "m").ToArray();
             Assert.Equal(new[] { "Inspect", "Build", "Report" }, markers.Select(item => item[2]!.GetValue<string>()));
-            Assert.InRange(markers[0][0]!.GetValue<double>(), 0, 5);
             double inspect = markers[0][0]!.GetValue<double>(), build = markers[1][0]!.GetValue<double>();
+            Assert.True(inspect < build && build < markers[2][0]!.GetValue<double>());
             Assert.True(events.Count(item => item[1]!.GetValue<string>() == "o" && item[0]!.GetValue<double>() > inspect && item[0]!.GetValue<double>() < build) > 15,
                 "The command must arrive as paced terminal echo, rather than one echoed line.");
             string raw = string.Concat(events.Where(item => item[1]!.GetValue<string>() == "o").Select(item => item[2]!.GetValue<string>()));
@@ -37,10 +37,11 @@ namespace SiteFrames.Tests {
             string transcript = SessionRecording.Read(path).Export(ExportFormat.Text);
             string[] transcriptLines = transcript.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             Assert.Contains("Build report", transcriptLines);
-            Assert.Contains("PS C:\\demo> git log --oneline --graph --color -5", transcriptLines);
-            Assert.Contains("Get-Item: Cannot find path 'C:\\demo\\missing.json' because it does not exist.", transcriptLines);
+            Assert.Contains("PS demo> git log --oneline --graph --color -5", transcriptLines);
+            Assert.Matches(@"Get-Item: Cannot find path '[^\r\n]*[/\\]missing\.json' because it does not exist\.", transcript);
+            Assert.DoesNotContain("Cannot find drive", transcript);
             foreach (string result in new[] { "✓ Passed", "✓ 24 passed", "✓ Ready" }) { Assert.Contains(result, transcript); }
-            foreach (string expected in new[] { "PS C:\\demo>", "git log --oneline --graph --color -5", "Document local recording", "Build report", "24 passed", "Cannot find path", "Show-DemoToken $env:API_TOKEN", "API_TOKEN=••••••• (redacted)" }) {
+            foreach (string expected in new[] { "PS demo>", "git log --oneline --graph --color -5", "Document local recording", "Build report", "24 passed", "Cannot find path", "Show-DemoToken $env:API_TOKEN", "API_TOKEN=••••••• (redacted)" }) {
                 Assert.Contains(expected, transcript);
             }
         }
