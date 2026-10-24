@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -53,8 +54,14 @@ namespace ConsoleMonster.Sessions {
                 if (!ReadFile(_input, bytes, bytes.Length, out count, IntPtr.Zero)) { throw Error(); }
             } else {
                 PollFd descriptor = new PollFd { File = 0, Events = 1 };
-                if (poll(ref descriptor, (UIntPtr)1, 0) <= 0 || (descriptor.Returned & 1) == 0) { return string.Empty; }
-                count = read(0, bytes, (UIntPtr)bytes.Length).ToInt32();
+                int ready;
+                do { ready = poll(ref descriptor, (UIntPtr)1, 0); }
+                while (ready < 0 && Marshal.GetLastWin32Error() == 4);
+                if (ready < 0) { throw Error(); }
+                if ((descriptor.Returned & 32) != 0) { throw new IOException("The terminal input descriptor is no longer valid."); }
+                if (ready == 0 || (descriptor.Returned & (1 | 8 | 16)) == 0) { return string.Empty; }
+                do { count = read(0, bytes, (UIntPtr)bytes.Length).ToInt32(); }
+                while (count < 0 && Marshal.GetLastWin32Error() == 4);
                 if (count < 0) { throw Error(); }
             }
             char[] chars = new char[Encoding.UTF8.GetMaxCharCount(4096)];

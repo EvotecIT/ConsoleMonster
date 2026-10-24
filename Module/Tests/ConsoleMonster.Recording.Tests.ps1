@@ -3,11 +3,24 @@ Describe 'Whole-session recording' {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
         if (-not ('RecordingOutputObserver' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'Support/RecordingOutputObserver.cs') }
         if (-not ('RecordingRelayProbe' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'Support/RecordingRelayProbe.cs') }
+        if (-not ('RecordingCleanupProbe' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'Support/RecordingCleanupProbe.cs') }
     }
 
     It 'bounds a slow live relay, yields between drain passes and releases blocked output on cancellation' {
         $assembly = (Get-Command Start-ConsoleRecording).ImplementingType.Assembly
         { [RecordingRelayProbe]::Validate($assembly.GetType('ConsoleMonster.PowerShell.RecordingOutputRelay', $true)) } | Should -Not -Throw
+    }
+
+    It 'restores input before finalization and attempts every cleanup after a disposal failure' {
+        $command = (Get-Command Start-ConsoleRecording).ImplementingType.BaseType
+        { [RecordingCleanupProbe]::Validate($command) } | Should -Not -Throw
+    }
+
+    It 'relays native Unix signals, resizes and no-echo input and restores the terminal and title' -Skip:([Environment]::OSVersion.Platform -eq 'Win32NT') {
+        $probe = Join-Path $PSScriptRoot 'Support/recording_terminal_pty.py'
+        $module = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
+        $output = & python3 $probe $module (Join-Path $TestDrive 'native-terminal') 2>&1
+        $LASTEXITCODE | Should -Be 0 -Because ($output -join "`n")
     }
 
     It 'keeps the recording title on a final frame and honors an explicit override' {

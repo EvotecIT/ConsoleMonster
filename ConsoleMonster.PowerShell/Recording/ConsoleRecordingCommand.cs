@@ -77,7 +77,6 @@ namespace ConsoleMonster.PowerShell {
                 while (!completion.IsCompleted && !_stopping) {
                     // The worker enforces child lifetime; this loop must also drain after a successful exit.
                     output.Drain(Host.UI.Write);
-                    if (title != null) { Host.UI.RawUI.WindowTitle = "● REC " + options.Name; }
                     if (interactive && !_recorder.HasExited) {
                         string bytes = input!.ReadAvailable();
                         if (bytes.Length > 0) { _recorder.SendInput(bytes); }
@@ -95,14 +94,30 @@ namespace ConsoleMonster.PowerShell {
                 if (_recorder.ExitCode != 0 && !_stopping) { WriteError(new ErrorRecord(new InvalidOperationException("The recorded child exited with code " + _recorder.ExitCode + "."), "ConsoleRecordingChildFailed", ErrorCategory.OperationStopped, _recorder.Path)); }
                 return _recorder.Path;
             } finally {
-                output.Stop();
-                _recorder?.Dispose();
-                // Observe the worker after releasing a blocked producer, including when host writes fail.
-                if (completion != null) { try { completion.GetAwaiter().GetResult(); } catch (Exception) { /* Original pipeline error or cancellation is already being propagated. */ } }
-                _relay = null;
-                output.Dispose();
-                input?.Dispose();
-                if (title != null) { try { Host.UI.RawUI.WindowTitle = title; } catch (IOException) { } }
+                RestoreAndFinish(input, () => { output.Stop(); _recorder?.Dispose(); }, () => {
+                    try {
+                        // Observe the worker after releasing a blocked producer, including when host writes fail.
+                        if (completion != null) { try { completion.GetAwaiter().GetResult(); } catch (Exception) { /* The pipeline error or cancellation is already being propagated. */ } }
+                    } finally {
+                        _recorder = null;
+                        _relay = null;
+                        output.Dispose();
+                    }
+                }, () => {
+                    if (title != null) { try { Host.UI.RawUI.WindowTitle = title; } catch (Exception error) when (error is IOException || error is NotSupportedException || error is NotImplementedException) { } }
+                });
+            }
+        }
+
+        // The physical terminal must be usable even when recorder finalization or host cleanup fails.
+        private static void RestoreAndFinish(IDisposable? input, Action finishRecorder, Action finishOutput, Action restoreTitle) {
+            try { input?.Dispose(); }
+            finally {
+                try { finishRecorder(); }
+                finally {
+                    try { finishOutput(); }
+                    finally { restoreTitle(); }
+                }
             }
         }
         /// <inheritdoc/>
