@@ -425,6 +425,10 @@
       grid.querySelectorAll('.cm-reels__grid > li').forEach(function (card) {
         card.hidden = category !== 'all' && card.getAttribute('data-category') !== category;
       });
+      // A section left with no cards (showcases or starters) hides with its heading.
+      grid.querySelectorAll('.cm-reels__tier').forEach(function (tier) {
+        tier.hidden = !tier.querySelector('.cm-reels__grid > li:not([hidden])');
+      });
       if (focus) option.focus();
     };
     options.forEach(function (option, index) {

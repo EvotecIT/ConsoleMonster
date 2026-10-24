@@ -366,3 +366,14 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 .cm-reel__shortcut > p { margin: 0 0 var(--cm-space-3); color: var(--cm-ink-2); }
 .cm-reel-page .cm-showcase { grid-template-columns: minmax(0, 1fr); }
 .cm-reel-page .cm-showcase > * { min-width: 0; }
+.cm-reels__lead { margin: 0 0 var(--cm-space-2); color: var(--cm-ink-2); }
+.cm-reels__tier { margin-top: var(--cm-space-6); }
+.cm-reels__tier[hidden] { display: none; }
+.cm-reels__head { display: grid; gap: var(--cm-space-2); margin: 0 0 var(--cm-space-5); padding-bottom: var(--cm-space-3); border-bottom: 2px solid var(--cm-ink); }
+.cm-reels__head h2 { font-size: 28px; font-weight: 700; }
+.cm-reels__head p { margin: 0; max-width: 70ch; color: var(--cm-ink-2); }
+.cm-reels__grid--wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); }
+.cm-reel--wide .cm-reel__thumb { height: 280px; }
+.cm-reel__chip--showcase { background: color-mix(in srgb, var(--cm-accent-2) 22%, transparent); color: var(--cm-ink); }
+.cm-reel__chip--static { background: var(--cm-hover); }
+.cm-reel__usecase { margin: 0 0 var(--cm-space-3); color: var(--cm-ink-2); font-size: 15px; }

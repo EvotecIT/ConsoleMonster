@@ -1,21 +1,23 @@
-{{~ ## One demo as a card: its real output (the recording's poster frame as a miniature terminal), what it shows, chips for
-     its kind, size and languages, and the line that runs it in the reader's language. Set reel to an entry of
-     data.gallery.items before including it. ## ~}}
-{{~ d = reel ~}}
-<article class="cm-card cm-reel" aria-labelledby="demo-{{ d.slug }}">
+{{~ ## One demo as a card: its real output (the demo's frame as a miniature terminal), what it is for, chips for its tier,
+     kind, size and languages, a link to how it is built, and the line that runs it in the reader's language. Set reel to
+     an entry of data.gallery.demos before including it; reel_wide = true gives a showcase card a larger picture. ## ~}}
+{{~ d = reel; cat_id = d.category | string.downcase | string.replace " " "-" ~}}
+{{~ langs = []; if d.source.powershell; langs = langs | array.add "PowerShell"; end; if d.source.csharp; langs = langs | array.add "C#"; end ~}}
+<article class="cm-card cm-reel{{ if reel_wide }} cm-reel--wide{{ end }}" aria-labelledby="demo-{{ d.slug }}">
   <a class="cm-card__thumb cm-reel__thumb" href="/demos/{{ d.slug }}/" tabindex="-1" aria-hidden="true">
-    {{~ screen_frame = d.player.poster; screen_title = d.title; screen_meta = null; screen_dark = true; screen_label = ""; screen_class = "cm-window--thumb" ~}}
+    {{~ screen_frame = d.frame; screen_title = d.title; screen_meta = null; screen_dark = true; screen_label = ""; screen_class = "cm-window--thumb" ~}}
     {{ include "screen" }}
   </a>
   <h3 class="cm-card__title" id="demo-{{ d.slug }}"><a href="/demos/{{ d.slug }}/">{{ d.title }}</a></h3>
   <p class="cm-card__body">{{ d.pitch }}</p>
   <ul class="cm-reel__chips" aria-label="Details">
-    <li class="cm-reel__chip cm-reel__chip--{{ d.kind }}">{{ if d.kind == "live" }}Live{{ else if d.kind == "app" }}Interactive{{ else }}Static{{ end }}</li>
-    <li class="cm-reel__chip">{{ d.size.w }}×{{ d.size.h }}</li>
-    {{~ for l in d.languages ~}}<li class="cm-reel__chip">{{ if l == "powershell" }}PowerShell{{ else }}C#{{ end }}</li>{{~ end ~}}
-    {{~ if d.addon ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ d.addon }}</li>{{~ end ~}}
+    {{~ if d.tier == "showcase" ~}}<li class="cm-reel__chip cm-reel__chip--showcase">Showcase</li>{{~ end ~}}
+    <li class="cm-reel__chip cm-reel__chip--{{ d.mode }}">{{ if d.mode == "live" }}Live{{ else }}Static{{ end }}</li>
+    <li class="cm-reel__chip">{{ d.terminal.width }}×{{ d.terminal.height }}</li>
+    {{~ if d.lines && d.lines.powershell ~}}<li class="cm-reel__chip" title="Lines of PowerShell">{{ d.lines.powershell }} lines</li>{{~ end ~}}
+    {{~ for a in d.addons ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ a }}</li>{{~ end ~}}
   </ul>
-  <a class="cm-reel__build" href="/demos/{{ d.slug }}/#build">How it's built <span class="cm-reel__langs">{{ for l in d.languages }}{{ if !for.first }} · {{ end }}{{ if l == "powershell" }}PowerShell{{ else }}C#{{ end }}{{ end }}</span> <span aria-hidden="true">→</span></a>
+  <a class="cm-reel__build" href="/demos/{{ d.slug }}/#build">How it's built <span class="cm-reel__langs">{{ langs | array.join " · " }}</span> <span aria-hidden="true">→</span></a>
   <div class="cm-reel__run">
     <div class="cm-reel__cmd" data-lang="powershell">
       <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ d.run.powershell | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
@@ -25,4 +27,4 @@
     </div>
   </div>
 </article>
-{{~ reel = null ~}}
+{{~ reel = null; reel_wide = false ~}}

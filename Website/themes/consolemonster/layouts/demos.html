@@ -13,24 +13,38 @@
 </head><body class="cm-body cm-body--demos{{ if body_class != "" }} {{ body_class }}{{ end }}">
 {{ include "site-header" }}
 <main id="main" class="cm-main">
-{{~ ## Ready-made programs: each card is a demo's real output (a poster frame from its recording), what it shows, and the
-     one line that runs it in the reader's language. The categories filter the grid; without JavaScript every card shows. ## ~}}
-{{~ g = data.gallery; feat = g.items[0] ~}}
+{{~ ## Ready-made programs in two sizes: showcases (full programs, the best of what ConsoleMonster draws) and starters (small
+     files to adapt). Each card is a demo's real output, what it is for and how it is built. The category filter applies to
+     both sections; without JavaScript every card shows. ## ~}}
+{{~ g = data.gallery; all = g.demos
+    showcases = all | array.filter @(do; ret $0.tier == "showcase"; end)
+    starters = all | array.filter @(do; ret $0.tier != "showcase"; end)
+    feat = null; for d in all; if !feat && d.featured; feat = d; end; end
+    if !feat; for d in all; if !feat && d.mode == "live"; feat = d; end; end; end
+    if !feat; feat = all[0]; end
+    cats = []; for d in all; if !(cats | array.contains d.category); cats = cats | array.add d.category; end; end ~}}
 {{~ capture side ~}}
 <div class="cm-reels__start">
+  <p class="cm-reels__lead">{{ all.size }} programs in PowerShell and C#. Each page shows the whole program, how to run it, and what to change first.</p>
   <div class="cm-lang" data-lang="powershell">
-    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\nGet-ConsoleDemo                  # the list\nShow-ConsoleDemo " + feat.slug ~}}
+    {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\nGet-ConsoleDemo                 # list them\n" + feat.run.powershell ~}}
     {{ include "code" }}
   </div>
   <div class="cm-lang" data-lang="csharp">
-    {{~ code_lang = "powershell"; code_label = "Terminal"; code_text = "dotnet new install ConsoleMonster.Templates\ndotnet new consolemonster --demo " + feat.slug + " -n Demo\ncd Demo; dotnet run" ~}}
+    {{~ code_lang = "powershell"; code_label = "Terminal"; code_text = "dotnet new install ConsoleMonster.Templates\n" + feat.run.csharp + " -n Demo\ncd Demo; dotnet run" ~}}
     {{ include "code" }}
   </div>
 </div>
 {{~ end ~}}
 {{~ capture art ~}}
-{{~ player_data = feat.player; player_title = feat.title; player_meta = [feat.size.w + "×" + feat.size.h, "24-bit", "Full"]; player_label = feat.pitch; player_class = "cm-window--center"; player_max = 13; player_autoplay = true ~}}
+{{~ rp = feat.replay; if !rp && feat.mode == "live"; rp = { url: "/replays/gallery-" + feat.slug + ".json", w: feat.frame.w, h: feat.frame.h, poster: feat.frame }; end ~}}
+{{~ if rp ~}}
+{{~ player_data = rp; player_title = feat.title; player_meta = [feat.terminal.width + "×" + feat.terminal.height, "24-bit", "Full"]; player_label = feat.pitch; player_class = "cm-window--center"; player_max = 14; player_autoplay = true ~}}
 {{ include "player" }}
+{{~ else ~}}
+{{~ screen_frame = feat.frame; screen_title = feat.title; screen_meta = [feat.terminal.width + "×" + feat.terminal.height, "24-bit", "Full"]; screen_dark = true; screen_label = feat.pitch; screen_class = "cm-window--center"; screen_max = 14 ~}}
+{{ include "screen" }}
+{{~ end ~}}
 {{~ end ~}}
 {{~ stage_title = page.title; stage_lede = page.description; stage_side = side; stage_art = art; stage_wide = true ~}}
 {{ include "stage" }}
@@ -38,24 +52,38 @@
 <div class="cm-wrap cm-reels" data-cm-reels>
   <div class="cm-reels__bar">
     <div class="cm-seg cm-reels__filter" role="radiogroup" aria-label="Category" data-cm-reel-filter hidden>
-      {{~ for c in g.categories ~}}
-      {{~ n = c.id == "all" ? g.items.size : (g.items | array.filter @(do; ret $0.category == c.id; end) | array.size) ~}}
-      {{~ if n > 0 || c.id == "all" ~}}
-      <button type="button" role="radio" aria-checked="{{ if for.first }}true{{ else }}false{{ end }}" data-category="{{ c.id }}"{{ if !for.first }} tabindex="-1"{{ end }}>{{ c.title }} <span class="cm-seg__count">{{ n }}</span></button>
-      {{~ end ~}}
+      <button type="button" role="radio" aria-checked="true" data-category="all">All <span class="cm-seg__count">{{ all.size }}</span></button>
+      {{~ for c in cats; n = all | array.filter @(do; ret $0.category == c; end) | array.size ~}}
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-category="{{ c | string.downcase | string.replace " " "-" }}">{{ c }} <span class="cm-seg__count">{{ n }}</span></button>
       {{~ end ~}}
     </div>
-    <p class="cm-reels__note">Every frame is the program's real output. Pick one, run it, then make it yours.</p>
   </div>
 
-  <ul class="cm-reels__grid">
-    {{~ for d in g.items ~}}
-    <li data-category="{{ d.category }}">
-      {{~ reel = d ~}}
-      {{ include "reel-card" }}
-    </li>
-    {{~ end ~}}
-  </ul>
+  {{~ if showcases.size > 0 ~}}
+  <section class="cm-reels__tier" aria-labelledby="showcases-title">
+    <header class="cm-reels__head">
+      <h2 id="showcases-title">Showcases</h2>
+      <p>Full programs: dashboards, apps and wizards at their best. Longer files, still one file each, with the data at the top.</p>
+    </header>
+    <ul class="cm-reels__grid cm-reels__grid--wide">
+      {{~ for d in showcases ~}}
+      <li data-category="{{ d.category | string.downcase | string.replace " " "-" }}">{{~ reel = d; reel_wide = true ~}}{{ include "reel-card" }}</li>
+      {{~ end ~}}
+    </ul>
+  </section>
+  {{~ end ~}}
+
+  <section class="cm-reels__tier" aria-labelledby="starters-title">
+    <header class="cm-reels__head">
+      <h2 id="starters-title">{{ if showcases.size > 0 }}Starters{{ else }}All demos{{ end }}</h2>
+      <p>Small programs that do one thing well. Copy one, change the data, keep the layout.</p>
+    </header>
+    <ul class="cm-reels__grid">
+      {{~ for d in starters ~}}
+      <li data-category="{{ d.category | string.downcase | string.replace " " "-" }}">{{~ reel = d ~}}{{ include "reel-card" }}</li>
+      {{~ end ~}}
+    </ul>
+  </section>
 </div>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}
