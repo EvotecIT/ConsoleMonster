@@ -130,6 +130,20 @@ Describe 'One grammar for every widget' {
             (New-ConsoleLanes -Name servers -Lane 'A', 'B' -Total 3).Items.Count | Should -Be 2
         }
 
+        It 'preserves lane time boundaries through containers and Add-ConsoleItem' {
+            $lane = New-ConsoleLane build -Total 5 -Done 5 -Status Pass -Passed 5 -Started ([timespan]::FromSeconds(2)) -Finished ([timespan]::FromSeconds(9))
+            $lanes = $lane | New-ConsoleLanes -Column Description, Elapsed, Status
+            $lanes.Items[0].Started.TotalSeconds | Should -Be 2
+            $lanes.Items[0].Finished.TotalSeconds | Should -Be 9
+            $lanes.Items[0].Passed | Should -Be 5
+            $text = $lanes | Get-WidgetText
+            $text | Should -Match '7(?:\.0)?s'
+            $more = New-ConsoleLanes
+            $more | Add-ConsoleItem $lane
+            $more.Items[0].Started.TotalSeconds | Should -Be 2
+            $more.Items[0].Finished.TotalSeconds | Should -Be 9
+        }
+
         It 'pads and sets progress status, sparkline tone and latest value' {
             (New-ConsolePadding -Padding 2, 1 { 'padded' } | Get-WidgetText -Width 20) | Should -Match '^\s*\n  padded'
             (New-ConsoleProgress 'Docs' -Value 100 -Total 100 -Status Pass).Status | Should -Be 'Pass'

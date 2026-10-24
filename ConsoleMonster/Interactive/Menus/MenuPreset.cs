@@ -91,6 +91,10 @@ namespace ConsoleMonster.Interactive {
             foreach (MenuItem item in menu.Items) {
                 foreach (KeyValuePair<MenuItem, List<object?>> pair in _selections) {
                     if (ReferenceEquals(pair.Key, item)) {
+                        if (item.Choices.Count == 0 && item.ChoicesLoader != null) {
+                            item.SetSelection(pair.Value);
+                            continue;
+                        }
                         List<object?> selected = new List<object?>();
                         foreach (Choice choice in item.Choices) {
                             if (choice.IsEnabled && pair.Value.Contains(choice.Value)) {

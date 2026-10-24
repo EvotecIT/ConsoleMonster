@@ -14,6 +14,7 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     public sealed class MenuItem {
         private readonly List<Choice> _choices = new List<Choice>();
+        private bool _selectionInitialized;
         private readonly List<object?> _selection = new List<object?>();
 
         /// <summary>Creates an item.</summary>
@@ -139,8 +140,10 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Sets the selected values of a selection item (pre-selection, presets, programmatic changes).</summary>
         /// <param name="values">The values.</param>
         public void SetSelection(IEnumerable<object?> values) {
+            List<object?> copy = new List<object?>(values);
             _selection.Clear();
-            _selection.AddRange(values);
+            _selection.AddRange(copy);
+            _selectionInitialized = true;
         }
 
         /// <summary>The selection as typed values.</summary>
@@ -345,9 +348,24 @@ namespace ConsoleMonster.Interactive {
             return this;
         }
 
+        /// <summary>Imports loaded choices, reconciling explicit selections once and dropping unavailable values.</summary>
         internal void ReplaceChoices(IEnumerable<Choice> choices) {
             _choices.Clear();
             _choices.AddRange(choices);
+            List<object?> selected = new List<object?>();
+            foreach (Choice choice in _choices) {
+                if (!choice.IsEnabled) { continue; }
+                bool wanted = !_selectionInitialized && choice.Selected;
+                foreach (object? value in _selection) {
+                    wanted |= Equals(choice.Value, value) || (choice.Value != null && value is string stored && CommandLine.Format(choice.Value) == stored);
+                }
+                if (wanted) {
+                    selected.Add(choice.Value);
+                    if (Kind == MenuItemKind.Select) { break; }
+                }
+            }
+            foreach (Choice choice in _choices) { choice.Selected = selected.Contains(choice.Value) && choice.IsEnabled; }
+            SetSelection(selected);
         }
 
         private void SetChoices<T>(List<Choice> choices, Func<T, IWidget?>? preview) {

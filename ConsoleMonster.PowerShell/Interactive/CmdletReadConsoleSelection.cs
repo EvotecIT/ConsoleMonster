@@ -40,6 +40,7 @@ namespace ConsoleMonster.PowerShell {
             if (fallback != null) {
                 prompt.Default = fallback.Value;
             }
+            if (TrySnapshot(prompt)) { return; }
             WriteObject(Ask(prompt));
         }
     }

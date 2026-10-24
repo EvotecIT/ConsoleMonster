@@ -83,6 +83,7 @@ namespace ConsoleMonster.PowerShell {
                     ScriptBlock check = Validate;
                     area.Validator = text => PSInteractive.Validation(check, text, PromptLabels.Default);
                 }
+                if (TrySnapshot(area)) { return; }
                 WriteObject(Ask(area));
                 return;
             }
@@ -108,6 +109,7 @@ namespace ConsoleMonster.PowerShell {
                 ScriptBlock validate = Validate;
                 prompt.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
             }
+            if (TrySnapshot(prompt)) { return; }
             WriteObject(Ask(prompt));
         }
     }

@@ -13,7 +13,7 @@ Give the presets to New-ConsoleMenu (-Preset, or emit them in its scriptblock) a
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleMenuPreset [-Name] <string> [-Description <string>] [-Preview <Object>] [-Form <Form>] [-Values <IDictionary>] [-Item <MenuItem>] [-Selection <Object[]>] [<CommonParameters>]
+New-ConsoleMenuPreset [-Name] <string> [-Description <string>] [-Preview <Object>] [-Form <Form>] [-Values <IDictionary>] [-Item <MenuItem>] [-Selection <Object[]>] [-Selections <IDictionary>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -138,6 +138,22 @@ The values to select in -Item: the choice objects or their texts; values the ite
 
 ```yaml
 Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Selections
+Selections for several menu items in one preset: a hashtable whose keys are the MenuItem objects and whose values are lists of choices. May be combined with -Form/-Values.
+
+```yaml
+Type: IDictionary
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

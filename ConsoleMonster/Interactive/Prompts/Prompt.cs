@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -45,6 +46,20 @@ namespace ConsoleMonster.Interactive {
                 _default = value;
                 HasDefault = true;
             }
+        }
+
+        /// <summary>Builds the initialized rich prompt as a widget without reading input or producing an answer.</summary>
+        /// <param name="options">Profile, theme, labels and inline height; null uses the interactive defaults. Input and mode are not used.</param>
+        /// <returns>The prompt's initial view, suitable for ordinary terminal output or a documentation layout.</returns>
+        public IWidget Snapshot(InteractiveOptions? options = null) {
+            InteractiveOptions settings = options ?? InteractiveOptions.Default;
+            Capabilities.TerminalProfile profile = settings.ResolveProfile();
+            RenderContext context = Terminal.CreateContext(profile, settings.ResolveTheme());
+            int height = Math.Max(3, Math.Min(profile.Height, settings.MaxInlineHeight ?? profile.Height));
+            PromptView<T> view = CreateView(settings.ResolveLabels());
+            IWidget widget = view.BuildFrame(new ViewFrame(context, profile.Width, height, true, TimeSpan.Zero, view.Caret));
+            int rows = Math.Max(1, Math.Min(height, widget.Measure(new Constraints(profile.Width, height), context).Height));
+            return new Rows().Add(widget, LayoutSize.Fixed(rows));
         }
 
         /// <summary>Asks the question and returns the answer.</summary>

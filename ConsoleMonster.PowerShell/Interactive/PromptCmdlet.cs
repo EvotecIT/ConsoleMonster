@@ -31,6 +31,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
+        /// <summary><para type="description">Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</para></summary>
+        [Parameter]
+        public SwitchParameter StaticSnapshot { get; set; }
+
         /// <summary>Options for the current host.</summary>
         protected InteractiveOptions Options() => PSInteractive.Options(this, Mode);
 
@@ -41,6 +45,15 @@ namespace ConsoleMonster.PowerShell {
         protected void Configure<T>(Prompt<T> prompt) {
             prompt.Description = Description;
             prompt.ParameterName = ParameterName;
+        }
+
+        /// <summary>Prints a requested snapshot through the ordinary PowerShell output route, without asking for input.</summary>
+        /// <param name="prompt">The fully configured prompt.</param>
+        /// <returns>True when the snapshot was printed and the command should return without an answer.</returns>
+        protected bool TrySnapshot<T>(Prompt<T> prompt) {
+            if (!StaticSnapshot.IsPresent) { return false; }
+            PSFormatting.Write(this, prompt.Snapshot(Options()), 0);
+            return true;
         }
 
         /// <summary>Shows a prompt, turning cancellation and missing values into PowerShell errors.</summary>

@@ -13,7 +13,7 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validate <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validate <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -135,6 +135,22 @@ The parameter of your script that supplies this value without a prompt (named in
 Type: String
 Parameter Sets: __AllParameterSets
 Aliases: Parameter
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StaticSnapshot
+Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
 Possible values:
 
 Required: False

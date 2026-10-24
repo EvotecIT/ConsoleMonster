@@ -365,9 +365,10 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>A loader for a menu selection item.</summary>
-        public static Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>> MenuLoader(ScriptBlock script, object? display, object? group, object? description, object?[]? arguments) {
+        public static Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>> MenuLoader(ScriptBlock script, ChoiceSelectors selectors, object?[]? arguments) {
             string text = script.ToString();
-            ChoiceSelectors isolated = new ChoiceSelectors { Display = display, Group = group, Description = description }.PropertiesOnly();
+            ChoiceSelectors isolated = selectors.PropertiesOnly();
+            isolated.Selected = selectors.Selected;
             return (context, token) => Task.Run<IEnumerable<Choice>>(() => RunIsolated(text, new Hashtable(), arguments, isolated, token), token);
         }
 

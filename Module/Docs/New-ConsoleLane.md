@@ -13,7 +13,7 @@ Use it inside the script block of New-ConsoleLanes when lanes differ: each has i
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLane [-Key] <string> [-Label <Object>] [-Total <double>] [-Done <double>] [-Status <StatusKind>] [-Detail <Object>] [-Passed <int>] [-Failed <int>] [-Warned <int>] [-Skipped <int>] [<CommonParameters>]
+New-ConsoleLane [-Key] <string> [-Label <Object>] [-Total <double>] [-Done <double>] [-Status <StatusKind>] [-Detail <Object>] [-Passed <int>] [-Failed <int>] [-Warned <int>] [-Skipped <int>] [-Started <TimeSpan>] [-Finished <TimeSpan>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -84,6 +84,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Finished
+When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.
+
+```yaml
+Type: TimeSpan
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Key
 The lane key, used by Update-ConsoleLane -Key.
 
@@ -137,6 +153,22 @@ Results skipped.
 
 ```yaml
 Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Started
+When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.
+
+```yaml
+Type: TimeSpan
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

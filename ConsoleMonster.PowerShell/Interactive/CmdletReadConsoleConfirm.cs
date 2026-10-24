@@ -51,6 +51,7 @@ namespace ConsoleMonster.PowerShell {
                 if (Default.HasValue) {
                     typed.Default = Default.Value;
                 }
+                if (TrySnapshot(typed)) { return; }
                 WriteObject(Ask(typed));
                 return;
             }
@@ -59,6 +60,7 @@ namespace ConsoleMonster.PowerShell {
             if (Default.HasValue) {
                 prompt.Default = Default.Value;
             }
+            if (TrySnapshot(prompt)) { return; }
             WriteObject(Ask(prompt));
         }
     }

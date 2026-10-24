@@ -50,6 +50,7 @@ namespace ConsoleMonster.PowerShell {
                 ScriptBlock validate = Validate;
                 prompt.Validator = value => PSInteractive.Validation(validate, value, PromptLabels.Default);
             }
+            if (TrySnapshot(prompt)) { return; }
             decimal result = Ask(prompt);
             if (Integer.IsPresent) {
                 WriteObject((int)result);

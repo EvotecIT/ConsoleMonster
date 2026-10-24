@@ -64,6 +64,10 @@ namespace ConsoleMonster.PowerShell {
         [AllowEmptyCollection]
         public object?[]? Selection { get; set; }
 
+        /// <summary><para type="description">Selections for several menu items in one preset: a hashtable whose keys are the MenuItem objects and whose values are lists of choices. May be combined with -Form/-Values.</para></summary>
+        [Parameter]
+        public IDictionary? Selections { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Values != null && Form == null) {
@@ -79,14 +83,28 @@ namespace ConsoleMonster.PowerShell {
                 preset.Form(Form, PSForms.ToFieldValues(Values, Form));
             }
             if (Item != null) {
-                List<object?> selected = new List<object?>();
-                foreach (object? value in PSInteractive.Enumerate(Selection)) {
-                    Choice? match = PSInteractive.Find(Item.Choices, value);
-                    selected.Add(match != null ? match.Value : value == null ? null : Binding.PSObjectMemberSource.Identity(value));
+                SetSelection(preset, Item, Selection);
+            }
+            if (Selections != null) {
+                foreach (DictionaryEntry binding in Selections) {
+                    if (!(PSText.Unwrap(binding.Key) is MenuItem item)) {
+                        ThrowTerminatingError(new ErrorRecord(new PSArgumentException("-Selections keys must be menu items created by New-ConsoleMenuItem."),
+                            "ConsoleMonsterPresetSelectionItem", ErrorCategory.InvalidArgument, binding.Key));
+                        return;
+                    }
+                    SetSelection(preset, item, binding.Value);
                 }
-                preset.Selection(Item, selected);
             }
             WriteObject(preset);
+        }
+
+        private static void SetSelection(MenuPreset preset, MenuItem item, object? values) {
+            List<object?> selected = new List<object?>();
+            foreach (object? value in PSInteractive.Enumerate(values)) {
+                Choice? match = PSInteractive.Find(item.Choices, value);
+                selected.Add(match != null ? match.Value : value == null ? null : Binding.PSObjectMemberSource.Identity(value));
+            }
+            preset.Selection(item, selected);
         }
     }
 }

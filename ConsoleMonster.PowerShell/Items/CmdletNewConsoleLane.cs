@@ -61,6 +61,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public int Skipped { get; set; }
 
+        /// <summary><para type="description">When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.</para></summary>
+        [Parameter]
+        public System.TimeSpan? Started { get; set; }
+
+        /// <summary><para type="description">When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.</para></summary>
+        [Parameter]
+        public System.TimeSpan? Finished { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
             Text.RichText? rich = PSText.Rich(Label);
@@ -71,7 +79,9 @@ namespace ConsoleMonster.PowerShell {
                 Passed = Passed,
                 Failed = Failed,
                 Warned = Warned,
-                Skipped = Skipped
+                Skipped = Skipped,
+                Started = Started,
+                Finished = Finished
             };
             if (rich != null) {
                 lane.LabelText = rich;

@@ -324,7 +324,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Copies the list's selection to the item.</summary>
         public void Sync() {
-            if (!List.Multi) {
+            if (!List.Multi || _load != null || _loadError != null) {
                 return;
             }
             List<object?> values = new List<object?>();
@@ -369,26 +369,12 @@ namespace ConsoleMonster.Interactive {
                 _loadError = PromptLabels.Format(_labels.LoadFailed, load.Exception!.GetBaseException().Message);
             } else {
                 _item.ReplaceChoices(load.Result ?? new Choice[0]);
-                List<object?> keep = new List<object?>();
-                foreach (object? value in _item.Selection) {
-                    foreach (Choice c in _item.Choices) {
-                        if (Equals(c.Value, value) || (c.Value != null && value != null && CommandLine.Format(c.Value) == CommandLine.Format(value))) {
-                            keep.Add(c.Value);
-                        }
-                    }
-                }
-                if (keep.Count == 0) {
-                    foreach (Choice c in _item.Choices) {
-                        if (c.Selected && c.IsEnabled) {
-                            keep.Add(c.Value);
-                        }
-                    }
-                }
-                foreach (Choice c in _item.Choices) {
-                    c.Selected = keep.Contains(c.Value);
-                }
                 List.Replace(_item.Choices);
-                _item.SetSelection(keep);
+                if (!List.Multi) {
+                    foreach (Choice choice in _item.Choices) {
+                        if (choice.Selected) { List.FocusChoice(choice); break; }
+                    }
+                }
                 Pane.InvalidatePreview();
                 _changed();
             }

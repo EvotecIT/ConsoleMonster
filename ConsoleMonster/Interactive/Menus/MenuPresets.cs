@@ -93,6 +93,11 @@ namespace ConsoleMonster.Interactive {
                         }
                     }
                     List<object?> selection = new List<object?>();
+                    if (item.Choices.Count == 0 && item.ChoicesLoader != null) {
+                        foreach (string value in wanted) { selection.Add(value); }
+                        item.SetSelection(selection);
+                        continue;
+                    }
                     foreach (Choice c in item.Choices) {
                         if (c.Value != null && c.IsEnabled && wanted.Contains(CommandLine.Format(c.Value))) {
                             selection.Add(c.Value);

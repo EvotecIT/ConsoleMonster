@@ -11415,6 +11415,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Finished</maml:name>
+          <maml:description>
+            <maml:para>When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+          <dev:type>
+            <maml:name>TimeSpan</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Key</maml:name>
           <maml:description>
@@ -11459,6 +11471,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
             <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Started</maml:name>
+          <maml:description>
+            <maml:para>When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+          <dev:type>
+            <maml:name>TimeSpan</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -11547,6 +11571,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Finished</maml:name>
+        <maml:description>
+          <maml:para>When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>TimeSpan</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Key</maml:name>
         <maml:description>
@@ -11591,6 +11627,18 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
           <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Started</maml:name>
+        <maml:description>
+          <maml:para>When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>TimeSpan</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -11663,10 +11711,10 @@ Read-ConsoleForm $form -Preset Weekly</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLanes {&#xD;
-    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40&#xD;
-    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'&#xD;
-    New-ConsoleLane 'DC03' -Total 40&#xD;
+        <dev:code>New-ConsoleLanes {
+    New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
+    New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
+    New-ConsoleLane 'DC03' -Total 40
 } | Write-ConsoleWidget</dev:code>
         <dev:remarks>
           <maml:para>Three servers at different points</maml:para>
@@ -13440,6 +13488,30 @@ Show-ConsoleMenu $menu -Layout Shell</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChoiceBadge</maml:name>
+          <maml:description>
+            <maml:para>Badge for each selection choice: a property name or scriptblock. With -LoadChoices, use a property name from the loader's output. The item's own badge remains -Badge.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ChoiceDisabled</maml:name>
+          <maml:description>
+            <maml:para>Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -Disabled.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Describe</maml:name>
           <maml:description>
             <maml:para>A sentence for the focused choice: a property name or a scriptblock.</maml:para>
@@ -13684,8 +13756,8 @@ Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Review</maml:name>
           <maml:description>
-            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
+            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
 Description and RunText.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -13710,7 +13782,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Selected</maml:name>
           <maml:description>
-            <maml:para>Pre-selected choices: the objects or their texts, or a scriptblock returning $true for selected ones.</maml:para>
+            <maml:para>Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -13810,6 +13882,30 @@ Description and RunText.</maml:para>
         <maml:name>Badge</maml:name>
         <maml:description>
           <maml:para>Right-aligned text: a string, rich text, or a scriptblock recomputed whenever the menu draws.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ChoiceBadge</maml:name>
+        <maml:description>
+          <maml:para>Badge for each selection choice: a property name or scriptblock. With -LoadChoices, use a property name from the loader's output. The item's own badge remains -Badge.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ChoiceDisabled</maml:name>
+        <maml:description>
+          <maml:para>Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -Disabled.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -14063,8 +14159,8 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Review</maml:name>
         <maml:description>
-          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
+          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
 Description and RunText.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -14089,7 +14185,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Selected</maml:name>
         <maml:description>
-          <maml:para>Pre-selected choices: the objects or their texts, or a scriptblock returning $true for selected ones.</maml:para>
+          <maml:para>Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -14286,6 +14382,18 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Selections</maml:name>
+          <maml:description>
+            <maml:para>Selections for several menu items in one preset: a hashtable whose keys are the MenuItem objects and whose values are lists of choices. May be combined with -Form/-Values.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Values</maml:name>
           <maml:description>
             <maml:para>The values for -Form by field name: a string, a number, a bool, or a list for a multi-choice field. Values that name a choice (the object, its title or its text) take that choice.</maml:para>
@@ -14373,6 +14481,18 @@ Description and RunText.</maml:para>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Selections</maml:name>
+        <maml:description>
+          <maml:para>Selections for several menu items in one preset: a hashtable whose keys are the MenuItem objects and whose values are lists of choices. May be combined with -Form/-Values.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Values</maml:name>
         <maml:description>
           <maml:para>The values for -Form by field name: a string, a number, a bool, or a list for a multi-choice field. Values that name a choice (the object, its title or its text) take that choice.</maml:para>
@@ -14407,17 +14527,17 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {&#xD;
-    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target&#xD;
-    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress&#xD;
-}&#xD;
-$menu = New-ConsoleMenu 'Backup helper' {&#xD;
-    New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {&#xD;
-        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })&#xD;
-    }&#xD;
-    New-ConsoleMenuItem 'Presets' -Presets&#xD;
-    New-ConsoleMenuItem 'Back up' -Form $form&#xD;
-    New-ConsoleMenuItem -Exit&#xD;
+        <dev:code>$form = New-ConsoleForm 'Backup' -Command 'Start-AppBackup' {
+    New-ConsoleField Target 'Target' -Type Select -Choices 'Daily', 'Weekly' -Parameter Target
+    New-ConsoleField Compress 'Compress' -Type Toggle -Parameter Compress
+}
+$menu = New-ConsoleMenu 'Backup helper' {
+    New-ConsoleMenuPreset 'Weekly · compressed' -Description 'The Sunday backup.' -Form $form -Values @{ Target = 'Weekly'; Compress = $true } -Preview {
+        New-ConsoleKeyValue -Data ([ordered] @{ Target = 'Weekly'; Compress = 'yes' })
+    }
+    New-ConsoleMenuItem 'Presets' -Presets
+    New-ConsoleMenuItem 'Back up' -Form $form
+    New-ConsoleMenuItem -Exit
 }</dev:code>
         <dev:remarks>
           <maml:para>A preset that fills in a form, with what it sets as the preview</maml:para>
@@ -14425,9 +14545,9 @@ $menu = New-ConsoleMenu 'Backup helper' {&#xD;
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'&#xD;
-$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {&#xD;
-    New-ConsoleMenuItem 'Presets' -Presets&#xD;
+        <dev:code>$targets = New-ConsoleMenuItem 'Targets' -MultiSelect 'SRV01', 'SRV02', 'SRV03'
+$menu = New-ConsoleMenu 'Patch' -Item $targets -Preset (New-ConsoleMenuPreset 'First wave' -Item $targets -Selection 'SRV01', 'SRV02') {
+    New-ConsoleMenuItem 'Presets' -Presets
 }</dev:code>
         <dev:remarks>
           <maml:para>A preset that selects servers in a selection item</maml:para>
@@ -21054,6 +21174,18 @@ because the existing sparkline renderer scales from zero. Output uses the normal
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -21179,6 +21311,18 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -21769,6 +21913,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -21982,6 +22138,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
         <maml:name>Title</maml:name>
         <maml:description>
@@ -22127,6 +22295,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Step</maml:name>
           <maml:description>
             <maml:para>The step of Up and Down (default 1).</maml:para>
@@ -22251,6 +22431,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -22451,6 +22643,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -22569,6 +22773,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -22723,6 +22939,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -22836,6 +23064,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -23079,6 +23319,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -23252,6 +23504,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         <dev:type>
           <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -23503,6 +23767,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>StaticSnapshot</maml:name>
+          <maml:description>
+            <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="Prompt,Question">
           <maml:name>Title</maml:name>
           <maml:description>
@@ -23708,6 +23984,18 @@ if ($answers) { New-AppShare -Name $answers.Name -Path $answers.Path }</dev:code
         <maml:name>Required</maml:name>
         <maml:description>
           <maml:para>Refuses an empty answer.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>StaticSnapshot</maml:name>
+        <maml:description>
+          <maml:para>Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
