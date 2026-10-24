@@ -25,7 +25,7 @@
     cats = []; for d in all; if !(cats | array.contains d.category); cats = cats | array.add d.category; end; end ~}}
 {{~ capture side ~}}
 <div class="cm-reels__start">
-  <p class="cm-reels__lead">{{ all.size }} programs in PowerShell and C#. Each page shows the whole program, how to run it, and what to change first.</p>
+  <p class="cm-reels__lead">{{ all.size }} programs, from a three-line welcome screen to a full dashboard. Each page shows the whole program, how to run it, and what to change first.</p>
   <div class="cm-lang" data-lang="powershell">
     {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\nGet-ConsoleDemo                 # list them\n" + feat.run.powershell ~}}
     {{ include "code" }}

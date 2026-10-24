@@ -318,7 +318,7 @@ html:not(.cm-js) .cm-paths [role="tablist"], html:not(.cm-js) .cm-demo [role="ta
 /* Demos (layouts/demos.html): a grid of ready-made programs. Each card leads with the program's real output, a poster
    frame drawn as a miniature terminal, then what it shows and the one line that runs it in the reader's language. */
 .cm-reels__start { display: grid; gap: var(--cm-space-2); max-width: 560px; }
-.cm-reels__start .cm-try__lang { justify-self: start; }
+.cm-reels__start .cm-try__lang { margin-left: 0; }
 .cm-reels { padding-top: var(--cm-space-6); padding-bottom: var(--cm-space-8); }
 .cm-reels__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cm-space-3); margin-bottom: var(--cm-space-5); }
 .cm-reels__filter { flex-wrap: wrap; }
