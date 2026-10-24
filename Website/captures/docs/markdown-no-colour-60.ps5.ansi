@@ -1,8 +1,8 @@
 [?9001h[?1004h[?25l[2J[m[HDeployment notes
-------------------------------------------------------------[4;1HRead the plan, keep rollback notes, and verify each host.
+============================================================[4;1HRead the plan, keep rollback notes, and verify each host.
 This paragraph reflows to the terminal width.[7;1HBefore the rollout
-------------------------------------------------------------[10;1H3. Check the selected environment.
-4. Inspect the results:[13;1H   - web-01 is ready.
+------------------------------------------------------------[10;1H1. Check the selected environment.
+2. Inspect the results:[13;1H   - web-01 is ready.
    - web-02 needs another check.[16;1H| Keep the rollback plan close. Confirm the target before
 | changing it.[19;1H+--------+--------+--------------------------------+
 | Host   | Checks | Notes                          |

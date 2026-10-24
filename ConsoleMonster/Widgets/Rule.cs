@@ -28,6 +28,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The line's theme token (default <see cref="ThemeToken.Border"/>).</summary>
         public ThemeToken LineToken { get; set; } = ThemeToken.Border;
 
+        /// <summary>The line's box style, or null to use the glyph profile's ordinary rule line.</summary>
+        public BoxStyle? LineStyle { get; set; }
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
 
@@ -36,7 +39,9 @@ namespace ConsoleMonster.Widgets {
             if (region.Height <= 0 || region.Width <= 0) {
                 return;
             }
-            string glyph = context.Glyphs.Get(Glyph.RuleLine);
+            string glyph = LineStyle.HasValue
+                ? context.Glyphs.GetBox(LineStyle.Value).Horizontal
+                : context.Glyphs.Get(Glyph.RuleLine);
             Style line = context.Style(LineToken);
             region.HorizontalLine(0, 0, region.Width, glyph, line);
             if (string.IsNullOrEmpty(Title) || region.Width < 8) {

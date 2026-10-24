@@ -1,5 +1,5 @@
 Deployment notebook
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 Read the approved plan, keep the rollback notes close, and treat [fail]literal brackets[/] as code rather than console
 markup.
@@ -64,8 +64,7 @@ Raw HTML is a presentation-policy fixture; it must not be executed or fetched:
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Compact terminal reading
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+### Compact terminal reading
 
 This deliberately longer paragraph checks wrapping at sixty columns while retaining Polish text such as zażółć gęślą
 jaźń, Japanese text such as 検証, and an emoji such as ✅. The pager must retain every paragraph and table row when the

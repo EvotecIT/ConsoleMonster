@@ -12,6 +12,8 @@ card: markdown-120
 
 `Show-ConsoleMarkdown` reads CommonMark with pipe tables and renders through ConsoleMonster's own widgets. Headings use accent rules, lists keep hanging indents, quotes get a vertical bar, and fenced code uses the registered syntax highlighter with its language label.
 
+Level-one headings use a double rule and level-two headings use a single rule. Lower headings have no rule and keep their level markers, so the hierarchy remains visible without colour. Level three is bold; levels four through six are bold and muted.
+
 ## Try it
 
 {{< cm-try key="markdown" ids="markdown-120" project="MarkdownReader" packages="ConsoleMonster.Markdown" caption="One document with headings, nested lists, a quote, a native table, highlighted PowerShell and a link. The C# example uses the optional Markdown add-on; the PowerShell module includes it." >}}

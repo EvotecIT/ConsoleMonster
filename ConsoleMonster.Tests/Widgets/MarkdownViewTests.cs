@@ -42,6 +42,36 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void HeadingLevels_KeepHierarchyWithoutColour() {
+            foreach (var profile in new[] {
+                TerminalProfile.Fixed(28, 30, ColorDepth.TrueColor, GlyphTier.Full),
+                TerminalProfile.Fixed(28, 30, ColorDepth.Ansi16, GlyphTier.Basic),
+                TerminalProfile.Fixed(28, 30, ColorDepth.None, GlyphTier.Ascii),
+                TerminalProfile.Fixed(28, 30, ColorDepth.None, GlyphTier.Full)
+            }) {
+                RenderContext context = new RenderContext(profile, Theme.Dark);
+                for (int level = 1; level <= 6; level++) {
+                    CellBuffer frame = FrameComposer.RenderBlock(
+                        new MarkdownView().AddHeading(RichText.Plain("Section"), level), 28, context);
+                    string[] lines = frame.ToPlainText().Split('\n');
+                    Assert.Equal(level <= 2 ? 2 : 1, lines.Length);
+                    Assert.Equal(level <= 2 ? "Section" : new string('#', level) + " Section", lines[0]);
+                    if (profile.ColorDepth != ColorDepth.None) {
+                        Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
+                    }
+                    ThemeToken token = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
+                    Assert.Equal(Theme.Dark.Resolve(token, profile.ColorDepth).Foreground, frame[0, 0].Style.Foreground);
+                    if (level <= 2) {
+                        string expected = level == 1
+                            ? (profile.Glyphs == GlyphTier.Ascii ? "=" : "═")
+                            : (profile.Glyphs == GlyphTier.Ascii ? "-" : "─");
+                        Assert.Equal(string.Concat(Enumerable.Repeat(expected, 28)), lines[1]);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void InlineLinks_KeepTargetsOrShowMutedUrl() {
             RichText label = new RichTextBuilder().AppendLink("Read ", "https://example.org")
                 .AppendLink("more", "https://example.org", new RichStyle(decoration: TextDecoration.Bold)).Build();
@@ -158,6 +188,9 @@ namespace ConsoleMonster.Tests.Widgets {
         public void InvalidStructure_RejectsMalformedInput() {
             MarkdownView view = new MarkdownView();
             Assert.Throws<ArgumentOutOfRangeException>(() => view.AddHeading(RichText.Plain("bad"), 0));
+            for (int level = 1; level <= 6; level++) {
+                Assert.Throws<ArgumentNullException>(() => view.AddHeading(null!, level));
+            }
             Assert.Throws<ArgumentException>(() => view.AddTable(new[] { RichText.Plain("Header") }, new[] { Array.Empty<RichText>() }));
             Assert.Throws<ArgumentException>(() => view.AddBlock(view));
             Assert.Throws<ArgumentException>(() => view.AddQuote(view));

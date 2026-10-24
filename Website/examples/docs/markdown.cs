@@ -8,8 +8,8 @@ This paragraph reflows to the terminal width.
 
 ## Before the rollout
 
-3. Check the selected environment.
-4. Inspect the results:
+1. Check the selected environment.
+2. Inspect the results:
    - web-01 is ready.
    - web-02 needs another check.
 

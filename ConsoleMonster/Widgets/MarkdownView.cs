@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Highlighting;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Localization;
@@ -25,7 +26,7 @@ namespace ConsoleMonster.Widgets {
         /// <returns>This view.</returns>
         public MarkdownView AddParagraph(RichText text) => AddBlock(new MarkdownText(text));
 
-        /// <summary>Adds a heading with an accent rule below it.</summary>
+        /// <summary>Adds a heading with a double rule for level one, a single rule for level two, and visible level markers below that.</summary>
         /// <param name="text">Parsed heading content.</param>
         /// <param name="level">The heading level, from one through six.</param>
         /// <returns>This view.</returns>
@@ -33,9 +34,15 @@ namespace ConsoleMonster.Widgets {
             if (level < 1 || level > 6) {
                 throw new ArgumentOutOfRangeException(nameof(level));
             }
-            return AddBlock(new Rows(
-                new MarkdownText(text, new RichStyle(ThemeToken.Accent, decoration: TextDecoration.Bold)),
-                new Rule { LineToken = ThemeToken.Accent }));
+            if (text == null) {
+                throw new ArgumentNullException(nameof(text));
+            }
+            ThemeToken token = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
+            RichText content = level <= 2 ? text : new RichTextBuilder().Append(new string('#', level) + " ").Append(text).Build();
+            MarkdownText heading = new MarkdownText(content, new RichStyle(token, decoration: TextDecoration.Bold));
+            return AddBlock(level <= 2
+                ? new Rows(heading, new Rule { LineToken = ThemeToken.Accent, LineStyle = level == 1 ? BoxStyle.Double : (BoxStyle?)null })
+                : (IWidget)heading);
         }
 
         /// <summary>Adds a block quote, retaining nested blocks and wrapping beside a muted vertical bar.</summary>
