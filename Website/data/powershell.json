@@ -665,12 +665,17 @@
     },
     {
       "verb": "Start",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Start-ConsoleDashboard",
           "synopsis": "Runs a console dashboard live while a script does the work.",
           "url": "/powershell/commands/start-consoledashboard/"
+        },
+        {
+          "name": "Start-ConsoleRecording",
+          "synopsis": "Opens a recorded child shell in a pseudo-console.",
+          "url": "/powershell/commands/start-consolerecording/"
         },
         {
           "name": "Start-ConsoleReplay",
@@ -843,7 +848,7 @@
         },
         {
           "name": "Export-ConsoleRecording",
-          "synopsis": "Exports a dashboard recording to an HTML player, an animated SVG or asciicast.",
+          "synopsis": "Exports a terminal session or dashboard recording to a player, SVG or asciicast.",
           "url": "/powershell/commands/export-consolerecording/"
         },
         {
@@ -855,12 +860,17 @@
     },
     {
       "verb": "Invoke",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Invoke-ConsolePester",
           "synopsis": "Runs Pester tests with a live ConsoleMonster dashboard and a summary table.",
           "url": "/powershell/commands/invoke-consolepester/"
+        },
+        {
+          "name": "Invoke-ConsoleRecording",
+          "synopsis": "Records a script in a child PowerShell terminal and exports the result.",
+          "url": "/powershell/commands/invoke-consolerecording/"
         },
         {
           "name": "Invoke-ConsoleRun",
@@ -871,12 +881,17 @@
     },
     {
       "verb": "Add",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Add-ConsoleItem",
           "synopsis": "Adds items to a console widget made earlier: tree nodes, pairs, status items, bars, series, log lines, lanes or values.",
           "url": "/powershell/commands/add-consoleitem/"
+        },
+        {
+          "name": "Add-ConsoleRecordingMarker",
+          "synopsis": "Adds a named playback chapter to a recorded terminal session.",
+          "url": "/powershell/commands/add-consolerecordingmarker/"
         },
         {
           "name": "Add-ConsoleValue",
@@ -1044,6 +1059,17 @@
           "name": "Set-ConsoleValue",
           "synopsis": "Sets a value in a running dashboard: a key/value pair, a bar or a stacked-bar segment.",
           "url": "/powershell/commands/set-consolevalue/"
+        }
+      ]
+    },
+    {
+      "verb": "Stop",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Stop-ConsoleRecording",
+          "synopsis": "Stops recording from inside the recorded child shell.",
+          "url": "/powershell/commands/stop-consolerecording/"
         }
       ]
     },

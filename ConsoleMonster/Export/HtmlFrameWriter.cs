@@ -60,8 +60,8 @@ namespace ConsoleMonster.Export {
             foreach (ExportLayer layer in layers) {
                 width = Math.Max(width, layer.Frame.Width);
             }
-            if (options.WindowChrome) {
-                body.Append(WindowChrome.HtmlStart(options.Title));
+            if ((options.EffectiveChrome != WindowChromeStyle.None)) {
+                body.Append(WindowChrome.HtmlStart(options.Title, options.EffectiveChrome));
             }
             foreach (ExportLayer layer in layers) {
                 body.Append("<pre class=\"cm-screen ").Append(styles.ScreenHeightClass(layer.Frame.Height, options.CellHeight));
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Export {
                 HtmlBlockPaint.AppendFrame(body, layer.Frame, layer.Palette);
                 body.Append("</pre>");
             }
-            if (options.WindowChrome) {
+            if ((options.EffectiveChrome != WindowChromeStyle.None)) {
                 body.Append("</div>");
             }
 
@@ -116,24 +116,16 @@ namespace ConsoleMonster.Export {
             string scope = options.Fragment ? ".cm-export" : ":root,.cm-export";
             css.Append(scope).Append("{--cm-fg:").Append(first.Foreground).Append(";--cm-bg:").Append(first.Background)
                 .Append(";--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:").Append(adaptive ? "dark light" : first.Name).Append("}\n.cm-export{display:inline-block}\n");
-            if (!adaptive && first == ExportPalette.Light) {
-                css.Append(scope).Append("{--cm-chrome:#e6e6e9;--cm-chrome-fg:#555;--cm-desk:#c9c9cf}\n");
-            }
+            WindowChrome.AppendTokens(css, scope, options, !adaptive && first == ExportPalette.Light);
             if (adaptive) {
-                css.Append("@media (prefers-color-scheme: light){").Append(scope).Append("{--cm-fg:").Append(ExportPalette.Light.Foreground).Append(";--cm-bg:").Append(ExportPalette.Light.Background)
-                    .Append(";--cm-chrome:#e6e6e9;--cm-chrome-fg:#555;--cm-desk:#c9c9cf}}\n");
+                css.Append("@media (prefers-color-scheme: light){").Append(scope).Append("{--cm-fg:").Append(ExportPalette.Light.Foreground).Append(";--cm-bg:").Append(ExportPalette.Light.Background).Append("}\n");
+                WindowChrome.AppendTokens(css, scope, options, true);
+                css.Append("}\n");
             }
             if (!options.Fragment) {
-                // With a window frame the page is a neutral desk the window sits on; without one the page is the terminal.
-                css.Append(options.WindowChrome ? "html,body{margin:0;background:var(--cm-desk)}\nbody{padding:20px}\n" : "html,body{margin:0;background:var(--cm-bg)}\nbody{padding:0}\n");
+                css.Append(options.EffectiveChrome != WindowChromeStyle.None ? "html,body{margin:0;background:var(--cm-desk)}\nbody{padding:20px}\n" : "html,body{margin:0;background:var(--cm-bg)}\nbody{padding:0}\n");
             }
-            css.Append(".cm-export .cm-window{display:inline-block;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 0 1px rgba(127,127,127,.25);background:var(--cm-bg)}\n");
-            css.Append(".cm-export .cm-titlebar{position:relative;height:30px;line-height:30px;background:var(--cm-chrome);color:var(--cm-chrome-fg);font:13px system-ui,-apple-system,'Segoe UI',sans-serif;text-align:center}\n");
-            css.Append(".cm-export .cm-dots{position:absolute;left:12px;top:0}\n.cm-export .cm-dots i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle;background:#ff5f57}\n");
-            css.Append(".cm-export .cm-dots i+i{background:#febc2e}\n.cm-export .cm-dots i+i+i{background:#28c840}\n");
-            if (options.WindowChrome) {
-                css.Append(ConsoleExporter.ReadAsset("window-chrome.css"));
-            }
+            WindowChrome.AppendHtmlCss(css, options.EffectiveChrome);
             css.Append(".cm-export .cm-screen{display:block;box-sizing:content-box;margin:0;padding:").Append(options.Padding).Append("px;width:").Append(columns).Append("ch;")
                 .Append("font-family:").Append(font).Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;line-height:").Append(ExportText.Num(cell)).Append("px;")
                 .Append("color:var(--cm-fg);background:var(--cm-bg);white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;-webkit-text-size-adjust:none;text-size-adjust:none;tab-size:1}\n");

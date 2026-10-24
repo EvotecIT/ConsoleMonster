@@ -59,8 +59,10 @@ namespace ConsoleMonster.Export {
                 .Append(",\"height\":").Append(recording.Height.ToString(CultureInfo.InvariantCulture))
                 .Append(",\"fps\":").Append(ExportText.Num(recording.FramesPerSecond * recording.Speed))
                 .Append(",\"duration\":").Append(total.ToString(CultureInfo.InvariantCulture))
-                .Append(",\"chrome\":").Append(options.WindowChrome ? "true" : "false")
-                .Append(",\"theme\":\"").Append(palette.Name).Append("\",\"css\":");
+                .Append(",\"chrome\":").Append(options.EffectiveChrome != WindowChromeStyle.None ? "true" : "false")
+                .Append(",\"chromeStyle\":\"").Append(options.EffectiveChrome.ToString().ToLowerInvariant()).Append("\",\"chromeBar\":");
+            AppendScriptString(json, WindowChrome.HtmlBar(options.Title, options.EffectiveChrome));
+            json.Append(",\"theme\":\"").Append(palette.Name).Append("\",\"css\":");
             AppendScriptString(json, css.ToString());
             json.Append(",\"rows\":[");
             for (int i = 0; i < rows.Count; i++) {
@@ -69,7 +71,18 @@ namespace ConsoleMonster.Export {
                 }
                 AppendScriptString(json, rows[i]);
             }
-            json.Append("],\"frames\":").Append(frameData).Append('}');
+            json.Append("],\"frames\":").Append(frameData);
+            if (recording.Markers.Count > 0) {
+                json.Append(",\"markers\":[");
+                for (int i = 0; i < recording.Markers.Count; i++) {
+                    if (i > 0) { json.Append(','); }
+                    json.Append('[').Append(((long)recording.Markers[i].Time.TotalMilliseconds).ToString(CultureInfo.InvariantCulture)).Append(',');
+                    AppendScriptString(json, recording.Markers[i].Label);
+                    json.Append(']');
+                }
+                json.Append(']');
+            }
+            json.Append('}');
             return json.ToString();
         }
 
@@ -83,10 +96,16 @@ namespace ConsoleMonster.Export {
             ExportText.AppendEscaped(html, string.IsNullOrEmpty(options.Title) ? "Console recording" : options.Title);
             html.Append("</title>\n<style>\n");
             // The page itself: a neutral desk under a window frame, otherwise the terminal background.
-            string background = palette == ExportPalette.Light ? (options.WindowChrome ? "#c9c9cf" : palette.Background) : (options.WindowChrome ? "#3a3a3f" : palette.Background);
-            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.WindowChrome ? "20px" : "0").Append("}\n");
-            html.Append(ConsoleExporter.PlayerStyles).Append("</style>\n</head>\n<body>\n");
-            html.Append("<div class=\"cm-recording\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
+            string background = palette == ExportPalette.Light ? (options.EffectiveChrome != WindowChromeStyle.None ? "#c9c9cf" : palette.Background) : (options.EffectiveChrome != WindowChromeStyle.None ? "#3a3a3f" : palette.Background);
+            html.Append("html,body{margin:0;background:").Append(background).Append("}\nbody{padding:").Append(options.EffectiveChrome != WindowChromeStyle.None ? "20px" : "0").Append("}\n");
+            html.Append(ConsoleExporter.PlayerStyles);
+            // The player measures the rendered terminal font and sets the natural width after fonts load.
+            html.Append(".cm-export.cm-standalone{display:block;font-family:").Append(options.FontFamily)
+                .Append(";font-size:").Append(ExportText.Num(options.FontSize)).Append("px;width:100%}")
+                .Append(".cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}")
+                .Append(".cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:")
+                .Append(ExportText.Num(options.FontSize * options.LineHeight)).Append("px}</style>\n</head>\n<body>\n");
+            html.Append("<div class=\"cm-recording cm-standalone\" data-cm-recording=\"#cm-data\" data-cm-autoplay></div>\n");
             html.Append("<script type=\"application/json\" id=\"cm-data\">").Append(data).Append("</script>\n");
             html.Append("<script>\n").Append(ConsoleExporter.PlayerScript.Replace("</script", "<\\/script")).Append("\n</script>\n</body>\n</html>\n");
             return html.ToString();

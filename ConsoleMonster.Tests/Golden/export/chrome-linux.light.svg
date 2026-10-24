@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="326.4" height="93.6" viewBox="0 0 326.4 93.6" role="img" aria-label="Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
+<title>Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+</style>
+<rect width="326.4" height="93.6" rx="12" style="fill:var(--cm-chrome)"/>
+<g transform="translate(278.4 0)" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.2"><circle cx="26" cy="18" r="11"/><path d="M22 14l8 8m0-8l-8 8"/></g><svg class="cm-title-area" x="48" y="0" width="230.4" height="36" overflow="hidden"><text class="cm-title" x="115.2" y="18" textLength="224" lengthAdjust="spacingAndGlyphs" style="font-family:monospace;font-weight:bold;"><title>Build &lt;release&gt; &amp; verify / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>Build &lt;release&gt; &amp; verify / …</text></svg>
+<g class="cm-layer" transform="translate(12 48)"><rect width="326.4" height="57.6" x="-12" y="-12" fill="#ffffff"/><text class="cm-t" x="4.2 12.6 21 29.4 37.8 54.6 63 71.4 79.8 88.2 96.6 105 113.4" y="8.4" fill="#24292f">Buildcomplete</text></g>
+</svg>

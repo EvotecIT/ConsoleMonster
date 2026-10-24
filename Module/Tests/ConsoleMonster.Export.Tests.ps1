@@ -80,6 +80,8 @@ Describe 'ConsoleMonster exports' {
         }
 
         $dataPath = Join-Path $TestDrive 'run.json'
+        $fenced = Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format FencedText -Width 60 -Height 8
+        $fenced | Should -Be (Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Format Html -Width 60 -Height 8)
         Export-ConsoleRecording -Dashboard $dashboard -Path $recording -Destination $dataPath -Width 60 -Height 8
         $data = Get-Content -LiteralPath $dataPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $data.format | Should -Be 'consolemonster-player'

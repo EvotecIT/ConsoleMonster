@@ -11,6 +11,8 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Export {
     /// <summary>How a recording is exported: screen size, frame rate, speed, theme, font and window frame.</summary>
     public sealed class RecordingExportOptions {
+        /// <summary>Chapter labels and playback times, displayed by the HTML player.</summary>
+        public IList<RecordingMarker> Markers { get; } = new List<RecordingMarker>();
         /// <summary>Screen width in cells (default 100).</summary>
         public int Width { get; set; } = 100;
 
@@ -26,8 +28,11 @@ namespace ConsoleMonster.Export {
         /// <summary>The title (page title, title bar, asciicast title).</summary>
         public string? Title { get; set; }
 
-        /// <summary>Draws a window frame with a title bar (HTML and SVG).</summary>
+        /// <summary>Enables the chosen <see cref="ChromeStyle"/>. False always hides chrome; style None also hides it.</summary>
         public bool WindowChrome { get; set; }
+
+        /// <summary>The title bar style when WindowChrome is true (default MacOS). None hides chrome.</summary>
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary>The font stack (see <see cref="ExportOptions.DefaultFontFamily"/>).</summary>
         public string FontFamily { get; set; } = ExportOptions.DefaultFontFamily;
@@ -72,6 +77,7 @@ namespace ConsoleMonster.Export {
                 Theme = Theme == ExportTheme.Light ? ExportTheme.Light : ExportTheme.Dark,
                 Title = Title,
                 WindowChrome = WindowChrome,
+                ChromeStyle = ChromeStyle,
                 FontFamily = FontFamily,
                 FontSize = FontSize,
                 LineHeight = LineHeight,
@@ -79,6 +85,8 @@ namespace ConsoleMonster.Export {
                 Culture = Culture,
                 Padding = Padding
             };
+            o.DarkTheme = CustomTheme;
+            o.LightTheme = CustomTheme;
             o.Validate();
             if (Height < 1) {
                 throw new ArgumentOutOfRangeException(nameof(Height), "A recording needs a fixed height of at least one row.");
@@ -104,6 +112,16 @@ namespace ConsoleMonster.Export {
         internal RenderContext? Context { get; set; }
 
         internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
+    }
+
+    /// <summary>A labelled chapter in a recording's playback timeline.</summary>
+    public sealed class RecordingMarker {
+        /// <summary>Creates a chapter at a playback time.</summary>
+        public RecordingMarker(TimeSpan time, string label) { Time = time; Label = label ?? throw new ArgumentNullException(nameof(label)); }
+        /// <summary>Time from the start of playback.</summary>
+        public TimeSpan Time { get; }
+        /// <summary>Chapter label.</summary>
+        public string Label { get; }
     }
 
     /// <summary>One distinct screen of a recording and how long it stays (after speed scaling).</summary>

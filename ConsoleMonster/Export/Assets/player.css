@@ -1,17 +1,49 @@
-/* ConsoleMonster recording player: controls and screen rows. The screen grid, theme variables and cell styles come
-   with each recording's data (scoped to its player). */
-.cm-export.cm-player-host{display:inline-block;max-width:100%;outline:none}
-.cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-chrome-fg)}
+/* Screen colours and cell metrics come from the recording's scoped export theme. */
+.cm-standalone .cm-scroll-hint{margin:0;padding:4px 12px;font:12px/1.4 system-ui,sans-serif;color:var(--cm-chrome-fg);background:var(--cm-player-bg)}
+.cm-export.cm-player-host{--cm-player-ink:var(--cm-fg,var(--cm-ink,var(--cm-chrome-fg)));--cm-player-bg:var(--cm-bg,var(--cm-surface,#fff));display:inline-block;max-width:100%;outline:none}
+.cm-export.cm-player-host:focus-visible{box-shadow:0 0 0 2px var(--cm-player-ink)}
 .cm-export .cm-screen .cm-line{display:inline;height:auto;vertical-align:baseline}
-.cm-export .cm-controls{display:flex;align-items:center;gap:10px;padding:6px 12px 10px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg);background:var(--cm-bg)}
-.cm-export .cm-controls button{font:inherit;min-width:64px;padding:3px 10px;border-radius:6px;border:1px solid var(--cm-chrome-fg);background:transparent;color:inherit;cursor:pointer}
-.cm-export .cm-controls .cm-track{position:relative;display:flex;align-items:center;flex:1;min-width:80px}
-.cm-export .cm-controls input[type=range]{flex:1;min-width:0;width:100%}
-.cm-export .cm-controls.cm-has-marks{padding-bottom:26px}
-.cm-export .cm-marks{position:absolute;left:0;right:0;top:100%;height:18px}
-.cm-export .cm-controls .cm-mark{position:absolute;top:2px;min-width:0;padding:1px 5px;border:0;border-left:2px solid var(--cm-chrome-fg);border-radius:0;font-size:11px;line-height:1.2;white-space:nowrap}
-.cm-export .cm-controls .cm-mark.cm-mark--end{transform:translateX(-100%);border-left:0;border-right:2px solid var(--cm-chrome-fg)}
-.cm-export .cm-controls select{font:inherit;background:transparent;color:inherit;border:1px solid var(--cm-chrome-fg);border-radius:6px}
-.cm-export .cm-controls option{color:#000}
-.cm-export .cm-time{font-variant-numeric:tabular-nums;min-width:90px;text-align:right}
-.cm-export .cm-error{padding:12px;font:13px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-chrome-fg)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px 12px;font:12px system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--cm-player-ink);background:var(--cm-player-bg)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{display:flex;align-items:center;gap:8px;min-width:0}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:1 1 200px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{flex:none;margin-left:auto}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 button,.cm-export.cm-player-host .cm-controls.cm-controls-v2 summary,.cm-export.cm-player-host .cm-controls.cm-controls-v2 select{box-sizing:border-box;font:inherit;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;cursor:pointer}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 button,.cm-export.cm-player-host .cm-controls.cm-controls-v2 summary{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:30px;height:30px;padding:3px 7px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-play{flex:none;font-size:14px!important}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-track{position:relative;display:flex;align-items:center;flex:1;min-width:70px;height:30px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 input[type=range]{margin:0;width:100%;min-width:0;accent-color:var(--cm-player-ink)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-marks{position:absolute;inset:0 8px;display:block;height:30px;margin:0;pointer-events:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark.cm-mark--end{position:absolute;top:7px;width:12px;min-width:0;min-height:0;height:16px;margin:0;padding:0;transform:translateX(-50%);border:0;background:transparent;border-radius:2px;pointer-events:auto}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark::before{content:'';width:2px;height:12px;background:var(--cm-player-ink);box-shadow:0 0 0 1px var(--cm-player-bg)}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tool{position:relative}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]::after{content:attr(data-tooltip);position:absolute;z-index:10;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);padding:6px 8px;border:1px solid currentColor;border-radius:5px;background:var(--cm-player-bg);color:var(--cm-player-ink);font:12px/1.3 system-ui,sans-serif;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:hover::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:focus-visible::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 [data-tooltip]:focus-within::after,.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-feedback::after{opacity:1;visibility:visible}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark:first-child::after{left:0;transform:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-mark--end::after{left:auto;right:0;transform:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 select{height:30px;padding:3px 4px;max-width:130px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 option{color:#111;background:#fff;font-size:12px}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-time{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-tool{display:inline-flex;align-items:center}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-icon{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help{position:relative}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary{list-style:none;font-weight:700}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary::-webkit-details-marker{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body{position:absolute;z-index:11;right:0;bottom:calc(100% + 8px);width:240px;padding:12px;border:1px solid currentColor;border-radius:8px;line-height:1.9;background:var(--cm-player-bg);color:var(--cm-player-ink);box-shadow:0 4px 18px #0003}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body kbd{font:11.5px monospace;padding:1px 3px;border:1px solid currentColor;border-radius:3px}
+.cm-export .cm-error{padding:12px;font:13px system-ui,sans-serif;color:var(--cm-player-ink)}
+.cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
+.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
+@media(max-width:600px){
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2{flex-direction:column;align-items:stretch;gap:4px;padding:8px 10px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:auto;width:100%}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tools{justify-content:flex-end;width:100%}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-time{margin-right:auto}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-tool-label{display:none}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-tool{justify-content:center;width:30px;height:30px;border:1px solid currentColor;border-radius:6px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapter-icon{display:block;font-size:20px}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-chapters{position:absolute;inset:0;width:100%;opacity:0}
+ .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body{width:230px}
+}
+
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help[open] summary::after{display:none}
+.cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help summary::after{left:auto;right:0;transform:none}

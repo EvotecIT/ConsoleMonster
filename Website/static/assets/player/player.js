@@ -10,7 +10,7 @@
  *
  * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
  * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
- * hosts add (ExportPlayerData does not write them): chapter marks under the position bar, each a button that seeks to its moment. Players found when the page loads are
+ * ExportPlayerData writes when chapters are present: marks under the position bar and a chapter list that seek to their moments. Players found when the page loads are
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
  * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
  * applies, from the beginning when the player opened at its end (data-cm-start, a deep link, opens there too but does not
@@ -75,6 +75,8 @@
         var lines = [];
         var destroyed = false;
         var originalChildren = Array.prototype.slice.call(host.childNodes);
+        var originalWidth = host.style.getPropertyValue('width');
+        var originalWidthPriority = host.style.getPropertyPriority('width');
 
         host.__cmPlayer = self;
         host.setAttribute('data-cm-player', String(id));
@@ -89,18 +91,58 @@
         }
         var frame = host;
         if (data.chrome) {
-            frame = el('div', 'cm-window', host);
-            var bar = el('div', 'cm-titlebar', frame);
-            el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
-            var title = el('span', 'cm-title', bar);
-            title.textContent = data.title || '';
-            title.title = data.title || '';
+            var chromeStyle = /^(macos|windows|linux)$/.test(data.chromeStyle) ? data.chromeStyle : 'macos';
+            frame = el('div', 'cm-window cm-chrome-' + chromeStyle, host);
+            if (data.chromeBar) {
+                frame.innerHTML = data.chromeBar;
+            } else {
+                // Version 1 data written before chrome styles used the MacOS title bar.
+                var bar = el('div', 'cm-titlebar', frame);
+                el('span', 'cm-dots', bar).innerHTML = '<i></i><i></i><i></i>';
+                var title = el('span', 'cm-title', bar);
+                title.textContent = data.title || '';
+                title.title = data.title || '';
+            }
         } else {
             frame = el('div', 'cm-player', host);
         }
         var screen = el('pre', 'cm-screen', frame);
         screen.setAttribute('role', 'img');
         screen.setAttribute('aria-label', data.title || 'Console recording');
+        var scrollHint = null, sizeObserver = null;
+        if (host.classList.contains('cm-standalone')) {
+            scrollHint = el('p', 'cm-scroll-hint', frame);
+            scrollHint.textContent = 'Scroll horizontally to see the full terminal.';
+            scrollHint.hidden = true;
+            if (typeof ResizeObserver === 'function') {
+                sizeObserver = new ResizeObserver(updateScrollHint);
+                sizeObserver.observe(screen);
+            }
+            window.addEventListener('resize', sizeStandalone);
+            if (document.fonts) {
+                document.fonts.ready.then(sizeStandalone);
+                document.fonts.addEventListener('loadingdone', sizeStandalone);
+            }
+        }
+        function sizeStandalone() {
+            if (!scrollHint || destroyed) { return; }
+            // Measure a run in the screen's actual font, including a web font that arrives after mount.
+            var probe = el('span', null, screen);
+            probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;white-space:pre;width:auto;height:auto;font:inherit;letter-spacing:inherit';
+            probe.textContent = '0123456789'.repeat(20);
+            var cell = probe.getBoundingClientRect().width / probe.textContent.length;
+            probe.remove();
+            if (cell > 0) {
+                var css = window.getComputedStyle(screen);
+                var inset = parseFloat(css.paddingLeft) + parseFloat(css.paddingRight)
+                    + parseFloat(css.borderLeftWidth) + parseFloat(css.borderRightWidth);
+                host.style.width = Math.ceil(cell * data.width + inset) + 'px';
+            }
+            updateScrollHint();
+        }
+        function updateScrollHint() {
+            if (scrollHint && !destroyed) { scrollHint.hidden = screen.scrollWidth <= screen.clientWidth + 1; }
+        }
         for (var r = 0; r < height; r++) {
             if (r > 0) {
                 screen.appendChild(document.createTextNode('\n'));
@@ -108,11 +150,12 @@
             lines.push(el('span', 'cm-line', screen));
             current.push(-1);
         }
-        var controls = el('div', 'cm-controls', frame);
-        var play = el('button', 'cm-play', controls);
+        var controls = el('div', 'cm-controls cm-controls-v2', frame);
+        var transport = el('div', 'cm-transport', controls);
+        var play = el('button', 'cm-play cm-tool', transport);
         play.type = 'button';
-        play.textContent = 'Play';
-        var track = el('span', 'cm-track', controls);
+        playLabel(false);
+        var track = el('span', 'cm-track', transport);
         var seek = el('input', 'cm-seek', track);
         seek.type = 'range';
         seek.min = '0';
@@ -120,7 +163,7 @@
         seek.step = '10';
         seek.value = '0';
         seek.setAttribute('aria-label', 'Position');
-        // Chapter marks: a labelled button per marker under the position bar, placed at its share of the recording.
+        // Chapter ticks overlay the range track; names appear on hover and keyboard focus.
         var marks = data.markers && data.markers.length ? el('span', 'cm-marks', track) : null;
         if (marks) {
             controls.classList.add('cm-has-marks');
@@ -129,18 +172,20 @@
                 var share = total > 0 ? at / total : 0;
                 var mark = el('button', 'cm-mark', marks);
                 mark.type = 'button';
-                mark.textContent = String(marker[1] || '');
-                mark.setAttribute('aria-label', 'Go to ' + mark.textContent);
+                mark.setAttribute('data-tooltip', String(marker[1] || 'Chapter'));
+                mark.setAttribute('aria-label', 'Go to ' + (marker[1] || 'Chapter'));
                 mark.style.left = (share * 100).toFixed(2) + '%';
-                // The tick is the label's left edge, at the marker's moment; near the end the label hangs left of a right-hand tick.
+                // End tooltips hang inward so they stay inside a narrow player.
                 if (share > 0.85) {
                     mark.className += ' cm-mark--end';
                 }
                 mark.addEventListener('click', function () { self.seek(at); });
             });
         }
-        var time = el('span', 'cm-time', controls);
-        var rate = el('select', 'cm-speed', controls);
+        var tools = el('div', 'cm-tools', controls);
+        var time = el('span', 'cm-time', tools);
+        var rate = el('select', 'cm-speed', tools);
+        rate.title = 'Playback speed';
         rate.setAttribute('aria-label', 'Speed');
         [0.5, 1, 2, 4].forEach(function (value) {
             var option = el('option', null, rate);
@@ -148,6 +193,72 @@
             option.textContent = value + '×';
             option.selected = value === 1;
         });
+        if (data.markers && data.markers.length) {
+            var chapterTool = el('span', 'cm-chapter-tool cm-tool', tools);
+            chapterTool.setAttribute('data-tooltip', 'Chapters');
+            var chapterIcon = el('span', 'cm-chapter-icon', chapterTool);
+            chapterIcon.textContent = '\u2637';
+            chapterIcon.setAttribute('aria-hidden', 'true');
+            var chapters = el('select', 'cm-chapters', chapterTool);
+            chapters.setAttribute('aria-label', 'Chapters');
+            var heading = el('option', null, chapters);
+            heading.textContent = 'Chapters';
+            heading.value = '';
+            data.markers.forEach(function (marker) {
+                var chapter = el('option', null, chapters);
+                chapter.textContent = String(marker[1] || 'Chapter');
+                chapter.value = String(Math.max(0, Math.min(total, +marker[0] || 0)));
+            });
+            chapters.addEventListener('change', function () {
+                if (chapters.value !== '') { self.seek(+chapters.value); }
+            });
+        }
+        var copy = el('button', 'cm-copy cm-tool', tools);
+        copy.type = 'button';
+        var copyTimer = 0;
+        copyLabel('Copy');
+        copy.addEventListener('click', function () {
+            var text = screen.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () { copied('Copied'); }, selectText);
+            } else { selectText(); }
+        });
+        function copyLabel(label) {
+            copy.innerHTML = '<span aria-hidden="true">\u2398</span><span class="cm-tool-label"></span>';
+            copy.lastChild.textContent = label;
+            copy.setAttribute('aria-label', label);
+            copy.setAttribute('data-tooltip', label);
+        }
+        function copied(label) {
+            if (destroyed) { return; }
+            window.clearTimeout(copyTimer);
+            copyLabel(label);
+            copy.classList.add('cm-feedback');
+            copyTimer = window.setTimeout(function () {
+                copyLabel('Copy'); copy.classList.remove('cm-feedback'); copyTimer = 0;
+            }, 1600);
+        }
+        function selectText() {
+            var range = document.createRange();
+            range.selectNodeContents(screen);
+            var selection = window.getSelection();
+            if (selection) { selection.removeAllRanges(); selection.addRange(range); }
+            copied('Text selected');
+        }
+        function playLabel(paused) {
+            play.textContent = paused ? '\u2161' : '\u25b6';
+            play.setAttribute('aria-label', paused ? 'Pause' : 'Play');
+            play.setAttribute('data-tooltip', paused ? 'Pause' : 'Play');
+        }
+        var help = el('details', 'cm-help', tools);
+        var helpToggle = el('summary', 'cm-tool', help);
+        helpToggle.textContent = '?';
+        helpToggle.setAttribute('aria-label', 'Keyboard shortcuts');
+        helpToggle.setAttribute('data-tooltip', 'Keyboard shortcuts');
+        var helpBody = el('div', 'cm-help-body', help);
+        helpBody.innerHTML = '<strong>Keyboard shortcuts</strong><br><kbd>Space</kbd> Play / pause<br>' +
+            '<kbd>\u2190</kbd> <kbd>\u2192</kbd> Back / forward 5 seconds<br><kbd>1</kbd>\u2013<kbd>9</kbd> Jump to chapter<br>' +
+            '<kbd>Home</kbd> <kbd>End</kbd> Start / finish<br><kbd>Esc</kbd> Close help';
 
         function at(ms) {
             var lo = 0, hi = frames.length - 1;
@@ -180,6 +291,7 @@
                     lines[r].innerHTML = row >= 0 ? rows[row] : '';
                 }
             }
+            updateScrollHint();
         }
 
         function labels(now) {
@@ -225,7 +337,7 @@
                 want = false;
                 stopTimer();
                 playing = false;
-                play.textContent = 'Play';
+                playLabel(false);
                 return;
             }
             if (now - lastLabel >= 1000) {
@@ -247,7 +359,7 @@
             }
             playing = true;
             last = performance.now();
-            play.textContent = 'Pause';
+            playLabel(true);
             schedule(last);
         }
 
@@ -269,14 +381,14 @@
                 draw();
             }
             want = true;
-            play.textContent = 'Pause';
+            playLabel(true);
             resume();
         };
 
         self.pause = function () {
             want = false;
             suspend();
-            play.textContent = 'Play';
+            playLabel(false);
         };
 
         self.seek = function (ms) {
@@ -324,6 +436,14 @@
         self.destroy = function () {
             if (destroyed) { return; }
             destroyed = true;
+            window.clearTimeout(copyTimer);
+            if (sizeObserver) { sizeObserver.disconnect(); }
+            window.removeEventListener('resize', sizeStandalone);
+            if (document.fonts) { document.fonts.removeEventListener('loadingdone', sizeStandalone); }
+            if (scrollHint) {
+                if (originalWidth) { host.style.setProperty('width', originalWidth, originalWidthPriority); }
+                else { host.style.removeProperty('width'); }
+            }
             want = false;
             suspend();
             if (observer) {
@@ -373,7 +493,8 @@
             }
         });
         function onKeyDown(e) {
-            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select'))) {
+            if (e.key === 'Escape') { help.open = false; return; }
+            if (e.target === seek || e.target === rate || e.target === play || (e.target.closest && e.target.closest('button,input,select,summary'))) {
                 return;
             }
             if (e.key === ' ' || e.key === 'k') {
@@ -382,6 +503,9 @@
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 self.seek(t + (e.key === 'ArrowLeft' ? -5000 : 5000));
+            } else if (/^[1-9]$/.test(e.key) && data.markers && data.markers[+e.key - 1]) {
+                e.preventDefault();
+                self.seek(+data.markers[+e.key - 1][0]);
             } else if (e.key === 'Home' || e.key === 'End') {
                 e.preventDefault();
                 self.seek(e.key === 'Home' ? 0 : total);
@@ -399,6 +523,8 @@
             t = Math.max(0, Math.min(total, +options.start));
         }
         draw();
+        sizeStandalone();
+        updateScrollHint();
         labels(performance.now());
         players.push(self);
         if (observer) {

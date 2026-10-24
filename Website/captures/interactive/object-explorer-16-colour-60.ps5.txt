@@ -1,4 +1,4 @@
-source d66bd53b566d87225178a49b4c58c23d
+source d66bd53b566d8722b3a5824c5efbfc43
  Server configuration                             4 members
 $server
 ┌─ Members ────────────────────────────────────────────────┐

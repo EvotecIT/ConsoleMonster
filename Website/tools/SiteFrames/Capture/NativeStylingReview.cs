@@ -1,3 +1,4 @@
+using VtScreen = ConsoleMonster.Sessions.VtScreen;
 using System;
 using System.Collections.Generic;
 using System.IO;

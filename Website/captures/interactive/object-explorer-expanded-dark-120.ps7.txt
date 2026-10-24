@@ -1,4 +1,4 @@
-source a854573ee153fa974850c7c60cf87d21
+source a854573ee153fa97c12ff75ba1da4464
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -18,7 +18,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys52465ca584cd7e3e
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys5df71b8391fd3c93
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -38,7 +38,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys935bb262dcee45fd
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keyse5945610769b87a7
  Server configuration                                                                                         6 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮

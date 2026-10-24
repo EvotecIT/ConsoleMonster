@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="192" height="70.8" viewBox="0 0 192 70.8" role="img" aria-label="Long labels / 20 columns / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="192" height="68.8" viewBox="0 0 192 68.8" role="img" aria-label="Long labels / 20 columns / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW">
 <title>Long labels / 20 columns / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>
 <style>
 svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
 .cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
 .cm-s{shape-rendering:crispEdges}
-.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-fg);text-anchor:middle;dominant-baseline:central}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
 </style>
-<rect width="192" height="70.8" rx="10" style="fill:var(--cm-chrome)"/>
-<circle cx="18" cy="15" r="6" fill="#ff5f57"/><circle cx="38" cy="15" r="6" fill="#febc2e"/><circle cx="58" cy="15" r="6" fill="#28c840"/>
-<svg class="cm-title-area" x="76" y="0" width="104" height="30" overflow="hidden"><text class="cm-title" x="52" y="15" textLength="104" lengthAdjust="spacingAndGlyphs" style="font-family:monospace"><title>Long labels / 20 columns / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>Long labels …</text></svg>
-<g class="cm-layer" transform="translate(12 42)"><rect width="192" height="40.8" x="-12" y="-12" fill="#0c0c0c"/><text class="cm-t" x="4.2" y="8.4" fill="#cccccc">x</text></g>
+<rect width="192" height="68.8" rx="10" style="fill:var(--cm-chrome)"/>
+<circle cx="18" cy="14" r="6" style="fill:var(--cm-close)"/><circle cx="38" cy="14" r="6" style="fill:var(--cm-minimise)"/><circle cx="58" cy="14" r="6" style="fill:var(--cm-zoom)"/><svg class="cm-title-area" x="76" y="0" width="40" height="28" overflow="hidden"><text class="cm-title" x="20" y="14" textLength="40" lengthAdjust="spacingAndGlyphs" style="font-family:monospace;"><title>Long labels / 20 columns / WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW</title>Long…</text></svg>
+<g class="cm-layer" transform="translate(12 40)"><rect width="192" height="40.8" x="-12" y="-12" fill="#0c0c0c"/><text class="cm-t" x="4.2" y="8.4" fill="#cccccc">x</text></g>
 </svg>

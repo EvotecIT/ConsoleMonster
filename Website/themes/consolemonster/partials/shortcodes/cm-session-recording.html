@@ -1,0 +1,7 @@
+{{~ player_data = data["session-recording"].session; player_title = player_data.title; player_label = "A real terminal session recorded with Invoke-ConsoleRecording"; player_meta = ["100 columns", "Native output", "asciicast v2"]; player_autoplay = false; player_loop = false; player_max = 15; player_class = "cm-window--wide cm-window--fill cm-session-window" ~}}
+{{~ capture recording_html ~}}
+{{ include "player" }}
+<p class="cm-try__run"><span>Run:</span> <code>pwsh ./record-session.ps1 -OutputDirectory ./session-demo</code></p>
+{{~ end ~}}
+<style>.cm-replay.cm-session-replay{width:100%;max-width:none}.cm-session-window{width:100%}.cm-session-window .cm-window__frame{width:100%}.cm-prose:has(.cm-session-replay) .markdown-body>:is(p,ul,ol,h2,h3,h4,blockquote,dl){max-width:72ch}@media(min-width:701px){.cm-session-window .cm-screen{--cm-min-font:11.5px}}</style>
+{{ recording_html | string.replace 'class="cm-replay"' 'class="cm-replay cm-session-replay"' | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

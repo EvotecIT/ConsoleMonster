@@ -13,7 +13,7 @@ Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-c
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-FontSize <double>] [-PassThru] [<CommonParameters>]
+Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-FontSize <double>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,6 +38,22 @@ $dashboard | Export-ConsoleFrame -Format Svg -Path .\run.svg -Width 120 -Height 
 A dashboard as an SVG in a window frame, dark only
 
 ## PARAMETERS
+
+### -ChromeStyle
+MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
+
+```yaml
+Type: WindowChromeStyle
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: None, MacOS, Windows, Linux
+
+Required: False
+Position: named
+Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -FontSize
 The font size in pixels (default 14).

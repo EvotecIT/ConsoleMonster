@@ -6,20 +6,25 @@ schema: 2.0.0
 ---
 # Export-ConsoleRecording
 ## SYNOPSIS
-Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
+Exports a terminal session or dashboard recording to a player, SVG or asciicast.
 
-Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
+Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ## SYNTAX
-### __AllParameterSets
+### Session (Default)
 ```powershell
-Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-PassThru] [<CommonParameters>]
+Export-ConsoleRecording [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [-FinalFrame] [<CommonParameters>]
+```
+
+### Dashboard
+```powershell
+Export-ConsoleRecording [-Dashboard] <IWidget> [-Path] <string> [[-Destination] <string>] [-Format <string>] [-Width <int>] [-Height <int>] [-FramesPerSecond <double>] [-Speed <double>] [-Theme <ExportTheme>] [-Title <string>] [-WindowChrome] [-ChromeStyle <WindowChromeStyle>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
+Exports a terminal session or dashboard recording to a player, SVG or asciicast.
 
-Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
+Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ## EXAMPLES
 
@@ -33,12 +38,28 @@ An animated SVG and an HTML player of the same run
 
 ## PARAMETERS
 
+### -ChromeStyle
+MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.
+
+```yaml
+Type: WindowChromeStyle
+Parameter Sets: Session, Dashboard
+Aliases: None
+Possible values: None, MacOS, Windows, Linux
+
+Required: False
+Position: named
+Default value: [ConsoleMonster.Export.WindowChromeStyle]::MacOS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Dashboard
 The dashboard (or widget tree) the recording was made with.
 
 ```yaml
 Type: IWidget
-Parameter Sets: __AllParameterSets
+Parameter Sets: Dashboard
 Aliases: None
 Possible values:
 
@@ -54,25 +75,41 @@ The file to write. Without it the document goes to the pipeline.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: OutFile
 Possible values:
 
 Required: False
-Position: 2
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -FinalFrame
+With a session cast, exports the final visible frame as static SVG.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Session
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Format
-Html, Svg, Asciicast or PlayerData (default: from the -Destination extension, .json for PlayerData, else Html). PlayerData is the JSON the native player script plays, for sites that include the script once (see ConsoleExporter.PlayerScript).
+Html, Svg, Asciicast, Text, Markdown, FencedText or PlayerData. The destination extension selects a default; .json means PlayerData. Text and Markdown apply to terminal sessions.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
-Possible values: Html, Svg, Asciicast, PlayerData
+Possible values: Html, Svg, Asciicast, PlayerData, Text, Markdown, FencedText
 
 Required: False
 Position: named
@@ -86,7 +123,7 @@ Frames per second sampled from the recording (default 10).
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -98,11 +135,11 @@ Accept wildcard characters: False
 ```
 
 ### -Height
-Screen height in cells (default 30).
+Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -118,7 +155,7 @@ With -Destination, also writes the file to the pipeline.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -130,16 +167,16 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-The recording (.jsonl).
+Session .cast file, or dashboard .jsonl with -Dashboard.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -150,7 +187,7 @@ Playback speed baked into the export (default 1).
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -166,7 +203,7 @@ Dark (default) or Light.
 
 ```yaml
 Type: ExportTheme
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values: Auto, Dark, Light
 
@@ -182,7 +219,7 @@ The title (page title, title bar, asciicast title).
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -194,11 +231,11 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Screen width in cells (default 100).
+Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 
@@ -214,7 +251,7 @@ Draws a window frame with a title bar (Html and Svg).
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Session, Dashboard
 Aliases: None
 Possible values:
 

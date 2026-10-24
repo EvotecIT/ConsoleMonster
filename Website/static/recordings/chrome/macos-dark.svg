@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="326.4" height="102.4" viewBox="0 0 326.4 102.4" role="img" aria-label="Build report">
+<title>Build report</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+.s0{fill:#cccccc;font-weight:bold;}
+</style>
+<rect width="326.4" height="102.4" rx="10" style="fill:var(--cm-chrome)"/>
+<circle cx="18" cy="14" r="6" style="fill:var(--cm-close)"/><circle cx="38" cy="14" r="6" style="fill:var(--cm-minimise)"/><circle cx="58" cy="14" r="6" style="fill:var(--cm-zoom)"/><svg class="cm-title-area" x="76" y="0" width="174.4" height="28" overflow="hidden"><text class="cm-title" x="87.2" y="14" textLength="96" lengthAdjust="spacingAndGlyphs" style="font-family:monospace;"><title>Build report</title>Build report</text></svg>
+<g class="cm-layer" transform="translate(12 40)"><rect width="326.4" height="74.4" x="-12" y="-12" fill="#0c0c0c"/><path d="M8.4 8.4H8.4A4.2 4.2 0 0 0 4.2 12.6V16.8M294 8.4H294A4.2 4.2 0 0 1 298.2 12.6V16.8" fill="none" stroke-width="1.2" stroke="#4b5060"/><path class="cm-s" d="M8.4 7.8h4.2v1.2h-4.2zM12.6 7.8h4.2v1.2h-4.2zM75.6 7.8h109.2v1.2h-109.2zM184.8 7.8h109.2v1.2h-109.2z" fill="#4b5060"/><text class="cm-t s0" x="29.4 37.8 46.2 54.6 63" y="8.4">Build</text><path class="cm-s" d="M3.6 16.8h1.2v8.4h-1.2zM3.6 25.2h1.2v8.4h-1.2zM297.6 16.8h1.2v8.4h-1.2zM297.6 25.2h1.2v8.4h-1.2z" fill="#4b5060"/><text class="cm-t" x="21 37.8 46.2 63 79.8 88.2 96.6 105 113.4 121.8 138.6 147 155.4 163.8 172.2 180.6" y="25.2" fill="#cccccc">8of8checkspassed</text><path d="M8.4 42H8.4A4.2 4.2 0 0 1 4.2 37.8V33.6M294 42H294A4.2 4.2 0 0 0 298.2 37.8V33.6" fill="none" stroke-width="1.2" stroke="#4b5060"/><path class="cm-s" d="M8.4 41.4h142.8v1.2h-142.8zM151.2 41.4h142.8v1.2h-142.8z" fill="#4b5060"/></g>
+</svg>

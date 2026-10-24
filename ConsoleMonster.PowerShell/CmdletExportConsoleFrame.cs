@@ -58,6 +58,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter WindowChrome { get; set; }
 
+        /// <summary><para type="description">MacOS (default), Windows, Linux or None. Specifying a style enables chrome unless -WindowChrome:$false is explicit. None always hides chrome.</para></summary>
+        [Parameter]
+        [PSDefaultValue(Value = WindowChromeStyle.MacOS)]
+        public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+
         /// <summary><para type="description">The font size in pixels (default 14).</para></summary>
         [Parameter]
         [ValidateRange(4, 96)]
@@ -90,7 +95,7 @@ namespace ConsoleMonster.PowerShell {
                 Height = Height,
                 Theme = Theme,
                 Title = Title,
-                WindowChrome = WindowChrome.IsPresent,
+                WindowChrome = (MyInvocation.BoundParameters.ContainsKey(nameof(WindowChrome)) ? WindowChrome.IsPresent : MyInvocation.BoundParameters.ContainsKey(nameof(ChromeStyle))), ChromeStyle = ChromeStyle,
                 FontSize = FontSize
             };
             string document = PSOutputExport.Document(_items, format, options, this);

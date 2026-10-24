@@ -109,3 +109,9 @@
 .cm-diagram__note text { fill: var(--cm-muted); font: 12px var(--cm-font); text-anchor: middle; }
 .cm-diagram__arrow path { fill: none; stroke: var(--cm-link); stroke-width: 1.75; }
 .cm-diagram__head { fill: var(--cm-link); }
+/* The actual export writers provide these samples, in both fixed themes. */
+.cm-chrome-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--cm-space-4);margin:var(--cm-space-6) 0}
+.cm-chrome-gallery figure{min-width:0;margin:0}
+.cm-chrome-gallery figcaption{font-weight:700;margin-bottom:var(--cm-space-2)}
+.cm-chrome-gallery img{display:block;width:100%;height:auto;margin:var(--cm-space-2) 0;border-radius:8px}
+@media(max-width:700px){.cm-chrome-gallery{grid-template-columns:1fr}}

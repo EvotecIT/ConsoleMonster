@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="158.4" height="85.6" viewBox="0 0 158.4 85.6" role="img" aria-label="Recorded session">
+<title>Recorded session</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#1f2a3c;--cm-chrome-fg:#8b8f9a;--cm-chrome-title:#e2e8f0;--cm-tab:#0c0c0c;--cm-desk:#3a3a3f;--cm-close:#ce534c;--cm-minimise:#c59a2a;--cm-zoom:#26a443}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+@keyframes cm-play{0%{transform:translateX(0px)}25%{transform:translateX(-158.4px)}50%{transform:translateX(-316.8px)}100%{transform:translateX(-316.8px)}}
+.cm-strip{animation:cm-play 2s steps(1,end) infinite}
+@media (prefers-reduced-motion: reduce){.cm-strip{animation-play-state:paused}}
+</style>
+<defs>
+<g id="r0"><text class="cm-t" x="4.2 12.6 21 29.4 37.8" y="8.4" fill="#13a10e">Build</text></g>
+<g id="r1"><text class="cm-t" x="4.2 12.6 21 29.4 37.8 46.2 54.6 71.4 79.8 88.2" y="8.4" fill="#cccccc">Working50%</text></g>
+<g id="r2"><text class="cm-t" x="4.2 12.6 21 29.4" y="8.4" fill="#cccccc">Done</text></g>
+</defs>
+<rect width="158.4" height="85.6" rx="10" style="fill:var(--cm-chrome)"/>
+<circle cx="18" cy="14" r="6" style="fill:var(--cm-close)"/><circle cx="38" cy="14" r="6" style="fill:var(--cm-minimise)"/><circle cx="58" cy="14" r="6" style="fill:var(--cm-zoom)"/><svg x="0" y="28" width="158.4" height="57.6"><rect width="100%" height="100%" fill="#0c0c0c"/>
+<g class="cm-strip">
+<g transform="translate(0 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/></g>
+<g transform="translate(158.4 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r1" xlink:href="#r1" y="28.8" x="12"/></g>
+<g transform="translate(316.8 0)"><use href="#r0" xlink:href="#r0" y="12" x="12"/><use href="#r2" xlink:href="#r2" y="28.8" x="12"/></g>
+</g></svg>
+</svg>

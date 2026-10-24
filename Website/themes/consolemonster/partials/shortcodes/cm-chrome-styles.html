@@ -1,0 +1,15 @@
+{{~ capture chrome_html ~}}
+<div class="cm-chrome-gallery">
+{{ for style in ["MacOS", "Windows", "Linux"] }}
+  {{ stem = style | string.downcase; height = 111; if style == "MacOS"; height = 103; end; if style == "Windows"; height = 107; end }}
+  <figure>
+    <figcaption>{{ style }}</figcaption>
+    <a href="/recordings/chrome/{{ stem }}-dark.html"><img src="/recordings/chrome/{{ stem }}-dark.svg" alt="{{ style }} title bar in the dark theme" loading="lazy" width="327" height="{{ height }}"></a>
+    <a href="/recordings/chrome/{{ stem }}-light.html"><img src="/recordings/chrome/{{ stem }}-light.svg" alt="{{ style }} title bar in the light theme" loading="lazy" width="327" height="{{ height }}"></a>
+    <a href="/recordings/chrome/{{ stem }}-dark-player.html">{{ style }} dark player</a><br>
+    <a href="/recordings/chrome/{{ stem }}-light-player.html">{{ style }} light player</a>
+  </figure>
+{{ end }}
+</div>
+{{~ end ~}}
+{{ chrome_html | string.replace "\r\n" "\n" | string.replace "\n" "&#10;" }}

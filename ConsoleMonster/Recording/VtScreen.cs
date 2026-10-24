@@ -6,7 +6,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
-namespace SiteFrames.Vt {
+namespace ConsoleMonster.Sessions {
     /// <summary>
     /// A small VT/ANSI terminal model: it reads the byte stream a program wrote to a pseudo console and keeps the screen as
     /// ConsoleMonster cells, so captured output goes through the same HTML converter as frames rendered in-process.
@@ -14,17 +14,25 @@ namespace SiteFrames.Vt {
     /// erase, insert and delete, scroll regions, the alternate screen, autowrap and OSC 8 hyperlinks. Widths come from
     /// ConsoleMonster's own display-width tables, so wide glyphs take two cells exactly as the library laid them out.
     /// </summary>
-    internal sealed class VtScreen {
+    internal sealed partial class VtScreen {
         private readonly Decoder _decoder = new UTF8Encoding(false).GetDecoder();
         private readonly char[] _chars = new char[8192];
         private CellBuffer _main;
         private CellBuffer _alternate;
         private bool _onAlternate;
         private readonly List<Cell[]> _scrollback = new List<Cell[]>();
+        private readonly bool _keepScrollback;
         private int _x;
         private int _y;
         private int _savedX;
         private int _savedY;
+        private bool _savedWrap;
+        private bool _savedOrigin;
+        private int _mainX;
+        private int _mainY;
+        private bool _mainWrap;
+        private bool _mainOrigin;
+        private bool _origin;
         private bool _pendingWrap;
         private bool _autowrap = true;
         private int _top;
@@ -39,7 +47,8 @@ namespace SiteFrames.Vt {
         private readonly StringBuilder _osc = new StringBuilder();
         private char _intermediate;
 
-        public VtScreen(int width, int height) {
+        public VtScreen(int width, int height, bool keepScrollback = true) {
+            _keepScrollback = keepScrollback;
             Width = width;
             Height = height;
             _main = new CellBuffer(width, height);
@@ -48,9 +57,26 @@ namespace SiteFrames.Vt {
             _bottom = height - 1;
         }
 
-        public int Width { get; }
+        public int Width { get; private set; }
 
-        public int Height { get; }
+        public int Height { get; private set; }
+
+        /// <summary>Resizes both screens while preserving their overlapping cells and the parser state.</summary>
+        public void Resize(int width, int height) {
+            CellBuffer main = new CellBuffer(width, height), alternate = new CellBuffer(width, height);
+            for (int y = 0; y < Math.Min(height, Height); y++) {
+                for (int x = 0; x < Math.Min(width, Width); x++) {
+                    if (x + _main[x, y].Width <= width) { Put(main, x, y, _main[x, y]); }
+                    if (x + _alternate[x, y].Width <= width) { Put(alternate, x, y, _alternate[x, y]); }
+                }
+            }
+            _main = main; _alternate = alternate; Width = width; Height = height;
+            _x = Math.Min(_x, width - 1); _y = Math.Min(_y, height - 1);
+            _savedX = Math.Min(_savedX, width - 1); _savedY = Math.Min(_savedY, height - 1);
+            _mainX = Math.Min(_mainX, width - 1); _mainY = Math.Min(_mainY, height - 1);
+            _savedWrap = _mainWrap = false;
+            _top = 0; _bottom = height - 1; _pendingWrap = false;
+        }
 
         /// <summary>Whether the program is drawing on the alternate screen (a live dashboard).</summary>
         public bool OnAlternate => _onAlternate;
@@ -88,10 +114,12 @@ namespace SiteFrames.Vt {
         /// <summary>The main screen with everything that scrolled off its top above it (print-once output).</summary>
         public CellBuffer Transcript() {
             int rows = _scrollback.Count + Height;
-            CellBuffer all = new CellBuffer(Width, rows);
+            int width = Width;
+            foreach (Cell[] row in _scrollback) { width = Math.Max(width, row.Length); }
+            CellBuffer all = new CellBuffer(width, rows);
             for (int y = 0; y < _scrollback.Count; y++) {
                 Cell[] row = _scrollback[y];
-                for (int x = 0; x < Width; x++) {
+                for (int x = 0; x < row.Length; x++) {
                     Put(all, x, y, row[x]);
                 }
             }
@@ -120,7 +148,7 @@ namespace SiteFrames.Vt {
                     return;
                 case 2: // CSI
                     if (c >= 0x30 && c <= 0x3F) {
-                        _params.Append(c);
+                        if (_params.Length < 1024) { _params.Append(c); }
                     } else if (c >= 0x20 && c <= 0x2F) {
                         _intermediate = c;
                     } else if (c >= 0x40 && c <= 0x7E) {
@@ -137,7 +165,7 @@ namespace SiteFrames.Vt {
                     } else if (c == '\u001b') {
                         _state = 4;
                     } else {
-                        _osc.Append(c);
+                        if (_osc.Length < 8192) { _osc.Append(c); }
                     }
                     return;
                 case 4: // ESC inside OSC: expect '\' (ST)
@@ -206,106 +234,6 @@ namespace SiteFrames.Vt {
             Print(c.ToString());
         }
 
-        private void Print(string glyph) {
-            int codePoint = char.ConvertToUtf32(glyph, 0);
-            int width = DisplayWidth.GetWidth(codePoint);
-            CellBuffer screen = Current;
-            if (width == 0) {
-                // A combining mark, variation selector or joiner: it belongs to the previous cell.
-                int px = _pendingWrap ? _x : _x - 1;
-                if (px >= 0) {
-                    Cell prev = screen[px, _y];
-                    if (prev.IsContinuation && px > 0) {
-                        px--;
-                        prev = screen[px, _y];
-                    }
-                    screen.Set(px, _y, (prev.Glyph ?? string.Empty) + glyph, prev.Style, Math.Max(1, (int)prev.Width));
-                }
-                return;
-            }
-            if (_pendingWrap) {
-                if (_autowrap) {
-                    _x = 0;
-                    LineFeed();
-                }
-                _pendingWrap = false;
-            }
-            if (width == 2 && _x == Width - 1) {
-                if (_autowrap) {
-                    screen.Set(_x, _y, " ", _style);
-                    _x = 0;
-                    LineFeed();
-                } else {
-                    return;
-                }
-            }
-            Style style = _link != null ? _style.WithLink(_link) : _style;
-            screen.Set(_x, _y, glyph, style, width);
-            if (_x + width >= Width) {
-                _x = Width - 1;
-                _pendingWrap = true;
-            } else {
-                _x += width;
-            }
-        }
-
-        private void LineFeed() {
-            _pendingWrap = false;
-            if (_y == _bottom) {
-                ScrollUp(1);
-            } else if (_y < Height - 1) {
-                _y++;
-            }
-        }
-
-        private void ScrollUp(int lines) {
-            CellBuffer screen = Current;
-            for (int n = 0; n < lines; n++) {
-                if (!_onAlternate && _top == 0) {
-                    Cell[] row = new Cell[Width];
-                    for (int x = 0; x < Width; x++) {
-                        row[x] = screen[x, 0];
-                    }
-                    _scrollback.Add(row);
-                }
-                for (int y = _top; y < _bottom; y++) {
-                    CopyRow(screen, y + 1, y);
-                }
-                ClearRow(screen, _bottom, 0, Width);
-            }
-        }
-
-        private void ScrollDown(int lines) {
-            CellBuffer screen = Current;
-            for (int n = 0; n < lines; n++) {
-                for (int y = _bottom; y > _top; y--) {
-                    CopyRow(screen, y - 1, y);
-                }
-                ClearRow(screen, _top, 0, Width);
-            }
-        }
-
-        private void CopyRow(CellBuffer screen, int from, int to) {
-            for (int x = 0; x < Width; x++) {
-                Cell cell = screen[x, from];
-                if (cell.IsContinuation) {
-                    continue;
-                }
-                screen.Set(x, to, string.IsNullOrEmpty(cell.Glyph) ? " " : cell.Glyph, cell.Style, Math.Max(1, (int)cell.Width));
-                if (cell.Width < 2 && x + 1 < Width && screen[x + 1, to].IsContinuation && !screen[x + 1, from].IsContinuation) {
-                    screen.Set(x + 1, to, " ", Style.Plain);
-                }
-            }
-        }
-
-        private void ClearRow(CellBuffer screen, int y, int from, int to) {
-            // Erased cells take the current background, as terminals do (back-colour erase).
-            Style blank = _style.Background.IsDefault ? Style.Plain : new Style(Color.Default, _style.Background);
-            for (int x = Math.Max(0, from); x < Math.Min(Width, to); x++) {
-                screen.Set(x, y, " ", blank);
-            }
-        }
-
         private void Escape(char c) {
             _state = 0;
             switch (c) {
@@ -333,11 +261,14 @@ namespace SiteFrames.Vt {
                 case '7':
                     _savedX = _x;
                     _savedY = _y;
+                    _savedWrap = _pendingWrap;
+                    _savedOrigin = _origin;
                     return;
                 case '8':
                     _x = _savedX;
                     _y = _savedY;
-                    _pendingWrap = false;
+                    _pendingWrap = _savedWrap;
+                    _origin = _savedOrigin;
                     return;
                 case 'M':
                     if (_y == _top) {
@@ -363,7 +294,12 @@ namespace SiteFrames.Vt {
             _main = new CellBuffer(Width, Height);
             _alternate = new CellBuffer(Width, Height);
             _onAlternate = false;
-            _x = _y = 0;
+            _x = _y = _savedX = _savedY = _mainX = _mainY = 0;
+            _origin = false;
+            _pendingWrap = false;
+            _savedWrap = _mainWrap = false;
+            _savedOrigin = _mainOrigin = false;
+            _autowrap = true;
             _style = Style.Plain;
             _top = 0;
             _bottom = Height - 1;
@@ -386,7 +322,7 @@ namespace SiteFrames.Vt {
                 if (colon >= 0) {
                     part = part.Substring(0, colon);
                 }
-                values[i] = int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out int v) ? v : 0;
+                values[i] = int.TryParse(part, NumberStyles.Integer, CultureInfo.InvariantCulture, out int v) ? v : 0;
             }
             return values;
         }
@@ -407,7 +343,7 @@ namespace SiteFrames.Vt {
                     return;
                 case 'H':
                 case 'f':
-                    _y = Clamp(Arg(p, 0, 1) - 1, 0, Height - 1);
+                    PositionRow(Arg(p, 0, 1));
                     _x = Clamp(Arg(p, 1, 1) - 1, 0, Width - 1);
                     _pendingWrap = false;
                     return;
@@ -416,11 +352,11 @@ namespace SiteFrames.Vt {
                     _pendingWrap = false;
                     return;
                 case 'B':
-                    _y = Math.Min(_y > _bottom ? Height - 1 : _bottom, _y + Arg(p, 0, 1));
+                    _y = Math.Min(_y > _bottom ? Height - 1 : _bottom, _y + Math.Min(Height, Arg(p, 0, 1)));
                     _pendingWrap = false;
                     return;
                 case 'C':
-                    _x = Math.Min(Width - 1, _x + Arg(p, 0, 1));
+                    _x = Math.Min(Width - 1, _x + Math.Min(Width, Arg(p, 0, 1)));
                     _pendingWrap = false;
                     return;
                 case 'D':
@@ -428,12 +364,12 @@ namespace SiteFrames.Vt {
                     _pendingWrap = false;
                     return;
                 case 'E':
-                    _y = Math.Min(Height - 1, _y + Arg(p, 0, 1));
+                    _y = Math.Min(_origin ? _bottom : Height - 1, _y + Math.Min(Height, Arg(p, 0, 1)));
                     _x = 0;
                     _pendingWrap = false;
                     return;
                 case 'F':
-                    _y = Math.Max(0, _y - Arg(p, 0, 1));
+                    _y = Math.Max(_origin ? _top : 0, _y - Arg(p, 0, 1));
                     _x = 0;
                     _pendingWrap = false;
                     return;
@@ -443,7 +379,7 @@ namespace SiteFrames.Vt {
                     _pendingWrap = false;
                     return;
                 case 'd':
-                    _y = Clamp(Arg(p, 0, 1) - 1, 0, Height - 1);
+                    PositionRow(Arg(p, 0, 1));
                     _pendingWrap = false;
                     return;
                 case 'K': {
@@ -480,29 +416,16 @@ namespace SiteFrames.Vt {
                     return;
                 }
                 case 'X': {
-                    int n = Arg(p, 0, 1);
+                    int n = Math.Min(Width, Arg(p, 0, 1));
                     ClearRow(screen, _y, _x, _x + n);
                     return;
                 }
                 case '@': {
-                    int n = Arg(p, 0, 1);
-                    for (int x = Width - 1; x >= _x + n; x--) {
-                        Cell cell = screen[x - n, _y];
-                        screen.Set(x, _y, cell.IsContinuation ? " " : cell.Glyph, cell.Style);
-                    }
-                    ClearRow(screen, _y, _x, _x + n);
+                    ShiftCells(Math.Min(Width - _x, Arg(p, 0, 1)));
                     return;
                 }
                 case 'P': {
-                    int n = Arg(p, 0, 1);
-                    for (int x = _x; x < Width; x++) {
-                        if (x + n < Width) {
-                            Cell cell = screen[x + n, _y];
-                            screen.Set(x, _y, cell.IsContinuation ? " " : cell.Glyph, cell.Style);
-                        } else {
-                            screen.Set(x, _y, " ", Style.Plain);
-                        }
-                    }
+                    ShiftCells(-Math.Min(Width - _x, Arg(p, 0, 1)));
                     return;
                 }
                 case 'L': {
@@ -521,14 +444,7 @@ namespace SiteFrames.Vt {
                     }
                     int saveTop = _top;
                     _top = _y;
-                    bool saveAlt = _onAlternate;
-                    for (int n = 0; n < Arg(p, 0, 1); n++) {
-                        for (int y = _top; y < _bottom; y++) {
-                            CopyRow(screen, y + 1, y);
-                        }
-                        ClearRow(screen, _bottom, 0, Width);
-                    }
-                    _onAlternate = saveAlt;
+                    ScrollUp(Arg(p, 0, 1), false);
                     _top = saveTop;
                     return;
                 }
@@ -546,16 +462,20 @@ namespace SiteFrames.Vt {
                         _bottom = Height - 1;
                     }
                     _x = 0;
-                    _y = 0;
+                    _y = _origin ? _top : 0;
+                    _pendingWrap = false;
                     return;
                 case 's':
                     _savedX = _x;
                     _savedY = _y;
+                    _savedWrap = _pendingWrap;
+                    _savedOrigin = _origin;
                     return;
                 case 'u':
                     _x = _savedX;
                     _y = _savedY;
-                    _pendingWrap = false;
+                    _pendingWrap = _savedWrap;
+                    _origin = _savedOrigin;
                     return;
                 case 'h':
                 case 'l':
@@ -566,9 +486,19 @@ namespace SiteFrames.Vt {
             }
         }
 
+        private void PositionRow(int row) {
+            _y = (_origin ? _top : 0) + Clamp(row - 1, 0, _origin ? _bottom - _top : Height - 1);
+        }
+
         private void Mode(int[] p, bool set) {
             foreach (int mode in p) {
                 switch (mode) {
+                    case 6:
+                        _origin = set;
+                        _x = 0;
+                        _y = set ? _top : 0;
+                        _pendingWrap = false;
+                        break;
                     case 2026:
                         SynchronizedOutput = set;
                         break;
@@ -580,16 +510,21 @@ namespace SiteFrames.Vt {
                     case 1049:
                         if (set && !_onAlternate) {
                             if (mode == 1049) {
-                                _savedX = _x;
-                                _savedY = _y;
+                                _mainX = _x;
+                                _mainY = _y;
+                                _mainWrap = _pendingWrap;
+                                _mainOrigin = _origin;
+                                _pendingWrap = false;
                             }
                             _onAlternate = true;
                             _alternate = new CellBuffer(Width, Height);
                         } else if (!set && _onAlternate) {
                             _onAlternate = false;
                             if (mode == 1049) {
-                                _x = _savedX;
-                                _y = _savedY;
+                                _x = _mainX;
+                                _y = _mainY;
+                                _pendingWrap = _mainWrap;
+                                _origin = _mainOrigin;
                             }
                         }
                         break;
@@ -631,8 +566,9 @@ namespace SiteFrames.Vt {
                     case 49: _style = _style.WithBackground(Color.Default); break;
                     case 38:
                     case 48: {
-                        Color color = Extended(p, ref i);
-                        _style = code == 38 ? _style.WithForeground(color) : _style.WithBackground(color);
+                        if (Extended(p, ref i, out Color color)) {
+                            _style = code == 38 ? _style.WithForeground(color) : _style.WithBackground(color);
+                        }
                         break;
                     }
                     default:
@@ -650,22 +586,26 @@ namespace SiteFrames.Vt {
             }
         }
 
-        private static Color Extended(int[] p, ref int i) {
+        private static bool Extended(int[] p, ref int i, out Color color) {
+            color = Color.Default;
             if (i + 1 >= p.Length) {
-                return Color.Default;
+                return false;
             }
             if (p[i + 1] == 5 && i + 2 < p.Length) {
                 int index = p[i + 2];
                 i += 2;
-                return index < 16 ? Color.FromAnsi16(index) : Color.FromAnsi256(index);
+                if (index < 0 || index > 255) { return false; }
+                color = index < 16 ? Color.FromAnsi16(index) : Color.FromAnsi256(index);
+                return true;
             }
             if (p[i + 1] == 2 && i + 4 < p.Length) {
                 byte r = (byte)Clamp(p[i + 2], 0, 255), g = (byte)Clamp(p[i + 3], 0, 255), b = (byte)Clamp(p[i + 4], 0, 255);
                 i += 4;
-                return Color.FromRgb(r, g, b);
+                color = Color.FromRgb(r, g, b);
+                return true;
             }
             i = p.Length;
-            return Color.Default;
+            return false;
         }
 
         private static int Clamp(int value, int min, int max) => value < min ? min : value > max ? max : value;

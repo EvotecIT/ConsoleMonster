@@ -15,6 +15,11 @@ Adds items to a console widget made earlier: tree nodes, pairs, status items, ba
 
 The PowerShell way to grow a widget after it was created, instead of calling its .NET methods. Pipe the widget in and give the items as a script block or values; they are the same item commands the widget's own script block takes: New-ConsoleTreeNode for New-ConsoleTree, New-ConsoleKeyValueItem for New-ConsoleKeyValue, New-ConsoleStatusItem for New-ConsoleStatusList and New-ConsolePhases, New-ConsoleBarItem for New-ConsoleBarChart, New-ConsoleChartSeries for New-ConsoleLineChart, New-ConsoleLogEntry for New-ConsoleLog and New-ConsoleLane for New-ConsoleLanes. Sparklines and histograms take numbers, a cell map takes status words, and a live table takes objects or hashtables with a property per column. -PassThru writes the widget on, so it can go straight to Write-ConsoleWidget. For a widget inside a running dashboard, use the live commands (Add-ConsoleValue, Set-ConsoleValue, Update-ConsoleStatus, Write-ConsoleLog...) instead.
 
+### [Add-ConsoleRecordingMarker](Add-ConsoleRecordingMarker.md)
+Adds a named playback chapter to a recorded terminal session.
+
+Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.
+
 ### [Add-ConsoleValue](Add-ConsoleValue.md)
 Adds a value to a chart in a running dashboard.
 
@@ -66,9 +71,9 @@ Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Mark
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ### [Export-ConsoleRecording](Export-ConsoleRecording.md)
-Exports a dashboard recording to an HTML player, an animated SVG or asciicast.
+Exports a terminal session or dashboard recording to a player, SVG or asciicast.
 
-Recordings (written by Start-ConsoleDashboard -RecordPath) hold updates, not pictures, so they are played into the same dashboard definition at a fixed size and frame rate. Html writes a self-contained page with a small player (play/pause, speed, scrubbing; add #t=30000 to the address to open at 30 seconds). Svg writes an animated image with CSS keyframes and no script, for READMEs. Asciicast writes asciicast v3 for asciinema and other players (output events only). Identical frames are merged; a long recording is sampled less often.
+Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ### [Export-ConsoleTheme](Export-ConsoleTheme.md)
 Exports the current ConsoleMonster theme as a starting file for a user or team.
@@ -114,6 +119,11 @@ Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour de
 Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
 
 Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ExportHtml saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Invoke-ConsoleRecording](Invoke-ConsoleRecording.md)
+Records a script in a child PowerShell terminal and exports the result.
+
+Runs the script in an isolated child process. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ### [Invoke-ConsoleRun](Invoke-ConsoleRun.md)
 Runs a script block for every input item, optionally in parallel, with a live view of the run.
@@ -521,10 +531,20 @@ Runs a console dashboard live while a script does the work.
 
 The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-ConsoleLane, Update-ConsolePhase, Write-ConsoleLog and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.
 
+### [Start-ConsoleRecording](Start-ConsoleRecording.md)
+Opens a recorded child shell in a pseudo-console.
+
+Records terminal output and resizes to local asciicast v2. Exit the child shell or run Stop-ConsoleRecording inside it to finalize. Input bytes are never stored; output secret patterns are redacted before writing. The title shows a REC indicator. Use -InProcess for explicitly limited PowerShell output capture when pseudo-consoles are unavailable.
+
 ### [Start-ConsoleReplay](Start-ConsoleReplay.md)
 Replays a recorded dashboard session (JSON lines) into a dashboard.
 
 Recordings are written by Start-ConsoleDashboard -RecordPath. Replays keep the original timing, scaled by -Speed (0 plays as fast as possible). Useful for demos, documentation captures, tests and bug reports.
+
+### [Stop-ConsoleRecording](Stop-ConsoleRecording.md)
+Stops recording from inside the recorded child shell.
+
+Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Start-ConsoleRecording session.
 
 ### [Update-ConsoleActivity](Update-ConsoleActivity.md)
 Starts, updates or finishes an activity of an activity list (New-ConsoleActivityList) in the running dashboard.

@@ -211,6 +211,8 @@ namespace SiteFrames {
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);
+            SessionRecordingPage.Render(site);
+            ChromeStylesPage.Render(site);
             TablesPage.Render(site);
             InteractivePage.Render(site);
             PowerShellPage.Render(site, hosts);

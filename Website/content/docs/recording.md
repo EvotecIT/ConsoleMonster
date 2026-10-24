@@ -1,65 +1,185 @@
 ---
 title: Recording and replay
-description: Record a live session as JSON lines, replay it into the same dashboard, and export widgets, frames and recordings to HTML, SVG, text and asciicast.
+description: Record a whole terminal session, including native commands, to asciicast v2 and export an HTML player, animated SVG, text, Markdown or a final frame.
 slug: recording
+toc: false
 order: 8
 group: live
 card: app
-chips: [JSON lines, Replay, Export]
-summary: "JSON-lines recordings, replays, exports and test helpers."
+chips: [Terminal sessions, Chapters, Export]
+summary: "Whole-session recording, dashboard replay and local exports."
 ---
 
-A live session can write every update it applies to a JSON-lines file: `Start-ConsoleDashboard -RecordPath` in PowerShell, `LiveSessionOptions.RecordPath` or `RecordWriter` in C#. A recording holds updates, not pictures, so it is played back into the dashboard it was recorded with: `Start-ConsoleReplay` (or `Show-ConsoleReplay`, which lets you rewind) in PowerShell, `LiveSession.Replay` in C#.
+Record a terminal session with native commands, colours and chapter markers, then share it as a local HTML player or asciicast v2 file.
 
-{{< cm-demo id="record" heading="h2" >}}
+## Try it
 
-## The format
+This example records a real Git command and coloured PowerShell output, then writes `command-review.cast` and a self-contained `command-review.html` player. Use a terminal with Git installed and an empty output folder. The C# version starts PowerShell 7, so `pwsh` must be on your PATH.
 
-```json
-{"consolemonster":"recording","version":1}
-{"t":1,"target":"dashboard","op":"status","text":"discovering forest","state":"running"}
-{"t":1,"target":"phases","op":"state","key":"Discover","state":"running"}
+{{< cm-try key="session-command" ids="session-command" project="CommandRecording" >}}
+
+Open `command-review.html` in a browser. The cast and its `.cast.json` metadata stay beside it; nothing is uploaded. A new run needs a fresh destination because the recorder never overwrites an existing cast.
+
+## How it works
+
+`Invoke-ConsoleRecording` starts an isolated PowerShell child inside a pseudo-console. Native commands and ConsoleMonster output reach the same terminal stream, including colour, cursor movement and progress redraws. Caller variables and functions are not inherited; keep required setup inside the script block.
+
+These are the recording calls in the example:
+
+```powershell
+Invoke-ConsoleRecording {
+    Add-ConsoleRecordingMarker 'Inspect'
+    git --version
+    Add-ConsoleRecordingMarker 'Report'
+    Write-Host 'Review complete' -ForegroundColor Green
+} @recording
 ```
 
-These are the first lines of the recording behind the [live dashboards page](/live/), which you can [download](/recordings/assessment-run.jsonl) and replay with the program shown there. `LiveRecorder` writes the format and `LiveRecordingReader` reads it, with no dependencies.
+`-Destination` selects the export and saves the original cast alongside it. Markers become named chapters in the HTML player. Its chapter menu and on-track ticks seek to a chapter; hover or focus a tick to see its name. **?** opens keyboard help for Space, the arrow keys and number-key chapter shortcuts.
 
-## Export
+In C#, `SessionRecorder.Start` owns the child, `AddMarker` adds a chapter, and `WaitForExit` drains output and finalizes the cast. `SessionRecording.Read` loads it for the existing exporter. `SendInput` forwards input without storing it; `Resize` records terminal size changes. `Stop` or disposal stops that recorder's child.
 
-Any widget, frame or recording can be saved as a self-contained file. In PowerShell:
+Windows uses ConPTY and needs Windows 10 version 1809 or later. Linux and macOS use `openpty` with a controlling terminal. The library also targets .NET Standard 2.0 and .NET Framework 4.7.2; the example's recorder API is the same on those targets.
+
+## Variations
+
+### Watch a session with typed commands
+
+This longer, real `Invoke-ConsoleRecording` capture inspects a synthetic Git repository, builds with live progress, then shows a ConsoleMonster table, a failing command and a redacted token. Its **Inspect**, **Build** and **Report** chapters jump to each part. Before playback, the poster shows the completed report.
+
+{{< cm-session-recording >}}
+
+The [recording script](/examples/recording/record-session.ps1) and its [typing driver](/examples/recording/TypedSession.cs) send paced input to a real child terminal. PowerShell draws `PS C:\demo>` and echoes each key; the prompt is a fixed display label, and the synthetic repository lives under the output folder. A synthetic token becomes `API_TOKEN=••••••• (redacted)` before the cast is written.
+
+Download the [HTML player](/recordings/session.html), [animated SVG](/recordings/session.svg), [asciicast v2](/recordings/session.cast), [text](/recordings/session.txt), [Markdown](/recordings/session.md) or [final frame](/recordings/session-final-dark.svg). To reproduce the typed session, save both source files together in an empty folder.
+
+### Record an interactive terminal
+
+Start a recording in your terminal, enter commands in the child, then stop it:
+
+```powershell
+Start-ConsoleRecording -Path ./interactive.cast -Name 'Deployment'
+git --version
+Add-ConsoleRecordingMarker 'Deploy'
+Stop-ConsoleRecording
+```
+
+Exiting the child also finalizes the cast and returns to the original terminal. PowerShell children load the recording commands automatically; for `cmd` or a Unix shell, type `exit`. `-Shell` chooses the executable. The PowerShell cmdlets default to the current PowerShell executable. The `● REC` indicator is in the window title and is not recorded.
+
+Without `-Path`, filenames use the date, time and a unique suffix under Documents/ConsoleMonster/Recordings. Use `-Folder` to choose another location.
+
+### Export the same cast in another format
+
+```powershell
+Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.svg
+Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.txt
+Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review.md
+Export-ConsoleRecording -Path ./command-review.cast -Destination ./command-review-final.svg `
+    -FinalFrame -Theme Light -ChromeStyle Windows
+```
+
+`-Format PlayerData` writes JSON for embedding the same player. `-Theme Dark` or `Light` uses the existing exporter palette. Animated SVG uses CSS keyframes; the final-frame SVG is static. Text and Markdown include the main screen's scrollback. Whole-session casts remain asciicast v2, including output, marker and resize events. In C#, `ExportFinalSvg` writes a static frame and `FinalFrame` returns a `CellBuffer` for the existing exporter.
+
+### Redact values and bound a recording
+
+Input bytes are forwarded but never stored. A password prompt that disables terminal echo therefore adds no password text to the cast. Built-in output patterns mask bearer tokens, common API-key prefixes and assignments such as `password=`, `api_key=` and `client_secret=`. Add regular expressions for your own values:
+
+```powershell
+Invoke-ConsoleRecording {
+    Write-Host 'account=sample-account'
+    Write-Host 'api_key=synthetic-demo-value'
+} -Destination ./redacted.html -Redact 'sample-account' `
+    -IdleLimit 2 -MaxBytes 10485760 -TimeoutSeconds 600
+```
+
+Redaction runs before writing the cast or chapter metadata, including secrets split across reads or colour codes. A record ends at a newline, carriage return or recording control. Records longer than 64 KiB without a boundary are suppressed; a pattern timeout masks the record. Review a recording before sharing it because patterns cannot recognize every secret.
+
+`-RedactionText` chooses a replacement such as seven bullets; the default is `[REDACTED]`. Match only the value when surrounding context should stay visible. Replacement text cannot contain control characters. In C#, set `SessionRecordingOptions.RedactionText`.
+
+`-IdleLimit` compresses longer gaps; zero preserves timing. `-MaxBytes` caps the cast, including its header. At the cap, the cast stays valid and a warning appears; the child continues while further output is omitted. `-TimeoutSeconds` stops the child after the specified time.
+
+### Use the limited in-process fallback
+
+When a host cannot create a pseudo-console, explicitly select `-InProcess`:
+
+```powershell
+Invoke-ConsoleRecording {
+    Add-ConsoleRecordingMarker 'Summary'
+    Write-Host 'PowerShell output only'
+} -InProcess -Destination ./summary.html
+```
+
+It captures PowerShell host and pipeline output in an in-process runspace. The cast header and metadata say **in-process PowerShell output only**, and the command prints a warning. Native terminal behaviour, cursor movement and resize handling need pseudo-console mode.
+
+### Choose a window style
+
+Use `-ChromeStyle MacOS`, `Windows` or `Linux` on `Export-ConsoleFrame`, `Export-ConsoleRecording` and `Invoke-ConsoleRecording`. The same style applies to static HTML and SVG, the HTML player, animated SVG and a session's final frame. These are generic vector shapes; no operating-system assets or logos are used.
+
+{{< cm-chrome-styles >}}
+
+Each command below runs on its own after installing ConsoleMonster. It creates the panel shown above and saves an SVG in the current directory. Change `-Theme Dark` to `Light` for the light sample, or change `.svg` to `.html` for selectable HTML.
+
+#### MacOS
 
 ```powershell
 Import-Module ConsoleMonster
-
-Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path ./services.html
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-macos.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle MacOS
 ```
 
-`Export-ConsoleRecording` takes a dashboard and a recording, as in the demo above, with `-Format Html`, `Svg` or `Asciicast`. In C#, `ConsoleExporter.ToHtml(widget, options)`, `ToSvg` and `ToText` export a widget or a frame, and `Recording.ExportHtml(dashboard, reader)`, `ExportSvg` and `ExportAsciicast` export a recording:
+#### Windows
+
+```powershell
+Import-Module ConsoleMonster
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-windows.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Windows
+```
+
+#### Linux
+
+```powershell
+Import-Module ConsoleMonster
+New-ConsolePanel -Title 'Build' { New-ConsoleText '8 of 8 checks passed' } |
+    Export-ConsoleFrame -Path ./build-linux.svg -Width 36 -Theme Dark -Title 'Build report' -ChromeStyle Linux
+```
+
+MacOS has a 28px bar and three coloured dots. Windows has a 32px tab bar, prompt glyph, plus sign and line controls. Linux has a 36px header, a bold title and a round close control. Titles truncate within the space reserved for them. The bar uses the theme's `Surface` background and the control glyphs use `Muted`; only the macOS dots keep their traffic-light colours.
+
+`-WindowChrome` keeps the MacOS default. `-ChromeStyle` by itself enables the chosen style. `-WindowChrome:$false` or `-ChromeStyle None` hides the frame. Frame and recording exports still omit chrome when neither parameter is supplied; `Invoke-ConsoleRecording` includes it by default. Text, Markdown and asciicast contain terminal content, so chrome does not add characters to those formats.
+
+Record and export a Windows-style player, then a Linux-style final frame from the same cast:
+
+```powershell
+Import-Module ConsoleMonster
+Invoke-ConsoleRecording {
+    Add-ConsoleRecordingMarker 'Build'
+    Write-Host '8 of 8 checks passed' -ForegroundColor Green
+} -Destination ./chrome-demo.html -ChromeStyle Windows -Theme Light
+
+Export-ConsoleRecording -Path ./chrome-demo.cast -Destination ./chrome-demo-final.svg `
+    -FinalFrame -ChromeStyle Linux -Theme Light -Title 'Build report'
+```
+
+In C#, both option types keep `WindowChrome` as the on/off control. `ChromeStyle` defaults to `MacOS`; setting it alone does not enable the frame. `WindowChrome = false` and `ChromeStyle = None` each hide it:
 
 ```csharp
 using ConsoleMonster.Export;
 using ConsoleMonster.Widgets;
 
-Table table = new Table().WithTitle("Nightly run").AddColumn("Check").AddColumn("Result");
-table.AddValues("SPF", "pass");
-table.AddValues("DMARC", "fail");
-File.WriteAllText("nightly.html", ConsoleExporter.ToHtml(table, new ExportOptions { Width = 60, WindowChrome = true }));
+var options = new ExportOptions {
+    Width = 36, Theme = ExportTheme.Light, Title = "Build report",
+    WindowChrome = true, ChromeStyle = WindowChromeStyle.Windows
+};
+File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 checks passed"), options));
 ```
 
-- **HTML** pages carry a dark and a light rendering and show the one the viewer prefers. Glyphs a fallback font could draw at another width are boxed to their cell, and block elements and braille are painted as cell backgrounds.
-- **SVG** draws box drawing, block and braille characters as shapes; other glyphs stay selectable text.
-- **Recordings** export to an HTML player with scrubbing, an animated SVG using CSS keyframes only, or asciicast v3.
-- **Links** become links for http, https, mailto and ftp only, and nothing is fetched from the network.
 
-The players on this site are ConsoleMonster's own player, the one `Export-ConsoleRecording -Format Html` writes.
+### Record dashboard updates
 
-## Targets
+A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Start-ConsoleDashboard -RecordPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Start-ConsoleReplay`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
 
-Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a profile, a theme, a writer and an input source. `ConsoleTarget.Instance` is the process console; `TestTerminal.Target(...)` returns a `RecordingTarget` for tests, `WriterTarget` writes append-only lines to a `TextWriter`, and `NullTarget.Instance` discards output. `using (Terminal.Use(target)) { ... }` sends everything in the block to a target, and the scope flows with `async` calls. In PowerShell, `Use-ConsoleTarget` runs a script block with ConsoleMonster output going to a file (`-Path`), a writer or a target, or returned as a string.
-
-## Testing output
-
-The helpers ConsoleMonster's own tests use are public: `TestTerminal.RenderText(widget, width: 80, glyphs: GlyphTier.Ascii)` renders at a fixed size, tier and culture, `GoldenFile.Match` compares with a golden file and shows the first differing line, and `ScreenCapture` with scripted keys captures prompts, menus and forms. In Pester, `Assert-ConsoleOutput -GoldenPath` does the same.
+{{< cm-demo id="record" heading="h4" >}}
 
 ## Related
 
-To see a long recording played back, open the [live dashboards page](/live/). [Live sessions](/docs/live-sessions/) explain what a recording captures; the [Export-ConsoleRecording reference](/powershell/commands/export-consolerecording/) lists the formats.
+[Live sessions](/docs/live-sessions/) explain dashboard updates and targets. The [live dashboards page](/live/) shows a longer dashboard recording. See the [recording cmdlet reference](/powershell/commands/invoke-consolerecording/) and [export reference](/powershell/commands/export-consolerecording/) for all parameters.

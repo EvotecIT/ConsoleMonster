@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="96" height="40.8" viewBox="0 0 96 40.8" role="img" aria-label="A long caption at the minimum width">
+<title>A long caption at the minimum width</title>
+<style>
+svg{--cm-fg:#cccccc;--cm-bg:#0c0c0c;--cm-chrome:#1f1f1f;--cm-chrome-fg:#a0a0a0}
+svg{--cm-chrome:#e5e7eb;--cm-chrome-fg:#6b7280;--cm-chrome-title:#111827;--cm-tab:#ffffff;--cm-desk:#c9c9cf;--cm-close:#ff5f57;--cm-minimise:#febc2e;--cm-zoom:#28c840}
+.cm-t{font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:4px;text-anchor:middle;dominant-baseline:central;font-variant-ligatures:none}
+.cm-s{shape-rendering:crispEdges}
+.cm-title{font:13px system-ui,-apple-system,'Segoe UI',sans-serif;fill:var(--cm-chrome-title);text-anchor:middle;dominant-baseline:central}
+</style>
+<rect width="96" height="40.8" rx="12" style="fill:var(--cm-chrome)"/>
+<g transform="translate(48 0)" fill="none" stroke="var(--cm-chrome-fg)" stroke-width="1.2"><circle cx="26" cy="18" r="11"/><path d="M22 14l8 8m0-8l-8 8"/></g><g class="cm-layer" transform="translate(0 36)"><rect width="96" height="4.8" x="0" y="0" fill="#ffffff"/><text class="cm-t" x="1.2" y="2.4" fill="#24292f">x</text></g>
+</svg>
