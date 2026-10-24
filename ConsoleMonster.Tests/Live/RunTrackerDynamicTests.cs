@@ -6,6 +6,22 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Live {
     public sealed class RunTrackerDynamicTests {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Add_WithFixedDeclaration_RejectsUndeclaredWorkWithoutChangingTotals(bool empty) {
+            RunItem[] items = empty ? Array.Empty<RunItem>() : new[] { new RunItem("declared", "node-01") };
+            RunTracker tracker = new RunTracker(items);
+
+            Assert.Throws<InvalidOperationException>(() => tracker.Add());
+
+            RunSnapshot snapshot = tracker.Snapshot();
+            Assert.Equal(items.Length, tracker.Total);
+            Assert.Equal(items.Length, snapshot.States.Count);
+            Assert.Equal(items.Length, snapshot.Items.Count);
+            if (!empty) { Assert.Equal("declared", snapshot.Items[0].Item.Name); }
+        }
+
         [Fact]
         public void Add_AfterWorkHasStarted_PreservesStatesAndIndependentSnapshots() {
             RunTracker tracker = new RunTracker(1);

@@ -65,7 +65,8 @@ namespace ConsoleMonster.Live {
 
         /// <summary>
         /// An in-process object for the target (a replacement widget for a <see cref="Widgets.Slot"/>, row values for a
-        /// <see cref="Widgets.LiveTable"/>), or null. It is not recorded: a replayed recording sees only the text fields.
+        /// <see cref="Widgets.LiveTable"/>, or an <see cref="Layout.IWidget"/> to append through a log target), or null.
+        /// It is not recorded: a replayed recording sees only the text fields.
         /// </summary>
         public object? Payload { get; set; }
 

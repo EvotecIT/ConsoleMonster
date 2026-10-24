@@ -90,6 +90,10 @@
     "app-live-filter-filtered-60": {
       "src": "/site/cards/app-live-filter-filtered-60.svg"
     },
+    "large-run-120": {
+      "dark": "/site/cards/large-run-120-dark.svg",
+      "light": "/site/cards/large-run-120-light.svg"
+    },
     "login": {
       "src": "/site/cards/login.svg"
     },

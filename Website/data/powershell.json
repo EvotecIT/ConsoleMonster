@@ -399,7 +399,7 @@
     },
     {
       "verb": "New",
-      "count": 51,
+      "count": 52,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -582,6 +582,11 @@
           "url": "/powershell/commands/new-consolerule/"
         },
         {
+          "name": "New-ConsoleRun",
+          "synopsis": "Starts a bounded run dashboard for work scheduled by your script.",
+          "url": "/powershell/commands/new-consolerun/"
+        },
+        {
           "name": "New-ConsoleRunResult",
           "synopsis": "Creates the result a menu run returns: a title, a status, a summary, figures and next actions.",
           "url": "/powershell/commands/new-consolerunresult/"
@@ -676,7 +681,7 @@
     },
     {
       "verb": "Update",
-      "count": 9,
+      "count": 10,
       "commands": [
         {
           "name": "Update-ConsoleActivity",
@@ -702,6 +707,11 @@
           "name": "Update-ConsoleProgress",
           "synopsis": "Updates a progress bar in a running dashboard.",
           "url": "/powershell/commands/update-consoleprogress/"
+        },
+        {
+          "name": "Update-ConsoleRun",
+          "synopsis": "Reports an item's running phase or final outcome to a run dashboard.",
+          "url": "/powershell/commands/update-consolerun/"
         },
         {
           "name": "Update-ConsoleSpinner",
@@ -914,6 +924,17 @@
       ]
     },
     {
+      "verb": "Complete",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Complete-ConsoleRun",
+          "synopsis": "Finishes a run dashboard and prints its full summary into scrollback.",
+          "url": "/powershell/commands/complete-consolerun/"
+        }
+      ]
+    },
+    {
       "verb": "Copy",
       "count": 1,
       "commands": [
@@ -1039,6 +1060,17 @@
           "name": "Use-ConsoleTarget",
           "synopsis": "Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.",
           "url": "/powershell/commands/use-consoletarget/"
+        }
+      ]
+    },
+    {
+      "verb": "Wait",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Wait-ConsoleRun",
+          "synopsis": "Waits for worker updates while pumping run progress to the PowerShell host.",
+          "url": "/powershell/commands/wait-consolerun/"
         }
       ]
     },

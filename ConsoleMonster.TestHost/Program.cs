@@ -27,6 +27,8 @@ namespace ConsoleMonster.TestHost {
                     case "fallback": Fallback(); break;
                     case "cancel": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null);
                     case "cancel-child": Cancellation(args[1]); break;
+                    case "cancel-run": return LaunchCancellation(args[1], args.Length > 2 ? args[2] : null, true);
+                    case "cancel-run-child": CancellationRun(args[1]); break;
                     case "app-mode": return LaunchAppMode(args[1], args[2], args.Length > 3 ? args[3] : null);
                     case "app-mode-child": AppOutputModeProbe.Run(args[1], args[2]); break;
                     case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
@@ -40,7 +42,7 @@ namespace ConsoleMonster.TestHost {
                 return 0;
             } catch (Exception error) {
                 if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
-                else if (args.Length > 1 && (args[0] == "cancel" || args[0] == "cancel-child")) { File.WriteAllText(args[1], error.ToString()); }
+                else if (args.Length > 1 && args[0].StartsWith("cancel", StringComparison.Ordinal)) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }
@@ -141,7 +143,7 @@ namespace ConsoleMonster.TestHost {
             }
         }
 
-        private static int LaunchCancellation(string receipt, string? runtime) {
+        private static int LaunchCancellation(string receipt, string? runtime, bool run = false) {
             // CREATE_NEW_CONSOLE + SW_HIDE gives the signal test its own hidden console. No signal reaches the caller.
             string executable = Process.GetCurrentProcess().MainModule!.FileName!;
             List<string> arguments = new List<string> { executable };
@@ -151,7 +153,7 @@ namespace ConsoleMonster.TestHost {
             arguments.Add(runtime ?? throw new InvalidOperationException("No host runtime configuration."));
             arguments.Add(typeof(Program).Assembly.Location);
 #endif
-            arguments.Add("cancel-child");
+            arguments.Add(run ? "cancel-run-child" : "cancel-child");
             arguments.Add(receipt);
             return LaunchHidden(arguments);
         }

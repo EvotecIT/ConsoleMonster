@@ -1,0 +1,24 @@
+│ Network  │ 54/54 │     51 │      0 │        2 │       1 │
+│ Storage  │ 53/53 │     51 │      1 │        0 │       1 │
+│ Services │ 53/53 │     49 │      2 │        1 │       1 │
+╰──────────┴───────┴────────┴────────┴──────────┴─────────╯
+Problems
+╭───────────────────────────┬─────────┬────────┬──────────┬────────────────────────────────────────────────────────────╮
+│ Item                      │ Target  │ State  │ Duration │ Message                                                    │
+├───────────────────────────┼─────────┼────────┼──────────┼────────────────────────────────────────────────────────────┤
+│ Time synchronisation 024  │ node-08 │ ✗ FAIL │     4.2s │ Endpoint did not answer within the configured deadline.    │
+│                           │         │        │          │ Check the connection and retry this check.                 │
+│ Service health 068        │ node-04 │ ✗ FAIL │     4.2s │ Endpoint did not answer within the configured deadline.    │
+│                           │         │        │          │ Check the connection and retry this check.                 │
+│ Volume permissions 103    │ node-07 │ ✗ FAIL │     3.2s │ Endpoint did not answer within the configured deadline.    │
+│                           │         │        │          │ Check the connection and retry this check.                 │
+│ Directory replication 137 │ node-09 │ ✗ FAIL │     1.2s │ Endpoint did not answer within the configured deadline.    │
+│                           │         │        │          │ Check the connection and retry this check.                 │
+│ DNS records 042           │ node-10 │ ▴ WARN │     2.2s │ A partial response was returned; review the detailed       │
+│                           │         │        │          │ report.                                                    │
+│ Time synchronisation 096  │ node-16 │ ▴ WARN │     4.2s │ A partial response was returned; review the detailed       │
+│                           │         │        │          │ report.                                                    │
+│ Route reachability 134    │ node-06 │ ▴ WARN │     2.2s │ A partial response was returned; review the detailed       │
+│                           │         │        │          │ report.                                                    │
+╰───────────────────────────┴─────────┴────────┴──────────┴────────────────────────────────────────────────────────────╯
+Report: reports/fleet-checks.html

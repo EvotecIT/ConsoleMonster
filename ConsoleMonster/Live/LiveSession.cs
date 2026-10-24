@@ -51,7 +51,7 @@ namespace ConsoleMonster.Live {
         private long _renderErrors;
         private Output.ConsoleFontWatcher? _fontWatcher;
         private bool _began; // BeginLive succeeded: only then may stopping draw a final frame and summary.
-        private Exception? _failure; // The render-thread exception that ended the session early.
+        private Exception? _failure; // The first fatal rendering, required-recording or output exception.
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, long> _unknownTargets = new System.Collections.Concurrent.ConcurrentDictionary<string, long>(StringComparer.Ordinal);
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
         private int _admission; // Sign bit closes admission; the remaining bits count admitted publications.
@@ -156,8 +156,11 @@ namespace ConsoleMonster.Live {
         /// <summary>Most recent target, rendering, recording or cleanup exception.</summary>
         public Exception? LastError => Volatile.Read(ref _lastError);
 
-        /// <summary>The exception that ended the session early (the render thread failed, for example on a broken output), or null.</summary>
+        /// <summary>The first fatal rendering, required-recording or output exception, including failed shutdown draining, flushing or summary output, or null.</summary>
         public Exception? Failure => Volatile.Read(ref _failure);
+
+        // Read after Start: the selected output, including host policy and explicit overrides, owns this capability.
+        internal bool SupportsLiveFrames => _output?.SupportsLiveFrames == true;
 
         /// <summary>
         /// A snapshot of the session's counters, the target names that received updates but do not exist, and the errors,
@@ -317,6 +320,12 @@ namespace ConsoleMonster.Live {
         }
 
         private void Error(Exception error) => Volatile.Write(ref _lastError, error);
+
+        private void Fail(Exception error) {
+            Interlocked.CompareExchange(ref _failure, error, null);
+            Error(error);
+            RequestCancellation();
+        }
 
         private void CloseAdmission() {
             while (true) {

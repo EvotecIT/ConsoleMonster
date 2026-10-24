@@ -28,6 +28,19 @@ namespace ConsoleMonster.Live {
         /// </summary>
         public LiveMode Mode { get; set; }
 
+        // A monitor can require append-only output after the host's scoped profile policy is applied.
+        internal bool AppendOnly { get; set; }
+
+        private double _inlineHeightFraction = 1;
+        /// <summary>Maximum fraction of the current terminal height occupied by inline output, between zero (exclusive) and one. Default one.</summary>
+        public double InlineHeightFraction {
+            get => _inlineHeightFraction;
+            set {
+                if (double.IsNaN(value) || value <= 0 || value > 1) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                _inlineHeightFraction = value;
+            }
+        }
+
         private int _framesPerSecond = 15;
         private TimeSpan _stopTimeout = TimeSpan.FromSeconds(2);
 
@@ -139,6 +152,9 @@ namespace ConsoleMonster.Live {
 
         /// <summary>Intercepts the first Ctrl+C for cooperative cancellation; defaults to true.</summary>
         public bool HandleCancelKey { get; set; } = true;
+
+        /// <summary>Stop drawing immediately on cooperative cancellation (default true). False leaves output open until Stop, allowing a runner to drain worker results before its final summary.</summary>
+        public bool StopOnCancellation { get; set; } = true;
 
         /// <summary>
         /// Whether the session can be found through <see cref="LiveSession.Current"/> (default true), so update cmdlets and prompts

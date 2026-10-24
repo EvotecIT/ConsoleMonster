@@ -90,6 +90,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A table with at most this many rows renders as a record view (default 1; 0 disables).</summary>
         public int RecordViewRows { get; set; } = 1;
 
+        /// <summary>Also show the complete key as a wrapped field in record/card layouts, where headings may be omitted or truncated. Default false.</summary>
+        public bool ShowKeyField { get; set; }
+
         /// <summary>
         /// Titles for the rows in record and card views, by data row index (a null or empty entry uses the key column), so a
         /// caller can title a record "pwsh (90836)" while the key column stays the name. Null for none.

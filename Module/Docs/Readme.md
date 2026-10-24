@@ -40,6 +40,11 @@ Compares text or files with numbered lines, highlighted words and collapsed unch
 
 Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceName and DifferenceName override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.
 
+### [Complete-ConsoleRun](Complete-ConsoleRun.md)
+Finishes a run dashboard and prints its full summary into scrollback.
+
+Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
+
 ### [Copy-ConsoleOutput](Copy-ConsoleOutput.md)
 Copies widgets, frames, text or pipeline objects to the operating-system clipboard.
 
@@ -295,6 +300,11 @@ Creates a horizontal rule, optionally with a title.
 
 The line uses the border colour and the glyph tier's line character.
 
+### [New-ConsoleRun](New-ConsoleRun.md)
+Starts a bounded run dashboard for work scheduled by your script.
+
+Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
+
 ### [New-ConsoleRunResult](New-ConsoleRunResult.md)
 Creates the result a menu run returns: a title, a status, a summary, figures and next actions.
 
@@ -541,6 +551,11 @@ Updates a progress bar in a running dashboard.
 
 -Value sets the value, -Increment adds to it, -Label renames the bar and -Status sets a final state that recolours it.
 
+### [Update-ConsoleRun](Update-ConsoleRun.md)
+Reports an item's running phase or final outcome to a run dashboard.
+
+Index is the zero-based position in New-ConsoleRun's Items. Running starts the item or updates its phase without resetting elapsed time. Pass, Fail, Warn and Skip finish an item once; repeated completions do not print duplicate lines. Updates do not produce pipeline output or change the caller's error handling. For direct worker-thread use the handle exposes Started and Finished methods with the same contracts.
+
 ### [Update-ConsoleSpinner](Update-ConsoleSpinner.md)
 Updates a spinner in a running dashboard.
 
@@ -570,6 +585,11 @@ The script runs on the pipeline thread with the caller's variables. While it run
 Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
 
 Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
+
+### [Wait-ConsoleRun](Wait-ConsoleRun.md)
+Waits for worker updates while pumping run progress to the PowerShell host.
+
+Use after starting background workers that call the handle's Started and Finished methods. Waits until all items have finished and receives queued host output on the pipeline thread, including timed CI progress while workers are slow. It does not schedule work or print the final summary. Call Complete-ConsoleRun in finally after joining the workers. Ctrl+C signals the handle's Cancellation token so workers can drain and report their last outcomes.
 
 ### [Watch-Console](Watch-Console.md)
 Runs a script block again and again and shows its latest output as a live view.
