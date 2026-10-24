@@ -174,7 +174,7 @@ namespace ConsoleMonster.Examples.Showcases {
             format.Parameter = "Format";
             PathField report = run.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
-            report.Default = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Reports", "Fleet");
+            report.Default = Path.Combine("Reports", "Fleet");
             report.Parameter = "ReportPath";
             ToggleField notify = run.Toggle("Notify", "Email the report");
             notify.Parameter = "Notify";
@@ -403,7 +403,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 Checks = FleetData.Checks.Where(c => chosen.Contains(c.Id)).ToList();
                 Parallel = (int)values.Get<decimal>("Parallel", 4m);
                 Format = values.Get<string>("Format") ?? "Html";
-                ReportFolder = values.Get<string>("Report") ?? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Reports", "Fleet");
+                ReportFolder = values.Get<string>("Report") ?? Path.Combine("Reports", "Fleet");
                 Notify = values.Get<bool>("Notify");
                 Email = values.Get<string>("Email");
             }
@@ -430,7 +430,7 @@ namespace ConsoleMonster.Examples.Showcases {
 
             public string ReportFile => "fleet-" + FleetData.Now.ToString("yyyyMMdd-HHmm", CultureInfo.InvariantCulture) + "." + Format.ToLowerInvariant();
 
-            public string ReportPath => ReportFolder.TrimEnd('\\') + "\\" + ReportFile;
+            public string ReportPath => Path.Combine(ReportFolder, ReportFile);
 
             public int LaneTotal(string category) => Servers.Count * Checks.Count(c => c.Category == category);
 

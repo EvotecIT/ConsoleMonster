@@ -266,7 +266,7 @@ $formatSettings = @{
 }
 $formatField = New-ConsoleField @formatSettings
 $reportField = New-ConsoleField Report 'Report folder' -Type Path -Kind Folder -Page Options `
-    -Default 'C:\Reports\Fleet' -Parameter ReportPath
+    -Default (Join-Path Reports Fleet) -Parameter ReportPath
 $notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -Parameter Notify
 $emailSettings = @{
     Name        = 'Email'
@@ -343,8 +343,8 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
             ReportFile = "fleet-20261020-0930.$($plan.Format.ToLower())"
             Categories = @($categories | Where-Object { $plan.Checks.Category -contains $_ })
         }
-        $reportFolder = ([string] $Values.Report).TrimEnd('\')
-        $plan | Add-Member -NotePropertyName ReportPath -NotePropertyValue "$reportFolder\$($plan.ReportFile)"
+        $reportFolder = [string] $Values.Report
+        $plan | Add-Member -NotePropertyName ReportPath -NotePropertyValue (Join-Path $reportFolder $plan.ReportFile)
         $laneTotal = @{}
         foreach ($category in $plan.Categories) {
             $inCategory = @($plan.Checks | Where-Object Category -EQ $category)
