@@ -23,14 +23,14 @@ StatusList statuses = new StatusList();
 foreach (var check in checks) {
     statuses.Add(check.Name, check.Status, check.Detail);
 }
-BarChart scores = new BarChart { Max = 100, Unit = "%", Warning = 80, Critical = 50 };
+BarChart scores = new BarChart { Maximum = 100, Unit = "%", Warning = 80, Critical = 50 };
 foreach (var area in areaScores) scores.Add(area.Name, area.Score);
 
 Rows layout = new Rows(
     new Rule("[bold]Readiness assessment[/] [muted]| workspace[/]"),
     new TextBlock("[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]"),
     new Panel(statuses, "Checks"),
-    new Panel(scores, "Readiness by area") { Caption = "score / 100" },
+    new Panel(scores, "Readiness by area") { HeaderRight = "score / 100" },
     new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
     new TextBlock("[muted]Review owner: Platform team · next review: Friday[/]")) { Gap = 1 };
 

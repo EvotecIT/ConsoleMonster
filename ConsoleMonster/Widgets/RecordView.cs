@@ -45,10 +45,10 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Adds a top-level section heading; following fields belong to it.</summary>
         /// <param name="title">The heading (markup).</param>
-        /// <param name="tone">An optional tone (for example the record's status), or null.</param>
+        /// <param name="role">An optional tone (for example the record's status), or null.</param>
         /// <param name="note">An optional muted note after the heading, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddSection(string title, ThemeToken? tone = null, string? note = null) => AddHeading(title, 0, tone, note);
+        public RecordView AddSection(string title, ThemeToken? role = null, string? note = null) => AddHeading(title, 0, role, note);
 
         /// <summary>Adds a group heading under the current section; following fields belong to it.</summary>
         /// <param name="title">The heading (markup).</param>
@@ -59,12 +59,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a heading at a nesting level (0 = section, 1 = group, deeper for nested objects).</summary>
         /// <param name="title">The heading (markup).</param>
         /// <param name="level">The level.</param>
-        /// <param name="tone">An optional tone, or null.</param>
+        /// <param name="role">An optional tone, or null.</param>
         /// <param name="note">An optional muted note, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddHeading(string title, int level, ThemeToken? tone = null, string? note = null) {
+        public RecordView AddHeading(string title, int level, ThemeToken? role = null, string? note = null) {
             _level = Math.Max(0, level);
-            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Role = tone, Note = note });
+            _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Role = role, Note = note });
             return this;
         }
 

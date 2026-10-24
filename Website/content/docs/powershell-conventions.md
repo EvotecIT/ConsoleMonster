@@ -103,4 +103,4 @@ $profile = $profileType::Fixed(100, 24)
 
 Prefer cmdlets for ordinary scripts. Use `New-ConsoleHeaderBar`, `New-ConsoleFooterBar` and `New-ConsoleColumnFormat` for header/footer composition and shared numeric-column layout. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
 
-Try [live dashboards](/docs/live-sessions/) next.
+Try [live sessions](/docs/live-sessions/) next.

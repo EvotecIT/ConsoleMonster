@@ -13,15 +13,15 @@ namespace SiteFrames.Tests {
             Directory.CreateDirectory(Path.Combine(_root, "Website", "examples"));
             Directory.CreateDirectory(Path.Combine(_root, "Website", "content"));
             File.WriteAllText(Path.Combine(_root, "ConsoleMonster.sln"), string.Empty);
-            File.WriteAllText(Path.Combine(_root, "Website", "examples", "rule.ps1"), "Import-Module ConsoleMonster\n\n#region more\n$title = 'Hello'\n#endregion\nWrite-ConsoleRule $title\n");
-            File.WriteAllText(Path.Combine(_root, "Website", "examples", "long.ps1"), "Import-Module ConsoleMonster\n\nWrite-ConsoleRule '" + new string('x', 80) + "'\n");
+            File.WriteAllText(Path.Combine(_root, "Website", "examples", "rule.ps1"), "Import-Module ConsoleMonster\n\n#region more\n$title = 'Hello'\n#endregion\nShow-ConsoleRule $title\n");
+            File.WriteAllText(Path.Combine(_root, "Website", "examples", "long.ps1"), "Import-Module ConsoleMonster\n\nShow-ConsoleRule '" + new string('x', 80) + "'\n");
             File.WriteAllText(Path.Combine(_root, "Website", "content", "page.md"), "Text\n\n```powershell\nInstall-Module ConsoleMonster\n```\n\n```bash\ndotnet run\n```\n");
             _site = new Site(Path.Combine(_root, "Website"));
         }
 
         public void Dispose() => Directory.Delete(_root, true);
 
-        private const string FromFile = "<!-- example: Website/examples/rule.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\n$title = 'Hello'\nWrite-ConsoleRule $title\n```\n";
+        private const string FromFile = "<!-- example: Website/examples/rule.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\n$title = 'Hello'\nShow-ConsoleRule $title\n```\n";
 
         [Fact]
         public void Find_BlocksMatchingTheirSources_HaveNoProblems() {
@@ -30,8 +30,8 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("<!-- example: Website/examples/rule.ps1 -->\n```powershell\nImport-Module ConsoleMonster\nWrite-ConsoleRule 'Hello'\n```\n")]
-        [InlineData("<!-- example: Website/examples/rule.ps1 -->\n```csharp\nImport-Module ConsoleMonster\n\n$title = 'Hello'\nWrite-ConsoleRule $title\n```\n")]
+        [InlineData("<!-- example: Website/examples/rule.ps1 -->\n```powershell\nImport-Module ConsoleMonster\nShow-ConsoleRule 'Hello'\n```\n")]
+        [InlineData("<!-- example: Website/examples/rule.ps1 -->\n```csharp\nImport-Module ConsoleMonster\n\n$title = 'Hello'\nShow-ConsoleRule $title\n```\n")]
         [InlineData("<!-- example: Website/content/page.md#1 -->\n```powershell\nInstall-Module ConsoleMonster -Force\n```\n")]
         [InlineData("<!-- example: Website/content/page.md#3 -->\n```bash\ndotnet run\n```\n")]
         [InlineData("<!-- example: Website/examples/missing.ps1 -->\n```powershell\nx\n```\n")]
@@ -44,7 +44,7 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("<!-- example: Website/examples/long.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\nWrite-ConsoleRule 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n```\n", "characters")]
+        [InlineData("<!-- example: Website/examples/long.ps1 -->\n```powershell\nImport-Module ConsoleMonster\n\nShow-ConsoleRule 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'\n```\n", "characters")]
         [InlineData("<a href=\"https://consolemonster.dev/\"><picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://x/d.png\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture></a>\n", "bare <picture>")]
         [InlineData("<picture class=\"x\">\n  <img alt=\"Hero\" src=\"https://x/l.png\">\n</picture>\n", "bare <picture>")]
         public void Find_LongLinesAndInlinePictures_AreReported(string readme, string message) {

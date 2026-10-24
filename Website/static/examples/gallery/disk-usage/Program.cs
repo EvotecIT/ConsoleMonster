@@ -13,7 +13,7 @@ var folders = new[] {
 };
 
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
-BarChart chart = new BarChart { Max = 100, Unit = "%", Warning = 80, Critical = 90 };
+BarChart chart = new BarChart { Maximum = 100, Unit = "%", Warning = 80, Critical = 90 };
 foreach (var volume in used) chart.Add(volume.Name, volume.Percent);
 Tree tree = new Tree("./");
 foreach (var folder in folders) {

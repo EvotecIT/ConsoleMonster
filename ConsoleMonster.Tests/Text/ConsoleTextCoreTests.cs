@@ -96,7 +96,7 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void StatusLine_ComposesMarkerClockAndElapsed() {
             DateTime started = DateTime.Now.AddSeconds(-75);
-            StyledLine line = StatusLine.Compose(Context(), RichText.Plain("copying"), StatusKind.Pass, false, false, true, "HH:mm:ss", started, 0, true);
+            StyledLine line = StatusLine.Compose(Context(), RichText.Plain("copying"), StatusKind.Pass, spinner: false, showTimestamp: false, showElapsed: true, timestampFormat: "HH:mm:ss", started: started, frame: 0, final: true);
             Assert.StartsWith(Context().Glyphs.StatusMarker(StatusKind.Pass), line.PlainText);
             Assert.Contains("copying", line.PlainText);
         }

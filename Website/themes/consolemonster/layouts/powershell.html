@@ -15,7 +15,7 @@
 <main id="main" class="cm-main">
 {{~ ps = data.powershell; ex = ps.examples; copy = data.copy.powershell; hm = data.home ~}}
 {{~ capture art ~}}
-{{~ f = ex["format-consoletable"].rich.ps7; screen_frame = f.frame; screen_title = "Format-ConsoleTable"; screen_meta = [f.host, "24-bit"]; screen_dark = true; screen_label = "Format-ConsoleTable output in PowerShell 7" ~}}
+{{~ f = ex["format-consoletable"].rich.ps7; screen_frame = f.frame; screen_title = "Show-ConsoleTable"; screen_meta = [f.host, "24-bit"]; screen_dark = true; screen_label = "Show-ConsoleTable output in PowerShell 7" ~}}
 {{ include "screen" }}
 {{~ end ~}}
 {{~ stage_title = page.title; stage_lede = copy.lede | string.replace "{cmdlets}" hm.cmdlets; stage_side = ""; stage_art = art; stage_wide = false ~}}
@@ -44,8 +44,8 @@
           {{ include "screen" }}
         </div>
         <div>
-          <h3>Format-ConsoleTable</h3>
-          {{~ f = ex["format-consoletable"].rich[h]; screen_frame = f.frame; screen_title = "Format-ConsoleTable"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-ConsoleTable output, " + f.host ~}}
+          <h3>Show-ConsoleTable</h3>
+          {{~ f = ex["format-consoletable"].rich[h]; screen_frame = f.frame; screen_title = "Show-ConsoleTable"; screen_meta = [f.host]; screen_dark = true; screen_label = "Show-ConsoleTable output, " + f.host ~}}
           {{ include "screen" }}
         </div>
       </div>
@@ -80,8 +80,8 @@
         {{ include "code" }}
       </div>
       <div>
-        <h3>Format-ConsoleList</h3>
-        {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Format-ConsoleList"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-ConsoleList output" ~}}
+        <h3>Show-ConsoleList</h3>
+        {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Show-ConsoleList"; screen_meta = [f.host]; screen_dark = true; screen_label = "Show-ConsoleList output" ~}}
         {{ include "screen" }}
         {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script; code_full = ex["format-consolelist"].scriptFull ~}}
         {{ include "code" }}
@@ -89,8 +89,8 @@
     </div>
     <div class="cm-compare cm-compare--tree">
       <div>
-        <h3>Format-ConsoleTree -AsInspector</h3>
-        {{~ f = ex["format-consoletree"].rich.ps7; screen_frame = f.frame; screen_title = "Format-ConsoleTree"; screen_meta = [f.host]; screen_dark = true; screen_label = "Format-ConsoleTree output" ~}}
+        <h3>Show-ConsoleObject -StaticSnapshot</h3>
+        {{~ f = ex["format-consoletree"].rich.ps7; screen_frame = f.frame; screen_title = "Show-ConsoleObject"; screen_meta = [f.host]; screen_dark = true; screen_label = "Show-ConsoleObject output" ~}}
         {{ include "screen" }}
       </div>
       <div>

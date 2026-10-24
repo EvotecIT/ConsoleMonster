@@ -106,4 +106,4 @@ Terminal.Write(histogram);
 
 ## Related
 
-[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Show-ConsoleChart reference](/powershell/commands/out-consolechart/).
+[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Show-ConsoleChart reference](/powershell/commands/show-consolechart/).

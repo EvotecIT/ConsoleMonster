@@ -20,7 +20,7 @@
 - [Live dashboards](https://consolemonster.dev/live/index.md): Recorded dashboard runs and playback.
 - [Interactive screens](https://consolemonster.dev/interactive/index.md): Prompts, menus, forms and grids.
 - [PowerShell](https://consolemonster.dev/powershell/index.md): Module examples and real console output.
-- [Live runs](https://consolemonster.dev/docs/live-runs/index.md): ForEach-ConsoleItem in parallel, Watch-Console and Invoke-ConsolePester, recorded.
+- [Live runs](https://consolemonster.dev/docs/live-runs/index.md): Invoke-ConsoleRun in parallel, Watch-Console and Invoke-ConsolePester, recorded.
 - [Help, errors and progress](https://consolemonster.dev/docs/help-and-defaults/index.md): Show-ConsoleHelp, the error view and the progress area.
 - [Linux and SSH](https://consolemonster.dev/docs/linux-and-ssh/index.md): Detection on Unix terminals and a login overview for SSH.
 - [Logging](https://consolemonster.dev/docs/logging/index.md): The ConsoleMonster.Extensions.Logging provider for Microsoft.Extensions.Logging.

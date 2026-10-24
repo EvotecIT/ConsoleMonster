@@ -86,7 +86,7 @@ Where cmdlet output goes:
 - A dashboard in those hosts narrates as append-only lines.
 Dashboard problems are reported once the screen is restored:
 
-- An update for a widget name the dashboard doesn't have warns once per name, listing the valid names.
+- An update for a WidgetId the dashboard does not have warns once per identifier, listing the valid identifiers.
 - Failed updates, frames that couldn't be laid out, and a session that ended because drawing failed are written as
   warnings and errors.
 - `LiveSession.GetCounters()` returns the counters, for example `$ConsoleSession.GetCounters()` inside the dashboard script.

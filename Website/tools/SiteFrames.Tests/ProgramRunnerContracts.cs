@@ -104,7 +104,7 @@ namespace SiteFrames.Tests {
             (string shortForm, string full) = SourceSnippets.Program("using ConsoleMonster;\n\nTerminal.Write(x);");
             Assert.Equal("Terminal.Write(x);", shortForm);
             Assert.Equal("using ConsoleMonster;\n\nTerminal.Write(x);", full);
-            Assert.Equal("Show-ConsoleRule", SourceSnippets.Program("Import-Module ConsoleMonster\n\nWrite-ConsoleRule").Short);
+            Assert.Equal("Show-ConsoleRule", SourceSnippets.Program("Import-Module ConsoleMonster\n\nShow-ConsoleRule").Short);
             Assert.Equal("Buffer stream = new();", SourceSnippets.Program("global using System.IO;\nusing Buffer = System.IO.MemoryStream;\n\nBuffer stream = new();").Short);
         }
 

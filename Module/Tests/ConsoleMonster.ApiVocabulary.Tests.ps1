@@ -17,6 +17,22 @@ Describe 'ConsoleMonster public API vocabulary' {
         }
     }
 
+    It 'reserves Name and Target for their approved resource meanings' {
+        foreach ($command in $script:Commands) {
+            if ($command.Parameters.ContainsKey('Name')) {
+                $command.Name | Should -BeIn @('New-ConsoleFormPreset', 'New-ConsoleMenuPreset', 'Show-ConsoleHelp')
+            }
+            if ($command.Parameters.ContainsKey('Target')) {
+                $command.Name | Should -BeIn @('Use-ConsoleTarget', 'Start-ConsoleRun')
+            }
+        }
+        (Get-Command New-ConsoleField).Parameters.Keys | Should -Contain Key
+        (Get-Command New-ConsoleChartSeries).Parameters.Keys | Should -Contain Key
+        (Get-Command Set-ConsoleTheme).Parameters.Keys | Should -Contain Theme
+        (Get-Command Invoke-ConsoleRecording).Parameters.Keys | Should -Contain Title
+        (Get-Command Send-ConsoleEvent).Parameters.Keys | Should -Contain WidgetId
+    }
+
     It 'keeps switches false by default and uses NoX for default-on behavior' {
         foreach ($command in $script:Commands) {
             $instance = [Activator]::CreateInstance($command.ImplementingType)

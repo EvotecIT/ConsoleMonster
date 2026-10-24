@@ -47,7 +47,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
 }
 ```
 
-`Invoke-ConsoleDashboard -Parallel` runs a script block per input item in a runspace pool (`-ThrottleLimit`). Each runspace gets `$ConsoleSession`, so `Update-ConsoleLane`, `Update-ConsoleStatusItem`, `Update-ConsoleLiveTable`, `Write-ConsoleLogEntry` and the other update commands reach the dashboard by widget name. `Write-Host`, warnings and errors from those runspaces (and verbose and debug messages when their preference is on) go to the dashboard's log (a `New-ConsoleLogRegion`; without one they take the same path as console output: above an `-Inline` area, into the short tail at the bottom of a full-screen dashboard and the scrollback after it, or as lines in stream mode); progress records go to its activity list.
+`Invoke-ConsoleDashboard -Parallel` runs a script block per input item in a runspace pool (`-ThrottleLimit`). Each runspace gets `$ConsoleSession`, so `Update-ConsoleLane`, `Update-ConsoleStatusItem`, `Update-ConsoleLiveTable`, `Write-ConsoleLogEntry` and the other update commands reach the dashboard by WidgetId. `Write-Host`, warnings and errors from those runspaces (and verbose and debug messages when their preference is on) go to the dashboard's log (a `New-ConsoleLogRegion`; without one they take the same path as console output: above an `-Inline` area, into the short tail at the bottom of a full-screen dashboard and the scrollback after it, or as lines in stream mode); progress records go to its activity list.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -98,7 +98,7 @@ foreach (string server in servers) {
 using (LiveSession session = new LiveSession(dashboard)) {
     session.Run(s => Parallel.ForEach(servers, server => {
         // Patch knows nothing about the dashboard: the scope says where its reports go.
-        using (s.Scope(lanes.Name, server)) {
+        using (s.Scope(lanes.WidgetId, server)) {
             Patch(server);
         }
     }));

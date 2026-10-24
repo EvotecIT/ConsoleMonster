@@ -76,7 +76,7 @@ The [widget gallery](/widgets/) shows each ConsoleMonster widget with its PowerS
 |---|---|---|
 | `AnsiConsole.Status().Start(...)` | `Terminal.Status(text, action)`, `Terminal.StatusAsync` | |
 | `AnsiConsole.Progress().Start(...)` | `Lanes` and `ProgressBar`, usually in a `LiveSession` | Progress columns are a column model; see [live sessions](/docs/live-sessions/). |
-| `AnsiConsole.Live(renderable).Start(action)` | `LiveSession` | Updates are events addressed to widgets by name and can come from any thread. |
+| `AnsiConsole.Live(renderable).Start(action)` | `LiveSession` | Updates are events addressed to widgets by WidgetId and can come from any thread. |
 | `AnsiConsole.Record()` / `ExportHtml()` | `ConsoleExporter.ToHtml(...)`, `LiveRecorder` | Exports a frame, or records a session's events for [replay and export](/docs/recording/). |
 
 ```csharp

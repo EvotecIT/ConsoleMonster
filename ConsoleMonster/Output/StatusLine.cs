@@ -41,20 +41,20 @@ namespace ConsoleMonster.Output {
         /// <param name="content">The text after the marker.</param>
         /// <param name="status">A status marker instead of the spinner, or null.</param>
         /// <param name="spinner">Whether a spinner turns until the line completes.</param>
-        /// <param name="clock">Whether the time of day leads the line.</param>
-        /// <param name="elapsed">Whether the elapsed time follows the content.</param>
-        /// <param name="clockFormat">The time format for the clock.</param>
+        /// <param name="showTimestamp">Whether the time of day leads the line.</param>
+        /// <param name="showElapsed">Whether the elapsed time follows the content.</param>
+        /// <param name="timestampFormat">The time format for the clock.</param>
         /// <param name="final">Whether the line completes (the next output starts below it).</param>
-        public static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, bool final) {
+        public static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool showTimestamp, bool showElapsed, string timestampFormat, bool final) {
             lock (Gate) {
                 StatusLine line = _current != null && _current.CursorUnchanged() ? _current : new StatusLine(profile);
                 _current?.StopTimer();
                 line._content = content;
                 line._status = status;
                 line._spinner = spinner;
-                line._clock = clock;
-                line._elapsed = elapsed;
-                line._clockFormat = string.IsNullOrEmpty(clockFormat) ? "HH:mm:ss" : clockFormat;
+                line._clock = showTimestamp;
+                line._elapsed = showElapsed;
+                line._clockFormat = string.IsNullOrEmpty(timestampFormat) ? "HH:mm:ss" : timestampFormat;
                 line.Render(final);
                 if (final) {
                     _current = null;
@@ -63,7 +63,7 @@ namespace ConsoleMonster.Output {
                 }
                 TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
                 _current = line;
-                if (spinner || clock || elapsed) {
+                if (spinner || showTimestamp || showElapsed) {
                     line._timer = new Timer(_ => line.Tick(), null, 100, 100);
                 }
             }
@@ -74,14 +74,14 @@ namespace ConsoleMonster.Output {
         /// <param name="content">The text after the marker.</param>
         /// <param name="status">A status marker instead of the spinner, or null.</param>
         /// <param name="spinner">Whether to show the spinner.</param>
-        /// <param name="clock">Whether the time of day leads the line.</param>
-        /// <param name="elapsed">Whether the elapsed time follows the content.</param>
-        /// <param name="clockFormat">The time format for the clock.</param>
+        /// <param name="showTimestamp">Whether the time of day leads the line.</param>
+        /// <param name="showElapsed">Whether the elapsed time follows the content.</param>
+        /// <param name="timestampFormat">The time format for the clock.</param>
         /// <param name="started">When the status started (for the elapsed time).</param>
         /// <param name="frame">The animation frame (spinner position).</param>
         /// <param name="final">Whether the line is complete (no spinner).</param>
         /// <returns>The line.</returns>
-        public static StyledLine Compose(RenderContext context, RichText content, StatusKind? status, bool spinner, bool clock, bool elapsed, string clockFormat, DateTime started, long frame, bool final) {
+        public static StyledLine Compose(RenderContext context, RichText content, StatusKind? status, bool spinner, bool showTimestamp, bool showElapsed, string timestampFormat, DateTime started, long frame, bool final) {
             List<TextSpan> spans = new List<TextSpan>();
             Style muted = context.Style(ThemeToken.Muted);
             if (status.HasValue) {
@@ -92,10 +92,10 @@ namespace ConsoleMonster.Output {
                     spans.Add(new TextSpan(frames[(int)(frame % frames.Count)] + " ", context.Style(ThemeToken.Running)));
                 }
             }
-            if (clock) {
-                spans.Add(new TextSpan("[" + DateTime.Now.ToString(clockFormat, System.Globalization.CultureInfo.CurrentCulture) + "] ", muted));
+            if (showTimestamp) {
+                spans.Add(new TextSpan("[" + DateTime.Now.ToString(timestampFormat, System.Globalization.CultureInfo.CurrentCulture) + "] ", muted));
             }
-            if (elapsed) {
+            if (showElapsed) {
                 spans.Add(new TextSpan("[" + Widgets.NumberFormat.Clock(DateTime.Now - started, true) + "] ", muted));
             }
             StyledText text = content.ToStyledText(context);

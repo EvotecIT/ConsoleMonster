@@ -9,7 +9,7 @@ apis: [LiveSession, MinimumSize]
 summary: "Dashboards updated from any thread, inline areas and windows that are too small."
 ---
 
-`LiveSession` owns the screen while work runs. Updates are `LiveEvent`s addressed to widgets by name; they go into a lock-free queue and are applied on the render thread, which composes the tree, diffs it against the previous frame and writes only the cells that changed, about 15 times a second.
+`LiveSession` owns the screen while work runs. Updates are `LiveEvent`s addressed to widgets by WidgetId; they go into a lock-free queue and are applied on the render thread, which composes the tree, diffs it against the previous frame and writes only the cells that changed, about 15 times a second.
 
 {{< cm-demo id="session" heading="h2" >}}
 
@@ -20,7 +20,7 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 - **Threads.** Handles (`lanes.Handle(session)`) post events from any thread. An ambient `TerminalScope` lets deep code report status without passing the session around. [Threads and concurrency](/docs/threads/) explains the model and what is safe from which thread.
 - **Console output.** `Console.Out` and `Console.Error` are captured into the log region while the session runs (`CaptureConsole`, on by default). In PowerShell, `Invoke-ConsoleDashboard` runs the script in a runspace whose `Write-Host`, warnings, errors and verbose output land there too.
 - **The end.** The screen is restored, also on Ctrl+C and exceptions, and the final state (or `LiveSessionOptions.Summary`) is printed to the scrollback.
-- **Problems.** Updates for unknown names, failed updates and frames that could not be laid out are counted (`GetCounters()`) and reported once the screen is restored.
+- **Problems.** Updates for unknown widget identifiers, failed updates and frames that could not be laid out are counted (`GetCounters()`) and reported once the screen is restored.
 
 ## Inline areas and Write-Progress
 
