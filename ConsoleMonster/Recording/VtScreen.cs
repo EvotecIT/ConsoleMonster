@@ -84,6 +84,9 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Whether a synchronized update is still being painted.</summary>
         public bool SynchronizedOutput { get; private set; }
 
+        /// <summary>Notifies replay when a complete synchronized repaint becomes visible.</summary>
+        internal Action? SynchronizedFrameCompleted { get; set; }
+
         private CellBuffer Current => _onAlternate ? _alternate : _main;
 
         public void Feed(byte[] data, int count) {
@@ -294,6 +297,7 @@ namespace ConsoleMonster.Sessions {
             _main = new CellBuffer(Width, Height);
             _alternate = new CellBuffer(Width, Height);
             _onAlternate = false;
+            SynchronizedOutput = false;
             _x = _y = _savedX = _savedY = _mainX = _mainY = 0;
             _origin = false;
             _pendingWrap = false;
@@ -500,7 +504,9 @@ namespace ConsoleMonster.Sessions {
                         _pendingWrap = false;
                         break;
                     case 2026:
+                        bool completed = SynchronizedOutput && !set;
                         SynchronizedOutput = set;
+                        if (completed) { SynchronizedFrameCompleted?.Invoke(); }
                         break;
                     case 7:
                         _autowrap = set;
