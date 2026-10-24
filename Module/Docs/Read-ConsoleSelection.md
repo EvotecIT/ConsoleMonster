@@ -13,7 +13,7 @@ Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-G
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleSelection [-Title] <string> [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-Disabled <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleSelection [-Title] <string> [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-Disabled <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -236,6 +236,22 @@ Content for the preview pane ($_ is the focused choice): text, rich text, a widg
 
 ```yaml
 Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StaticSnapshot
+Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

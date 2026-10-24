@@ -1,0 +1,32 @@
+{
+  "slug": "fleet",
+  "title": "Fleet health",
+  "pitch": "Plan a fleet check, review the command and follow every category through findings and results.",
+  "category": "Terminal apps",
+  "tags": [
+    "menu",
+    "forms",
+    "presets",
+    "dashboard",
+    "results"
+  ],
+  "terminal": {
+    "width": 160,
+    "height": 50
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the inline inventory with your server catalog.",
+    "Connect the selected operations to your own cancellable work.",
+    "Store completed runs and connect report delivery."
+  ],
+  "mode": "live",
+  "steps": 6,
+  "tier": "showcase",
+  "useCase": "Use it when operators need to plan, run and review health checks across several sites.",
+  "featured": true
+}

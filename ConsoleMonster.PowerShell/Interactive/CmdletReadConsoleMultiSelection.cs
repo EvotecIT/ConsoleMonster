@@ -51,6 +51,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 prompt.Default = defaults;
             }
+            if (TrySnapshot(prompt)) { return; }
             foreach (object? value in Ask(prompt)) {
                 WriteObject(value);
             }

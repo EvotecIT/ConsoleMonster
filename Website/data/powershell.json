@@ -793,7 +793,7 @@
     },
     {
       "verb": "Show",
-      "count": 10,
+      "count": 11,
       "commands": [
         {
           "name": "Show-Console",
@@ -809,6 +809,11 @@
           "name": "Show-ConsoleChanges",
           "synopsis": "Shows the changes an action would make and asks before making them: the what-if pattern.",
           "url": "/powershell/commands/show-consolechanges/"
+        },
+        {
+          "name": "Show-ConsoleDemo",
+          "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
+          "url": "/powershell/commands/show-consoledemo/"
         },
         {
           "name": "Show-ConsoleGrid",
@@ -999,12 +1004,17 @@
     },
     {
       "verb": "Get",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Get-ConsoleCapability",
           "synopsis": "Shows what ConsoleMonster detected about the current terminal.",
           "url": "/powershell/commands/get-consolecapability/"
+        },
+        {
+          "name": "Get-ConsoleDemo",
+          "synopsis": "Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.",
+          "url": "/powershell/commands/get-consoledemo/"
         }
       ]
     },

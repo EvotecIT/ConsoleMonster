@@ -141,6 +141,31 @@ namespace ConsoleMonster.Widgets {
             return lane;
         }
 
+        /// <summary>Adds or replaces a lane's complete snapshot, including elapsed-time boundaries and result counts.</summary>
+        /// <param name="snapshot">The lane state to copy. Its key identifies the destination; destination insertion order is preserved.</param>
+        /// <returns>The destination lane. Numeric and timing state is copied; styled text references are retained.</returns>
+        public Lane Add(Lane snapshot) {
+            if (snapshot == null) { throw new ArgumentNullException(nameof(snapshot)); }
+            if (_byKey.TryGetValue(snapshot.Key, out Lane? existing) && ReferenceEquals(existing, snapshot)) {
+                return existing;
+            }
+            Lane lane = snapshot.LabelText != null ? Add(snapshot.Key, snapshot.LabelText, snapshot.Total)
+                : Add(snapshot.Key, snapshot.Label, snapshot.Total);
+            if (snapshot.LabelText == null) { lane.Label = snapshot.Label; }
+            lane.Total = snapshot.Total;
+            lane.Done = snapshot.Done;
+            lane.Status = snapshot.Status;
+            lane.Passed = snapshot.Passed;
+            lane.Failed = snapshot.Failed;
+            lane.Warned = snapshot.Warned;
+            lane.Skipped = snapshot.Skipped;
+            lane.Started = snapshot.Started;
+            lane.Finished = snapshot.Finished;
+            if (snapshot.DetailText != null) { lane.DetailText = snapshot.DetailText; }
+            else { lane.Detail = snapshot.Detail; }
+            return lane;
+        }
+
         /// <summary>Returns a handle that updates these lanes through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>

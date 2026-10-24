@@ -249,18 +249,7 @@ namespace ConsoleMonster.PowerShell {
 
         private static bool TryAddLane(Lanes lanes, object item) {
             if (item is Lane spec) {
-                Lane lane = spec.LabelText != null ? lanes.Add(spec.Key, spec.LabelText, spec.Total) : lanes.Add(spec.Key, spec.Label, spec.Total);
-                lane.Done = spec.Done;
-                lane.Status = spec.Status;
-                lane.Passed = spec.Passed;
-                lane.Failed = spec.Failed;
-                lane.Warned = spec.Warned;
-                lane.Skipped = spec.Skipped;
-                if (spec.DetailText != null) {
-                    lane.DetailText = spec.DetailText;
-                } else if (spec.Detail != null) {
-                    lane.Detail = spec.Detail;
-                }
+                lanes.Add(spec);
                 return true;
             }
             if (item is Text.RichText rich) {

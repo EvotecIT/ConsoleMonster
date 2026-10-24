@@ -58,8 +58,12 @@ namespace ConsoleMonster.Interactive {
         /// <param name="values">The values.</param>
         /// <param name="title">The title for a value; null uses its text.</param>
         /// <param name="group">The group for a value, or null.</param>
+        /// <param name="description">Help text for a value, or null.</param>
+        /// <param name="badge">A styled badge for a value, or null.</param>
+        /// <param name="disabled">Why a value cannot be selected; null or empty keeps it enabled.</param>
         /// <returns>The choices.</returns>
-        public static List<Choice> From<T>(IEnumerable<T> values, Func<T, string>? title = null, Func<T, string?>? group = null) {
+        public static List<Choice> From<T>(IEnumerable<T> values, Func<T, string>? title = null, Func<T, string?>? group = null,
+            Func<T, string?>? description = null, Func<T, RichText?>? badge = null, Func<T, string?>? disabled = null) {
             if (values == null) {
                 throw new ArgumentNullException(nameof(values));
             }
@@ -69,7 +73,11 @@ namespace ConsoleMonster.Interactive {
                     choices.Add(existing);
                     continue;
                 }
-                choices.Add(new Choice(value, title?.Invoke(value)) { Group = group?.Invoke(value) });
+                string? reason = disabled?.Invoke(value);
+                choices.Add(new Choice(value, title?.Invoke(value)) {
+                    Group = group?.Invoke(value), Description = description?.Invoke(value), Badge = badge?.Invoke(value),
+                    DisabledReason = string.IsNullOrEmpty(reason) ? null : reason
+                });
             }
             return choices;
         }

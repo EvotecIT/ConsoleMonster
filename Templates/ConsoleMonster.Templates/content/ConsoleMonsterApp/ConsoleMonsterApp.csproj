@@ -14,8 +14,10 @@
 
   <ItemGroup>
     <PackageReference Include="ConsoleMonster" Version="CONSOLEMONSTER_VERSION" />
+<!--#if (demo == "none") -->
     <PackageReference Include="ConsoleMonster.Extensions.Logging" Version="CONSOLEMONSTER_VERSION" />
     <PackageReference Include="ConsoleMonster.Hosting" Version="CONSOLEMONSTER_VERSION" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+<!--#endif -->
   </ItemGroup>
 </Project>

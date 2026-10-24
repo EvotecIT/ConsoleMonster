@@ -1,0 +1,31 @@
+{
+  "slug": "prompt-tour",
+  "title": "Interactive prompt tour",
+  "pitch": "Try typed choices, task previews, confirmation, text, secret, number and path prompts, plus a live dashboard pause.",
+  "category": "Terminal apps",
+  "tags": [
+    "prompts",
+    "selection",
+    "validation",
+    "overlay"
+  ],
+  "terminal": {
+    "width": 112,
+    "height": 40
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the typed server and task catalogs.",
+    "Adjust the patterns, numeric limits and confirmation text.",
+    "Use the returned values in a separate explicit operation."
+  ],
+  "mode": "live",
+  "steps": 9,
+  "tier": "showcase",
+  "useCase": "Use it when a command needs guided input that preserves typed values and clear validation.",
+  "featured": false
+}

@@ -36,6 +36,33 @@
         }
     }
 
+    It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
+        $body = @'
+$profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 30, 'None', 'Ascii')
+$target = [ConsoleMonster.Output.RecordingTarget]::new($profile)
+Use-ConsoleTarget -Target $target {
+    $answers = @(
+        Read-ConsoleText 'Project' -Default orbit -StaticSnapshot
+        Read-ConsoleText 'Notes' -Multiline -Default 'one' -StaticSnapshot
+        Read-ConsoleSecret 'Token' -StaticSnapshot
+        Read-ConsoleNumber 'Port' -Default 443 -Integer -StaticSnapshot
+        Read-ConsolePath 'Folder' -Default './orbit' -StaticSnapshot
+        Read-ConsoleConfirm 'Continue?' -Default $true -StaticSnapshot
+        Read-ConsoleConfirm 'Remove?' -TypedConfirmation orbit -StaticSnapshot
+        Read-ConsoleSelection 'Target' -Choices api, worker -StaticSnapshot
+        Read-ConsoleMultiSelection 'Checks' -Choices dns, tls -StaticSnapshot
+    )
+    if ($answers.Count) { throw 'A prompt snapshot returned an answer' }
+}
+if ([ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'A snapshot retained the input lease' }
+foreach ($title in 'Project', 'Notes', 'Token', 'Port', 'Folder', 'Continue?', 'Remove?', 'Target', 'Checks') {
+    if (-not $target.Output.Contains($title)) { throw "Missing prompt: $title" }
+}
+'SNAPSHOTS_OK'
+'@
+        Invoke-PromptChild -Script $body | Should -Match 'SNAPSHOTS_OK'
+    }
+
     Context 'Without a user (redirected input, -NonInteractive)' {
         It 'returns the default instead of waiting' {
             $text = Invoke-PromptChild -Script @'
@@ -361,6 +388,43 @@ Show-ConsoleMenu $menu -Layout Inline
             $menu.Items.Count | Should -Be 2
             { New-ConsoleMenuPreset 'Broken' -Values @{ Checks = 'x' } -ErrorAction Stop } | Should -Throw '*-Form*'
             { New-ConsoleMenuPreset 'Broken' -Selection 'x' -ErrorAction Stop } | Should -Throw '*-Item*'
+        }
+
+        It 'keeps choice badges and disabled reasons for static and asynchronously loaded menu items' {
+            $objects = @(
+                [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
+                [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
+            )
+            $item = New-ConsoleMenuItem Targets -MultiSelect $objects -Display Name -ChoiceBadge Role -ChoiceDisabled Offline
+            $item.Choices[0].Badge.PlainText | Should -Be 'Web'
+            $item.Choices[0].IsEnabled | Should -BeTrue
+            $item.Choices[1].DisabledReason | Should -Be 'maintenance'
+            $loadedItem = New-ConsoleMenuItem Targets -LoadChoices {
+                [pscustomobject] @{ Name = 'api'; Role = 'Web'; Offline = '' }
+                [pscustomobject] @{ Name = 'db'; Role = 'Data'; Offline = 'maintenance' }
+            } -Display Name -ChoiceBadge Role -ChoiceDisabled Offline -Selected api
+            $loaded = @($loadedItem.ChoicesLoader.Invoke($null, [threading.cancellationtoken]::None).GetAwaiter().GetResult())
+            $loaded[0].Badge.PlainText | Should -Be 'Web'
+            $loaded[0].Selected | Should -BeTrue
+            $loaded[1].DisabledReason | Should -Be 'maintenance'
+            { New-ConsoleMenuItem Targets -LoadChoices { 'api' } -ChoiceBadge { $_.Role } -ErrorAction Stop } | Should -Throw '*property names*'
+        }
+
+        It 'applies several menu selections from one native preset' {
+            $text = Invoke-PromptChild -Script @'
+$targets = New-ConsoleMenuItem Targets -MultiSelect 'api', 'db'
+$tasks = New-ConsoleMenuItem Tasks -MultiSelect 'health', 'logs'
+$preset = New-ConsoleMenuPreset Nightly -Selections @{ $targets = @('db'); $tasks = @('health', 'logs') }
+$menu = New-ConsoleMenu 'Multi-selection preset' -Item $targets, $tasks -Preset $preset {
+    New-ConsoleMenuItem Presets -Hotkey p -Presets
+    New-ConsoleMenuItem Quit -Hotkey q -Exit
+}
+[ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('p Enter q')
+Show-ConsoleMenu $menu -Layout Inline
+"targets=$($targets.Selection -join ',') tasks=$($tasks.Selection -join ',')"
+'@
+            $text | Should -Match 'targets=db tasks=health,logs'
+            { New-ConsoleMenuPreset Invalid -Selections @{ missing = @('db') } -ErrorAction Stop } | Should -Throw '*menu items*'
         }
 
         It 'preserves original object answers and defaults instead of choosing the first custom object' {

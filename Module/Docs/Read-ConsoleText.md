@@ -13,7 +13,7 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validate <scriptblock>] [-History <string[]>] [-Prefill] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validate <scriptblock>] [-History <string[]>] [-Prefill] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -265,6 +265,22 @@ Accept wildcard characters: False
 
 ### -Required
 Refuses an empty answer.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StaticSnapshot
+Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
 
 ```yaml
 Type: SwitchParameter

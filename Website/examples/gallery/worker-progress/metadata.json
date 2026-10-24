@@ -1,0 +1,30 @@
+{
+  "slug": "worker-progress",
+  "title": "Worker progress",
+  "pitch": "Follow eight simulated workers with progress lanes, a throughput trend and a bounded work queue.",
+  "category": "Dashboards",
+  "tags": [
+    "live",
+    "progress",
+    "sparkline"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the eight simulated workers with your queue.",
+    "Feed the sparkline measured update rates.",
+    "Choose queue and error thresholds."
+  ],
+  "mode": "live",
+  "steps": 5,
+  "tier": "starter",
+  "useCase": "Use it when a worker queue needs progress bars and a throughput trend.",
+  "featured": false
+}

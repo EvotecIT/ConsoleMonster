@@ -1,0 +1,30 @@
+{
+  "slug": "repository-status",
+  "title": "Many-repository status",
+  "pitch": "Review local edits and branch divergence across several repositories in one compact workspace report.",
+  "category": "Everyday",
+  "tags": [
+    "git",
+    "workspace",
+    "status"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 25
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the cached summaries with local repository observations.",
+    "Add the branch and working-tree fields your team uses for review.",
+    "Keep suggested next steps separate from commands that modify a repository."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when several repositories need review before you change branches or start a release.",
+  "featured": false
+}

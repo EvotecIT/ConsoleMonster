@@ -1,7 +1,11 @@
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "Evotec",
-  "classifications": [ "Console", "ConsoleMonster", "Terminal" ],
+  "classifications": [
+    "Console",
+    "ConsoleMonster",
+    "Terminal"
+  ],
   "identity": "ConsoleMonster.Templates.App",
   "groupIdentity": "ConsoleMonster.App",
   "name": "ConsoleMonster console app",
@@ -19,8 +23,14 @@
       "description": "The target framework.",
       "datatype": "choice",
       "choices": [
-        { "choice": "net8.0", "description": ".NET 8" },
-        { "choice": "net10.0", "description": ".NET 10" }
+        {
+          "choice": "net8.0",
+          "description": ".NET 8"
+        },
+        {
+          "choice": "net10.0",
+          "description": ".NET 10"
+        }
       ],
       "defaultValue": "net8.0",
       "replaces": "TARGET_FRAMEWORK"
@@ -37,8 +47,501 @@
       "description": "Leaves native AOT publishing off.",
       "datatype": "bool",
       "defaultValue": "false"
+    },
+    "demo": {
+      "type": "parameter",
+      "description": "Start from a gallery demo instead of the menu and hosted service.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "none",
+          "description": "The menu, report and hosted service."
+        },
+        {
+          "choice": "readiness-report"
+        },
+        {
+          "choice": "fleet-filter"
+        },
+        {
+          "choice": "setup-basic"
+        },
+        {
+          "choice": "worker-progress"
+        },
+        {
+          "choice": "build-steps"
+        },
+        {
+          "choice": "live-filter"
+        },
+        {
+          "choice": "task-menu"
+        },
+        {
+          "choice": "patch-progress"
+        },
+        {
+          "choice": "log-tail"
+        },
+        {
+          "choice": "welcome-compact"
+        },
+        {
+          "choice": "welcome-rich"
+        },
+        {
+          "choice": "everyday-formatting"
+        },
+        {
+          "choice": "assessment"
+        },
+        {
+          "choice": "stress"
+        },
+        {
+          "choice": "fleet"
+        },
+        {
+          "choice": "setup"
+        },
+        {
+          "choice": "pipeline"
+        },
+        {
+          "choice": "toolbox"
+        },
+        {
+          "choice": "query"
+        },
+        {
+          "choice": "parallel-patch"
+        },
+        {
+          "choice": "prompt-tour"
+        },
+        {
+          "choice": "certificate-expiry"
+        },
+        {
+          "choice": "disk-usage"
+        },
+        {
+          "choice": "process-monitor"
+        },
+        {
+          "choice": "port-matrix"
+        },
+        {
+          "choice": "repository-status"
+        },
+        {
+          "choice": "backup-runner"
+        }
+      ],
+      "defaultValue": "none"
     }
   },
-  "primaryOutputs": [ { "path": "ConsoleMonsterApp.csproj" } ],
-  "postActions": []
+  "primaryOutputs": [
+    {
+      "path": "ConsoleMonsterApp.csproj"
+    }
+  ],
+  "postActions": [],
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(demo != \"none\")",
+          "exclude": [
+            "Program.cs"
+          ]
+        },
+        {
+          "condition": "true",
+          "exclude": [
+            "gallery/**"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "readiness-report/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "readiness-report/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"readiness-report\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "fleet-filter/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "fleet-filter/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"fleet-filter\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "setup-basic/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "setup-basic/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"setup-basic\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "worker-progress/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "worker-progress/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"worker-progress\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "build-steps/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "build-steps/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"build-steps\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "live-filter/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "live-filter/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"live-filter\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "task-menu/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "task-menu/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"task-menu\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "patch-progress/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "patch-progress/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"patch-progress\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "log-tail/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "log-tail/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"log-tail\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "welcome-compact/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "welcome-compact/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"welcome-compact\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "welcome-rich/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "welcome-rich/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"welcome-rich\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "everyday-formatting/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "everyday-formatting/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"everyday-formatting\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "assessment/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "assessment/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"assessment\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "stress/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "stress/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"stress\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "fleet/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "fleet/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"fleet\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "setup/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "setup/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"setup\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "pipeline/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "pipeline/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"pipeline\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "toolbox/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "toolbox/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"toolbox\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "query/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "query/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"query\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "parallel-patch/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "parallel-patch/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"parallel-patch\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "prompt-tour/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "prompt-tour/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"prompt-tour\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "certificate-expiry/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "certificate-expiry/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"certificate-expiry\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "disk-usage/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "disk-usage/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"disk-usage\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "process-monitor/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "process-monitor/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"process-monitor\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "port-matrix/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "port-matrix/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"port-matrix\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "repository-status/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "repository-status/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"repository-status\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "backup-runner/Program.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "backup-runner/Program.cs": "Program.cs"
+      },
+      "condition": "(demo == \"backup-runner\")"
+    }
+  ]
 }

@@ -13,7 +13,7 @@ Everything Read-ConsoleSelection does, plus checkboxes: Space toggles (on a grou
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleMultiSelection [-Title] <string> [[-Choices] <Object[]>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-Disabled <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleMultiSelection [-Title] <string> [[-Choices] <Object[]>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-Disabled <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -279,6 +279,22 @@ Pre-selected choices: the objects or their displayed texts, or a scriptblock ret
 Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: Default
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StaticSnapshot
+Prints the initialized rich prompt without reading input or returning an answer. Useful for documentation and unattended previews.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
 Possible values:
 
 Required: False

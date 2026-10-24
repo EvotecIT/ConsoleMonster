@@ -37,8 +37,15 @@ namespace SiteFrames.Pages {
                 ["commands"] = theme => Site.Render(Commands(site), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
                 ["benchmarks"] = theme => StressFrame(site)
             };
+            GalleryPage.Demo[] demos = GalleryPage.Read(site);
+            GalleryPage.Demo featured = demos.FirstOrDefault(demo => demo.Metadata["featured"]?.GetValue<bool>() ?? false) ?? demos.First();
+            items["demos"] = theme => GalleryPage.CapturedPoster(site, featured);
+            foreach (GalleryPage.Demo demo in demos) {
+                items["demos/" + demo.Slug] = theme => GalleryPage.CapturedPoster(site, demo);
+            }
             foreach (KeyValuePair<string, Func<ITheme, CellBuffer?>> item in items) {
-                bool wide = item.Key == "live" || item.Key == "benchmarks" || item.Key == "interactive";
+                bool gallery = item.Key == "demos" || item.Key.StartsWith("demos/", StringComparison.Ordinal);
+                bool wide = item.Key == "live" || item.Key == "benchmarks" || item.Key == "interactive" || gallery;
                 JsonObject entry = new JsonObject { ["w"] = 96, ["h"] = 60 };
                 foreach ((Screen screen, ITheme theme) in new[] { (Screen.Dark, (ITheme)Theme.Dark), (Screen.Light, Theme.Light) }) {
                     CellBuffer? frame = item.Value(theme);
@@ -46,7 +53,7 @@ namespace SiteFrames.Pages {
                         continue;
                     }
                     // Recorded runs exist in the dark theme only; the light thumbnail shows the same recording.
-                    Screen shown = item.Key == "benchmarks" || item.Key == "live" ? Screen.Dark : screen;
+                    Screen shown = item.Key == "benchmarks" || item.Key == "live" || gallery ? Screen.Dark : screen;
                     int rows = wide ? Math.Min(frame.Height, 36) : Rows;
                     int columns = wide ? (int)Math.Round(rows * 3.2) : Columns;
                     string svg = FrameMinimap.Svg(frame, ColorDepth.TrueColor, shown, columns, rows);

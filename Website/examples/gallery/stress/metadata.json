@@ -1,0 +1,31 @@
+{
+  "slug": "stress",
+  "title": "Stress test",
+  "pitch": "Keep thirty-two workers, session counters, CPU trends and captured output readable under sustained updates.",
+  "category": "Dashboards",
+  "tags": [
+    "stress",
+    "lanes",
+    "sparkline",
+    "live"
+  ],
+  "terminal": {
+    "width": 140,
+    "height": 48
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the bounded worker loop with your queue consumers.",
+    "Connect session counters and CPU samples to your own workload.",
+    "Keep third-party output in the captured log while workers post updates."
+  ],
+  "mode": "live",
+  "steps": 7,
+  "tier": "showcase",
+  "useCase": "Use it when a busy worker pool must remain readable while updates and tool output arrive together.",
+  "featured": true
+}

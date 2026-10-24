@@ -1,0 +1,30 @@
+{
+  "slug": "port-matrix",
+  "title": "Host and port matrix",
+  "pitch": "Put application connectivity and its exceptions on one screen, with host, port and status columns.",
+  "category": "Dashboards",
+  "tags": [
+    "connectivity",
+    "matrix",
+    "status"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 24
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the inline observations with results collected separately from the layout.",
+    "List the ports each host actually needs and keep unused cells marked Skip.",
+    "Add latency budgets and actionable details for failed or slow observations."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when a group of hosts needs a readable overview of required application ports.",
+  "featured": false
+}

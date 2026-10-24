@@ -47,6 +47,7 @@ namespace ConsoleMonster.PowerShell {
                 ScriptBlock validate = Validate;
                 prompt.Validator = text => PSInteractive.Validation(validate, text, PromptLabels.Default);
             }
+            if (TrySnapshot(prompt)) { return; }
             string secret = Ask(prompt);
             if (AsPlainText.IsPresent) {
                 WriteObject(secret);

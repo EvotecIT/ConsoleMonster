@@ -1,0 +1,31 @@
+{
+  "slug": "everyday-formatting",
+  "title": "Everyday formatting",
+  "pitch": "Turn the same task objects from plain text into a readable table with status colour and aligned numbers.",
+  "category": "Everyday",
+  "tags": [
+    "formatting",
+    "table",
+    "before and after",
+    "objects"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the synthetic task objects with your own local task list and keep both views on that same collection.",
+    "Add a priority or project field to the objects, then add its column and cell to the table.",
+    "Change the state-to-colour mapping and numeric column to match your everyday report."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when raw object output needs readable columns and meaningful status colours.",
+  "featured": false
+}

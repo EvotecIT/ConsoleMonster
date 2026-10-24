@@ -1,0 +1,30 @@
+{
+  "slug": "fleet-filter",
+  "title": "Fleet filter",
+  "pitch": "Filter five hosts as you type while retaining the fleet-wide health summary above the matching rows.",
+  "category": "Terminal apps",
+  "tags": [
+    "input",
+    "filter",
+    "table"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 24
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the five sample hosts with your inventory.",
+    "Choose the properties your users search.",
+    "Change the summary counts and status rules."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when an operator needs to search a small inventory without losing the overall health summary.",
+  "featured": false
+}

@@ -51,6 +51,7 @@ namespace ConsoleMonster.PowerShell {
                     prompt.Extensions.Add(e.StartsWith(".", StringComparison.Ordinal) ? e : "." + e);
                 }
             }
+            if (TrySnapshot(prompt)) { return; }
             WriteObject(Ask(prompt));
         }
     }

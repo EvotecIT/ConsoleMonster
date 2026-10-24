@@ -1,0 +1,31 @@
+{
+  "slug": "assessment",
+  "title": "Forest assessment",
+  "pitch": "Follow 332 checks across twelve targets, six workers, throughput, duration buckets and actionable findings.",
+  "category": "Dashboards",
+  "tags": [
+    "assessment",
+    "lanes",
+    "histogram",
+    "line chart"
+  ],
+  "terminal": {
+    "width": 140,
+    "height": 42
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the rule catalogue and target labels with your assessment inputs.",
+    "Feed measured completions into the throughput and duration charts.",
+    "Group findings by the categories your operators act on."
+  ],
+  "mode": "live",
+  "steps": 12,
+  "tier": "showcase",
+  "useCase": "Use it when parallel checks need one screen for progress, findings and the next action.",
+  "featured": true
+}

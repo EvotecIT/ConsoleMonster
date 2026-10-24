@@ -135,6 +135,9 @@ namespace ConsoleMonster.Interactive {
         public void Open(MenuItem item) {
             MenuContext context = new MenuContext(this, _root, item, null, _token);
             try {
+                if ((item.Kind == MenuItemKind.Select || item.Kind == MenuItemKind.MultiSelect) && item.ChoicesLoader != null && item.Choices.Count == 0) {
+                    item.ReplaceChoices(item.ChoicesLoader(context, _token).GetAwaiter().GetResult() ?? Array.Empty<Choice>());
+                }
                 switch (item.Kind) {
                     case MenuItemKind.Exit:
                         _exit = true;

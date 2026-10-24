@@ -1,0 +1,31 @@
+{
+  "slug": "welcome-compact",
+  "title": "Three-line welcome",
+  "pitch": "Add a small greeting, workspace hint, and useful tip to your shell profile.",
+  "category": "Welcome screens",
+  "tags": [
+    "profile",
+    "welcome",
+    "compact",
+    "offline"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 8
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Use the PowerShell body in $PROFILE after the param block, and replace the fixed greeting with your preferred text.",
+    "Replace the sample workspace and branch with cached local values; keep startup free of network calls.",
+    "Swap the help tip for a command you use often, keeping the greeting within three lines."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when your shell profile needs a useful greeting in three lines.",
+  "featured": false
+}

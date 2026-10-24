@@ -1,0 +1,35 @@
+﻿# Print an offline welcome screen with a logo, host summary, git status and tip.
+param(
+    [switch]$StaticSnapshot,
+    [ValidateRange(0, 0)][int]$Step = 0
+)
+
+Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
+
+# Data: fictional inputs kept in memory.
+# All host and git values are fictional; this runs offline without local probes.
+# For $PROFILE, replace fixed strings with cached local data, not slow commands.
+$hostSummary = [ordered]@{
+    Host = 'comet-devbox'
+    Platform = 'Cross-platform development'
+    Runtime = 'PowerShell 7.4+ / .NET 8+'
+    Workspace = 'comet-notes'
+}
+$git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'
+
+# Layout: compose the screen from the data above.
+$screen = New-ConsoleRows -Gap 1 {
+    New-ConsoleLogo 'HELLO' -Tagline '[muted]A little context before your next command.[/]'
+    New-ConsolePanel -Title 'Host summary' -Caption 'local workspace' {
+        New-ConsoleKeyValue -Data $hostSummary
+    }
+    New-ConsolePanel -Title 'Git | comet-notes' {
+        New-ConsoleText -Markup $git
+    }
+    New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'
+    New-ConsoleText -Markup '[muted]Ready when you are.[/]'
+}
+
+# Live updates: this static screen prints once and returns immediately.
+$screen | Write-ConsoleWidget

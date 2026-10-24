@@ -1,0 +1,30 @@
+{
+  "slug": "backup-runner",
+  "title": "Backup jobs with retry",
+  "pitch": "Run a bounded wave, retain its outcomes and retry only unfinished jobs.",
+  "category": "Dashboards",
+  "tags": [
+    "parallel",
+    "backup",
+    "retry"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 22
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the synthetic delay with an operation that returns an archive result only on success.",
+    "Set the concurrency limit and maximum attempts for your storage system.",
+    "Persist completed archives and retained errors before deciding how to handle unresolved jobs."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when independent backup jobs need a concurrency limit and a bounded recovery attempt.",
+  "featured": false
+}

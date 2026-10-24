@@ -29,6 +29,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The website and module share the same copyable gallery sources. -->
+        <EmbeddedResource Include="..\Website\examples\gallery\**\*.ps1;..\Website\examples\gallery\**\metadata.json"
+                          LogicalName="ConsoleMonster.PowerShell.Gallery.$([System.String]::Copy('%(RecursiveDir)').Replace('\', '.').Replace('/', '.'))%(Filename)%(Extension)"
+                          WithCulture="false" />
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
         <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />

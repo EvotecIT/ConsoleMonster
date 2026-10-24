@@ -102,11 +102,19 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public object? Describe { get; set; }
 
+        /// <summary><para type="description">Badge for each selection choice: a property name or scriptblock. With -LoadChoices, use a property name from the loader's output. The item's own badge remains -Badge.</para></summary>
+        [Parameter]
+        public object? ChoiceBadge { get; set; }
+
+        /// <summary><para type="description">Disabled reason for each selection choice: a property name or scriptblock; null or empty enables the choice. With -LoadChoices, use a property name. The item's own disabled reason remains -Disabled.</para></summary>
+        [Parameter]
+        public object? ChoiceDisabled { get; set; }
+
         /// <summary><para type="description">Preview content for the focused choice ($_ is the choice).</para></summary>
         [Parameter]
         public ScriptBlock? Preview { get; set; }
 
-        /// <summary><para type="description">Pre-selected choices: the objects or their texts, or a scriptblock returning $true for selected ones.</para></summary>
+        /// <summary><para type="description">Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.</para></summary>
         [Parameter]
         public object? Selected { get; set; }
 
@@ -175,7 +183,10 @@ namespace ConsoleMonster.PowerShell {
             } else if (Select != null || MultiSelect != null) {
                 bool multiple = MultiSelect != null;
                 List<object?> values = new List<object?>(multiple ? MultiSelect! : Select!);
-                List<Choice> choices = PSInteractive.Choices(values, Display, GroupBy, Describe, null, null, null, Selected);
+                List<Choice> choices = PSInteractive.Choices(values, new ChoiceSelectors {
+                    Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge,
+                    Disabled = ChoiceDisabled, Selected = Selected, MutedBadge = true
+                });
                 if (multiple) {
                     item.MultiSelect(choices);
                 } else {
@@ -187,7 +198,15 @@ namespace ConsoleMonster.PowerShell {
                 }
                 ApplyChoiceSettings(item);
             } else if (LoadChoices != null) {
-                item.LoadChoices(PSInteractive.MenuLoader(LoadChoices, Display, GroupBy, Describe, ArgumentList), !Single.IsPresent);
+                if (PSText.Unwrap(ChoiceBadge) is ScriptBlock || PSText.Unwrap(ChoiceDisabled) is ScriptBlock || PSText.Unwrap(Selected) is ScriptBlock) {
+                    ThrowTerminatingError(new ErrorRecord(new PSArgumentException("With -LoadChoices, -ChoiceBadge and -ChoiceDisabled take property names, and -Selected takes initial values rather than a scriptblock."),
+                        "ConsoleMonsterChoiceLoaderSelector", ErrorCategory.InvalidArgument, Title));
+                    return;
+                }
+                item.LoadChoices(PSInteractive.MenuLoader(LoadChoices, new ChoiceSelectors {
+                    Display = Display, Group = GroupBy, Description = Describe, Badge = ChoiceBadge, Disabled = ChoiceDisabled,
+                    Selected = Selected, MutedBadge = true
+                }, ArgumentList), !Single.IsPresent);
                 ApplyChoiceSettings(item);
             } else if (Page != null) {
                 ScriptBlock page = Page;

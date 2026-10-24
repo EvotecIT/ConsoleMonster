@@ -1,0 +1,30 @@
+{
+  "slug": "log-tail",
+  "title": "Log tail",
+  "pitch": "Watch a bounded log fill with synthetic events and a recoverable warning.",
+  "category": "Terminal apps",
+  "tags": [
+    "live",
+    "logs",
+    "status"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 18
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the inline messages with your event source.",
+    "Keep a bounded buffer when following long runs.",
+    "Choose which levels deserve warning or failure colours."
+  ],
+  "mode": "live",
+  "steps": 5,
+  "tier": "starter",
+  "useCase": "Use it when a command needs a bounded live event log that preserves its final state.",
+  "featured": false
+}

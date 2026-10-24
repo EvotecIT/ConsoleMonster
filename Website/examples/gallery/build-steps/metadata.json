@@ -1,0 +1,30 @@
+{
+  "slug": "build-steps",
+  "title": "Build steps",
+  "pitch": "Follow a dry-run build from restore to package without running build tools.",
+  "category": "Dashboards",
+  "tags": [
+    "live",
+    "build",
+    "status"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 26
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the four stage names with your build steps.",
+    "Post real completion events from your build process.",
+    "Change project facts and artifact directory."
+  ],
+  "mode": "live",
+  "steps": 5,
+  "tier": "starter",
+  "useCase": "Use it when a script needs to explain the current build stage and overall progress.",
+  "featured": false
+}

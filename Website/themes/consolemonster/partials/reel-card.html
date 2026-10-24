@@ -1,0 +1,30 @@
+{{~ ## One demo as a card: its real output (the demo's frame as a miniature terminal), what it is for, chips for its tier,
+     kind, size and languages, a link to how it is built, and the line that runs it in the reader's language. Set reel to
+     an entry of data.gallery.demos before including it; reel_wide = true gives a showcase card a larger picture. ## ~}}
+{{~ card_demo = reel; cat_id = card_demo.category | string.downcase | string.replace " " "-" ~}}
+{{~ langs = []; if card_demo.source.powershell; langs = langs | array.add "PowerShell"; end; if card_demo.source.csharp; langs = langs | array.add "C#"; end ~}}
+<article class="cm-card cm-reel{{ if reel_wide }} cm-reel--wide{{ end }}" aria-labelledby="demo-{{ card_demo.slug }}">
+  <a class="cm-card__thumb cm-reel__thumb" href="/demos/{{ card_demo.slug }}/" tabindex="-1" aria-hidden="true">
+    {{~ screen_frame = card_demo.frame; screen_title = card_demo.title; screen_meta = null; screen_dark = true; screen_label = ""; screen_class = "cm-window--thumb" ~}}
+    {{ include "screen" }}
+  </a>
+  <h3 class="cm-card__title" id="demo-{{ card_demo.slug }}"><a href="/demos/{{ card_demo.slug }}/">{{ card_demo.title }}</a></h3>
+  <p class="cm-card__body">{{ card_demo.pitch }}</p>
+  <ul class="cm-reel__chips" aria-label="Details">
+    {{~ if card_demo.tier == "showcase" ~}}<li class="cm-reel__chip cm-reel__chip--showcase">Showcase</li>{{~ end ~}}
+    <li class="cm-reel__chip cm-reel__chip--{{ card_demo.mode }}">{{ if card_demo.mode == "live" }}Live{{ else }}Static{{ end }}</li>
+    <li class="cm-reel__chip">{{ card_demo.terminal.width }}×{{ card_demo.terminal.height }}</li>
+    {{~ if card_demo.lines && card_demo.lines.powershell ~}}<li class="cm-reel__chip" title="Lines of PowerShell">{{ card_demo.lines.powershell }} lines</li>{{~ end ~}}
+    {{~ for a in card_demo.addons ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ a }}</li>{{~ end ~}}
+  </ul>
+  <a class="cm-reel__build" href="/demos/{{ card_demo.slug }}/#build" aria-label="How it's built: {{ card_demo.title | html.escape }} ({{ langs | array.join " · " }})">How it's built <span class="cm-reel__langs">{{ langs | array.join " · " }}</span> <span aria-hidden="true">→</span></a>
+  <div class="cm-reel__run">
+    <div class="cm-reel__cmd" data-lang="powershell">
+      <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ card_demo.run.powershell | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
+    </div>
+    <div class="cm-reel__cmd" data-lang="csharp">
+      <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ card_demo.run.csharp | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
+    </div>
+  </div>
+</article>
+{{~ reel = null; reel_wide = false ~}}

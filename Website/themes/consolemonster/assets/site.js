@@ -415,4 +415,29 @@
   window.addEventListener('load', remark);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(remark);
   remark();
+  // Demos page: the category filter (a radio group) shows the cards of one category; without JavaScript every card shows.
+  document.querySelectorAll('[data-cm-reel-filter]').forEach(function (group) {
+    var grid = group.closest('[data-cm-reels]');
+    var options = Array.prototype.slice.call(group.querySelectorAll('[role="radio"]'));
+    var pick = function (option, focus) {
+      var category = option.getAttribute('data-category');
+      options.forEach(function (o) { var on = o === option; o.setAttribute('aria-checked', on ? 'true' : 'false'); o.tabIndex = on ? 0 : -1; });
+      grid.querySelectorAll('.cm-reels__grid > li').forEach(function (card) {
+        card.hidden = category !== 'all' && card.getAttribute('data-category') !== category;
+      });
+      // A section left with no cards (showcases or starters) hides with its heading.
+      grid.querySelectorAll('.cm-reels__tier').forEach(function (tier) {
+        tier.hidden = !tier.querySelector('.cm-reels__grid > li:not([hidden])');
+      });
+      if (focus) option.focus();
+    };
+    options.forEach(function (option, index) {
+      option.addEventListener('click', function () { pick(option, false); });
+      option.addEventListener('keydown', function (event) {
+        var step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+        if (step) { event.preventDefault(); pick(options[(index + step + options.length) % options.length], true); }
+      });
+    });
+    group.hidden = false;
+  });
 })();

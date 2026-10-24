@@ -1,0 +1,30 @@
+{
+  "slug": "disk-usage",
+  "title": "Disk usage review",
+  "pitch": "Show storage pressure with threshold bars, a folder breakdown and a clear summary of remaining capacity.",
+  "category": "Reports",
+  "tags": [
+    "storage",
+    "capacity",
+    "tree"
+  ],
+  "terminal": {
+    "width": 100,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the synthetic capacities and folder sizes with one collected inventory.",
+    "Choose warning and critical thresholds for your volumes.",
+    "Adjust the retention recommendation without attaching deletion to the report."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when a storage report should explain both capacity pressure and where the space went.",
+  "featured": false
+}
