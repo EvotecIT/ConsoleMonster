@@ -109,6 +109,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         NETAssemblyTypeAcceleratorMode       = 'Assembly'
         NETAssemblyTypeAcceleratorAssemblies = @(
             'ConsoleMonster'
+            'ConsoleMonster.Markdown'
         )
         DotSourceLibraries                   = $true
         DotSourceClasses                     = $true

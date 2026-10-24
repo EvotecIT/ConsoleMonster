@@ -36,8 +36,8 @@ namespace SiteFrames.Capture {
         private static List<MetadataReference>? _references;
 
         /// <summary>
-        /// The assemblies a shown program may use: the shared .NET framework and ConsoleMonster, the same as a reader's project
-        /// with the package. The tool's own dependencies (ConsoleMonster.Examples, Roslyn, SiteFrames) are left out, so a
+        /// The assemblies a shown program may use: the shared .NET framework, ConsoleMonster and its optional Markdown
+        /// add-on, whose guide declares its package. The tool's own dependencies (ConsoleMonster.Examples, Roslyn, SiteFrames) are left out, so a
         /// program can never lean on something a reader does not have.
         /// </summary>
         private static List<MetadataReference> References {
@@ -52,6 +52,7 @@ namespace SiteFrames.Capture {
                         }
                     }
                     _references.Add(MetadataReference.CreateFromFile(typeof(Terminal).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Markdown.MarkdownConsole).Assembly.Location));
                 }
                 return _references;
             }

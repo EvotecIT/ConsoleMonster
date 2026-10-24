@@ -10,6 +10,7 @@
         <FileVersion>2.0.1</FileVersion>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <IsPackable>false</IsPackable>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -40,9 +41,11 @@
         <EmbeddedResource Include="Formatting\GridViewFallback.ps1;Formatting\GridViewLifecycle.ps1;Formatting\GridViewMessages.txt" />
         <EmbeddedResource Include="Formatting\PromptFunction.ps1" />
         <EmbeddedResource Update="Tails\PSLogTailMessages.resx" LogicalName="ConsoleMonster.PowerShell.Tails.PSLogTailMessages.resources" />
+        <EmbeddedResource Update="Markdown\PSMarkdownMessages.resx" LogicalName="ConsoleMonster.PowerShell.Markdown.PSMarkdownMessages.resources" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+        <ProjectReference Include="..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
     </ItemGroup>
 </Project>

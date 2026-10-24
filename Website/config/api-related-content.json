@@ -6,6 +6,7 @@
     { "title": "Widget gallery", "url": "/widgets/", "kind": "sample", "summary": "Every widget with its C# and PowerShell source, at every tier.", "targets": ["ConsoleMonster.Layout.Panel", "ConsoleMonster.Widgets.Table"] },
     { "title": "Live sessions", "url": "/docs/live-sessions/", "kind": "guide", "summary": "Updates from any thread, console capture, resizing and small windows.", "targets": ["ConsoleMonster.Live.LiveSession", "ConsoleMonster.Building.DashboardBuilder"] },
     { "title": "Live dashboards", "url": "/live/", "kind": "sample", "summary": "Recorded runs of the stress test, the build pipeline and an assessment.", "targets": ["ConsoleMonster.Live.LiveSession", "ConsoleMonster.Building.DashboardBuilder"] },
-    { "title": "Recording and replay", "url": "/docs/recording/", "kind": "guide", "summary": "JSON-lines recordings and exports to HTML, SVG, text and asciicast.", "targets": ["ConsoleMonster.Export.ConsoleExporter", "ConsoleMonster.Live.LiveSession"] }
+    { "title": "Recording and replay", "url": "/docs/recording/", "kind": "guide", "summary": "JSON-lines recordings and exports to HTML, SVG, text and asciicast.", "targets": ["ConsoleMonster.Export.ConsoleExporter", "ConsoleMonster.Live.LiveSession"] },
+    { "title": "Read Markdown", "url": "/docs/markdown/", "kind": "guide", "summary": "CommonMark, native tables, highlighted code, safe links and interactive paging.", "targets": ["ConsoleMonster.Markdown.MarkdownConsole", "ConsoleMonster.Widgets.MarkdownView", "ConsoleMonster.Interactive.WidgetPager"] }
   ]
 }

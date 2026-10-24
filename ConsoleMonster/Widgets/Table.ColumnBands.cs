@@ -23,7 +23,7 @@ namespace ConsoleMonster.Widgets {
         private Table ColumnBand(List<int> columns, bool first, int width, int[] minimum, int gap) {
             Table band = new Table {
                 Title = first ? Title : null, TitleIndent = TitleIndent,
-                RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders,
+                RecordViewRows = 0, CardsBelow = 0, WrapHeaders = WrapHeaders, ShowKeyField = ShowKeyField,
                 Border = Border, ShowHeader = ShowHeader, HeaderSeparator = HeaderSeparator,
                 GroupHeadersAsRows = GroupHeadersAsRows,
                 WrapLines = WrapLines, Expand = Expand, Presentation = Presentation,

@@ -1,0 +1,10 @@
+ Read [literal]                                    1–8 / 40
+Line 01
+Line 02
+Line 03
+Line 04
+Line 05
+Line 06
+Line 07
+Line 08
+ ↑/↓ move  pgup/pgdn page  esc/q close  ? keys

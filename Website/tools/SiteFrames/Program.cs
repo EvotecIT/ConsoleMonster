@@ -94,6 +94,8 @@ namespace SiteFrames {
                         return 2;
                     }
                     return TextDiffFigures.Review(new Site(website), only);
+                case "review-markdown":
+                    return MarkdownFigures.Review(new Site(website), only ?? throw new ArgumentException("Pass the Markdown review output directory."));
                 case "help-review":
                     return HelpFormattingPage.Review(new Site(website), only ?? throw new ArgumentException("Use: SiteFrames help-review [WebsiteRoot] [scratch]"), args.Length > 3 && args[3] == "--reuse-captures");
                 case "help-proof":
@@ -113,7 +115,7 @@ namespace SiteFrames {
                 case "tails-review" when only != null:
                     return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|review-large-run|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-markdown|review-object|review-large-run|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -183,6 +185,7 @@ namespace SiteFrames {
             if (Wants(only, "docs") || Wants(only, "text-diff")) {
                 TextDiffFigures.Capture(site);
             }
+            if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }
@@ -206,6 +209,7 @@ namespace SiteFrames {
             CommandLineHelpFigures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
+            MarkdownFigures.Render(site);
             ThemeFilesPage.Render(site);
             AppPage.Render(site, hosts);
             WidgetsPage.Render(site, hosts);

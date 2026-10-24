@@ -56,8 +56,8 @@ Disable-ConsoleFormatting -Feature Help
 
 This opt-in feature uses the same view when native help goes straight to the console. `help` keeps paging, with
 **Space next · q quit** in the footer. `-Full`, `-Detailed`, `-Examples` and `-Parameter` select the corresponding
-sections; `-Online` and `-ShowWindow` keep PowerShell's behavior. About topics stay literal until Markdown support
-ships. Help is excluded from `-Feature All`.
+sections; `-Online` and `-ShowWindow` keep PowerShell's behavior. About topics use the
+[Markdown reader](/docs/markdown/), while captured output retains PowerShell's original text. Help is excluded from `-Feature All`.
 
 Pipelines, assignments, output variables, redirection, jobs, remoting, CI and transcripts keep PowerShell's own help
 objects and bytes. For example, `Get-Help Get-Process | Out-String` remains native while the feature is enabled.

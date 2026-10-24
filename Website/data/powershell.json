@@ -788,7 +788,7 @@
     },
     {
       "verb": "Show",
-      "count": 9,
+      "count": 10,
       "commands": [
         {
           "name": "Show-Console",
@@ -814,6 +814,11 @@
           "name": "Show-ConsoleHelp",
           "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
           "url": "/powershell/commands/show-consolehelp/"
+        },
+        {
+          "name": "Show-ConsoleMarkdown",
+          "synopsis": "Reads Markdown with native console tables, highlighted code and interactive paging.",
+          "url": "/powershell/commands/show-consolemarkdown/"
         },
         {
           "name": "Show-ConsoleMenu",

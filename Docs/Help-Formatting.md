@@ -32,8 +32,9 @@ corresponding sections. `-Online` and `-ShowWindow` keep PowerShell's native beh
 view explicitly with `Show-ConsoleHelp Get-Process` without enabling the session feature.
 
 `help` pages long content. The footer reads **Space next · q quit**; Space continues and q closes the pager. `Get-Help`
-and `-?` print their help without adding paging. About topics remain PowerShell's literal text until the Markdown
-feature is available; enabling Help does not introduce a Markdown dependency.
+and `-?` print their help without adding paging. About topics use the same OfficeIMO-backed reader as
+`Show-ConsoleMarkdown`, including native tables and code highlighting. The adapter ships with the PowerShell module;
+the ConsoleMonster core remains dependency-free. Captured about-topic output stays PowerShell's original text.
 
 Ctrl+C stops the current pipeline and releases the pager's input lease. Quitting with q returns normally. Both paths
 restore the console input mode before the next prompt.
