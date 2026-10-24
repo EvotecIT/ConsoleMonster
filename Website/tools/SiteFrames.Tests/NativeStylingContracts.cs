@@ -1,3 +1,4 @@
+using VtScreen = ConsoleMonster.Sessions.VtScreen;
 using ConsoleMonster.Canvas;
 using SiteFrames.Capture;
 using SiteFrames.Vt;

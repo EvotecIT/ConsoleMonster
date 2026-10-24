@@ -135,7 +135,7 @@ Accept wildcard characters: False
 ```
 
 ### -Height
-Screen height in cells (default 30).
+Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.
 
 ```yaml
 Type: Int32
@@ -231,7 +231,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Screen width in cells (default 100).
+Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.
 
 ```yaml
 Type: Int32

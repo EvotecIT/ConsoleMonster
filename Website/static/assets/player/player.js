@@ -10,7 +10,7 @@
  *
  * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
  * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
- * hosts add (ExportPlayerData does not write them): chapter marks under the position bar, each a button that seeks to its moment. Players found when the page loads are
+ * ExportPlayerData writes when chapters are present: marks under the position bar and a chapter list that seek to their moments. Players found when the page loads are
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
  * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
  * applies, from the beginning when the player opened at its end (data-cm-start, a deep link, opens there too but does not

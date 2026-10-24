@@ -2402,7 +2402,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
-            <maml:para>Screen height in cells (default 30).</maml:para>
+            <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2479,7 +2479,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
-            <maml:para>Screen width in cells (default 100).</maml:para>
+            <maml:para>Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2581,7 +2581,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
-            <maml:para>Screen height in cells (default 30).</maml:para>
+            <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2658,7 +2658,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
-            <maml:para>Screen width in cells (default 100).</maml:para>
+            <maml:para>Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -2772,7 +2772,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
-          <maml:para>Screen height in cells (default 30).</maml:para>
+          <maml:para>Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -2849,7 +2849,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Width</maml:name>
         <maml:description>
-          <maml:para>Screen width in cells (default 100).</maml:para>
+          <maml:para>Dashboard playback width in cells (default 100). Session casts retain their recorded dimensions.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
