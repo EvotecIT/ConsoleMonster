@@ -20,10 +20,10 @@
   <a class="cm-reel__build" href="/demos/{{ card_demo.slug }}/#build" aria-label="How it's built: {{ card_demo.title | html.escape }} ({{ langs | array.join " · " }})">How it's built <span class="cm-reel__langs">{{ langs | array.join " · " }}</span> <span aria-hidden="true">→</span></a>
   <div class="cm-reel__run">
     <div class="cm-reel__cmd" data-lang="powershell">
-      <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ card_demo.run.powershell | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
+      {{~ cmd_lang = "powershell"; cmd_text = card_demo.run.powershell ~}}{{ include "command" }}
     </div>
     <div class="cm-reel__cmd" data-lang="csharp">
-      <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ card_demo.run.csharp | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
+      {{~ cmd_lang = "bash"; cmd_text = card_demo.run.csharp ~}}{{ include "command" }}
     </div>
   </div>
 </article>
