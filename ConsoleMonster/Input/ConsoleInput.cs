@@ -96,9 +96,8 @@ namespace ConsoleMonster.Input {
         /// <summary>Opens the platform console reader: <see cref="WindowsConsoleInput"/> on Windows, <see cref="ConsoleKeyInput"/> elsewhere.</summary>
         /// <returns>The source, or null when standard input is not a console.</returns>
         public static IInputSource? OpenConsole() {
-            Output.TerminalBackground.ProbeBeforeInput();
-            MarkInputStarted();
             if (WindowsConsole.IsWindows) {
+                MarkInputStarted();
                 return WindowsConsoleInput.TryOpen();
             }
             try {

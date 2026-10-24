@@ -132,6 +132,11 @@ namespace ConsoleMonster {
             }
         }
 
+        /// <summary>Re-evaluates automatic appearance after an owned input reader learns the terminal background.</summary>
+        internal static void RefreshBackground() {
+            lock (Gate) { _detectedTheme = null; }
+        }
+
         /// <summary>
         /// The cached <see cref="Profile"/> with the current window size: after the user resizes the console, print-once
         /// output lays out for the new width while every other detected capability stays cached. An assigned profile,

@@ -38,6 +38,43 @@ namespace ConsoleMonster.Tests.Input {
         }
 
         [Fact]
+        public void AbandonedBackgroundReplyDoesNotTrapSubsequentTyping() {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001b]11;rgb:ffff/", events);
+            System.Threading.Thread.Sleep(300);
+            decoder.Flush(events);
+            Assert.False(decoder.HasPending);
+            decoder.Feed("abc\r\u0003", events);
+            Assert.Equal("abc", new string(events.FindAll(e => e.IsText).ConvertAll(e => e.Char).ToArray()));
+            Assert.True(events[3].Is(ConsoleKey.Enter));
+            Assert.True(events[4].Is(ConsoleKey.C, KeyModifiers.Control));
+        }
+
+        [Theory]
+        [InlineData("\u001b]11;rgb:ffff/hello\r\u0003", "hello")]
+        [InlineData("\u001b]11;rgb:ffff/\r\u0003", "")]
+        public void MalformedBackgroundReplyPreservesUnrelatedKeys(string text, string expected) {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed(text, events);
+            Assert.Equal(expected, new string(events.FindAll(e => e.IsText).ConvertAll(e => e.Char).ToArray()));
+            Assert.True(events[events.Count - 2].Is(ConsoleKey.Enter));
+            Assert.True(events[events.Count - 1].Is(ConsoleKey.C, KeyModifiers.Control));
+            Assert.False(decoder.HasPending);
+        }
+
+        [Fact]
+        public void OverlongBackgroundReplyCannotKeepBufferingInput() {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001b]11;rgb:" + new string('a', 4096) + "\r\u0003", events);
+            Assert.False(decoder.HasPending);
+            Assert.True(events[events.Count - 2].Is(ConsoleKey.Enter));
+            Assert.True(events[events.Count - 1].Is(ConsoleKey.C, KeyModifiers.Control));
+        }
+
+        [Fact]
         public void Feed_PrintableAndControls_NormalizesEvents() {
             List<InputEvent> events = Decode("a!\r\n\t\b\u007f\0\u0001\u001a\u001c\u001f");
             Assert.Equal(9, events.Count);

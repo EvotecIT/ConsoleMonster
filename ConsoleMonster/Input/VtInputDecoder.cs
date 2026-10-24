@@ -35,6 +35,7 @@ namespace ConsoleMonster.Input {
             if (text.Length == 0) {
                 return;
             }
+            ExpireBackgroundReply();
             if (_inPaste) {
                 _pending.Append(text);
                 ProcessPaste(output);
@@ -66,11 +67,8 @@ namespace ConsoleMonster.Input {
                     // A delayed startup colour reply is protocol data, never editable text.
                     if (IgnoreBackgroundReplies && next == ']' && (combined.Substring(i).StartsWith("\u001b]11;", StringComparison.Ordinal)
                         || "\u001b]11;".StartsWith(combined.Substring(i), StringComparison.Ordinal))) {
-                        int end = combined.IndexOf('\u0007', i);
-                        int terminator = 1;
-                        if (end < 0) { end = combined.IndexOf("\u001b\\", i, StringComparison.Ordinal); terminator = 2; }
-                        if (end < 0) { _pending.Append(combined.Substring(i)); break; }
-                        i = end + terminator;
+                        if (!ReadBackgroundReply(combined, i, out int consumed)) { break; }
+                        i += consumed;
                         continue;
                     }
                     if (next == Escape) {
@@ -190,7 +188,10 @@ namespace ConsoleMonster.Input {
             }
             string pending = _pending.ToString();
             if (IgnoreBackgroundReplies && (pending.StartsWith("\u001b]11;", StringComparison.Ordinal)
-                || (pending.Length > 1 && "\u001b]11;".StartsWith(pending, StringComparison.Ordinal)))) { return; }
+                || (pending.Length > 1 && "\u001b]11;".StartsWith(pending, StringComparison.Ordinal)))) {
+                ExpireBackgroundReply();
+                return;
+            }
             _pending.Clear();
             if (pending == Escape.ToString()) {
                 output.Add(InputEvent.Press(ConsoleKey.Escape));

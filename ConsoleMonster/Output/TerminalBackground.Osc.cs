@@ -14,20 +14,15 @@ namespace ConsoleMonster.Output {
 
         /// <summary>Primes the background before a console source is opened; redirected and explicit sources never query.</summary>
         internal static void ProbeBeforeInput() {
-            if (!WindowsConsole.IsWindows) { TryOsc(out _); }
-        }
-
-        private static bool TryOsc(out TerminalBackgroundInfo info) {
-            TerminalBackgroundInfo? detected = _oscBackground;
+            if (WindowsConsole.IsWindows) { return; }
             ConsoleInput.BeforeFirstRead(() => {
                 if (!_oscAttempted) {
                     _oscAttempted = true;
-                    _oscBackground = QueryBackground();
+                    try { _oscBackground = QueryBackground(); }
+                    catch (Exception) { /* Optional detection must never prevent opening the keyboard. */ }
+                    if (_oscBackground != null) { Terminal.RefreshBackground(); }
                 }
-                detected = _oscBackground;
             });
-            info = detected!;
-            return detected != null;
         }
 
         private static TerminalBackgroundInfo? QueryBackground() {

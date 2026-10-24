@@ -6,10 +6,22 @@ using ConsoleMonster.Output;
 
 namespace ConsoleMonster.TestHost {
     internal static class BackgroundProbe {
-        internal static int Run(string receipt) {
+        internal static int Run(string receipt, bool hostInput) {
             string input = string.Empty;
-            using (InputLease lease = ConsoleInput.Acquire()) {
+            // Resolve ordinary output first: a later owned probe must refresh any cached fallback appearance.
+            _ = Terminal.Theme;
+            if (hostInput) {
+                Console.Write("HOST_READY");
+                Thread.Sleep(150);
+                TerminalBackground.TryDetect(out _);
+                Terminal.WriteMarkupLine("Host input remains available");
+                input = Console.ReadLine() ?? string.Empty;
+                File.WriteAllText(receipt + ".value", "native|" + input);
+            } else using (InputLease lease = ConsoleInput.Acquire()) {
                 TerminalBackground.TryDetect(out TerminalBackgroundInfo background);
+                if (ReferenceEquals(Terminal.Theme, ConsoleMonster.Styling.Theme.Light) != background.IsLight) {
+                    throw new InvalidOperationException("The input-startup background did not refresh the theme.");
+                }
                 DateTime deadline = DateTime.UtcNow.AddSeconds(5);
                 while (DateTime.UtcNow < deadline) {
                     InputEvent? next = lease.Source.Read(TimeSpan.FromMilliseconds(100), CancellationToken.None);
