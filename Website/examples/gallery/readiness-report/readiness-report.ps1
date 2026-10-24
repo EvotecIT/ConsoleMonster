@@ -1,4 +1,4 @@
-# Show a readiness report with status checks and score bars.
+﻿# Show a readiness report with status checks and score bars.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0

@@ -1,4 +1,4 @@
-# Animate worker progress bars and a small session dashboard.
+﻿# Animate worker progress bars and a small session dashboard.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

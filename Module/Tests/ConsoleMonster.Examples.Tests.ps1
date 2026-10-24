@@ -337,6 +337,23 @@ foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
 }
 
 Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
+    It 'ships non-ASCII PowerShell scripts as UTF-8 with a BOM for Windows PowerShell 5.1' {
+        $scripts = @(
+            Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Module') -Filter *.ps1 -Recurse |
+                Where-Object FullName -NotMatch '[/\\]Tests[/\\]'
+            Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Website/examples') -Filter *.ps1 -Recurse
+            Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Website/static/examples') -Filter *.ps1 -Recurse
+        )
+        $invalid = foreach ($file in $scripts) {
+            $bytes = [IO.File]::ReadAllBytes($file.FullName)
+            $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+            if (-not $hasBom -and @($bytes | Where-Object { $_ -gt 127 }).Count) {
+                $file.FullName.Substring($script:RepositoryRoot.Length + 1)
+            }
+        }
+        $invalid | Should -BeNullOrEmpty -Because ('Windows PowerShell 5.1 reads BOM-less scripts as the system ANSI encoding: ' + ($invalid -join ', '))
+    }
+
     It '<Name> has no .NET construction or widget method calls' -ForEach $script:ExampleScripts {
         if ($script:InteropAllowList.ContainsKey($Name)) {
             Set-ItResult -Skipped -Because $script:InteropAllowList[$Name]

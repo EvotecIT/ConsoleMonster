@@ -1,4 +1,4 @@
-# Server toolbox: menus, selections, review, live work and actionable results.
+﻿# Server toolbox: menus, selections, review, live work and actionable results.
 # Synthetic data and timings; reports and notifications stay in memory. No remote effects.
 [CmdletBinding()]
 param([switch] $StaticSnapshot, [ValidateRange(0, 5)] [int] $Step = 0)

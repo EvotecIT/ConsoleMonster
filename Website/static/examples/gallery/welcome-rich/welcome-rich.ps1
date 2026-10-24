@@ -1,4 +1,4 @@
-# Print an offline welcome screen with a logo, host summary, git status and tip.
+﻿# Print an offline welcome screen with a logo, host summary, git status and tip.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0

@@ -1,4 +1,4 @@
-# A guided tour of typed prompts, task previews and a dashboard paused for confirmation.
+﻿# A guided tour of typed prompts, task previews and a dashboard paused for confirmation.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

@@ -1,4 +1,4 @@
-# Stress test: thirty-two workers, session telemetry and captured tool output.
+﻿# Stress test: thirty-two workers, session telemetry and captured tool output.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 6)][int]$Step = 0

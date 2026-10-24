@@ -1,4 +1,4 @@
-# Turn a storage inventory into threshold bars and a directory breakdown.
+﻿# Turn a storage inventory into threshold bars and a directory breakdown.
 param([switch] $StaticSnapshot, [ValidateRange(0, 0)][int] $Step = 0)
 Import-Module ConsoleMonster
 

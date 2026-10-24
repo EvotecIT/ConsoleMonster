@@ -1,4 +1,4 @@
-# Filter a synthetic host table as you type.
+﻿# Filter a synthetic host table as you type.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

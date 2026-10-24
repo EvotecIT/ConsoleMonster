@@ -1,4 +1,4 @@
-# Show the same task data as plain text and a formatted table.
+﻿# Show the same task data as plain text and a formatted table.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0

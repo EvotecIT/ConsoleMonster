@@ -1,4 +1,4 @@
-# Run a bounded backup wave and retry only jobs that did not return a result.
+﻿# Run a bounded backup wave and retry only jobs that did not return a result.
 param([switch] $StaticSnapshot, [ValidateRange(0, 2)][int] $Step = 0)
 Import-Module ConsoleMonster
 

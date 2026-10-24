@@ -250,11 +250,11 @@ namespace SiteFrames.Pages {
             }
         }
 
-        // Decode the whole UTF-8 file, preserving its BOM (if any), newlines and final newline.
+        // Display the whole UTF-8 program without the encoding marker; downloads retain the original bytes.
         // Site.ReadText is for normalized snippets and must not be used for copyable full sources.
         private static JsonObject Source(string path, string slug) => new JsonObject {
             ["file"] = Path.GetFileName(path),
-            ["text"] = new UTF8Encoding(false, true).GetString(File.ReadAllBytes(path)),
+            ["text"] = File.ReadAllText(path, new UTF8Encoding(false, true)),
             ["repo"] = "Website/examples/gallery/" + slug + "/" + Path.GetFileName(path)
         };
 

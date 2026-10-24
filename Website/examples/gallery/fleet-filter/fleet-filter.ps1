@@ -1,4 +1,4 @@
-# Explore a small fleet dashboard with an interactive inventory filter.
+﻿# Explore a small fleet dashboard with an interactive inventory filter.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

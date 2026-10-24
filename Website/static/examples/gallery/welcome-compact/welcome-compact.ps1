@@ -1,4 +1,4 @@
-# Print a compact offline greeting suitable for a PowerShell profile.
+﻿# Print a compact offline greeting suitable for a PowerShell profile.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0

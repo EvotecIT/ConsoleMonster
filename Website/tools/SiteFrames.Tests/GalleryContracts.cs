@@ -88,7 +88,10 @@ namespace SiteFrames.Tests {
                     Assert.Equal(file, source["file"]!.GetValue<string>());
                     Assert.Equal(repo, source["repo"]!.GetValue<string>());
                     byte[] canonical = File.ReadAllBytes(Path.Combine(site.Website, "..", repo));
-                    Assert.Equal(canonical, Encoding.UTF8.GetBytes(source["text"]!.GetValue<string>()));
+                    string text = source["text"]!.GetValue<string>();
+                    Assert.False(text.StartsWith('\uFEFF'), slug);
+                    Assert.Equal(File.ReadAllText(Path.Combine(site.Website, "..", repo)), text);
+                    if (language == "powershell") Assert.Equal(new byte[] { 0xEF, 0xBB, 0xBF }, canonical.Take(3));
                     Assert.Equal(canonical, File.ReadAllBytes(site.Static("examples/gallery/" + slug + "/" + file)));
                     int lines = File.ReadAllLines(Path.Combine(site.Website, "..", repo)).Length;
                     Assert.Equal(lines, entry["lines"]![language]!.GetValue<int>());

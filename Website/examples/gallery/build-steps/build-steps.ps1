@@ -1,4 +1,4 @@
-# Animate a build checklist and overall progress without running a build.
+﻿# Animate a build checklist and overall progress without running a build.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

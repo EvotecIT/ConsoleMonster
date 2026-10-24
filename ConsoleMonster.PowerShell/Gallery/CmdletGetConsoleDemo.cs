@@ -64,7 +64,7 @@ namespace ConsoleMonster.PowerShell {
                 string source = PSDemoResources.Script(slug);
                 if (!ShouldProcess(path, "Export ConsoleMonster demo " + slug)) { return; }
                 using (var stream = new FileStream(path, Force.IsPresent ? FileMode.Create : FileMode.CreateNew, FileAccess.Write))
-                using (var writer = new StreamWriter(stream, new UTF8Encoding(false))) {
+                using (var writer = new StreamWriter(stream, new UTF8Encoding(true))) {
                     writer.Write(source);
                 }
                 WriteObject(new FileInfo(path));

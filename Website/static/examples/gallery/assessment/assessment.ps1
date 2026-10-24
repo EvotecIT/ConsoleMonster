@@ -1,4 +1,4 @@
-# Forest assessment: twelve targets, six workers and a full findings dashboard.
+﻿# Forest assessment: twelve targets, six workers and a full findings dashboard.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 11)][int]$Step = 0
@@ -74,12 +74,13 @@ $targets = @(
         [pscustomobject]@{ Key = "dc$i"; Label = ('DC{0:00}' -f $i) + $suffix }
     }
 )
-$randomState = @{ Seed = 2026; Seeded = $false }
+$randomState = @{ Seed = 2026; Seeded = $false; EventOrder = 0 }
 $culture = [cultureinfo]::InvariantCulture
 
 # Build timestamped input events, independently of the layout and live session.
 function New-AssessmentEvent($Time, $Target, $Operation, $Key, $Text, $State, $Value = 0, $Total = 0) {
     [pscustomobject]@{
+        Order = $randomState.EventOrder++
         Time = [Math]::Max(1, [long][Math]::Round($Time))
         Target = $Target
         Operation = $Operation
@@ -205,7 +206,8 @@ $events = @(
     New-AssessmentEvent ($evaluateEnd + 1800) dashboard status $null $final $level
     New-AssessmentEvent ($evaluateEnd + 4500) log write $null 'Done.' info
 )
-$events = @($events | Sort-Object Time -Stable)
+# Keep equal timestamps in their original order on both PowerShell runtimes.
+$events = @($events | Sort-Object Time, Order)
 $end = $events[-1].Time
 $cutoff = switch ($Step) {
     0 { 1 }

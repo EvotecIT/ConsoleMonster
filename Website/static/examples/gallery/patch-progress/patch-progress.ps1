@@ -1,4 +1,4 @@
-# Run synthetic work with a concurrency limit and retain failures for retry.
+﻿# Run synthetic work with a concurrency limit and retain failures for retry.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

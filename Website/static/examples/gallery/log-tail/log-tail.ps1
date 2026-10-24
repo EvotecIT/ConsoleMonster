@@ -1,4 +1,4 @@
-# Reveal a bounded stream of sample log events in a live region.
+﻿# Reveal a bounded stream of sample log events in a live region.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

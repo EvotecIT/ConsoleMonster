@@ -1,4 +1,4 @@
-# Select a server task and show its read-only preview.
+﻿# Select a server task and show its read-only preview.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

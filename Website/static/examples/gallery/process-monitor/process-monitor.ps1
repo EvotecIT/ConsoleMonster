@@ -1,4 +1,4 @@
-# Follow CPU and memory pressure in a bounded top-like dashboard.
+﻿# Follow CPU and memory pressure in a bounded top-like dashboard.
 param([switch] $StaticSnapshot, [ValidateRange(0, 2)][int] $Step = 0)
 Import-Module ConsoleMonster
 

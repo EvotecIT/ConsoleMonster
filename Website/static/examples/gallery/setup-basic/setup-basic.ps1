@@ -1,4 +1,4 @@
-# Build a three-step installer preview with editable fields and buttons.
+﻿# Build a three-step installer preview with editable fields and buttons.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

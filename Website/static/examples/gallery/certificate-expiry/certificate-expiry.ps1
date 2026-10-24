@@ -1,4 +1,4 @@
-# Review certificate renewal deadlines with an owner and a concrete next action.
+﻿# Review certificate renewal deadlines with an owner and a concrete next action.
 param([switch] $StaticSnapshot, [ValidateRange(0, 0)][int] $Step = 0)
 Import-Module ConsoleMonster
 

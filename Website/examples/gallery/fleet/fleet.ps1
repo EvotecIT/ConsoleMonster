@@ -1,4 +1,4 @@
-# Fleet health check: menus, selections, review, live work and actionable results.
+﻿# Fleet health check: menus, selections, review, live work and actionable results.
 # Synthetic data and timings; reports and notifications stay in memory. No remote effects.
 [CmdletBinding()]
 param([switch] $StaticSnapshot, [ValidateRange(0, 5)] [int] $Step = 0)
@@ -59,6 +59,7 @@ function Get-Work {
             $node = $plan.Targets[$ni]; $check = $plan.Checks[$ci]
             $outcome = $findings["$($node.Name)/$($check.Id)"]
             [pscustomobject] @{
+                Order = $ci * $plan.Targets.Count + $ni
                 Node = $node; Check = $check; Cell = $ni * $plan.Checks.Count + $ci
                 Status = $(if ($outcome) { $outcome[0] } else { 'Pass' })
                 Actual = $(if ($outcome) { $outcome[1] } else { $check.Expected })
@@ -155,7 +156,7 @@ function Get-RunBody($Work, [int] $Done, [int] $Phase) {
         New-ConsoleColumns -FixedWidth 0, 0, 20 -CollapseBelow 100 {
             New-ConsolePanel -Title Findings -Weight 1.5 { Get-Findings $finished }
             New-ConsolePanel -Title 'Slowest checks' {
-                $rows = @($finished | Sort-Object Seconds -Descending -Stable | Select-Object -First 5 | ForEach-Object {
+                $rows = @($finished | Sort-Object @{ Expression = 'Seconds'; Descending = $true }, Order | Select-Object -First 5 | ForEach-Object {
                     [pscustomobject] @{ Check = $_.Check.Name; Server = $_.Node.Name; Took = Format-Seconds $_.Seconds }
                 })
                 $columns = @('Check', 'Server', 'Took' | ForEach-Object { @{ Name = $_; Presenter = 'Text' } })

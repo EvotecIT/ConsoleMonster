@@ -1,4 +1,4 @@
-# Patch a forty-host wave with bounded concurrency, timeouts and retained failures.
+﻿# Patch a forty-host wave with bounded concurrency, timeouts and retained failures.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

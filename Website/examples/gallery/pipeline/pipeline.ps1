@@ -1,4 +1,4 @@
-# Module build pipeline: phases, sixteen steps, compiler lanes and captured output.
+﻿# Module build pipeline: phases, sixteen steps, compiler lanes and captured output.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 9)][int]$Step = 0

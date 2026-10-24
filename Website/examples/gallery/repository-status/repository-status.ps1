@@ -1,4 +1,4 @@
-# Review several repositories without leaving the terminal.
+﻿# Review several repositories without leaving the terminal.
 param([switch] $StaticSnapshot, [ValidateRange(0, 0)][int] $Step = 0)
 Import-Module ConsoleMonster
 

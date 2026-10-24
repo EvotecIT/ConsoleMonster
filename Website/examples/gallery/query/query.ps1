@@ -1,4 +1,4 @@
-# DNS and mail security: summary, wrapped records, delegation and resolver latency.
+﻿# DNS and mail security: summary, wrapped records, delegation and resolver latency.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

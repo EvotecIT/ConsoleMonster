@@ -1,4 +1,4 @@
-# A complete installer: location, components, service, connection, review and progress.
+﻿# A complete installer: location, components, service, connection, review and progress.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,

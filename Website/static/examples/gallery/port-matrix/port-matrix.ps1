@@ -1,4 +1,4 @@
-# See which application ports are healthy across a group of hosts.
+﻿# See which application ports are healthy across a group of hosts.
 param([switch] $StaticSnapshot, [ValidateRange(0, 0)][int] $Step = 0)
 Import-Module ConsoleMonster
 
