@@ -1,0 +1,35 @@
+[CmdletBinding()]
+param(
+    [switch] $StaticSnapshot,
+    [ValidateRange(0, 2)] [int] $Step = 0,
+    [hashtable] $AppOptions = @{}
+)
+
+Import-Module ConsoleMonster
+$AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
+
+$wizard = [pscustomobject] @{ Page = $Step }
+Show-ConsoleApp {
+    New-ConsoleRows -Gap 1 {
+        '[bold]Install Toolbox Agent[/] [muted]· preview only[/]'
+        New-ConsoleTextInput -Name Folder -Label 'Install folder' -Value './toolbox-agent'
+        New-ConsoleSelect -Name Component -Label Component -Choices 'Core', 'Core + reports' -Value Core
+        New-ConsoleButton -Name Back -Label Back -OnClick { $wizard.Page = [Math]::Max(0, $wizard.Page - 1) }
+        New-ConsoleButton -Name Next -Label 'Next / preview' -OnClick { $wizard.Page = [Math]::Min(2, $wizard.Page + 1) }
+        New-ConsoleBinding {
+            param($State)
+            New-ConsolePanel -Title (@('1 / 3 · Location', '2 / 3 · Components', '3 / 3 · Review')[$wizard.Page]) {
+                switch ($wizard.Page) {
+                    0 { 'Choose a writable folder. No directory will be created.' }
+                    1 { 'Core runs local jobs. Reports adds an HTML summary.' }
+                    2 {
+                        # Plain text widgets escape user-entered values automatically.
+                        New-ConsoleText "Folder: $($State.Folder)"
+                        New-ConsoleText "Component: $($State.Component)"
+                        '[pass]Preview ready. Nothing has been installed.[/]'
+                    }
+                }
+            }
+        }
+    }
+} @AppOptions

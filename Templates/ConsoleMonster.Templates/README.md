@@ -20,8 +20,39 @@ The app shows:
 
 When the output is redirected, it prints the report instead of opening the menu.
 
+Start from a gallery demo with just the `ConsoleMonster` package:
+
+```shell
+dotnet new consolemonster --demo fleet -o FleetDemo
+cd FleetDemo
+dotnet run -- --snapshot          # deterministic output, also the default when redirected
+dotnet run -- --snapshot --step 2 # a particular point in the demo
+```
+
+The available demos are `assessment`, `fleet`, `setup`, `stress`, `pipeline`,
+`live-filter`, `toolbox`, `parallel-patch`, `log-tail`, `welcome-compact`,
+`welcome-rich`, and `everyday`. Interactive demos run live in a terminal; static
+demos print their output. Each generated `Program.cs` is the same source used by
+the website gallery. Omitting `--demo` keeps the menu and hosted service above.
+
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--Framework` | `net8.0` | `net8.0` or `net10.0`. |
 | `--ConsoleMonsterVersion` | `2.0.*` | The ConsoleMonster package version (the newest 2.0 release by default). |
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
+| `--demo` | `none` | A gallery slug, or `none` for the menu and hosted service. |
+
+For development, stage the template sources from the repository root, then install
+the staging directory reported by MSBuild:
+
+```shell
+dotnet msbuild Templates/ConsoleMonster.Templates/ConsoleMonster.Templates.csproj -t:PrepareTemplateSource
+dotnet new install Templates/ConsoleMonster.Templates/obj/template-source
+python3 Tests/Build/test_template_gallery.py
+```
+
+The integration test packs and installs the actual `.nupkg` in an isolated template
+hive, compares every generated program with the canonical gallery source, and
+builds and runs the demos against the local ConsoleMonster project. It also checks
+folder installation and the default template. Python 3 and the .NET 10 SDK are
+required; temporary test output is removed when the test finishes.

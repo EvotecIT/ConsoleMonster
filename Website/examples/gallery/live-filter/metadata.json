@@ -1,0 +1,27 @@
+{
+  "slug": "live-filter",
+  "title": "Live filter app",
+  "pitch": "Type a literal query and watch matching rows update immediately.",
+  "category": "Terminal apps",
+  "tags": [
+    "input",
+    "filter",
+    "table"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 24
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the five sample hosts with your inventory.",
+    "Choose the properties your users search.",
+    "Add a detail panel for the selected result."
+  ],
+  "mode": "live",
+  "steps": 3
+}

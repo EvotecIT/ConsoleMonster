@@ -1,0 +1,17 @@
+{
+  "slug": "welcome-rich",
+  "title": "Workspace welcome",
+  "pitch": "Start a shell session with a logo, host summary, git snapshot, and one useful tip.",
+  "category": "Welcome screens",
+  "tags": ["profile", "welcome", "logo", "git", "offline"],
+  "terminal": { "width": 88, "height": 24 },
+  "runtime": { "powershell": "7.4+", "dotnet": "8.0+" },
+  "addons": [],
+  "makeItYours": [
+    "Use the PowerShell body in $PROFILE after the param block and replace HELLO with a short banner of your own.",
+    "Replace the fixed fictional host summary with cached local values, keeping profile startup fast and offline.",
+    "Replace the sample git counts with a cached local repository summary and choose a help tip for your workflow."
+  ],
+  "mode": "static",
+  "steps": 1
+}

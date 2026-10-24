@@ -1,0 +1,27 @@
+{
+  "slug": "stress",
+  "title": "Stress dashboard",
+  "pitch": "Eight simulated workers, a throughput trend and a bounded queue.",
+  "category": "Dashboards",
+  "tags": [
+    "live",
+    "progress",
+    "sparkline"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the eight simulated workers with your queue.",
+    "Feed the sparkline measured update rates.",
+    "Choose queue and error thresholds."
+  ],
+  "mode": "live",
+  "steps": 5
+}

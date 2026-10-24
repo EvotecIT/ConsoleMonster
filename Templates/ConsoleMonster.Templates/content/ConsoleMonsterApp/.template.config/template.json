@@ -37,8 +37,142 @@
       "description": "Leaves native AOT publishing off.",
       "datatype": "bool",
       "defaultValue": "false"
+    },
+    "demo": {
+      "type": "parameter",
+      "description": "Start from a gallery demo instead of the menu and hosted service.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "none",
+          "description": "The menu, report and hosted service."
+        },
+        { "choice": "assessment" },
+        { "choice": "fleet" },
+        { "choice": "setup" },
+        { "choice": "stress" },
+        { "choice": "pipeline" },
+        { "choice": "live-filter" },
+        { "choice": "toolbox" },
+        { "choice": "parallel-patch" },
+        { "choice": "log-tail" },
+        { "choice": "welcome-compact" },
+        { "choice": "welcome-rich" },
+        { "choice": "everyday" }
+      ],
+      "defaultValue": "none"
     }
   },
   "primaryOutputs": [ { "path": "ConsoleMonsterApp.csproj" } ],
-  "postActions": []
+  "postActions": [],
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(demo != \"none\")",
+          "exclude": [ "Program.cs" ]
+        },
+        {
+          "condition": "true",
+          "exclude": [ "gallery/**" ]
+        }
+      ]
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "assessment/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "assessment/Program.cs": "Program.cs" },
+      "condition": "(demo == \"assessment\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "fleet/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "fleet/Program.cs": "Program.cs" },
+      "condition": "(demo == \"fleet\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "setup/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "setup/Program.cs": "Program.cs" },
+      "condition": "(demo == \"setup\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "stress/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "stress/Program.cs": "Program.cs" },
+      "condition": "(demo == \"stress\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "pipeline/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "pipeline/Program.cs": "Program.cs" },
+      "condition": "(demo == \"pipeline\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "live-filter/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "live-filter/Program.cs": "Program.cs" },
+      "condition": "(demo == \"live-filter\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "toolbox/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "toolbox/Program.cs": "Program.cs" },
+      "condition": "(demo == \"toolbox\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "parallel-patch/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "parallel-patch/Program.cs": "Program.cs" },
+      "condition": "(demo == \"parallel-patch\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "log-tail/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "log-tail/Program.cs": "Program.cs" },
+      "condition": "(demo == \"log-tail\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "welcome-compact/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "welcome-compact/Program.cs": "Program.cs" },
+      "condition": "(demo == \"welcome-compact\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "welcome-rich/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "welcome-rich/Program.cs": "Program.cs" },
+      "condition": "(demo == \"welcome-rich\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [ "everyday/Program.cs" ],
+      "copyOnly": [ "**/*.cs" ],
+      "rename": { "everyday/Program.cs": "Program.cs" },
+      "condition": "(demo == \"everyday\")"
+    }
+  ]
 }

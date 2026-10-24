@@ -1,0 +1,782 @@
+{
+  "schemaVersion": 1,
+  "demos": [
+    {
+      "slug": "assessment",
+      "title": "Readiness assessment",
+      "pitch": "Show what passed, what needs attention, and where to start in one static dashboard.",
+      "category": "Dashboards",
+      "tags": [
+        "assessment",
+        "status checks",
+        "bar chart",
+        "offline"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 30
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the fixed check results with your own in-memory assessment results and update the summary counts.",
+        "Change the area scores and warning thresholds to match your readiness criteria.",
+        "Replace the next-action sentence with a concrete response to your highest-priority finding."
+      ],
+      "mode": "static",
+      "steps": 1,
+      "id": "assessment",
+      "powershell": "param(\n    [switch]$StaticSnapshot,\n    [ValidateRange(0, 0)][int]$Step = 0\n)\n\nImport-Module ConsoleMonster\n\n# Fixed sample results: no checks run against your machine or any service.\n# Replace these items with results you already have in memory.\n$checks = @(\n    @{ Name = 'Configuration'; Status = 'Pass'; Detail = 'All required settings present' }\n    @{ Name = 'Dependencies'; Status = 'Pass'; Detail = 'No conflicting versions' }\n    @{ Name = 'Test coverage'; Status = 'Warn'; Detail = 'Two scenarios need attention' }\n    @{ Name = 'Documentation'; Status = 'Pass'; Detail = 'Examples match the current API' }\n    @{ Name = 'Recovery plan'; Status = 'Fail'; Detail = 'Restore rehearsal still needed' }\n)\n$scores = [ordered]@{ Configuration = 100; Coverage = 72; Recovery = 35 }\n\nNew-ConsoleRows -Gap 1 {\n    New-ConsoleRule '[bold]Readiness assessment[/] [muted]| sample workspace[/]'\n    New-ConsoleText -Markup '[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]'\n    New-ConsolePanel -Title 'Checks' {\n        New-ConsoleStatusList {\n            foreach ($check in $checks) {\n                New-ConsoleStatusItem $check.Name -Status $check.Status -Detail $check.Detail\n            }\n        }\n    }\n    New-ConsolePanel -Title 'Readiness by area' -Caption 'score / 100' {\n        New-ConsoleBarChart -Data $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50\n    }\n    New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'\n    New-ConsoleText -Markup '[muted]Illustrative results only. No live assessment has been performed.[/]'\n} | Write-ConsoleWidget",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// Fixed sample results; --snapshot and --step 0 need no special handling.\n// Replace these items with results you already have in memory.\nvar checks = new[] {\n    (Name: \"Configuration\", Status: StatusKind.Pass, Detail: \"All required settings present\"),\n    (Name: \"Dependencies\", Status: StatusKind.Pass, Detail: \"No conflicting versions\"),\n    (Name: \"Test coverage\", Status: StatusKind.Warn, Detail: \"Two scenarios need attention\"),\n    (Name: \"Documentation\", Status: StatusKind.Pass, Detail: \"Examples match the current API\"),\n    (Name: \"Recovery plan\", Status: StatusKind.Fail, Detail: \"Restore rehearsal still needed\")\n};\nStatusList statuses = new StatusList();\nforeach (var check in checks) {\n    statuses.Add(check.Name, check.Status, check.Detail);\n}\nBarChart scores = new BarChart { Max = 100, Unit = \"%\", Warning = 80, Critical = 50 };\nscores.Add(\"Configuration\", 100);\nscores.Add(\"Coverage\", 72);\nscores.Add(\"Recovery\", 35);\n\nTerminal.Write(new Rows(\n    new Rule(\"[bold]Readiness assessment[/] [muted]| sample workspace[/]\"),\n    new TextBlock(\"[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]\"),\n    new Panel(statuses, \"Checks\"),\n    new Panel(scores, \"Readiness by area\") { Caption = \"score / 100\" },\n    new TextBlock(\"[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.\"),\n    new TextBlock(\"[muted]Illustrative results only. No live assessment has been performed.[/]\")) { Gap = 1 });",
+      "powershellRepo": "Website/examples/gallery/assessment/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/assessment/Program.cs",
+      "powershellFile": "assessment.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/assessment.svg",
+      "frame": {
+        "w": 88,
+        "h": 21,
+        "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c21\">Readiness assessment </span><span class=\"f8b8f9a B c18\">| sample workspace</span><span class=c1> </span><i class=\"g2500 c45 f4b5060\">─────────────────────────────────────────────</i>\n\n<span class=\"f4ade80 c8\">3 passed</span><span class=c3>   </span><span class=\"ffbbf24 c9\">1 warning</span><span class=c3>   </span><span class=\"ff87171 c8\">1 failed</span><span class=c3>   </span><span class=f8b8f9a>5 checks total</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Checks</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c77\">─────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c54> Configuration                                        </span><span class=\"f8b8f9a c29\">All required settings present</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c60> Dependencies                                               </span><span class=\"f8b8f9a c23\">No conflicting versions</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ffbbf24\">▴</i><span class=c55> Test coverage                                         </span><span class=\"f8b8f9a c28\">Two scenarios need attention</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c53> Documentation                                       </span><span class=\"f8b8f9a c30\">Examples match the current API</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c53> Recovery plan                                       </span><span class=\"f8b8f9a c30\">Restore rehearsal still needed</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c17\">Readiness by area</span><span class=c1> </span><i class=\"g2500 c52 f4b5060\">────────────────────────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c11\">score / 100</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c15> Configuration </span><i class=\"g2586 c65 f60a5fa\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=\"f8b8f9a c4\">100%</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c15> Coverage      </span><i class=\"g2586 c47 ffbbf24\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c20>                    </span><span class=\"ffbbf24 c3\">72%</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c15> Recovery      </span><i class=\"g2586 c23 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c44>                                            </span><span class=\"ff87171 c3\">35%</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"B c5\">Next:</span> rehearse a restore, then add the two missing test scenarios.\n\n<span class=f8b8f9a>Illustrative results only. No live assessment has been performed.</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/assessment/demo.ps1",
+      "csharpDownload": "/examples/gallery/assessment/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo assessment",
+        "export": "Get-ConsoleDemo assessment -Path ./assessment.ps1",
+        "csharp": "dotnet new consolemonster --demo assessment"
+      }
+    },
+    {
+      "slug": "everyday",
+      "title": "Everyday formatting",
+      "pitch": "Turn the same task objects from plain text into a readable table with status colour and aligned numbers.",
+      "category": "Everyday",
+      "tags": [
+        "formatting",
+        "table",
+        "before and after",
+        "objects"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 28
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the synthetic task objects with your own local task list and keep both views on that same collection.",
+        "Add a priority or project field to the objects, then add its column and cell to the table.",
+        "Change the state-to-colour mapping and numeric column to match your everyday report."
+      ],
+      "mode": "static",
+      "steps": 1,
+      "id": "everyday",
+      "powershell": "param(\n    [switch]$StaticSnapshot,\n    [ValidateRange(0, 0)][int]$Step = 0\n)\n\nImport-Module ConsoleMonster\n\n# The same synthetic objects feed the plain baseline and the formatted table.\n$tasks = @(\n    [pscustomobject]@{ Task = 'Draft release notes'; State = 'Ready'; Minutes = 12 }\n    [pscustomobject]@{ Task = 'Review examples'; State = 'In progress'; Minutes = 25 }\n    [pscustomobject]@{ Task = 'Archive old drafts'; State = 'Waiting'; Minutes = 8 }\n)\n$baseline = ($tasks | ForEach-Object { \"$($_.Task) | $($_.State) | $($_.Minutes) min\" }) -join \"`n\"\n\nNew-ConsoleRows -Gap 1 {\n    New-ConsoleRule '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'\n    New-ConsoleText -Markup '[bold]Before[/] [muted]| plain text[/]'\n    New-ConsoleText $baseline\n    New-ConsoleText -Markup '[bold]After[/] [muted]| ConsoleMonster table[/]'\n    $tasks | New-ConsoleTable -Property Task, State, Minutes -Expand\n    New-ConsoleText -Markup '[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]'\n} | Write-ConsoleWidget",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\n\n// The same synthetic objects feed both views. Static arguments can be ignored.\nvar tasks = new[] {\n    new { Task = \"Draft release notes\", State = \"Ready\", Minutes = 12 },\n    new { Task = \"Review examples\", State = \"In progress\", Minutes = 25 },\n    new { Task = \"Archive old drafts\", State = \"Waiting\", Minutes = 8 }\n};\nstring baseline = \"\";\nTable table = new Table { Expand = true };\ntable.AddColumn(\"Task\");\ntable.AddColumn(\"State\", column => column.Presenter = CellPresenters.StatusWord);\ntable.AddColumn(\"Minutes\");\nforeach (var task in tasks) {\n    if (baseline.Length > 0) {\n        baseline += \"\\n\";\n    }\n    baseline += $\"{task.Task} | {task.State} | {task.Minutes} min\";\n    table.AddRow(task.Task, TableCell.FromValue(task.State), TableCell.FromValue(task.Minutes));\n}\n\nTerminal.Write(new Rows(\n    new Rule(\"[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]\"),\n    new TextBlock(\"[bold]Before[/] [muted]| plain text[/]\"),\n    new TextBlock(baseline),\n    new TextBlock(\"[bold]After[/] [muted]| ConsoleMonster table[/]\"),\n    table,\n    new TextBlock(\"[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]\")) { Gap = 1 });",
+      "powershellRepo": "Website/examples/gallery/everyday/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/everyday/Program.cs",
+      "powershellFile": "everyday.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/everyday.svg",
+      "frame": {
+        "w": 88,
+        "h": 19,
+        "dark": "<i class=\"g2500 c2 f4b5060\">──</i><span class=c1> </span><span class=\"B c20\">Everyday formatting </span><span class=\"f8b8f9a B c30\">| same objects, clearer output</span><span class=c1> </span><i class=\"g2500 c34 f4b5060\">──────────────────────────────────</i>\n\n<span class=\"B c6\">Before</span><span class=c1> </span><span class=f8b8f9a>| plain text</span>\n\nDraft release notes | Ready | 12 min\nReview examples | In progress | 25 min\nArchive old drafts | Waiting | 8 min\n\n<span class=\"B c5\">After</span><span class=c1> </span><span class=f8b8f9a>| ConsoleMonster table</span>\n\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c62\">──────────────────────────────────────────────────────────────</i><i class=g252c>┬</i><i class=\"g2500 c13\">─────────────</i><i class=g252c>┬</i><i class=\"g2500 c9\">─────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Task</span><span class=c57>                                                         </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c5\">State</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c7\">Minutes</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c62\">──────────────────────────────────────────────────────────────</i><i class=g253c>┼</i><i class=\"g2500 c13\">─────────────</i><i class=g253c>┼</i><i class=\"g2500 c9\">─────────</i><i class=g2524>┤</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c62> Draft release notes                                          </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> Ready</span><span class=c5>     </span><i class=\"g2502 f4b5060\">│</i><span class=c9>      12 </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c62> Review examples                                              </span><i class=\"g2502 f4b5060\">│</i><span class=c13> In progress </span><i class=\"g2502 f4b5060\">│</i><span class=c9>      25 </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c62> Archive old drafts                                           </span><i class=\"g2502 f4b5060\">│</i><span class=c13> Waiting     </span><i class=\"g2502 f4b5060\">│</i><span class=c9>       8 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c62\">──────────────────────────────────────────────────────────────</i><i class=g2534>┴</i><i class=\"g2500 c13\">─────────────</i><i class=g2534>┴</i><i class=\"g2500 c9\">─────────</i><i class=g256f>╯</i></span>\n\n<span class=f8b8f9a>Three sample tasks. Aligned columns and right-aligned numbers.</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/everyday/demo.ps1",
+      "csharpDownload": "/examples/gallery/everyday/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo everyday",
+        "export": "Get-ConsoleDemo everyday -Path ./everyday.ps1",
+        "csharp": "dotnet new consolemonster --demo everyday"
+      }
+    },
+    {
+      "slug": "fleet",
+      "title": "Fleet health TUI",
+      "pitch": "Filter five hosts while retaining a fleet-wide health summary.",
+      "category": "Terminal apps",
+      "tags": [
+        "input",
+        "filter",
+        "table"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 24
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the five sample hosts with your inventory.",
+        "Choose the properties your users search.",
+        "Change the summary counts and status rules."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "id": "fleet",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 2)] [int] $Step = 0,\n    [hashtable] $AppOptions = @{}\n)\n\nImport-Module ConsoleMonster\n$AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)\n\n$hosts = @(\n    [pscustomobject] @{ Host = 'web-01'; Role = 'Web'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'web-02'; Role = 'Web'; Site = 'West'; Status = 'Warn' }\n    [pscustomobject] @{ Host = 'sql-01'; Role = 'Database'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'sql-02'; Role = 'Database'; Site = 'West'; Status = 'Fail' }\n    [pscustomobject] @{ Host = 'job-01'; Role = 'Worker'; Site = 'West'; Status = 'Running' }\n)\n$query = @('', 'sql', 'missing')[$Step]\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Fleet health[/] [muted]· synthetic inventory[/]'\n        New-ConsolePanel -Title 'Fleet summary' {\n            '[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]'\n        }\n\n        New-ConsoleTextInput -Name Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'\n        New-ConsoleBinding {\n            param($State)\n            $queryText = [string] $State.Query\n            $rows = @($hosts | Where-Object {\n                ($_.Host, $_.Role, $_.Site, $_.Status -join ' ').IndexOf($queryText, [StringComparison]::OrdinalIgnoreCase) -ge 0\n            })\n            \"$($rows.Count) of $($hosts.Count) hosts\"\n            New-ConsoleTable -InputObject $rows -Property Host, Role, Site, Status\n            if ($rows.Count -eq 0) { '[muted]No matching hosts. Backspace to broaden the filter.[/]' }\n        }\n    }\n} @AppOptions",
+      "csharp": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));\n\nvar hosts = new[] {\n    new { Host = \"web-01\", Role = \"Web\", Site = \"North\", Status = \"Pass\" },\n    new { Host = \"web-02\", Role = \"Web\", Site = \"West\", Status = \"Warn\" },\n    new { Host = \"sql-01\", Role = \"Database\", Site = \"North\", Status = \"Pass\" },\n    new { Host = \"sql-02\", Role = \"Database\", Site = \"West\", Status = \"Fail\" },\n    new { Host = \"job-01\", Role = \"Worker\", Site = \"West\", Status = \"Running\" }\n};\nIWidget Results(string query) {\n    var rows = hosts.Where(host => string.Join(\" \", host.Host, host.Role, host.Site, host.Status)\n        .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();\n    Table table = new Table().AddColumn(\"Host\").AddColumn(\"Role\").AddColumn(\"Site\").AddColumn(\"Status\", column => column.Presenter = CellPresenters.StatusWord);\n    foreach (var host in rows) table.AddRow(host.Host, host.Role, host.Site, TableCell.FromValue(host.Status));\n    Rows result = new Rows(new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) +\n        \" of \" + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + \" hosts\"), table);\n    if (rows.Length == 0) result.Add(new TextBlock(\"[muted]No matching hosts. Backspace to broaden the filter.[/]\"));\n    return result;\n}\nRows layout = new Rows(\n    new TextBlock(\"[bold]Fleet health[/] [muted]· synthetic inventory[/]\"),\n    new Panel(new TextBlock(\"[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]\"), \"Fleet summary\"),\n\n    new TextInput(\"Query\", new[] { \"\", \"sql\", \"missing\" }[step]) { Label = \"Filter\", Placeholder = \"Host, role, site or status\" },\n    new AppBinding(state => Results(state.Get<string>(\"Query\", string.Empty)))) { Gap = 1 };\nConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });",
+      "powershellRepo": "Website/examples/gallery/fleet/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/fleet/Program.cs",
+      "powershellFile": "fleet.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/fleet.svg",
+      "frame": {
+        "w": 88,
+        "h": 17,
+        "dark": "<span class=\"B c12\">Fleet health</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> synthetic inventory</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c13\">Fleet summary</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c70\">──────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c9\">2 healthy</span><span class=c2>  </span><span class=\"ffbbf24 c9\">1 warning</span><span class=c2>  </span><span class=\"ff87171 c9\">1 offline</span><span class=c2>  </span><span class=\"f60a5fa c9\">1 running</span><span class=c43>                                           </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c8\"><i class=n>›</i> Filter</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c75\">───────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c8> missing</span><span class=\"rv c1\"> </span><span class=c77>                                                                             </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n0 of 5 hosts\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Host</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Role</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Site</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c6\">Status</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g2524>┤</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g256f>╯</i></span>\n<span class=f8b8f9a>No matching hosts. Backspace to broaden the filter.</span>\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/fleet/demo.ps1",
+      "csharpDownload": "/examples/gallery/fleet/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo fleet",
+        "export": "Get-ConsoleDemo fleet -Path ./fleet.ps1",
+        "csharp": "dotnet new consolemonster --demo fleet"
+      },
+      "url": "/replays/gallery-fleet.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "live-filter",
+      "title": "Live filter app",
+      "pitch": "Type a literal query and watch matching rows update immediately.",
+      "category": "Terminal apps",
+      "tags": [
+        "input",
+        "filter",
+        "table"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 24
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the five sample hosts with your inventory.",
+        "Choose the properties your users search.",
+        "Add a detail panel for the selected result."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "id": "live-filter",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 2)] [int] $Step = 0,\n    [hashtable] $AppOptions = @{}\n)\n\nImport-Module ConsoleMonster\n$AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)\n\n$hosts = @(\n    [pscustomobject] @{ Host = 'web-01'; Role = 'Web'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'web-02'; Role = 'Web'; Site = 'West'; Status = 'Warn' }\n    [pscustomobject] @{ Host = 'sql-01'; Role = 'Database'; Site = 'North'; Status = 'Pass' }\n    [pscustomobject] @{ Host = 'sql-02'; Role = 'Database'; Site = 'West'; Status = 'Fail' }\n    [pscustomobject] @{ Host = 'job-01'; Role = 'Worker'; Site = 'West'; Status = 'Running' }\n)\n$query = @('', 'sql', 'missing')[$Step]\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Live filter[/] [muted]· synthetic inventory[/]'\n\n        New-ConsoleTextInput -Name Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'\n        New-ConsoleBinding {\n            param($State)\n            $queryText = [string] $State.Query\n            $rows = @($hosts | Where-Object {\n                ($_.Host, $_.Role, $_.Site, $_.Status -join ' ').IndexOf($queryText, [StringComparison]::OrdinalIgnoreCase) -ge 0\n            })\n            \"$($rows.Count) of $($hosts.Count) hosts\"\n            New-ConsoleTable -InputObject $rows -Property Host, Role, Site, Status\n            if ($rows.Count -eq 0) { '[muted]No matching hosts. Backspace to broaden the filter.[/]' }\n        }\n    }\n} @AppOptions",
+      "csharp": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));\n\nvar hosts = new[] {\n    new { Host = \"web-01\", Role = \"Web\", Site = \"North\", Status = \"Pass\" },\n    new { Host = \"web-02\", Role = \"Web\", Site = \"West\", Status = \"Warn\" },\n    new { Host = \"sql-01\", Role = \"Database\", Site = \"North\", Status = \"Pass\" },\n    new { Host = \"sql-02\", Role = \"Database\", Site = \"West\", Status = \"Fail\" },\n    new { Host = \"job-01\", Role = \"Worker\", Site = \"West\", Status = \"Running\" }\n};\nIWidget Results(string query) {\n    var rows = hosts.Where(host => string.Join(\" \", host.Host, host.Role, host.Site, host.Status)\n        .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();\n    Table table = new Table().AddColumn(\"Host\").AddColumn(\"Role\").AddColumn(\"Site\").AddColumn(\"Status\", column => column.Presenter = CellPresenters.StatusWord);\n    foreach (var host in rows) table.AddRow(host.Host, host.Role, host.Site, TableCell.FromValue(host.Status));\n    Rows result = new Rows(new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) +\n        \" of \" + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + \" hosts\"), table);\n    if (rows.Length == 0) result.Add(new TextBlock(\"[muted]No matching hosts. Backspace to broaden the filter.[/]\"));\n    return result;\n}\nRows layout = new Rows(\n    new TextBlock(\"[bold]Live filter[/] [muted]· synthetic inventory[/]\"),\n\n    new TextInput(\"Query\", new[] { \"\", \"sql\", \"missing\" }[step]) { Label = \"Filter\", Placeholder = \"Host, role, site or status\" },\n    new AppBinding(state => Results(state.Get<string>(\"Query\", string.Empty)))) { Gap = 1 };\nConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });",
+      "powershellRepo": "Website/examples/gallery/live-filter/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/live-filter/Program.cs",
+      "powershellFile": "live-filter.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/live-filter.svg",
+      "frame": {
+        "w": 88,
+        "h": 13,
+        "dark": "<span class=\"B c11\">Live filter</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> synthetic inventory</span>\n\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c8\"><i class=n>›</i> Filter</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c75\">───────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c8> missing</span><span class=\"rv c1\"> </span><span class=c77>                                                                             </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n0 of 5 hosts\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c6\">──────</i><i class=g252c>┬</i><i class=\"g2500 c8\">────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Host</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Role</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Site</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c6\">Status</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c6\">──────</i><i class=g253c>┼</i><i class=\"g2500 c8\">────────</i><i class=g2524>┤</i></span>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c6\">──────</i><i class=g2534>┴</i><i class=\"g2500 c8\">────────</i><i class=g256f>╯</i></span>\n<span class=f8b8f9a>No matching hosts. Backspace to broaden the filter.</span>\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/live-filter/demo.ps1",
+      "csharpDownload": "/examples/gallery/live-filter/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo live-filter",
+        "export": "Get-ConsoleDemo live-filter -Path ./live-filter.ps1",
+        "csharp": "dotnet new consolemonster --demo live-filter"
+      },
+      "url": "/replays/gallery-live-filter.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "log-tail",
+      "title": "Log tail",
+      "pitch": "Watch a bounded log fill with synthetic events and a recoverable warning.",
+      "category": "Terminal apps",
+      "tags": [
+        "live",
+        "logs",
+        "status"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 18
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the inline messages with your event source.",
+        "Keep a bounded buffer when following long runs.",
+        "Choose which levels deserve warning or failure colours."
+      ],
+      "mode": "live",
+      "steps": 5,
+      "id": "log-tail",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 4)] [int] $Step = 0\n)\n\nImport-Module ConsoleMonster\n# All values are synthetic. This example never connects to a host.\n\n$messages = @(\n    '[muted]09:41:00[/] [accent]INFO[/]  Worker started'\n    '[muted]09:41:01[/] [pass]INFO[/]  Loaded 12 queued jobs'\n    '[muted]09:41:02[/] [warn]WARN[/]  Cache cold; using local fallback'\n    '[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining'\n    '[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost'\n)\nfunction New-DemoFrame($Tick) {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Application log[/] [muted]· synthetic events[/]'\n        New-ConsolePanel -Title './logs/worker.log' {\n            foreach ($line in $messages[0..$Tick]) { $line }\n        }\n        \"[muted]$($Tick + 1) / 5 events · bounded sample · Ctrl+C stops the live run[/]\"\n    }\n}\n\nif ($StaticSnapshot -or [Console]::IsInputRedirected) {\n    New-DemoFrame $Step | Write-ConsoleWidget\n    return\n}\n$frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })\n$screen = New-ConsoleRegion -Name demo -Widget $frames[0]\nStart-ConsoleDashboard $screen -ArgumentList (, $frames) {\n    param($Frames)\n    foreach ($frame in $Frames) {\n        if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }\n        Set-ConsoleRegion -Name demo -Widget $frame\n        Start-Sleep -Milliseconds 650\n    }\n}",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Live;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));\n// All values are synthetic. This example never connects to a host.\n\nstring[] messages = {\n    \"[muted]09:41:00[/] [accent]INFO[/]  Worker started\",\n    \"[muted]09:41:01[/] [pass]INFO[/]  Loaded 12 queued jobs\",\n    \"[muted]09:41:02[/] [warn]WARN[/]  Cache cold; using local fallback\",\n    \"[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining\",\n    \"[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost\"\n};\nIWidget Frame(int tick) {\n    Rows lines = new Rows();\n    foreach (string line in messages.Take(tick + 1)) lines.Add(new TextBlock(line));\n    return new Rows(new TextBlock(\"[bold]Application log[/] [muted]· synthetic events[/]\"),\n        new Panel(lines, \"./logs/worker.log\"), new TextBlock(\"[muted]\" +\n            (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) +\n            \" / 5 events · bounded sample · Ctrl+C stops the live run[/]\")) { Gap = 1 };\n}\n\nif (snapshot) {\n    Terminal.Write(Frame(step));\n    return;\n}\nSlot screen = new Slot(\"demo\", Frame(0));\nusing LiveSession session = new LiveSession(screen);\nsession.Run(live => {\n    for (int tick = 0; tick <= 4 && !live.Cancellation.IsCancellationRequested; tick++) {\n        screen.Handle(live).Set(Frame(tick));\n        if (live.Cancellation.WaitHandle.WaitOne(650)) break;\n    }\n});",
+      "powershellRepo": "Website/examples/gallery/log-tail/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/log-tail/Program.cs",
+      "powershellFile": "log-tail.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/log-tail.svg",
+      "frame": {
+        "w": 88,
+        "h": 11,
+        "dark": "<span class=\"B c15\">Application log</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> synthetic events</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c17\">./logs/worker.log</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c66\">──────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">09:41:00</span><span class=c1> </span><span class=\"f60a5fa c4\">INFO</span><span class=c72>  Worker started                                                        </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">09:41:01</span><span class=c1> </span><span class=\"f4ade80 c4\">INFO</span><span class=c72>  Loaded 12 queued jobs                                                 </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">09:41:02</span><span class=c1> </span><span class=\"ffbbf24 c4\">WARN</span><span class=c72>  Cache cold; using local fallback                                      </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">09:41:03</span><span class=c1> </span><span class=\"f4ade80 c4\">INFO</span><span class=c72>  Cache warm; queue draining                                            </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">09:41:04</span><span class=c1> </span><span class=\"f4ade80 c4\">INFO</span><span class=c72>  Batch complete; no jobs lost                                          </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=f8b8f9a>5 / 5 events <i class=n>·</i> bounded sample <i class=n>·</i> Ctrl+C stops the live run</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        },
+        {
+          "step": 3,
+          "identical": true
+        },
+        {
+          "step": 4,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/log-tail/demo.ps1",
+      "csharpDownload": "/examples/gallery/log-tail/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo log-tail",
+        "export": "Get-ConsoleDemo log-tail -Path ./log-tail.ps1",
+        "csharp": "dotnet new consolemonster --demo log-tail"
+      },
+      "url": "/replays/gallery-log-tail.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 5400,
+      "frames": 5,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "parallel-patch",
+      "title": "Parallel patch run",
+      "pitch": "Run six harmless preview jobs with a concurrency limit and one retry outcome.",
+      "category": "Dashboards",
+      "tags": [
+        "parallel",
+        "jobs",
+        "retry"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 22
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the delay with your patch operation after adding confirmation.",
+        "Choose the concurrency limit and per-host timeout.",
+        "Use the success results and retained failures to retry hosts and produce a report."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "id": "parallel-patch",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 2)] [int] $Step = 0\n)\n\nImport-Module ConsoleMonster\n# A parallel dry run: the delay and one failure are synthetic. No server is contacted.\n$servers = @('web-01', 'web-02', 'web-03', 'job-01', 'sql-01', 'sql-02')\nfunction New-PatchFrame($Tick) {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Parallel patch run[/] [muted]· dry run, throttle 3[/]'\n        $rows = foreach ($server in $servers) {\n            $stage = @('Queued', 'Patching', 'Finished')[$Tick]\n            $result = if ($Tick -lt 2) { '-' } elseif ($server -eq 'web-03') { 'Retry needed' } else { 'Pass' }\n            [pscustomobject] @{ Host = $server; Stage = $stage; Result = $result }\n        }\n        New-ConsoleTable -InputObject $rows -Property Host, Stage, Result\n        if ($Tick -eq 2) { '[pass]5 passed[/]  [warn]1 retry needed[/]  [muted]0 real hosts changed[/]' }\n        else { '[muted]Synthetic hosts only. Ctrl+C cancels active work.[/]' }\n    }\n}\nif ($StaticSnapshot -or [Console]::IsInputRedirected) {\n    New-PatchFrame $Step | Write-ConsoleWidget\n    return\n}\n$results = $servers | ForEach-ConsoleItem -Parallel -ThrottleLimit 3 -TimeoutSeconds 3 -Title 'Patch preview' -ErrorAction SilentlyContinue -ErrorVariable failures {\n    Start-Sleep -Milliseconds 350\n    if ($_ -eq 'web-03') { throw \"$_ synthetic restart check failed\" }\n    \"$_ preview passed\"\n}\n# $results contains successes; $failures retains error records including the failed host.\n# Keep both for retry/reporting. No patch command runs here.\nNew-PatchFrame 2 | Write-ConsoleWidget",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Live;\nusing ConsoleMonster.Presenters;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));\n// A parallel dry run: the delay and one failure are synthetic. No server is contacted.\nstring[] servers = { \"web-01\", \"web-02\", \"web-03\", \"job-01\", \"sql-01\", \"sql-02\" };\nIWidget Frame(int tick) {\n    Table table = new Table().AddColumn(\"Host\").AddColumn(\"Stage\").AddColumn(\"Result\", column => column.Presenter = CellPresenters.StatusWord);\n    foreach (string server in servers) {\n        string stage = new[] { \"Queued\", \"Patching\", \"Finished\" }[tick];\n        string result = tick < 2 ? \"-\" : server == \"web-03\" ? \"Retry needed\" : \"Pass\";\n        table.AddRow(server, stage, TableCell.FromValue(result));\n    }\n    string summary = tick == 2 ? \"[pass]5 passed[/]  [warn]1 retry needed[/]  [muted]0 real hosts changed[/]\"\n        : \"[muted]Synthetic hosts only. Ctrl+C cancels active work.[/]\";\n    return new Rows(new TextBlock(\"[bold]Parallel patch run[/] [muted]· dry run, throttle 3[/]\"),\n        table, new TextBlock(summary)) { Gap = 1 };\n}\nif (snapshot) {\n    Terminal.Write(Frame(step));\n    return;\n}\nIReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {\n    await Task.Delay(350, cancel);\n    if (server == \"web-03\") throw new InvalidOperationException(\"Synthetic restart check failed\");\n    return server + \" preview passed\";\n}, new RunOptions { ThrottleLimit = 3, Timeout = TimeSpan.FromSeconds(3), Title = \"Patch preview\" });\n// results retains each outcome for retry/reporting; no patch command runs here.\nTerminal.Write(Frame(2));",
+      "powershellRepo": "Website/examples/gallery/parallel-patch/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/parallel-patch/Program.cs",
+      "powershellFile": "parallel-patch.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/parallel-patch.svg",
+      "frame": {
+        "w": 88,
+        "h": 14,
+        "dark": "<span class=\"B c18\">Parallel patch run</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> dry run, throttle 3</span>\n\n<span class=f4b5060><i class=g256d>╭</i><i class=\"g2500 c8\">────────</i><i class=g252c>┬</i><i class=\"g2500 c10\">──────────</i><i class=g252c>┬</i><i class=\"g2500 c14\">──────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c4\">Host</span><span class=c3>   </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c5\">Stage</span><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c6\">Result</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g251c>├</i><i class=\"g2500 c8\">────────</i><i class=g253c>┼</i><i class=\"g2500 c10\">──────────</i><i class=g253c>┼</i><i class=\"g2500 c14\">──────────────</i><i class=g2524>┤</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> web-01 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c6\"><i class=n>✓</i> Pass</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> web-02 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c6\"><i class=n>✓</i> Pass</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> web-03 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c14> Retry needed </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> job-01 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c6\"><i class=n>✓</i> Pass</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> sql-01 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c6\"><i class=n>✓</i> Pass</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c8> sql-02 </span><i class=\"g2502 f4b5060\">│</i><span class=c10> Finished </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c6\"><i class=n>✓</i> Pass</span><span class=c7>       </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c8\">────────</i><i class=g2534>┴</i><i class=\"g2500 c10\">──────────</i><i class=g2534>┴</i><i class=\"g2500 c14\">──────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4ade80 c8\">5 passed</span><span class=c2>  </span><span class=\"ffbbf24 c14\">1 retry needed</span><span class=c2>  </span><span class=f8b8f9a>0 real hosts changed</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/parallel-patch/demo.ps1",
+      "csharpDownload": "/examples/gallery/parallel-patch/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo parallel-patch",
+        "export": "Get-ConsoleDemo parallel-patch -Path ./parallel-patch.ps1",
+        "csharp": "dotnet new consolemonster --demo parallel-patch"
+      },
+      "url": "/replays/gallery-parallel-patch.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "pipeline",
+      "title": "Build pipeline",
+      "pitch": "Follow a dry-run build from restore to package without running build tools.",
+      "category": "Dashboards",
+      "tags": [
+        "live",
+        "build",
+        "status"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 26
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the four stage names with your build steps.",
+        "Post real completion events from your build process.",
+        "Change project facts and artifact directory."
+      ],
+      "mode": "live",
+      "steps": 5,
+      "id": "pipeline",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 4)] [int] $Step = 0\n)\n\nImport-Module ConsoleMonster\n# All values are synthetic. This example never connects to a host.\n\n$stages = @('Restore', 'Compile', 'Test', 'Package')\nfunction New-DemoFrame($Tick) {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Build pipeline[/] [muted]· dry run[/]'\n        New-ConsolePanel -Title 'Release checklist' {\n            foreach ($index in 0..3) {\n                $status = if ($index -lt $Tick) { 'pass' } elseif ($index -eq $Tick) { 'accent' } else { 'muted' }\n                $label = if ($index -lt $Tick) { 'complete' } elseif ($index -eq $Tick) { 'running' } else { 'pending' }\n                \"[$status]$($stages[$index])[/]  $label\"\n            }\n        }\n        New-ConsoleProgress -Label Overall -Value $Tick -Total 4\n        New-ConsoleKeyValue -Data ([ordered] @{\n            'Project' = 'Orbit.Tools'\n            'Version' = '1.2.0'\n            'Artifacts' = './artifacts/'\n            'Publish' = 'disabled'\n        })\n        '[muted]Nothing is built, signed or published. Ctrl+C stops the live run.[/]'\n    }\n}\n\nif ($StaticSnapshot -or [Console]::IsInputRedirected) {\n    New-DemoFrame $Step | Write-ConsoleWidget\n    return\n}\n$frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })\n$screen = New-ConsoleRegion -Name demo -Widget $frames[0]\nStart-ConsoleDashboard $screen -ArgumentList (, $frames) {\n    param($Frames)\n    foreach ($frame in $Frames) {\n        if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }\n        Set-ConsoleRegion -Name demo -Widget $frame\n        Start-Sleep -Milliseconds 650\n    }\n}",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Live;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));\n// All values are synthetic. This example never connects to a host.\n\nstring[] stages = { \"Restore\", \"Compile\", \"Test\", \"Package\" };\nIWidget Frame(int tick) {\n    Rows checklist = new Rows();\n    for (int index = 0; index < stages.Length; index++) {\n        string status = index < tick ? \"pass\" : index == tick ? \"accent\" : \"muted\";\n        string label = index < tick ? \"complete\" : index == tick ? \"running\" : \"pending\";\n        checklist.Add(new TextBlock(\"[\" + status + \"]\" + stages[index] + \"[/]  \" + label));\n    }\n    return new Rows(new TextBlock(\"[bold]Build pipeline[/] [muted]· dry run[/]\"),\n        new Panel(checklist, \"Release checklist\"), new ProgressBar(\"Overall\").WithValue(tick).WithTotal(4),\n        new KeyValueList().Add(\"Project\", \"Orbit.Tools\").Add(\"Version\", \"1.2.0\")\n            .Add(\"Artifacts\", \"./artifacts/\").Add(\"Publish\", \"disabled\"),\n        new TextBlock(\"[muted]Nothing is built, signed or published. Ctrl+C stops the live run.[/]\")) { Gap = 1 };\n}\n\nif (snapshot) {\n    Terminal.Write(Frame(step));\n    return;\n}\nSlot screen = new Slot(\"demo\", Frame(0));\nusing LiveSession session = new LiveSession(screen);\nsession.Run(live => {\n    for (int tick = 0; tick <= 4 && !live.Cancellation.IsCancellationRequested; tick++) {\n        screen.Handle(live).Set(Frame(tick));\n        if (live.Cancellation.WaitHandle.WaitOne(650)) break;\n    }\n});",
+      "powershellRepo": "Website/examples/gallery/pipeline/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/pipeline/Program.cs",
+      "powershellFile": "pipeline.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/pipeline.svg",
+      "frame": {
+        "w": 88,
+        "h": 17,
+        "dark": "<span class=\"B c14\">Build pipeline</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> dry run</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c17\">Release checklist</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c66\">──────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c7\">Restore</span><span class=c78>  complete                                                                    </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c7\">Compile</span><span class=c78>  complete                                                                    </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c4\">Test</span><span class=c81>  complete                                                                       </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c7\">Package</span><span class=c78>  complete                                                                    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=c9>Overall  </span><i class=\"g2501 c68 f60a5fa\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><span class=c2>  </span><span class=f8b8f9a>100%  4/4</span>\n\n<span class=\"f8b8f9a c7\">Project</span>    Orbit.Tools\n<span class=\"f8b8f9a c7\">Version</span>    1.2.0\n<span class=\"f8b8f9a c9\">Artifacts</span>  ./artifacts/\n<span class=\"f8b8f9a c7\">Publish</span>    disabled\n\n<span class=f8b8f9a>Nothing is built, signed or published. Ctrl+C stops the live run.</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        },
+        {
+          "step": 3,
+          "identical": true
+        },
+        {
+          "step": 4,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/pipeline/demo.ps1",
+      "csharpDownload": "/examples/gallery/pipeline/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo pipeline",
+        "export": "Get-ConsoleDemo pipeline -Path ./pipeline.ps1",
+        "csharp": "dotnet new consolemonster --demo pipeline"
+      },
+      "url": "/replays/gallery-pipeline.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 5400,
+      "frames": 5,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "setup",
+      "title": "Setup wizard",
+      "pitch": "Edit a folder and component choice, then step through an installation preview.",
+      "category": "Wizards",
+      "tags": [
+        "wizard",
+        "input",
+        "preview"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 40
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the relative install folder with your application default.",
+        "Define your component choices and review text.",
+        "Connect a separate explicit install action after validation."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "id": "setup",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 2)] [int] $Step = 0,\n    [hashtable] $AppOptions = @{}\n)\n\nImport-Module ConsoleMonster\n$AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)\n\n$wizard = [pscustomobject] @{ Page = $Step }\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Install Toolbox Agent[/] [muted]· preview only[/]'\n        New-ConsoleTextInput -Name Folder -Label 'Install folder' -Value './toolbox-agent'\n        New-ConsoleSelect -Name Component -Label Component -Choices 'Core', 'Core + reports' -Value Core\n        New-ConsoleButton -Name Back -Label Back -OnClick { $wizard.Page = [Math]::Max(0, $wizard.Page - 1) }\n        New-ConsoleButton -Name Next -Label 'Next / preview' -OnClick { $wizard.Page = [Math]::Min(2, $wizard.Page + 1) }\n        New-ConsoleBinding {\n            param($State)\n            New-ConsolePanel -Title (@('1 / 3 · Location', '2 / 3 · Components', '3 / 3 · Review')[$wizard.Page]) {\n                switch ($wizard.Page) {\n                    0 { 'Choose a writable folder. No directory will be created.' }\n                    1 { 'Core runs local jobs. Reports adds an HTML summary.' }\n                    2 {\n                        # Plain text widgets escape user-entered values automatically.\n                        New-ConsoleText \"Folder: $($State.Folder)\"\n                        New-ConsoleText \"Component: $($State.Component)\"\n                        '[pass]Preview ready. Nothing has been installed.[/]'\n                    }\n                }\n            }\n        }\n    }\n} @AppOptions",
+      "csharp": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));\n\nint page = step;\nTextInput folder = new TextInput(\"Folder\", \"./toolbox-agent\") { Label = \"Install folder\" };\nSelect component = new Select(\"Component\", new[] { new Choice(\"Core\"), new Choice(\"Core + reports\") }) {\n    Label = \"Component\", Value = \"Core\"\n};\nButton back = new Button(\"Back\", \"Back\");\nButton next = new Button(\"Next\", \"Next / preview\");\nback.Clicked += (_, _) => page = Math.Max(0, page - 1);\nnext.Clicked += (_, _) => page = Math.Min(2, page + 1);\nRows layout = new Rows(new TextBlock(\"[bold]Install Toolbox Agent[/] [muted]· preview only[/]\"),\n    folder, component, back, next, new AppBinding(state => {\n        string title = new[] { \"1 / 3 · Location\", \"2 / 3 · Components\", \"3 / 3 · Review\" }[page];\n        IWidget content = page == 0 ? new TextBlock(\"Choose a writable folder. No directory will be created.\")\n            : page == 1 ? new TextBlock(\"Core runs local jobs. Reports adds an HTML summary.\")\n            : new Rows(new TextBlock(\"Folder: \" + ConsoleMonster.Text.Markup.Escape(state.Get<string>(\"Folder\", \"\"))),\n                new TextBlock(\"Component: \" + ConsoleMonster.Text.Markup.Escape(state.Get<string>(\"Component\", \"\"))),\n                new TextBlock(\"[pass]Preview ready. Nothing has been installed.[/]\"));\n        return new Panel(content, title);\n    })) { Gap = 1 };\nConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });",
+      "powershellRepo": "Website/examples/gallery/setup/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/setup/Program.cs",
+      "powershellFile": "setup.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/setup.svg",
+      "frame": {
+        "w": 88,
+        "h": 27,
+        "dark": "<span class=\"B c21\">Install Toolbox Agent</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> preview only</span>\n\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c16\"><i class=n>›</i> Install folder</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c67\">───────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c16> ./toolbox-agent</span><span class=\"rv c1\"> </span><span class=c69>                                                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c9\">Component</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c74\">──────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c2\"><i class=n>›</i> </span><span class=\"f8b8f9a I c14\">type to filter</span><span class=c69>                                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>   Core                                                                               </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>   Core + reports                                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>                                                                                      </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c4\">Back</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c79\">───────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>  Back                                                                                </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c14\">Next / preview</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c69\">─────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>  Next / preview                                                                      </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c14\">3 / 3 <i class=n>·</i> Review</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c69\">─────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c86> Folder: ./toolbox-agent                                                              </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86> Component: Core                                                                      </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f4ade80 c42\">Preview ready. Nothing has been installed.</span><span class=c43>                                           </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/setup/demo.ps1",
+      "csharpDownload": "/examples/gallery/setup/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo setup",
+        "export": "Get-ConsoleDemo setup -Path ./setup.ps1",
+        "csharp": "dotnet new consolemonster --demo setup"
+      },
+      "url": "/replays/gallery-setup.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "stress",
+      "title": "Stress dashboard",
+      "pitch": "Eight simulated workers, a throughput trend and a bounded queue.",
+      "category": "Dashboards",
+      "tags": [
+        "live",
+        "progress",
+        "sparkline"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 28
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the eight simulated workers with your queue.",
+        "Feed the sparkline measured update rates.",
+        "Choose queue and error thresholds."
+      ],
+      "mode": "live",
+      "steps": 5,
+      "id": "stress",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 4)] [int] $Step = 0\n)\n\nImport-Module ConsoleMonster\n# All values are synthetic. This example never connects to a host.\n\nfunction New-DemoFrame($Tick) {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Worker stress dashboard[/] [muted]· simulated load[/]'\n        New-ConsoleColumns {\n            New-ConsolePanel -Title Workers {\n                foreach ($worker in 1..8) {\n                    $value = [Math]::Min(100, 12 + $worker * 5 + $Tick * 17)\n                    New-ConsoleProgress -Name ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100\n                }\n            }\n            New-ConsolePanel -Title Session {\n                New-ConsoleKeyValue -Markup -Data ([ordered] @{\n                    'Updates' = [string] (800 + $Tick * 320)\n                    'Queue' = [string] (24 - $Tick * 5)\n                    'Workers' = '8'\n                    'Dropped' = '[pass]0[/]'\n                })\n                New-ConsoleSparkline -Label 'updates/s' -Value @(120,180,160,240,210,(220 + $Tick * 15))\n            }\n        }\n        '[muted]Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.[/]'\n    }\n}\n\nif ($StaticSnapshot -or [Console]::IsInputRedirected) {\n    New-DemoFrame $Step | Write-ConsoleWidget\n    return\n}\n$frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })\n$screen = New-ConsoleRegion -Name demo -Widget $frames[0]\nStart-ConsoleDashboard $screen -ArgumentList (, $frames) {\n    param($Frames)\n    foreach ($frame in $Frames) {\n        if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }\n        Set-ConsoleRegion -Name demo -Widget $frame\n        Start-Sleep -Milliseconds 650\n    }\n}",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Live;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));\n// All values are synthetic. This example never connects to a host.\n\nIWidget Frame(int tick) {\n    Rows workers = new Rows();\n    for (int worker = 1; worker <= 8; worker++) {\n        string name = \"worker-\" + worker.ToString(\"00\", System.Globalization.CultureInfo.InvariantCulture);\n        workers.Add(new ProgressBar(name, name)\n            .WithValue(Math.Min(100, 12 + worker * 5 + tick * 17)).WithTotal(100));\n    }\n    KeyValueList stats = new KeyValueList()\n        .Add(\"Updates\", (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture))\n        .Add(\"Queue\", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))\n        .Add(\"Workers\", \"8\").Add(\"Dropped\", \"[pass]0[/]\");\n    Sparkline trend = new Sparkline { Label = \"updates/s\" };\n    trend.AddRange(new double[] { 120,180,160,240,210,220 + tick * 15 });\n    return new Rows(new TextBlock(\"[bold]Worker stress dashboard[/] [muted]· simulated load[/]\"),\n        new Columns(new Panel(workers, \"Workers\"), new Panel(new Rows(stats, trend), \"Session\")),\n        new TextBlock(\"[muted]Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.[/]\")) { Gap = 1 };\n}\n\nif (snapshot) {\n    Terminal.Write(Frame(step));\n    return;\n}\nSlot screen = new Slot(\"demo\", Frame(0));\nusing LiveSession session = new LiveSession(screen);\nsession.Run(live => {\n    for (int tick = 0; tick <= 4 && !live.Cancellation.IsCancellationRequested; tick++) {\n        screen.Handle(live).Set(Frame(tick));\n        if (live.Cancellation.WaitHandle.WaitOne(650)) break;\n    }\n});",
+      "powershellRepo": "Website/examples/gallery/stress/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/stress/Program.cs",
+      "powershellFile": "stress.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/stress.svg",
+      "frame": {
+        "w": 88,
+        "h": 14,
+        "dark": "<span class=\"B c23\">Worker stress dashboard</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> simulated load</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Workers</span><span class=c1> </span><span class=\"f4b5060 c32\"><i class=\"g2500 c31\">───────────────────────────────</i><i class=g256e>╮</i></span><span class=c1> </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Session</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c32\">────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-01  </span><i class=\"g2501 c11 f60a5fa\">━━━━━━━━━━━</i><i class=\"g2500 c2 f3a3d45\">──</i><span class=c2>  </span><span class=\"f8b8f9a c13\"> 85%   85/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c7\">Updates</span><span class=c34>  2080                            </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-02  </span><span class=\"f60a5fa c12\"><i class=\"g2501 c11\">━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 f3a3d45\">─</i><span class=c2>  </span><span class=\"f8b8f9a c13\"> 90%   90/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c5\">Queue</span><span class=c36>    4                               </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-03  </span><span class=\"f60a5fa c13\"><i class=\"g2501 c12\">━━━━━━━━━━━━</i><i class=g257e>╾</i></span><span class=c2>  </span><span class=\"f8b8f9a c13\"> 95%   95/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c7\">Workers</span><span class=c34>  8                               </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-04  </span><i class=\"g2501 c13 f60a5fa\">━━━━━━━━━━━━━</i><span class=c2>  </span><span class=\"f8b8f9a c13\">100%  100/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c7\">Dropped</span><span class=c2>  </span><span class=\"f4ade80 c1\">0</span><span class=c31>                               </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-05  </span><i class=\"g2501 c13 f60a5fa\">━━━━━━━━━━━━━</i><span class=c2>  </span><span class=\"f8b8f9a c13\">100%  100/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c9\">updates/s</span><span class=c21>                     </span><span class=\"f60a5fa c6\"><i class=g2583>▃</i><i class=\"g2585 c2\">▅▅</i><i class=g2587>▇</i><i class=g2586>▆</i><i class=g2588>█</i></span><span class=c1> </span><span class=\"B c3\">280</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-06  </span><i class=\"g2501 c13 f60a5fa\">━━━━━━━━━━━━━</i><span class=c2>  </span><span class=\"f8b8f9a c13\">100%  100/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c42>                                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-07  </span><i class=\"g2501 c13 f60a5fa\">━━━━━━━━━━━━━</i><span class=c2>  </span><span class=\"f8b8f9a c13\">100%  100/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c42>                                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c12> worker-08  </span><i class=\"g2501 c13 f60a5fa\">━━━━━━━━━━━━━</i><span class=c2>  </span><span class=\"f8b8f9a c13\">100%  100/100</span><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><i class=\"g2502 f4b5060\">│</i><span class=c42>                                          </span><i class=\"g2502 f4b5060\">│</i>\n<span class=\"f4b5060 c43\"><i class=g2570>╰</i><i class=\"g2500 c41\">─────────────────────────────────────────</i><i class=g256f>╯</i></span><span class=c1> </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c42\">──────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=f8b8f9a>Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        },
+        {
+          "step": 3,
+          "identical": true
+        },
+        {
+          "step": 4,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/stress/demo.ps1",
+      "csharpDownload": "/examples/gallery/stress/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo stress",
+        "export": "Get-ConsoleDemo stress -Path ./stress.ps1",
+        "csharp": "dotnet new consolemonster --demo stress"
+      },
+      "url": "/replays/gallery-stress.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 5400,
+      "frames": 5,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "toolbox",
+      "title": "Server toolbox menu",
+      "pitch": "Choose a task and inspect a safe preview before connecting your own actions.",
+      "category": "Terminal apps",
+      "tags": [
+        "menu",
+        "selection",
+        "preview"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 22
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the three task labels with your operations.",
+        "Use a read-only query for each preview.",
+        "Add explicit confirmation before a destructive action."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "id": "toolbox",
+      "powershell": "[CmdletBinding()]\nparam(\n    [switch] $StaticSnapshot,\n    [ValidateRange(0, 2)] [int] $Step = 0,\n    [hashtable] $AppOptions = @{}\n)\n\nImport-Module ConsoleMonster\n$AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)\n\n$tasks = @('Health report', 'Inspect queue', 'Preview cleanup')\n$selected = $tasks[$Step]\nShow-ConsoleApp {\n    New-ConsoleRows -Gap 1 {\n        '[bold]Server toolbox[/] [muted]· safe local previews[/]'\n        New-ConsoleSelect -Name Task -Label Task -Choices $tasks -Value $selected\n        New-ConsoleBinding {\n            param($State)\n            New-ConsolePanel -Title Preview {\n                switch ([string] $State.Task) {\n                    'Health report' { '[pass]web-01 reachable[/]'; 'Sample: CPU 24% · memory 61%' }\n                    'Inspect queue' { '[accent]12 jobs waiting[/]'; 'Sample: oldest job 4 minutes' }\n                    'Preview cleanup' { '[warn]3 sample artifacts eligible[/]'; 'Preview only; no files are removed.' }\n                }\n            }\n        }\n    }\n} @AppOptions",
+      "csharp": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nbool snapshot = args.Contains(\"--snapshot\") || (!args.Contains(\"--interactive\") && Console.IsInputRedirected);\nint stepAt = Array.IndexOf(args, \"--step\");\nint step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);\nif (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));\n\nstring[] tasks = { \"Health report\", \"Inspect queue\", \"Preview cleanup\" };\nRows layout = new Rows(new TextBlock(\"[bold]Server toolbox[/] [muted]· safe local previews[/]\"),\n    new Select(\"Task\", tasks.Select(task => new Choice(task))) { Label = \"Task\", Value = tasks[step] },\n    new AppBinding(state => {\n        string task = state.Get<string>(\"Task\", tasks[0]);\n        string[] lines = task == tasks[0] ? new[] { \"[pass]web-01 reachable[/]\", \"Sample: CPU 24% · memory 61%\" }\n            : task == tasks[1] ? new[] { \"[accent]12 jobs waiting[/]\", \"Sample: oldest job 4 minutes\" }\n            : new[] { \"[warn]3 sample artifacts eligible[/]\", \"Preview only; no files are removed.\" };\n        return new Panel(new Rows(lines.Select(line => new TextBlock(line)).ToArray()), \"Preview\");\n    })) { Gap = 1 };\nConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });",
+      "powershellRepo": "Website/examples/gallery/toolbox/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/toolbox/Program.cs",
+      "powershellFile": "toolbox.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/toolbox.svg",
+      "frame": {
+        "w": 88,
+        "h": 15,
+        "dark": "<span class=\"B c14\">Server toolbox</span><span class=c1> </span><span class=f8b8f9a><i class=n>·</i> safe local previews</span>\n\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\"><i class=n>›</i> Task</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c77\">─────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"f60a5fa c2\"><i class=n>›</i> </span><span class=\"f8b8f9a I c14\">type to filter</span><span class=c69>                                                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c86>   Health report                                                                      </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c86>   Inspect queue                                                                      </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><i class=\"g258c f60a5fa k243b5e\">▌</i><span class=\"ff1f5f9 k243b5e c1\"> </span><span class=\"ff1f5f9 k243b5e B c15\">Preview cleanup</span><span class=\"ff1f5f9 k243b5e c23\">                       </span><span class=c45>                                             </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c86>                                                                                      </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Preview</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c76\">────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"ffbbf24 c27\">3 sample artifacts eligible</span><span class=c58>                                                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86> Preview only; no files are removed.                                                  </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        },
+        {
+          "step": 1,
+          "identical": true
+        },
+        {
+          "step": 2,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/toolbox/demo.ps1",
+      "csharpDownload": "/examples/gallery/toolbox/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo toolbox",
+        "export": "Get-ConsoleDemo toolbox -Path ./toolbox.ps1",
+        "csharp": "dotnet new consolemonster --demo toolbox"
+      },
+      "url": "/replays/gallery-toolbox.json",
+      "capture": "deterministic snapshot storyboard",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
+      "slug": "welcome-compact",
+      "title": "Three-line welcome",
+      "pitch": "Add a small greeting, workspace hint, and useful tip to your shell profile.",
+      "category": "Welcome screens",
+      "tags": [
+        "profile",
+        "welcome",
+        "compact",
+        "offline"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 8
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Use the PowerShell body in $PROFILE after the param block, and replace the fixed greeting with your preferred text.",
+        "Replace the sample workspace and branch with cached local values; keep startup free of network calls.",
+        "Swap the help tip for a command you use often, keeping the greeting within three lines."
+      ],
+      "mode": "static",
+      "steps": 1,
+      "id": "welcome-compact",
+      "powershell": "param(\n    [switch]$StaticSnapshot,\n    [ValidateRange(0, 0)][int]$Step = 0\n)\n\nImport-Module ConsoleMonster\n\n# A three-line $PROFILE greeting with fixed sample values; no startup probes.\n# Replace these strings with cached local values if you want personal context.\n$greeting = '[bold accent]Welcome, explorer.[/] [muted]Sample profile[/]'\n$workspace = '[muted]Workspace[/] comet-notes   [muted]Branch[/] main   [pass]clean[/]'\n$tip = '[muted]Tip[/] Get-Help Write-ConsoleWidget -Examples'\n\nNew-ConsoleText -Markup \"$greeting`n$workspace`n$tip\" | Write-ConsoleWidget",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\n// Fixed sample values; --snapshot and --step 0 need no special handling.\n// Replace these strings with cached local values for personal context.\nstring greeting = \"[bold accent]Welcome, explorer.[/] [muted]Sample profile[/]\";\nstring workspace = \"[muted]Workspace[/] comet-notes   [muted]Branch[/] main   [pass]clean[/]\";\nstring tip = \"[muted]Tip[/] Get-Help Write-ConsoleWidget -Examples\";\n\nTerminal.Write(new TextBlock($\"{greeting}\\n{workspace}\\n{tip}\"));",
+      "powershellRepo": "Website/examples/gallery/welcome-compact/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/welcome-compact/Program.cs",
+      "powershellFile": "welcome-compact.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/welcome-compact.svg",
+      "frame": {
+        "w": 88,
+        "h": 3,
+        "dark": "<span class=\"f60a5fa B c18\">Welcome, explorer.</span><span class=c1> </span><span class=f8b8f9a>Sample profile</span>\n<span class=\"f8b8f9a c9\">Workspace</span><span class=c15> comet-notes   </span><span class=\"f8b8f9a c6\">Branch</span><span class=c8> main   </span><span class=f4ade80>clean</span>\n<span class=\"f8b8f9a c3\">Tip</span> Get-Help Write-ConsoleWidget -Examples"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/welcome-compact/demo.ps1",
+      "csharpDownload": "/examples/gallery/welcome-compact/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo welcome-compact",
+        "export": "Get-ConsoleDemo welcome-compact -Path ./welcome-compact.ps1",
+        "csharp": "dotnet new consolemonster --demo welcome-compact"
+      }
+    },
+    {
+      "slug": "welcome-rich",
+      "title": "Workspace welcome",
+      "pitch": "Start a shell session with a logo, host summary, git snapshot, and one useful tip.",
+      "category": "Welcome screens",
+      "tags": [
+        "profile",
+        "welcome",
+        "logo",
+        "git",
+        "offline"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 24
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Use the PowerShell body in $PROFILE after the param block and replace HELLO with a short banner of your own.",
+        "Replace the fixed fictional host summary with cached local values, keeping profile startup fast and offline.",
+        "Replace the sample git counts with a cached local repository summary and choose a help tip for your workflow."
+      ],
+      "mode": "static",
+      "steps": 1,
+      "id": "welcome-rich",
+      "powershell": "param(\n    [switch]$StaticSnapshot,\n    [ValidateRange(0, 0)][int]$Step = 0\n)\n\nImport-Module ConsoleMonster\n\n# All host and git values are fictional; this runs offline without local probes.\n# For $PROFILE, replace fixed strings with cached local data, not slow commands.\n$hostSummary = [ordered]@{\n    Host = 'comet-devbox'\n    Platform = 'Unix-like / sample environment'\n    Runtime = 'PowerShell 7.4+ / .NET 8+'\n    Workspace = 'comet-notes'\n}\n$git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'\n\nNew-ConsoleRows -Gap 1 {\n    New-ConsoleLogo 'HELLO' -Tagline '[muted]A little context before your next command. Sample profile.[/]'\n    New-ConsolePanel -Title 'Host summary' -Caption 'synthetic values' {\n        New-ConsoleKeyValue -Data $hostSummary\n    }\n    New-ConsolePanel -Title 'Git | comet-notes' {\n        New-ConsoleText -Markup $git\n    }\n    New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'\n    New-ConsoleText -Markup '[muted]Ready when you are. Everything here is fixed sample data.[/]'\n} | Write-ConsoleWidget",
+      "csharp": "using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// Fictional host and git values; --snapshot and --step 0 need no special handling.\n// Replace fixed strings with cached local data to keep profile startup fast.\nKeyValueList hostSummary = new KeyValueList()\n    .Add(\"Host\", \"comet-devbox\")\n    .Add(\"Platform\", \"Unix-like / sample environment\")\n    .Add(\"Runtime\", \"PowerShell 7.4+ / .NET 8+\")\n    .Add(\"Workspace\", \"comet-notes\");\nstring git = \"[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]\";\n\nTerminal.Write(new Rows(\n    new Logo(\"HELLO\", \"[muted]A little context before your next command. Sample profile.[/]\"),\n    new Panel(hostSummary, \"Host summary\") { Caption = \"synthetic values\" },\n    new Panel(new TextBlock(git), \"Git | comet-notes\"),\n    new TextBlock(\"[bold]Tip[/] Get-Help New-ConsoleTable -Examples\"),\n    new TextBlock(\"[muted]Ready when you are. Everything here is fixed sample data.[/]\")) { Gap = 1 });",
+      "powershellRepo": "Website/examples/gallery/welcome-rich/demo.ps1",
+      "csharpRepo": "Website/examples/gallery/welcome-rich/Program.cs",
+      "powershellFile": "welcome-rich.ps1",
+      "csharpFile": "Program.cs",
+      "thumbnail": "/site/gallery/welcome-rich.svg",
+      "frame": {
+        "w": 88,
+        "h": 20,
+        "dark": "<i class=\"g2588 f38bdf8\">█</i><span class=c3>   </span><i class=\"g2588 f4bb5f9\">█</i><span class=c1> </span><i class=\"g2588 f55b1f9\">█</i><i class=\"g2580 f5aaff9\">▀</i><i class=\"g2580 f5fadf9\">▀</i><i class=\"g2580 f64abf9\">▀</i><i class=\"g2580 f69a9f9\">▀</i><span class=c1> </span><i class=\"g2588 f72a5fa\">█</i><span class=c5>     </span><i class=\"g2588 f8f98fb\">█</i><span class=c5>     </span><i class=\"g2584 fad8cfb\">▄</i><i class=\"g2580 fb18afc\">▀</i><i class=\"g2580 fb688fc\">▀</i><i class=\"g2580 fbb86fc\">▀</i><i class=\"g2584 fc084fc\">▄</i>\n<i class=\"g2588 f38bdf8\">█</i><i class=\"g2584 f3dbbf8\">▄</i><i class=\"g2584 f42b9f8\">▄</i><i class=\"g2584 f47b7f8\">▄</i><i class=\"g2588 f4bb5f9\">█</i><span class=c1> </span><i class=\"g2588 f55b1f9\">█</i><i class=\"g2584 f5aaff9\">▄</i><i class=\"g2584 f5fadf9\">▄</i><i class=\"g2584 f64abf9\">▄</i><span class=c2>  </span><i class=\"g2588 f72a5fa\">█</i><span class=c5>     </span><i class=\"g2588 f8f98fb\">█</i><span class=c5>     </span><i class=\"g2588 fad8cfb\">█</i><span class=c3>   </span><i class=\"g2588 fc084fc\">█</i>\n<i class=\"g2588 f38bdf8\">█</i><span class=c3>   </span><i class=\"g2588 f4bb5f9\">█</i><span class=c1> </span><i class=\"g2588 f55b1f9\">█</i><span class=c5>     </span><i class=\"g2588 f72a5fa\">█</i><span class=c5>     </span><i class=\"g2588 f8f98fb\">█</i><span class=c5>     </span><i class=\"g2588 fad8cfb\">█</i><span class=c3>   </span><i class=\"g2588 fc084fc\">█</i>\n<i class=\"g2580 f38bdf8\">▀</i><span class=c3>   </span><i class=\"g2580 f4bb5f9\">▀</i><span class=c1> </span><i class=\"g2580 f55b1f9\">▀</i><i class=\"g2580 f5aaff9\">▀</i><i class=\"g2580 f5fadf9\">▀</i><i class=\"g2580 f64abf9\">▀</i><i class=\"g2580 f69a9f9\">▀</i><span class=c1> </span><i class=\"g2580 f72a5fa\">▀</i><i class=\"g2580 f77a3fa\">▀</i><i class=\"g2580 f7ca0fa\">▀</i><i class=\"g2580 f819efa\">▀</i><i class=\"g2580 f869cfa\">▀</i><span class=c1> </span><i class=\"g2580 f8f98fb\">▀</i><i class=\"g2580 f9496fb\">▀</i><i class=\"g2580 f9994fb\">▀</i><i class=\"g2580 f9e92fb\">▀</i><i class=\"g2580 fa390fb\">▀</i><span class=c2>  </span><i class=\"g2580 fb18afc\">▀</i><i class=\"g2580 fb688fc\">▀</i><i class=\"g2580 fbb86fc\">▀</i>\n<span class=f8b8f9a>A little context before your next command. Sample profile.</span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c12\">Host summary</span><span class=c1> </span><i class=\"g2500 c52 f4b5060\">────────────────────────────────────────────────────</i><span class=c1> </span><span class=\"f8b8f9a c16\">synthetic values</span><span class=c1> </span><span class=f4b5060><i class=g2500>─</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c4\">Host</span><span class=c81>       comet-devbox                                                              </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c8\">Platform</span><span class=c77>   Unix-like / sample environment                                            </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c7\">Runtime</span><span class=c78>    PowerShell 7.4+ / .NET 8+                                                 </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c9\">Workspace</span><span class=c76>  comet-notes                                                               </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c17\">Git | comet-notes</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c66\">──────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c4\">main</span><span class=c3>   </span><span class=\"ffbbf24 c10\">2 modified</span><span class=c3>   </span><span class=\"f4ade80 c8\">1 staged</span><span class=c3>   </span><span class=\"f8b8f9a c18\">0 ahead / 0 behind</span><span class=c36>                                    </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n<span class=\"B c3\">Tip</span> Get-Help New-ConsoleTable -Examples\n\n<span class=f8b8f9a>Ready when you are. Everything here is fixed sample data.</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true
+        }
+      ],
+      "powershellDownload": "/examples/gallery/welcome-rich/demo.ps1",
+      "csharpDownload": "/examples/gallery/welcome-rich/Program.cs",
+      "run": {
+        "powershell": "Show-ConsoleDemo welcome-rich",
+        "export": "Get-ConsoleDemo welcome-rich -Path ./welcome-rich.ps1",
+        "csharp": "dotnet new consolemonster --demo welcome-rich"
+      }
+    }
+  ]
+}

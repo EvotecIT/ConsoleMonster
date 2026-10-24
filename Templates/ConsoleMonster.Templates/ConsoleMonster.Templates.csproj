@@ -33,4 +33,27 @@
         <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
         <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
+
+    <ItemGroup>
+        <GalleryDemo Include="assessment;fleet;setup;stress;pipeline;live-filter;toolbox;parallel-patch;log-tail;welcome-compact;welcome-rich;everyday">
+            <Link>content/ConsoleMonsterApp/gallery/%(Identity)/Program.cs</Link>
+            <PackagePath>content/content/ConsoleMonsterApp/gallery/%(Identity)/</PackagePath>
+        </GalleryDemo>
+        <!-- Pack the website's canonical programs without maintaining template copies. -->
+        <Content Include="@(GalleryDemo->'../../Website/examples/gallery/%(Identity)/Program.cs')" />
+    </ItemGroup>
+
+    <!-- Stage the same linked content for folder installation with dotnet new install. -->
+    <Target Name="PrepareTemplateSource">
+        <PropertyGroup>
+            <TemplateSourcePath Condition="'$(TemplateSourcePath)' == ''">$(BaseIntermediateOutputPath)template-source/</TemplateSourcePath>
+        </PropertyGroup>
+        <Copy SourceFiles="@(Content)"
+              DestinationFiles="@(Content->'$(TemplateSourcePath)%(Identity)')"
+              Condition="'%(Content.Link)' == ''" />
+        <Copy SourceFiles="@(Content)"
+              DestinationFiles="@(Content->'$(TemplateSourcePath)%(Link)')"
+              Condition="'%(Content.Link)' != ''" />
+        <Message Importance="high" Text="Install template source: dotnet new install &quot;$(TemplateSourcePath)&quot;" />
+    </Target>
 </Project>

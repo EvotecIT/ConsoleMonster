@@ -1,0 +1,17 @@
+{
+  "slug": "assessment",
+  "title": "Readiness assessment",
+  "pitch": "Show what passed, what needs attention, and where to start in one static dashboard.",
+  "category": "Dashboards",
+  "tags": ["assessment", "status checks", "bar chart", "offline"],
+  "terminal": { "width": 88, "height": 30 },
+  "runtime": { "powershell": "7.4+", "dotnet": "8.0+" },
+  "addons": [],
+  "makeItYours": [
+    "Replace the fixed check results with your own in-memory assessment results and update the summary counts.",
+    "Change the area scores and warning thresholds to match your readiness criteria.",
+    "Replace the next-action sentence with a concrete response to your highest-priority finding."
+  ],
+  "mode": "static",
+  "steps": 1
+}

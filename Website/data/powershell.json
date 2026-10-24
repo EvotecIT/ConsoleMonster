@@ -806,6 +806,11 @@
           "url": "/powershell/commands/show-consolechanges/"
         },
         {
+          "name": "Show-ConsoleDemo",
+          "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
+          "url": "/powershell/commands/show-consoledemo/"
+        },
+        {
           "name": "Show-ConsoleGrid",
           "synopsis": "Shows pipeline objects in an interactive grid and returns the rows you choose.",
           "url": "/powershell/commands/show-consolegrid/"
@@ -989,12 +994,17 @@
     },
     {
       "verb": "Get",
-      "count": 1,
+      "count": 2,
       "commands": [
         {
           "name": "Get-ConsoleCapability",
           "synopsis": "Shows what ConsoleMonster detected about the current terminal.",
           "url": "/powershell/commands/get-consolecapability/"
+        },
+        {
+          "name": "Get-ConsoleDemo",
+          "synopsis": "Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.",
+          "url": "/powershell/commands/get-consoledemo/"
         }
       ]
     },

@@ -54,6 +54,9 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "gallery-review":
+                    GalleryPage.Render(new Site(website), only ?? throw new ArgumentException("Pass an output directory."));
+                    return 0;
                 case "review-error-shapes":
                     if (only == null) { throw new ArgumentException("Pass the review output directory as the third argument."); }
                     ErrorShapeReview.Run(new Site(website), only);
@@ -153,6 +156,8 @@ namespace SiteFrames {
         private static bool Wants(string? only, string area) => only == null || string.Equals(only, area, StringComparison.OrdinalIgnoreCase);
 
         private static int CaptureAll(Site site, string? only) {
+            // The copyable gallery uses a portable recording target, independently of the legacy ConPTY captures.
+            if (only == "gallery") { return GalleryPage.Capture(site); }
             JsonObject hosts = new JsonObject();
             foreach (PowerShellHost host in PowerShellHost.All) {
                 hosts[host.Id] = PowerShellRunner.Version(host);
@@ -199,6 +204,7 @@ namespace SiteFrames {
             if (Wants(only, "tails")) {
                 TailsPage.Capture(site);
             }
+            if (Wants(only, "gallery")) { GalleryPage.Capture(site); }
             return 0;
         }
 
@@ -215,6 +221,7 @@ namespace SiteFrames {
             WidgetsPage.Render(site, hosts);
             LivePage.Render(site);
             DemosPage.Render(site);
+            GalleryPage.Render(site);
             SessionRecordingPage.Render(site);
             ChromeStylesPage.Render(site);
             TablesPage.Render(site);

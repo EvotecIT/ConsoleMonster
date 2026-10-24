@@ -1,0 +1,27 @@
+{
+  "slug": "setup",
+  "title": "Setup wizard",
+  "pitch": "Edit a folder and component choice, then step through an installation preview.",
+  "category": "Wizards",
+  "tags": [
+    "wizard",
+    "input",
+    "preview"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 40
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the relative install folder with your application default.",
+    "Define your component choices and review text.",
+    "Connect a separate explicit install action after validation."
+  ],
+  "mode": "live",
+  "steps": 3
+}

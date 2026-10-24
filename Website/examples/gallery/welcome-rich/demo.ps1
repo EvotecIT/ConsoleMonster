@@ -1,0 +1,28 @@
+﻿param(
+    [switch]$StaticSnapshot,
+    [ValidateRange(0, 0)][int]$Step = 0
+)
+
+Import-Module ConsoleMonster
+
+# All host and git values are fictional; this runs offline without local probes.
+# For $PROFILE, replace fixed strings with cached local data, not slow commands.
+$hostSummary = [ordered]@{
+    Host = 'comet-devbox'
+    Platform = 'Unix-like / sample environment'
+    Runtime = 'PowerShell 7.4+ / .NET 8+'
+    Workspace = 'comet-notes'
+}
+$git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'
+
+New-ConsoleRows -Gap 1 {
+    New-ConsoleLogo 'HELLO' -Tagline '[muted]A little context before your next command. Sample profile.[/]'
+    New-ConsolePanel -Title 'Host summary' -Caption 'synthetic values' {
+        New-ConsoleKeyValue -Data $hostSummary
+    }
+    New-ConsolePanel -Title 'Git | comet-notes' {
+        New-ConsoleText -Markup $git
+    }
+    New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'
+    New-ConsoleText -Markup '[muted]Ready when you are. Everything here is fixed sample data.[/]'
+} | Write-ConsoleWidget

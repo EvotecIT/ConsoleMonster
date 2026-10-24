@@ -115,6 +115,11 @@ Shows what ConsoleMonster detected about the current terminal.
 
 Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
 
+### [Get-ConsoleDemo](Get-ConsoleDemo.md)
+Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.
+
+Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. With -Path, an exact slug exports the canonical self-contained script as UTF-8; ConsoleMonster must be installed to run it. The parent directory must exist. Existing files are preserved unless -Force is supplied.
+
 ### [Invoke-ConsolePester](Invoke-ConsolePester.md)
 Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
 
@@ -495,6 +500,11 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 Shows the changes an action would make and asks before making them: the what-if pattern.
 
 Compares -Before with -After (as Compare-ConsoleObject does), shows the preview, then asks for confirmation and returns $true or $false; act only on $true. Changes that remove objects need the number of removals typed (or the -TypedConfirmation text). It honours the caller's -WhatIf: the preview is shown and $false returned without asking. -Force (or -Confirm:$false) skips the question and returns $true when there are changes. Use it inside your own functions: if (Show-ConsoleChanges -Before $current -After $planned -Property Name) { apply }.
+
+### [Show-ConsoleDemo](Show-ConsoleDemo.md)
+Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
+
+Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot and -Step are passed to the demo; omitted parameters retain the script's defaults. Demo output and errors follow the normal PowerShell streams.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
