@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Sessions {
         }
 
         [UnixFact]
-        public void FastExitedChildOutputCanBeDrainedBeforeClosingTheTerminal() {
+        public void FastChildOutputCanBeDrainedAfterDelayingTheReader() {
             foreach (int exitCode in new[] { 0, 7 }) {
                 SessionRecordingOptions options = new SessionRecordingOptions {
                     Shell = "/bin/sh", Width = 60, Height = 8, WorkingDirectory = Path.GetTempPath()
@@ -51,13 +51,15 @@ namespace ConsoleMonster.Tests.Sessions {
                 options.Arguments.Add("-c");
                 options.Arguments.Add("printf 'Complete output before exit\\r\\n'; exit " + exitCode);
                 using (UnixPseudoTerminal terminal = new UnixPseudoTerminal(options)) {
-                    Assert.True(SpinWait.SpinUntil(() => terminal.HasExited, TimeSpan.FromSeconds(10)), "The synthetic child did not exit.");
-                    Assert.Equal(exitCode, terminal.ExitCode);
                     StringBuilder output = new StringBuilder();
                     byte[] bytes = new byte[8192];
                     int count;
-                    // Deliberately do not start reading until after the process has completely exited.
+                    // Darwin drains a session leader's terminal output during exit. Waiting for exit
+                    // before the first read would deadlock that drain, even for a short-lived child.
+                    Thread.Sleep(100);
                     while ((count = terminal.Read(bytes)) > 0) { output.Append(Encoding.UTF8.GetString(bytes, 0, count)); }
+                    Assert.True(terminal.HasExited);
+                    Assert.Equal(exitCode, terminal.ExitCode);
                     Assert.Contains("Complete output before exit", output.ToString());
                 }
             }
