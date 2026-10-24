@@ -243,7 +243,7 @@ namespace ConsoleMonster.Interactive {
             foreach (KeyBinding custom in _root.KeyBindings) {
                 bindings.Add(custom);
             }
-            bindings.Add(HelpBinding(!typing));
+            bindings.Add(HelpBinding());
         }
 
         private static bool HasEscape(List<KeyBinding> bindings) {

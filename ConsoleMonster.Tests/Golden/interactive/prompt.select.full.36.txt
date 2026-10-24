@@ -10,20 +10,20 @@
     Lab
     LAB01                      Test
     File server · Windows Server 2…
-  ↑↓ move  enter select  f1 keys
+  ↑↓ move  enter select  ? keys
 --- frame 4
 ? Target server
   › fs
   ▌ [FS01]  · Warsaw           File
     FS11  · Berlin             File
     File server · Windows Server 2…
-  ↑↓ move  enter select  f1 keys
+  ↑↓ move  enter select  ? keys
 --- frame 5
 ? Target server
   › fs
     FS01  · Warsaw             File
   ▌ [FS11]  · Berlin           File
 
-  ↑↓ move  enter select  f1 keys
+  ↑↓ move  enter select  ? keys
 --- summary
 ✓ Target server  FS11

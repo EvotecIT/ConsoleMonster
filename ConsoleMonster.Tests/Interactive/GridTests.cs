@@ -140,7 +140,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal("SRV01", result.Items.Single());
             string footer = surface.Frames.First().GetRowText(19);
             if (width == 120) {
-                foreach (string hint in new[] { "enter details", "f3 sort", "f2 columns", "f1 keys" }) {
+                foreach (string hint in new[] { "enter details", "f3 sort", "f2 columns", "? keys" }) {
                     Assert.Contains(hint, footer);
                 }
             }

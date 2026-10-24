@@ -10,7 +10,7 @@
     ▾ [ ] Lab                         0/1  │                                                       │
       [ ] LAB01                      Test  │                                                       │
                                            ╰───────────────────────────────────────────────────────╯
-  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  ? keys
 --- frame 2
 ? Servers
   › type to filter        1 of 4 selected  ╭─ WEB01 ───────────────────────────────────────────────╮
@@ -23,6 +23,6 @@
     ▾ [ ] Lab                         0/1  │                                                       │
       [ ] LAB01                      Test  │                                                       │
                                            ╰───────────────────────────────────────────────────────╯
-  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  f1 keys
+  ↑↓ move  space toggle  enter confirm  ctrl+a all  ctrl+n none  esc cancel  ? keys
 --- summary
 ✓ Servers  WEB01

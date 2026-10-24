@@ -34,6 +34,28 @@ namespace ConsoleMonster.Tests.Input {
             } finally { Directory.Delete(directory, true); }
         }
 
+        [UnixFact]
+        public async Task StartupBackgroundProbePreservesKeysFallbackAndTerminalMode() {
+            string directory = Path.Combine(Path.GetTempPath(), "ConsoleMonster-Background-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            try {
+                string script = Path.Combine(directory, "background_pty.py");
+                using (Stream resource = typeof(UnixInputProcessTests).Assembly.GetManifestResourceStream("ConsoleMonster.Tests.Input.Fixtures.background_pty.py")!)
+                using (FileStream target = File.Create(script)) { resource.CopyTo(target); }
+                string host = typeof(TestHost.Program).Assembly.Location;
+                string runtime = Path.ChangeExtension(typeof(UnixInputProcessTests).Assembly.Location, ".runtimeconfig.json");
+                ProcessStartInfo info = new ProcessStartInfo("python3", Quote(script) + " " + Quote(host) + " " + Quote(runtime) + " " + Quote(directory)) {
+                    UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true
+                };
+                using (Process process = Process.Start(info)!) {
+                    Task<string> output = process.StandardOutput.ReadToEndAsync();
+                    Task<string> error = process.StandardError.ReadToEndAsync();
+                    await Task.Run(() => process.WaitForExit());
+                    Assert.True(process.ExitCode == 0, await output + await error);
+                }
+            } finally { Directory.Delete(directory, true); }
+        }
+
         private static string Quote(string text) => CommandLine.Quote(text, CommandStyle.Windows);
 
         private sealed class UnixFactAttribute : FactAttribute {

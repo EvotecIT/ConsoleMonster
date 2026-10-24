@@ -15,7 +15,7 @@ namespace ConsoleMonster.Input {
         private readonly byte[] _bytes = new byte[512];
         private readonly char[] _chars = new char[Encoding.UTF8.GetMaxCharCount(512)];
         private readonly List<InputEvent> _events = new List<InputEvent>();
-        private VtInputDecoder _decoder = new VtInputDecoder();
+        private VtInputDecoder _decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
         private readonly Stopwatch _quiet = new Stopwatch();
         private bool _active;
         private bool _disposed;
@@ -49,6 +49,12 @@ namespace ConsoleMonster.Input {
                 }
                 if (polled && wait.Elapsed >= timeout) { return null; }
                 polled = true;
+                if (UnixInputNative.PendingInput.TryDequeue(out byte pending)) {
+                    int length = _utf8.GetChars(new[] { pending }, 0, 1, _chars, 0, false);
+                    if (length > 0) { _decoder.Feed(new string(_chars, 0, length), _events); }
+                    _quiet.Restart();
+                    continue;
+                }
                 if (UnixInputNative.Ready(_descriptor)) {
                     long count = UnixInputNative.Read(_descriptor, _bytes, new UIntPtr((uint)_bytes.Length)).ToInt64();
                     if (count == 0) { throw new InputClosedException(ClosedMessage()); }
@@ -85,7 +91,7 @@ namespace ConsoleMonster.Input {
         internal void Resume() {
             if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
             _events.Clear();
-            _decoder = new VtInputDecoder();
+            _decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
             _utf8.Reset();
             _quiet.Reset();
             Activate(true);

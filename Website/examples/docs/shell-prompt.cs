@@ -3,15 +3,15 @@ using ConsoleMonster.Widgets;
 
 // Illustrative completed-command data; the PowerShell feature supplies these values from the session.
 Terminal.Write(new ShellPrompt {
-    Path = @"C:\Users\Alex\src\Operations\Deployment\Scripts",
-    Home = @"C:\Users\Alex",
+    Path = "~/src/Operations/Deployment/Scripts",
+    Home = "~",
     Branch = "feature/themed-prompt",
     Dirty = true,
     Succeeded = true
 });
 Terminal.Write(new ShellPrompt {
-    Path = @"C:\Users\Alex\src\Operations\Deployment\Scripts",
-    Home = @"C:\Users\Alex",
+    Path = "~/src/Operations/Deployment/Scripts",
+    Home = "~",
     Branch = "feature/themed-prompt",
     Dirty = true,
     Succeeded = false,

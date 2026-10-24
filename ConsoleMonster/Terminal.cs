@@ -75,7 +75,7 @@ namespace ConsoleMonster {
 
         /// <summary>
         /// Chooses the light or dark theme: <c>CONSOLEMONSTER_THEME=light|dark</c> wins; otherwise interactive consoles use
-        /// the detected background (console colour table, COLORFGBG) and everything else the dark theme.
+        /// the detected background (console colour table, startup OSC 11 query, COLORFGBG) and everything else the dark theme.
         /// </summary>
         /// <param name="profile">The terminal profile.</param>
         /// <returns>The theme.</returns>
@@ -130,6 +130,11 @@ namespace ConsoleMonster {
                 _explicitProfile = false;
                 _detectedTheme = null;
             }
+        }
+
+        /// <summary>Re-evaluates automatic appearance after an owned input reader learns the terminal background.</summary>
+        internal static void RefreshBackground() {
+            lock (Gate) { _detectedTheme = null; }
         }
 
         /// <summary>

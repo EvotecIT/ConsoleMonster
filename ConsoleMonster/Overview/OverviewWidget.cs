@@ -89,7 +89,7 @@ namespace ConsoleMonster.Overview {
             int capacity = Math.Max(1, height - 2);
             string? footer = null;
             if (section.IsPending) {
-                body.Add(TextBlock.Plain(context.Ellipsis, ThemeToken.Muted));
+                body.Add(TextBlock.Plain(section.Name == "Resources" ? "CPU: measuring" + context.Ellipsis : context.Ellipsis, ThemeToken.Muted));
             } else {
                 bool overflow = section.Items.Count > capacity;
                 int count = overflow ? Math.Max(1, capacity - 1) : section.Items.Count;

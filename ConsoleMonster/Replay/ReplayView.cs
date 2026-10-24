@@ -182,7 +182,7 @@ namespace ConsoleMonster.Replay {
             bindings.Add(new KeyBinding(string.Empty, () => Jump(m => m.IsLog, -1), new KeyChord('L')) { InFooter = false });
             bindings.Add(new KeyBinding(Labels.KeySearch, OpenSearch, new KeyChord('/')) { KeyText = "/", Order = 17 });
             bindings.Add(new KeyBinding(Labels.KeyQuit, Quit, new KeyChord('q'), new KeyChord(ConsoleKey.Escape)) { KeyText = "q", Order = 40 });
-            bindings.Add(HelpBinding(true));
+            bindings.Add(HelpBinding());
         }
 
         protected override bool HandleUnbound(InputEvent input) => _searching && _search.Handle(input);

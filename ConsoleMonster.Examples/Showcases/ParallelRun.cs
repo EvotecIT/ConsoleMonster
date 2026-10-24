@@ -91,7 +91,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Subtitle("ad.adatum.com forest assessment · 12 targets · " + ParallelRunRecording.TotalRules + " rules")
                 .Add(new Prioritized(new Padding(phases, 1, 0, 1, 1), 10, 1, 30))
                 .Columns(c => c
-                    .Panel("Targets", new Prioritized(targets, 8, 4, 40), 2.3, ParallelRunRecording.Workers + " workers")
+                    .Panel("Targets", new Prioritized(targets, 8, 4, 40), 1.7, ParallelRunRecording.Workers + " workers")
                     .Panel("Results", new Rows(results, new Rule(), summary), 1))
                 .Columns(c => c
                     .Panel("Throughput", throughput, 1.2, "rules/s")

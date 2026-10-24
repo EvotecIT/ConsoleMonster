@@ -49,7 +49,7 @@ switch ($Surface) {
         Import-Module $module
         # Give this in-memory demo an example version and path; no file is created or opened.
         Get-Module Demo.Inventory | Add-Member -NotePropertyMembers @{
-            Path = 'C:\Demo\Demo.Inventory.psm1'
+            Path = (Join-Path ([IO.Path]::GetTempPath()) 'Demo/Demo.Inventory.psm1')
             Version = [version]'1.2.3'
         } -Force -PassThru | Out-Default
     }

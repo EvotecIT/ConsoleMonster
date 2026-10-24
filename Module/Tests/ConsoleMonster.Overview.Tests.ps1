@@ -68,13 +68,9 @@ try {
             $snapshot.Sections[0].Items.Count | Should -Be 0
         } else {
             $cpu = @($snapshot.Sections[0].Items | Where-Object Label -eq CPU)
-            if ($PSVersionTable.PSEdition -eq 'Core' -and $IsMacOS) {
-                # Darwin can return cached counters, which have no interval from which to calculate usage.
-                $cpu.Count | Should -BeLessOrEqual 1
-            } else {
-                $cpu.Count | Should -Be 1
-            }
+            $cpu.Count | Should -Be 1
             foreach ($item in $cpu) {
+                $item.Percentage | Should -Not -BeNullOrEmpty
                 $item.Percentage | Should -BeGreaterOrEqual 0
                 $item.Percentage | Should -BeLessOrEqual 100
             }

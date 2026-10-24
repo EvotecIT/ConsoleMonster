@@ -128,10 +128,12 @@ namespace ConsoleMonster.Tests.Overview {
         public void PendingAndUnavailableSectionsRenderWithoutMarkupOrControlInjection(int width) {
             OverviewSnapshot snapshot = Snapshot(
                 new OverviewSection("Pending", "Slow [warn]literal[/]", Array.Empty<OverviewItem>(), true),
+                new OverviewSection("Resources", "CPU / memory", Array.Empty<OverviewItem>(), true),
                 new OverviewSection("Empty", "Hidden empty", Array.Empty<OverviewItem>()),
                 new OverviewSection("Text", "Literal", new[] { new OverviewItem("[fail]label[/]", "value\n\u001b[31m") }));
             string text = Terminal.RenderText(new OverviewWidget(snapshot), TerminalProfile.Fixed(width, 40, ColorDepth.None, GlyphTier.Ascii));
             Assert.Contains("...", text);
+            Assert.Contains("CPU: measuring...", text);
             Assert.DoesNotContain("Hidden empty", text);
             Assert.Contains("[fail]label[/]", text);
             Assert.DoesNotContain("\u001b", text, StringComparison.Ordinal);

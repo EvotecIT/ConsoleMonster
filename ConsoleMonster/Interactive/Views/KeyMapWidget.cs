@@ -92,11 +92,11 @@ namespace ConsoleMonster.Interactive {
                 _owner = owner;
             }
 
-            public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(_owner.Lines + 1, constraints.MaxHeight));
+            public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(_owner.Lines, constraints.MaxHeight));
 
             public void Render(Region region, RenderContext context) {
                 int keyWidth = _owner.KeyWidth();
-                int y = 1;
+                int y = 0;
                 bool first = true;
                 foreach (KeyValuePair<string, List<KeyBinding>> g in _owner._groups) {
                     if (!first) {

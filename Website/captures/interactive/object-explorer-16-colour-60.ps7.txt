@@ -1,4 +1,4 @@
-source d66bd53b566d8722b3a5824c5efbfc43
+source d66bd53b566d87220f96fb2651c198c2
  Server configuration                             4 members
 $server
 ┌─ Members ────────────────────────────────────────────────┐
@@ -18,4 +18,4 @@ $server
 │                                                          │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
- ↑↓ move  right expand  enter drill  / search  f1 keys
+ ↑↓ move  right expand  enter drill  / search  ? keys

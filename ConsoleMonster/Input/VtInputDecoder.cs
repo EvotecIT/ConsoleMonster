@@ -13,6 +13,9 @@ namespace ConsoleMonster.Input {
         private bool _inPaste;
         private bool _droppingCsi;
 
+        /// <summary>Unix startup queries may leave a late OSC 11 reply; ordinary decoders keep Alt+] as a key.</summary>
+        internal bool IgnoreBackgroundReplies { get; set; }
+
         /// <summary>Creates an empty VT input decoder.</summary>
         public VtInputDecoder() { }
 
@@ -32,6 +35,7 @@ namespace ConsoleMonster.Input {
             if (text.Length == 0) {
                 return;
             }
+            ExpireBackgroundReply();
             if (_inPaste) {
                 _pending.Append(text);
                 ProcessPaste(output);
@@ -60,6 +64,13 @@ namespace ConsoleMonster.Input {
                         break;
                     }
                     char next = combined[i + 1];
+                    // A delayed startup colour reply is protocol data, never editable text.
+                    if (IgnoreBackgroundReplies && next == ']' && (combined.Substring(i).StartsWith("\u001b]11;", StringComparison.Ordinal)
+                        || "\u001b]11;".StartsWith(combined.Substring(i), StringComparison.Ordinal))) {
+                        if (!ReadBackgroundReply(combined, i, out int consumed)) { break; }
+                        i += consumed;
+                        continue;
+                    }
                     if (next == Escape) {
                         output.Add(InputEvent.Press(ConsoleKey.Escape));
                         i++;
@@ -93,6 +104,12 @@ namespace ConsoleMonster.Input {
                         }
                         DecodeSs3(combined[i + 2], output);
                         i += 3;
+                        previousWasCr = false;
+                        continue;
+                    }
+                    if (next == '\u007f' || next == '\b') {
+                        output.Add(InputEvent.Press(ConsoleKey.Backspace, KeyModifiers.Alt));
+                        i += 2;
                         previousWasCr = false;
                         continue;
                     }
@@ -170,6 +187,11 @@ namespace ConsoleMonster.Input {
                 return;
             }
             string pending = _pending.ToString();
+            if (IgnoreBackgroundReplies && (pending.StartsWith("\u001b]11;", StringComparison.Ordinal)
+                || (pending.Length > 1 && "\u001b]11;".StartsWith(pending, StringComparison.Ordinal)))) {
+                ExpireBackgroundReply();
+                return;
+            }
             _pending.Clear();
             if (pending == Escape.ToString()) {
                 output.Add(InputEvent.Press(ConsoleKey.Escape));
@@ -303,7 +325,7 @@ namespace ConsoleMonster.Input {
         }
 
         private static void DecodeSs3(char final, List<InputEvent> output) {
-            ConsoleKey key = final == 'A' ? ConsoleKey.UpArrow : final == 'B' ? ConsoleKey.DownArrow : final == 'C' ? ConsoleKey.RightArrow : final == 'D' ? ConsoleKey.LeftArrow : final == 'H' ? ConsoleKey.Home : final == 'F' ? ConsoleKey.End : FunctionKey(final);
+            ConsoleKey key = final == 'M' ? ConsoleKey.Enter : final == 'A' ? ConsoleKey.UpArrow : final == 'B' ? ConsoleKey.DownArrow : final == 'C' ? ConsoleKey.RightArrow : final == 'D' ? ConsoleKey.LeftArrow : final == 'H' ? ConsoleKey.Home : final == 'F' ? ConsoleKey.End : FunctionKey(final);
             if (key != 0) {
                 output.Add(InputEvent.Press(key));
             }

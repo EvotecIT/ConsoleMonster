@@ -6,6 +6,74 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Input {
     public sealed class VtInputDecoderTests {
+        [Theory]
+        [InlineData("\u001b\u007f", ConsoleKey.Backspace, KeyModifiers.Alt)]
+        [InlineData("\u001bb", ConsoleKey.B, KeyModifiers.Alt)]
+        [InlineData("\u001bf", ConsoleKey.F, KeyModifiers.Alt)]
+        [InlineData("\u001bOM", ConsoleKey.Enter, KeyModifiers.None)]
+        public void TerminalEditingSequencesSurviveEveryChunkBoundary(string sequence, ConsoleKey key, KeyModifiers modifiers) {
+            for (int split = 0; split <= sequence.Length; split++) {
+                VtInputDecoder decoder = new VtInputDecoder();
+                List<InputEvent> events = new List<InputEvent>();
+                decoder.Feed(sequence.Substring(0, split), events);
+                decoder.Feed(sequence.Substring(split), events);
+                Assert.True(Assert.Single(events).Is(key, modifiers));
+            }
+        }
+
+        [Fact]
+        public void DelayedOscBackgroundReplyNeverBecomesText() {
+            const string reply = "\u001b]11;rgb:ffff/ffff/ffff\u001b\\";
+            for (int split = 2; split < reply.Length; split++) {
+                VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+                List<InputEvent> events = new List<InputEvent>();
+                decoder.Feed(reply.Substring(0, split), events);
+                decoder.Flush(events);
+                decoder.Feed(reply.Substring(split) + "hello", events);
+                Assert.Equal("hello", new string(events.ConvertAll(e => e.Char).ToArray()));
+            }
+            InputEvent altBracket = Assert.Single(Decode("\u001b]"));
+            Assert.Equal(']', altBracket.Char);
+            Assert.Equal(KeyModifiers.Alt, altBracket.Modifiers);
+        }
+
+        [Fact]
+        public void AbandonedBackgroundReplyDoesNotTrapSubsequentTyping() {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001b]11;rgb:ffff/", events);
+            System.Threading.Thread.Sleep(300);
+            decoder.Flush(events);
+            Assert.False(decoder.HasPending);
+            decoder.Feed("abc\r\u0003", events);
+            Assert.Equal("abc", new string(events.FindAll(e => e.IsText).ConvertAll(e => e.Char).ToArray()));
+            Assert.True(events[3].Is(ConsoleKey.Enter));
+            Assert.True(events[4].Is(ConsoleKey.C, KeyModifiers.Control));
+        }
+
+        [Theory]
+        [InlineData("\u001b]11;rgb:ffff/hello\r\u0003", "hello")]
+        [InlineData("\u001b]11;rgb:ffff/\r\u0003", "")]
+        public void MalformedBackgroundReplyPreservesUnrelatedKeys(string text, string expected) {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed(text, events);
+            Assert.Equal(expected, new string(events.FindAll(e => e.IsText).ConvertAll(e => e.Char).ToArray()));
+            Assert.True(events[events.Count - 2].Is(ConsoleKey.Enter));
+            Assert.True(events[events.Count - 1].Is(ConsoleKey.C, KeyModifiers.Control));
+            Assert.False(decoder.HasPending);
+        }
+
+        [Fact]
+        public void OverlongBackgroundReplyCannotKeepBufferingInput() {
+            VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
+            List<InputEvent> events = new List<InputEvent>();
+            decoder.Feed("\u001b]11;rgb:" + new string('a', 4096) + "\r\u0003", events);
+            Assert.False(decoder.HasPending);
+            Assert.True(events[events.Count - 2].Is(ConsoleKey.Enter));
+            Assert.True(events[events.Count - 1].Is(ConsoleKey.C, KeyModifiers.Control));
+        }
+
         [Fact]
         public void Feed_PrintableAndControls_NormalizesEvents() {
             List<InputEvent> events = Decode("a!\r\n\t\b\u007f\0\u0001\u001a\u001c\u001f");

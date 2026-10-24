@@ -114,7 +114,7 @@ namespace ConsoleMonster.Examples.Showcases {
             parallel.Help = "How many servers run their tasks at the same time.";
             PathField report = page.Path("Report", "Report folder");
             report.PathKind = PathKind.Folder;
-            report.Default = @"C:\Reports\Toolbox";
+            report.Default = System.IO.Path.Combine("Reports", "Toolbox");
             report.Parameter = "ReportPath";
             report.Help = "Created when it does not exist. Tab completes folder names.";
             ChoiceField format = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });

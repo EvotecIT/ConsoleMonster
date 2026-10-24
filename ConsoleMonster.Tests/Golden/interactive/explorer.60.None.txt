@@ -17,4 +17,4 @@ $x
 |                                                          |
 |                                                          |
 +----------------------------------------------------------+
- Up/Down move  right expand  enter drill  / search  f1 keys
+ Up/Down move  right expand  enter drill  / search  ? keys

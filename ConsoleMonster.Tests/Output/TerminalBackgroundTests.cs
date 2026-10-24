@@ -4,6 +4,24 @@ using Xunit;
 namespace ConsoleMonster.Tests.Output {
     public sealed class TerminalBackgroundTests {
         [Theory]
+        [InlineData("\u001b]11;rgb:ffff/ffff/ffff\u0007", true)]
+        [InlineData("\u001b]11;rgb:00/00/00\u001b\\", false)]
+        [InlineData("\u001b]11;rgb:f/f/f\u0007", true)]
+        [InlineData("\u001b]11;rgb:1234/1234/1234\u0007", false)]
+        public void Osc11ReplyClassifiesRgbAtTerminalPrecision(string reply, bool light) {
+            Assert.True(TerminalBackground.TryParseOsc11(reply, out TerminalBackgroundInfo info));
+            Assert.Equal(light, info.IsLight);
+            Assert.True(info.HasColor);
+            Assert.Equal("OSC 11", info.Source);
+        }
+
+        [Theory]
+        [InlineData("\u001b]11;rgb:ffff/ffff/ffff")]
+        [InlineData("\u001b]11;rgb:xx/ff/ff\u0007")]
+        [InlineData("\u001b]10;rgb:ff/ff/ff\u0007")]
+        public void InvalidOscRepliesKeepTheFallback(string reply) => Assert.False(TerminalBackground.TryParseOsc11(reply, out _));
+
+        [Theory]
         [InlineData(0, 0, 0, false)]
         [InlineData(255, 255, 255, true)]
         [InlineData(12, 12, 12, false)]

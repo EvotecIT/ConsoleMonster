@@ -7,12 +7,19 @@ namespace ConsoleMonster.Overview {
         // Reuse one process-wide host send right rather than acquiring one for every login summary.
         private static readonly Lazy<uint> Host = new Lazy<uint>(mach_host_self);
         internal static bool Cpu(out double total, out double idle) {
-            uint[] values = new uint[4];
-            uint count = 4;
-            bool success = host_statistics(Host.Value, 3, values, ref count) == 0 && count >= 4;
-            total = (double)values[0] + values[1] + values[2] + values[3];
-            idle = values[2];
-            return success;
+            total = idle = 0;
+            if (host_processor_info(Host.Value, 2, out uint processors, out IntPtr counters, out uint count) != 0) { return false; }
+            try {
+                if (count < processors * 4) { return false; }
+                for (int i = 0; i < processors; i++) {
+                    for (int state = 0; state < 4; state++) {
+                        uint ticks = unchecked((uint)Marshal.ReadInt32(counters, (i * 4 + state) * 4));
+                        total += ticks;
+                        if (state == 2) { idle += ticks; }
+                    }
+                }
+                return true;
+            } finally { vm_deallocate(mach_task_self(), counters, new UIntPtr(count * 4)); }
         }
 
         internal static bool Memory(out double total, out double available) {
@@ -45,7 +52,11 @@ namespace ConsoleMonster.Overview {
         [DllImport("/usr/lib/libSystem.B.dylib")]
         private static extern uint mach_host_self();
         [DllImport("/usr/lib/libSystem.B.dylib")]
-        private static extern int host_statistics(uint host, int flavor, [Out] uint[] values, ref uint count);
+        private static extern uint mach_task_self();
+        [DllImport("/usr/lib/libSystem.B.dylib")]
+        private static extern int host_processor_info(uint host, int flavor, out uint processors, out IntPtr info, out uint count);
+        [DllImport("/usr/lib/libSystem.B.dylib")]
+        private static extern int vm_deallocate(uint task, IntPtr address, UIntPtr size);
         [DllImport("/usr/lib/libSystem.B.dylib")]
         private static extern int host_statistics64(uint host, int flavor, [Out] uint[] values, ref uint count);
         [DllImport("/usr/lib/libSystem.B.dylib")]

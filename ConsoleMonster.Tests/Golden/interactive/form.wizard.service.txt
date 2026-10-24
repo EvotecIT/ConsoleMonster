@@ -21,4 +21,4 @@
 │                                                                              │
 │                                                             Back   Review    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space toggle  pgdn next  esc back  f1 keys
+ ↑↓ move  space toggle  pgdn next  esc back  ? keys

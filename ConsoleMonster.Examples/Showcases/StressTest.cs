@@ -23,34 +23,8 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <param name="seconds">How long to run.</param>
         /// <returns>A one-line result summary (also printed after the session).</returns>
         public static string Run(int seconds) {
-            Lanes lanes = new Lanes("workers") { MaxLabelWidth = 10, ShowDetail = true };
-            for (int i = 0; i < Workers; i++) {
-                lanes.Add("w" + i.ToString(CultureInfo.InvariantCulture), "worker " + (i + 1).ToString("00", CultureInfo.InvariantCulture), 100000);
-            }
-            KeyValueList stats = new KeyValueList("stats")
-                .Add("Updates posted", "0")
-                .Add("Updates applied", "0")
-                .Add("Update rate", "-")
-                .Add("Frames", "0")
-                .Add("Frame rate", "-")
-                .Add("CPU", "-")
-                .Add("CPU share", "-")
-                .Add("Stray writes", "0")
-                .Add("Dropped / errors", "0 / 0");
-            Sparkline rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
-            LineChart cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
-            cpu.AddSeries("cpu", ThemeToken.Accent2);
-
-            // Keep the finite stress run's complete log so delivery is verified by identity, not attempted-write counts.
-            LogRegion capturedOutput = new LogRegion { PreferredHeight = 6, Capacity = int.MaxValue };
+            Dashboard dashboard = Build(seconds, out Lanes lanes, out KeyValueList stats, out Sparkline rate, out LineChart cpu, out LogRegion capturedOutput);
             ConcurrentQueue<string> expectedLines = new ConcurrentQueue<string>();
-            Dashboard dashboard = new DashboardBuilder("[bold]Stress test[/]")
-                .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
-                .Columns(c => c
-                    .Panel("Workers", lanes, 2.2)
-                    .Panel("Session", new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), 1))
-                .Panel("Captured output", capturedOutput, fill: true)
-                .BuildDashboard();
 
             string result = string.Empty;
             LiveSessionOptions options = new LiveSessionOptions();
@@ -68,6 +42,44 @@ namespace ConsoleMonster.Examples.Showcases {
             }
             Console.WriteLine(result);
             return result;
+        }
+
+        /// <summary>Builds the stress dashboard without starting workers, for print-once previews and embedding.</summary>
+        /// <param name="seconds">The advertised run duration.</param>
+        /// <returns>The dashboard in its initial state.</returns>
+        public static Dashboard Build(int seconds = 10) => Build(seconds, out _, out _, out _, out _, out _);
+
+        private static Dashboard Build(int seconds, out Lanes lanes, out KeyValueList stats, out Sparkline rate, out LineChart cpu, out LogRegion capturedOutput) {
+            lanes = new Lanes("workers") { MaxLabelWidth = 10, ShowDetail = true };
+            for (int i = 0; i < Workers; i++) {
+                lanes.Add("w" + i.ToString(CultureInfo.InvariantCulture), "worker " + (i + 1).ToString("00", CultureInfo.InvariantCulture), 100000);
+            }
+            stats = new KeyValueList("stats")
+                .Add("Updates posted", "0")
+                .Add("Updates applied", "0")
+                .Add("Update rate", "-")
+                .Add("Frames", "0")
+                .Add("Frame rate", "-")
+                .Add("CPU", "-")
+                .Add("CPU share", "-")
+                .Add("Stray writes", "0")
+                .Add("Dropped / errors", "0 / 0");
+            rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
+            cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
+            cpu.AddSeries("cpu", ThemeToken.Accent2);
+
+            // Keep the finite stress run's complete log so delivery is verified by identity, not attempted-write counts.
+            capturedOutput = new LogRegion { PreferredHeight = 6, Capacity = int.MaxValue };
+            Lanes workers = lanes;
+            Rows session = new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu);
+            return new DashboardBuilder("[bold]Stress test[/]")
+                .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
+                .Columns(c => c
+                    .Panel("Workers", workers, 1.6)
+                    .Panel("Session", session, 1))
+                .Panel("Captured output", capturedOutput, fill: true)
+                .BuildDashboard();
+
         }
 
         private static string Drive(LiveSession session, Lanes lanesWidget, KeyValueList statsWidget, Sparkline rateWidget, LineChart cpuWidget, int seconds, ConcurrentQueue<string> expectedLines) {

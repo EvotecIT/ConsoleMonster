@@ -170,7 +170,7 @@ namespace ConsoleMonster.Tests.Overview {
                 Assert.False(resources.IsPending);
                 AssertResourceObservations(resources);
                 if (OverviewPlatform.Mac) {
-                    // Darwin may return cached samples; still qualify the native CPU binding without requiring a delta.
+                    // Also qualify the native CPU binding independently of the derived interval.
                     Assert.True(OverviewMacNative.Cpu(out double total, out double idle));
                     Assert.True(total > 0);
                     Assert.InRange(idle, 0, total);
@@ -179,10 +179,7 @@ namespace ConsoleMonster.Tests.Overview {
         }
 
         private static void AssertResourceObservations(OverviewSection resources) {
-            if (!OverviewPlatform.Mac) {
-                Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
-            }
-            Assert.All(resources.Items.Where(item => item.Label == "CPU"), item => Assert.InRange(item.Percentage!.Value, 0, 100));
+            Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
             Assert.Contains(resources.Items, item => item.Label == "Memory" && item.Percentage >= 0 && item.Percentage <= 100);
         }
 

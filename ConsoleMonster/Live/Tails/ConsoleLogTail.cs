@@ -64,6 +64,7 @@ namespace ConsoleMonster.Live.Tails {
         private static void RunLive(Func<IReadOnlyList<TailedLogEntry>> read, LogTailOptions options,
             TerminalProfile profile, CancellationToken cancellationToken) {
             LogTailView view = new LogTailView(options.Capacity, highlight: options.Highlight) { TimestampFormat = options.TimestampFormat };
+            using (InputLease lease = ConsoleInput.Acquire(options.Input ?? Terminal.Target.Input))
             using (LiveSession session = new LiveSession(view, new LiveSessionOptions {
                 Mode = options.Mode, Profile = profile, Theme = options.Theme, Output = options.Output,
                 CaptureConsole = false, HandleCancelKey = options.HandleCancelKey, PrintFinalState = false,
@@ -71,7 +72,6 @@ namespace ConsoleMonster.Live.Tails {
             })) {
                 session.Start();
                 try {
-                    using (InputLease lease = ConsoleInput.Acquire(options.Input ?? Terminal.Target.Input))
                     using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, session.Cancellation)) {
                         Poll(read, options, entry => view.Post(session, entry), input => {
                             if (LogTailKeys.Quit(input)) { return false; }

@@ -107,7 +107,7 @@ namespace ConsoleMonster.Interactive {
             bindings.Add(new KeyBinding("quit", Cancel, new KeyChord(ConsoleKey.Escape)) { Order = 50 });
             bindings.Add(new KeyBinding(string.Empty, () => Move(-_pageRows), new KeyChord(ConsoleKey.PageUp)) { InFooter = false });
             bindings.Add(new KeyBinding(string.Empty, () => Move(_pageRows), new KeyChord(ConsoleKey.PageDown)) { InFooter = false });
-            bindings.Add(HelpBinding(false));
+            bindings.Add(HelpBinding());
         }
 
         protected override bool HandleUnbound(InputEvent input) {

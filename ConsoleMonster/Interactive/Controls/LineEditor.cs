@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 using ConsoleMonster.Input;
 
 namespace ConsoleMonster.Interactive {
@@ -63,7 +64,19 @@ namespace ConsoleMonster.Interactive {
             }
             bool ctrl = (e.Modifiers & KeyModifiers.Control) != 0;
             bool alt = (e.Modifiers & KeyModifiers.Alt) != 0;
+            // Terminal.app and xterm send Meta letters; keep Windows menu accelerators untouched.
+            bool unix = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            if (unix && alt && !ctrl) {
+                if (e.Key == ConsoleKey.B) { Caret = WordStart(Caret); return true; }
+                if (e.Key == ConsoleKey.F) { Caret = WordEnd(Caret); return true; }
+            }
             switch (e.Key) {
+                case ConsoleKey.A when unix && ctrl && !alt:
+                    Caret = 0;
+                    return true;
+                case ConsoleKey.E when unix && ctrl && !alt:
+                    Caret = _text.Length;
+                    return true;
                 case ConsoleKey.Backspace:
                     if (ctrl || alt) {
                         DeleteWordBefore();
@@ -79,10 +92,10 @@ namespace ConsoleMonster.Interactive {
                     }
                     return true;
                 case ConsoleKey.LeftArrow:
-                    Caret = ctrl ? WordStart(Caret) : Previous(Caret);
+                    Caret = (ctrl || (unix && alt)) ? WordStart(Caret) : Previous(Caret);
                     return true;
                 case ConsoleKey.RightArrow:
-                    Caret = ctrl ? WordEnd(Caret) : Next(Caret);
+                    Caret = (ctrl || (unix && alt)) ? WordEnd(Caret) : Next(Caret);
                     return true;
                 case ConsoleKey.Home:
                     Caret = 0;

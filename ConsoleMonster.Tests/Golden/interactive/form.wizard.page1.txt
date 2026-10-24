@@ -21,4 +21,4 @@
 │                                                                              │
 │                                                                      Next    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  enter next  pgdn next  esc cancel  f1 keys
+ ↑↓ move  enter next  pgdn next  esc cancel  ? keys

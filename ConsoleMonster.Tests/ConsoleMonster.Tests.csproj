@@ -17,6 +17,7 @@
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Input/Fixtures/unix_input_pty.py" />
+        <EmbeddedResource Include="Input/Fixtures/background_pty.py" />
         <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\ConsoleMonster.TestHost\ConsoleMonster.TestHost.csproj" />
         <!-- The table showcases double as golden scenes, so the datasets are defined once. -->

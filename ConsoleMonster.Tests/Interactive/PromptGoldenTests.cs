@@ -171,10 +171,12 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("cancelled", surface.SummaryText());
         }
 
-        [Fact]
-        public void F1_OpensTheKeyMapAndAnyKeyClosesIt() {
+        [Theory]
+        [InlineData("F1")]
+        [InlineData("\"?\"")]
+        public void HelpKeysOpenTheKeyMapAndAnyKeyClosesIt(string help) {
             RecordingSurface surface = new RecordingSurface(60, 24, true);
-            new MultiSelectPrompt<object?>("Servers", Servers()).Show(PromptHarness.Options("F1 Escape Enter", surface));
+            new MultiSelectPrompt<object?>("Servers", Servers()).Show(PromptHarness.Options(help + " Escape Enter", surface));
             string map = surface.Frames[1].ToPlainText();
             Assert.Contains("Keys", map);
             Assert.Contains("ctrl+a", map);

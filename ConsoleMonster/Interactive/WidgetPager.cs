@@ -46,6 +46,7 @@ namespace ConsoleMonster.Interactive {
                 return false;
             }
             using (InputLease lease = ConsoleInput.Acquire(interactive.Input)) {
+                context = Terminal.CreateContext(profile, interactive.ResolveTheme());
                 bool owns = false;
                 try {
                     if (surface == null) {

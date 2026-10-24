@@ -23,4 +23,4 @@
 │                                            │
 │              [Run]  Copy command   Back    │
 ╰────────────────────────────────────────────╯
- ←→ move  enter run  esc back  f1 keys
+ ←→ move  enter run  esc back  ? keys

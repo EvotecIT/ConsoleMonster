@@ -36,6 +36,7 @@ namespace ConsoleMonster.Interactive {
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
             values.BeginRun();
+            using InputLease? lease = settings.StaticSnapshot ? null : ConsoleInput.Acquire(interactive.Input);
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
             using (AppController app = new AppController(layout, values, context, settings.ReflowBelow)) {
                 if (settings.StaticSnapshot) {
@@ -61,8 +62,7 @@ namespace ConsoleMonster.Interactive {
                     live.Output = new AppCaptureOutput(interactive.Capture, profile);
                     live.WindowSource = () => Volatile.Read(ref captureWindow);
                 }
-                using (InputLease lease = ConsoleInput.Acquire(interactive.Input))
-                using (MouseReporting? mouse = OpenMouse(settings, interactive, profile, live, lease.Source))
+                using (MouseReporting? mouse = OpenMouse(settings, interactive, profile, live, lease!.Source))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Start();
                     try {

@@ -8,6 +8,7 @@ using ConsoleMonster.Widgets;
 
 // A setup wizard: a page per step, grouped components, fields that appear for a custom account, a server list that
 // loads for the chosen region, the review with the equivalent command, then the install run. Nothing is installed.
+// Relative sample folders work on every platform and keep the recording independent of the machine running it.
 Form form = new Form("Install Toolbox Agent") {
     Command = "Install-ToolboxAgent",
     Description = "Sets up the agent that runs toolbox tasks on this machine.",
@@ -17,17 +18,17 @@ Form form = new Form("Install Toolbox Agent") {
 FormPage location = form.Page("Location", "Where the agent and its data go.");
 PathField path = location.Path("Path", "Install folder");
 path.PathKind = PathKind.Folder;
-path.Default = @"C:\Program Files\Toolbox Agent";
+path.Default = "toolbox-agent";
 path.Required = true;
 path.Parameter = "Path";
 path.Help = "Created when it does not exist. Tab completes folder names.";
 // <more>
 PathField data = location.Path("Data", "Data folder");
 data.PathKind = PathKind.Folder;
-data.Default = @"C:\ProgramData\Toolbox Agent";
+data.Default = "toolbox-data";
 data.Parameter = "DataPath";
 data.Help = "Logs, reports and the local queue. Needs a few hundred MB.";
-ToggleField shortcuts = location.Toggle("Shortcuts", "Start menu shortcuts");
+ToggleField shortcuts = location.Toggle("Shortcuts", "Command-line shortcuts");
 shortcuts.Default = true;
 shortcuts.Parameter = "Shortcuts";
 // </more>
@@ -36,7 +37,7 @@ FormPage components = form.Page("Components", "Pick what to install. You can add
 ChoiceField parts = components.MultiSelect("Components", "Components", new[] {
     new Choice("Agent", "Agent service") { Group = "Core", Selected = true, Description = "Runs tasks and reports results. Required.", Badge = RichText.Plain("18 MB") },
     // <more>
-    new Choice("Cli", "Command-line tools") { Group = "Core", Selected = true, Description = "toolbox.exe and the PowerShell module.", Badge = RichText.Plain("6 MB") },
+    new Choice("Cli", "Command-line tools") { Group = "Core", Selected = true, Description = "toolbox and the PowerShell module.", Badge = RichText.Plain("6 MB") },
     new Choice("Html", "HTML reports") { Group = "Reporting", Selected = true, Description = "Interactive reports with tables and charts.", Badge = RichText.Plain("4 MB") },
     new Choice("Pdf", "PDF export") { Group = "Reporting", Description = "Prints reports to PDF.", Badge = RichText.Plain("31 MB") },
     new Choice("Teams", "Teams notifications") { Group = "Integrations", Description = "Posts run summaries to a Teams channel.", Badge = RichText.Plain("1 MB") },
@@ -50,16 +51,15 @@ parts.Help = "Space toggles, Ctrl+A selects all, Enter closes the list.";
 
 FormPage service = form.Page("Service", "How the agent runs.");
 ChoiceField account = service.Select("Account", "Service account", new[] {
-    new Choice("LocalSystem", "Local System") { Description = "Full rights on this machine; no password." },
-    new Choice("NetworkService", "Network Service") { Description = "Limited rights; uses the computer account on the network." },
-    new Choice("Custom", "A specific account") { Description = "A domain or local account you name." }
+    new Choice("Dedicated", "Dedicated service user") { Description = "A restricted toolbox user for this service." },
+    new Choice("Custom", "A specific user") { Description = "An existing local user you name." }
 });
-account.Default = "NetworkService";
+account.Default = "Dedicated";
 account.Parameter = "Account";
 TextField user = service.Text("UserName", "User name");
 user.VisibleWhen = v => Equals(v["Account"], "Custom");
 user.Required = true;
-user.Placeholder = @"CONTOSO\svc-toolbox";
+user.Placeholder = "toolbox";
 user.Parameter = "UserName";
 SecretField password = service.Secret("Password", "Password");
 password.VisibleWhen = v => Equals(v["Account"], "Custom");

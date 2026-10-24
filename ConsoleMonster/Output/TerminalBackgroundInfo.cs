@@ -25,7 +25,7 @@ namespace ConsoleMonster.Output {
         public byte Blue { get; }
         /// <summary>Relative luminance when an RGB colour was available.</summary>
         public double? Luminance { get; }
-        /// <summary>Detection source: console color table, COLORFGBG, or unknown.</summary>
+        /// <summary>Detection source: console color table, OSC 11, COLORFGBG, or unknown.</summary>
         public string Source { get; }
         /// <summary>Human-readable explanation of the detection result.</summary>
         public string Decision { get; }
