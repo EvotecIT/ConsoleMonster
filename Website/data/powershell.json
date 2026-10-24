@@ -788,7 +788,7 @@
     },
     {
       "verb": "Show",
-      "count": 10,
+      "count": 11,
       "commands": [
         {
           "name": "Show-Console",
