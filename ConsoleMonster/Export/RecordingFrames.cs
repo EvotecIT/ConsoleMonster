@@ -74,7 +74,7 @@ namespace ConsoleMonster.Export {
             ExportOptions o = new ExportOptions {
                 Width = Width,
                 Height = Height,
-                Theme = Theme == ExportTheme.Light ? ExportTheme.Light : ExportTheme.Dark,
+                Theme = Theme == ExportTheme.Auto ? ExportTheme.Dark : Theme,
                 Title = Title,
                 WindowChrome = WindowChrome,
                 ChromeStyle = ChromeStyle,
@@ -106,12 +106,12 @@ namespace ConsoleMonster.Export {
             return o;
         }
 
-        internal ExportPalette Palette => Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
+        internal ExportPalette Palette => Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
 
         /// <summary>A render context to use instead of the export one (the in-terminal player renders with the terminal's).</summary>
         internal RenderContext? Context { get; set; }
 
-        internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
+        internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.HighContrast ? Styling.Theme.HighContrast : Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
     }
 
     /// <summary>A labelled chapter in a recording's playback timeline.</summary>
@@ -125,12 +125,14 @@ namespace ConsoleMonster.Export {
     }
 
     /// <summary>One distinct screen of a recording and how long it stays (after speed scaling).</summary>
-    internal sealed class RecordedFrame {
+    public sealed class RecordedFrame {
+        /// <summary>Creates a frame at a playback offset in milliseconds.</summary>
         public RecordedFrame(CellBuffer frame, long start) {
             Frame = frame;
             Start = start;
         }
 
+        /// <summary>The reconstructed terminal cell grid.</summary>
         public CellBuffer Frame { get; }
 
         /// <summary>Milliseconds from the start of playback.</summary>

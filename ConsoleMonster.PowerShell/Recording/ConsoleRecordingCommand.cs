@@ -16,11 +16,7 @@ namespace ConsoleMonster.PowerShell {
         protected bool IsStopping => _stopping;
         /// <summary>The current source/package module entrypoint, including its script commands when present.</summary>
         protected string ModuleImportPath {
-            get {
-                string? moduleBase = MyInvocation.MyCommand.Module?.ModuleBase;
-                string? manifest = moduleBase == null ? null : System.IO.Path.Combine(moduleBase, "ConsoleMonster.psd1");
-                return manifest != null && File.Exists(manifest) ? manifest : typeof(ConsoleRecordingCommand).Assembly.Location;
-            }
+            get => PSModuleImport.PathFor(this);
         }
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
         [Parameter] public string? Path { get; set; }

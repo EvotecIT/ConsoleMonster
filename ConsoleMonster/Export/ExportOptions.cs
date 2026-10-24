@@ -13,7 +13,10 @@ namespace ConsoleMonster.Export {
         Dark = 1,
 
         /// <summary>The light theme on a light background.</summary>
-        Light = 2
+        Light = 2,
+
+        /// <summary>The built-in high-contrast theme on black.</summary>
+        HighContrast = 3
     }
 
     /// <summary>A file format for frame and recording exports.</summary>
@@ -77,6 +80,8 @@ namespace ConsoleMonster.Export {
 
         /// <summary>The font stack (see <see cref="DefaultFontFamily"/>).</summary>
         public string FontFamily { get; set; } = DefaultFontFamily;
+        /// <summary>SVG: writes one text element per grapheme instead of compact x-coordinate lists, for consumers with a limited SVG text model.</summary>
+        public bool IndividualTextElements { get; set; }
 
         /// <summary>The font size in pixels (default 14).</summary>
         public double FontSize { get; set; } = 14;

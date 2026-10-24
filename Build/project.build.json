@@ -7,6 +7,7 @@
     "ConsoleMonster.Markdown": "2.0.X",
     "ConsoleMonster.Extensions.Logging": "2.0.X",
     "ConsoleMonster.Hosting": "2.0.X",
+    "ConsoleMonster.Graphics": "2.0.X",
     "ConsoleMonster.Templates": "2.0.X"
   },
   "ExpectedVersionMapAsInclude": true,

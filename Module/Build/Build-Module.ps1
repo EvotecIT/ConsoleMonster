@@ -87,7 +87,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     New-ConfigurationFormat -ApplyTo 'DefaultPSD1', 'OnMergePSD1' -PSD1Style 'Minimal'
 
     # configuration for documentation, at the same time it enables documentation processing
-    New-ConfigurationDocumentation -Enable -PathReadme 'Docs\Readme.md' -Path 'Docs' -SyncExternalHelpToProjectRoot
+    New-ConfigurationDocumentation -Enable -PathReadme 'Docs/Readme.md' -Path 'Docs' -SyncExternalHelpToProjectRoot
 
     New-ConfigurationImportModule -ImportSelf
 

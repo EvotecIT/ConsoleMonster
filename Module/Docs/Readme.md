@@ -66,14 +66,14 @@ Shows the default output of common types through ConsoleMonster for this session
 Files and folders (Get-ChildItem), processes (Get-Process), services (Get-Service), members (Get-Member), commands (Get-Command), modules (Get-Module), history (Get-History), event log records (Get-WinEvent), IP addresses (Get-NetIPAddress), volumes (Get-Volume) and dictionaries (@{ }), plus any type registered with Register-ConsoleView, are shown as ConsoleMonster tables and records when they reach the console. Members group by member type with highlighted signatures and muted types; commands group by module with command-type chips; modules show version, linked path and exported counts; history shows id, duration, status and highlighted command text. It works by defining an Out-Default function for the session that hands objects to Out-ConsoleDefault; objects stay the same, pipelines into other commands, Format-* and Out-String keep PowerShell's behaviour, and redirected output, transcripts' plain text, jobs and remoting are not affected. Disable-ConsoleFormatting removes the function. FormatCommands separately opts Format-Table, Format-List and Format-Wide into host-only rendering; it is excluded from All. It preserves native column selection and labels. Explicit properties, calculated expressions, grouping and named views take precedence over built-in presentation defaults. A custom Out-Default is kept unless you pass -Force for a feature that uses it. Streams, ReadLine, GridView and Prompt do not replace Out-Default.
 
 ### [Export-ConsoleFrame](Export-ConsoleFrame.md)
-Exports a widget, a rendered frame or a live-session snapshot to HTML, SVG, Markdown or text.
+Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
 
 Pipe any New-Console* widget (or Format-ConsoleTable -AsWidget) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Other objects are shown as a table. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ### [Export-ConsoleRecording](Export-ConsoleRecording.md)
-Exports a terminal session or dashboard recording to a player, SVG or asciicast.
+Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
 
-Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.
+PNG selects the final frame, -At a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations; MP4 needs ffmpeg on PATH. Without -Dashboard, reads a whole-session asciicast v2 from Start-ConsoleRecording or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Start-ConsoleDashboard widget updates into the same definition, preserving the existing dashboard HTML, SVG and asciicast v3 exports. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ### [Export-ConsoleTheme](Export-ConsoleTheme.md)
 Exports the current ConsoleMonster theme as a starting file for a user or team.
@@ -119,6 +119,11 @@ Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour de
 Lists the copyable ConsoleMonster gallery demos or exports one PowerShell script.
 
 Returns the embedded gallery metadata, including slug, title, pitch, category, tags, terminal size, runtimes, add-ons, customization ideas, mode and snapshot count. Listing accepts a slug or wildcard pattern. With -Path, an exact slug exports the canonical self-contained script as UTF-8; ConsoleMonster must be installed to run it. The parent directory must exist. Existing files are preserved unless -Force is supplied.
+
+### [Invoke-ConsoleDemo](Invoke-ConsoleDemo.md)
+Types a scripted PowerShell demo into a real terminal and records it.
+
+Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
 
 ### [Invoke-ConsolePester](Invoke-ConsolePester.md)
 Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
@@ -545,6 +550,11 @@ Plays a recording (written by Start-ConsoleDashboard -RecordPath or -AutoRecord)
 Runs a console dashboard live while a script does the work.
 
 The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession and the Update-ConsoleLane, Update-ConsolePhase, Write-ConsoleLog and related cmdlets update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables from the caller are not visible inside the script: pass them with -ArgumentList and a param() block.
+
+### [Start-ConsoleDemo](Start-ConsoleDemo.md)
+Presents a scripted demo one command at a time in a real shell.
+
+Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. Optional -Record saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ### [Start-ConsoleRecording](Start-ConsoleRecording.md)
 Opens a recorded child shell in a pseudo-console.

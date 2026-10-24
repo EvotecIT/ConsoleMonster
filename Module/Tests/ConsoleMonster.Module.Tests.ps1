@@ -27,10 +27,10 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 136
+        $commands.Count | Should -Be 138
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 135
+        $cmdlets.Count | Should -Be 137
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias).Name | Should -BeExactly 'ForEach-ConsoleItem'
         foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo') { $cmdlets.Name | Should -Contain $name }
@@ -42,7 +42,7 @@ Describe 'ConsoleMonster module' {
         $commands.Name | Should -Contain 'Export-ConsoleTheme'
         foreach ($name in 'New-ConsoleBinding', 'New-ConsoleButton', 'New-ConsoleMultiSelect', 'New-ConsoleSelect',
             'New-ConsoleTextArea', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'Show-ConsoleApp', 'Watch-ConsoleLog',
-            'Start-ConsoleRecording', 'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker') {
+            'Start-ConsoleRecording', 'Stop-ConsoleRecording', 'Invoke-ConsoleRecording', 'Add-ConsoleRecordingMarker', 'Invoke-ConsoleDemo', 'Start-ConsoleDemo') {
             $commands.Name | Should -Contain $name
         }
         $commands.Name | Should -Contain 'Out-ConsoleChart'

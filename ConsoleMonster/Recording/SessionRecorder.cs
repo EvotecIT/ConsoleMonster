@@ -20,10 +20,20 @@ namespace ConsoleMonster.Sessions {
         private Exception? _readError;
         private volatile bool _disposed;
         private volatile bool _stopping;
+        private bool _captureEnabled = true;
+
+        // Demo setup still reaches its readiness observer but never the recording.
+        internal void SetCaptureEnabled(bool enabled) {
+            lock (_gate) {
+                if (enabled && !_captureEnabled) { _writer.ResumeCapture(); }
+                _captureEnabled = enabled;
+            }
+        }
 
         private SessionRecorder(SessionRecordingOptions options, Action<string>? output) {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             options.Validate();
+            _captureEnabled = options.CaptureInitiallyEnabled;
             Output = output;
             _writer = new SessionCastWriter(options, options.InProcess ? "in-process PowerShell output only" : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ConPTY" : "openpty");
             try {
@@ -65,7 +75,7 @@ namespace ConsoleMonster.Sessions {
                     int length = decoder.GetChars(bytes, 0, count, chars, 0, false);
                     string text = new string(chars, 0, length);
                     string visible;
-                    lock (_gate) { visible = _writer.Append(text); }
+                    lock (_gate) { visible = _captureEnabled ? _writer.Append(text) : text; }
                     if (visible.Length > 0) { Output?.Invoke(visible); }
                     if (_writer.StopRequested) { _stopping = true; _terminal.Stop(); }
                 }

@@ -82,6 +82,33 @@ namespace ConsoleMonster.Sessions {
         }
         /// <summary>Reconstructs the last visible frame, including cursor movement, colour and resizes.</summary>
         public CellBuffer FinalFrame() => Replay().Snapshot();
+        /// <summary>Reconstructs the screen at a source recording time, before playback speed or idle compression.</summary>
+        public CellBuffer FrameAt(TimeSpan time) {
+            if (time < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(time)); }
+            VtScreen screen = new VtScreen(Width, Height, false);
+            foreach (CastEvent item in _events) { if (item.Time > time.TotalSeconds) { break; } Apply(screen, item); }
+            return screen.Snapshot();
+        }
+        /// <summary>Reconstructs a completed chapter, stopping before the next marker in source event order.</summary>
+        public CellBuffer ChapterFrame(int index) {
+            if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            VtScreen screen = new VtScreen(Width, Height, false);
+            int chapter = -1;
+            foreach (CastEvent item in _events) {
+                if (item.Kind == "m" && ++chapter > index) { return screen.Snapshot(); }
+                Apply(screen, item);
+            }
+            if (chapter < index) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            return screen.Snapshot();
+        }
+        /// <summary>Chapter times in the source recording.</summary>
+        public IReadOnlyList<RecordingMarker> Chapters {
+            get {
+                List<RecordingMarker> result = new List<RecordingMarker>();
+                foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Add(new RecordingMarker(TimeSpan.FromSeconds(item.Time), item.Data)); } }
+                return result.AsReadOnly();
+            }
+        }
         /// <summary>Reconstructs print-once terminal scrollback and the final main screen.</summary>
         public CellBuffer Transcript() => Replay(true).Transcript();
         private VtScreen Replay(bool keepScrollback = false) {
@@ -141,7 +168,7 @@ namespace ConsoleMonster.Sessions {
             foreach (CastEvent item in _events) { if (item.Kind == "m") { result.Markers.Add(new RecordingMarker(TimeSpan.FromSeconds(item.Time / result.Speed), item.Data)); } }
             return result;
         }
-        private List<RecordedFrame> Frames(RecordingExportOptions options) {
+        private List<RecordedFrame> Frames(RecordingExportOptions options, bool trimEmptyRows = true) {
             VtScreen screen = new VtScreen(Width, Height, false);
             List<RecordedFrame> frames = new List<RecordedFrame>();
             double lastTime = _events.Count > 0 ? _events[_events.Count - 1].Time : 0;
@@ -157,21 +184,20 @@ namespace ConsoleMonster.Sessions {
             AddFrame(frames, Pad(screen.Snapshot(), options.Width, options.Height), end);
             for (int i = 0; i < frames.Count - 1; i++) { frames[i].Duration = frames[i + 1].Start - frames[i].Start; }
             frames[frames.Count - 1].Duration = Math.Max(1, end - frames[frames.Count - 1].Start + (long)options.HoldLastFrame.TotalMilliseconds);
-            int usedHeight = 1;
-            foreach (RecordedFrame frame in frames) { usedHeight = Math.Max(usedHeight, UsedHeight(frame.Frame)); }
-            options.Height = usedHeight;
-            for (int i = 0; i < frames.Count; i++) {
-                RecordedFrame frame = frames[i];
-                frames[i] = new RecordedFrame(TrimRows(frame.Frame, usedHeight), frame.Start) { Duration = frame.Duration };
+            if (trimEmptyRows) {
+                int usedHeight = 1;
+                foreach (RecordedFrame frame in frames) { usedHeight = Math.Max(usedHeight, UsedHeight(frame.Frame)); }
+                options.Height = usedHeight;
+                for (int i = 0; i < frames.Count; i++) {
+                    RecordedFrame frame = frames[i];
+                    frames[i] = new RecordedFrame(TrimRows(frame.Frame, usedHeight), frame.Start) { Duration = frame.Duration };
+                }
             }
             return frames;
         }
         // Only export geometry is trimmed. The raw cast and terminal replay retain their recorded size and wrapping.
         private static int UsedHeight(CellBuffer frame) {
-            for (int y = frame.Height - 1; y >= 0; y--) {
-                if (HtmlFrameWriter.ContentEnd(frame, y) > 0) { return y + 1; }
-            }
-            return 1;
+            return ConsoleExporter.MeasureContentRows(frame);
         }
         private static CellBuffer TrimRows(CellBuffer frame, int height) {
             if (frame.Height == height) { return frame; }
@@ -184,8 +210,8 @@ namespace ConsoleMonster.Sessions {
             if (frames.Count > 0 && frames[frames.Count - 1].Start == time) { frames.RemoveAt(frames.Count - 1); }
             frames.Add(new RecordedFrame(buffer, time));
         }
-        /// <summary>Shares the core replay/sampling with the site's existing row renderer.</summary>
-        internal List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null) => Frames(Ready(options));
+        /// <summary>Replays sampled screens. Set trimEmptyRows to false to retain the complete terminal canvas.</summary>
+        public List<RecordedFrame> CaptureFrames(RecordingExportOptions? options = null, bool trimEmptyRows = true) => Frames(Ready(options), trimEmptyRows);
         private static CellBuffer Pad(CellBuffer source, int width, int height) {
             CellBuffer frame = new CellBuffer(width, height);
             for (int y = 0; y < source.Height; y++) { for (int x = 0; x < source.Width; x++) { Cell cell = source[x, y]; if (!cell.IsContinuation) { frame.Set(x, y, cell.Glyph ?? " ", cell.Style, Math.Max(1, (int)cell.Width)); } } }
