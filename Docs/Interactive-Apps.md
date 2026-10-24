@@ -111,7 +111,7 @@ The capture includes the initial inventory and the final filtered state. Interme
 edits, while the final state contains the complete query. Use the first and last frames for deterministic snapshots.
 
 For one initialized frame in CI or redirected output, pass `StaticSnapshot = true` in `ConsoleAppOptions`, or use
-`Show-ConsoleApp -StaticSnapshot` in PowerShell. This draws once without reading input. A running interactive application
+`Show-ConsoleApp -StaticSnapshot` in PowerShell. `CONSOLEMONSTER_SNAPSHOT=1` selects the same behaviour when no input source is supplied. `CONSOLEMONSTER_INPUT` supplies scripted keys for an unchanged app. Explicit input wins. This draws once without reading input. A running interactive application
 requires interactive input or an explicitly supplied input source.
 
 Applications use a full-screen live session. `ConsoleAppOptions.Live` and `Show-ConsoleApp -Live` accept full-screen

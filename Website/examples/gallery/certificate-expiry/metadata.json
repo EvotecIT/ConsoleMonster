@@ -26,5 +26,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when certificate renewals need an owner and a visible deadline.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

@@ -5,8 +5,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
-// Data: fictional inputs kept in memory.
-// Fixed sample results; --snapshot and --step 0 need no special handling.
+// Data: fixed synthetic results; no checks run on this machine.
 // Replace these items with results you already have in memory.
 var checks = new[] {
     (Name: "Configuration", Status: StatusKind.Pass, Detail: "All required settings present"),
@@ -35,5 +34,5 @@ Rows layout = new Rows(
     new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
     new TextBlock("[muted]Review owner: Platform team · next review: Friday[/]")) { Gap = 1 };
 
-// Live updates: this static screen prints once and returns immediately.
+// Behaviour: print the screen once and return.
 Terminal.Write(layout);

@@ -6226,7 +6226,7 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
         <dev:code>Get-ConsoleDemo assessment -Path ./assessment.ps1
-            ./assessment.ps1 -StaticSnapshot -Step 0</dev:code>
+            ./assessment.ps1</dev:code>
         <dev:remarks>
           <maml:para>Export a demo to customize and run.</maml:para>
         </dev:remarks>
@@ -11030,12 +11030,12 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
       <command:noun>ConsoleForm</command:noun>
       <maml:description>
         <maml:para>Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</maml:para>
-        <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
+        <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</maml:para>
-      <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
+      <maml:para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -11113,6 +11113,18 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>PageDescriptions</maml:name>
+          <maml:description>
+            <maml:para>Descriptions by page name, for pages declared by the fields. Pages without a matching entry keep their default description.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -11245,6 +11257,18 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>PageDescriptions</maml:name>
+        <maml:description>
+          <maml:para>Descriptions by page name, for pages declared by the fields. Pages without a matching entry keep their default description.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Preset</maml:name>
         <maml:description>
@@ -11316,7 +11340,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validate { $_ -m
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } {
     New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
@@ -25335,6 +25359,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>TimeMilliseconds</maml:name>
+          <maml:description>
+            <maml:para>Milliseconds since the run began. Zero lets the session stamp the event; supply the original time when forwarding timestamped updates.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int64</command:parameterValue>
+          <dev:type>
+            <maml:name>Int64</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Total</maml:name>
           <maml:description>
             <maml:para>A second numeric value (total, maximum).</maml:para>
@@ -25429,6 +25465,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TimeMilliseconds</maml:name>
+        <maml:description>
+          <maml:para>Milliseconds since the run began. Zero lets the session stamp the event; supply the original time when forwarding timestamped updates.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int64</command:parameterValue>
+        <dev:type>
+          <maml:name>Int64</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -26329,12 +26377,12 @@ Read-ConsoleForm $form</dev:code>
       <command:noun>ConsoleApp</command:noun>
       <maml:description>
         <maml:para>Runs native input controls and dependent displays in a console application.</maml:para>
-        <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
+        <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs native input controls and dependent displays in a console application.</maml:para>
-      <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
+      <maml:para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -26927,12 +26975,12 @@ Read-ConsoleForm $form</dev:code>
       <command:noun>ConsoleDemo</command:noun>
       <maml:description>
         <maml:para>Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</maml:para>
-        <maml:para>Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot and -Step are passed to the demo; omitted parameters retain the script's defaults. Demo output and errors follow the normal PowerShell streams.</maml:para>
+        <maml:para>Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</maml:para>
-      <maml:para>Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot and -Step are passed to the demo; omitted parameters retain the script's defaults. Demo output and errors follow the normal PowerShell streams.</maml:para>
+      <maml:para>Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -32960,6 +33008,99 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
         <dev:code>$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }</dev:code>
         <dev:remarks>
           <maml:para>Capture a table as a string</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Wait-ConsoleDashboard</command:name>
+      <command:verb>Wait</command:verb>
+      <command:noun>ConsoleDashboard</command:noun>
+      <maml:description>
+        <maml:para>Pauses dashboard work, or captures its next checkpoint during a recording.</maml:para>
+        <maml:para>Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Pauses dashboard work, or captures its next checkpoint during a recording.</maml:para>
+      <maml:para>Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Wait-ConsoleDashboard</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Milliseconds</maml:name>
+          <maml:description>
+            <maml:para>The pause in milliseconds; zero captures a checkpoint without waiting.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Session</maml:name>
+          <maml:description>
+            <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+          <dev:type>
+            <maml:name>LiveSession</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Milliseconds</maml:name>
+        <maml:description>
+          <maml:para>The pause in milliseconds; zero captures a checkpoint without waiting.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Session</maml:name>
+        <maml:description>
+          <maml:para>The live session to update. Defaults to $ConsoleSession or the running dashboard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">LiveSession</command:parameterValue>
+        <dev:type>
+          <maml:name>LiveSession</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Wait-ConsoleDashboard -Milliseconds 250</dev:code>
+        <dev:remarks>
+          <maml:para>Pause between dashboard updates</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

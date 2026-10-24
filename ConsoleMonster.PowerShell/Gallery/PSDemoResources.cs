@@ -31,6 +31,11 @@ namespace ConsoleMonster.PowerShell {
         internal static string Metadata(string slug) => Read(slug, "metadata.json");
         internal static string Script(string slug) => Read(slug, slug + ".ps1");
 
+        internal static string CaptureScript() {
+            using (Stream stream = Assembly.GetManifestResourceStream(Prefix + "DemoCapture.ps1")!)
+            using (var reader = new StreamReader(stream)) { return reader.ReadToEnd(); }
+        }
+
         private static string Read(string slug, string file) {
             string name = Prefix + slug + "." + file;
             using (Stream stream = Assembly.GetManifestResourceStream(name)

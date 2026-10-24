@@ -342,6 +342,27 @@ Show-ConsoleMenu $menu -Layout Inline
             $loaded[1].Value.Domain | Should -Be 'corp.example.test'
         }
 
+        It 'applies page descriptions while preserving the form description and defaults for other pages' {
+            $fields = @(
+                New-ConsoleField -Name Domain -Label Domain -Page Scope
+                New-ConsoleField -Name Checks -Label Checks -Page Checks
+                New-ConsoleField -Name Parallel -Label Parallel -Page Options
+            )
+            $form = New-ConsoleForm -Title Fleet -Description 'Choose the scope, checks and run options.' -Field $fields -PageDescriptions @{
+                Scope = 'Which servers to check.'
+                Checks = 'What a healthy server reports appears in the preview.'
+            }
+
+            ($form.Pages | ForEach-Object -MemberName Title) -join ',' | Should -Be 'Scope,Checks,Options'
+            $form.Pages[0].Description | Should -Be 'Which servers to check.'
+            $form.Pages[1].Description | Should -Be 'What a healthy server reports appears in the preview.'
+            $form.Pages[2].Description | Should -BeNullOrEmpty
+            $form.Description | Should -Be 'Choose the scope, checks and run options.'
+
+            $defaults = New-ConsoleForm -Title Fleet -Field $fields
+            $defaults.Pages[0].Description | Should -BeNullOrEmpty
+        }
+
         It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {
             $extra = New-ConsoleFormPreset 'Storage only' -Values @{ Checks = 'Free space' } -Description 'Only the storage check.'
             $form = New-ConsoleForm 'Fleet' -Command 'Invoke-FleetCheck' -Preset $extra {

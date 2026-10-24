@@ -124,7 +124,7 @@ namespace SiteFrames.Tests {
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
             CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                 Input = input, Capture = capture, Mode = InteractionMode.Rich, Profile = profile, Theme = Theme.Dark
-            }, new[] { "--interactive" });
+            });
             Assert.NotNull(capture.LastFrame);
             string result = ConsoleExporter.ToText(capture.LastFrame!);
             Assert.Contains(expected, result, StringComparison.Ordinal);
@@ -142,7 +142,7 @@ namespace SiteFrames.Tests {
         public void LiveDriversFinishAndRetainTheirResult(string slug, string expected, string detail) {
             GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == slug);
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
-            var target = CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, null, new[] { "--interactive" });
+            var target = CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, null);
             string text = Parity.Describe(Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(target.Output), demo.Width, demo.Height));
             Assert.Contains(expected, text, StringComparison.Ordinal);
             Assert.Contains(detail, text, StringComparison.Ordinal);

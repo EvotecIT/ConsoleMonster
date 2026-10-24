@@ -24,8 +24,22 @@
     "Inspect retained outcomes before choosing a separate retry."
   ],
   "mode": "live",
-  "steps": 4,
+  "steps": 2,
   "tier": "showcase",
   "useCase": "Use it when a batch operation needs bounded concurrency and failures retained for retry.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "outputStart": "Patching the web farm",
+        "occurrence": 0,
+        "rows": 30
+      },
+      {
+        "outputStart": "Patching the web farm",
+        "occurrence": 1,
+        "rows": 33
+      }
+    ]
+  }
 }

@@ -1,10 +1,6 @@
 ﻿# Print a compact offline greeting suitable for a PowerShell profile.
-param(
-    [switch]$StaticSnapshot,
-    [ValidateRange(0, 0)][int]$Step = 0
-)
 
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 # All data is synthetic and inline; no services are contacted or changed.
 
 # Data: fictional inputs kept in memory.
@@ -17,5 +13,5 @@ $tip = '[muted]Tip[/] Get-Help Write-ConsoleWidget -Examples'
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleText -Markup "$greeting`n$workspace`n$tip"
 
-# Live updates: this static screen prints once and returns immediately.
+# Behaviour: print the screen once and return.
 $screen | Write-ConsoleWidget

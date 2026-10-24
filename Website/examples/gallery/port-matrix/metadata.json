@@ -26,5 +26,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when a group of hosts needs a readable overview of required application ports.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

@@ -109,6 +109,27 @@ class TemplateGalleryTests(unittest.TestCase):
                     "-p:UseSharedCompilation=false")
         return self.root / "app-artifacts/bin" / project.stem / "debug" / (project.stem + ".dll")
 
+    def run_demo(self, assembly, metadata):
+        """Drive ordinary programs externally, restoring the child environment after each run."""
+        names = ("CONSOLEMONSTER_SNAPSHOT", "CONSOLEMONSTER_INPUT", "CONSOLEMONSTER_STORAGE_ROOT")
+        previous = {name: self.env.get(name) for name in names}
+        try:
+            self.env["CONSOLEMONSTER_SNAPSHOT"] = "1"
+            self.env["CONSOLEMONSTER_STORAGE_ROOT"] = str(self.root / "presets" / metadata["slug"])
+            self.env.pop("CONSOLEMONSTER_INPUT", None)
+            keys = metadata.get("capture", {}).get("runKeys")
+            if keys is None and metadata["category"] in ("Terminal apps", "Wizards"):
+                keys = "Escape"
+            if keys:
+                self.env["CONSOLEMONSTER_INPUT"] = keys
+            return self.dotnet(str(assembly))
+        finally:
+            for name, value in previous.items():
+                if value is None:
+                    self.env.pop(name, None)
+                else:
+                    self.env[name] = value
+
     def test_package_programs_and_generated_demos(self):
         """The shipped package preserves source bytes and every demo is runnable."""
         with zipfile.ZipFile(self.package) as package:
@@ -129,13 +150,12 @@ class TemplateGalleryTests(unittest.TestCase):
                 self.assertEqual(references[0].attrib["Version"], "2.0.*")
                 self.assertIsNone(tree.find(".//PublishAot"))
                 assembly = self.compile(project)
-                snapshot = self.dotnet(str(assembly), "--snapshot")
+                metadata = json.loads((GALLERY / slug / "metadata.json").read_text(encoding="utf-8"))
+                snapshot = self.run_demo(assembly, metadata)
                 self.assertTrue(snapshot.strip(), slug)
-                self.assertEqual(snapshot, self.dotnet(str(assembly), "--snapshot"), slug)
-                self.assertEqual(snapshot, self.dotnet(str(assembly)), slug)
-                metadata = json.loads((GALLERY / slug / "metadata.json").read_text())
-                last_step = str(metadata["steps"] - 1)
-                self.assertTrue(self.dotnet(str(assembly), "--snapshot", "--step", last_step).strip(), slug)
+                # Live timings and raw VT can vary; SiteFrames checks their cell parity and determinism.
+                if metadata["mode"] == "static":
+                    self.assertEqual(snapshot, self.run_demo(assembly, metadata), slug)
         self.assertEqual(self.sources, {slug: (GALLERY / slug / "Program.cs").read_bytes() for slug in SLUGS},
                          "Canonical programs changed during validation; rerun against stable sources.")
 

@@ -13,7 +13,7 @@ The general form behind the Update-* cmdlets, for custom widgets and less common
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Send-ConsoleEvent [-Target] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-State <string>] [-Value <double>] [-Total <double>] [-Session <LiveSession>] [<CommonParameters>]
+Send-ConsoleEvent [-Target] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-State <string>] [-Value <double>] [-Total <double>] [-TimeMilliseconds <long>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -117,6 +117,22 @@ Text.
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TimeMilliseconds
+Milliseconds since the run began. Zero lets the session stamp the event; supply the original time when forwarding timestamped updates.
+
+```yaml
+Type: Int64
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

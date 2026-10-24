@@ -26,5 +26,19 @@
   "steps": 3,
   "tier": "starter",
   "useCase": "Use it when a handful of admin operations need a discoverable menu and preview.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "Down Enter Escape"
+      },
+      {
+        "keys": "Down Down Enter Escape"
+      }
+    ],
+    "runKeys": "Escape"
+  }
 }

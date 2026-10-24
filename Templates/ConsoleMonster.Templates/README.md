@@ -25,8 +25,9 @@ Start from a gallery demo with just the `ConsoleMonster` package:
 ```shell
 dotnet new consolemonster --demo fleet -o FleetDemo
 cd FleetDemo
-dotnet run -- --snapshot          # deterministic output, also the default when redirected
-dotnet run -- --snapshot --step 2 # a particular point in the demo
+dotnet run                       # the ordinary live program
+# In a capture host: set CONSOLEMONSTER_INPUT to scripted keys.
+# CONSOLEMONSTER_SNAPSHOT=1 skips dashboard pauses and initializes apps without input.
 ```
 
 Choose a full showcase such as `fleet` or `assessment`, or a small starter such

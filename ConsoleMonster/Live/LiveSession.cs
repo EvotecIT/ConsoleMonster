@@ -113,6 +113,7 @@ namespace ConsoleMonster.Live {
         /// <summary>
         /// Time since Start, frozen after shutdown. During <see cref="Replay"/> it follows the recorded timeline
         /// (real time multiplied by the replay speed), so the header clock agrees with recorded timestamps.
+        /// With a recording target's SkipDelays enabled and no explicit clock, it advances only as <see cref="Delay"/> completes.
         /// </summary>
         public TimeSpan Elapsed {
             get {
@@ -310,7 +311,8 @@ namespace ConsoleMonster.Live {
 
         private TimeSpan ReadElapsed() {
             if (_context == null) { return TimeSpan.Zero; }
-            TimeSpan elapsed = _options.Clock == null ? _watch.Elapsed : _options.Clock() - _clockStart;
+            TimeSpan elapsed = _options.Clock != null ? _options.Clock() - _clockStart
+                : _delayClock ? TimeSpan.FromTicks(Interlocked.Read(ref _playbackTicks)) : _watch.Elapsed;
             return elapsed < TimeSpan.Zero ? TimeSpan.Zero : elapsed;
         }
 

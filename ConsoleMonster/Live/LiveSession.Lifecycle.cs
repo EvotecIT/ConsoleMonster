@@ -31,6 +31,8 @@ namespace ConsoleMonster.Live {
                         _guard = new TerminalGuard(RestoreTerminal, _options.HandleCancelKey);
                         ResolveLogTarget();
                         ITerminalTarget target = _options.Target ?? Terminal.Target;
+                        _recordingTarget = target as RecordingTarget;
+                        _delayClock = _recordingTarget?.SkipDelays == true && _options.Clock == null;
                         bool console = target is ConsoleTarget;
                         ITerminalWriter? targetWriter = console ? null : target.Writer;
                         _onConsole = _options.Output == null && targetWriter == null;

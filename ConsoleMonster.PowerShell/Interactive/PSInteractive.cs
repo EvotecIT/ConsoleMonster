@@ -33,6 +33,8 @@ namespace ConsoleMonster.PowerShell {
                 }
                 return options;
             }
+            // Scripted input is an explicit device even when the hosting process has -NonInteractive.
+            if (options.Input != null || Input.ConsoleInput.Override != null) { return options; }
             if (IsNonInteractiveSession()) {
                 options.Mode = InteractionMode.None;
                 return options;

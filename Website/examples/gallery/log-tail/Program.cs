@@ -1,6 +1,5 @@
 // Reveal a bounded stream of sample log events in a live region.
 // All data is synthetic and inline; no services are contacted or changed.
-using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
@@ -15,11 +14,6 @@ string[] messages = {
     "[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining",
     "[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost"
 };
-// Run options: redirected input selects a deterministic snapshot.
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));
 
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick) {
@@ -31,16 +25,12 @@ IWidget Frame(int tick) {
             " / 5 events · Ctrl+C stops the live run[/]")) { Gap = 1 };
 }
 
-// Live updates: print one state headlessly, or run the bounded simulation.
-if (snapshot) {
-    Terminal.Write(Frame(step));
-    return;
-}
+// Behaviour: update each frame in a bounded live run.
 Slot screen = new Slot("demo", Frame(0));
 using LiveSession session = new LiveSession(screen);
 session.Run(live => {
     for (int tick = 0; tick <= 4 && !live.Cancellation.IsCancellationRequested; tick++) {
         screen.Handle(live).Set(Frame(tick));
-        if (live.Cancellation.WaitHandle.WaitOne(650)) break;
+        live.Delay(TimeSpan.FromMilliseconds(650));
     }
 });

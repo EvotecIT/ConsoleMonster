@@ -26,5 +26,19 @@
   "steps": 3,
   "tier": "starter",
   "useCase": "Use it when an operator needs to search a small inventory without losing the overall health summary.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "\"sql\" Escape"
+      },
+      {
+        "keys": "\"missing\" Escape"
+      }
+    ],
+    "runKeys": "Escape"
+  }
 }

@@ -25,7 +25,51 @@
     "Store completed runs and connect report delivery."
   ],
   "mode": "live",
-  "steps": 6,
+  "steps": 7,
   "tier": "showcase",
-  "useCase": "Use it when operators need to plan, run and review a repeatable server maintenance workflow."
+  "useCase": "Use it when operators need to plan, run and review a repeatable server maintenance workflow.",
+  "capture": {
+    "runKeys": "Ctrl+Q",
+    "states": [
+      {
+        "keys": "wait:1000 Escape",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "t wait:1000",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "wait:1000 k",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "wait:1000 o",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "wait:1000 r",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "wait:1000 r Enter",
+        "realTime": true,
+        "incomplete": true,
+        "checkpoint": 5,
+        "contains": "› Running",
+        "first": true
+      },
+      {
+        "keys": "wait:1000 r Enter",
+        "incomplete": true,
+        "contains": "Run finished",
+        "realTime": true
+      }
+    ]
+  }
 }

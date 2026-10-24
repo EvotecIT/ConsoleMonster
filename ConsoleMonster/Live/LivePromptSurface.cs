@@ -16,21 +16,23 @@ namespace ConsoleMonster.Live {
     internal sealed class LivePromptSurface : IPromptSurface {
         private readonly LivePause _pause;
         private readonly RenderContext _context;
+        private readonly ScreenCapture? _capture;
         private int _width;
         private int _height;
 
-        private LivePromptSurface(LivePause pause, RenderContext context) {
+        private LivePromptSurface(LivePause pause, RenderContext context, ScreenCapture? capture = null) {
             _pause = pause;
             _context = context;
+            _capture = capture;
             Refresh();
         }
 
-        public static IPromptSurface? TryCreate(RenderContext context) {
+        public static IPromptSurface? TryCreate(RenderContext context, RecordingTarget? recording = null) {
             LiveSession? session = LiveSession.Current;
-            if (session == null || !session.CanOverlay) {
+            if (session == null || (recording == null ? !session.CanOverlay : !session.CanCaptureOverlay(recording))) {
                 return null;
             }
-            return new LivePromptSurface(session.Pause(), context);
+            return new LivePromptSurface(session.Pause(), context, recording?.Screens);
         }
 
         public int Width => Math.Max(20, Math.Min(_width - 6, 96));
@@ -40,9 +42,9 @@ namespace ConsoleMonster.Live {
         public bool IsInline => true;
 
         public bool Refresh() {
-            int width = _pause.Backdrop?.Width ?? 0;
-            int height = _pause.Backdrop?.Height ?? 0;
-            if (TerminalSize.TryGet(out int w, out int h) && w > 0 && h > 0) {
+            int width = _capture?.Width ?? _pause.Backdrop?.Width ?? 0;
+            int height = _capture?.Height ?? _pause.Backdrop?.Height ?? 0;
+            if (_capture == null && TerminalSize.TryGet(out int w, out int h) && w > 0 && h > 0) {
                 width = w;
                 height = h;
             }
@@ -66,6 +68,7 @@ namespace ConsoleMonster.Live {
                     composite.Set(moved.Value.X, moved.Value.Y, " ", cell.Style.With(TextDecoration.Reverse));
                 }
             }
+            _capture?.Surface.Present(composite, moved);
             _pause.Present(composite);
         }
         public void Complete(IReadOnlyList<StyledLine>? summary) {

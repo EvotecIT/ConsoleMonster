@@ -26,5 +26,18 @@
   "steps": 3,
   "tier": "starter",
   "useCase": "Use it when a long-running task needs a compact view of CPU and memory pressure.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "checkpoint": 0
+      },
+      {
+        "checkpoint": 1
+      },
+      {
+        "checkpoint": 2
+      }
+    ]
+  }
 }
