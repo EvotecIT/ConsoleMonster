@@ -25,10 +25,18 @@ Waits cancellably on the resolved live session and writes no output. A recording
 
 ### EXAMPLE 1
 ```powershell
-Wait-ConsoleDashboard -Milliseconds 250
+$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
+    New-ConsoleProgress -Name overall -Label Targets -Total 3
+}
+Start-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    foreach ($count in 1..3) {
+        Update-ConsoleProgress -Name overall -Value $count
+        Wait-ConsoleDashboard -Milliseconds 250
+    }
+}
 ```
 
-Pause between dashboard updates
+Update progress between cancellable pauses
 
 ## PARAMETERS
 

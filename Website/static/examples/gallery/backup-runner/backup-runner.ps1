@@ -11,7 +11,7 @@ $jobs = @(
 
 $attempts = @{}
 $completed = @{}
-$attemptErrors = [System.Collections.Generic.List[object]]::new()
+$attemptErrors = @()
 
 # Layout: show the actual attempt counts and returned archive results.
 function New-BackupSummary {
@@ -64,8 +64,8 @@ foreach ($attempt in 1..2) {
     foreach ($result in $results) {
         $completed[$result.Name] = $result.Archive
     }
-    foreach ($failure in $failures) {
-        $attemptErrors.Add($failure)
+    if ($failures) {
+        $attemptErrors += $failures
     }
     $pending = @($pending | Where-Object -FilterScript { -not $completed.ContainsKey($_.Name) })
     New-BackupSummary | Write-ConsoleWidget

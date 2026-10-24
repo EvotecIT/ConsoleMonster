@@ -8,8 +8,17 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</para>
     /// </summary>
     /// <example>
-    /// <para>Pause between dashboard updates</para>
-    /// <code>Wait-ConsoleDashboard -Milliseconds 250</code>
+    /// <para>Update progress between cancellable pauses</para>
+    /// <code>
+    /// $dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
+    ///     New-ConsoleProgress -Name overall -Label Targets -Total 3
+    /// }
+    /// Start-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    ///     foreach ($count in 1..3) {
+    ///         Update-ConsoleProgress -Name overall -Value $count
+    ///         Wait-ConsoleDashboard -Milliseconds 250
+    ///     }
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard")]
     public sealed class CmdletWaitConsoleDashboard : LiveCmdlet {
