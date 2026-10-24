@@ -1,25 +1,25 @@
 ```text
 PS demo> git log --oneline --graph --color -5
-* bf799f4 (HEAD -> main) Document local recording
-* 6f51687 Track build progress
-* fafd043 Render report table
-* c3aeb2d Add synthetic fixtures
-* d2e0402 Start sample app
+* e639181 (HEAD -> main) Document local recording
+* eed7899 Track build progress
+* 725b994 Render report table
+* 8e244b2 Add synthetic fixtures
+* 3ebb9a7 Start sample app
 PS demo> Invoke-DemoBuild
 Build succeeded. 24 tests passed.
 PS demo> Show-DemoReport
 Build report
-╭────────────┬─────────────┬──────────╮
-│ Check      │ Result      │ Duration │
-├────────────┼─────────────┼──────────┤
-│ Compile    │ ✓ Passed    │ 1.8 s    │
-│ Unit tests │ ✓ 24 passed │ 2.4 s    │
-│ Package    │ ✓ Ready     │ 0.6 s    │
-╰────────────┴─────────────┴──────────╯
+╭────────────┬───────────┬──────────╮
+│ Check      │ Result    │ Duration │
+├────────────┼───────────┼──────────┤
+│ Compile    │ ✓ Passed  │ 1.8 s    │
+│ Unit tests │ 24 passed │ 2.4 s    │
+│ Package    │ ✓ Ready   │ 0.6 s    │
+╰────────────┴───────────┴──────────╯
 
-PS demo> Get-Item ./missing.json
-Get-Item: Cannot find path '•••••••/demo/missing.json' because it does not exist.
+PS demo> Get-Item ./missing.json 2>&1 | Write-ConsoleText -Color Red
+Cannot find path 'demo:/missing.json' because it does not exist.
 PS demo> Show-DemoToken $env:API_TOKEN
-API_TOKEN=••••••• (redacted)
-PS demo> exit
+API_TOKEN=demo-token (synthetic)
+PS demo>
 ```
