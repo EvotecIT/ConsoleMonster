@@ -51,6 +51,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 return result.Columns.Count > 0 ? result : null;
             }
+            if (!parameters.Contains("View") && UnixFormatDefaults.For(first, kind) is NativeFormatDefinition unix) { return unix; }
             string? requested = parameters["View"] as string;
             foreach (string type in first.TypeNames) {
                 var definitions = cmdlet.InvokeCommand.InvokeScript(

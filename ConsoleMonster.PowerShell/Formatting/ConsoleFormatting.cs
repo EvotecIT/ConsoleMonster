@@ -241,7 +241,13 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             ScriptBlock directory = ScriptBlock.Create("$p = [string] $_.PSParentPath; 'Directory: ' + ($p -replace '^Microsoft\\.PowerShell\\.Core\\\\FileSystem::', '')");
-            object[] files = {
+            bool unix = !System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+            object[] files = unix ? new object[] {
+                "UnixMode", "User",
+                Hashtable("LastWriteTime", ScriptBlock.Create("$_.LastWriteTime"), "Date"),
+                Hashtable("Size", ScriptBlock.Create("$_.UnixStat.Size"), "Bytes"),
+                Hashtable("Name", ScriptBlock.Create(UnixFormatDefaults.FileNameScript), null)
+            } : new object[] {
                 "Mode",
                 Hashtable("LastWriteTime", ScriptBlock.Create("$_.LastWriteTime"), "Date"),
                 Hashtable("Length", ScriptBlock.Create("if ($_ -is [System.IO.FileInfo]) { $_.Length }"), "Bytes"),
@@ -255,7 +261,7 @@ namespace ConsoleMonster.PowerShell {
                     "Id", "ProcessName",
                     Hashtable("CPU (s)", ScriptBlock.Create("if ($null -ne $_.CPU) { [math]::Round($_.CPU, 1) }"), null),
                     Hashtable("Memory", ScriptBlock.Create("$_.WorkingSet64"), "Bytes"),
-                    "Handles"
+                    unix ? (object)Hashtable("Threads", ScriptBlock.Create("$_.Threads.Count"), null) : "Handles"
                 }, null, "System.Diagnostics.Process", null, true));
             }
             AddBuiltIn(new ConsoleViewRegistration("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {

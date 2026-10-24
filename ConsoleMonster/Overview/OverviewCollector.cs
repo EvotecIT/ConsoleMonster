@@ -38,7 +38,7 @@ namespace ConsoleMonster.Overview {
             }
             cancellationToken.ThrowIfCancellationRequested();
             List<OverviewSection> sections = AvailableSections(probes, tasks);
-            return new OverviewSnapshot(Environment.MachineName, RuntimeInformation.OSDescription, OverviewPlatform.Uptime(), DateTimeOffset.Now, sections);
+            return new OverviewSnapshot(Environment.MachineName, OverviewPlatform.OperatingSystem(), OverviewPlatform.Uptime(), DateTimeOffset.Now, sections);
         }
 
         /// <summary>Preserves completed observations and marks flights still unfinished when the caller stops waiting.</summary>

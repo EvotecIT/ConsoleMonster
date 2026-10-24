@@ -182,7 +182,10 @@ namespace ConsoleMonster.Tests.Overview {
             if (!OverviewPlatform.Mac) {
                 Assert.Contains(resources.Items, item => item.Label == "CPU" && item.Percentage >= 0 && item.Percentage <= 100);
             }
-            Assert.All(resources.Items.Where(item => item.Label == "CPU"), item => Assert.InRange(item.Percentage!.Value, 0, 100));
+            Assert.All(resources.Items.Where(item => item.Label == "CPU"), item => {
+                if (item.Percentage.HasValue) { Assert.InRange(item.Percentage.Value, 0, 100); }
+                else { Assert.Equal("measuring…", item.Value); }
+            });
             Assert.Contains(resources.Items, item => item.Label == "Memory" && item.Percentage >= 0 && item.Percentage <= 100);
         }
 

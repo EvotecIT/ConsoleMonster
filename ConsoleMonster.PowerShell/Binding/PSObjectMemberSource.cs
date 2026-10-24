@@ -29,7 +29,8 @@ namespace ConsoleMonster.PowerShell.Binding {
             if (baseObject == null || baseObject is PSCustomObject) {
                 return value;
             }
-            if (ValueShaper.IsScalar(baseObject) || ValueShaper.IsStructural(baseObject) || ValueShaper.TryGetItems(baseObject, out _)) {
+            // Render values supplied by calculated expressions are already shaped, not inspectable records.
+            if (baseObject is Widgets.TableCell || baseObject is Text.RichText || ValueShaper.IsScalar(baseObject) || ValueShaper.IsStructural(baseObject) || ValueShaper.TryGetItems(baseObject, out _)) {
                 return baseObject;
             }
             return value;

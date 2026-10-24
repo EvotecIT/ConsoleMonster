@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Overview {
-    internal static class OverviewPlatform {
+    internal static partial class OverviewPlatform {
         internal static bool Windows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         internal static bool Linux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         internal static bool Mac => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -38,10 +38,11 @@ namespace ConsoleMonster.Overview {
             if (TryCpu(out double total, out double idle)) {
                 await Task.Delay(80, token).ConfigureAwait(false);
                 if (TryCpu(out double nextTotal, out double nextIdle)) {
-                    OverviewItem? cpu = CpuObservation(total, idle, nextTotal, nextIdle);
+                    OverviewItem? cpu = CpuObservation(total, idle, nextTotal, nextIdle, Mac);
                     if (cpu != null) { items.Add(cpu); }
                 }
             }
+            if (items.Count == 0) { items.Add(new OverviewItem("CPU", "measuring…")); }
             token.ThrowIfCancellationRequested();
             if (TryMemory(out double bytes, out double available) && bytes > 0) {
                 items.Add(MemoryObservation(bytes, available));
@@ -50,8 +51,9 @@ namespace ConsoleMonster.Overview {
         }
 
         /// <summary>Builds CPU usage only from advancing counters; cached or reset samples have no measurable interval.</summary>
-        internal static OverviewItem? CpuObservation(double total, double idle, double nextTotal, double nextIdle) {
-            if (!(nextTotal > total)) { return null; }
+        internal static OverviewItem? CpuObservation(double total, double idle, double nextTotal, double nextIdle, bool requireIdleProgress) {
+            // Darwin can defer idle accounting. A short interval without fresh idle ticks cannot establish 100% load.
+            if (!(nextTotal > total) || nextIdle < idle || nextIdle - idle > nextTotal - total || (requireIdleProgress && nextIdle == idle)) { return null; }
             double used = Math.Max(0, Math.Min(100, 100 * (1 - (nextIdle - idle) / (nextTotal - total))));
             return new OverviewItem("CPU", Environment.ProcessorCount.ToString(CultureInfo.InvariantCulture) + " logical CPUs", used);
         }
@@ -100,11 +102,11 @@ namespace ConsoleMonster.Overview {
                 token.ThrowIfCancellationRequested();
                 try {
                     // Network and removable volumes can block on disconnected hardware or authentication.
-                    if (drive.DriveType != DriveType.Fixed || !drive.IsReady) { continue; }
+                    if (!VisibleVolume(drive.Name, Mac) || drive.DriveType != DriveType.Fixed || !drive.IsReady) { continue; }
                     long total = drive.TotalSize;
                     long free = drive.AvailableFreeSpace;
                     if (total > 0) {
-                        items.Add(new OverviewItem(drive.Name, GiB(total - free) + " / " + GiB(total), Math.Max(0, Math.Min(100, 100d * (total - free) / total))));
+                        items.Add(new OverviewItem(Mac && drive.Name == "/" ? (string.IsNullOrEmpty(drive.VolumeLabel) || drive.VolumeLabel == "/" ? "Macintosh HD" : drive.VolumeLabel) : Mac ? Path.GetFileName(drive.Name.TrimEnd('/')) : drive.Name, GiB(total - free) + " / " + GiB(total), Math.Max(0, Math.Min(100, 100d * (total - free) / total))));
                     }
                 } catch (Exception ex) when (OptionalFailure(ex)) { }
             }
@@ -113,17 +115,17 @@ namespace ConsoleMonster.Overview {
 
         internal static OverviewSection? Network(CancellationToken token) {
             List<OverviewItem> items = new List<OverviewItem>();
-            foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces()) {
+            foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces().OrderByDescending(HasGateway).ThenBy(adapter => adapter.Name, StringComparer.Ordinal)) {
                 token.ThrowIfCancellationRequested();
                 try {
-                    if (adapter.OperationalStatus != OperationalStatus.Up || adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) { continue; }
+                    if (HiddenInterface(adapter.Name) || adapter.OperationalStatus != OperationalStatus.Up || adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) { continue; }
                     List<string> addresses = new List<string>();
                     foreach (UnicastIPAddressInformation address in adapter.GetIPProperties().UnicastAddresses) {
                         if (address.Address.AddressFamily == AddressFamily.InterNetwork || (address.Address.AddressFamily == AddressFamily.InterNetworkV6 && !address.Address.IsIPv6LinkLocal)) {
                             addresses.Add(address.Address.ToString());
                         }
                     }
-                    if (addresses.Count > 0) { items.Add(new OverviewItem(adapter.Name, string.Join(", ", addresses))); }
+                    if (addresses.Count > 0) { items.Add(new OverviewItem(adapter.Name, string.Join(", ", addresses.OrderBy(address => address.IndexOf(':') >= 0 ? 1 : 0)))); }
                 } catch (Exception ex) when (OptionalFailure(ex) || ex is NetworkInformationException) { }
             }
             return new OverviewSection("Network", "Network", items);
