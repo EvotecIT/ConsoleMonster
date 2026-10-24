@@ -102,7 +102,7 @@
     <ol class="cm-reel-steps cm-reel__cmd" data-lang="csharp">
       <li>
         <div class="cm-reel-steps__text"><h3>Create a project</h3><p>A plain console app; .NET 8 or later.</p></div>
-        {{~ cmd_lang = "bash"; cmd_text = "dotnet new console -n " + project + " && cd " + project ~}}{{ include "command" }}
+        {{~ cmd_lang = "bash"; cmd_text = "dotnet new console -n " + project + "; cd " + project ~}}{{ include "command" }}
       </li>
       <li>
         <div class="cm-reel-steps__text"><h3>Add ConsoleMonster</h3><p>The only package the program needs.</p></div>
