@@ -17,7 +17,7 @@
     {{~ if d.lines && d.lines.powershell ~}}<li class="cm-reel__chip" title="Lines of PowerShell">{{ d.lines.powershell }} lines</li>{{~ end ~}}
     {{~ for a in d.addons ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ a }}</li>{{~ end ~}}
   </ul>
-  <a class="cm-reel__build" href="/demos/{{ d.slug }}/#build">How it's built <span class="cm-reel__langs">{{ langs | array.join " · " }}</span> <span aria-hidden="true">→</span></a>
+  <a class="cm-reel__build" href="/demos/{{ d.slug }}/#build" aria-label="How it's built: {{ d.title | html.escape }} ({{ langs | array.join " · " }})">How it's built <span class="cm-reel__langs">{{ langs | array.join " · " }}</span> <span aria-hidden="true">→</span></a>
   <div class="cm-reel__run">
     <div class="cm-reel__cmd" data-lang="powershell">
       <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ d.run.powershell | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>
