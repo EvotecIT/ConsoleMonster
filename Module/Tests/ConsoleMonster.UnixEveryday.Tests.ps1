@@ -1,4 +1,4 @@
-Describe 'Unix everyday host formatting' {
+﻿Describe 'Unix everyday host formatting' {
     BeforeAll {
         $script:Module = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
         $script:Runtime = [Diagnostics.Process]::GetCurrentProcess().Path
