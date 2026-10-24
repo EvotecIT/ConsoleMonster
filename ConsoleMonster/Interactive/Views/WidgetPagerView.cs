@@ -51,7 +51,7 @@ namespace ConsoleMonster.Interactive {
             bindings.Add(new KeyBinding(string.Empty, () => _top = 0, new KeyChord(ConsoleKey.Home)) { InFooter = false });
             bindings.Add(new KeyBinding(string.Empty, () => Move(int.MaxValue), new KeyChord(ConsoleKey.End)) { InFooter = false });
             bindings.Add(new KeyBinding(Labels.KeyClose, () => IsDone = true, new KeyChord(ConsoleKey.Escape), new KeyChord('q')) { KeyText = "esc/q", Order = 40 });
-            bindings.Add(HelpBinding(true));
+            bindings.Add(HelpBinding());
         }
 
         private void Move(int delta) {
