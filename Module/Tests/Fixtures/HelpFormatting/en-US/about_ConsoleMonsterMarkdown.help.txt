@@ -1,0 +1,9 @@
+﻿# Markdown topic
+
+Read **the plan** and keep [literal brackets].
+
+| Host | Checks |
+| :--- | ---: |
+| web-01 | 12 |
+
+> Confirm the target.

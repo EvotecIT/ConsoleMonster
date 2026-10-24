@@ -9,7 +9,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.</para>
-    /// <para type="description">Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics are written as they are. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
+    /// <para type="description">Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
     /// </summary>
     /// <example>
     ///   <para>A cmdlet</para>
@@ -90,8 +90,8 @@ namespace ConsoleMonster.PowerShell {
             }
             IWidget view;
             if (help.BaseObject is string text) {
-                // An about topic is plain text: written as it is.
-                view = TextBlock.Plain(text);
+                // The optional Markdown adapter owns about-topic reading; HTML and console markup remain literal.
+                view = global::ConsoleMonster.Markdown.MarkdownConsole.Parse(text);
             } else {
                 view = PSHelp.CreateView(help, command, NoExamples.IsPresent);
             }

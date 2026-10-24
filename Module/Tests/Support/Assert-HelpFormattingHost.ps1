@@ -110,6 +110,14 @@ try {
     if ($frame -cnotmatch '\[brackets\], <angle brackets>' -or $frame -notmatch 'HELP_ABOUT_LITERAL') { throw "About topic did not stay literal: $frame" }
     $checks.Add('About topic stays literal on the actual host')
 
+    Clear-Host
+    & { Get-Help about_ConsoleMonsterMarkdown } | Out-Default
+    $frame = [ConsoleMonsterTestConsoleFrame]::LastFrame(18, $width)
+    if ($frame -notmatch 'Markdown topic' -or $frame -match '# Markdown topic' -or $frame -notmatch 'web-01' -or $frame -notmatch '\[literal brackets\]') {
+        throw "Markdown about topic did not use the shared reader: $frame"
+    }
+    $checks.Add('Markdown about topics use the shared reader on the actual host')
+
     # Captured results, identity pipelines and job results have no connected native producer.
     $saved = Get-Help Get-HelpFormattingShort -Full
     & { $saved } | Out-Default

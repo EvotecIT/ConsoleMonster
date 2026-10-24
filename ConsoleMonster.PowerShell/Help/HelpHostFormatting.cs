@@ -87,8 +87,8 @@ namespace ConsoleMonster.PowerShell {
             if (!FormatCommandRouter.IsDirectHost(source, ConsoleFormattingFeature.Help)
                 || source.MyInvocation.BoundParameters.ContainsKey("Online") || source.MyInvocation.BoundParameters.ContainsKey("ShowWindow")) { return null; }
             if (literal && help.BaseObject is string text) {
-                // The canonical Show-ConsoleHelp about-topic path: literal text, never Markdown or markup.
-                return Widgets.TextBlock.Plain(text);
+                // About-topic text uses the same reader as Show-ConsoleMarkdown; native captured routes return above.
+                return global::ConsoleMonster.Markdown.MarkdownConsole.Parse(text);
             }
             bool parameter = help.TypeNames.Contains("MamlCommandHelpInfo#parameter")
                 || help.TypeNames.Contains("ExtendedCmdletHelpInfo#parameter") || help.TypeNames.Contains("CmdletHelpInfo#parameter");

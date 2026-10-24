@@ -68,6 +68,7 @@ $widget = $method.Invoke($null, @($help, $command, $false, $false, $true))
         @{ Invocation = 'help Get-HelpFormattingValue -Examples' }
         @{ Invocation = 'Get-HelpFormattingValue -?' }
         @{ Invocation = 'Get-Help about_ConsoleMonsterHelpFormatting' }
+        @{ Invocation = 'Get-Help about_ConsoleMonsterMarkdown' }
     ) {
         $text = Invoke-HelpFormattingChild (@'
 $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))

@@ -22,7 +22,12 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>Whether output reaches the local host without capture or transcription.</returns>
         public static bool IsDirectHost(PSCmdlet cmdlet, ConsoleFormattingFeature feature) {
             if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
-            if ((ConsoleFormatting.Features & feature) == 0 || !ConsoleFormatting.Displayed(cmdlet)
+            return (ConsoleFormatting.Features & feature) != 0 && IsDirectHostOutput(cmdlet);
+        }
+
+        /// <summary>Checks the uncaptured local host route without requiring a formatting opt-in, for explicit interactive readers.</summary>
+        internal static bool IsDirectHostOutput(PSCmdlet cmdlet) {
+            if (!ConsoleFormatting.Displayed(cmdlet)
                 || cmdlet.MyInvocation.PipelinePosition < cmdlet.MyInvocation.PipelineLength
                 || Terminal.GetCurrentProfile().IsContinuousIntegration || cmdlet.MyInvocation.BoundParameters.ContainsKey("OutVariable")
                 || cmdlet.MyInvocation.BoundParameters.ContainsKey("PipelineVariable")) {
