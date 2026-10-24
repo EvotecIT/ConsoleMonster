@@ -31,8 +31,11 @@ namespace ConsoleMonster.Markdown {
                             result.Append(link.Text, style.WithLink(link.Url));
                         }
                         break;
+                    case ImageLinkInline badge:
+                        result.Append(MarkdownMessages.Format("Image", badge.PlainAlt), style.WithLink(badge.LinkUrl));
+                        break;
                     case ImageInline image:
-                        result.Append(MarkdownMessages.Format("Image", image.PlainAlt), style.WithLink(image.Src));
+                        result.Append(MarkdownMessages.Format("Image", image.PlainAlt), style.WithLink(style.Link ?? image.Src));
                         break;
                     case CodeSpanInline code:
                         result.Append(code.Text, style.WithForeground(ThemeToken.Accent));
@@ -45,6 +48,11 @@ namespace ConsoleMonster.Markdown {
                         break;
                     case HtmlRawInline html:
                         result.Append(html.Html, style);
+                        break;
+                    case HtmlTagSequenceInline tag:
+                        result.Append("<" + tag.TagName + ">", style);
+                        Append(result, tag.Inlines, style);
+                        result.Append("</" + tag.TagName + ">", style);
                         break;
                     case ILiteralTextMarkdownInline literal:
                         result.Append(literal.Text, style);

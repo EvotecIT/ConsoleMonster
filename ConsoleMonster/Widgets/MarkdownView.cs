@@ -4,6 +4,7 @@ using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Highlighting;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Localization;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -104,7 +105,7 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(block));
             }
             if (ReferenceEquals(block, this)) {
-                throw new ArgumentException("A document cannot contain itself.", nameof(block));
+                throw new ArgumentException(LabelText.Get("Document.Self"), nameof(block));
             }
             _blocks.Add(block);
             return this;
@@ -120,7 +121,7 @@ namespace ConsoleMonster.Widgets {
 
         private void RejectSelf(MarkdownView content) {
             if (ReferenceEquals(content, this)) {
-                throw new ArgumentException("A document cannot contain itself.", nameof(content));
+                throw new ArgumentException(LabelText.Get("Document.Self"), nameof(content));
             }
         }
     }

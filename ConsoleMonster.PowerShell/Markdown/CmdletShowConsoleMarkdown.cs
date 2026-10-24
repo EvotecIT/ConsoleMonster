@@ -76,11 +76,8 @@ namespace ConsoleMonster.PowerShell {
                 MarkdownView view = MarkdownConsole.Parse(ReadContent());
                 if (!NoPager && !AsString && FormatCommandRouter.IsDirectHostOutput(this)) {
                     InteractiveOptions options = PSInteractive.Options(this, null);
-                    if (Width > 0) {
-                        var profile = options.Profile ?? Terminal.GetCurrentProfile();
-                        options.Profile = profile.WithSize(Width, profile.Height);
-                    }
-                    if (WidgetPager.TryShow(view, PSMarkdownMessages.Get("Title"), options, stop.Token)) { return; }
+                    if (WidgetPager.TryShow(view, PSMarkdownMessages.Get("Title"), options, stop.Token,
+                        contentWidth: Width > 0 ? Width : (int?)null)) { return; }
                 }
                 stop.Token.ThrowIfCancellationRequested();
                 PSFormatting.Emit(this, view, Width, null, AsString.IsPresent);

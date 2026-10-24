@@ -105,6 +105,45 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void SingleRowTable_PreservesHeaderGridAndAlignment() {
+            MarkdownView view = new MarkdownView().AddTable(
+                new[] { RichText.Plain("Name"), RichText.Plain("Count"), RichText.Plain("State") },
+                new[] { new[] { RichText.Plain("alpha"), RichText.Plain("12"), RichText.Plain("Ready") } },
+                new HorizontalAlignment?[] { HorizontalAlignment.Left, HorizontalAlignment.Right, HorizontalAlignment.Left });
+            string[] lines = Render(view).ToPlainText().Split('\n');
+            string header = Assert.Single(lines, line => line.Contains("Name"));
+            string row = Assert.Single(lines, line => line.Contains("alpha"));
+            Assert.Contains("Count", header);
+            Assert.Contains("State", header);
+            Assert.Contains("Ready", row);
+            Assert.Equal(header.LastIndexOf('│'), row.LastIndexOf('│'));
+            Assert.Equal(header.IndexOf("Count", StringComparison.Ordinal) + 4, row.IndexOf("12", StringComparison.Ordinal) + 1);
+        }
+
+        [Fact]
+        public void WideTables_PreserveEveryFieldAndLongLinkedKeys() {
+            string[] names = { "Identifier", "Environment", "Verification", "Maintenance", "Evidence" };
+            RichText[] headers = names.Select(name => RichText.Plain(name)).ToArray();
+            RichText linked = new RichTextBuilder().AppendLink(
+                "START first second third fourth fifth KEY_END", "https://example.org/key").Build();
+            MarkdownView view = new MarkdownView().AddTable(headers, new[] {
+                new[] { linked, RichText.Plain("staging"), RichText.Plain("passed"), RichText.Plain("window"), RichText.Plain("ONLY_EVIDENCE") }
+            });
+            foreach (int width in new[] { 60, 40 }) {
+                CellBuffer frame = Render(view, width, links: true);
+                string text = frame.ToPlainText();
+                foreach (string name in names) { Assert.Contains(name, text); }
+                foreach (string value in new[] { "KEY_END", "staging", "passed", "window", "ONLY_EVIDENCE" }) {
+                    Assert.Contains(value, text);
+                }
+                string[] lines = text.Split('\n');
+                int row = Array.FindIndex(lines, line => line.Contains("KEY_END"));
+                Assert.Equal("https://example.org/key", frame[lines[row].IndexOf("KEY_END", StringComparison.Ordinal), row].Style.Link);
+                Assert.DoesNotContain("…", text);
+            }
+        }
+
+        [Fact]
         public void InvalidStructure_RejectsMalformedInput() {
             MarkdownView view = new MarkdownView();
             Assert.Throws<ArgumentOutOfRangeException>(() => view.AddHeading(RichText.Plain("bad"), 0));

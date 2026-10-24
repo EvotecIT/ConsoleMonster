@@ -8,6 +8,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Tests.Rendering;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Text;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Interactive {
@@ -55,6 +56,25 @@ namespace ConsoleMonster.Tests.Interactive {
             string text = surface.Frames.Last().ToPlainText();
             Assert.Contains("1–6 / 6", text);
             Assert.Contains("alpha beta gamma delta epsilon zeta", text);
+        }
+
+        [Fact]
+        public void ExplicitContentWidth_SurvivesWiderSurfaceAndResize() {
+            TextBlock document = TextBlock.Plain(string.Join("\n", Enumerable.Repeat("alpha beta gamma delta epsilon zeta", 20)));
+            RecordingSurface surface = new RecordingSurface(120, 8, false);
+            InteractiveOptions options = PromptHarness.Options("Escape", surface);
+            Assert.True(PromptHarness.Guard(surface, () => WidgetPager.TryShow(document, options: options, contentWidth: 20)));
+            Assert.All(surface.Frames.First().ToPlainText().Split('\n').Skip(1).Take(6),
+                line => Assert.True(DisplayWidth.Measure(line.TrimEnd()) <= 20));
+            Assert.DoesNotContain("alpha beta gamma delta", surface.Frames.First().ToPlainText());
+            WidgetPagerView view = new WidgetPagerView(document, "Document", new PromptLabels(), 20);
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 8), Theme.Dark);
+            foreach (int width in new[] { 60, 12, 120 }) {
+                RecordingSurface resized = new RecordingSurface(width, 8, false);
+                InteractionLoop.Draw(view, resized, context, 0, TimeSpan.Zero);
+                Assert.All(resized.Frames.Last().ToPlainText().Split('\n').Skip(1).Take(6),
+                    line => Assert.True(DisplayWidth.Measure(line.TrimEnd()) <= Math.Min(width, 20)));
+            }
         }
 
         [Fact]

@@ -185,7 +185,7 @@ namespace SiteFrames {
             if (Wants(only, "docs") || Wants(only, "text-diff")) {
                 TextDiffFigures.Capture(site);
             }
-            if (Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
+            if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
             if (Wants(only, "interactive")) {
                 InteractivePage.Capture(site);
             }

@@ -61,8 +61,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         public void PipeTable_KeepsInlineStylesAndAlignment() {
             CellBuffer frame = Render("| Label | Value |\n| :--- | ---: |\n| **first** | 12 |\n| second | 3 |", 60);
             string[] rows = frame.ToPlainText().Split('\n');
-            string first = Assert.Single(rows.Where(row => row.Contains("first")));
-            string second = Assert.Single(rows.Where(row => row.Contains("second")));
+            string first = Assert.Single(rows, row => row.Contains("first"));
+            string second = Assert.Single(rows, row => row.Contains("second"));
             Assert.Equal(first.IndexOf("12", StringComparison.Ordinal) + 1, second.IndexOf('3'));
             int y = Array.FindIndex(rows, row => row.Contains("first"));
             Assert.True((frame[first.IndexOf("first", StringComparison.Ordinal), y].Style.Decoration & TextDecoration.Bold) != 0);
@@ -99,6 +99,38 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             Assert.Contains("<div>[fail]literal[/]</div>", text);
             Assert.Contains("[Image: diagram]", text);
             Assert.Contains("https://example.invalid/image.png", text);
+        }
+
+        [Fact]
+        public void LinkedImages_UseTheOuterDestinationAndLiteralLabel() {
+            foreach (string source in new[] {
+                "[![Build](https://example.org/badge.svg)](https://example.org/build)",
+                "[Build ![badge](https://example.org/badge.svg) result](https://example.org/build)"
+            }) {
+                CellBuffer frame = Render(source, 120, links: true);
+                Assert.Contains("[Image:", frame.ToPlainText());
+                for (int y = 0; y < frame.Height; y++) {
+                    for (int x = 0; x < frame.Width; x++) {
+                        if (frame[x, y].Style.Link != null) {
+                            Assert.Equal("https://example.org/build", frame[x, y].Style.Link);
+                        }
+                    }
+                }
+                Assert.Contains("https://example.org/build", Render(source, 120).ToPlainText());
+            }
+        }
+
+        [Theory]
+        [InlineData("u")]
+        [InlineData("sup")]
+        [InlineData("sub")]
+        [InlineData("ins")]
+        [InlineData("q")]
+        public void HtmlWrappers_StayLiteralInsideEmphasis(string tag) {
+            string source = "**Read <" + tag + ">this note</" + tag + "> before continuing.**";
+            CellBuffer frame = Render(source, 120);
+            Assert.Equal("Read <" + tag + ">this note</" + tag + "> before continuing.", frame.ToPlainText());
+            Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
         }
 
         [Fact]

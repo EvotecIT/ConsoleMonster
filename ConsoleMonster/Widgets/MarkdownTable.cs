@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Localization;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
@@ -21,20 +22,20 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(rows));
             }
             if (headers.Count == 0 || headers.Any(h => h == null)) {
-                throw new ArgumentException("A table needs at least one non-null header cell.", nameof(headers));
+                throw new ArgumentException(LabelText.Get("Document.TableHeaders"), nameof(headers));
             }
             _headers = headers.ToArray();
             _rows = rows.Select(row => row == null || row.Count != headers.Count || row.Any(c => c == null)
-                ? throw new ArgumentException("Each row must match the header cell count and contain non-null cells.", nameof(rows))
+                ? throw new ArgumentException(LabelText.Get("Document.TableRows"), nameof(rows))
                 : row.ToArray()).ToArray();
             if (alignments != null && alignments.Count != headers.Count) {
-                throw new ArgumentException("Alignments must match the header cell count.", nameof(alignments));
+                throw new ArgumentException(LabelText.Get("Document.TableAlignments"), nameof(alignments));
             }
             _alignments = alignments?.ToArray();
         }
 
         private Table Build(RenderContext context) {
-            Table table = new Table { WrapLines = int.MaxValue };
+            Table table = new Table { WrapLines = int.MaxValue, RecordViewRows = 0, KeepAllColumns = true, ShowKeyField = true };
             for (int c = 0; c < _headers.Length; c++) {
                 table.AddColumn(new TableColumn(MarkdownText.Resolve(_headers[c], context)) {
                     Alignment = _alignments?[c],

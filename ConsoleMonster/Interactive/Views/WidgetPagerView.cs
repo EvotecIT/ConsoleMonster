@@ -12,18 +12,21 @@ namespace ConsoleMonster.Interactive {
     internal sealed class WidgetPagerView : InteractiveView {
         private readonly IWidget _content;
         private readonly string _title;
+        private readonly int? _contentWidth;
         private CellBuffer? _document;
         private int _top;
         private int _pageRows = 1;
 
-        internal WidgetPagerView(IWidget content, string title, PromptLabels labels) : base(labels) {
+        internal WidgetPagerView(IWidget content, string title, PromptLabels labels, int? contentWidth = null) : base(labels) {
             _content = content;
             _title = title ?? string.Empty;
+            _contentWidth = contentWidth;
         }
 
         protected override IWidget Build(ViewFrame frame) {
-            if (_document == null || _document.Width != frame.Width) {
-                _document = FrameComposer.RenderBlock(_content, frame.Width, frame.Context);
+            int width = Math.Min(frame.Width, _contentWidth ?? frame.Width);
+            if (_document == null || _document.Width != width) {
+                _document = FrameComposer.RenderBlock(_content, width, frame.Context);
             }
             _pageRows = Math.Max(1, frame.Height - 2);
             Move(0);
