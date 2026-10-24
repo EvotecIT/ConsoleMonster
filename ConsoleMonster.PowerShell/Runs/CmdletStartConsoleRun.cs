@@ -67,7 +67,7 @@ namespace ConsoleMonster.PowerShell {
             LiveSessionOptions session = new LiveSessionOptions { CaptureConsole = !host, Discoverable = false };
             if (host) { session.Profile = profile.WithMode(OutputMode.Plain); session.Output = new LineOutput(queue!, session.Profile); }
             LiveRun run = new LiveRun(items, new LiveRunOptions {
-                Title = Title, Live = NoLive.IsPresent || host, HeightFraction = HeightPercent / 100.0,
+                Title = Title, Live = !(NoLive.IsPresent || host), HeightFraction = HeightPercent / 100.0,
                 InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = Trend.IsPresent, ProgressEvery = ProgressEvery,
                 ProgressInterval = TimeSpan.FromSeconds(ProgressIntervalSeconds), ReportPath = ReportPath, Session = session
             });

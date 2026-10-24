@@ -30,7 +30,7 @@ namespace ConsoleMonster.Interactive {
         /// The command-line parameter this field supplies (<c>Domain</c>, <c>-Domain</c>, <c>--domain</c>); null leaves the
         /// field out of the equivalent command.
         /// </summary>
-        public string? Parameter { get; set; }
+        public string? ParameterName { get; set; }
 
         /// <summary>Whether an empty value is refused.</summary>
         public bool Required { get; set; }

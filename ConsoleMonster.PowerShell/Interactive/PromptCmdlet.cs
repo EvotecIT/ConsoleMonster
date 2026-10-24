@@ -7,7 +7,7 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// The parameters every Read-Console* prompt shares: the question, help text, the parameter that supplies the value
     /// non-interactively, and an interaction mode override. Esc and Ctrl+C end the prompt with a terminating
-    /// PromptCancelled error; without a user (CI, redirected input, -NonInteractive) the default is returned, or a
+    /// PromptCanceled error; without a user (CI, redirected input, -NonInteractive) the default is returned, or a
     /// PromptNeedsValue error names the parameter to pass.
     /// </summary>
     public abstract class PromptCmdlet : PSCmdlet {

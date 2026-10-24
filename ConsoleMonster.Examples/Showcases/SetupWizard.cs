@@ -34,16 +34,16 @@ namespace ConsoleMonster.Examples.Showcases {
             path.PathKind = PathKind.Folder;
             path.Default = windows ? @"C:\Program Files\Toolbox Agent" : "/usr/local/lib/toolbox-agent";
             path.Required = true;
-            path.Parameter = "Path";
+            path.ParameterName = "Path";
             path.Help = "Created when it does not exist. Tab completes folder names.";
             PathField data = location.Path("Data", "Data folder");
             data.PathKind = PathKind.Folder;
             data.Default = windows ? @"C:\ProgramData\Toolbox Agent" : mac ? "/Library/Application Support/Toolbox Agent" : "/var/lib/toolbox-agent";
-            data.Parameter = "DataPath";
+            data.ParameterName = "DataPath";
             data.Help = "Logs, reports and the local queue. Needs a few hundred MB.";
             ToggleField shortcuts = location.Toggle("Shortcuts", windows ? "Start menu shortcuts" : "Command-line shortcuts");
             shortcuts.Default = true;
-            shortcuts.Parameter = "Shortcuts";
+            shortcuts.ParameterName = "Shortcuts";
 
             FormPage components = form.Page("Components", "Pick what to install. You can add more later.");
             ChoiceField parts = components.MultiSelect("Components", "Components", new[] {
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 new Choice("Syslog", "Syslog forwarder") { Group = "Integrations", Description = "Forwards findings to a syslog collector.", DisabledReason = "needs the Enterprise licence" }
             });
             parts.Minimum = 1;
-            parts.Parameter = "Component";
+            parts.ParameterName = "Component";
             parts.Help = "Space toggles, Ctrl+A selects all, Enter closes the list.";
 
             FormPage service = form.Page("Service", "How the agent runs.");
@@ -69,19 +69,19 @@ namespace ConsoleMonster.Examples.Showcases {
                 new Choice("Custom", "A specific user") { Description = "An existing local user you name." }
             });
             account.Default = windows ? "NetworkService" : "Dedicated";
-            account.Parameter = "Account";
+            account.ParameterName = "Account";
             TextField user = service.Text("UserName", "User name");
             user.VisibleWhen = v => Equals(v["Account"], "Custom");
             user.Required = true;
             user.Placeholder = windows ? @"CONTOSO\svc-toolbox" : "toolbox";
-            user.Parameter = "UserName";
+            user.ParameterName = "UserName";
             SecretField password = service.Secret("Password", "Password");
             password.VisibleWhen = v => Equals(v["Account"], "Custom");
-            password.Parameter = "Password";
+            password.ParameterName = "Password";
             password.CommandPlaceholder = "(Read-Host -AsSecureString)";
             ToggleField automatic = service.Toggle("AutoStart", "Start automatically");
             automatic.Default = true;
-            automatic.Parameter = "AutoStart";
+            automatic.ParameterName = "AutoStart";
 
             FormPage connection = form.Page("Connection", "Where the agent reports to.");
             ChoiceField region = connection.Select("Region", "Region", new[] {
@@ -90,12 +90,12 @@ namespace ConsoleMonster.Examples.Showcases {
                 new Choice("ap", "Asia Pacific")
             });
             region.Required = true;
-            region.Parameter = "Region";
+            region.ParameterName = "Region";
             region.Help = "Choosing a region loads its servers.";
             ChoiceField server = connection.Select("Server", "Server");
             server.DependsOn.Add("Region");
             server.Required = true;
-            server.Parameter = "Server";
+            server.ParameterName = "Server";
             server.Loader = (values, token) => LoadServersAsync(values.Get<string>("Region"), token);
             server.Help = "Loaded for the chosen region; Esc cancels loading.";
             NumberField port = connection.Number("Port", "Port");
@@ -103,14 +103,14 @@ namespace ConsoleMonster.Examples.Showcases {
             port.Minimum = 1;
             port.Maximum = 65535;
             port.Default = 443m;
-            port.Parameter = "Port";
+            port.ParameterName = "Port";
             ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy");
-            proxy.Parameter = "UseProxy";
+            proxy.ParameterName = "UseProxy";
             TextField proxyAddress = connection.Text("Proxy", "Proxy address");
             proxyAddress.VisibleWhen = v => v.Get<bool>("UseProxy");
             proxyAddress.Required = true;
             proxyAddress.Placeholder = "http://proxy.example.org:8080";
-            proxyAddress.Parameter = "Proxy";
+            proxyAddress.ParameterName = "Proxy";
             return form;
         }
 

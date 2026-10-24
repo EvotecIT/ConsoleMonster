@@ -219,19 +219,19 @@ namespace ConsoleMonster.Interactive {
             FormValues values = GetValues();
             List<string> arguments = new List<string>();
             foreach (Field field in Fields) {
-                if (string.IsNullOrEmpty(field.Parameter) || !values.IsVisible(field.Key) || field.IsEmpty(field.Value) || field.IsDefault(field.Value)) {
+                if (string.IsNullOrEmpty(field.ParameterName) || !values.IsVisible(field.Key) || field.IsEmpty(field.Value) || field.IsDefault(field.Value)) {
                     continue;
                 }
                 object? value = field.ArgumentValue(field.Value);
                 if (value is CommandLiteral literal) {
-                    arguments.Add(CommandLine.Parameter(field.Parameter!, CommandStyle) + (CommandStyle == CommandStyle.Windows ? ":" : " ") + literal.Text);
+                    arguments.Add(CommandLine.Parameter(field.ParameterName!, CommandStyle) + (CommandStyle == CommandStyle.Windows ? ":" : " ") + literal.Text);
                     continue;
                 }
                 if (value is bool b && !b && field.Default is true) {
-                    arguments.Add(CommandStyle == CommandStyle.PowerShell ? CommandLine.Parameter(field.Parameter!, CommandStyle) + ":$false" : CommandLine.Argument("no-" + field.Parameter!.TrimStart('-', '/'), true, CommandStyle));
+                    arguments.Add(CommandStyle == CommandStyle.PowerShell ? CommandLine.Parameter(field.ParameterName!, CommandStyle) + ":$false" : CommandLine.Argument("no-" + field.ParameterName!.TrimStart('-', '/'), true, CommandStyle));
                     continue;
                 }
-                arguments.Add(CommandLine.Argument(field.Parameter!, value, CommandStyle));
+                arguments.Add(CommandLine.Argument(field.ParameterName!, value, CommandStyle));
             }
             return CommandLine.Join(Command ?? string.Empty, arguments);
         }

@@ -45,7 +45,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTree", DefaultParameterSetName = NodesSet)]
     [OutputType(typeof(Tree))]
-    public class CmdletNewConsoleTree : PSCmdlet {
+    public partial class CmdletNewConsoleTree : PSCmdlet {
         private const string NodesSet = "Nodes";
         private const string ObjectsSet = "Objects";
         private readonly List<object> _objects = new List<object>();
@@ -83,7 +83,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public string? DetailProperty { get; set; }
 
-        /// <summary><para type="description">How many levels of children are followed below each object (default 5).</para></summary>
+        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-ConsoleTree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
         public int Depth { get; set; } = 5;
 
@@ -117,7 +117,7 @@ namespace ConsoleMonster.PowerShell {
                 ThrowTerminatingError(new ErrorRecord(new PSArgumentException("Give the children with -ChildrenProperty or -Children, not both."), "ConsoleMonsterTreeChildren", ErrorCategory.InvalidArgument, null));
             }
             Tree tree = new Tree(PSText.Markup(Title));
-            if (_objects.Count == 1 && PSText.Unwrap(_objects[0]) is IDictionary dictionary && ChildrenProperty == null && Children == null) {
+            if (_objects.Count == 1 && PSText.Unwrap(_objects[0]) is IDictionary dictionary && ChildrenProperty == null && Children == null && LabelProperty == null && StatusProperty == null && DetailProperty == null) {
                 Fill(tree.Root, dictionary);
                 Emit(tree);
                 return;
@@ -177,7 +177,7 @@ namespace ConsoleMonster.PowerShell {
 
 
         // Children keep their PowerShell wrapper: the properties of a [pscustomobject] live on it, not on its base object.
-        private static void Collect(List<object> list, object? value) {
+        private static void Collect(List<object> list, object? value, List<object>? path = null) {
             if (value == null) {
                 return;
             }
@@ -189,9 +189,10 @@ namespace ConsoleMonster.PowerShell {
                 list.Add(PSObject.AsPSObject(value));
                 return;
             }
-            foreach (object? element in enumerable) {
-                Collect(list, element);
-            }
+            PSCollectionPath.Enter(ref path, raw);
+            try {
+                foreach (object? element in enumerable) { Collect(list, element, path); }
+            } finally { path!.RemoveAt(path.Count - 1); }
         }
 
         // The identity for cycle detection: the wrapped object, except for [pscustomobject], whose base object is shared.
@@ -230,26 +231,5 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="tree">The tree.</param>
         protected virtual void Emit(Tree tree) => WriteObject(tree);
 
-        private static void Fill(TreeNode parent, IDictionary data) {
-            foreach (DictionaryEntry entry in data) {
-                string key = Markup.Escape(PSWidgets.ToText(entry.Key));
-                object? value = entry.Value is PSObject ps ? ps.BaseObject : entry.Value;
-                if (value is IDictionary nested) {
-                    Fill(parent.Add(key), nested);
-                } else if (value is IEnumerable list && !(value is string)) {
-                    TreeNode node = parent.Add(key);
-                    foreach (object? item in list) {
-                        object? raw = item is PSObject itemPs ? itemPs.BaseObject : item;
-                        if (raw is IDictionary itemDictionary) {
-                            Fill(node, itemDictionary);
-                        } else {
-                            node.Add(Markup.Escape(PSWidgets.ToText(raw)));
-                        }
-                    }
-                } else {
-                    parent.Add(key, null, value == null ? null : PSWidgets.ToText(value));
-                }
-            }
-        }
     }
 }

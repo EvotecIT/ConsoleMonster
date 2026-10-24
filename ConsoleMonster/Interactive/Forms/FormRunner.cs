@@ -91,10 +91,10 @@ namespace ConsoleMonster.Interactive {
                     continue;
                 }
                 if (field.Check(field.Value, values, labels) != null) {
-                    string message = string.IsNullOrEmpty(field.Parameter)
+                    string message = string.IsNullOrEmpty(field.ParameterName)
                         ? PromptLabels.Format(labels.NonInteractiveNeedsDefault, field.Label)
-                        : PromptLabels.Format(labels.NonInteractiveNeedsValue, field.Label, CommandLine.Parameter(field.Parameter!, form.CommandStyle));
-                    throw new PromptUnavailableException(message) { Prompt = field.Label, Parameter = field.Parameter };
+                        : PromptLabels.Format(labels.NonInteractiveNeedsValue, field.Label, CommandLine.Parameter(field.ParameterName!, form.CommandStyle));
+                    throw new PromptUnavailableException(message) { Prompt = field.Label, Parameter = field.ParameterName };
                 }
             }
             return new FormResult(true, values, form.BuildCommand(), null);

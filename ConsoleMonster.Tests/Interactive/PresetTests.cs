@@ -210,9 +210,9 @@ namespace ConsoleMonster.Tests.Interactive {
             FormPage page = form.Page("Location");
             TextField path = page.Text("Path", "Install folder");
             path.Default = @"C:\Agent";
-            path.Parameter = "Path";
+            path.ParameterName = "Path";
             ChoiceField site = page.MultiSelect("Site", "Sites");
-            site.Parameter = "Site";
+            site.ParameterName = "Site";
             site.Loader = (values, token) => Task.FromResult<IEnumerable<Choice>>(new[] { new Choice("waw", "Warsaw"), new Choice("ber", "Berlin") });
             form.Preset("Weekly", new Dictionary<string, object?> { ["Path"] = @"D:\Weekly", ["Site"] = new[] { "ber" } }, "The weekly install.");
             return form;

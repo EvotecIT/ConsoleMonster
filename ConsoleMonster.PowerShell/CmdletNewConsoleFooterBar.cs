@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void EndProcessing() {
             FooterBar footer = new FooterBar { KeepLast = KeepLast.IsPresent, Indent = Indent, Message = Line(Message), Right = Line(Right) };
             if (Hint != null) {
-                foreach (DictionaryEntry entry in Hint) { footer.Hints.Add(new KeyHint(PSWidgets.ToText(entry.Key), PSWidgets.ToText(entry.Value))); }
+                foreach (KeyHint hint in PSFooterHints.Read(Hint)) { footer.Hints.Add(hint); }
             }
             foreach (object item in Segment) {
                 object? raw = PSText.Unwrap(item);

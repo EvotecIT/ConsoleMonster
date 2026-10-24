@@ -70,6 +70,13 @@ namespace ConsoleMonster.Export {
         /// <summary>Asciicast only: the recording time written to the header (default: none).</summary>
         public DateTimeOffset? Timestamp { get; set; }
 
+        // One resolved copy carries the same geometry through sampling and serialization.
+        internal RecordingExportOptions Ready() {
+            RecordingExportOptions copy = (RecordingExportOptions)MemberwiseClone();
+            copy.Width = Width == 0 && Context != null ? Context.Profile.Width : Terminal.ResolveWidth(Width);
+            return copy;
+        }
+
         internal ExportOptions ToFrameOptions() {
             ExportOptions o = new ExportOptions {
                 Width = Terminal.ResolveWidth(Width),

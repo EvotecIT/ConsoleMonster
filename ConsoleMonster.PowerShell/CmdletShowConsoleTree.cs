@@ -15,6 +15,8 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.Show, "ConsoleTree", DefaultParameterSetName = "Nodes")]
     public sealed class CmdletShowConsoleTree : CmdletNewConsoleTree {
         private readonly List<PSObject> _items = new List<PSObject>();
+        /// <summary>Uses the object-graph depth for display; the definition builder has its own hierarchy default.</summary>
+        public CmdletShowConsoleTree() { Depth = 3; }
         /// <summary><para type="description">Member names to include when inspecting an object graph.</para></summary>
         [Parameter] public string[]? Include { get; set; }
         /// <summary><para type="description">Member names to omit without reading their getters.</para></summary>
@@ -34,17 +36,17 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (InputObject != null) { _items.Add(InputObject); }
-            base.ProcessRecord();
+            if (InputObject == null || UsesHierarchy || PSText.Unwrap(InputObject) is TreeNode) { base.ProcessRecord(); }
         }
         /// <inheritdoc />
         protected override void EndProcessing() {
-            if (_items.Count == 0 || ChildrenProperty != null || Children != null || LabelProperty != null || StatusProperty != null || DetailProperty != null
-                || (_items.Count == 1 && PSText.Unwrap(_items[0]) is IDictionary) || _items.TrueForAll(item => PSText.Unwrap(item) is TreeNode)) {
+            if (_items.Count == 0 || UsesHierarchy || _items.TrueForAll(item => PSText.Unwrap(item) is TreeNode)) {
                 base.EndProcessing();
             } else {
                 List<IWidget> widgets = new List<IWidget>();
                 foreach (PSObject item in _items) {
-                    InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, item);
+                    int depth = MyInvocation.BoundParameters.ContainsKey(nameof(Depth)) ? Depth : InspectorOptions.DefaultDepthFor(PSFormatting.FieldCount(item), Depth);
+                    InspectorOptions options = PSFormatting.InspectorOptions(depth, MaxItems, Include, Exclude, MaxNodes, item);
 #pragma warning disable IL2026
                     widgets.Add(InspectorTree.Build(ObjectInspector.Inspect(item, options), PSText.Markup(Title)));
 #pragma warning restore IL2026
@@ -55,6 +57,7 @@ namespace ConsoleMonster.PowerShell {
         }
         /// <inheritdoc />
         protected override void Emit(Tree tree) => EmitView(tree);
+        private bool UsesHierarchy => ChildrenProperty != null || Children != null || LabelProperty != null || StatusProperty != null || DetailProperty != null;
         private void EmitView(IWidget view) {
             if (AsWidget.IsPresent) { WriteObject(Culture == null ? view : (IWidget)new CultureScope(view, Culture)); return; }
             PSFormatting.Emit(this, view, Width, Culture, AsString.IsPresent, PassThru.IsPresent);
