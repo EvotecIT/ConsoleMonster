@@ -4,12 +4,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Serialization;
 
 namespace ConsoleMonster.Sessions {
     /// <summary>Writes sanitized v2 events in arrival order, while keeping controls active after the byte cap.</summary>
     internal sealed class SessionCastWriter : IDisposable {
         internal const string ControlPrefix = "\u001b]777;ConsoleMonster;";
+        internal const int MaximumPendingCharacters = 1024 * 1024;
+        private const int FlushThreshold = 65536;
+        private const int OutputChunkCharacters = 16384;
         private readonly SessionRecordingOptions _options;
         private readonly RecordingRedactor _redactor;
         private readonly FileStream _file;
@@ -26,8 +30,11 @@ namespace ConsoleMonster.Sessions {
         private double _time;
         private long _sequence;
         private bool _disposed;
-        private bool _suppressLongRecord;
+        private bool _suppressRecord;
         private bool _suppressLongControl;
+        private int _contextLength;
+        private int _nextFlush = FlushThreshold;
+        private int _redactionFallbacks;
         public string Path { get; }
         public bool LimitReached { get; private set; }
         public bool StopRequested { get; private set; }
@@ -68,13 +75,15 @@ namespace ConsoleMonster.Sessions {
                         if (c == '\a') {
                             string command = value.Substring(ControlPrefix.Length, value.Length - ControlPrefix.Length - 1);
                             ClearControl();
-                            FlushPending();
-                            if (command == "stop") { StopRequested = true; }
+                            if (command == "stop") { FlushPending(); StopRequested = true; }
                             else if (command.StartsWith("marker;", StringComparison.Ordinal)) {
                                 string label;
                                 try { label = Encoding.UTF8.GetString(Convert.FromBase64String(command.Substring(7))); }
                                 catch (FormatException) { label = "Chapter"; }
-                                Marker(label, arrival);
+                                // A marker is not a redaction boundary. Separate its sequence from output on either
+                                // side even when all three arrived in one native read.
+                                Marker(label, new Arrival(arrival.Time, ++_sequence));
+                                arrival = new Arrival(arrival.Time, ++_sequence);
                             }
                         } else if (_control.Length > 8192) { ClearControl(); _suppressLongControl = true; }
                     } else if (_suppressLongControl) {
@@ -88,50 +97,98 @@ namespace ConsoleMonster.Sessions {
         private void AppendCharacter(char c, Arrival arrival) {
             _relay.Append(c);
             if (LimitReached) { return; }
-            if (_suppressLongRecord) {
-                if (c == '\r' || c == '\n') { _suppressLongRecord = false; }
+            if (_suppressRecord) {
+                if (c == '\r' || c == '\n') { _suppressRecord = false; }
                 return;
             }
             _pending.Append(c); _arrivals.Add(arrival);
             if (c == '\r' || c == '\n') { FlushPending(); }
-            else if (_pending.Length >= 65536) {
-                Arrival first = _arrivals[0];
-                _pending.Clear(); _arrivals.Clear();
-                _deferred.Add(new BufferedEvent(first, "o", "[REDACTED: output record exceeds 64 KiB]\r\n"));
-                FlushDeferred();
-                _suppressLongRecord = true;
+            else if (_pending.Length >= _nextFlush) {
+                if (!_redactor.RequiresCompleteRecord) {
+                    try { FlushPrefix(); }
+                    catch (RegexMatchTimeoutException) { RedactionFallback("pattern timeout", suppress: true); }
+                }
+                if (_pending.Length >= MaximumPendingCharacters) {
+                    RedactionFallback(_redactor.RequiresCompleteRecord
+                        ? "complete-record regex buffer exceeds 1,048,576 characters; output omitted through next line break"
+                        : "unfinished secret or terminal control exceeds 1,048,576 characters; output omitted through next line break", suppress: true);
+                }
+                _nextFlush = _redactor.RequiresCompleteRecord ? MaximumPendingCharacters : Math.Max(FlushThreshold, _pending.Length + FlushThreshold / 2);
             }
         }
         private void FlushNonPrivateControl() {
             for (int i = 0; i < _control.Length; i++) { AppendCharacter(_control[i], _controlArrivals[i]); }
             ClearControl();
+            FlushDeferred();
         }
         private void ClearControl() { _control.Clear(); _controlArrivals.Clear(); }
         private void FlushPending() {
-            if (_pending.Length > 0 && !LimitReached) {
-                RedactedOutput safe = _redactor.ApplyWithOffsets(_pending.ToString());
-                int start = 0;
-                while (start < safe.Text.Length) {
-                    Arrival arrival = _arrivals[safe.Offsets[start]];
-                    int end = start + 1;
-                    while (end < safe.Text.Length && _arrivals[safe.Offsets[end]].Sequence == arrival.Sequence) { end++; }
-                    _deferred.Add(new BufferedEvent(arrival, "o", safe.Text.Substring(start, end - start)));
-                    start = end;
-                }
+            if (_pending.Length > _contextLength && !LimitReached) {
+                RedactedOutput safe = _redactor.ApplyPrefix(_pending.ToString(), _pending.Length, _contextLength);
+                if (safe.TimedOut) { RedactionFallback("pattern timeout", suppress: false); return; }
+                QueueOutput(safe);
             }
             _pending.Clear(); _arrivals.Clear();
+            _contextLength = 0; _nextFlush = FlushThreshold;
+            FlushDeferred();
+        }
+
+        private void FlushPrefix() {
+            string text = _pending.ToString();
+            int prefix = _redactor.PrefixLength(text);
+            if (prefix <= _contextLength) { return; }
+            RedactedOutput safe = _redactor.ApplyPrefix(text, prefix, _contextLength);
+            if (safe.TimedOut) { RedactionFallback("pattern timeout", suppress: true); return; }
+            if (safe.SourceLength <= _contextLength) { return; }
+            QueueOutput(safe);
+            int retain = RecordingRedactor.ContextStart(text, safe.SourceLength);
+            _pending.Remove(0, retain); _arrivals.RemoveRange(0, retain);
+            _contextLength = safe.SourceLength - retain;
+            FlushDeferred();
+        }
+
+        private void QueueOutput(RedactedOutput safe) {
+            int start = 0;
+            while (start < safe.Text.Length && safe.Offsets[start] < _contextLength) { start++; }
+            while (start < safe.Text.Length && safe.Offsets[start] < safe.SourceLength) {
+                Arrival arrival = _arrivals[safe.Offsets[start]];
+                int end = start + 1;
+                while (end < safe.Text.Length && end - start < OutputChunkCharacters && safe.Offsets[end] < safe.SourceLength
+                    && _arrivals[safe.Offsets[end]].Sequence == arrival.Sequence) { end++; }
+                if (end < safe.Text.Length && char.IsHighSurrogate(safe.Text[end - 1]) && char.IsLowSurrogate(safe.Text[end])) {
+                    end += end == start + 1 ? 1 : -1;
+                }
+                _deferred.Add(new BufferedEvent(arrival, "o", safe.Text.Substring(start, end - start)));
+                start = end;
+            }
+        }
+
+        private void RedactionFallback(string reason, bool suppress) {
+            Arrival first = _arrivals.Count > _contextLength ? _arrivals[_contextLength] : Now();
+            _pending.Clear(); _arrivals.Clear(); _contextLength = 0;
+            _redactionFallbacks++; _suppressRecord = suppress; _nextFlush = FlushThreshold;
+            _deferred.Add(new BufferedEvent(first, "o", "[REDACTED: " + reason + "]\r\n"));
             FlushDeferred();
         }
         private void FlushDeferred() {
-            _deferred.Sort((a, b) => a.Arrival.Sequence.CompareTo(b.Arrival.Sequence));
-            foreach (BufferedEvent item in _deferred) { Event(item); }
-            _deferred.Clear();
+            // List.Sort is unstable: multiple chunks from one read must retain source order.
+            for (int i = 0; i < _deferred.Count; i++) { _deferred[i].Order = i; }
+            _deferred.Sort((a, b) => {
+                int sequence = a.Arrival.Sequence.CompareTo(b.Arrival.Sequence);
+                return sequence != 0 ? sequence : a.Order.CompareTo(b.Order);
+            });
+            long before = _pending.Length > _contextLength ? _arrivals[_contextLength].Sequence : long.MaxValue;
+            if (_controlArrivals.Count > 0) { before = Math.Min(before, _controlArrivals[0].Sequence); }
+            int count = 0;
+            while (count < _deferred.Count && _deferred[count].Arrival.Sequence <= before) { Event(_deferred[count++]); }
+            _deferred.RemoveRange(0, count);
+            if (LimitReached) { _deferred.Clear(); }
         }
         private Arrival Now() => new Arrival(_clock.Elapsed.TotalSeconds, ++_sequence);
         // Hidden demo setup consumes real time, but must not become a blank opening or an idle playback gap.
         internal void ResumeCapture() { _lastReal = _clock.Elapsed.TotalSeconds; }
         private void Queue(BufferedEvent item) {
-            if (_pending.Length > 0 || _control.Length > 0) { _deferred.Add(item); }
+            if (_pending.Length > _contextLength || _control.Length > 0) { _deferred.Add(item); }
             else { Event(item); }
         }
         public void Resize(int width, int height) {
@@ -167,7 +224,8 @@ namespace ConsoleMonster.Sessions {
             string metadata = MiniJson.Write(new Dictionary<string, object?> {
                 ["format"] = "consolemonster-session", ["version"] = 1, ["recording"] = true,
                 ["started"] = Started.ToString("O", CultureInfo.InvariantCulture), ["host"] = _redactor.Apply(Environment.MachineName),
-                ["mode"] = Mode, ["sizeLimitReached"] = LimitReached, ["markers"] = _markers
+                ["mode"] = Mode, ["sizeLimitReached"] = LimitReached, ["markers"] = _markers,
+                ["redactionFallbacks"] = _redactionFallbacks
             });
             using (FileStream stream = _metadata) { byte[] bytes = Encoding.UTF8.GetBytes(metadata); stream.Write(bytes, 0, bytes.Length); }
         }
@@ -177,6 +235,7 @@ namespace ConsoleMonster.Sessions {
         }
         private sealed class BufferedEvent {
             public BufferedEvent(Arrival arrival, string kind, string value) { Arrival = arrival; Kind = kind; Value = value; }
+            public int Order { get; set; }
             public Arrival Arrival { get; } public string Kind { get; } public string Value { get; }
         }
     }
