@@ -17,8 +17,8 @@ $git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahe
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleLogo -Text 'HELLO' -Tagline '[muted]A little context before your next command.[/]'
-    New-ConsolePanel -Title 'Host summary' -Caption 'local workspace' -Content {
-        New-ConsoleKeyValue -Data $hostSummary
+    New-ConsolePanel -Title 'Host summary' -HeaderRight 'local workspace' -Content {
+        New-ConsoleKeyValue -InputObject $hostSummary
     }
     New-ConsolePanel -Title 'Git | comet-notes' -Content {
         New-ConsoleText -Markup $git
@@ -28,4 +28,4 @@ $screen = New-ConsoleRows -Gap 1 -Content {
 }
 
 # Behaviour: print the screen once and return.
-$screen | Write-ConsoleWidget
+$screen | Show-Console

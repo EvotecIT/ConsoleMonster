@@ -1,4 +1,4 @@
-# Helpers run only in the isolated child process used by ConsoleMonster.Streams.Tests.ps1.
+﻿# Helpers run only in the isolated child process used by ConsoleMonster.Streams.Tests.ps1.
 function Get-StreamsProperties {
     <# .SYNOPSIS
     Returns the native properties owned by Streams on the current runtime.
@@ -73,8 +73,8 @@ function Get-StreamsExpected {
         foreach ($stream in 'Warning', 'Verbose', 'Debug', 'Progress') {
             $style = $context.Style([ConsoleMonster.Styling.ThemeToken] $roles[$stream])
             # Stream preferences need concrete palette colours, including colours shared with text-like roles.
-            if ($expected.ContainsKey($stream + 'ForegroundColor')) { $expected[$stream + 'ForegroundColor'] = $map.Background($style.Foreground) }
-            $background = $map.Background($style.Background)
+            if ($expected.ContainsKey($stream + 'ForegroundColor')) { $expected[$stream + 'ForegroundColor'] = $map.Background($style.Color) }
+            $background = $map.Background($style.BackgroundColor)
             if ($null -eq $background) {
                 try { $background = $Host.UI.RawUI.BackgroundColor } catch [System.NotSupportedException] { }
             }

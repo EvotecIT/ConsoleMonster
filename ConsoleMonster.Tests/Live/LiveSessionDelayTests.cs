@@ -100,7 +100,7 @@ namespace ConsoleMonster.Tests.Live {
             IInputSource? previousInput = ConsoleInput.Override;
             bool acquired = ConsoleInput.IsAcquired;
             var gate = new FakeTarget();
-            var slot = new Slot("body", gate);
+            var slot = new RegionWidget("body", gate);
             var options = Options(target);
             options.Target = null; // Start captures the scope; producer calls below run after it has ended.
             using (var entered = new ManualResetEventSlim())
@@ -153,7 +153,7 @@ namespace ConsoleMonster.Tests.Live {
             var target = TestTerminal.Target(24, 12);
             target.SkipDelays = true;
             target.Checkpoints = captureSome ? new[] { 1, 3 } : Array.Empty<int>();
-            var slot = new Slot("body");
+            var slot = new RegionWidget("body");
             using (var session = new LiveSession(slot, Options(target))) {
                 session.Start();
                 for (int i = 0; i < 5; i++) {

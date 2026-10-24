@@ -428,7 +428,7 @@ I include the header/footer/column-format exposure because they close everyday c
 
 The nine removed exports are Write-ConsoleTable, Write-ConsoleKeyValue, Write-ConsoleTree, Write-ConsoleWidget, Write-ConsoleMarkup, Write-ConsoleException, Write-ConsoleRule, Start-ConsoleRecording and Start-ConsoleReplay.
 
-With these final decisions, there are **134 exported cmdlets in the final design**: 137 existing, minus nine old exports, plus six additions (one-line rule, gallery export, view unregister, header, footer, column format). Renames do not change that count. Canvas is deferred and adds no command in this PR. The new count is a design consequence, not a target to preserve by adding commands.
+At the original inventory revision, these final decisions yield **134 exported cmdlets**: 137 existing, minus nine old exports, plus six additions (one-line rule, gallery export, view unregister, header, footer, column format). Renames do not change that count. Canvas is deferred and adds no command in this PR. The new count is a design consequence, not a target to preserve by adding commands.
 
 ### The shell prompt feature
 
@@ -710,3 +710,15 @@ This catalogue covers public type declarations in the shipped core and four add-
 6. Preserve ordinary pipeline objects until an explicit display/export boundary. Make string/widget capture deterministic and keep native PowerShell adapters narrowly documented.
 7. Keep PowerShell, C#, fluent builders, help, module exports and examples in step. Expose only deliberate module types and useful thin cmdlet adapters.
 8. Remove superseded names and aliases before release, update generated sources and every real caller, and keep documentation aligned with implemented behavior.
+
+
+## Merged gallery additions
+
+I rebased this change onto the demo source cleanup in #53. That adds two commands after the original inventory, bringing the exported surface to **136 cmdlets**.
+
+| Before → after | Reason | Blast radius |
+| --- | --- | --- |
+| `Format-ConsoleCommand` → same | Returns a copyable command string without executing or displaying it, following the Format rule. | P,D,E,T |
+| `Wait-ConsoleDashboard -Milliseconds` → same | Pauses the active dashboard cancellably; the numeric parameter states its unit, and the capture driver owns checkpoints. | P,D,E,T |
+
+Gallery programs keep explicit object rows and ordinary execution. Scripted keys, snapshots and checkpoints stay in the capture driver; copied scripts have no `-StaticSnapshot` or `-Step` parameters. PowerShell scripts use UTF-8 with a BOM.

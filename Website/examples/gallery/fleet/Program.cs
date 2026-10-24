@@ -40,7 +40,7 @@ List<HistoryRow> history = [
     new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
     new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
 ];
-string reportRoot = OperatingSystem.IsWindows() ? @"C:\Reports\Fleet" : "/tmp/reports/fleet";
+string reportRoot = "Reports/Fleet";
 Node[] targets = inventory.Where(n => n.Domain == "corp.example.test" && n.Offline == "").Take(5).ToArray();
 Check[] checks = catalog.Where(c => new[] { "SecureChannel", "TimeOffset", "ForwardRecord", "CertExpiry", "CertChain", "MissingUpdates", "FreeSpace", "AutoServices" }.Contains(c.Id)).ToArray();
 string domain = "corp.example.test", format = "Html", report = reportRoot, email = "ops@example.test";
@@ -129,10 +129,10 @@ IWidget Body(List<Work> work, int done, int phase) {
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work) {
-    Slot body = new("body", Body(work, 0, 0));
+    RegionWidget body = new("body", Body(work, 0, 0));
     Dashboard dashboard = new("[bold]Fleet health check[/]", body) { Subtitle = domain, Footer = "Ctrl+C cancel · results keep the findings" };
     bool completed = false;
-    RunResult outcome = context.Run(dashboard, run => {
+    MenuRunResult outcome = context.Run(dashboard, run => {
         void Show(int done, int phase) {
             body.Handle(run.Session).Set(Body(work, done, phase));
             run.Session.Delay(TimeSpan.FromMilliseconds(240));
@@ -143,34 +143,34 @@ void Execute(MenuContext context, List<Work> work) {
             foreach (Work[] batch in operation.Chunk(parallel)) { Show(done, 2); done += batch.Length; }
         }
         Show(done, 3); Show(done, 4);
-        RunResult result = Result(work); completed = true; return result;
+        MenuRunResult result = Result(work); completed = true; return result;
     });
     if (!completed) return;
     history.Add(new(When: "Tue 20 Oct 09:30", Servers: work.Select(w => w.Node.Name).Distinct().Count(), Checks: work.Select(w => w.Check.Id).Distinct().Count(),
         Passed: work.Count(w => w.Status == StatusKind.Pass), Warnings: work.Count(w => w.Status == StatusKind.Warn), Failed: work.Count(w => w.Status == StatusKind.Fail), Elapsed: outcome.Elapsed));
 }
-RunResult Result(List<Work> work) {
-    RunResult result = new("Fleet check finished", Verdict(work)) {
+MenuRunResult Result(List<Work> work) {
+    MenuRunResult result = new("Fleet check finished", Verdict(work)) {
         Summary = $"{work.Count} checks on {work.Select(w => w.Node.Name).Distinct().Count()} servers. Review the findings and choose the next action.", Details = Findings(work)
     };
     result.Figure("passed", work.Count(w => w.Status == StatusKind.Pass).ToString(), StatusKind.Pass);
     result.Figure("warnings", work.Count(w => w.Status == StatusKind.Warn).ToString(), work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass);
     result.Figure("failed", work.Count(w => w.Status == StatusKind.Fail).ToString(), work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail : StatusKind.Pass);
-    result.Next("View report", ctx => ctx.ShowResult(new RunResult("Report · " + format.ToUpperInvariant(), Verdict(work)) { Summary = report, Details = Findings(work) }));
+    result.Next("View report", ctx => ctx.ShowResult(new MenuRunResult("Report · " + format.ToUpperInvariant(), Verdict(work)) { Summary = report, Details = Findings(work) }));
     if (work.Any(w => w.Status == StatusKind.Fail)) result.Next("Rerun failed checks", ctx => Execute(ctx, work.Where(w => w.Status == StatusKind.Fail).ToList()));
-    result.Next("View history", ctx => ctx.ShowResult(new RunResult("Run history") { Details = History() }));
+    result.Next("View history", ctx => ctx.ShowResult(new MenuRunResult("Run history") { Details = History() }));
     return result;
 }
 Form Options() {
     Form form = new("Options") { Review = false, SubmitText = "Save" };
     FormPage page = form.Page("Options", "Parallelism, reports and notifications.");
     NumberField throttle = page.Number("Parallel", "Servers at a time");
-    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.WholeNumber = true; throttle.Parameter = "ThrottleLimit";
-    PathField folder = page.Path("Report", "Report folder"); folder.Default = report; folder.PathKind = PathKind.Folder; folder.Parameter = "ReportPath";
+    throttle.Default = parallel; throttle.Minimum = 1; throttle.Maximum = 16; throttle.WholeNumber = true; throttle.ParameterName = "ThrottleLimit";
+    PathField folder = page.Path("Report", "Report folder"); folder.Default = report; folder.PathKind = PathKind.Folder; folder.ParameterName = "ReportPath";
     ChoiceField output = page.Select("Format", "Report format", new[] { new Choice("Html", "HTML"), new Choice("Csv", "CSV"), new Choice("Json", "JSON") });
-    output.Default = format; output.Parameter = "Format";
-    ToggleField send = page.Toggle("Notify", "Email the report"); send.Parameter = "Notify";
-    TextField recipient = page.Text("Email", "Recipient"); recipient.Default = email; recipient.Parameter = "To"; recipient.Required = true;
+    output.Default = format; output.ParameterName = "Format";
+    ToggleField send = page.Toggle("Notify", "Email the report"); send.ParameterName = "Notify";
+    TextField recipient = page.Text("Email", "Recipient"); recipient.Default = email; recipient.ParameterName = "To"; recipient.Required = true;
     recipient.VisibleWhen = v => v.Get<bool>("Notify"); recipient.Validator = (value, _) => value is string s && s.Contains('@') ? null : "Enter an email address";
 
     return form;
@@ -184,8 +184,8 @@ Menu menu = new("Fleet health check") { Layout = MenuLayout.Shell, Subtitle = "T
 Form checkForm = new("New check") { Command = "Invoke-FleetCheck", SubmitText = "Run checks", Description = "Choose the scope, checks and run options." };
 FormPage scope = checkForm.Page("Scope", "Which servers to check.");
 ChoiceField domains = scope.Select("Domain", "Domain", inventory.Select(n => n.Domain).Distinct().Select(d => new Choice(d)));
-domains.Default = domain; domains.Parameter = "Domain";
-ChoiceField servers = scope.MultiSelect("Servers", "Servers"); servers.Minimum = 1; servers.Parameter = "ComputerName"; servers.DependsOn.Add("Domain");
+domains.Default = domain; domains.ParameterName = "Domain";
+ChoiceField servers = scope.MultiSelect("Servers", "Servers"); servers.Minimum = 1; servers.ParameterName = "ComputerName"; servers.DependsOn.Add("Domain");
 servers.Loader = async (values, token) => {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name) {
@@ -198,7 +198,7 @@ FormPage choose = checkForm.Page("Checks", "What a healthy server reports appear
 ChoiceField operations = choose.MultiSelect("Checks", "Checks", catalog.Select(c => new Choice(c.Id, c.Name) {
     Group = c.Category, Description = c.Description, Badge = RichText.Plain("~" + Seconds(c.Seconds), new RichStyle(ThemeToken.Muted)), Selected = checks.Contains(c)
 }));
-operations.Minimum = 1; operations.Parameter = "Check"; operations.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
+operations.Minimum = 1; operations.ParameterName = "Check"; operations.Preview = c => Preview(catalog.First(k => k.Id == (string)c.Value!));
 FormPage settings = checkForm.Page("Options", "How the run behaves.");
 foreach (Field field in options.Fields) settings.Add(field);
 menu.Preset("Morning · identity & DNS", p => p.Form(checkForm, new Dictionary<string, object?> {

@@ -24,4 +24,4 @@ $report = New-ConsoleRows -Gap 1 -Content {
 }
 
 # Behaviour: print once; connect your own inventory reader before rendering.
-$report | Write-ConsoleWidget
+$report | Show-Console

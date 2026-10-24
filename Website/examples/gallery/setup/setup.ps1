@@ -43,31 +43,31 @@ $formOptions = @{
     Description = 'Sets up the agent that runs toolbox tasks on this machine.'
     Content = {
         $fieldOptions = @{
-            Name = 'Path'
+            Key = 'Path'
             Label = 'Install folder'
             Type = 'Path'
             Kind = 'Folder'
             Default = $installFolder
             Required = $true
             Page = 'Location'
-            Parameter = 'Path'
+            ParameterName = 'Path'
             Help = 'Created during installation. Tab completes folder names.'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
-            Name = 'Data'
+            Key = 'Data'
             Label = 'Data folder'
             Type = 'Path'
             Kind = 'Folder'
             Default = $dataFolder
             Page = 'Location'
-            Parameter = 'DataPath'
+            ParameterName = 'DataPath'
             Help = 'Logs, reports and the local queue.'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Name Launcher -Label 'Launcher entry' -Type Toggle -Default $true -Page Location -Parameter Launcher
+        New-ConsoleField -Key Launcher -Label 'Launcher entry' -Type Toggle -Default $true -Page Location -ParameterName Launcher
         $fieldOptions = @{
-            Name = 'Components'
+            Key = 'Components'
             Label = 'Components'
             Type = 'MultiSelect'
             Choices = $components
@@ -77,15 +77,15 @@ $formOptions = @{
             Badge = 'Size'
             Describe = 'Description'
             Selected = 'Selected'
-            Disabled = 'Disabled'
+            DisabledReason = 'Disabled'
             Minimum = 1
             Page = 'Components'
-            Parameter = 'Component'
+            ParameterName = 'Component'
             Help = 'Space toggles, Ctrl+A selects all, Enter closes the list.'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
-            Name = 'Account'
+            Key = 'Account'
             Label = 'Service account'
             Type = 'Select'
             Choices = $accounts
@@ -94,32 +94,32 @@ $formOptions = @{
             Describe = 'Description'
             Default = 'ServiceUser'
             Page = 'Service'
-            Parameter = 'Account'
+            ParameterName = 'Account'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
-            Name = 'UserName'
+            Key = 'UserName'
             Label = 'User name'
             VisibleWhen = { $Values.Account -eq 'Custom' }
             Required = $true
             Placeholder = 'toolbox-agent'
             Page = 'Service'
-            Parameter = 'UserName'
+            ParameterName = 'UserName'
         }
         New-ConsoleField @fieldOptions
         $fieldOptions = @{
-            Name = 'Password'
+            Key = 'Password'
             Label = 'Password'
             Type = 'Secret'
             VisibleWhen = { $Values.Account -eq 'Custom' }
             Page = 'Service'
-            Parameter = 'Password'
+            ParameterName = 'Password'
             CommandPlaceholder = '(Read-Host -AsSecureString)'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Name AutoStart -Label 'Start automatically' -Type Toggle -Default $true -Page Service -Parameter AutoStart
+        New-ConsoleField -Key AutoStart -Label 'Start automatically' -Type Toggle -Default $true -Page Service -ParameterName AutoStart
         $fieldOptions = @{
-            Name = 'Region'
+            Key = 'Region'
             Label = 'Region'
             Type = 'Select'
             Choices = $regions
@@ -128,25 +128,25 @@ $formOptions = @{
             Default = 'eu'
             Required = $true
             Page = 'Connection'
-            Parameter = 'Region'
+            ParameterName = 'Region'
             Help = 'Choosing a region loads its servers.'
         }
         New-ConsoleField @fieldOptions
-        New-ConsoleField -Name Server -Label Server -Type Select -DependsOn Region -Required -Page Connection -Parameter Server -LoadChoices {
+        New-ConsoleField -Key Server -Label Server -Type Select -DependsOn Region -Required -Page Connection -ParameterName Server -LoadChoices {
             param($Values, $Endpoints)
             Start-Sleep -Milliseconds 300
             $Endpoints | Where-Object -Property Region -EQ -Value $Values.Region
-        } -ArgumentList (, $endpoints) -Display Host -CommandValue Host -Badge Latency -Describe City -Disabled Disabled -Help 'Loaded for the chosen region; Esc cancels loading.'
-        New-ConsoleField -Name Port -Label Port -Type Number -Integer -Minimum 1 -Maximum 65535 -Default 443 -Page Connection -Parameter Port
-        New-ConsoleField -Name UseProxy -Label 'Use a proxy' -Type Toggle -Page Connection -Parameter UseProxy
+        } -ArgumentList (, $endpoints) -Display Host -CommandValue Host -Badge Latency -Describe City -DisabledReason Disabled -Help 'Loaded for the chosen region; Esc cancels loading.'
+        New-ConsoleField -Key Port -Label Port -Type Number -Integer -Minimum 1 -Maximum 65535 -Default 443 -Page Connection -ParameterName Port
+        New-ConsoleField -Key UseProxy -Label 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
         $fieldOptions = @{
-            Name = 'Proxy'
+            Key = 'Proxy'
             Label = 'Proxy address'
             VisibleWhen = { $Values.UseProxy }
             Required = $true
             Placeholder = 'http://proxy.example.test:8080'
             Page = 'Connection'
-            Parameter = 'Proxy'
+            ParameterName = 'Proxy'
         }
         New-ConsoleField @fieldOptions
     }
@@ -159,19 +159,19 @@ if (-not $answers) {
     return
 }
 $dashboard = New-ConsoleDashboard -Title 'Installing Toolbox Agent' -Subtitle $answers.Path -Content {
-    New-ConsolePanel -Title Steps -Content { New-ConsoleStatusList -Name steps -Item $installSteps }
+    New-ConsolePanel -Title Steps -Content { New-ConsoleStatusList -WidgetId steps -Item $installSteps }
     New-ConsolePadding -Padding 1, 0 -Content { New-ConsoleProgress -Label Install -Total 40 }
 }
-Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
+Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $installSteps) -ScriptBlock {
     param($Steps)
     foreach ($label in $Steps) {
-        Update-ConsoleStatus -Name steps -Key $label -Status Running
+        Update-ConsoleStatusItem -WidgetId steps -Key $label -Status Running
         Update-ConsoleProgress -Label $label
         for ($i = 0; $i -lt 10; $i++) {
             Update-ConsoleProgress -Increment 1
             Wait-ConsoleDashboard -Milliseconds 90
         }
-        Update-ConsoleStatus -Name steps -Key $label -Status Pass
+        Update-ConsoleStatusItem -WidgetId steps -Key $label -Status Pass
     }
     Update-ConsoleProgress -Status Pass
 }
@@ -183,4 +183,4 @@ New-ConsolePanel -Title 'Toolbox Agent installed' -Content {
         New-ConsoleKeyValueItem -Key 'Steps done' -Value '4' -Status Pass
         New-ConsoleKeyValueItem -Key Launch -Value toolbox
     }
-} | Write-ConsoleWidget
+} | Show-Console

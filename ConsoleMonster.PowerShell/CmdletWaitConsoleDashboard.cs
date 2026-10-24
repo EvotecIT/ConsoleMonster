@@ -11,11 +11,11 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Update progress between cancellable pauses</para>
     /// <code>
     /// $dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
-    ///     New-ConsoleProgress -Name overall -Label Targets -Total 3
+    ///     New-ConsoleProgress -WidgetId overall -Label Targets -Total 3
     /// }
-    /// Start-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+    /// Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     ///     foreach ($count in 1..3) {
-    ///         Update-ConsoleProgress -Name overall -Value $count
+    ///         Update-ConsoleProgress -WidgetId overall -Value $count
     ///         Wait-ConsoleDashboard -Milliseconds 250
     ///     }
     /// }</code>
@@ -34,7 +34,7 @@ namespace ConsoleMonster.PowerShell {
         protected override void ProcessRecord() {
             LiveSession? session = ResolveSession();
             if (session == null) {
-                WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Start-ConsoleDashboard first."),
+                WriteError(new ErrorRecord(new PSInvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."),
                     "ConsoleMonsterNoSession", ErrorCategory.InvalidOperation, null));
                 return;
             }

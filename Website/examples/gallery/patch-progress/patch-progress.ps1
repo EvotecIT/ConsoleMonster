@@ -30,7 +30,7 @@ function New-PatchSummary {
     }
 }
 # Behaviour: run the actual parallel workload; keep success values and errors for retry/reporting.
-New-PatchSummary -Outcomes @() | Write-ConsoleWidget
+New-PatchSummary -Outcomes @() | Show-Console
 $runOptions = @{
     Parallel = $true
     ThrottleLimit = 3
@@ -51,4 +51,4 @@ $results = @($servers | Invoke-ConsoleRun @runOptions -ScriptBlock {
 $outcomes = foreach ($server in $servers) {
     [pscustomobject] @{ Host = $server; Result = if ($server -in $results.Host) { 'Pass' } else { 'Retry needed' } }
 }
-New-PatchSummary -Outcomes @($outcomes) | Write-ConsoleWidget
+New-PatchSummary -Outcomes @($outcomes) | Show-Console

@@ -85,7 +85,7 @@ Form BuildForm() {
     server.Loader = async (values, token) => { await Task.Delay(300, token); return Servers(values.Get<string>("Region")); };
     server.Help = "Loaded for the chosen region; Esc cancels loading.";
     NumberField port = connection.Number("Port", "Port");
-    port.Integer = true; port.Minimum = 1; port.Maximum = 65535; port.Default = 443m; port.ParameterName = "Port";
+    port.WholeNumber = true; port.Minimum = 1; port.Maximum = 65535; port.Default = 443m; port.ParameterName = "Port";
     ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy"); proxy.ParameterName = "UseProxy";
     TextField address = connection.Text("Proxy", "Proxy address");
     address.VisibleWhen = v => v.Get<bool>("UseProxy"); address.Required = true;

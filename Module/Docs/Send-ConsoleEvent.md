@@ -13,7 +13,7 @@ The general form behind the Update-* cmdlets, for custom widgets and less common
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Send-ConsoleEvent [-WidgetId] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-Status <string>] [-Value <double>] [-Total <double>] [-Session <LiveSession>] [<CommonParameters>]
+Send-ConsoleEvent [-WidgetId] <string> [-Operation] <string> [-Key <string>] [-Text <string>] [-Status <string>] [-Value <double>] [-Total <double>] [-TimeMilliseconds <long>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

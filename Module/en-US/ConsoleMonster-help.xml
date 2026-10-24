@@ -3769,6 +3769,139 @@ Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Format Html -De
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Format-ConsoleCommand</command:name>
+      <command:verb>Format</command:verb>
+      <command:noun>ConsoleCommand</command:noun>
+      <maml:description>
+        <maml:para>Builds a copyable command line from named values without executing it.</maml:para>
+        <maml:para>Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Builds a copyable command line from named values without executing it.</maml:para>
+      <maml:para>Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Format-ConsoleCommand</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Arguments</maml:name>
+          <maml:description>
+            <maml:para>Parameter names and values. Use an ordered dictionary when order matters.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
+          <dev:type>
+            <maml:name>IDictionary</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Command</maml:name>
+          <maml:description>
+            <maml:para>The command text, which is never executed.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Style</maml:name>
+          <maml:description>
+            <maml:para>PowerShell, Posix or Windows argument quoting (default PowerShell).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">CommandStyle</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">PowerShell</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Posix</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Windows</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>CommandStyle</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Arguments</maml:name>
+        <maml:description>
+          <maml:para>Parameter names and values. Use an ordered dictionary when order matters.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">IDictionary</command:parameterValue>
+        <dev:type>
+          <maml:name>IDictionary</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Command</maml:name>
+        <maml:description>
+          <maml:para>The command text, which is never executed.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Style</maml:name>
+        <maml:description>
+          <maml:para>PowerShell, Posix or Windows argument quoting (default PowerShell).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">CommandStyle</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">PowerShell</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Posix</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Windows</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>CommandStyle</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments ([ordered]@{ ComputerName = @('WEB01', 'SQL01'); ThrottleLimit = 3; WhatIf = $true })</dev:code>
+        <dev:remarks>
+          <maml:para>Build an equivalent command from selected servers</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Get-ConsoleCapability</command:name>
       <command:verb>Get</command:verb>
       <command:noun>ConsoleCapability</command:noun>
@@ -10067,7 +10200,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+        <dev:code>$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
@@ -34629,11 +34762,11 @@ Update-ConsoleSpinner -Status Fail -Detail 'zone 7 timed out'</dev:code>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
-    New-ConsoleProgress -Name overall -Label Targets -Total 3
+    New-ConsoleProgress -WidgetId overall -Label Targets -Total 3
 }
-Start-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     foreach ($count in 1..3) {
-        Update-ConsoleProgress -Name overall -Value $count
+        Update-ConsoleProgress -WidgetId overall -Value $count
         Wait-ConsoleDashboard -Milliseconds 250
     }
 }</dev:code>

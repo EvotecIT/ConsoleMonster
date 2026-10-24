@@ -610,7 +610,7 @@ Describe 'Examples teach direct data and keep capture controls in the runner' -T
         @{ Label = 'gallery lookup dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$lookup = @{ Build = [pscustomobject]@{ Seconds = 0.4 } }" }
         @{ Label = 'gallery parameter splats'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$options = @{ Title = 'Build'; Total = 16 }; New-ConsoleProgress @options" }
         @{ Label = 'gallery sort option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows | Sort-Object -Property @{ Expression = 'Seconds'; Descending = `$true }, Name" }
-        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Format-ConsoleTable -Property `$columns" }
+        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Show-ConsoleTable -Property `$columns" }
         @{ Label = 'operating-system output parsing'; Name = 'example.ps1'; Code = "`$row = & systemctl --failed --no-legend --plain; `$row -split '\s+'" }
         @{ Label = 'runtime numeric parsing'; Name = 'example.ps1'; Code = '[double]::Parse($value, [cultureinfo]::InvariantCulture)' }
         @{ Label = 'C# runtime numeric parsing'; Name = 'example.cs'; Code = 'int number = int.Parse(server.AsSpan(3), CultureInfo.InvariantCulture);' }

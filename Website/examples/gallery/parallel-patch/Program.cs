@@ -52,7 +52,7 @@ const int throttle = 8;
 const int timeoutSeconds = 4;
 
 // Layout: a wave summary, every host, eight lane details and retained failures.
-IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes) {
+IWidget Summary(IReadOnlyList<MenuRunResult<Host, string>> outcomes) {
     var byHost = outcomes.ToDictionary(result => result.Item.Name);
     int done = outcomes.Count;
     int failed = outcomes.Count(result => !result.Succeeded);
@@ -94,8 +94,8 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes) {
 }
 
 // Behaviour: the native run monitor owns scheduling, cancellation and the live UI.
-Terminal.Write(Summary(Array.Empty<RunResult<Host, string>>()));
-IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
+Terminal.Write(Summary(Array.Empty<MenuRunResult<Host, string>>()));
+IReadOnlyList<MenuRunResult<Host, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
     await Task.Delay(server.DelayMilliseconds, cancel);
     if (server.RestartFailure) throw new InvalidOperationException(server.Name + " restart verification failed");
     if (server.TimesOut) await Task.Delay(TimeSpan.FromSeconds(10), cancel);

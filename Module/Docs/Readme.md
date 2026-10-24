@@ -85,6 +85,11 @@ Exports the current ConsoleMonster theme as a starting file for a user or team.
 
 Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.
 
+### [Format-ConsoleCommand](Format-ConsoleCommand.md)
+Builds a copyable command line from named values without executing it.
+
+Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.
+
 ### [Get-ConsoleCapability](Get-ConsoleCapability.md)
 Shows what ConsoleMonster detected about the current terminal.
 

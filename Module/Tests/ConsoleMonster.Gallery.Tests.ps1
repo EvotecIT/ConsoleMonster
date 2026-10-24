@@ -70,17 +70,17 @@ $demo = Get-ConsoleDemo $slug
 $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new($demo.Terminal.Width, $demo.Terminal.Height)
 $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new($keys)
 $inputSource.Paced = $true
-$previous = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$previous = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default
 $options = $previous.Clone()
 $options.Input = $inputSource
 $options.Capture = $capture
 $options.Mode = 'Rich'
 $options.NonInteractive = $false
 try {
-    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $options
     & $path
 } finally {
-    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $previous
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions', $true))::Default = $previous
 }
 [pscustomobject] @{
     Frame = $capture.LastFrame.ToPlainText()

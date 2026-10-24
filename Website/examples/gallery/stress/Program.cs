@@ -47,7 +47,7 @@ IWidget Frame(int tick) {
         .Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture)).Add("Dropped / errors", "0 / 0");
     Sparkline rate = new Sparkline("rate") { Height = 3, Unit = "/s" };
     rate.AddRange(sampleRates.Take(samples));
-    LineChart cpu = new LineChart("cpu") { Height = 6, Min = 0, Unit = "%" };
+    LineChart cpu = new LineChart("cpu") { Height = 6, Minimum = 0, Unit = "%" };
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples)) cpu.Add("cpu", value);
     LogRegion output = new LogRegion { PreferredHeight = 6, ShowTime = false };
@@ -56,13 +56,13 @@ IWidget Frame(int tick) {
         .Add(new Panel(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu), "Session")))
         .Add(new Panel(output, "Captured output"), LayoutSize.Fraction());
     return new Dashboard("[bold]Stress test[/]", body) {
-        Subtitle = "32 workers · captured tool output · 6s", ShowClock = false,
+        Subtitle = "32 workers · captured tool output · 6s", ShowElapsed = false,
         Footer = "[muted]32 workers    15 frames/s    Ctrl+C stop[/]"
     };
 }
 
 // Behaviour: show seven samples through the ordinary live session.
-Slot screen = new Slot("stress", Frame(0));
+RegionWidget screen = new RegionWidget("stress", Frame(0));
 using LiveSession session = new LiveSession(screen);
 try {
     session.Run(live => {

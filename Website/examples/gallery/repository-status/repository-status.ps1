@@ -24,4 +24,4 @@ $report = New-ConsoleRows -Gap 1 -Content {
 }
 
 # Behaviour: print once. Keep cached summaries fresh in a separate local collection step.
-$report | Write-ConsoleWidget
+$report | Show-Console

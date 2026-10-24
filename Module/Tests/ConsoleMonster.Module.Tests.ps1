@@ -1,4 +1,4 @@
-Describe 'ConsoleMonster module' {
+﻿Describe 'ConsoleMonster module' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -27,10 +27,10 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 134
+        $commands.Count | Should -Be 136
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 134
+        $cmdlets.Count | Should -Be 136
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias) | Should -BeNullOrEmpty
         foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo') { $cmdlets.Name | Should -Contain $name }

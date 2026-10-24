@@ -25,7 +25,7 @@ The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page 
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -Content {
+$form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly

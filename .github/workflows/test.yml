@@ -284,7 +284,7 @@ jobs:
           # The keys are sent once the prompt is on screen (the typescript is flushed as it is written), not after a fixed wait.
           # The typescript's first line is script's own command header, which contains the title too: it is skipped.
           rm -f select.log
-          { for i in $(seq 1 120); do tail -n +2 select.log 2>/dev/null | grep -q 'Pick' && break; sleep 0.5; done; sleep 1; printf '\033[B'; sleep 1; printf '\r'; sleep 2; } | script -qfec "env -u CI -u GITHUB_ACTIONS TERM=xterm-256color pwsh -NoProfile -Command \"Import-Module ./Module/ConsoleMonster.psd1; 'RESULT=' + (Read-ConsoleSelection -Title Pick -Choices a, b, c)\"" select.log > /dev/null || true
+          { for i in $(seq 1 120); do tail -n +2 select.log 2>/dev/null | grep -q 'Pick' && break; sleep 0.5; done; sleep 1; printf '\033[B'; sleep 1; printf '\r'; sleep 2; } | script -qfec "env -u CI -u GITHUB_ACTIONS TERM=xterm-256color pwsh -NoProfile -Command \"Import-Module ./Module/ConsoleMonster.psd1; 'RESULT=' + (Read-ConsoleSelect -Title Pick -Choices a, b, c)\"" select.log > /dev/null || true
           tr -d '\r' < select.log | sed -r 's/\x1b\[[0-9;?]*[ -/]*[@-~]//g' | tail -n 5
           tr -d '\r' < select.log | grep -q 'RESULT=b'
       - name: Install Pester

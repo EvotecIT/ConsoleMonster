@@ -936,7 +936,7 @@ An explicit input source takes precedence. Clear the variable before returning t
 `CONSOLEMONSTER_SNAPSHOT=1` prints an initialized `ConsoleApp` when no scripted input is supplied and skips dashboard
 pauses. It does not fabricate answers or select application data. Scripted input still runs the real application.
 
-Use `Wait-ConsoleDashboard -Milliseconds 650` inside `Start-ConsoleDashboard`, or
+Use `Wait-ConsoleDashboard -Milliseconds 650` inside `Invoke-ConsoleDashboard`, or
 `live.Delay(TimeSpan.FromMilliseconds(650))` in C#, to pause cancellably between updates. A `RecordingTarget` with
 `SkipDelays = true` applies earlier queued updates and stores compact frames in `Screens` instead of sleeping.
 Its optional zero-based `Checkpoints` array selects delay calls to retain; `CheckpointCount` reports all calls.
