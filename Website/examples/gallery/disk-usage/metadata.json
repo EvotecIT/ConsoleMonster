@@ -1,7 +1,7 @@
 {
   "slug": "disk-usage",
   "title": "Disk usage review",
-  "pitch": "Show storage pressure with threshold bars and a folder breakdown.",
+  "pitch": "Show storage pressure with threshold bars, a folder breakdown and a clear summary of remaining capacity.",
   "category": "Reports",
   "tags": [
     "storage",

@@ -1,6 +1,6 @@
 ---
 title: Worker progress
-description: "Eight simulated workers, a throughput trend and a bounded queue."
+description: "Follow eight simulated workers with progress lanes, a throughput trend and a bounded work queue."
 slug: demos/worker-progress
 layout: demo
 demo: worker-progress

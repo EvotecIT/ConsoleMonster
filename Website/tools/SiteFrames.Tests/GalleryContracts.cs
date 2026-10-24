@@ -73,8 +73,10 @@ namespace SiteFrames.Tests {
             JsonArray entries = JsonNode.Parse(File.ReadAllText(site.Data("gallery")))!["demos"]!.AsArray();
             Assert.Equal(GalleryPage.Read(site).Length, entries.Count);
             Assert.InRange(entries.Count(entry => entry!["featured"]!.GetValue<bool>()), 2, 3);
+            Assert.True(File.Exists(site.Static("site/nav/demos-dark.svg")));
             foreach (JsonNode entry in entries.Cast<JsonNode>()) {
                 string slug = entry["id"]!.GetValue<string>();
+                Assert.True(File.Exists(site.Static("site/nav/demos/" + slug + "-dark.svg")), slug);
                 string tier = entry["tier"]!.GetValue<string>();
                 Assert.Contains(tier, new[] { "starter", "showcase" });
                 Assert.StartsWith("Use it when ", entry["useCase"]!.GetValue<string>());

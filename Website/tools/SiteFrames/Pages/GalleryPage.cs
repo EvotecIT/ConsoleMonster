@@ -74,6 +74,10 @@ namespace SiteFrames.Pages {
 
         private static string CapturePath(Site site, Demo demo, int step) => Path.Combine(site.Captures, "gallery", demo.Slug + "-" + step.ToString(CultureInfo.InvariantCulture) + ".ps7.ansi");
 
+        /// <summary>The verified final capture, reused for route thumbnails and social cards.</summary>
+        internal static CellBuffer CapturedPoster(Site site, Demo demo) =>
+            Parity.Transcript(File.ReadAllBytes(CapturePath(site, demo, demo.Steps - 1)), demo.Width, demo.Height);
+
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
         private static string Stamp(Demo demo) => Replays.Fingerprint(
             Site.ReadText(demo.PowerShell), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),

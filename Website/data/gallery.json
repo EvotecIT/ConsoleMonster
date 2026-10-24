@@ -570,7 +570,7 @@
     {
       "slug": "certificate-expiry",
       "title": "Certificate expiry report",
-      "pitch": "Review renewal deadlines, owners and next actions in one report.",
+      "pitch": "Review certificate renewal deadlines, named owners and practical next actions in one concise report.",
       "category": "Reports",
       "tags": [
         "certificates",
@@ -643,7 +643,7 @@
     {
       "slug": "disk-usage",
       "title": "Disk usage review",
-      "pitch": "Show storage pressure with threshold bars and a folder breakdown.",
+      "pitch": "Show storage pressure with threshold bars, a folder breakdown and a clear summary of remaining capacity.",
       "category": "Reports",
       "tags": [
         "storage",
@@ -790,7 +790,7 @@
     {
       "slug": "fleet-filter",
       "title": "Fleet filter",
-      "pitch": "Filter five hosts while retaining a fleet-wide health summary.",
+      "pitch": "Filter five hosts as you type while retaining the fleet-wide health summary above the matching rows.",
       "category": "Terminal apps",
       "tags": [
         "input",
@@ -888,7 +888,7 @@
     {
       "slug": "live-filter",
       "title": "Live filter app",
-      "pitch": "Type a literal query and watch matching rows update immediately.",
+      "pitch": "Type a literal query and watch matching table rows update immediately while keeping their columns aligned.",
       "category": "Terminal apps",
       "tags": [
         "input",
@@ -1420,7 +1420,7 @@
     {
       "slug": "port-matrix",
       "title": "Host and port matrix",
-      "pitch": "Put application connectivity and its exceptions on one screen.",
+      "pitch": "Put application connectivity and its exceptions on one screen, with host, port and status columns.",
       "category": "Dashboards",
       "tags": [
         "connectivity",
@@ -1493,7 +1493,7 @@
     {
       "slug": "process-monitor",
       "title": "Process monitor",
-      "pitch": "Track CPU and memory counters in a bounded live dashboard.",
+      "pitch": "Track CPU and memory counters in a bounded live dashboard with process rows and a compact summary.",
       "category": "Dashboards",
       "tags": [
         "processes",
@@ -1863,7 +1863,7 @@
     {
       "slug": "repository-status",
       "title": "Many-repository status",
-      "pitch": "Review local edits and branch divergence across a workspace.",
+      "pitch": "Review local edits and branch divergence across several repositories in one compact workspace report.",
       "category": "Everyday",
       "tags": [
         "git",
@@ -2508,7 +2508,7 @@
     {
       "slug": "worker-progress",
       "title": "Worker progress",
-      "pitch": "Eight simulated workers, a throughput trend and a bounded queue.",
+      "pitch": "Follow eight simulated workers with progress lanes, a throughput trend and a bounded work queue.",
       "category": "Dashboards",
       "tags": [
         "live",

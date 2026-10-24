@@ -1,6 +1,6 @@
 ---
 title: Certificate expiry report
-description: "Review renewal deadlines, owners and next actions in one report."
+description: "Review certificate renewal deadlines, named owners and practical next actions in one concise report."
 slug: demos/certificate-expiry
 layout: demo
 demo: certificate-expiry

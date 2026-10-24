@@ -1,7 +1,7 @@
 {
   "slug": "fleet-filter",
   "title": "Fleet filter",
-  "pitch": "Filter five hosts while retaining a fleet-wide health summary.",
+  "pitch": "Filter five hosts as you type while retaining the fleet-wide health summary above the matching rows.",
   "category": "Terminal apps",
   "tags": [
     "input",

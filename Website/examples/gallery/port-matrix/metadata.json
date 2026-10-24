@@ -1,7 +1,7 @@
 {
   "slug": "port-matrix",
   "title": "Host and port matrix",
-  "pitch": "Put application connectivity and its exceptions on one screen.",
+  "pitch": "Put application connectivity and its exceptions on one screen, with host, port and status columns.",
   "category": "Dashboards",
   "tags": [
     "connectivity",

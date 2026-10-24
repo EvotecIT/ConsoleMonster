@@ -1,7 +1,7 @@
 {
   "slug": "worker-progress",
   "title": "Worker progress",
-  "pitch": "Eight simulated workers, a throughput trend and a bounded queue.",
+  "pitch": "Follow eight simulated workers with progress lanes, a throughput trend and a bounded work queue.",
   "category": "Dashboards",
   "tags": [
     "live",

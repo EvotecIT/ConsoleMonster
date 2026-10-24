@@ -1,7 +1,7 @@
 {
   "slug": "live-filter",
   "title": "Live filter app",
-  "pitch": "Type a literal query and watch matching rows update immediately.",
+  "pitch": "Type a literal query and watch matching table rows update immediately while keeping their columns aligned.",
   "category": "Terminal apps",
   "tags": [
     "input",

@@ -1,7 +1,7 @@
 {
   "slug": "repository-status",
   "title": "Many-repository status",
-  "pitch": "Review local edits and branch divergence across a workspace.",
+  "pitch": "Review local edits and branch divergence across several repositories in one compact workspace report.",
   "category": "Everyday",
   "tags": [
     "git",

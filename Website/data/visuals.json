@@ -59,6 +59,174 @@
       "h": 60,
       "dark": "/site/nav/benchmarks-dark.svg",
       "light": "/site/nav/benchmarks-light.svg"
+    },
+    "demos": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos-dark.svg",
+      "light": "/site/nav/demos-light.svg"
+    },
+    "demos/assessment": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/assessment-dark.svg",
+      "light": "/site/nav/demos/assessment-light.svg"
+    },
+    "demos/fleet": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/fleet-dark.svg",
+      "light": "/site/nav/demos/fleet-light.svg"
+    },
+    "demos/stress": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/stress-dark.svg",
+      "light": "/site/nav/demos/stress-light.svg"
+    },
+    "demos/backup-runner": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/backup-runner-dark.svg",
+      "light": "/site/nav/demos/backup-runner-light.svg"
+    },
+    "demos/build-steps": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/build-steps-dark.svg",
+      "light": "/site/nav/demos/build-steps-light.svg"
+    },
+    "demos/certificate-expiry": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/certificate-expiry-dark.svg",
+      "light": "/site/nav/demos/certificate-expiry-light.svg"
+    },
+    "demos/disk-usage": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/disk-usage-dark.svg",
+      "light": "/site/nav/demos/disk-usage-light.svg"
+    },
+    "demos/everyday-formatting": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/everyday-formatting-dark.svg",
+      "light": "/site/nav/demos/everyday-formatting-light.svg"
+    },
+    "demos/fleet-filter": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/fleet-filter-dark.svg",
+      "light": "/site/nav/demos/fleet-filter-light.svg"
+    },
+    "demos/live-filter": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/live-filter-dark.svg",
+      "light": "/site/nav/demos/live-filter-light.svg"
+    },
+    "demos/log-tail": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/log-tail-dark.svg",
+      "light": "/site/nav/demos/log-tail-light.svg"
+    },
+    "demos/parallel-patch": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/parallel-patch-dark.svg",
+      "light": "/site/nav/demos/parallel-patch-light.svg"
+    },
+    "demos/patch-progress": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/patch-progress-dark.svg",
+      "light": "/site/nav/demos/patch-progress-light.svg"
+    },
+    "demos/pipeline": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/pipeline-dark.svg",
+      "light": "/site/nav/demos/pipeline-light.svg"
+    },
+    "demos/port-matrix": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/port-matrix-dark.svg",
+      "light": "/site/nav/demos/port-matrix-light.svg"
+    },
+    "demos/process-monitor": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/process-monitor-dark.svg",
+      "light": "/site/nav/demos/process-monitor-light.svg"
+    },
+    "demos/prompt-tour": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/prompt-tour-dark.svg",
+      "light": "/site/nav/demos/prompt-tour-light.svg"
+    },
+    "demos/query": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/query-dark.svg",
+      "light": "/site/nav/demos/query-light.svg"
+    },
+    "demos/readiness-report": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/readiness-report-dark.svg",
+      "light": "/site/nav/demos/readiness-report-light.svg"
+    },
+    "demos/repository-status": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/repository-status-dark.svg",
+      "light": "/site/nav/demos/repository-status-light.svg"
+    },
+    "demos/setup": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/setup-dark.svg",
+      "light": "/site/nav/demos/setup-light.svg"
+    },
+    "demos/setup-basic": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/setup-basic-dark.svg",
+      "light": "/site/nav/demos/setup-basic-light.svg"
+    },
+    "demos/task-menu": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/task-menu-dark.svg",
+      "light": "/site/nav/demos/task-menu-light.svg"
+    },
+    "demos/toolbox": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/toolbox-dark.svg",
+      "light": "/site/nav/demos/toolbox-light.svg"
+    },
+    "demos/welcome-compact": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/welcome-compact-dark.svg",
+      "light": "/site/nav/demos/welcome-compact-light.svg"
+    },
+    "demos/welcome-rich": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/welcome-rich-dark.svg",
+      "light": "/site/nav/demos/welcome-rich-light.svg"
+    },
+    "demos/worker-progress": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/worker-progress-dark.svg",
+      "light": "/site/nav/demos/worker-progress-light.svg"
     }
   },
   "cards": {
