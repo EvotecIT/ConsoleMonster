@@ -15,6 +15,7 @@
     {{~ for l in d.languages ~}}<li class="cm-reel__chip">{{ if l == "powershell" }}PowerShell{{ else }}C#{{ end }}</li>{{~ end ~}}
     {{~ if d.addon ~}}<li class="cm-reel__chip cm-reel__chip--addon">Needs {{ d.addon }}</li>{{~ end ~}}
   </ul>
+  <a class="cm-reel__build" href="/demos/{{ d.slug }}/#build">How it's built <span class="cm-reel__langs">{{ for l in d.languages }}{{ if !for.first }} · {{ end }}{{ if l == "powershell" }}PowerShell{{ else }}C#{{ end }}{{ end }}</span> <span aria-hidden="true">→</span></a>
   <div class="cm-reel__run">
     <div class="cm-reel__cmd" data-lang="powershell">
       <figure class="cm-code cm-code--line" data-lang="powershell"><pre class="code-block language-powershell"><code class="language-powershell">{{ d.run.powershell | html.escape }}</code></pre><button type="button" class="cm-code__copy" data-cm-copy aria-label="Copy the command" aria-live="polite">Copy</button></figure>

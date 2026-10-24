@@ -34,41 +34,65 @@
 {{ include "stage" }}
 
 <div class="cm-wrap cm-page cm-reel-page">
-  <section class="cm-showcase" aria-labelledby="run-title">
+  {{~ ## The program comes first: the page is how to build it, and running the bundled copy is a shortcut after it. ## ~}}
+  {{~ ps = d.source ? d.source.powershell : null; cs = d.source ? d.source.csharp : null ~}}
+  {{~ ps_file = ps ? ps.file : (d.slug + ".ps1"); project = d.slug | string.capitalize | string.replace "-" "" ~}}
+  {{~ if ps || cs ~}}
+  <section class="cm-showcase" id="build" aria-labelledby="build-title">
     <div class="cm-showcase__head">
-      <h2 id="run-title">Run it</h2>
-      <p>One line runs the demo as it is. The second gives you its source to change.</p>
+      <h2 id="build-title">How it's built</h2>
+      <p>This is the whole program: one file, with its sample data inline. It's what drew the recording above, and both languages draw the same cells.</p>
     </div>
-    <div class="cm-lang" data-lang="powershell">
-      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = null; code_full = null; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\n" + d.run.powershell + "\nGet-ConsoleDemo " + d.slug + " -Path ./" + d.slug + ".ps1   # a copy to edit" ~}}
-      {{ include "code" }}
-    </div>
-    <div class="cm-lang" data-lang="csharp">
-      {{~ code_lang = "powershell"; code_label = "Terminal"; code_file = null; code_full = null; code_text = "dotnet new install ConsoleMonster.Templates\n" + d.run.csharp + "\ncd " + (d.slug | string.capitalize | string.replace "-" "") + "; dotnet run" ~}}
-      {{ include "code" }}
-    </div>
-  </section>
-
-  {{~ if d.source ~}}
-  <section class="cm-showcase" aria-labelledby="source-title">
-    <div class="cm-showcase__head">
-      <h2 id="source-title">The program</h2>
-      <p>The whole demo in one file, with its sample data inline. Both versions draw the same cells.</p>
-    </div>
-    {{~ if d.source.powershell ~}}
-    <div class="cm-lang" data-lang="powershell">
-      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = d.source.powershell.file; code_text = d.source.powershell.text; code_full = null ~}}
+    {{~ both = ps && cs ~}}
+    {{~ if ps ~}}
+    <div{{ if both }} class="cm-lang" data-lang="powershell"{{ end }}>
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = ps.file; code_text = ps.text; code_full = null; code_repo = ps.repo; code_download = true ~}}
       {{ include "code" }}
     </div>
     {{~ end ~}}
-    {{~ if d.source.csharp ~}}
-    <div class="cm-lang" data-lang="csharp">
-      {{~ code_lang = "csharp"; code_label = "C#"; code_file = d.source.csharp.file; code_text = d.source.csharp.text; code_full = null ~}}
+    {{~ if cs ~}}
+    <div{{ if both }} class="cm-lang" data-lang="csharp"{{ end }}>
+      {{~ code_lang = "csharp"; code_label = "C#"; code_file = cs.file; code_text = cs.text; code_full = null; code_repo = cs.repo; code_download = true ~}}
       {{ include "code" }}
     </div>
     {{~ end ~}}
   </section>
   {{~ end ~}}
+
+  <section class="cm-showcase" id="run" aria-labelledby="run-title">
+    <div class="cm-showcase__head">
+      <h2 id="run-title">Run it yourself</h2>
+    </div>
+    <div class="cm-lang" data-lang="powershell">
+      <ol class="cm-reel__steps">
+        <li><strong>Install the module.</strong> Once, on Windows PowerShell 5.1 or PowerShell 7 on any system.</li>
+        <li><strong>Save the program.</strong> Copy it into <code>{{ ps_file }}</code>, or use Download.</li>
+        <li><strong>Run it.</strong></li>
+      </ol>
+      {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = "Install-Module ConsoleMonster -Scope CurrentUser\n./" + ps_file ~}}
+      {{ include "code" }}
+    </div>
+    <div class="cm-lang" data-lang="csharp">
+      <ol class="cm-reel__steps">
+        <li><strong>Create a console project</strong> and add the package.</li>
+        <li><strong>Replace <code>Program.cs</code></strong> with the program above.</li>
+        <li><strong>Run it.</strong></li>
+      </ol>
+      {{~ code_lang = "powershell"; code_label = "Terminal"; code_text = "dotnet new console -n " + project + "\ncd " + project + "\ndotnet add package ConsoleMonster\n# replace Program.cs, then:\ndotnet run" ~}}
+      {{ include "code" }}
+    </div>
+    <div class="cm-reel__shortcut">
+      <p><strong>Shortcut, no copying:</strong> the demos ship with the module and the project template.</p>
+      <div class="cm-lang" data-lang="powershell">
+        {{~ code_lang = "powershell"; code_label = "PowerShell"; code_text = d.run.powershell + "                       # run the bundled copy\nGet-ConsoleDemo " + d.slug + " -Path ./" + ps_file + "   # or write it out to edit" ~}}
+        {{ include "code" }}
+      </div>
+      <div class="cm-lang" data-lang="csharp">
+        {{~ code_lang = "powershell"; code_label = "Terminal"; code_text = "dotnet new install ConsoleMonster.Templates\n" + d.run.csharp + "\ncd " + project + "; dotnet run" ~}}
+        {{ include "code" }}
+      </div>
+    </div>
+  </section>
 
   {{~ if d.makeItYours && d.makeItYours.size > 0 ~}}
   <section class="cm-showcase" aria-labelledby="yours-title">
