@@ -25,16 +25,16 @@ $catalog = @(
     [pscustomobject] @{ Id = 'AutoServices'; Name = 'Auto services'; Category = 'Services'; Description = 'Checks that automatic services are running.'; Expected = 'all running'; Seconds = 2.2; Changes = $false }
 )
 $findings = @{
-    'DC02/TimeOffset' = @('Fail', '4.7 s')
-    'FS01/MissingUpdates' = @('Fail', '3 updates')
-    'SQL01/FreeSpace' = @('Fail', '6% on data volume')
-    'WEB01/CertExpiry' = @('Fail', '9 days')
-    'WEB01/CertChain' = @('Warn', 'intermediate ends in 40 days')
-    'SQL01/AutoServices' = @('Warn', '1 restarted')
+    'DC02/TimeOffset' = [pscustomobject] @{ Status = 'Fail'; Actual = '4.7 s' }
+    'FS01/MissingUpdates' = [pscustomobject] @{ Status = 'Fail'; Actual = '3 updates' }
+    'SQL01/FreeSpace' = [pscustomobject] @{ Status = 'Fail'; Actual = '6% on data volume' }
+    'WEB01/CertExpiry' = [pscustomobject] @{ Status = 'Fail'; Actual = '9 days' }
+    'WEB01/CertChain' = [pscustomobject] @{ Status = 'Warn'; Actual = 'intermediate ends in 40 days' }
+    'SQL01/AutoServices' = [pscustomobject] @{ Status = 'Warn'; Actual = '1 restarted' }
 }
 $history = @(
-    [pscustomobject] @{ When = 'Mon 19 Oct 21:04'; Servers = 3; Checks = 4; Result = '10 passed · 1 warn · 1 failed'; Duration = '00:06:12' }
-    [pscustomobject] @{ When = 'Tue 20 Oct 07:30'; Servers = 2; Checks = 3; Result = '6 passed · 0 warn · 0 failed'; Duration = '00:01:06' }
+    [pscustomobject] @{ When = 'Mon 19 Oct 21:04'; Servers = 3; Checks = 4; Passed = 10; Warnings = 1; Failed = 1; Elapsed = (New-TimeSpan -Seconds 372) }
+    [pscustomobject] @{ When = 'Tue 20 Oct 07:30'; Servers = 2; Checks = 3; Passed = 6; Warnings = 0; Failed = 0; Elapsed = (New-TimeSpan -Seconds 66) }
 )
 $reportRoot = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { 'C:\Reports\Fleet' } else { '/tmp/reports/fleet' }
 $plan = @{
@@ -57,7 +57,7 @@ function Get-Work {
             $node = $plan.Targets[$ni]
             $check = $plan.Checks[$ci]
             $outcome = $findings["$($node.Name)/$($check.Id)"]
-            [pscustomobject] @{ Order = $ci * $plan.Targets.Count + $ni; Node = $node; Check = $check; Cell = $ni * $plan.Checks.Count + $ci; Status = $(if ($outcome) { $outcome[0] } else { 'Pass' }); Actual = $(if ($outcome) { $outcome[1] } else { $check.Expected }); Seconds = [math]::Round($check.Seconds * (1 + $ni * .17), 1) }
+            [pscustomobject] @{ Order = $ci * $plan.Targets.Count + $ni; Node = $node; Check = $check; Cell = $ni * $plan.Checks.Count + $ci; Status = $(if ($outcome) { $outcome.Status } else { 'Pass' }); Actual = $(if ($outcome) { $outcome.Actual } else { $check.Expected }); Seconds = [math]::Round($check.Seconds * (1 + $ni * .17), 1) }
         }
     }
 }
@@ -107,8 +107,8 @@ function Get-History {
         @{ Name = 'When'; Presenter = 'Text' }
         @{ Name = 'Servers'; Presenter = 'Text' }
         @{ Name = 'Checks'; Presenter = 'Text' }
-        @{ Name = 'Result'; Presenter = 'Text' }
-        @{ Name = 'Duration'; Presenter = 'Text' }
+        @{ Name = 'Result'; Expression = { "$($_.Passed) passed · $($_.Warnings) warn · $($_.Failed) failed" }; Presenter = 'Text' }
+        @{ Name = 'Duration'; Expression = { $_.Elapsed.ToString('hh\:mm\:ss') }; Presenter = 'Text' }
     )
     $rows | Format-ConsoleTable -Property $columns -Border Minimal -NoSort -AsWidget
 }
@@ -319,7 +319,7 @@ function Invoke-Work {
     if (-not $runState.Finished) {
         return
     }
-    $plan.History += [pscustomobject] @{ When = 'Tue 20 Oct 09:30'; Duration = '{0:hh\:mm\:ss}' -f $outcome.Elapsed; Servers = [string] @($Work.Node.Name | Select-Object -Unique).Count; Checks = [string] @($Work.Check.Id | Select-Object -Unique).Count; Result = "$(@($Work | Where-Object -Property Status -EQ -Value Pass).Count) passed · $(@($Work | Where-Object -Property Status -EQ -Value Warn).Count) warn · $(@($Work | Where-Object -Property Status -EQ -Value Fail).Count) failed" }
+    $plan.History += [pscustomobject] @{ When = 'Tue 20 Oct 09:30'; Servers = @($Work.Node.Name | Select-Object -Unique).Count; Checks = @($Work.Check.Id | Select-Object -Unique).Count; Passed = @($Work | Where-Object -Property Status -EQ -Value Pass).Count; Warnings = @($Work | Where-Object -Property Status -EQ -Value Warn).Count; Failed = @($Work | Where-Object -Property Status -EQ -Value Fail).Count; Elapsed = $outcome.Elapsed }
 }
 function Get-Result {
     param(

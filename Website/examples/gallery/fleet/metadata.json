@@ -25,7 +25,7 @@
     "Store completed runs and connect report delivery."
   ],
   "mode": "live",
-  "steps": 7,
+  "steps": 8,
   "tier": "showcase",
   "useCase": "Use it when operators need to plan, run and review health checks across several sites.",
   "featured": true,
@@ -55,6 +55,12 @@
         "keys": "n wait:1000 PageDown PageDown PageDown",
         "incomplete": true,
         "realTime": true
+      },
+      {
+        "keys": "wait:1000 h",
+        "realTime": true,
+        "incomplete": true,
+        "contains": "When"
       },
       {
         "keys": "n wait:1000 PageDown PageDown PageDown Enter",
