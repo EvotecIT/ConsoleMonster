@@ -31,6 +31,74 @@ Complete-ConsoleRun $run
         $output | Should -Not -Match ([char]27)
     }
 
+    It 'rejects unsupported update state <State> before changing the run' -ForEach @(
+        @{ State = 'Pending' }
+        @{ State = 'Info' }
+    ) {
+        $code = @'
+Import-Module '__MODULE__' -Force
+$run = New-ConsoleRun -Items @('one check') -NoLive -ProgressSeconds 0
+try {
+    try {
+        Update-ConsoleRun $run -Index 0 -State '__STATE__' -ErrorAction Stop
+        throw 'The unsupported state was accepted'
+    } catch {
+        "STATE_ERROR=$($_.FullyQualifiedErrorId)"
+    }
+    "UNCHANGED=$($run.Snapshot().Done),$($run.Snapshot().Running.Count)"
+    Update-ConsoleRun $run -Index 0 -State Pass
+    "VALID=$($run.Snapshot().Passed)"
+} finally { Complete-ConsoleRun $run }
+'@
+        $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath).Replace('__STATE__', $State)) -join "`n"
+        $output | Should -Match 'STATE_ERROR=InvalidRunState'
+        $output | Should -Match 'UNCHANGED=0,0'
+        $output | Should -Match 'VALID=1'
+    }
+
+    It 'completes an offered run when its output pipeline rejects the handle' {
+        $code = @'
+Import-Module '__MODULE__' -Force
+$script:offeredRun = $null
+try {
+    New-ConsoleRun -Items @('unpublished') -NoLive -ErrorAction Stop | ForEach-Object {
+        $script:offeredRun = $_
+        throw 'Handle publication failed'
+    }
+} catch { "PUBLICATION_ERROR=$($_.Exception.Message)" }
+if ($null -eq $script:offeredRun) { throw 'The pipeline did not receive the offered handle' }
+try {
+    $snapshot = $script:offeredRun.Snapshot()
+    "STOPPED=$($snapshot.IsFinished),$($snapshot.Skipped)"
+} finally { $script:offeredRun.Dispose() }
+'@
+        $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
+        $output | Should -Match 'PUBLICATION_ERROR=Handle publication failed'
+        $output | Should -Match 'STOPPED=True,1'
+    }
+
+    It 'preserves the initial host-output error and permits a subsequent run' {
+        $code = @'
+Import-Module '__MODULE__' -Force
+$run = $null
+try {
+    $run = New-ConsoleRun -Items @('unpublished') -NoLive -InformationAction Stop -ErrorAction Stop
+    throw 'The host-output failure was ignored'
+} catch {
+    "HOST_ERROR=$($_.FullyQualifiedErrorId)"
+}
+"NO_HANDLE=$($null -eq $run)"
+$next = New-ConsoleRun -Items @('next check') -NoLive -ProgressSeconds 0
+try { Update-ConsoleRun $next -Index 0 -State Pass }
+finally { $summary = Complete-ConsoleRun $next -PassThru }
+"NEXT=$($summary.Passed),$($summary.IsFinished)"
+'@
+        $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
+        $output | Should -Match 'HOST_ERROR=ActionPreferenceStop'
+        $output | Should -Match 'NO_HANDLE=True'
+        $output | Should -Match 'NEXT=1,True'
+    }
+
     It 'accepts an empty run and completes without inventing work' {
         $code = @'
 Import-Module '__MODULE__' -Force

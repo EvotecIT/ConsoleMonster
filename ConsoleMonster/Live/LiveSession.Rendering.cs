@@ -70,9 +70,16 @@ namespace ConsoleMonster.Live {
 
         private void ApplyOne(LiveEvent liveEvent) {
             if (liveEvent.Target == "$flush" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> flush) {
-                lock (_outputGate) { FlushUnrouted(); }
-                Interlocked.Increment(ref _eventsApplied);
-                flush.TrySetResult(true);
+                try {
+                    lock (_outputGate) { FlushUnrouted(); }
+                    Interlocked.Increment(ref _eventsApplied);
+                    flush.TrySetResult(Failure == null);
+                } catch (Exception ex) {
+                    // This barrier is no longer in the queue. Publish the cause before releasing its waiter.
+                    Fail(ex);
+                    flush.TrySetResult(false);
+                    throw;
+                }
                 return;
             }
             if (liveEvent.Payload is ConsoleWriteBlock write) {

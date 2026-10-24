@@ -26,6 +26,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public TimeSpan? Duration { get; set; }
         /// <inheritdoc />
         protected override void EndProcessing() {
+            if (State != StatusKind.Running && State != StatusKind.Pass && State != StatusKind.Fail && State != StatusKind.Warn && State != StatusKind.Skip) {
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("State must be Running, Pass, Fail, Warn or Skip.", nameof(State)),
+                    "InvalidRunState", ErrorCategory.InvalidArgument, State));
+            }
             if (State == StatusKind.Running) { Run.Started(Index, Phase); }
             else { Run.Finished(Index, State, Message, Duration); }
             LiveRunHostQueues.Drain(Run, this);

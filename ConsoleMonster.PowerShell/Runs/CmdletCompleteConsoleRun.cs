@@ -28,13 +28,17 @@ namespace ConsoleMonster.PowerShell {
     internal static class LiveRunHostQueues {
         private static readonly ConditionalWeakTable<LiveRun, HostQueueWriter> Queues = new ConditionalWeakTable<LiveRun, HostQueueWriter>();
         internal static void Add(LiveRun run, HostQueueWriter writer) => Queues.Add(run, writer);
+        internal static void Remove(LiveRun run) => Queues.Remove(run);
         internal static void Drain(LiveRun run, PSCmdlet cmdlet, bool final = false) {
             if (Queues.TryGetValue(run, out HostQueueWriter? writer)) {
                 // Rendering is asynchronous. A barrier keeps the last accepted line from waiting for the next cmdlet.
                 bool flushed = final || run.Flush(TimeSpan.FromSeconds(5));
-                writer.Drain(cmdlet, final);
-                if (final) { Queues.Remove(run); }
-                if (!flushed) { throw new InvalidOperationException("Run output did not flush within five seconds."); }
+                try { writer.Drain(cmdlet, final); }
+                finally { if (final) { Remove(run); } }
+                if (!flushed) {
+                    if (run.OutputFailure != null) { throw new InvalidOperationException("Run output failed before it could flush.", run.OutputFailure); }
+                    throw new InvalidOperationException("Run output did not flush within five seconds.");
+                }
             }
         }
     }

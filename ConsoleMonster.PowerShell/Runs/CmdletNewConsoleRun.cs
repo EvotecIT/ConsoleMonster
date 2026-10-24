@@ -71,8 +71,16 @@ namespace ConsoleMonster.PowerShell {
                 InteractiveKeys = InteractiveKeys.IsPresent, ShowTrend = Trend.IsPresent, ProgressEvery = ProgressEvery,
                 ProgressInterval = TimeSpan.FromSeconds(ProgressSeconds), ReportPath = ReportPath, Session = session
             });
-            if (queue != null) { LiveRunHostQueues.Add(run, queue); LiveRunHostQueues.Drain(run, this); }
-            WriteObject(run);
+            try {
+                if (queue != null) { LiveRunHostQueues.Add(run, queue); LiveRunHostQueues.Drain(run, this); }
+                WriteObject(run);
+            } catch {
+                // Until publication succeeds, the caller has no handle with which to stop the session.
+                try { run.Dispose(); }
+                catch { /* Cleanup must not replace the original host or pipeline error. */ }
+                finally { LiveRunHostQueues.Remove(run); }
+                throw;
+            }
         }
 
         private static string Read(PSObject item, object? selector, string fallback) {
