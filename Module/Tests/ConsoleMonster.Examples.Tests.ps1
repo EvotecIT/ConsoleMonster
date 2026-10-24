@@ -50,11 +50,6 @@ BeforeAll {
         'a widget method call'            = '\$[\w:]+(?:\.\w+)*\.(?:Add|AddSeries|AddRange|AddValue|AddColumn|AddRow|Write|Set|SetProgress|SetCounter|Resize)\('
     }
 
-    # Samples that genuinely need .NET interop, each with the reason. Keep this list short.
-    $script:InteropAllowList = @{
-        'Website/examples/recording/record-session.ps1' = 'The typing driver deliberately uses the C# PTY API to feed keys to a real nested PowerShell terminal; the outer recording uses Invoke-ConsoleRecording.'
-    }
-
     # The marker for a clearly labelled method-form alternative shown after the cmdlet form.
     $script:ObjectFormMarker = '# Using the object directly'
 
@@ -197,6 +192,7 @@ BeforeAll {
         'Website/examples/demos/threads-naive.ps1'   = @{ RequiresCore = $true }
         'Website/examples/demos/pester.ps1'          = @{ ExpectErrors = $true }
         'Website/examples/demos/errors.ps1'          = @{ ExpectErrors = $true }
+        'Website/examples/recording/demo.ps1'         = @{ ExpectErrors = $true }
         'Website/examples/errors/compact.ps1'         = @{ ExpectErrors = $true }
         # This example deliberately keeps a working native desktop grid. Its headless run exercises the unavailable
         # command namespace instead, with the same scripted selection as the site frames, so no native window opens.
@@ -338,10 +334,6 @@ foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
 
 Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
     It '<Name> has no .NET construction or widget method calls' -ForEach $script:ExampleScripts {
-        if ($script:InteropAllowList.ContainsKey($Name)) {
-            Set-ItResult -Skipped -Because $script:InteropAllowList[$Name]
-            return
-        }
         $violations = @(Get-NativeStyleViolation -Code (Get-Content -LiteralPath $Path -Raw))
         $violations | Should -BeNullOrEmpty -Because ($violations -join '; ')
     }

@@ -17,3 +17,5 @@ ConsoleMonster is a .NET library (netstandard2.0, net472, net8.0 and net10.0) wi
 | Layout and widgets | Rows, columns, grids, panels and every widget, with cell presenters shared by tables, cards, key/value lists and trees. |
 | Live | `LiveSession`: the update queue, about 15 frames a second, resize handling, console capture, record and replay. |
 | Surfaces | The C# object model, a fluent builder and the PowerShell cmdlets. |
+
+[Talks and demos](/docs/talks-and-demos/) covers scripted typing, presenter keys and image/video exports for slides.
