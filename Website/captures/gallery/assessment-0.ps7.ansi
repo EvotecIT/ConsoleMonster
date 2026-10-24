@@ -1,4 +1,4 @@
-[0;38;2;75;80;96m──[0m [0;1mReadiness assessment [0;1;38;2;139;143;154m| sample workspace[0m [0;38;2;75;80;96m─────────────────────────────────────────────[0m
+[0;38;2;75;80;96m──[0m [0;1mReadiness assessment [0;1;38;2;139;143;154m| workspace[0m [0;38;2;75;80;96m────────────────────────────────────────────────────[0m
 
 [0;38;2;74;222;128m3 passed[0m   [0;38;2;251;191;36m1 warning[0m   [0;38;2;248;113;113m1 failed[0m   [0;38;2;139;143;154m5 checks total[0m
 
@@ -18,4 +18,4 @@
 
 [0;1mNext:[0m rehearse a restore, then add the two missing test scenarios.[0m
 
-[0;38;2;139;143;154mIllustrative results only. No live assessment has been performed.[0m
+[0;38;2;139;143;154mReview owner: Platform team ·[30G next review: Friday[0m

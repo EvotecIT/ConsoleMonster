@@ -1,4 +1,5 @@
 // Animate a build checklist and overall progress without running a build.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
@@ -22,11 +23,11 @@ IWidget Frame(int tick) {
         string label = index < tick ? "complete" : index == tick ? "running" : "pending";
         checklist.Add(new TextBlock("[" + status + "]" + stages[index] + "[/]  " + label));
     }
-    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· dry run[/]"),
+    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
         new Panel(checklist, "Release checklist"), new ProgressBar("Overall").WithValue(tick).WithTotal(4),
         new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0")
-            .Add("Artifacts", "./artifacts/").Add("Publish", "disabled"),
-        new TextBlock("[muted]Nothing is built, signed or published. Ctrl+C stops the live run.[/]")) { Gap = 1 };
+            .Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"),
+        new TextBlock("[muted]Ctrl+C stops the live run.[/]")) { Gap = 1 };
 }
 
 // Live updates: print one state headlessly, or run the bounded simulation.

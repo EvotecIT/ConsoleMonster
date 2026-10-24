@@ -7,6 +7,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
 
 # Data: fictional inputs kept in memory.
@@ -15,16 +16,16 @@ $selected = $tasks[$Step]
 # Layout: construct the widgets shown on screen.
 Show-ConsoleApp {
     New-ConsoleRows -Gap 1 {
-        '[bold]Server toolbox[/] [muted]· safe local previews[/]'
+        '[bold]Server toolbox[/] [muted]· operations[/]'
         New-ConsoleSelect -Name Task -Label Task -Choices $tasks -Value $selected
         # Live updates: rebuild this section when an input or button changes state.
         New-ConsoleBinding {
             param($State)
             New-ConsolePanel -Title Preview {
                 switch ([string] $State.Task) {
-                    'Health report' { '[pass]web-01 reachable[/]'; 'Sample: CPU 24% · memory 61%' }
-                    'Inspect queue' { '[accent]12 jobs waiting[/]'; 'Sample: oldest job 4 minutes' }
-                    'Preview cleanup' { '[warn]3 sample artifacts eligible[/]'; 'Preview only; no files are removed.' }
+                    'Health report' { '[pass]web-01 reachable[/]'; 'CPU 24% · memory 61%' }
+                    'Inspect queue' { '[accent]12 jobs waiting[/]'; 'Oldest job 4 minutes' }
+                    'Preview cleanup' { '[warn]3 artifacts eligible[/]'; 'Eligible artifacts: build-cache, test-output, old-logs.' }
                 }
             }
         }

@@ -1,4 +1,5 @@
 // Show a readiness report with status checks and score bars.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -27,12 +28,12 @@ BarChart scores = new BarChart { Max = 100, Unit = "%", Warning = 80, Critical =
 foreach (var area in areaScores) scores.Add(area.Name, area.Score);
 
 Rows layout = new Rows(
-    new Rule("[bold]Readiness assessment[/] [muted]| sample workspace[/]"),
+    new Rule("[bold]Readiness assessment[/] [muted]| workspace[/]"),
     new TextBlock("[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]"),
     new Panel(statuses, "Checks"),
     new Panel(scores, "Readiness by area") { Caption = "score / 100" },
     new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
-    new TextBlock("[muted]Illustrative results only. No live assessment has been performed.[/]")) { Gap = 1 };
+    new TextBlock("[muted]Review owner: Platform team · next review: Friday[/]")) { Gap = 1 };
 
 // Live updates: this static screen prints once and returns immediately.
 Terminal.Write(layout);

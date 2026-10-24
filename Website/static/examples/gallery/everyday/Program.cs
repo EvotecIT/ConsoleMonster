@@ -1,4 +1,5 @@
 // Show the same task data as plain text and a formatted table.
+// All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
@@ -31,7 +32,7 @@ Rows layout = new Rows(
     new TextBlock(baseline),
     new TextBlock("[bold]After[/] [muted]| ConsoleMonster table[/]"),
     table,
-    new TextBlock("[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]")) { Gap = 1 };
+    new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]")) { Gap = 1 };
 
 // Live updates: this static screen prints once and returns immediately.
 Terminal.Write(layout);

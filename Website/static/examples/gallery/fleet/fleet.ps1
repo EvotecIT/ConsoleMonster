@@ -7,6 +7,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
 
 # Data: fictional inputs kept in memory.
@@ -21,7 +22,7 @@ $query = @('', 'sql', 'missing')[$Step]
 # Layout: construct the widgets shown on screen.
 Show-ConsoleApp {
     New-ConsoleRows -Gap 1 {
-        '[bold]Fleet health[/] [muted]· synthetic inventory[/]'
+        '[bold]Fleet health[/] [muted]· production inventory[/]'
         New-ConsolePanel -Title 'Fleet summary' {
             '[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]'
         }

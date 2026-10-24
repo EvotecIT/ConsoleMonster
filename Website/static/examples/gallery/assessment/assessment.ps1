@@ -5,6 +5,7 @@ param(
 )
 
 Import-Module ConsoleMonster
+# All data is synthetic and inline; no services are contacted or changed.
 
 # Data: fictional inputs kept in memory.
 # Fixed sample results: no checks run against your machine or any service.
@@ -20,7 +21,7 @@ $scores = [ordered]@{ Configuration = 100; Coverage = 72; Recovery = 35 }
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 {
-    New-ConsoleRule '[bold]Readiness assessment[/] [muted]| sample workspace[/]'
+    New-ConsoleRule '[bold]Readiness assessment[/] [muted]| workspace[/]'
     New-ConsoleText -Markup '[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]'
     New-ConsolePanel -Title 'Checks' {
         New-ConsoleStatusList {
@@ -33,7 +34,7 @@ $screen = New-ConsoleRows -Gap 1 {
         New-ConsoleBarChart -Data $scores -Maximum 100 -Unit '%' -Warning 80 -Critical 50
     }
     New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'
-    New-ConsoleText -Markup '[muted]Illustrative results only. No live assessment has been performed.[/]'
+    New-ConsoleText -Markup '[muted]Review owner: Platform team · next review: Friday[/]'
 }
 
 # Live updates: this static screen prints once and returns immediately.

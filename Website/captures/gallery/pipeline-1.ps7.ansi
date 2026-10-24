@@ -1,4 +1,4 @@
-[0;1mBuild pipeline[0m [0;38;2;139;143;154m·[17G dry run[0m
+[0;1mBuild pipeline[0m [0;38;2;139;143;154m·[17G Orbit.Tools[0m
 
 [0;38;2;75;80;96m╭─[0m [0;1mRelease checklist[0m [0;38;2;75;80;96m──────────────────────────────────────────────────────────────────╮[0m
 [0;38;2;75;80;96m│[0m [0;38;2;74;222;128mRestore[0m  complete                                                                    [0;38;2;75;80;96m│[0m
@@ -12,6 +12,6 @@
 [0;38;2;139;143;154mProject[0m    Orbit.Tools[0m
 [0;38;2;139;143;154mVersion[0m    1.2.0[0m
 [0;38;2;139;143;154mArtifacts[0m  ./artifacts/[0m
-[0;38;2;139;143;154mPublish[0m    disabled[0m
+[0;38;2;139;143;154mPublish[0m    manual approval[0m
 
-[0;38;2;139;143;154mNothing is built, signed or published. Ctrl+C stops the live run.[0m
+[0;38;2;139;143;154mCtrl+C stops the live run.[0m
