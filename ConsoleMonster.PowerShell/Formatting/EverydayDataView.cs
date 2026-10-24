@@ -38,14 +38,17 @@ namespace ConsoleMonster.PowerShell {
                 }
                 rows.Add(row);
             }
-            Table table = new Table();
+            int title = ValueShaper.TitleIndex(names);
+            int key = title >= 0 ? title : 0;
+            Table table = new Table { ShowKeyField = title < 0 };
+            if (items.Count == 1 && title < 0) { table.Title = "Record"; }
             for (int c = 0; c < names.Count; c++) {
                 int index = c;
                 object?[] values = rows.Select(row => row[index]).Where(value => value != null && !(value is string text && string.IsNullOrWhiteSpace(text))).ToArray();
                 bool align = values.Length > 0 && values.All(IsNumberOrDate);
                 table.AddColumn(new TableColumn(Markup.Escape(names[c])) {
                     Alignment = align ? HorizontalAlignment.Right : HorizontalAlignment.Left,
-                    IsKey = c == 0,
+                    IsKey = c == key,
                     Priority = names.Count - c,
                     MaxLines = 2
                 });

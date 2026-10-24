@@ -9,6 +9,9 @@
         'json-nested' {
             '{"Name":"api-01","Settings":{"Region":"west","Retry":{"Count":3}},"Tags":["blue","ready"],"Checks":[{"Name":"dns"},{"Name":"http"}],"Empty":[]}' | ConvertFrom-Json
         }
+        'json-envelope' {
+            '{"Total":3,"Items":[{"Name":"one"},{"Name":"two"},{"Name":"three"}],"Next":null}' | ConvertFrom-Json
+        }
         'json-large' {
             1..53 | ForEach-Object { [pscustomobject]@{ Name = "api-$_"; Count = $_ } }
         }

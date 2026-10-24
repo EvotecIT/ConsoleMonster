@@ -86,6 +86,21 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Contains("api-01", Render(table, 48));
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CardsAndRecords_NeverOverflow_PreservesTheCompleteValue(bool cards) {
+            const string identifier = "https://example.test/a-long-identifier-that-must-survive/";
+            Table table = new Table { AlwaysCards = cards };
+            table.AddColumn(new TableColumn("Name") { IsKey = true });
+            table.AddColumn(new TableColumn("Identifier") { Overflow = ColumnOverflow.Never });
+            table.AddColumn("Note");
+            table.AddValues("api-01", identifier, "Ready");
+            string text = Render(table, 40);
+            Assert.DoesNotContain("…", text);
+            Assert.Contains(identifier, text.Replace("\n", string.Empty).Replace(" ", string.Empty));
+        }
+
         [Fact]
         public void Negotiation_SingleRow_RendersRecordView() {
             Table table = new Table { Title = "dc01" };

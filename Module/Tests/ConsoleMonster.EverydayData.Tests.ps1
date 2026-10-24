@@ -1,4 +1,4 @@
-﻿$everydayCases = foreach ($view in 'json-flat', 'json-nested', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host') {
+﻿$everydayCases = foreach ($view in 'json-flat', 'json-nested', 'json-envelope', 'json-large', 'csv', 'csv-wide', 'command', 'command-grouped', 'module', 'history', 'ping', 'ip', 'dns-host') {
     foreach ($width in 96, 48) { @{ View = $view; Width = $width } }
 }
 $windowsNetworkCases = foreach ($view in 'dns-record', 'net-ip', 'net-adapter', 'net-connection') {
@@ -94,6 +94,17 @@ Describe 'Everyday structured data and discovery views' {
         }
     }
 
+    It 'keeps unnamed envelope labels and chooses a name field without reordering columns' {
+        $text = Get-EverydayViewSample json-envelope | Out-ConsoleDefault -As Text -Width 96
+        $text | Should -Match 'Total\s+3'
+        $text | Should -Match 'Items\s+3 items'
+        $row = [pscustomobject]@{ Count = '0012'; Name = 'api-01'; Region = 'west' }
+        $record = $row | Out-ConsoleDefault -As Text -Width 48
+        $record | Should -Match 'api-01'
+        $record | Should -Match 'Count\s+0012'
+        $row.PSObject.Properties.Name -join ',' | Should -BeExactly 'Count,Name,Region'
+    }
+
     It 'keeps capture, Select-Object, Export-Csv and native format records unchanged when enabled' {
         $rows = @(Get-EverydayViewSample csv)
         $native = $rows | Out-String -Width 96
@@ -114,6 +125,21 @@ Describe 'Everyday structured data and discovery views' {
         $command | Should -Match '\[Cmdlet\]'
         $command | Should -Match 'Get-Date'
         Get-Module Microsoft.PowerShell.Utility | Out-ConsoleDefault -As Text | Should -Match 'Commands'
+    }
+
+    It 'reads only fields supplied by DNS and ICMP result variants under strict mode' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
+        $dns = [pscustomobject]@{ Name = 'example.test'; Type = 'MX'; TTL = 300; Preference = 10; NameExchange = 'mail.example.test' }
+        $dns.PSObject.TypeNames.Insert(0, 'Microsoft.DnsClient.Commands.DnsRecord_MX')
+        $connection = [pscustomobject]@{ ComputerName = 'api.example.test'; RemoteAddress = '192.0.2.10'; InterfaceAlias = 'Ethernet'; PingSucceeded = $true }
+        $connection.PSObject.TypeNames.Insert(0, 'NetConnectionResults')
+        $text = & {
+            Set-StrictMode -Version Latest
+            $dns | Out-ConsoleDefault -As Text -Width 96
+            $connection | Out-ConsoleDefault -As Text -Width 96
+        }
+        ($text -join "`n") | Should -Match '10 mail.example.test'
+        ($text -join "`n") | Should -Match 'Success'
+        ($text -join "`n") | Should -Not -Match 'cannot be found|error:'
     }
 
     It 'does not register Windows network views on Unix' -Skip:([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {

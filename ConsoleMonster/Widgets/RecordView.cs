@@ -120,7 +120,8 @@ namespace ConsoleMonster.Widgets {
         internal void AddTableField(string label, TableCell cell, TableColumn column) {
             AddField(label, cell, column.Presenter, (IReadOnlyList<ToneRule>)column.ToneRules);
             RecordItem item = _items[_items.Count - 1];
-            item.Overflow = column.Overflow;
+            // Never keeps a table column wide. In a record, preserve the complete value by wrapping it instead.
+            item.Overflow = column.Overflow == ColumnOverflow.Never ? ColumnOverflow.Wrap : column.Overflow;
             item.MaxLines = column.MaxLines;
         }
 

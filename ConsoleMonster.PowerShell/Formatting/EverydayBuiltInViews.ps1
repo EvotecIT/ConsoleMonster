@@ -149,12 +149,18 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
             @{ Label = 'Type'; Expression = { [string] $_.Type } }
             'TTL'
             @{ Label = 'Answer'; Expression = {
-                if ($_.IPAddress) { $_.IPAddress }
-                elseif ($_.NameHost) { $_.NameHost }
-                elseif ($_.NameExchange) { [string] $_.Preference + ' ' + $_.NameExchange }
-                elseif ($_.Strings) { $_.Strings -join ' ' }
-                elseif ($_.NameTarget) { [string] $_.NameTarget + ':' + $_.Port }
-                elseif ($_.PrimaryServer) { $_.PrimaryServer }
+                $record = $_
+                switch ([string] $record.Type) {
+                    'A' { $record.IPAddress }
+                    'AAAA' { $record.IPAddress }
+                    'CNAME' { $record.NameHost }
+                    'NS' { $record.NameHost }
+                    'PTR' { $record.NameHost }
+                    'MX' { [string] $record.Preference + ' ' + $record.NameExchange }
+                    'TXT' { $record.Strings -join ' ' }
+                    'SRV' { [string] $record.NameTarget + ':' + $record.Port }
+                    'SOA' { $record.PrimaryServer }
+                }
             }; Priority = 9; MaxLines = 2 }
         )
     }
@@ -166,8 +172,26 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
             @{ Label = 'RemoteAddress'; Expression = { [string] $_.RemoteAddress } }
             'RemotePort'
             @{ Label = 'Interface'; Expression = 'InterfaceAlias' }
-            @{ Label = 'Ping'; Expression = { if ($null -ne $_.PingSucceeded) { if ($_.PingSucceeded) { 'Success' } else { 'Failed' } } }; Presenter = 'StatusWord' }
-            @{ Label = 'TCP'; Expression = { if ($null -ne $_.TcpTestSucceeded) { if ($_.TcpTestSucceeded) { 'Success' } else { 'Failed' } } }; Presenter = 'StatusWord' }
+            @{
+                Label = 'Ping'
+                Expression = {
+                    $result = $_.PSObject.Properties['PingSucceeded']
+                    if ($result -and $null -ne $result.Value) {
+                        if ($result.Value) { 'Success' } else { 'Failed' }
+                    }
+                }
+                Presenter = 'StatusWord'
+            }
+            @{
+                Label = 'TCP'
+                Expression = {
+                    $result = $_.PSObject.Properties['TcpTestSucceeded']
+                    if ($result -and $null -ne $result.Value) {
+                        if ($result.Value) { 'Success' } else { 'Failed' }
+                    }
+                }
+                Presenter = 'StatusWord'
+            }
         )
     }
 }
