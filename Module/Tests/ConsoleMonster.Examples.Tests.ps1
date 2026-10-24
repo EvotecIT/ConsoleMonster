@@ -144,6 +144,37 @@ BeforeAll {
                 "line ${line}: capture harness parameter $($node.Name.Extent.Text)"
             }
 
+            if ($Name -like 'Website/examples/gallery/*' -and
+                $node -is [System.Management.Automation.Language.HashtableAst]) {
+                # Calculated-column options are dictionaries required by -Property/-Column, not data records.
+                $keys = @($node.KeyValuePairs | ForEach-Object { $_.Item1.Value })
+                $columnKeys = 'Name', 'Presenter', 'Expression', 'Flexible'
+                $columnOptions = $keys -contains 'Name' -and
+                    ($keys -contains 'Presenter' -or $keys -contains 'Expression' -or $keys -contains 'Flexible') -and
+                    @($keys | Where-Object { $_ -notin $columnKeys }).Count -eq 0
+                # Sort-Object also accepts a dictionary to describe direction for a calculated property.
+                $sortKeys = 'Expression', 'Descending', 'Ascending'
+                $sortOptions = $keys -contains 'Expression' -and
+                    @($keys | Where-Object { $_ -notin $sortKeys }).Count -eq 0
+                if (-not $columnOptions -and -not $sortOptions) {
+                    $parent = $node.Parent
+                    # Only unwrap expression containers. A containing map, cast or command has its own meaning.
+                    while ($parent -is [System.Management.Automation.Language.CommandExpressionAst] -or
+                        $parent -is [System.Management.Automation.Language.PipelineAst] -or
+                        $parent -is [System.Management.Automation.Language.StatementBlockAst] -or
+                        ($parent -is [System.Management.Automation.Language.ConvertExpressionAst] -and
+                            $parent.Type.TypeName.FullName -eq 'ordered')) {
+                        $parent = $parent.Parent
+                    }
+                    if ($parent -is [System.Management.Automation.Language.ArrayExpressionAst] -or
+                        $parent -is [System.Management.Automation.Language.ArrayLiteralAst] -or
+                        ($parent -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+                            $parent.Operator -eq 'PlusEquals')) {
+                        "line ${line}: hashtable data row; declare [pscustomobject] instead"
+                    }
+                }
+            }
+
             $splitInput = $null
             if ($node -is [System.Management.Automation.Language.BinaryExpressionAst] -and
                 $node.Operator -in 'Split', 'Isplit', 'Csplit') { $splitInput = $node.Left }
@@ -544,7 +575,7 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
 }
 
 Describe 'Examples teach direct data and keep capture controls in the runner' -Tag 'Examples', 'ExampleSource' {
-    It '<Name> has no fixture parsing or capture harness parameters' -ForEach $script:ExampleSources {
+    It '<Name> has no fixture parsing, hashtable data rows or capture harness parameters' -ForEach $script:ExampleSources {
         $violations = @(Get-ExampleSourceViolation -Code (Get-Content -LiteralPath $Path -Raw) -Name $Name)
         $violations | Should -BeNullOrEmpty -Because ($violations -join '; ')
     }
@@ -558,6 +589,10 @@ Describe 'Examples teach direct data and keep capture controls in the runner' -T
         @{ Label = 'assigned inline CSV'; Name = 'example.ps1'; Code = "`$csv = 'Name,Weight', 'DNS,1.4'; `$csv | ConvertFrom-Csv" }
         @{ Label = 'CSV InputObject literals'; Name = 'example.ps1'; Code = "ConvertFrom-Csv -InputObject 'Name,Weight'" }
         @{ Label = 'object-only fixture blocks'; Name = 'example.ps1'; Code = "1 | ForEach-Object { [pscustomobject]@{ Name = 'DNS'; Weight = 1.4 }; [pscustomobject]@{ Name = 'LDAP'; Weight = 2 } }" }
+        @{ Label = 'gallery hashtable data rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @(@{ Name = 'Build'; Seconds = 0.4 })" }
+        @{ Label = 'gallery comma-separated hashtable rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @{ Name = 'Build' }, @{ Name = 'Test' }" }
+        @{ Label = 'gallery appended hashtable rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows += @{ Name = 'Build'; Seconds = 0.4 }" }
+        @{ Label = 'gallery ordered dictionary rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @([ordered]@{ Name = 'Build'; Seconds = 0.4 })" }
         @{ Label = 'PowerShell snapshot parameters'; Name = 'example.ps1'; Code = 'param([switch]$StaticSnapshot)' }
         @{ Label = 'PowerShell step parameters'; Name = 'example.ps1'; Code = 'param([int]$Step = 0)' }
         @{ Label = 'C# step switches'; Name = 'example.cs'; Code = 'int index = Array.IndexOf(args, "--step");' }
@@ -571,6 +606,11 @@ Describe 'Examples teach direct data and keep capture controls in the runner' -T
     }
 
     It 'allows <Label>' -ForEach @(
+        @{ Label = 'gallery object data rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @([pscustomobject]@{ Name = 'Build'; Seconds = 0.4 })" }
+        @{ Label = 'gallery lookup dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$lookup = @{ Build = [pscustomobject]@{ Seconds = 0.4 } }" }
+        @{ Label = 'gallery parameter splats'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$options = @{ Title = 'Build'; Total = 16 }; New-ConsoleProgress @options" }
+        @{ Label = 'gallery sort option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows | Sort-Object -Property @{ Expression = 'Seconds'; Descending = `$true }, Name" }
+        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Format-ConsoleTable -Property `$columns" }
         @{ Label = 'operating-system output parsing'; Name = 'example.ps1'; Code = "`$row = & systemctl --failed --no-legend --plain; `$row -split '\s+'" }
         @{ Label = 'runtime numeric parsing'; Name = 'example.ps1'; Code = '[double]::Parse($value, [cultureinfo]::InvariantCulture)' }
         @{ Label = 'C# runtime numeric parsing'; Name = 'example.cs'; Code = 'int number = int.Parse(server.AsSpan(3), CultureInfo.InvariantCulture);' }

@@ -4,22 +4,22 @@ Import-Module -Name ConsoleMonster
 
 # Data: fictional tool output and timings. No builds, signing, publishing or file changes occur.
 $steps = @(
-    @{ Phase = 'Prepare'; Key = 'config'; Label = 'Read Build/project.build.json'; Seconds = 0.4; Result = 'Pass'; Output = @('Loaded project.build.json (3 projects, version 2.0.X)', 'Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)') }
-    @{ Phase = 'Prepare'; Key = 'manifest'; Label = 'Update ConsoleMonster.psd1'; Seconds = 0.5; Result = 'Pass'; Output = @('ModuleVersion 0.0.4 -> 2.0.0', 'CmdletsToExport: 38 binary cmdlets') }
-    @{ Phase = 'Restore'; Key = 'restore'; Label = 'Restore NuGet packages'; Seconds = 1.6; Result = 'Pass'; Output = @('Restored src\Orion\Orion.csproj (in 412 ms)', 'Restored src\Orion.Shell\Orion.Shell.csproj (in 380 ms)') }
-    @{ Phase = 'Build'; Key = 'core-ns'; Label = 'Compile ConsoleMonster (netstandard2.0)'; Seconds = 1.8; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\netstandard2.0\ConsoleMonster.dll') }
-    @{ Phase = 'Build'; Key = 'core-fx'; Label = 'Compile ConsoleMonster (net472)'; Seconds = 1.5; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net472\ConsoleMonster.dll') }
-    @{ Phase = 'Build'; Key = 'core-net'; Label = 'Compile ConsoleMonster (net8.0)'; Seconds = 1.4; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net8.0\ConsoleMonster.dll') }
-    @{ Phase = 'Build'; Key = 'ps'; Label = 'Compile ConsoleMonster.PowerShell'; Seconds = 1.9; Result = 'Pass'; Output = @('ConsoleMonster.PowerShell -> bin\Release\net472\ConsoleMonster.PowerShell.dll', 'ConsoleMonster.PowerShell -> bin\Release\net8.0\ConsoleMonster.PowerShell.dll') }
-    @{ Phase = 'Test'; Key = 'xunit'; Label = 'Run xUnit tests (net472, net8.0)'; Seconds = 3.2; Result = 'Pass'; Output = @('Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net472)', 'Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net8.0)') }
-    @{ Phase = 'Test'; Key = 'compatibility'; Label = 'Run compatibility tests'; Seconds = 2.4; Result = 'Pass'; Output = @('Tests completed in 2.1s', 'Tests Passed: 41, Failed: 0, Skipped: 0') }
-    @{ Phase = 'Test'; Key = 'pester7'; Label = 'Run Pester tests (PowerShell 7.5)'; Seconds = 2.1; Result = 'Warn'; Output = @('Tests completed in 1.8s', 'Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)') }
-    @{ Phase = 'Docs'; Key = 'md'; Label = 'Generate markdown help (38 commands)'; Seconds = 1.7; Result = 'Pass'; Output = @('Docs\Readme.md updated', 'Docs\Write-ConsoleTable.md ... Docs\Start-ConsoleDashboard.md') }
-    @{ Phase = 'Docs'; Key = 'maml'; Label = 'Generate en-US MAML help'; Seconds = 0.9; Result = 'Pass'; Output = @('en-US\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)') }
-    @{ Phase = 'Sign'; Key = 'sign'; Label = 'Sign module files'; Seconds = 0.3; Result = 'Skip'; Output = @('SignModule is $false for this build; skipping Authenticode signing') }
-    @{ Phase = 'Package'; Key = 'nupkg'; Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Seconds = 1.2; Result = 'Pass'; Output = @('Successfully created package ''Artefacts\ProjectBuild\ConsoleMonster.2.0.0.nupkg''.') }
-    @{ Phase = 'Package'; Key = 'zip'; Label = 'Create module archive'; Seconds = 0.8; Result = 'Pass'; Output = @('Artefacts\Packed\ConsoleMonster-v2.0.0.zip (1.1 MB)') }
-    @{ Phase = 'Publish'; Key = 'publish'; Label = 'Publish to PowerShell Gallery'; Seconds = 0.3; Result = 'Skip'; Output = @('RunMode is Build; publishing is disabled') }
+    [pscustomobject] @{ Phase = 'Prepare'; Key = 'config'; Label = 'Read Build/project.build.json'; Seconds = 0.4; Result = 'Pass'; Output = @('Loaded project.build.json (3 projects, version 2.0.X)', 'Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)') }
+    [pscustomobject] @{ Phase = 'Prepare'; Key = 'manifest'; Label = 'Update ConsoleMonster.psd1'; Seconds = 0.5; Result = 'Pass'; Output = @('ModuleVersion 0.0.4 -> 2.0.0', 'CmdletsToExport: 38 binary cmdlets') }
+    [pscustomobject] @{ Phase = 'Restore'; Key = 'restore'; Label = 'Restore NuGet packages'; Seconds = 1.6; Result = 'Pass'; Output = @('Restored src\Orion\Orion.csproj (in 412 ms)', 'Restored src\Orion.Shell\Orion.Shell.csproj (in 380 ms)') }
+    [pscustomobject] @{ Phase = 'Build'; Key = 'core-ns'; Label = 'Compile ConsoleMonster (netstandard2.0)'; Seconds = 1.8; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\netstandard2.0\ConsoleMonster.dll') }
+    [pscustomobject] @{ Phase = 'Build'; Key = 'core-fx'; Label = 'Compile ConsoleMonster (net472)'; Seconds = 1.5; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net472\ConsoleMonster.dll') }
+    [pscustomobject] @{ Phase = 'Build'; Key = 'core-net'; Label = 'Compile ConsoleMonster (net8.0)'; Seconds = 1.4; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net8.0\ConsoleMonster.dll') }
+    [pscustomobject] @{ Phase = 'Build'; Key = 'ps'; Label = 'Compile ConsoleMonster.PowerShell'; Seconds = 1.9; Result = 'Pass'; Output = @('ConsoleMonster.PowerShell -> bin\Release\net472\ConsoleMonster.PowerShell.dll', 'ConsoleMonster.PowerShell -> bin\Release\net8.0\ConsoleMonster.PowerShell.dll') }
+    [pscustomobject] @{ Phase = 'Test'; Key = 'xunit'; Label = 'Run xUnit tests (net472, net8.0)'; Seconds = 3.2; Result = 'Pass'; Output = @('Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net472)', 'Passed!  - Failed: 0, Passed: 286, Skipped: 0 - ConsoleMonster.Tests.dll (net8.0)') }
+    [pscustomobject] @{ Phase = 'Test'; Key = 'compatibility'; Label = 'Run compatibility tests'; Seconds = 2.4; Result = 'Pass'; Output = @('Tests completed in 2.1s', 'Tests Passed: 41, Failed: 0, Skipped: 0') }
+    [pscustomobject] @{ Phase = 'Test'; Key = 'pester7'; Label = 'Run Pester tests (PowerShell 7.5)'; Seconds = 2.1; Result = 'Warn'; Output = @('Tests completed in 1.8s', 'Tests Passed: 40, Failed: 0, Skipped: 1 (requires conhost)') }
+    [pscustomobject] @{ Phase = 'Docs'; Key = 'md'; Label = 'Generate markdown help (38 commands)'; Seconds = 1.7; Result = 'Pass'; Output = @('Docs\Readme.md updated', 'Docs\Write-ConsoleTable.md ... Docs\Start-ConsoleDashboard.md') }
+    [pscustomobject] @{ Phase = 'Docs'; Key = 'maml'; Label = 'Generate en-US MAML help'; Seconds = 0.9; Result = 'Pass'; Output = @('en-US\ConsoleMonster.PowerShell.dll-Help.xml (412 KB)') }
+    [pscustomobject] @{ Phase = 'Sign'; Key = 'sign'; Label = 'Sign module files'; Seconds = 0.3; Result = 'Skip'; Output = @('SignModule is $false for this build; skipping Authenticode signing') }
+    [pscustomobject] @{ Phase = 'Package'; Key = 'nupkg'; Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Seconds = 1.2; Result = 'Pass'; Output = @('Successfully created package ''Artefacts\ProjectBuild\ConsoleMonster.2.0.0.nupkg''.') }
+    [pscustomobject] @{ Phase = 'Package'; Key = 'zip'; Label = 'Create module archive'; Seconds = 0.8; Result = 'Pass'; Output = @('Artefacts\Packed\ConsoleMonster-v2.0.0.zip (1.1 MB)') }
+    [pscustomobject] @{ Phase = 'Publish'; Key = 'publish'; Label = 'Publish to PowerShell Gallery'; Seconds = 0.3; Result = 'Skip'; Output = @('RunMode is Build; publishing is disabled') }
 )
 $phaseNames = 'Prepare', 'Restore', 'Build', 'Test', 'Docs', 'Sign', 'Package', 'Publish'
 $compilerNames = 'netstandard2.0', 'net472', 'net8.0', 'PowerShell'

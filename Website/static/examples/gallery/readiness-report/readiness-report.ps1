@@ -7,11 +7,11 @@ Import-Module -Name ConsoleMonster
 # Fixed sample results: no checks run against your machine or any service.
 # Replace these items with results you already have in memory.
 $checks = @(
-    @{ Name = 'Configuration'; Status = 'Pass'; Detail = 'All required settings present' }
-    @{ Name = 'Dependencies'; Status = 'Pass'; Detail = 'No conflicting versions' }
-    @{ Name = 'Test coverage'; Status = 'Warn'; Detail = 'Two scenarios need attention' }
-    @{ Name = 'Documentation'; Status = 'Pass'; Detail = 'Examples match the current API' }
-    @{ Name = 'Recovery plan'; Status = 'Fail'; Detail = 'Restore rehearsal still needed' }
+    [pscustomobject] @{ Name = 'Configuration'; Status = 'Pass'; Detail = 'All required settings present' }
+    [pscustomobject] @{ Name = 'Dependencies'; Status = 'Pass'; Detail = 'No conflicting versions' }
+    [pscustomobject] @{ Name = 'Test coverage'; Status = 'Warn'; Detail = 'Two scenarios need attention' }
+    [pscustomobject] @{ Name = 'Documentation'; Status = 'Pass'; Detail = 'Examples match the current API' }
+    [pscustomobject] @{ Name = 'Recovery plan'; Status = 'Fail'; Detail = 'Restore rehearsal still needed' }
 )
 $scores = [ordered]@{
     Configuration = 100
