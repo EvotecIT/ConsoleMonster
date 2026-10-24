@@ -183,7 +183,7 @@ Accept wildcard characters: False
 ```
 
 ### -Fit
-Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.
+Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.
 
 ```yaml
 Type: String

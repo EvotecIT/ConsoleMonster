@@ -76,7 +76,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
         public string Preset { get; set; } = "Docs";
 
-        /// <summary><para type="description">Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</para></summary>
+        /// <summary><para type="description">Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</para></summary>
         [Parameter, ValidateSet("Content", "Terminal")] public string Fit { get; set; } = "Content";
         /// <summary><para type="description">Slide background: Theme (default), Solid or Gradient.</para></summary>
         [Parameter, ValidateSet("Theme", "Solid", "Gradient")] public string Background { get; set; } = "Theme";

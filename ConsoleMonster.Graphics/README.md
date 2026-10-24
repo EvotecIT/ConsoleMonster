@@ -5,8 +5,9 @@ ChartForgeX. MP4 uses an installed `ffmpeg`; it is never a package dependency.
 The core ConsoleMonster package stays dependency-free.
 
 Slide presets share a centred, rounded window on a theme, solid or gradient
-background. Content fitting trims unused rows in a still and reserves the most
-rows used throughout an animation. `GraphicsFit.Terminal` keeps the full grid.
+background. Content fitting trims unused rows and columns in a still, keeping two
+trailing columns of padding. Animations reserve the widest and tallest content
+throughout the clip. `GraphicsFit.Terminal` keeps the full grid.
 Both modes fit the window inside a 6% safe inset, up to a 72-pixel font by default.
 
 ```csharp

@@ -2025,7 +2025,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Fit</maml:name>
           <maml:description>
-            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2266,7 +2266,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Fit</maml:name>
         <maml:description>
-          <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+          <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -2617,7 +2617,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Fit</maml:name>
           <maml:description>
-            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -2924,7 +2924,7 @@ $tree | Write-ConsoleWidget</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Fit</maml:name>
           <maml:description>
-            <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+            <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -3255,7 +3255,7 @@ $tree | Write-ConsoleWidget</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Fit</maml:name>
         <maml:description>
-          <maml:para>Slide fitting: Content trims unused rows; Terminal keeps the complete grid. Animations use one stable height throughout the clip.</maml:para>
+          <maml:para>Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>

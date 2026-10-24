@@ -78,7 +78,7 @@ namespace ConsoleMonster.Graphics {
             // Render on demand: GIF's palette and encoding passes retain only bounded RGBA working buffers.
             int columns = 1, rows = 1;
             foreach (RecordedFrame frame in frames) {
-                columns = Math.Max(columns, frame.Frame.Width);
+                columns = Math.Max(columns, GraphicsRenderer.ContentColumns(frame.Frame, settings));
                 rows = Math.Max(rows, settings.Preset != GraphicsPreset.Docs && settings.Fit == GraphicsFit.Content ? ConsoleExporter.MeasureContentRows(frame.Frame) : frame.Frame.Height);
             }
             GraphicsLayout layout = GraphicsRenderer.Layout(frames[0].Frame, settings, columns, rows);

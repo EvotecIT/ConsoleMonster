@@ -25,11 +25,11 @@ namespace ConsoleMonster.Graphics {
         /// <summary>1200 by 630 pixels.</summary>
         Social
     }
-    /// <summary>Rows retained when fitting a slide window.</summary>
+    /// <summary>Grid area retained when fitting a slide window.</summary>
     public enum GraphicsFit {
-        /// <summary>Use occupied rows; animations use the maximum occupied height throughout the clip.</summary>
+        /// <summary>Use occupied rows and columns with two trailing columns of padding; animations reserve the maximum extent throughout the clip.</summary>
         Content,
-        /// <summary>Keep the full terminal grid, including trailing empty rows.</summary>
+        /// <summary>Keep the full terminal grid, including trailing empty rows and columns.</summary>
         Terminal
     }
     /// <summary>Background behind a slide's terminal window.</summary>
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Graphics {
     public sealed class GraphicsExportOptions {
         /// <summary>Canvas size. Slide presets fit the entire grid without cropping.</summary>
         public GraphicsPreset Preset { get; set; } = GraphicsPreset.Docs;
-        /// <summary>Slide row fitting. Content is the default; Docs retains its natural-size behaviour.</summary>
+        /// <summary>Slide content fitting. Content is the default; Docs retains its natural-size behaviour.</summary>
         public GraphicsFit Fit { get; set; } = GraphicsFit.Content;
         /// <summary>Slide background. Docs has no surrounding slide canvas.</summary>
         public GraphicsBackground Background { get; set; } = GraphicsBackground.Theme;

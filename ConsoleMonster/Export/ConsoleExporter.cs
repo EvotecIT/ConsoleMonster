@@ -34,6 +34,14 @@ namespace ConsoleMonster.Export {
             return 1;
         }
 
+        /// <summary>Measures occupied columns across all rows, including wide glyphs, painted backgrounds and decorations. An empty screen retains one column.</summary>
+        public static int MeasureContentColumns(CellBuffer frame) {
+            if (frame == null) { throw new ArgumentNullException(nameof(frame)); }
+            int columns = 1;
+            for (int y = 0; y < frame.Height; y++) { columns = Math.Max(columns, HtmlFrameWriter.ContentEnd(frame, y)); }
+            return columns;
+        }
+
         /// <summary>
         /// The recording player script (a native asset, <c>player.js</c>): include it once on a page with
         /// <see cref="PlayerStyles"/>, then mark each player with <c>data-cm-recording</c> pointing at data from

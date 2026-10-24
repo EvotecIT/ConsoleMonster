@@ -16,7 +16,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [InlineData(GraphicsPreset.Social, 1200, 630)]
         public void SlideWindowIsCentredContainedAndFitsContent(GraphicsPreset preset, int width, int height) {
             CellBuffer frame = new CellBuffer(100, 40);
-            frame.Write(0, 0, "A talk", Style.Plain); frame.Write(0, 5, "Last occupied row", Style.Plain);
+            frame.Write(0, 0, "A talk", Style.Plain); frame.Write(0, 5, new string('X', 45), Style.Plain);
             GraphicsExportOptions settings = Settings(preset);
             RgbaImage content = frame.ToRaster(settings);
             Assert.Equal(width, content.Width); Assert.Equal(height, content.Height);
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
 
         [Fact]
         public void GifKeepsOneCompositionAcrossTheClipAndMatchesTheSamePngWindow() {
-            SessionRecording recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":100,\"height\":40}\n[0.1,\"o\",\"one\"]\n[0.5,\"o\",\"\\u001b[6;1Hlast row\"]\n[1,\"o\",\"\\u001b[2J\\u001b[Hdone\"]\n"));
+            SessionRecording recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":100,\"height\":40}\n[0.1,\"o\",\"one\"]\n[0.5,\"o\",\"\\u001b[6;41Hlast row\"]\n[1,\"o\",\"\\u001b[2J\\u001b[Hdone\"]\n"));
             Assert.Equal(40, recording.CaptureFrames(trimEmptyRows: false)[0].Frame.Height);
             string directory = Path.Combine(Path.GetTempPath(), "cm-slide-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(directory);
@@ -48,7 +48,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 string gif = Path.Combine(directory, "talk.gif");
                 recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
                 Assert.True(RasterImageDecoder.TryRead(gif, out RgbaImage animation));
-                // The first GIF screen is empty, but its window already reserves the clip's six used rows.
+                // The first GIF screen is empty, but already reserves the clip's widest content and six used rows.
                 CellBuffer still = recording.FrameAt(TimeSpan.FromSeconds(0.5));
                 var png = WindowBounds(still.ToRaster(settings));
                 var first = WindowBounds(animation);
@@ -97,7 +97,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             frame.Write(0, 0, "A recorded command", Style.Plain);
             frame.Write(0, 22, "PS demo>", Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
             GraphicsExportOptions slide = Settings(GraphicsPreset.Slide16x9);
-            slide.Frame.WindowChrome = true; slide.Frame.Title = "demo";
+            slide.Frame.WindowChrome = true; slide.Frame.Title = "demo"; slide.Fit = GraphicsFit.Terminal;
             GraphicsExportOptions natural = new GraphicsExportOptions {
                 Frame = new ExportOptions { Theme = ExportTheme.Dark, FontSize = 29, Padding = 24, WindowChrome = true, Title = "demo" }
             };
@@ -106,6 +106,47 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.True(expected > 100);
             Assert.InRange(actual, (int)(expected * 0.9), (int)(expected * 1.1));
         }
+        [Fact]
+        public void ContentColumnsIncludeWideGlyphsAndPaintedCells() {
+            CellBuffer frame = new CellBuffer(100, 8);
+            frame.Write(40, 1, "界", Style.Plain);
+            Assert.Equal(42, ConsoleExporter.MeasureContentColumns(frame));
+            frame.Write(60, 5, " ", Style.Plain.WithBackground(Color.FromRgb(255, 0, 255)));
+            Assert.Equal(61, ConsoleExporter.MeasureContentColumns(frame));
+            Assert.Equal(1, ConsoleExporter.MeasureContentColumns(new CellBuffer(100, 8)));
+        }
+
+        [Fact]
+        public void NarrowContentUsesLargerTextWhileTerminalAndDocsRetainTheirGrid() {
+            CellBuffer frame = new CellBuffer(100, 8);
+            frame.Write(0, 0, new string('M', 45), Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
+            GraphicsExportOptions settings = Settings(GraphicsPreset.Slide16x9);
+            RgbaImage content = frame.ToRaster(settings);
+            settings.Fit = GraphicsFit.Terminal;
+            RgbaImage terminal = frame.ToRaster(settings);
+            // 45 used columns plus padding can nearly double the font of a 100-column terminal.
+            Assert.True(MagentaInk(content) > MagentaInk(terminal) * 3);
+            settings.Preset = GraphicsPreset.Docs;
+            int terminalWidth = frame.ToRaster(settings).Width;
+            settings.Fit = GraphicsFit.Content;
+            Assert.Equal(terminalWidth, frame.ToRaster(settings).Width);
+        }
+
+        [Fact]
+        public void TinyChaptersKeepTheFontCapInsteadOfFillingTheWholeSlide() {
+            CellBuffer frame = new CellBuffer(100, 40);
+            frame.Write(0, 0, "Hi", Style.Plain.WithForeground(Color.FromRgb(255, 0, 255)));
+            GraphicsExportOptions settings = Settings(GraphicsPreset.Slide16x9);
+            RgbaImage slide = frame.ToRaster(settings);
+            var bounds = WindowBounds(slide);
+            Assert.True(bounds.Right - bounds.Left < 300);
+            Assert.True(bounds.Bottom - bounds.Top < 200);
+            RgbaImage natural = frame.ToRaster(new GraphicsExportOptions {
+                Frame = new ExportOptions { Theme = ExportTheme.Dark, FontSize = 72 }
+            });
+            Assert.InRange(MagentaInk(slide), (int)(MagentaInk(natural) * 0.9), (int)(MagentaInk(natural) * 1.1));
+        }
+
         private static int MagentaInk(RgbaImage image) {
             int count = 0;
             for (int i = 0; i < image.Pixels.Length; i += 4) {

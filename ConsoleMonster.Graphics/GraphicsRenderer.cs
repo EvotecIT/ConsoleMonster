@@ -33,8 +33,12 @@ namespace ConsoleMonster.Graphics {
                 FontFamily = FontStack(options), IndividualTextElements = true
             };
             int height = rows ?? (options.Preset != GraphicsPreset.Docs && options.Fit == GraphicsFit.Content ? ConsoleExporter.MeasureContentRows(frame) : frame.Height);
-            return new GraphicsLayout(columns ?? frame.Width, height, options, render);
+            return new GraphicsLayout(columns ?? ContentColumns(frame, options), height, options, render);
         }
+        // Keep two trailing cells for breathing room without growing beyond the source terminal.
+        internal static int ContentColumns(CellBuffer frame, GraphicsExportOptions options) =>
+            options.Preset != GraphicsPreset.Docs && options.Fit == GraphicsFit.Content
+                ? Math.Min(frame.Width, ConsoleExporter.MeasureContentColumns(frame) + 2) : frame.Width;
         private static string Svg(CellBuffer frame, GraphicsExportOptions options, GraphicsLayout layout) {
             XElement window = XElement.Parse(ConsoleExporter.ToSvg(layout.Grid(frame), layout.Frame));
             XNamespace ns = window.Name.Namespace;
