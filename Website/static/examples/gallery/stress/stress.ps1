@@ -1,3 +1,4 @@
+# Animate worker progress bars and a small session dashboard.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -7,12 +8,16 @@ param(
 Import-Module ConsoleMonster
 # All values are synthetic. This example never connects to a host.
 
+# Data: fictional inputs kept in memory.
+$workerCount = 8
+
+# Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
         '[bold]Worker stress dashboard[/] [muted]· simulated load[/]'
         New-ConsoleColumns {
             New-ConsolePanel -Title Workers {
-                foreach ($worker in 1..8) {
+                foreach ($worker in 1..$workerCount) {
                     $value = [Math]::Min(100, 12 + $worker * 5 + $Tick * 17)
                     New-ConsoleProgress -Name ('worker' + $worker) -Label ('worker-{0:00}' -f $worker) -Value $value -Total 100
                 }
@@ -31,6 +36,7 @@ function New-DemoFrame($Tick) {
     }
 }
 
+# Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
     New-DemoFrame $Step | Write-ConsoleWidget
     return

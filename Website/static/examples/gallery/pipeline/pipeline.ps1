@@ -1,3 +1,4 @@
+# Animate a build checklist and overall progress without running a build.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -7,7 +8,9 @@ param(
 Import-Module ConsoleMonster
 # All values are synthetic. This example never connects to a host.
 
+# Data: fictional inputs kept in memory.
 $stages = @('Restore', 'Compile', 'Test', 'Package')
+# Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
         '[bold]Build pipeline[/] [muted]· dry run[/]'
@@ -29,6 +32,7 @@ function New-DemoFrame($Tick) {
     }
 }
 
+# Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
     New-DemoFrame $Step | Write-ConsoleWidget
     return

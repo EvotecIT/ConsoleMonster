@@ -1,15 +1,22 @@
+// Build a three-step installer preview with editable fields and buttons.
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
+// Data: fictional inputs kept in memory.
+string installFolder = "./toolbox-agent";
+string[] components = { "Core", "Core + reports" };
+
+// Run options: redirected input selects a deterministic snapshot.
 bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
 int stepAt = Array.IndexOf(args, "--step");
 int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
 if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
 
+// Layout: construct the widgets shown on screen.
 int page = step;
-TextInput folder = new TextInput("Folder", "./toolbox-agent") { Label = "Install folder" };
-Select component = new Select("Component", new[] { new Choice("Core"), new Choice("Core + reports") }) {
+TextInput folder = new TextInput("Folder", installFolder) { Label = "Install folder" };
+Select component = new Select("Component", components.Select(name => new Choice(name))) {
     Label = "Component", Value = "Core"
 };
 Button back = new Button("Back", "Back");
@@ -26,4 +33,6 @@ Rows layout = new Rows(new TextBlock("[bold]Install Toolbox Agent[/] [muted]· p
                 new TextBlock("[pass]Preview ready. Nothing has been installed.[/]"));
         return new Panel(content, title);
     })) { Gap = 1 };
+// Live updates: ConsoleApp handles input and reevaluates AppBinding as state changes.
+// Escape exits; snapshot mode prints the selected state without reading keys.
 ConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });

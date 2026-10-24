@@ -132,7 +132,7 @@ $state = & $path -AppOptions @{
         $file = Get-ConsoleDemo assessment -Path $path
         $file | Should -BeOfType [IO.FileInfo]
         $file.FullName | Should -Be $path
-        $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/assessment/demo.ps1'
+        $canonical = Join-Path $PSScriptRoot '../../Website/examples/gallery/assessment/assessment.ps1'
         [IO.File]::ReadAllText($path) | Should -BeExactly ([IO.File]::ReadAllText($canonical))
         $tokens = $null
         $parseErrors = $null
@@ -165,7 +165,7 @@ $state = & $path -AppOptions @{
         { Get-ConsoleDemo fleet -Path 'Variable:GalleryDemoExport' } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
     }
 
-    It 'runs a real static snapshot of <Slug>' -ForEach @(
+    It 'exports <Slug> byte for byte and runs its embedded static snapshot' -ForEach @(
         @{ Slug = 'assessment' }
         @{ Slug = 'fleet' }
         @{ Slug = 'setup' }
@@ -179,6 +179,10 @@ $state = & $path -AppOptions @{
         @{ Slug = 'welcome-rich' }
         @{ Slug = 'everyday' }
     ) {
+        $path = Join-Path $TestDrive "$Slug.ps1"
+        $null = Get-ConsoleDemo $Slug -Path $path -Force
+        $canonical = Join-Path $PSScriptRoot "../../Website/examples/gallery/$Slug/$Slug.ps1"
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($path)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($canonical)))
         $text = Invoke-GalleryChild -Body "Show-ConsoleDemo '$Slug' -StaticSnapshot -Step 0"
         $text.Trim() | Should -Not -BeNullOrEmpty
     }

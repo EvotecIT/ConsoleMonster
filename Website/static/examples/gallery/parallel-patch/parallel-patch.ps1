@@ -1,3 +1,4 @@
+# Run synthetic work with a concurrency limit and retain failures for retry.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -6,7 +7,9 @@ param(
 
 Import-Module ConsoleMonster
 # A parallel dry run: the delay and one failure are synthetic. No server is contacted.
+# Data: fictional inputs kept in memory.
 $servers = @('web-01', 'web-02', 'web-03', 'job-01', 'sql-01', 'sql-02')
+# Layout: construct the widgets shown on screen.
 function New-PatchFrame($Tick) {
     New-ConsoleRows -Gap 1 {
         '[bold]Parallel patch run[/] [muted]· dry run, throttle 3[/]'
@@ -20,6 +23,7 @@ function New-PatchFrame($Tick) {
         else { '[muted]Synthetic hosts only. Ctrl+C cancels active work.[/]' }
     }
 }
+# Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
     New-PatchFrame $Step | Write-ConsoleWidget
     return

@@ -1,3 +1,4 @@
+# Reveal a bounded stream of sample log events in a live region.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -7,6 +8,7 @@ param(
 Import-Module ConsoleMonster
 # All values are synthetic. This example never connects to a host.
 
+# Data: fictional inputs kept in memory.
 $messages = @(
     '[muted]09:41:00[/] [accent]INFO[/]  Worker started'
     '[muted]09:41:01[/] [pass]INFO[/]  Loaded 12 queued jobs'
@@ -14,6 +16,7 @@ $messages = @(
     '[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining'
     '[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost'
 )
+# Layout: construct the widgets shown on screen.
 function New-DemoFrame($Tick) {
     New-ConsoleRows -Gap 1 {
         '[bold]Application log[/] [muted]· synthetic events[/]'
@@ -24,6 +27,7 @@ function New-DemoFrame($Tick) {
     }
 }
 
+# Live updates: print one state headlessly, or run the bounded simulation.
 if ($StaticSnapshot -or [Console]::IsInputRedirected) {
     New-DemoFrame $Step | Write-ConsoleWidget
     return

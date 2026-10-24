@@ -56,7 +56,7 @@ namespace SiteFrames.Pages {
             public int Width { get; }
             public int Height { get; }
             public int Steps { get; }
-            public string PowerShell => Path.Combine(Folder, "demo.ps1");
+            public string PowerShell => Path.Combine(Folder, Slug + ".ps1");
             public string CSharp => Path.Combine(Folder, "Program.cs");
             public string Title => Metadata["title"]!.GetValue<string>();
         }
@@ -137,20 +137,24 @@ namespace SiteFrames.Pages {
                 site.Write(site.Static(thumbnail), FrameMinimap.Svg(poster, ColorDepth.TrueColor, Screen.Dark, demo.Width, poster.Height));
                 JsonObject entry = (JsonObject)demo.Metadata.DeepClone();
                 entry["id"] = demo.Slug;
-                entry["powershell"] = Site.ReadText(demo.PowerShell);
-                entry["csharp"] = Site.ReadText(demo.CSharp);
-                entry["powershellRepo"] = "Website/examples/gallery/" + demo.Slug + "/demo.ps1";
-                entry["csharpRepo"] = "Website/examples/gallery/" + demo.Slug + "/Program.cs";
+                JsonObject powershell = Source(demo.PowerShell, demo.Slug);
+                JsonObject csharp = Source(demo.CSharp, demo.Slug);
+                entry["source"] = new JsonObject { ["powershell"] = powershell, ["csharp"] = csharp };
+                entry["powershell"] = powershell["text"]!.GetValue<string>();
+                entry["csharp"] = csharp["text"]!.GetValue<string>();
+                entry["powershellRepo"] = powershell["repo"]!.GetValue<string>();
+                entry["csharpRepo"] = csharp["repo"]!.GetValue<string>();
                 entry["powershellFile"] = demo.Slug + ".ps1";
                 entry["csharpFile"] = "Program.cs";
                 entry["thumbnail"] = "/" + thumbnail;
                 entry["frame"] = site.Frame(poster, null);
                 entry["parity"] = parity;
-                foreach (string file in new[] { "demo.ps1", "Program.cs" }) {
+                foreach (string file in new[] { demo.Slug + ".ps1", "Program.cs" }) {
                     string target = site.Static("examples/gallery/" + demo.Slug + "/" + file);
-                    site.Write(target, File.ReadAllText(Path.Combine(demo.Folder, file), Encoding.UTF8));
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    File.Copy(Path.Combine(demo.Folder, file), target, true);
                 }
-                entry["powershellDownload"] = "/examples/gallery/" + demo.Slug + "/demo.ps1";
+                entry["powershellDownload"] = "/examples/gallery/" + demo.Slug + "/" + demo.Slug + ".ps1";
                 entry["csharpDownload"] = "/examples/gallery/" + demo.Slug + "/Program.cs";
                 entry["run"] = new JsonObject {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
@@ -172,6 +176,14 @@ namespace SiteFrames.Pages {
             }
             site.WriteJson(site.Data("gallery"), new JsonObject { ["schemaVersion"] = 1, ["demos"] = entries });
         }
+
+        // Decode the whole UTF-8 file, preserving its BOM (if any), newlines and final newline.
+        // Site.ReadText is for normalized snippets and must not be used for copyable full sources.
+        private static JsonObject Source(string path, string slug) => new JsonObject {
+            ["file"] = Path.GetFileName(path),
+            ["text"] = new UTF8Encoding(false, true).GetString(File.ReadAllBytes(path)),
+            ["repo"] = "Website/examples/gallery/" + slug + "/" + Path.GetFileName(path)
+        };
 
         private static CellBuffer Frame(Demo demo, int step) {
             var target = CSharpRunner.Execute(demo.CSharp, CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full),

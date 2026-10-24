@@ -1,15 +1,20 @@
+// Run synthetic work with a concurrency limit and retain failures for retry.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
+// A parallel dry run: the delay and one failure are synthetic. No server is contacted.
+// Data: fictional inputs kept in memory.
+string[] servers = { "web-01", "web-02", "web-03", "job-01", "sql-01", "sql-02" };
+// Run options: redirected input selects a deterministic snapshot.
 bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
 int stepAt = Array.IndexOf(args, "--step");
 int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
 if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
-// A parallel dry run: the delay and one failure are synthetic. No server is contacted.
-string[] servers = { "web-01", "web-02", "web-03", "job-01", "sql-01", "sql-02" };
+
+// Layout: construct the widgets shown on screen.
 IWidget Frame(int tick) {
     Table table = new Table().AddColumn("Host").AddColumn("Stage").AddColumn("Result", column => column.Presenter = CellPresenters.StatusWord);
     foreach (string server in servers) {
@@ -22,6 +27,7 @@ IWidget Frame(int tick) {
     return new Rows(new TextBlock("[bold]Parallel patch run[/] [muted]· dry run, throttle 3[/]"),
         table, new TextBlock(summary)) { Gap = 1 };
 }
+// Live updates: print one state headlessly, or run the bounded simulation.
 if (snapshot) {
     Terminal.Write(Frame(step));
     return;

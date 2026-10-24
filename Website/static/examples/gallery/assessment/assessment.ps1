@@ -1,3 +1,4 @@
+# Show a readiness report with status checks and score bars.
 param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0
@@ -5,6 +6,7 @@ param(
 
 Import-Module ConsoleMonster
 
+# Data: fictional inputs kept in memory.
 # Fixed sample results: no checks run against your machine or any service.
 # Replace these items with results you already have in memory.
 $checks = @(
@@ -16,7 +18,8 @@ $checks = @(
 )
 $scores = [ordered]@{ Configuration = 100; Coverage = 72; Recovery = 35 }
 
-New-ConsoleRows -Gap 1 {
+# Layout: compose the screen from the data above.
+$screen = New-ConsoleRows -Gap 1 {
     New-ConsoleRule '[bold]Readiness assessment[/] [muted]| sample workspace[/]'
     New-ConsoleText -Markup '[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]'
     New-ConsolePanel -Title 'Checks' {
@@ -31,4 +34,7 @@ New-ConsoleRows -Gap 1 {
     }
     New-ConsoleText -Markup '[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.'
     New-ConsoleText -Markup '[muted]Illustrative results only. No live assessment has been performed.[/]'
-} | Write-ConsoleWidget
+}
+
+# Live updates: this static screen prints once and returns immediately.
+$screen | Write-ConsoleWidget

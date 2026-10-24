@@ -1,3 +1,4 @@
+# Explore a small fleet dashboard with an interactive inventory filter.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -8,6 +9,7 @@ param(
 Import-Module ConsoleMonster
 $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
 
+# Data: fictional inputs kept in memory.
 $hosts = @(
     [pscustomobject] @{ Host = 'web-01'; Role = 'Web'; Site = 'North'; Status = 'Pass' }
     [pscustomobject] @{ Host = 'web-02'; Role = 'Web'; Site = 'West'; Status = 'Warn' }
@@ -16,6 +18,7 @@ $hosts = @(
     [pscustomobject] @{ Host = 'job-01'; Role = 'Worker'; Site = 'West'; Status = 'Running' }
 )
 $query = @('', 'sql', 'missing')[$Step]
+# Layout: construct the widgets shown on screen.
 Show-ConsoleApp {
     New-ConsoleRows -Gap 1 {
         '[bold]Fleet health[/] [muted]· synthetic inventory[/]'
@@ -24,6 +27,7 @@ Show-ConsoleApp {
         }
 
         New-ConsoleTextInput -Name Query -Label Filter -Value $query -Placeholder 'Host, role, site or status'
+        # Live updates: rebuild this section when an input or button changes state.
         New-ConsoleBinding {
             param($State)
             $queryText = [string] $State.Query

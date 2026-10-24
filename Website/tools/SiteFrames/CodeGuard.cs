@@ -21,7 +21,7 @@ namespace SiteFrames {
     internal static class CodeGuard {
         // Keys whose values are rendered frames, links or player data, never code a reader copies.
         private static readonly HashSet<string> SkippedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
-            "dark", "light", "lightOnly", "darkOnly", "poster", "scrollback", "url", "href", "github", "image", "thumb", "download"
+            "dark", "light", "lightOnly", "darkOnly", "poster", "scrollback", "url", "href", "github", "repo", "image", "thumb", "download"
         };
 
         // Rendered HTML (frames, posters) starts with a tag; a script that opens with a <# help block is still checked.

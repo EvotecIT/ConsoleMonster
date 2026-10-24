@@ -1,3 +1,4 @@
+# Select a server task and show its read-only preview.
 [CmdletBinding()]
 param(
     [switch] $StaticSnapshot,
@@ -8,12 +9,15 @@ param(
 Import-Module ConsoleMonster
 $AppOptions.StaticSnapshot = $StaticSnapshot -or ([Console]::IsInputRedirected -and -not $AppOptions.InputSource)
 
+# Data: fictional inputs kept in memory.
 $tasks = @('Health report', 'Inspect queue', 'Preview cleanup')
 $selected = $tasks[$Step]
+# Layout: construct the widgets shown on screen.
 Show-ConsoleApp {
     New-ConsoleRows -Gap 1 {
         '[bold]Server toolbox[/] [muted]· safe local previews[/]'
         New-ConsoleSelect -Name Task -Label Task -Choices $tasks -Value $selected
+        # Live updates: rebuild this section when an input or button changes state.
         New-ConsoleBinding {
             param($State)
             New-ConsolePanel -Title Preview {

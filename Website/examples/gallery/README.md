@@ -1,6 +1,6 @@
 # Copyable demos
 
-Each folder contains one complete PowerShell script, one complete C# program,
+Each folder contains one complete `<slug>.ps1` script, one complete `Program.cs`,
 and `metadata.json`. The samples use fictional inline data and never contact
 hosts, install software, patch machines, or publish artifacts. The welcome
 screens use fixed host and git summaries so they start quickly and work offline.
@@ -53,13 +53,26 @@ SiteFrames generates `Website/data/gallery.json` as:
 }
 ```
 
-Each demo keeps its metadata and adds `id`, complete `powershell` and `csharp`
-sources, source repository paths, download URLs, run commands, a `frame`, a
+Each demo keeps its metadata and adds `id`, a `source` object with `powershell`
+and `csharp` entries, download URLs, run commands, a `frame`, a
 `thumbnail` SVG URL, and per-state cell parity results. Live entries also carry
 `url`, `duration` in milliseconds, `frames`, `fps`, and `start` for the existing
 player. Their `capture` field identifies them as deterministic snapshot
 storyboards: they show the sample's successive states at fixed intervals,
 rather than recording keyboard timing or claiming measured performance.
+
+Each language entry in `source` contains `file`, `text`, and `repo`. `text` is
+the complete runnable file, read directly from its canonical UTF-8 bytes, including
+the final newline. `repo` is its repository-relative path, for example
+`Website/examples/gallery/fleet/fleet.ps1` or
+`Website/examples/gallery/fleet/Program.cs`. Append it to
+`https://github.com/EvotecIT/ConsoleMonster/blob/master/` for the source link.
+The existing flat source and repository-path fields remain available.
+
+Readers can copy `fleet.ps1` after `Install-Module ConsoleMonster`, or copy
+`Program.cs` into `dotnet new console` after `dotnet add package ConsoleMonster`.
+Neither file needs other gallery files. Both explain their data, layout, and live
+updates in comments; static screens print once and return.
 
 Frames use the site's existing `frames.css`; replays use its existing player.
 No gallery route or layout is generated here.

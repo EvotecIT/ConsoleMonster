@@ -1,14 +1,17 @@
+// Show the same task data as plain text and a formatted table.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
+// Data: fictional inputs kept in memory.
 // The same synthetic objects feed both views. Static arguments can be ignored.
 var tasks = new[] {
     new { Task = "Draft release notes", State = "Ready", Minutes = 12 },
     new { Task = "Review examples", State = "In progress", Minutes = 25 },
     new { Task = "Archive old drafts", State = "Waiting", Minutes = 8 }
 };
+// Layout: compose the screen from the data above.
 string baseline = "";
 Table table = new Table { Expand = true };
 table.AddColumn("Task");
@@ -22,10 +25,13 @@ foreach (var task in tasks) {
     table.AddRow(task.Task, TableCell.FromValue(task.State), TableCell.FromValue(task.Minutes));
 }
 
-Terminal.Write(new Rows(
+Rows layout = new Rows(
     new Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]"),
     new TextBlock("[bold]Before[/] [muted]| plain text[/]"),
     new TextBlock(baseline),
     new TextBlock("[bold]After[/] [muted]| ConsoleMonster table[/]"),
     table,
-    new TextBlock("[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]")) { Gap = 1 });
+    new TextBlock("[muted]Three sample tasks. Aligned columns and right-aligned numbers.[/]")) { Gap = 1 };
+
+// Live updates: this static screen prints once and returns immediately.
+Terminal.Write(layout);

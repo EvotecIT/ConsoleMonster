@@ -1,10 +1,12 @@
-﻿param(
+# Print an offline welcome screen with a logo, host summary, git status and tip.
+param(
     [switch]$StaticSnapshot,
     [ValidateRange(0, 0)][int]$Step = 0
 )
 
 Import-Module ConsoleMonster
 
+# Data: fictional inputs kept in memory.
 # All host and git values are fictional; this runs offline without local probes.
 # For $PROFILE, replace fixed strings with cached local data, not slow commands.
 $hostSummary = [ordered]@{
@@ -15,7 +17,8 @@ $hostSummary = [ordered]@{
 }
 $git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'
 
-New-ConsoleRows -Gap 1 {
+# Layout: compose the screen from the data above.
+$screen = New-ConsoleRows -Gap 1 {
     New-ConsoleLogo 'HELLO' -Tagline '[muted]A little context before your next command. Sample profile.[/]'
     New-ConsolePanel -Title 'Host summary' -Caption 'synthetic values' {
         New-ConsoleKeyValue -Data $hostSummary
@@ -25,4 +28,7 @@ New-ConsoleRows -Gap 1 {
     }
     New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'
     New-ConsoleText -Markup '[muted]Ready when you are. Everything here is fixed sample data.[/]'
-} | Write-ConsoleWidget
+}
+
+# Live updates: this static screen prints once and returns immediately.
+$screen | Write-ConsoleWidget

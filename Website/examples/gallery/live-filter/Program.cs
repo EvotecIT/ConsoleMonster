@@ -1,13 +1,10 @@
+// Filter a synthetic host table as you type.
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
-
+// Data: fictional inputs kept in memory.
 var hosts = new[] {
     new { Host = "web-01", Role = "Web", Site = "North", Status = "Pass" },
     new { Host = "web-02", Role = "Web", Site = "West", Status = "Warn" },
@@ -15,6 +12,13 @@ var hosts = new[] {
     new { Host = "sql-02", Role = "Database", Site = "West", Status = "Fail" },
     new { Host = "job-01", Role = "Worker", Site = "West", Status = "Running" }
 };
+// Run options: redirected input selects a deterministic snapshot.
+bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
+int stepAt = Array.IndexOf(args, "--step");
+int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
+if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
+
+// Layout: construct the widgets shown on screen.
 IWidget Results(string query) {
     var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status)
         .IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
@@ -30,4 +34,6 @@ Rows layout = new Rows(
 
     new TextInput("Query", new[] { "", "sql", "missing" }[step]) { Label = "Filter", Placeholder = "Host, role, site or status" },
     new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))) { Gap = 1 };
+// Live updates: ConsoleApp handles input and reevaluates AppBinding as state changes.
+// Escape exits; snapshot mode prints the selected state without reading keys.
 ConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });

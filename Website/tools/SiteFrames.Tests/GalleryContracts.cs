@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json.Nodes;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Input;
@@ -18,6 +20,26 @@ namespace SiteFrames.Tests {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) root = root.Parent;
             return new Site(Path.Combine(root!.FullName, "Website"));
+        }
+
+        [Fact]
+        public void GallerySourcesAndDownloadsPreserveEveryCanonicalByte() {
+            Site site = Repository();
+            JsonArray entries = JsonNode.Parse(File.ReadAllText(site.Data("gallery")))!["demos"]!.AsArray();
+            Assert.Equal(GalleryPage.Read(site).Length, entries.Count);
+            foreach (JsonNode entry in entries.Cast<JsonNode>()) {
+                string slug = entry["id"]!.GetValue<string>();
+                foreach (string language in new[] { "powershell", "csharp" }) {
+                    JsonNode source = entry["source"]![language]!;
+                    string file = language == "powershell" ? slug + ".ps1" : "Program.cs";
+                    string repo = "Website/examples/gallery/" + slug + "/" + file;
+                    Assert.Equal(file, source["file"]!.GetValue<string>());
+                    Assert.Equal(repo, source["repo"]!.GetValue<string>());
+                    byte[] canonical = File.ReadAllBytes(Path.Combine(site.Website, "..", repo));
+                    Assert.Equal(canonical, Encoding.UTF8.GetBytes(source["text"]!.GetValue<string>()));
+                    Assert.Equal(canonical, File.ReadAllBytes(site.Static("examples/gallery/" + slug + "/" + file)));
+                }
+            }
         }
 
         [Theory]

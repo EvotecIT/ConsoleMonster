@@ -1,17 +1,24 @@
+// Animate worker progress bars and a small session dashboard.
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 
+// All values are synthetic. This example never connects to a host.
+
+// Data: fictional inputs kept in memory.
+int workerCount = 8;
+
+// Run options: redirected input selects a deterministic snapshot.
 bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
 int stepAt = Array.IndexOf(args, "--step");
 int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
 if (step < 0 || step > 4) throw new ArgumentOutOfRangeException(nameof(step));
-// All values are synthetic. This example never connects to a host.
 
+// Layout: construct the widgets shown on screen.
 IWidget Frame(int tick) {
     Rows workers = new Rows();
-    for (int worker = 1; worker <= 8; worker++) {
+    for (int worker = 1; worker <= workerCount; worker++) {
         string name = "worker-" + worker.ToString("00", System.Globalization.CultureInfo.InvariantCulture);
         workers.Add(new ProgressBar(name, name)
             .WithValue(Math.Min(100, 12 + worker * 5 + tick * 17)).WithTotal(100));
@@ -27,6 +34,7 @@ IWidget Frame(int tick) {
         new TextBlock("[muted]Fixed sample values; no benchmark measurements. Ctrl+C stops the live run.[/]")) { Gap = 1 };
 }
 
+// Live updates: print one state headlessly, or run the bounded simulation.
 if (snapshot) {
     Terminal.Write(Frame(step));
     return;
