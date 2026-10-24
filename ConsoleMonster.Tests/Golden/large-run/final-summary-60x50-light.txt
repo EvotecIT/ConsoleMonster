@@ -1,0 +1,50 @@
+  Item      Service health 068
+  Target    node-04
+  State     ✗ FAIL
+  Duration  4.2s
+  Message   Endpoint did not answer within the configured
+            deadline. Check the connection and retry this
+            check.
+
+Volume permissions 103
+  Item      Volume permissions 103
+  Target    node-07
+  State     ✗ FAIL
+  Duration  3.2s
+  Message   Endpoint did not answer within the configured
+            deadline. Check the connection and retry this
+            check.
+
+Directory replication 137
+  Item      Directory replication 137
+  Target    node-09
+  State     ✗ FAIL
+  Duration  1.2s
+  Message   Endpoint did not answer within the configured
+            deadline. Check the connection and retry this
+            check.
+
+DNS records 042
+  Item      DNS records 042
+  Target    node-10
+  State     ▴ WARN
+  Duration  2.2s
+  Message   A partial response was returned; review the
+            detailed report.
+
+Time synchronisation 096
+  Item      Time synchronisation 096
+  Target    node-16
+  State     ▴ WARN
+  Duration  4.2s
+  Message   A partial response was returned; review the
+            detailed report.
+
+Route reachability 134
+  Item      Route reachability 134
+  Target    node-06
+  State     ▴ WARN
+  Duration  2.2s
+  Message   A partial response was returned; review the
+            detailed report.
+Report: reports/fleet-checks.html

@@ -16,7 +16,7 @@ namespace ConsoleMonster.Input {
         private const int PasteThreshold = 3;
         private readonly IntPtr _handle;
         private readonly uint _originalMode;
-        private readonly uint _rawMode;
+        private uint _rawMode;
         private readonly ConsoleInputRecord[] _buffer = new ConsoleInputRecord[256];
         private readonly Queue<InputEvent> _pending = new Queue<InputEvent>();
         private readonly List<InputEvent> _batch = new List<InputEvent>();
@@ -35,6 +35,12 @@ namespace ConsoleMonster.Input {
 
         /// <inheritdoc />
         public string Name => "windows console (ReadConsoleInputW)";
+
+        /// <summary>Keeps normal first/second Ctrl+C signal handling while this reader handles other keys. Used by a live runner that owns cancellation separately.</summary>
+        public void EnableCancelKeyProcessing() {
+            _rawMode |= ConsoleInputNative.EnableProcessedInput;
+            if (!ConsoleInputNative.TrySetMode(_handle, _rawMode)) { throw new System.IO.IOException("Cannot preserve console cancellation handling."); }
+        }
 
         /// <summary>Opens the console input when standard input is a console; returns null otherwise (redirected, no console).</summary>
         /// <returns>The source, or null.</returns>

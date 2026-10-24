@@ -45,7 +45,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>A consistent copy of a <see cref="RunTracker"/>.</summary>
-    public sealed class RunSnapshot {
+    public sealed partial class RunSnapshot {
         internal RunSnapshot(IReadOnlyList<StatusKind> states, IReadOnlyList<RunActivity> running, IReadOnlyList<RunFailure> failures, TimeSpan elapsed, bool finished) {
             States = states;
             Running = running;
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Live {
     /// The state of a run of many items (<see cref="ConsoleRun"/>, ForEach-ConsoleItem), safe to update from any thread: each
     /// item is pending, running or finished with an outcome; failures keep their message. <see cref="Widgets.RunView"/> draws it.
     /// </summary>
-    public sealed class RunTracker {
+    public sealed partial class RunTracker {
         private readonly object _gate = new object();
         private readonly List<StatusKind> _states;
         private readonly Dictionary<int, RunActivity> _running = new Dictionary<int, RunActivity>();
@@ -131,11 +131,14 @@ namespace ConsoleMonster.Live {
         /// <summary>The number of items.</summary>
         public int Total { get { lock (_gate) { return _states.Count; } } }
 
-        /// <summary>Adds a pending item to a run whose work is discovered incrementally.</summary>
+        /// <summary>Adds a pending item to a count-based run whose work is discovered incrementally.</summary>
         /// <returns>The new item's zero-based index.</returns>
-        /// <exception cref="InvalidOperationException">The run has already finished.</exception>
+        /// <exception cref="InvalidOperationException">The run has already finished or has a fixed declaration of named items.</exception>
         public int Add() {
             lock (_gate) {
+                if (_hasDeclaredItems) {
+                    throw new InvalidOperationException("Cannot add undeclared items to a tracker with a fixed item declaration.");
+                }
                 if (_finished.HasValue) {
                     throw new InvalidOperationException("Cannot add items to a completed run.");
                 }
@@ -150,12 +153,17 @@ namespace ConsoleMonster.Live {
         /// <param name="label">Its label.</param>
         public void Started(int index, string label) {
             lock (_gate) {
+                if (_items.Length > 0) { StartItem(index); return; }
                 if (index < 0 || index >= _states.Count) {
                     return;
                 }
-                _states[index] = StatusKind.Running;
-                _running[index] = new RunActivity(index, label ?? string.Empty, _clock());
+                StartedCore(index, label);
             }
+        }
+
+        private void StartedCore(int index, string label) {
+            _states[index] = StatusKind.Running;
+            _running[index] = new RunActivity(index, label ?? string.Empty, _clock());
         }
 
         /// <summary>An item finished.</summary>
@@ -166,15 +174,18 @@ namespace ConsoleMonster.Live {
         /// <param name="timedOut">Whether it ran out of time.</param>
         public void Finished(int index, StatusKind outcome, string label, string? message = null, bool timedOut = false) {
             lock (_gate) {
+                if (_items.Length > 0) { FinishItem(index, outcome, message, timedOut: timedOut); return; }
                 if (index < 0 || index >= _states.Count) {
                     return;
                 }
-                _states[index] = outcome;
-                _running.Remove(index);
-                if (outcome == StatusKind.Fail) {
-                    _failures.Add(new RunFailure(index, label ?? string.Empty, message ?? string.Empty, timedOut));
-                }
+                FinishedCore(index, outcome, label, message, timedOut);
             }
+        }
+
+        private void FinishedCore(int index, StatusKind outcome, string label, string? message, bool timedOut) {
+            _states[index] = outcome;
+            _running.Remove(index);
+            if (outcome == StatusKind.Fail) { _failures.Add(new RunFailure(index, label ?? string.Empty, message ?? string.Empty, timedOut)); }
         }
 
         /// <summary>The run ended: items never started count as skipped and the clock stops.</summary>
@@ -182,7 +193,8 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 for (int i = 0; i < _states.Count; i++) {
                     if (_states[i] == StatusKind.Pending || _states[i] == StatusKind.Running) {
-                        _states[i] = StatusKind.Skip;
+                        if (_items.Length > 0) { FinishItem(i, StatusKind.Skip); }
+                        else { _states[i] = StatusKind.Skip; }
                     }
                 }
                 _running.Clear();
@@ -196,7 +208,9 @@ namespace ConsoleMonster.Live {
             lock (_gate) {
                 List<RunActivity> running = new List<RunActivity>(_running.Values);
                 running.Sort((a, b) => a.Started.CompareTo(b.Started));
-                return new RunSnapshot(_states.ToArray(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue);
+                RunSnapshot snapshot = new RunSnapshot(_states.ToArray(), running, new List<RunFailure>(_failures), _finished ?? _clock(), _finished.HasValue);
+                CopyItems(snapshot);
+                return snapshot;
             }
         }
     }

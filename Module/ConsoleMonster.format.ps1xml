@@ -71,6 +71,10 @@
         <TypeName>ConsoleMonster.Widgets.ProgressBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.RecordView</TypeName>
         <TypeName>ConsoleMonster.Widgets.Rule</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RunCompletion</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RunDashboard</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RunProgress</TypeName>
+        <TypeName>ConsoleMonster.Widgets.RunSummary</TypeName>
         <TypeName>ConsoleMonster.Widgets.RunView</TypeName>
         <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Slot</TypeName>

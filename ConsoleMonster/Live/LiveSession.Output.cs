@@ -73,7 +73,12 @@ namespace ConsoleMonster.Live {
         }
 
         private void FlushUnrouted() {
-            while (_unroutedLines.TryDequeue(out ConsoleWriteBlock? write)) { write.Write(_output!); }
+            Rendering.InlineOutput? inline = _output as Rendering.InlineOutput;
+            inline?.BeginWriteBatch();
+            try {
+                int count = _unroutedLines.Count;
+                for (int i = 0; i < count && _unroutedLines.TryDequeue(out ConsoleWriteBlock? write); i++) { write.Write(_output!); }
+            } finally { inline?.EndWriteBatch(); }
         }
     }
 }

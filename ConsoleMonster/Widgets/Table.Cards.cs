@@ -85,7 +85,7 @@ namespace ConsoleMonster.Widgets {
 
         private void AddFields(RecordView view, TableCell[] row, int key, PresenterContext[] contexts) {
             for (int c = 0; c < _columns.Count; c++) {
-                if (c == key) {
+                if (c == key && !ShowKeyField) {
                     continue;
                 }
                 TableColumn column = _columns[c];

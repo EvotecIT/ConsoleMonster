@@ -73,6 +73,9 @@ namespace SiteFrames {
                     return OverviewFigures.Review(new Site(website), only ?? Path.Combine(Path.GetTempPath(), "consolemonster-overview"));
                 case "readme":
                     return Readme.Sync(new Site(website));
+                case "review-large-run":
+                    if (only == null) { Console.Error.WriteLine("Pass an output directory: SiteFrames review-large-run [WebsiteRoot] [OutputDirectory]"); return 2; }
+                    return LargeRunFigures.Review(new Site(website), only);
                 case "review-object":
                     if (only == null) {
                         Console.Error.WriteLine("Usage: SiteFrames review-object [WebsiteRoot] [ScratchOutputDirectory]");
@@ -110,7 +113,7 @@ namespace SiteFrames {
                 case "tails-review" when only != null:
                     return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-object|review-large-run|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }
@@ -216,6 +219,7 @@ namespace SiteFrames {
             HelpFormattingPage.Render(site);
             PromptFigures.Render(site);
             ExplorerFigures.Render(site);
+            LargeRunFigures.Render(site);
             HomePage.Render(site, hosts);
             TailsPage.Render(site);
             Visuals.Render(site);

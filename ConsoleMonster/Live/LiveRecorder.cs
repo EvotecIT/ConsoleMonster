@@ -11,6 +11,9 @@ namespace ConsoleMonster.Live {
         private bool _disposed;
         private long _written;
 
+        // Retain only failures at the physical writer boundary, not invalid event/serialization diagnostics.
+        internal Exception? WriteFailure { get; private set; }
+
         /// <summary>The most characters written before further events are dropped (0: no limit). Used by automatic recording.</summary>
         internal long Limit { get; set; }
 
@@ -53,7 +56,8 @@ namespace ConsoleMonster.Live {
                 }
                 _written += json.Length + 2;
             }
-            _writer.WriteLine(json.ToString());
+            try { _writer.WriteLine(json.ToString()); }
+            catch (Exception ex) { WriteFailure ??= ex; throw; }
         }
 
         /// <summary>Flushes the recording.</summary>

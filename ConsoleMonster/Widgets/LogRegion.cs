@@ -24,6 +24,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>How many lines are kept (default 1000).</summary>
         public int Capacity { get; set; } = 1000;
 
+        /// <summary>Also append each entry to normal scrollback above an inline live area. The retained entries still obey <see cref="Capacity"/>.</summary>
+        public bool Scrollback { get; set; }
+
         /// <summary>Rows requested when measured without a height limit (default 8).</summary>
         public int PreferredHeight { get; set; } = 8;
 
@@ -160,6 +163,22 @@ namespace ConsoleMonster.Widgets {
                 text = RichLines.FromEventText(text, true).PlainText;
             }
             return (tag.Length > 0 ? tag + " " : string.Empty) + text;
+        }
+
+        // Scrollback keeps the same semantic tags and literal fallback as the retained log, without clipping messages.
+        internal StyledText ScrollbackText(LiveEvent liveEvent, RenderContext context) {
+            string level = Level(liveEvent.State ?? "info");
+            string tag = Tag(level, context);
+            StyledText body = RichLines.FromEventText(liveEvent.Text ?? string.Empty, liveEvent.IsMarkup).ToStyledText(context);
+            List<StyledLine> lines = new List<StyledLine>();
+            foreach (StyledLine line in body.Lines) {
+                List<TextSpan> spans = new List<TextSpan>();
+                if (ShowTime) { spans.Add(new TextSpan(NumberFormat.Clock(TimeSpan.FromMilliseconds(liveEvent.Time), true) + " ", context.Style(ThemeToken.Muted))); }
+                if (tag.Length > 0) { spans.Add(new TextSpan(tag + " ", TagStyle(level, context))); }
+                spans.AddRange(line);
+                lines.Add(new StyledLine(spans));
+            }
+            return new StyledText(lines);
         }
 
         /// <inheritdoc />

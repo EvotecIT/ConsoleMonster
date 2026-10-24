@@ -36,6 +36,11 @@ namespace ConsoleMonster.Live {
                         _onConsole = _options.Output == null && targetWriter == null;
                         _theme = _options.Theme ?? target.Theme;
                         TerminalProfile profile = _options.Profile != null ? Terminal.ApplyProfilePolicy(_options.Profile) : Terminal.GetTargetProfile(target);
+                        if (_options.Output?.Profile.Mode == OutputMode.Plain) {
+                            profile = profile.WithMode(OutputMode.Plain);
+                        } else if (_options.AppendOnly) {
+                            profile = profile.WithMode(profile.ColorDepth == ColorDepth.None || profile.Mode == OutputMode.Plain ? OutputMode.Plain : OutputMode.Stream);
+                        }
                         if (_options.Culture != null) {
                             profile = profile.WithCulture(_options.Culture);
                         }
@@ -45,7 +50,7 @@ namespace ConsoleMonster.Live {
                         _clockStart = _options.Clock?.Invoke() ?? TimeSpan.Zero;
                         _watch.Start();
                         Volatile.Write(ref _state, 1);
-                        _guardRegistration = _guard.Cancellation.Register(RequestCancellation);
+                        _guardRegistration = _guard.Cancellation.Register(() => RequestCancellation(_options.StopOnCancellation));
                         _guard.Cancellation.ThrowIfCancellationRequested();
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
                         else if (_options.RecordPath != null) {
@@ -169,12 +174,19 @@ namespace ConsoleMonster.Live {
             FinishStop();
         }
 
-        private void RequestCancellation() {
+        /// <summary>Signals cooperative cancellation, stopping immediately only when StopOnCancellation is true. Call Stop after the producer has drained.</summary>
+        public void Cancel() => RequestCancellation(_options.StopOnCancellation);
+
+        private void RequestCancellation() => RequestCancellation(true);
+
+        private void RequestCancellation(bool stop) {
             lock (_lifecycle) {
                 if (_state >= 2) { return; }
-                CloseAdmission();
-                Volatile.Write(ref _state, 2);
-                _wake.Set();
+                if (stop) {
+                    CloseAdmission();
+                    Volatile.Write(ref _state, 2);
+                    _wake.Set();
+                }
             }
             CancelWork();
         }
@@ -218,13 +230,14 @@ namespace ConsoleMonster.Live {
                 // A producer admitted just before Stop must finish publishing before the final drain.
                 SpinWait producers = new SpinWait();
                 while (Volatile.Read(ref _admission) != int.MinValue) { producers.SpinOnce(); }
-                Attempt(RestoreCapture);
-                Attempt(() => Drain(int.MaxValue));
-                Attempt(() => RecordSlotSnapshots(true));
+                Attempt(RestoreCapture, fatal: true);
+                // A failed event must not abandon later accepted events or their flush waiters during shutdown.
+                while (_queue.TryDequeue(out LiveEvent? pending)) { Attempt(() => ApplyOne(pending), fatal: true); }
+                Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;
-                if (drawn) { Attempt(RenderFinal); }
-                Attempt(RestoreTerminal);
+                if (drawn) { Attempt(RenderFinal, fatal: true); }
+                Attempt(RestoreTerminal, fatal: true);
                 if (_taskbarUsed) {
                     Attempt(TaskbarProgress.Clear);
                 }
@@ -232,14 +245,14 @@ namespace ConsoleMonster.Live {
                     Attempt(TaskbarProgress.Bell);
                 }
                 _guardRegistration.Dispose();
-                Attempt(() => _recorder?.Dispose());
+                Attempt(() => _recorder?.Dispose(), fatal: RecordingRequired);
                 CellBuffer? summaryFrame = null;
                 if (drawn && _output != null && _context != null) {
                     IWidget? summary = _options.Summary ?? (_options.PrintFinalState ? _root : null);
                     // User rendering can resolve a profile, write a late block or request Snapshot. Keep it outside the
                     // physical output lock; ownership and the closing queue remain in place until the final flush ends.
                     if (summary != null) {
-                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)));
+                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)), fatal: true);
                     }
                 }
                 lock (_outputGate) {
@@ -249,11 +262,11 @@ namespace ConsoleMonster.Live {
                             if (summaryFrame != null) { _output.WriteBlock(summaryFrame); }
                             // A summary widget or an output callback can itself emit a one-shot write during cleanup.
                             FlushUnrouted();
-                        });
+                        }, fatal: true);
                     }
-                    if (_options.Output == null) { Attempt(() => _output?.Dispose()); }
+                    if (_options.Output == null) { Attempt(() => _output?.Dispose(), fatal: true); }
                     // Final scrollback still needs VT processing. Restore the original native mode after its last write.
-                    Attempt(() => _guard?.Dispose());
+                    Attempt(() => _guard?.Dispose(), fatal: true);
                     _outputFinished = true;
                     // A new normal writer may start only after accepted blocks, scrollback and restoration are done.
                     Terminal.ReleaseConsole(this);
@@ -264,13 +277,17 @@ namespace ConsoleMonster.Live {
                 lock (_lifecycle) {
                     Volatile.Write(ref _state, 3);
                     _wake.Dispose();
+                    _outputStopped.TrySetResult(true);
                 }
             }
         }
 
-        private void Attempt(Action action) {
+        private void Attempt(Action action, bool fatal = false) {
             try { action(); }
-            catch (Exception ex) { Error(ex); }
+            catch (Exception ex) {
+                if (fatal) { Fail(ex); }
+                else { Error(ex); }
+            }
         }
     }
 }

@@ -47,9 +47,7 @@ namespace ConsoleMonster.Live {
                     }
                 }
             } catch (Exception ex) {
-                Error(ex);
-                Volatile.Write(ref _failure, ex);
-                RequestCancellation();
+                Fail(ex);
             } finally {
                 bool finish;
                 lock (_lifecycle) {
@@ -71,6 +69,19 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.Target == "$flush" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> flush) {
+                try {
+                    lock (_outputGate) { FlushUnrouted(); }
+                    Interlocked.Increment(ref _eventsApplied);
+                    flush.TrySetResult(Failure == null);
+                } catch (Exception ex) {
+                    // This barrier is no longer in the queue. Publish the cause before releasing its waiter.
+                    Fail(ex);
+                    flush.TrySetResult(false);
+                    throw;
+                }
+                return;
+            }
             if (liveEvent.Payload is ConsoleWriteBlock write) {
                 RouteConsoleWrite(write);
                 Interlocked.Increment(ref _eventsApplied);
@@ -101,6 +112,21 @@ namespace ConsoleMonster.Live {
                 return;
             }
             Interlocked.Increment(ref _eventsApplied);
+            bool widgetWrite = target is Widgets.LogRegion && liveEvent.Operation == "write" && liveEvent.Payload is IWidget;
+            if (widgetWrite) {
+                // Render on the dispatcher so queued block writes use the current width and theme in every output mode.
+                int width = _context!.Profile.Width;
+                if (_output?.SupportsLiveFrames == true) {
+                    int[]? window = _options.WindowSource?.Invoke();
+                    if (window != null && window.Length == 4 && window[2] > 0) { width = window[2]; }
+                    else if (_options.WindowSource == null && TerminalSize.TryGetWindow(out _, out _, out int currentWidth, out _)) { width = currentWidth; }
+                }
+                CellBuffer block = FrameComposer.RenderBlock((IWidget)liveEvent.Payload!, width, _context);
+                RouteConsoleWrite(new ConsoleWriteBlock(new[] { block }));
+            } else if (target is Widgets.LogRegion scrollback && scrollback.Scrollback && liveEvent.Operation == "write" && _output?.SupportsLiveFrames == true) {
+                StyledText text = scrollback.ScrollbackText(liveEvent, _context!);
+                _unroutedLines.Enqueue(new ConsoleWriteBlock(text.Lines, true));
+            }
             if (target is Widgets.Slot slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
                 if (previousContent != null) { Detach(previousContent); }
                 foreach (IWidget child in slot.Children) { Adopt(child); }
@@ -109,21 +135,23 @@ namespace ConsoleMonster.Live {
             if (_recorder != null) {
                 RecordApplied(target!, liveEvent);
             }
-            if (_output != null && !_output.SupportsLiveFrames) {
+            if (_output != null && !_output.SupportsLiveFrames && !widgetWrite) {
+                string? description = null;
                 Attempt(() => {
-                    string? description;
                     // Events left at stop are applied on the stopping thread, so the language is scoped here too.
                     using (Localization.WidgetLabels.Scope(_context?.Labels ?? Localization.WidgetLabels.Current)) {
                         description = target!.Describe(liveEvent);
                     }
-                    if (description != null) {
+                });
+                if (description != null) {
+                    Attempt(() => {
                         lock (_outputGate) {
                             foreach (StyledLine line in StyledText.FromPlain(description).Lines) {
                                 _output.WriteLine(StyledLine.From(Stamp(line.PlainText)));
                             }
                         }
-                    }
-                });
+                    }, fatal: true);
+                }
             }
         }
 
@@ -177,7 +205,8 @@ namespace ConsoleMonster.Live {
                     FlushUnrouted();
                     // One column narrower than the window: the last column would make the terminal wrap the row.
                     width = Math.Max(1, width - 1);
-                    height = Math.Max(1, Math.Min(height - 1, InlineHeight(width, context)));
+                    int limit = Math.Max(1, Math.Min(height - 1, (int)(height * _options.InlineHeightFraction)));
+                    height = Math.Min(limit, InlineHeight(width, limit, context));
                 }
                 try {
                     _frame = FrameComposer.Compose(RootForFrame(height), width, height, context, _frame);
@@ -217,9 +246,9 @@ namespace ConsoleMonster.Live {
             }
         }
 
-        private int InlineHeight(int width, RenderContext context) {
+        private int InlineHeight(int width, int limit, RenderContext context) {
             try {
-                return _root.Measure(new Layout.Constraints(width), context).Height;
+                return Math.Max(1, _root.Measure(new Layout.Constraints(width, limit), context).Height);
             } catch (Exception ex) {
                 Error(ex);
                 return 1;

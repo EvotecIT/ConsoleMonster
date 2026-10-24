@@ -76,6 +76,17 @@ namespace ConsoleMonster.Tests.Live {
             } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
         }
 
+        [WindowsFact]
+        public async Task ActualCtrlC_WithRunKeysEnabledDrainsWorkersBeforeRestoringInputAndOutput() {
+            string receipt = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".txt");
+            try {
+                var result = await Run("cancel-run " + CommandLine.Quote(receipt, CommandStyle.Windows));
+                string actual = File.Exists(receipt) ? File.ReadAllText(receipt) : "The run cancellation child produced no receipt.";
+                Assert.True(result.Exit == 0, actual + result.Output + result.Error);
+                Assert.Equal("RUN_CTRL_C_OK\nkeys=enabled\nlast-worker=drained\ninput=restored\noutput=restored\nwriters=restored\n", actual);
+            } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
+        }
+
         private static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
             string assembly = typeof(TestHost.Program).Assembly.Location;
 #if NETFRAMEWORK
@@ -84,7 +95,7 @@ namespace ConsoleMonster.Tests.Live {
             ProcessStartInfo info = new ProcessStartInfo(assembly, arguments);
 #else
             string runtime = Path.ChangeExtension(typeof(SessionProcessTests).Assembly.Location, ".runtimeconfig.json");
-            if (arguments.StartsWith("cancel ", StringComparison.Ordinal) || arguments.StartsWith("app-mode ", StringComparison.Ordinal)) { arguments += " " + Quote(runtime); }
+            if (arguments.StartsWith("cancel ", StringComparison.Ordinal) || arguments.StartsWith("app-mode ", StringComparison.Ordinal) || arguments.StartsWith("cancel-run ", StringComparison.Ordinal)) { arguments += " " + Quote(runtime); }
             ProcessStartInfo info = new ProcessStartInfo("dotnet", "exec --runtimeconfig " + Quote(runtime) + " " + Quote(assembly) + " " + arguments);
 #endif
             info.UseShellExecute = false;

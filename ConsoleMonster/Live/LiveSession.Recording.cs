@@ -58,10 +58,13 @@ namespace ConsoleMonster.Live {
         /// <summary>The automatic recording file of this session, or null.</summary>
         public string? RecordingPath { get; private set; }
 
+        private bool RecordingRequired => _options.RecordWriter != null || _options.RecordPath != null;
+
         private void Record(LiveEvent liveEvent) {
-            if (_recorder != null) {
-                Attempt(() => _recorder.Write(liveEvent));
-            }
+            LiveRecorder? recorder = _recorder;
+            if (recorder == null) { return; }
+            Attempt(() => recorder.Write(liveEvent));
+            if (RecordingRequired && recorder.WriteFailure is Exception failure) { Fail(failure); }
         }
 
         // Records an applied event. Region swaps carry an in-process widget, which a recording cannot hold: the new content
@@ -137,7 +140,7 @@ namespace ConsoleMonster.Live {
             }
             Attempt(() => {
                 string markup = Snapshot(slot.Content, slot.RenderedWidth > 0 ? slot.RenderedWidth : _context.Profile.Width, slot.RenderedHeight, _context.WithClock(FramesRendered, Elapsed));
-                _recorder!.Write(new LiveEvent(slot.Name, "set", text: markup, state: "snapshot", time: time, isMarkup: true));
+                Record(new LiveEvent(slot.Name, "set", text: markup, state: "snapshot", time: time, isMarkup: true));
             });
         }
 

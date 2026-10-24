@@ -25,6 +25,20 @@ namespace ConsoleMonster.Rendering {
         private int _drawnWidth;
         private bool _invalidated = true;
         private bool _live;
+        private StringBuilder? _writeBatch;
+
+        // A live tick can insert many completed items: erase and redraw the area once for the whole batch.
+        internal void BeginWriteBatch() { _writeBatch = new StringBuilder(); }
+        internal void EndWriteBatch() {
+            StringBuilder? batch = _writeBatch;
+            _writeBatch = null;
+            if (batch == null || batch.Length == 0) { return; }
+            _sb.Clear();
+            _sb.Append(Esc).Append("?2026h").Append(batch);
+            Redraw();
+            _sb.Append(Esc).Append("?2026l");
+            Emit();
+        }
         private WindowsOutputModeScope? _outputMode;
 
         /// <summary>Creates an inline output.</summary>
@@ -207,6 +221,7 @@ namespace ConsoleMonster.Rendering {
 
         // After inserting output above, the last frame is drawn again below it.
         private void Redraw() {
+            if (_writeBatch != null) { return; }
             if (!_live || _previous == null) {
                 return;
             }
@@ -253,6 +268,7 @@ namespace ConsoleMonster.Rendering {
         }
 
         private void Emit() {
+            if (_writeBatch != null) { _writeBatch.Append(_sb); return; }
             if (_sb.Length == 0) {
                 return;
             }

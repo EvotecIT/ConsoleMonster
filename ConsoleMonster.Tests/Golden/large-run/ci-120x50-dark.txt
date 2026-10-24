@@ -1,0 +1,50 @@
+✓ Directory replication 089                  node-09                                                                1.2s
+✓ DNS records 090                            node-10                                                                2.2s
+✓ Free disk space 091                        node-11                                                                3.2s
+✓ Service health 092                         node-12                                                                4.2s
+✓ Certificate expiry 093                     node-13                                                                1.2s
+✓ Route reachability 094                     node-14                                                                2.2s
+✓ Volume permissions 095                     node-15                                                                3.2s
+▴ Time synchronisation 096                   node-16              A partial response was returned; review the …     4.2s
+✓ Directory replication 097                  node-01                                                                1.2s
+✓ DNS records 098                            node-02                                                                2.2s
+✓ Free disk space 099                        node-03                                                                3.2s
+✓ Service health 100                         node-04                                                                4.2s
+✓ Certificate expiry 101                     node-05                                                                1.2s
+✓ Route reachability 102                     node-06                                                                2.2s
+✗ Volume permissions 103                     node-07              Endpoint did not answer within the configure…     3.2s
+✓ Time synchronisation 104                   node-08                                                                4.2s
+✓ Directory replication 105                  node-09                                                                1.2s
+✓ DNS records 106                            node-10                                                                2.2s
+✓ Free disk space 107                        node-11                                                                3.2s
+✓ Service health 108                         node-12                                                                4.2s
+✓ Certificate expiry 109                     node-13                                                                1.2s
+✓ Route reachability 110                     node-14                                                                2.2s
+✓ Volume permissions 111                     node-15                                                                3.2s
+✓ Time synchronisation 112                   node-16                                                                4.2s
+✓ Directory replication 113                  node-01                                                                1.2s
+✓ DNS records 114                            node-02                                                                2.2s
+✓ Free disk space 115                        node-03                                                                3.2s
+✓ Service health 116                         node-04                                                                4.2s
+✓ Certificate expiry 117                     node-05                                                                1.2s
+✓ Route reachability 118                     node-06                                                                2.2s
+✓ Volume permissions 119                     node-07                                                                3.2s
+✓ Time synchronisation 120                   node-08                                                                4.2s
+✓ Directory replication 121                  node-09                                                                1.2s
+✓ DNS records 122                            node-10                                                                2.2s
+✓ Free disk space 123                        node-11                                                                3.2s
+✓ Service health 124                         node-12                                                                4.2s
+✓ Certificate expiry 125                     node-13                                                                1.2s
+✓ Route reachability 126                     node-14                                                                2.2s
+✓ Volume permissions 127                     node-15                                                                3.2s
+✓ Time synchronisation 128                   node-16                                                                4.2s
+✓ Directory replication 129                  node-01                                                                1.2s
+✓ DNS records 130                            node-02                                                                2.2s
+✓ Free disk space 131                        node-03                                                                3.2s
+✓ Service health 132                         node-04                                                                4.2s
+✓ Certificate expiry 133                     node-05                                                                1.2s
+▴ Route reachability 134                     node-06              A partial response was returned; review the …     2.2s
+✓ Volume permissions 135                     node-07                                                                3.2s
+✓ Time synchronisation 136                   node-08                                                                4.2s
+✗ Directory replication 137                  node-09              Endpoint did not answer within the configure…     1.2s
+progress 137/214 · 125 passed · 4 failed · 3 warnings · 5 skipped · ETA 1m 37s · 47.2/min
