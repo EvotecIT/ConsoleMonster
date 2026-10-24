@@ -1,4 +1,4 @@
-source e36804d9abf8dbc74fbf2e471b7a01d9
+source e36804d9abf8dbc740a8b83f083f20ea
  Server configuration                             4 members
 $server
 +- Members ------------------------------------------------+
@@ -18,4 +18,4 @@ $server
 |                                                          |
 |                                                          |
 +----------------------------------------------------------+
- Up/Down move  right expand  enter drill  / search  f1 keys
+ Up/Down move  right expand  enter drill  / search  ? keys

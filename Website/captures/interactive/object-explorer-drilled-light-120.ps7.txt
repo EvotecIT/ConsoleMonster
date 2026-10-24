@@ -1,4 +1,4 @@
-source 21a2fc5da4c734d354848de03f45e07f
+source 21a2fc5da4c734d3fd99cd0b6224bbd5
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -18,7 +18,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys70accce39cf5978f
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keysddd0e265967bbee2
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -38,7 +38,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys2e03cf90f828e771
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys3e3afac61df6828d
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -58,7 +58,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keysccc206b41f080301
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys2704eda2d069515d
  Server configuration                                                                                         2 members
 $server.Services
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -78,4 +78,4 @@ $server.Services
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys

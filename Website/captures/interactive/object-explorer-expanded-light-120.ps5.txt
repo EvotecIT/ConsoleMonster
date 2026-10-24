@@ -1,4 +1,4 @@
-source ed23709373195ed154848de03f45e07f
+source ed23709373195ed1fd99cd0b6224bbd5
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -18,7 +18,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys70accce39cf5978f
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keysddd0e265967bbee2
  Server configuration                                                                                         4 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -38,7 +38,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys5bf114faebc8041a
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keysedc5b62b66b83740
  Server configuration                                                                                         6 members
 $server
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -58,4 +58,4 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  f1 keys
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys

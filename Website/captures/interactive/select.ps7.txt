@@ -1,4 +1,4 @@
-source 29b8e62ac27121e798ab63b03ad57a49
+source 29b8e62ac27121e7ddb6019194b9bd34
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -13,7 +13,7 @@ source 29b8e62ac27121e798ab63b03ad57a49
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keys7415190102e8ecc2
+  ↑↓ move  enter select  esc cancel  ? keysa8415cce4b903e2f
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -28,7 +28,7 @@ source 29b8e62ac27121e798ab63b03ad57a49
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keysafc3cb43d5431957
+  ↑↓ move  enter select  esc cancel  ? keyscb3030091a451a70
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › type to filter
@@ -43,7 +43,7 @@ source 29b8e62ac27121e798ab63b03ad57a49
     PRN11                          Print │
     Dublin                               │
 
-  ↑↓ move  enter select  esc cancel  f1 keysb64424ba624f6973
+  ↑↓ move  enter select  esc cancel  ? keys5bd67291ff96e1d0
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › w
@@ -53,18 +53,18 @@ source 29b8e62ac27121e798ab63b03ad57a49
     FS02  · Warsaw                   File
     SQL01  · Warsaw              Database
 
-  ↑↓ move  enter select  esc clear filter  f1 keys01c28da97882b951
+  ↑↓ move  enter select  esc clear filter  ? keys99b935fbd149bfd9
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › we
   ▌ WEB01  · Warsaw                   Web
     WEB11  · Berlin                   Web
 
-  ↑↓ move  enter select  esc clear filter  f1 keys954d6187865f8863
+  ↑↓ move  enter select  esc clear filter  ? keys9df194ee4d507d1f
 ? Target server
   Type to filter; offline servers show why they cannot be picked.
   › we
     WEB01  · Warsaw                   Web
   ▌ WEB11  · Berlin                   Web
 
-  ↑↓ move  enter select  esc clear filter  f1 keys
+  ↑↓ move  enter select  esc clear filter  ? keys
