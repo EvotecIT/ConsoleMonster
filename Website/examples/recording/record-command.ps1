@@ -2,7 +2,7 @@ Import-Module ConsoleMonster
 
 $recording = @{
     Destination = './command-review.html'
-    Name = 'Command review'
+    Title = 'Command review'
     Width = 88
     Height = 10
 }

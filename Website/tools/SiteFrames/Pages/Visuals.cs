@@ -115,7 +115,7 @@ namespace SiteFrames.Pages {
             foreach (Match m in Regex.Matches(list.Groups[1].Value, "'([A-Za-z]+)-[^']+'")) {
                 verbs[m.Groups[1].Value] = verbs.TryGetValue(m.Groups[1].Value, out int n) ? n + 1 : 1;
             }
-            BarChart chart = new BarChart { BarToken = ThemeToken.Series3 };
+            BarChart chart = new BarChart { Role = ThemeToken.Series3 };
             foreach (KeyValuePair<string, int> verb in verbs.OrderByDescending(v => v.Value).ThenBy(v => v.Key, StringComparer.Ordinal)) {
                 chart.Add(verb.Key + "-Console*", verb.Value);
             }

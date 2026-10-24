@@ -1,21 +1,21 @@
 ﻿Describe 'Show-ConsoleObject compiled command' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
-        $script:SavedInteractive = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+        $script:SavedInteractive = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
     }
 
     BeforeEach {
-        $script:Capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 20)
-        $options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
+        $script:Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 20)
+        $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
         $options.Mode = 'Rich'
         $options.Capture = $script:Capture
-        $options.Input = [ConsoleMonster.Input.ScriptedInput]::new('Down Enter F10')
+        $options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter F10')
         $options.Input.Paced = $true
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
     }
 
     AfterEach {
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default = $script:SavedInteractive
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $script:SavedInteractive
     }
 
     It 'returns the selected original PowerShell member value' {
@@ -30,8 +30,8 @@
             [pscustomobject]@{ Name = 'web'; Status = 'Running' }
             [pscustomobject]@{ Name = 'metrics'; Status = 'Running' }
         )
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Enter F10')
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input.Paced = $true
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Enter F10')
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input.Paced = $true
         $x = [pscustomobject]@{ Services = $services }
         $path = $x | Show-ConsoleObject -Mode Rich -PassThru Path
         $path | Should -Be '$x.Services[0]'
@@ -56,7 +56,7 @@
     It 'returns no selection while browsing or cancelling' {
         $value = [pscustomobject]@{ Name = 'web-01'; Owner = [pscustomobject]@{ Name = 'Ada' } }
         @($value | Show-ConsoleObject -Mode Rich).Count | Should -Be 0
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Escape')
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Escape')
         @($value | Show-ConsoleObject -Mode Rich -PassThru).Count | Should -Be 0
     }
 
@@ -80,11 +80,11 @@
         $completion = [System.Threading.Tasks.TaskCompletionSource[int]]::new()
         $lazy = [System.Lazy[string]]::new([System.Func[string]] { throw 'The factory must stay uncreated.' })
         try {
-            [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('F10')
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
             $selected = Show-ConsoleObject -InputObject $completion.Task -Mode Rich -PassThru
             [object]::ReferenceEquals($selected, $completion.Task) | Should -BeTrue
             $completion.Task.IsCompleted | Should -BeFalse
-            [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('F10')
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
             $null = Show-ConsoleObject -InputObject $lazy -Mode Rich -PassThru
             $lazy.IsValueCreated | Should -BeFalse
         } finally {
@@ -96,9 +96,9 @@
         $map = @{}
         $map.Add(1, 'integer')
         $map.Add('1', 'string')
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('F10')
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
         $first = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('Down F10')
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down F10')
         $second = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
         $first | Should -Not -Be $second
         $values = @(& ([scriptblock]::Create($first)); & ([scriptblock]::Create($second)))
@@ -110,7 +110,7 @@
         $key = [object]::new()
         $map = @{ Keys = 'wrong'; get_Keys = 'wrong'; PSBase = 'wrong'; GetEnumerator = 'wrong' }
         $map.Add($key, 'target')
-        [ConsoleMonster.Interactive.InteractiveOptions]::Default.Input = [ConsoleMonster.Input.ScriptedInput]::new('/ "target" Enter F10')
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('/ "target" Enter F10')
         $expression = $map | Show-ConsoleObject -RootPath '$map' -Mode Rich -PassThru Path
         (& ([scriptblock]::Create($expression))) | Should -Be 'target'
     }

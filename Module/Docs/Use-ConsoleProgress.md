@@ -13,7 +13,7 @@ The script runs on the pipeline thread with the caller's variables. While it run
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <int>] [<CommonParameters>]
+Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,6 +55,22 @@ Accept wildcard characters: False
 
 ### -Keep
 Leaves the final state of the progress area in the scrollback.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoLive
+Disables live redraws and uses append-only output.
 
 ```yaml
 Type: SwitchParameter

@@ -6,7 +6,7 @@ try {
     . (Join-Path $PSScriptRoot 'Read-TestConsoleFrame.ps1')
     . (Join-Path $PSScriptRoot 'New-ErrorShapeFixture.ps1')
     $invocation = New-ErrorShapeFixture -Directory (Split-Path $ReceiptPath) -MixedOutput
-    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($Width, 100)
+    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($Width, 100)
     foreach ($enabled in $false, $true) {
         Clear-Host
         if ($enabled) { Enable-ConsoleFormatting -Feature Errors }

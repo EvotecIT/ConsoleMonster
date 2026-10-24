@@ -40,11 +40,11 @@ $matchingHosts = {
 }
 #endregion
 
-Show-ConsoleApp {
-    New-ConsoleRows -Gap 1 {
+Show-ConsoleApp -Content {
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Host inventory[/] [muted]· synthetic data[/]'
-        New-ConsoleTextInput -Name Query -Label Query -Placeholder 'Host, role, site or status'
-        New-ConsoleBinding {
+        New-ConsoleTextInput -Key Query -Label Query -Placeholder 'Host, role, site or status'
+        New-ConsoleBinding -Content {
             param($State)
             $matches = @(& $matchingHosts $State)
             "[bold]$($matches.Count)[/] of $($hosts.Count) hosts"

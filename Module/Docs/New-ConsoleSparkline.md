@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a sparkline: a compact trend of recent values.
 
-One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Tone sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.
+One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Role sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSparkline [[-Name] <string>] [-Value <double[]>] [-Label <Object>] [-Height <int>] [-Unit <string>] [-InputObject <double[]>] [-Tone <ThemeToken>] [-Maximum <Double>] [-NoLatest] [<CommonParameters>]
+New-ConsoleSparkline [[-WidgetId] <string>] [-Value <double[]>] [-Label <Object>] [-Height <int>] [-Unit <string>] [-InputObject <double[]>] [-Role <ThemeToken>] [-Maximum <Double>] [-NoLatest] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a sparkline: a compact trend of recent values.
 
-One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Tone sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.
+One row by default (▁▂▄▆█ on modern fonts, shades on Consolas, an ASCII ramp in ASCII mode); with -Height above 1 it becomes a small area chart. Values come from -Value or the pipeline. -Role sets the colour, -Maximum the top of the scale and -NoLatest hides the latest value. To add values later, pipe it to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSparkline -Label 'req/s' -Value 3, 5, 8, 13, 9, 7, 12 | Write-ConsoleWidget
+New-ConsoleSparkline -Label 'req/s' -Value 3, 5, 8, 13, 9, 7, 12 | Show-Console
 ```
 
 A labelled trend
@@ -96,22 +96,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-The live name (default sparkline).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -NoLatest
 Hide the latest value after the trend.
 
@@ -128,7 +112,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Tone
+### -Role
 The colour as a theme role: Accent (default), Accent2, Pass, Fail, Warn or Series1 to Series6.
 
 ```yaml
@@ -171,6 +155,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default sparkline).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -13,7 +13,7 @@ Serializes input with ConsoleExporter as Text (default), Markdown or Html and co
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Copy-ConsoleOutput [-InputObject] <Object> [-As <string>] [-Width <int>] [-Height <int>] [-Culture <cultureinfo>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+Copy-ConsoleOutput [-InputObject] <Object> [-Format <string>] [-Width <int>] [-Height <int>] [-Culture <cultureinfo>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,28 +25,12 @@ Serializes input with ConsoleExporter as Text (default), Markdown or Html and co
 
 ### EXAMPLE 1
 ```powershell
-Get-Process | Select-Object -First 10 Name, Id | Format-ConsoleTable -AsWidget | Copy-ConsoleOutput -As Markdown
+Get-Process | Select-Object -First 10 Name, Id | Show-ConsoleTable -AsWidget | Copy-ConsoleOutput -Format Markdown
 ```
 
 Copy a process table into a Markdown report
 
 ## PARAMETERS
-
-### -As
-Copies Text, Markdown or Html source as clipboard text (default Text).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Markdown, Html
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Culture
 The culture for values in objects and widgets.
@@ -56,6 +40,22 @@ Type: CultureInfo
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Format
+Copies Text, Markdown or Html source as clipboard text (default Text).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Text, Markdown, Html
 
 Required: False
 Position: named
@@ -113,7 +113,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Width in cells for rendering widgets and objects (default 100); single frames keep their own size.
+Width in cells for rendering widgets and objects (default 0: terminal width, falling back to 100); single frames keep their own size.
 
 ```yaml
 Type: Int32

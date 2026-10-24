@@ -6,7 +6,7 @@ using ConsoleMonster.Widgets;
 // Three servers deployed in parallel. Handles post updates from any thread; Console.WriteLine from any of them lands
 // in the log panel instead of writing over the screen.
 Dashboard dashboard = new DashboardBuilder("Deploy")
-    .Panel("Servers", new Lanes(), out Lanes lanes, caption: "3 workers")
+    .Panel("Servers", new Lanes(), out Lanes lanes, headerRight: "3 workers")
     .Panel("Log", new LogRegion(), fill: true)
     .BuildDashboard();
 string[] steps = { "copying files", "stopping the site", "swapping folders", "starting the site" };

@@ -9,18 +9,18 @@ Import-Module ConsoleMonster
 
 if ($Part -in 'Dashboard', 'Both') {
     Write-Host 'Deploying release 2026.10 to three servers'
-    $dashboard = New-ConsoleDashboard -Title 'Deploy' {
-        New-ConsoleProgress -Name overall -Label 'Overall' -Total 12
-        New-ConsoleLanes -Name lanes
+    $dashboard = New-ConsoleDashboard -Title 'Deploy' -Content {
+        New-ConsoleProgress -WidgetId overall -Label 'Overall' -Total 12
+        New-ConsoleLanes -WidgetId lanes
     }
-    Start-ConsoleDashboard $dashboard -Inline -ArgumentList $Delay {
+    Invoke-ConsoleDashboard $dashboard -Inline -ArgumentList $Delay {
         param($Delay)
         foreach ($server in 'WEB01', 'WEB02', 'API01') {
             Update-ConsoleLane -Key $server -Status Running -Detail 'copying files' -Total 4
             foreach ($step in 'copy', 'configure', 'restart', 'verify') {
                 Start-Sleep -Milliseconds ($Delay * 3)
                 Update-ConsoleLane -Key $server -Detail $step -Result Pass
-                Update-ConsoleProgress -Name overall -Increment 1
+                Update-ConsoleProgress -WidgetId overall -Increment 1
             }
             Write-Host "$server deployed"
             Update-ConsoleLane -Key $server -Complete

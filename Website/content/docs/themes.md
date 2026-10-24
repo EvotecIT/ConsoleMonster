@@ -27,7 +27,7 @@ To switch for the rest of the session in PowerShell, or for every write that fol
 Import-Module ConsoleMonster
 
 Set-ConsoleTheme Light
-Write-ConsoleMarkup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
+Write-ConsoleText -Markup '[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]'
 ```
 
 </div>
@@ -70,7 +70,7 @@ Export a starting palette, edit its semantic tokens and load it for the session:
 ```powershell
 Import-Module ConsoleMonster
 
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Export-ConsoleTheme -Path ./team-theme.json -PassThru
 # Edit the file, then apply it.
 Set-ConsoleTheme -Path ./team-theme.json

@@ -13,7 +13,7 @@ Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help file
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleHelp [-Name] <string> [-Width <int>] [-AsString] [-NoExamples] [<CommonParameters>]
+Show-ConsoleHelp [-Name] <string> [-Width <int>] [-AsString] [-NoExamples] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,7 +32,7 @@ A cmdlet
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleHelp Format-ConsoleTable | more
+Show-ConsoleHelp Show-ConsoleTable | more
 ```
 
 Through a pager
@@ -41,6 +41,22 @@ Through a pager
 
 ### -AsString
 Returns the help as one string of plain text instead of drawing it.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsWidget
+Returns the view widget without drawing or acquiring input.
 
 ```yaml
 Type: SwitchParameter

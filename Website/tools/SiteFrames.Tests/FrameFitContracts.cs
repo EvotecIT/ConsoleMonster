@@ -34,7 +34,7 @@ namespace SiteFrames.Tests {
         [Fact]
         public void Fit_BackgroundCells_CountAsContent() {
             CellBuffer frame = Frame(120, 2, "abc");
-            frame.Set(30, 1, " ", Style.Plain.WithBackground(Color.FromRgb(10, 20, 30)));
+            frame.Set(30, 1, " ", Style.Plain.WithBackgroundColor(Color.FromRgb(10, 20, 30)));
             (CellBuffer fit, CellBuffer? _) = Site.Fit(frame, null);
             Assert.Equal(31, fit.Width);
         }

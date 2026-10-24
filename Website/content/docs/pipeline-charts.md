@@ -1,16 +1,16 @@
 ---
 title: Charts from the pipeline
-description: Turn numeric properties into bars, distributions and grouped trends with Out-ConsoleChart.
+description: Turn numeric properties into bars, distributions and grouped trends with Show-ConsoleChart.
 slug: pipeline-charts
 order: 15
 group: hosts
 card: pipeline-charts-60
 chips: [PowerShell, Bars, Histograms, Trends]
-apis: [Out-ConsoleChart, PipelineChart]
+apis: [Show-ConsoleChart, PipelineChart]
 summary: Numeric pipeline properties as bars, distributions and grouped trends.
 ---
 
-`Out-ConsoleChart` turns numbers, or a numeric property of the objects you pipe, into horizontal bars, a distribution or one trend per group, with the values beside them and colours from the current theme.
+`Show-ConsoleChart` turns numbers, or a numeric property of the objects you pipe, into horizontal bars, a distribution or one trend per group, with the values beside them and colours from the current theme.
 
 ## Try it
 
@@ -21,21 +21,21 @@ summary: Numeric pipeline properties as bars, distributions and grouped trends.
 On real data it is one pipeline:
 
 ```powershell
-Get-Process | Out-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10 -Unit ' s'
+Get-Process | Show-ConsoleChart -Property CPU -Label ProcessName -Sort Descending -Top 10 -Unit ' s'
 ```
 
 `-Sort Ascending` or `-Sort Descending` orders bars by value before `-Top` takes the first N; ties keep their input order, and without `-Sort` bars keep input order. The label defaults to `Name`, then the row number; `-Label` picks another property. Repeated labels stay separate observations, and negative bars extend to the left of a shared zero baseline. With `-AsWidget` the chart composes with other widgets:
 
 ```powershell
-New-ConsolePanel -Title 'CPU time' {
-    Get-Process | Out-ConsoleChart -Property CPU -Sort Descending -Top 5 -Unit ' s' -AsWidget
-} | Write-ConsoleWidget
+New-ConsolePanel -Title 'CPU time' -Content {
+    Get-Process | Show-ConsoleChart -Property CPU -Sort Descending -Top 5 -Unit ' s' -AsWidget
+} | Show-Console
 ```
 
 Property selection uses the same binding as the formatting commands: one name, a wildcard matching one property, or a calculated-property hashtable. For example, show file sizes in kilobytes:
 
 ```powershell
-Get-ChildItem -File | Out-ConsoleChart -Property @{
+Get-ChildItem -File | Show-ConsoleChart -Property @{
     Name = 'KB'
     Expression = { $_.Length / 1KB }
 } -Label Name -Sort Descending -Top 8 -Unit ' KB'
@@ -46,8 +46,8 @@ Get-ChildItem -File | Out-ConsoleChart -Property @{
 Pipe numbers directly or select a property. `-Bins` requests 1 through 128 buckets; the default is 10.
 
 ```powershell
-$latencies | Out-ConsoleChart -Type Histogram -Bins 8 -Unit ' ms'
-$requests | Out-ConsoleChart -Property Duration -Type Histogram -Bins 6
+$latencies | Show-ConsoleChart -Type Histogram -Bins 8 -Unit ' ms'
+$requests | Show-ConsoleChart -Property Duration -Type Histogram -Bins 6
 ```
 
 Buckets include their lower edge and exclude their upper edge, except the final bucket, which includes the maximum. Integral input uses whole-number edges; a small integral range or constant input uses fewer buckets. Every valid observation contributes to the distribution: `-Top` and `-Sort` do not filter histogram input. The count axis uses integers.
@@ -58,7 +58,7 @@ For sparklines, `-Label` identifies the groups. Each group gets one line, in the
 
 ```powershell
 $samples | Sort-Object Time |
-    Out-ConsoleChart -Property Latency -Label Server -Type Sparkline -Unit ' ms'
+    Show-ConsoleChart -Property Latency -Label Server -Type Sparkline -Unit ' ms'
 ```
 
 Without a label property, scalar values form one unnamed trend. `-Sort` orders groups by their latest value; `-Top` then limits the number of groups. Neither option changes the order of samples inside a group. The existing sparkline renderer scales from zero, so a group containing negative values is shown as numerical text to preserve its signs.
@@ -70,8 +70,8 @@ Without a label property, scalar values form one unnamed trend. `-Sort` orders g
 Without colour, the output lists bar values, histogram bucket counts or every sample in each trend. It stays useful in redirected output and SSH sessions. Use `-AsString` to capture one text block reliably on Windows PowerShell 5.1 and PowerShell 7:
 
 ```powershell
-$text = $samples | Out-ConsoleChart -Property Latency -Label Server -AsString
-$samples | Out-ConsoleChart -Property Latency -Label Server | Out-File ./latency.txt
+$text = $samples | Show-ConsoleChart -Property Latency -Label Server -AsString
+$samples | Show-ConsoleChart -Property Latency -Label Server | Out-File ./latency.txt
 ```
 
 Null or missing properties, malformed values, booleans, NaN and infinity produce a non-terminating error and are skipped. Numeric strings use invariant notation such as `12.5` or `1e3`. Add `-ErrorAction Stop` when an invalid sample should stop the command. Empty input produces no output. The command collects its input before drawing; it does not follow a live stream or infer timestamps.
@@ -106,4 +106,4 @@ Terminal.Write(histogram);
 
 ## Related
 
-[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Out-ConsoleChart reference](/powershell/commands/out-consolechart/).
+[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [Show-ConsoleChart reference](/powershell/commands/out-consolechart/).

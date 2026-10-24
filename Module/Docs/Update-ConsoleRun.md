@@ -8,35 +8,35 @@ schema: 2.0.0
 ## SYNOPSIS
 Reports an item's running phase or final outcome to a run dashboard.
 
-Index is the zero-based position in New-ConsoleRun's Items. Running starts the item or updates its phase without resetting elapsed time. Pass, Fail, Warn and Skip finish an item once; repeated completions do not print duplicate lines. Updates do not produce pipeline output or change the caller's error handling. For direct worker-thread use the handle exposes Started and Finished methods with the same contracts.
+Index is the zero-based position in Start-ConsoleRun's Items. Running starts the item or updates its phase without resetting elapsed time. Pass, Fail, Warn and Skip finish an item once; repeated completions do not print duplicate lines. Updates do not produce pipeline output or change the caller's error handling. For direct worker-thread use the handle exposes Started and Finished methods with the same contracts.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleRun [-Run] <LiveRun> -Index <int> -State <StatusKind> [-Phase <string>] [-Message <string>] [-Duration <TimeSpan>] [<CommonParameters>]
+Update-ConsoleRun [-Run] <LiveRun> -Index <int> -Status <StatusKind> [-Phase <string>] [-Message <string>] [-DurationSeconds <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Reports an item's running phase or final outcome to a run dashboard.
 
-Index is the zero-based position in New-ConsoleRun's Items. Running starts the item or updates its phase without resetting elapsed time. Pass, Fail, Warn and Skip finish an item once; repeated completions do not print duplicate lines. Updates do not produce pipeline output or change the caller's error handling. For direct worker-thread use the handle exposes Started and Finished methods with the same contracts.
+Index is the zero-based position in Start-ConsoleRun's Items. Running starts the item or updates its phase without resetting elapsed time. Pass, Fail, Warn and Skip finish an item once; repeated completions do not print duplicate lines. Updates do not produce pipeline output or change the caller's error handling. For direct worker-thread use the handle exposes Started and Finished methods with the same contracts.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Update-ConsoleRun $run -Index 0 -State Running -Phase 'collecting'; Update-ConsoleRun $run -Index 0 -State Warn -Message 'Response was incomplete'
+Update-ConsoleRun $run -Index 0 -Status Running -Phase 'collecting'; Update-ConsoleRun $run -Index 0 -Status Warn -Message 'Response was incomplete'
 ```
 
 Start and finish one item
 
 ## PARAMETERS
 
-### -Duration
+### -DurationSeconds
 Optional measured duration. Default time since the Running update.
 
 ```yaml
-Type: TimeSpan
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -97,7 +97,7 @@ Accept wildcard characters: False
 ```
 
 ### -Run
-The handle returned by New-ConsoleRun.
+The handle returned by Start-ConsoleRun.
 
 ```yaml
 Type: LiveRun
@@ -112,7 +112,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -State
+### -Status
 Running, Pass, Fail, Warn or Skip.
 
 ```yaml

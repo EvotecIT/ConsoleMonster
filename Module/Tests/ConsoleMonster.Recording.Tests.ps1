@@ -7,17 +7,17 @@ Describe 'Whole-session recording' {
     }
 
     It 'bounds a slow live relay, yields between drain passes and releases blocked output on cancellation' {
-        $assembly = (Get-Command Start-ConsoleRecording).ImplementingType.Assembly
-        { [RecordingRelayProbe]::Validate($assembly.GetType('ConsoleMonster.PowerShell.RecordingOutputRelay', $true)) } | Should -Not -Throw
+        $assembly = (Get-Command Invoke-ConsoleRecording -Interactive).ImplementingType.Assembly
+        { [RecordingRelayProbe]::Validate($assembly.GetType('ConsoleMonster.PowerShell.RecordingOutputRelay')) } | Should -Not -Throw
     }
 
     It 'restores input before finalization and attempts every cleanup after a disposal failure' {
-        $command = (Get-Command Start-ConsoleRecording).ImplementingType.BaseType
+        $command = (Get-Command Invoke-ConsoleRecording -Interactive).ImplementingType.BaseType
         { [RecordingCleanupProbe]::Validate($command) } | Should -Not -Throw
     }
 
     It 'restores the demo title and removes temporary output after task or cleanup failures' {
-        $command = (Get-Command Start-ConsoleDemo).ImplementingType.BaseType
+        $command = (Get-Command Show-ConsolePresentation).ImplementingType.BaseType
         { [RecordingCleanupProbe]::ValidateDemo($command) } | Should -Not -Throw
     }
 
@@ -56,7 +56,7 @@ Describe 'Whole-session recording' {
             git --version
             Write-Host 'password=synthetic-test-value'
             Write-Host 'Session complete' -ForegroundColor Green
-        } -Destination $html -Width 40 -Height 8 -Name 'Test recording' | Out-Null
+        } -Destination $html -Width 40 -Height 8 -Title 'Test recording' | Out-Null
 
         $cast = [IO.Path]::ChangeExtension($html, '.cast')
         $lines = @(Get-Content -LiteralPath $cast)
@@ -129,8 +129,8 @@ Describe 'Whole-session recording' {
         $windows = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
         # A headless Unix PTY has no emulator to answer ConsoleHost/PSReadLine cursor-position queries.
         $shell = if ($windows) { '' } else { " -Shell '/bin/sh'" }
-        $script = "Import-Module '$($module.Replace("'", "''"))'; Start-ConsoleRecording -Path '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
-        $options = [ConsoleMonster.Sessions.SessionRecordingOptions]::new()
+        $script = "Import-Module '$($module.Replace("'", "''"))'; Invoke-ConsoleRecording -Interactive -Destination '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
+        $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecordingOptions'))::new()
         $options.Path = $outer
         $options.Shell = $runtime
         $options.Width = 50
@@ -142,7 +142,7 @@ Describe 'Whole-session recording' {
         $options.Arguments.Add([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script)))
         $observer = [RecordingOutputObserver]::new()
         $relay = [Delegate]::CreateDelegate([Action[string]], $observer, 'Receive')
-        $recorder = [ConsoleMonster.Sessions.SessionRecorder]::Start($options, $relay)
+        $recorder = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecorder'))::Start($options, $relay)
         try {
             # Wait for the nested shell to finish startup rather than typing into its input-mode setup.
             $prompt = if ($windows) { '>' } else { 'CM-READY> ' }
@@ -230,7 +230,7 @@ Describe 'Whole-session recording' {
             $destination = Join-Path $TestDrive ('title-' + $format + $(if ($format -eq 'final') { '.svg' } else { '.' + $format }))
             $parameters = @{
                 Destination = $destination
-                Name = 'private-project'
+                Title = 'private-project'
                 Redact = 'private-project'
                 InProcess = $true
                 WarningAction = 'SilentlyContinue'

@@ -4,100 +4,36 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# Invoke-ConsoleDemo
+# New-ConsoleHeaderBar
 ## SYNOPSIS
-Types a scripted PowerShell demo into a real terminal and records it.
+Creates a header with a title, breadcrumbs, detail and optional elapsed time.
 
-Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Returns a reusable HeaderBar widget without opening a session. Status is a semantic outcome; Detail is the text beside it. HeaderRight supplies independent right-aligned content.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleDemo [-Path] <string> [-Destination] <string> [-Width <int>] [-Height <int>] [-Seed <int>] [-StepTimeoutSeconds <int>] [-IdleLimit <double>] [-Redact <string[]>] [-Shell <string>] [<CommonParameters>]
+New-ConsoleHeaderBar [-Title] <Object> [-Subtitle <Object>] [-Crumb <string[]>] [-Detail <Object>] [-Status <StatusKind>] [-HeaderRight <Object>] [-ShowElapsed] [-ElapsedSeconds <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Types a scripted PowerShell demo into a real terminal and records it.
+Creates a header with a title, breadcrumbs, detail and optional elapsed time.
 
-Runs plain PowerShell with optional chapter, pause, setup, type-only, narration, WPM and output-wait directives. Uses OSC 133 readiness marks independent of visible prompt text and operating system. Character jitter uses a fixed seed; use fixed data and environment for repeatable output.
+Returns a reusable HeaderBar widget without opening a session. Status is a semantic outcome; Detail is the text beside it. HeaderRight supplies independent right-aligned content.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Invoke-ConsoleDemo -Path ./demo.ps1 -Destination ./talk.cast -Seed 42
+New-ConsoleHeaderBar 'Build' -Subtitle 'Release' -Status Pass -Detail 'Ready' | Show-Console
 ```
 
-Record a talk
+Show a compact build header.
 
 ## PARAMETERS
 
-### -Destination
-Destination asciicast v2 recording. Existing recordings are never overwritten.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Height
-Terminal height in cells.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -IdleLimit
-Longest recorded idle gap in seconds; zero preserves actual timing.
-
-```yaml
-Type: Double
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-Plain PowerShell demo file with optional # demo: directives.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Redact
-Output patterns redacted before recording.
+### -Crumb
+Breadcrumbs shown before the title.
 
 ```yaml
 Type: String[]
@@ -112,11 +48,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Seed
-Seed for repeatable character timing.
+### -Detail
+Current descriptive text.
 
 ```yaml
-Type: Int32
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -128,11 +64,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Shell
-Child PowerShell executable. Defaults to the current PowerShell.
+### -ElapsedSeconds
+An explicit elapsed duration; otherwise the rendering session supplies it.
 
 ```yaml
-Type: String
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -144,11 +80,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -StepTimeoutSeconds
-Maximum wait for a semantic prompt or output pattern.
+### -HeaderRight
+Independent text at the right of the header.
 
 ```yaml
-Type: Int32
+Type: Object
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -160,17 +96,65 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Width
-Terminal width in cells.
+### -ShowElapsed
+Shows elapsed time in the header.
 
 ```yaml
-Type: Int32
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Status
+Semantic outcome displayed before the detail.
+
+```yaml
+Type: StatusKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Subtitle
+Text qualifying the title.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Title
+The header's title.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -185,7 +169,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-- `System.IO.FileInfo`
+- `ConsoleMonster.Widgets.HeaderBar`
 
 ## RELATED LINKS
 

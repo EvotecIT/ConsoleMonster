@@ -24,9 +24,9 @@ Describe 'Progress columns and translated labels' {
     It 'renders lanes through the chosen columns' {
         $text = Invoke-ProgressChild -Script @'
 $lanes = New-ConsoleLanes -Lane 'SRV01', 'SRV02' -Total 10 -Column Description, Percent, Count, Status
-$lanes.Apply([ConsoleMonster.Live.LiveEvent]::new('lanes', 'state', 'SRV01', 'copying', 'running', 0, 0, 0))
-$lanes.Apply([ConsoleMonster.Live.LiveEvent]::new('lanes', 'advance', 'SRV01', 'copying', 'pass', 4, 0, 1000))
-$lanes | Write-ConsoleWidget -Width 60
+$lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'state', 'SRV01', 'copying', 'running', 0, 0, 0))
+$lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'advance', 'SRV01', 'copying', 'pass', 4, 0, 1000))
+$lanes | Show-Console -Width 60
 '@
         $lines = @($text -split "`n")
         ($lines | Where-Object { $_ -match '^SRV01' }) | Should -Match '^SRV01\s+40%\s+4/10\s+copying$'
@@ -39,21 +39,21 @@ $lanes | Write-ConsoleWidget -Width 60
 
     It 'follows the UI culture for built-in labels' {
         $text = Invoke-ProgressChild -UICulture 'pl-PL' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_"; State = 'ok' } } | Format-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_"; State = 'ok' } } | Show-ConsoleTable -Top 2 -Width 60
 '@
         $text | Should -Match 'Pokazano 2 z 5'
     }
 
     It 'takes the language from CONSOLEMONSTER_LANGUAGE over the UI culture' {
         $text = Invoke-ProgressChild -UICulture 'pl-PL' -Language 'de' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Format-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -Top 2 -Width 60
 '@
         $text | Should -Match '2 von 5 angezeigt'
     }
 
     It 'keeps English for languages without a translation' {
         $text = Invoke-ProgressChild -UICulture 'ja-JP' -Script @'
-1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Format-ConsoleTable -Top 2 -Width 60
+1..5 | ForEach-Object { [pscustomobject]@{ Server = "SRV0$_" } } | Show-ConsoleTable -Top 2 -Width 60
 '@
         $text | Should -Match 'Showing 2 of 5'
     }

@@ -60,7 +60,7 @@ if ($PSVersionTable.PSVersion.Major -ge 7) { $PSStyle.OutputRendering = 'Ansi' }
 Import-Module '__MODULE__'
 Import-Module PSReadLine
 Enable-ConsoleFormatting -Feature ReadLine
-$expected = [ConsoleMonster.Rendering.SgrEncoder]::Encode([ConsoleMonster.Terminal]::Theme.Resolve('Series6', '__DEPTH__'), '__DEPTH__')
+$expected = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Rendering.SgrEncoder'))::Encode([ConsoleMonster.Terminal]::Theme.Resolve('Series6', '__DEPTH__'), '__DEPTH__')
 if ((Get-PSReadLineOption).CommandColor -cne $expected) { throw 'Editor colours exceeded or ignored the profile depth.' }
 Disable-ConsoleFormatting
 'PROFILE_DEPTH_OK'

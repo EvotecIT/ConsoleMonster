@@ -13,7 +13,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSelect [-Name] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSelect -Name Environment -Choices 'Production', 'Staging' -Value Staging
+New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Staging
 ```
 
 Choose initial values.
@@ -65,7 +65,7 @@ Accept wildcard characters: False
 ```
 
 ### -Display
-Display property name or scriptblock for object choices, as in Read-ConsoleSelection.
+Display property name or scriptblock for object choices, as in Read-ConsoleSelect.
 
 ```yaml
 Type: Object
@@ -75,6 +75,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Key
+Unique key in the application's state and final hashtable.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -91,22 +107,6 @@ Possible values:
 
 Required: False
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Unique key in the application's state and final hashtable.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

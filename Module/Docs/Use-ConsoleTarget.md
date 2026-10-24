@@ -8,46 +8,46 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
 
-Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
+Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
 
 ## SYNTAX
 ### String (Default)
 ```powershell
-Use-ConsoleTarget [-ScriptBlock] <scriptblock> [-Width <int>] [-Glyphs <GlyphTier>] [-Colors <ColorDepth>] [<CommonParameters>]
+Use-ConsoleTarget [-ScriptBlock] <scriptblock> [-Width <int>] [-Glyphs <GlyphTier>] [-ColorDepth <ColorDepth>] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Path <string> [-Append] [-Width <int>] [-Glyphs <GlyphTier>] [-Colors <ColorDepth>] [<CommonParameters>]
+Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Path <string> [-Append] [-Width <int>] [-Glyphs <GlyphTier>] [-ColorDepth <ColorDepth>] [<CommonParameters>]
 ```
 
 ### Writer
 ```powershell
-Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Writer <TextWriter> [-Width <int>] [-Glyphs <GlyphTier>] [-Colors <ColorDepth>] [<CommonParameters>]
+Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Writer <TextWriter> [-Width <int>] [-Glyphs <GlyphTier>] [-ColorDepth <ColorDepth>] [<CommonParameters>]
 ```
 
 ### Target
 ```powershell
-Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Target <ITerminalTarget> [-Width <int>] [-Glyphs <GlyphTier>] [-Colors <ColorDepth>] [<CommonParameters>]
+Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Target <ITerminalTarget> [-Width <int>] [-Glyphs <GlyphTier>] [-ColorDepth <ColorDepth>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
 
-Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
+Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }
+Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
 ```
 
 Save a report as plain text
 
 ### EXAMPLE 2
 ```powershell
-$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
+$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Show-ConsoleTable }
 ```
 
 Capture a table as a string
@@ -70,7 +70,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Colors
+### -ColorDepth
 The colour depth for -Path, -Writer or the string (default None: plain text).
 
 ```yaml
@@ -151,7 +151,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-The width in cells for -Path, -Writer or the string (default 80).
+The width in cells for -Path, -Writer or the string (default 0: terminal width, falling back to 100).
 
 ```yaml
 Type: Int32

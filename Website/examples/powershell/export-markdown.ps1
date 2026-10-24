@@ -4,4 +4,4 @@
 Get-ChildItem -Path $PSHOME -File |
     Sort-Object -Property Length -Descending |
     Select-Object -First 5 |
-    Format-ConsoleTable -Property Name, Length, LastWriteTime -As Markdown
+    Show-ConsoleTable -Property Name, Length, LastWriteTime -AsWidget | Export-ConsoleFrame -Format Markdown

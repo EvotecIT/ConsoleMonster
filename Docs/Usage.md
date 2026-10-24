@@ -25,13 +25,13 @@ messages, captured lines or data are removed, so Plain mode never emits an escap
 ## PowerShell
 
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | Write-ConsoleTable -Title 'Services' -StatusProperty Status
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -Title 'Services' -StatusProperty Status
 
-$dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 {
-    New-ConsolePanel -Title 'Servers' { New-ConsoleLanes }
-    New-ConsolePanel -Title 'Log' -Fill { New-ConsoleLog }
+$dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 -Content {
+    New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes }
+    New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
 }
-'SRV1', 'SRV2', 'SRV3' | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
+'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
     param($Server)
     Update-ConsoleLane -Key $Server -Status Running -Total 5
     1..5 | ForEach-Object { Start-Sleep -Milliseconds 300; Update-ConsoleLane -Key $Server -Result Pass }
@@ -42,30 +42,30 @@ $dashboard = New-ConsoleDashboard -Title 'Patch' -Gap 1 {
 
 Widgets read the same way everywhere: containers take a script block of children, and widgets with items take a script
 block of item commands (`New-ConsoleTreeNode`, `New-ConsoleStatusItem`, `New-ConsoleKeyValueItem`, `New-ConsoleBarItem`,
-`New-ConsoleChartSeries`, `New-ConsoleLogEntry`, `New-ConsoleLane`) with the shared `-Status`, `-Detail`, `-Tone` and
+`New-ConsoleChartSeries`, `New-ConsoleLogEntry`, `New-ConsoleLane`) with the shared `-Status`, `-Detail`, `-Role` and
 `-Value` parameters. A widget made earlier grows with `Add-ConsoleItem`. [PowerShell conventions](PowerShell-Conventions.md)
 lists every widget with its cmdlet form, its live update command and its .NET method form.
 
 ```powershell
-New-ConsoleColumns {
-    New-ConsolePanel -Title 'Mail' {
-        New-ConsoleTree '[bold]evotec.xyz[/]' {
+New-ConsoleColumns -Content {
+    New-ConsolePanel -Title 'Mail' -Content {
+        New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
             New-ConsoleTreeNode 'MX' -Status Pass -Detail '2 records'
             New-ConsoleTreeNode 'SPF' -Status Warn -Detail '9 of 10 DNS lookups'
             New-ConsoleTreeNode 'DMARC' -Status Fail -Detail 'p=none'
         }
     }
-    New-ConsolePanel -Title 'Build' {
-        New-ConsoleStatusList {
+    New-ConsolePanel -Title 'Build' -Content {
+        New-ConsoleStatusList -Content {
             New-ConsoleStatusItem 'Restore' -Status Pass -Detail '1.6 s'
             New-ConsoleStatusItem 'Test' -Status Warn -Detail '1 skipped'
             New-ConsoleStatusItem 'Publish' -Status Pending
         }
     }
-} | Write-ConsoleWidget
+} | Show-Console
 
 # Hierarchical objects become a tree; -Depth, -MaxItems and -MaxNodes keep it bounded.
-Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Write-ConsoleWidget
+Get-Item C:\Support\Reports | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Show-Console
 ```
 
 Where cmdlet output goes:
@@ -82,7 +82,7 @@ Where cmdlet output goes:
 - Colours map to the 16 console colours by role: pass green, fail red, warn yellow, muted dark grey, accent cyan.
   The light theme uses the darker variants.
 - `NO_COLOR`, `CONSOLEMONSTER_COLOR=none` and plain mode keep host output uncoloured.
-- As with `Write-Host`, `$x = Write-ConsoleTable ...` captures nothing.
+- As with `Write-Host`, `$x = Show-ConsoleTable ...` captures nothing.
 - A dashboard in those hosts narrates as append-only lines.
 Dashboard problems are reported once the screen is restored:
 
@@ -286,7 +286,7 @@ Cell presenters turn values into text and are shared by tables, cards, key/value
 | Bar, Sparkline, Progress | a data bar, sparkline or progress bar inside the cell |
 | Link | an OSC 8 hyperlink in Windows Terminal and VS Code, plain text elsewhere |
 
-Tone rules (`ToneRule.Above(1, ThemeToken.Warn)` and similar) colour a value by threshold. Without colour (16-colour
+Role rules (`RoleRule.Above(1, ThemeToken.Warn)` and similar) colour a value by threshold. Without colour (16-colour
 fallbacks, `NO_COLOR`, redirected output and `CONSOLEMONSTER_MODE=plain`), a status tone adds its symbol, so the
 output stays readable.
 
@@ -304,7 +304,7 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
 
 - Nested objects become indented sections and collections become nested tables.
 - `InspectorOptions` sets the depth limit, the item limit (with "+N more"), include/exclude and ordering.
-- `MaxNodes` (default 5,000; `Format-ConsoleTree -MaxNodes`) caps one inspection, so a wide object at a large depth
+- `MaxNodes` (default 5,000; `Show-ConsoleTree -MaxNodes`) caps one inspection, so a wide object at a large depth
   ends with a "node limit reached" marker instead of millions of nodes.
 - Cycles are detected and marked.
 - Getters that would block or force work are not called. An incomplete `Task` or `ValueTask` and an uncreated
@@ -316,7 +316,7 @@ The object inspector (`InspectorView`, `ObjectInspector.Inspect`) shows .NET obj
   On net8.0 it is marked `RequiresUnreferencedCode`. For trimmed or AOT builds, set `UseReflection = false` and pass
   dictionaries or your own `IMemberSource`.
 
-From PowerShell, `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree` take pipeline input like the
+From PowerShell, `Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree` take pipeline input like the
 built-in Format cmdlets:
 
 - `-Property` accepts names, wildcards and calculated properties, as Format-Table does. A hashtable with column options
@@ -331,13 +331,13 @@ built-in Format cmdlets:
 - Redirected output is plain text.
 
 ```powershell
-Get-ChildItem C:\Windows\Logs -Recurse -File | Format-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
+Get-ChildItem C:\Windows\Logs -Recurse -File | Show-ConsoleTable -GroupBy Extension -Total -Top 20 -Property @(
     @{ Name = 'Name'; Key = $true }
     @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9 }
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
     @{ Name = 'FullName'; Header = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1 }
 )
-Get-Item C:\Windows\explorer.exe | Format-ConsoleTree -AsInspector -Depth 2
+Get-Item C:\Windows\explorer.exe | Show-ConsoleObject -StaticSnapshot -Depth 2
 ```
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security
@@ -378,12 +378,12 @@ are removed. Rich text is opt-in:
 - a presenter.
 
 ```powershell
-Get-Service | Select-Object -First 5 | Format-ConsoleTable -Property Name, @{
+Get-Service | Select-Object -First 5 | Show-ConsoleTable -Property Name, @{
     Name = 'Status'; Expression = {
-        if ($_.Status -eq 'Running') { New-ConsoleText '√ ', 'Running' -Role Pass } else { New-ConsoleText '× ', $_.Status -Role Fail -Style Bold }
+        if ($_.Status -eq 'Running') { New-ConsoleText '√ ', 'Running' -Role Pass } else { New-ConsoleText '× ', $_.Status -Role Fail -Decoration Bold }
     }
 }
-New-ConsolePanel -Title (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow) { New-ConsoleText 'body' } | Write-ConsoleWidget
+New-ConsolePanel -Title (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow) -Content { New-ConsoleText 'body' } | Show-Console
 ```
 
 ```csharp
@@ -392,7 +392,7 @@ table.AddValues(new RichTextBuilder().Append("SRV", ConsoleColor.Cyan).Append("0
 lanes.Add("srv01", RichText.Gradient("SRV01", RichColor.FromRgb(0, 198, 255), RichColor.FromRgb(255, 0, 170)));
 ```
 
-`Write-ConsoleText` writes multicolour lines and optionally a log. `Write-ConsoleStatus` shows one line that
+`Write-ConsoleText` writes multicolour lines and optionally a log. `Show-ConsoleStatusLine` shows one line that
 updates in place:
 
 - It can show a spinner, a clock and the elapsed time.
@@ -446,7 +446,7 @@ Terminal.WriteMarkup("[cadetblue]Checking[/] ");   // no newline, like Spectre's
 `Terminal.Status` runs work under a one-line spinner, like Spectre's `AnsiConsole.Status().Start`. The line is an
 inline live area: console output written meanwhile scrolls above it, and the line is removed when the work ends, even
 when it throws. Redirected output, CI logs and plain mode get
-each new status text once as a plain line instead, as `Write-ConsoleStatus` does.
+each new status text once as a plain line instead, as `Show-ConsoleStatusLine` does.
 
 ```csharp
 Terminal.Status("Resolving…", ctx => {
@@ -460,34 +460,17 @@ int found = await Terminal.StatusAsync("Scanning…", async ctx => await ScanAsy
 
 `Terminal.Clear()` clears the screen and scrollback, and `Terminal.HideCursor()` hides the cursor until its handle is
 disposed or `Terminal.ShowCursor()` is called. The cursor also comes back when the process exits or Ctrl+C ends it.
-In PowerShell, `Clear-ConsoleScreen` clears the console and `Write-ConsoleMarkup -NoNewLine` leaves the line open. All of
+In PowerShell, `Clear-ConsoleScreen` clears the console and `Write-ConsoleText -Markup -NoNewLine` leaves the line open. All of
 them are safe in redirected output and CI: clearing and the cursor do nothing there, and markup becomes plain text.
 Clearing also does nothing while a live dashboard owns the console.
 
-### Coming from Write-Color
+### Writing text
 
-`Write-ConsoleText` takes the parameters and aliases of `Write-Color` from
-[PSWriteColor](https://github.com/EvotecIT/PSWriteColor), so most scripts migrate with a rename. There is deliberately
-no `Write-Color` or `wc` alias.
+`Write-ConsoleText` writes literal text pieces with independent `Color` and `BackgroundColor` arrays. `Role` selects a theme role, and `Decoration` adds Bold, Dim, Italic, Underline, Strikethrough or Invert. `New-ConsoleText` returns the same rich text for use in another widget.
 
-| Write-Color | Write-ConsoleText | Notes |
-|---|---|---|
-| `-Text` (`-T`) | `-Text` (`-T`) | Pieces are literal. Rich text from `New-ConsoleText` is accepted too. |
-| `-Color` (`-C`, `-ForegroundColor`, `-FGC`) | same | Also theme roles, `#RRGGBB`, `rgb()`, `r,g,b`. Extra pieces take the first colour, as in Write-Color. Without `-Color`, the terminal's own colour is used; Write-Color uses White. |
-| `-BackGroundColor` (`-B`, `-BGC`) | same | Counts don't have to match: extra pieces take the first background. |
-| `-StartTab` (`-Indent`) | same | Eight cells per tab. |
-| `-StartSpaces`, `-LinesBefore`, `-LinesAfter` | same | |
-| `-ShowTime`, `-DateTimeFormat` (`-DateFormat`, `-TimeFormat`) | same | |
-| `-NoNewLine` | same | Works in transcripts, jobs and the host route too. |
-| `-HorizontalCenter` | same | Measured in terminal cells, so emoji and CJK centre correctly. |
-| `-LogFile` (`-L`), `-LogTime` (`-LogTimeStamp`), `-LogRetry` | same | Appends under a file lock, with retries and warnings as in Write-Color. |
-| `-Encoding` | same | A new log defaults to UTF-8 without BOM; Write-Color defaults to UTF-16 "Unicode". The names mean the same (`unicode` is UTF-16 LE, `bigendianunicode` UTF-16 BE), plus `utf8BOM` and `utf8NoBOM`. Appending to an existing log always keeps its encoding (from its byte order mark, or UTF-16 text without one), so last month's Write-Color log stays UTF-16; a contradicting `-Encoding` gives a warning. |
-| `-NoConsoleOutput` (`-HideConsole`) | same | |
-| | `-Markup`, `-Style`, `-Link`, `-Role`, `-Gradient` | Markup after the pieces, decorations, hyperlinks, theme roles, colour gradients. |
-| | `-PadLeft`, `-PadRight`, `-PadCenter`, `-PadCharacter` | Padding in terminal cells (PSWriteColor #12). |
-| | `-Wrap`, `-Width` | Wraps with a hanging indent under the time and prefix. |
-| | `-SplitLines` | Splits at a separator and aligns the following lines under the first (PSWriteColor #7). |
-| | `-LogFormat Text\|Csv\|JsonLines`, `-LogSeparator`, `-Level`, `-Category` | Structured logs (PSWriteColor #11). |
+Use `ShowTimestamp` with `TimestampFormat` for a wall-clock prefix. Log-file timestamps use `LogTimestamp`; `LogFormat Text|Csv|JsonLines`, `Level` and `Category` control structured logs. New logs use UTF-8 without a byte order mark; existing logs retain their encoding. `NoNewLine` continues the current line, and `NoConsoleOutput` writes only to the log destination.
+
+`PadLeft`, `PadRight`, `PadCenter`, `PadCharacter`, `Wrap` and `SplitLines` measure terminal cells, including wide characters. Width 0 resolves the current target or terminal, with a fallback of 100 cells. Parameter abbreviations follow ordinary PowerShell binding; the module exports no compatibility aliases.
 
 Behaviour that differs because of the host routes:
 
@@ -495,7 +478,7 @@ Behaviour that differs because of the host routes:
 - In jobs and remoting, the colours travel with the output.
 - Redirected output is plain text.
 
-For an updating line (PSWriteColor #15), use `Write-ConsoleStatus 'Copying ', $file -Color Gray, Cyan -Spinner
+For an updating line (PSWriteColor #15), use `Show-ConsoleStatusLine 'Copying ', $file -Color Gray, Cyan -Spinner
 -ShowElapsed` and end it with `-Complete`.
 
 ## Prompts, menus and forms
@@ -513,8 +496,8 @@ Scripts and tools can ask questions, show menus and run wizards that look like t
 Prompts draw below the cursor and leave a one-line answer in the scrollback:
 
 ```powershell
-$environment = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment'
-$services = Get-Service | Read-ConsoleMultiSelection 'Services' -Display DisplayName -GroupBy Status -Minimum 1
+$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment'
+$services = Get-Service | Read-ConsoleMultiSelect 'Services' -Display DisplayName -GroupBy Status -Minimum 1
 $name = Read-ConsoleText 'Share name' -Pattern '[a-z][a-z0-9-]+' -PatternMessage 'Lower case letters, digits and dashes'
 $port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
 $token = Read-ConsoleSecret 'Token'
@@ -549,16 +532,16 @@ Prompts asked from a menu action appear in front of the app.
 | Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
 | `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
 
-Esc and Ctrl+C end a prompt with a `PromptCancelled` error (a typed confirmation answers `$false` instead).
+Esc and Ctrl+C end a prompt with a `PromptCanceled` error (a typed confirmation answers `$false` instead).
 
 ### Menus
 
 A menu runs as an app (`Shell`), a centred menu (`Classic`) or a list in the scrollback (`Inline`):
 
 ```powershell
-$menu = New-ConsoleMenu 'Backup helper' {
+$menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
-    New-ConsoleMenuItem 'Restore' -Hotkey r -Action { $backup = Read-ConsoleSelection 'Backup' -Choices (Get-Backup) -Display Name }
+    New-ConsoleMenuItem 'Restore' -Hotkey r -Action { $backup = Read-ConsoleSelect 'Backup' -Choices (Get-Backup) -Display Name }
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings -OnSubmit { $MenuContext.Toast("Saved: $($Values.Keep) days") }
     New-ConsoleMenuItem -Exit
 }
@@ -603,12 +586,12 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 ### Forms and wizards
 
 ```powershell
-$form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' {
-    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Default 'C:\Program Files\Agent' -Page Location -Parameter Path
-    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -Parameter Region
-    New-ConsoleField Server 'Server' -Type Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -Parameter Server
-    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -Parameter UseProxy
-    New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -Parameter Proxy
+$form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' -Content {
+    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Default 'C:\Program Files\Agent' -Page Location -ParameterName Path
+    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
+    New-ConsoleField Server 'Server' -Type Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -ParameterName Server
+    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
+    New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -ParameterName Proxy
 }
 $answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
 ```
@@ -628,7 +611,7 @@ A live session can draw inline instead of on the alternate screen: an area as ta
 cursor, output and log lines scroll above it, and the final state stays in the scrollback.
 
 ```powershell
-Start-ConsoleDashboard $dashboard -Inline { ... }          # -Transient leaves nothing behind
+Invoke-ConsoleDashboard $dashboard -Inline { ... }          # -Transient leaves nothing behind
 Use-ConsoleProgress { foreach ($i in 1..50) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 2) } }
 ```
 
@@ -662,8 +645,8 @@ lanes.Transient = true;              // nothing left at the end (with PrintFinal
 ```
 
 ```powershell
-New-ConsoleLanes -Name servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted
-New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
+New-ConsoleLanes -WidgetId servers -Lane 'DC01', 'DC02' -Total 40 -Column Standard, Rate -HideCompleted
+New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
 ```
 
 - Built-in columns: Spinner, Description, Bar, Percent, Count, Elapsed, Remaining, Rate (items or bytes per second),
@@ -680,7 +663,7 @@ New-ConsoleProgress 'Upload' -Total 500MB -Column Description, Bar, Percent, Byt
 
 ### Replaceable regions and live tables
 
-Any place in a layout can hold a `Slot`: a named region whose widget is replaced while the session runs. The swap goes
+Any place in a layout can hold a `RegionWidget`: a named region whose widget is replaced while the session runs. The swap goes
 through the update queue, so it is thread-safe and lands between frames; a surrounding panel keeps its frame and only
 the changed cells are redrawn. Live widgets inside the new content (lanes, logs, live tables) join the session under
 their names right away.
@@ -704,14 +687,14 @@ using (LiveSession session = new LiveSession(dashboard)) {
 ```
 
 ```powershell
-$d = New-ConsoleDashboard -Title 'Domain health' {
-    New-ConsolePanel -Title 'Domain controllers' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'Querying' } }
-    New-ConsolePanel -Title 'Jobs' -Fill { New-ConsoleLiveTable -Name jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
+$d = New-ConsoleDashboard -Title 'Domain health' -Content {
+    New-ConsolePanel -Title 'Domain controllers' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'Querying' } }
+    New-ConsolePanel -Title 'Jobs' -Fill -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State', 'Took' -MaxRows 8 }
 }
-Start-ConsoleDashboard $d {
-    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
-    Set-ConsoleRegion -Name main { $controllers | Format-ConsoleTable -AsWidget }
-    Update-ConsoleTable -Name jobs -Key 'dns@DC01' -Remove
+Invoke-ConsoleDashboard $d {
+    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Value 'dns', 'Running', ([timespan]::Zero)
+    Set-ConsoleRegion -WidgetId main -Content { $controllers | Show-ConsoleTable -AsWidget }
+    Update-ConsoleLiveTable -WidgetId jobs -Key 'dns@DC01' -Remove
 }
 ```
 
@@ -721,7 +704,7 @@ A recording keeps the text form of row values; region swaps carry in-process wid
 
 In Windows Terminal (and ConEmu) the tab and the taskbar button show the progress of a live session: a percentage
 from progress bars and lanes, red once a lane, a test or the dashboard status fails, yellow for warnings, and
-indeterminate work for spinners and status lines. `Write-ConsoleStatus`, `Terminal.Status`, `Use-ConsoleProgress`
+indeterminate work for spinners and status lines. `Show-ConsoleStatusLine`, `Terminal.Status`, `Use-ConsoleProgress`
 and `Invoke-ConsolePester` drive it too. It is written with the `OSC 9;4` sequence, only to terminals known to show it,
 never in CI, redirected or plain output, and it is cleared when the run ends, on Ctrl+C and on process exit.
 
@@ -756,11 +739,11 @@ Invoke-ConsolePester -Configuration $config -FullScreen -ExportHtml .\pester.htm
 ## Errors and exceptions
 
 ```powershell
-try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Format-ConsoleError }
-$Error[0] | Write-ConsoleException -ShowFrameworkFrames
+try { Get-Item C:\missing -ErrorAction Stop } catch { $_ | Show-ConsoleError }
+$Error[0] | Show-ConsoleError -ShowFrameworkFrames
 ```
 
-`ExceptionView` (C#) and `Format-ConsoleError` / `Write-ConsoleException` show an exception or ErrorRecord with its
+`ExceptionView` (C#) and `Show-ConsoleError` / `Show-ConsoleError` show an exception or ErrorRecord with its
 type and message, the PowerShell category, error id and position message, the source lines around the failing line
 (highlighted, the line marked), the script stack, .NET frames as `Type.Method()` with paths relative to the current
 folder and file:line links, framework frames collapsed into "+n framework frames", and inner exceptions as "Caused by".
@@ -770,11 +753,11 @@ their exception type.
 ## Syntax highlighting
 
 ```powershell
-Format-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
-Get-Content .\agent.log -Tail 20 | Format-ConsoleCode -Language Log
-Get-Process -Id $PID | Select-Object Name, Id | Format-ConsoleJson
-$hosts | Format-ConsoleTable -Property Name, @{ Name = 'Address'; Highlight = 'Smart' }
-Write-ConsoleLog 'GET https://example.com took 412ms' -Highlight Smart
+Show-ConsoleCode -Path .\deploy.ps1 -LineNumbers -Highlight '12-13'
+Get-Content .\agent.log -Tail 20 | Show-ConsoleCode -Language Log
+Get-Process -Id $PID | Select-Object Name, Id | Show-ConsoleJson
+$hosts | Show-ConsoleTable -Property Name, @{ Name = 'Address'; Highlight = 'Smart' }
+Write-ConsoleLogEntry 'GET https://example.com took 412ms' -Highlight Smart
 ```
 
 ```csharp
@@ -819,7 +802,7 @@ negotiation, presenters and tone rules, and the screen has the same header bar, 
 
 ```powershell
 Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName -Ignore 'Last*'
-if (Show-ConsoleChanges -Before $members -After $planned -Property SamAccountName -Title 'Domain Admins') {
+if (Show-ConsoleChanges -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') {
     Set-GroupMembers $planned
 }
 ```
@@ -840,10 +823,10 @@ honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or
 ## Rewinding runs
 
 ```powershell
-Start-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
+Invoke-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
 Show-ConsoleReplay $dashboard                                       # rewind the newest one
 Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
-Send-ConsoleEvent -Target '$marker' -Operation mark -Text 'Wave 2'  # a marker to jump to, while recording
+Send-ConsoleEvent -WidgetId '$marker' -Operation mark -Text 'Wave 2'  # a marker to jump to, while recording
 ```
 
 `Show-ConsoleReplay` (`ReplayPlayer.Play` in C#) plays a recording into the same dashboard and lets you move through
@@ -857,7 +840,7 @@ and PowerShell 7, in Windows Terminal and conhost; without an interactive consol
 
 Automatic recording is opt-in: `LiveSessionOptions.AutoRecord = 10` (or `-AutoRecord 10`) writes each run to
 `%LOCALAPPDATA%\ConsoleMonster\Recordings` and keeps the newest ten within `AutoRecordMaxBytes` (50 MB) together.
-Region swaps (`Set-ConsoleRegion`, `SlotHandle.Set`) carry widgets that a recording cannot hold, so the new content is
+Region swaps (`Set-ConsoleRegion`, `RegionHandle.Set`) carry widgets that a recording cannot hold, so the new content is
 recorded as a picture, together with later changes of the live widgets inside it, and replays as it looked.
 
 ## Export to HTML, SVG, text and asciicast
@@ -865,7 +848,7 @@ recorded as a picture, together with later changes of the live widgets inside it
 Any widget, rendered frame or live-session snapshot can be saved as a self-contained file:
 
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | Format-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Path .\services.html
 $dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -WindowChrome
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.svg      # animated, no script
 Export-ConsoleRecording -Dashboard $dashboard -Path .\run.jsonl -Destination .\run.html     # player with scrubbing
@@ -929,7 +912,7 @@ bool ok = new ConfirmPrompt("Deploy?").Show(TestTerminal.Interactive("y", captur
 
 ```powershell
 It 'renders the report' {
-    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
 }
 ```
 
@@ -1025,8 +1008,8 @@ UTF-8 file, `-Writer` a TextWriter, `-Target` any target, and with none of them 
 `-Width`, `-Glyphs` and `-Colors` lay it out.
 
 ```powershell
-Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Format-ConsoleTable; Write-ConsoleMarkup '[pass]done[/]' }
-$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Format-ConsoleTable }
+Use-ConsoleTarget -Path .\report.txt -Width 120 { $servers | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
+$text = Use-ConsoleTarget -Width 80 { Get-Service | Select-Object -First 5 | Show-ConsoleTable }
 ```
 
 ## Command-line tools with System.CommandLine
@@ -1085,7 +1068,7 @@ table shows `71,5 %`, `1,41 MB` and `1 234`; the words around them follow the UI
   the profile's decisions.
 - `TerminalProfile.WithCulture(culture)` for `Terminal.Write`, `LiveSessionOptions.Culture` for a live session, and
   `PresentationOptions.Culture` for one table, record view, key/value list or tree.
-- `-Culture en-US` on `Format-ConsoleTable`, `Format-ConsoleList` and `Format-ConsoleTree`.
+- `-Culture en-US` on `Show-ConsoleTable`, `Show-ConsoleList` and `Show-ConsoleTree`.
 
 The most specific setting wins: the widget's `PresentationOptions.Culture`, then `-Culture` or the session option, then
 the profile (`CONSOLEMONSTER_CULTURE`), then the current culture. Live dashboard counters (lanes, rates, clocks) and the
@@ -1103,7 +1086,7 @@ inspector's item counts use invariant digits regardless, because they are compac
 | A numeric series, or `-Chart` | A bar chart. |
 | Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |
 
-`-View Table|Cards|Tree|Inspector|Chart|Code|Text|Grid` overrides the choice; `Grid` opens `Show-ConsoleGrid` and
+Use the named commands to choose a view explicitly: `Show-ConsoleTable`, `Show-ConsoleList`, `Show-ConsoleTree`, `Show-ConsoleObject`, `Show-ConsoleChart`, `Show-ConsoleCode` or `Show-ConsoleGrid`. The grid
 returns what you pick.
 
 `Enable-ConsoleFormatting` (opt-in, for the session) shows the default output of files and folders (`Get-ChildItem`),
@@ -1185,7 +1168,7 @@ $previousNow = $env:CONSOLEMONSTER_NOW
 try {
     $env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'
     [pscustomobject]@{ Name = 'Report'; Changed = [datetimeoffset]'2026-10-21T09:00:00Z' } |
-        Format-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }
+        Show-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }
 } finally {
     $env:CONSOLEMONSTER_NOW = $previousNow
 }

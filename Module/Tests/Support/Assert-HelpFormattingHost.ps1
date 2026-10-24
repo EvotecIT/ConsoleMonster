@@ -21,7 +21,7 @@ $directory = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N
 $null = New-Item -ItemType Directory -Path $directory
 $savedPager = $env:PAGER
 $savedProfile = [ConsoleMonster.Terminal]::Profile
-$savedInput = [ConsoleMonster.Input.ConsoleInput]::Override
+$savedInput = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override
 $nativeHelp = (Get-Command help).Definition
 $nativeGetHelp = Get-Command Get-Help
 $checks = [Collections.Generic.List[string]]::new()
@@ -60,9 +60,9 @@ try {
     # A script's outer Out-Default was resolved before import. Explicitly invoke the installed shim as its host sink.
     # The nested producer has no following command; this is the same pipe connection as the interactive prompt.
     $width = [Console]::BufferWidth
-    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 200, 'None')
+    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 200, 'None')
     $native = Microsoft.PowerShell.Core\Get-Help Get-HelpFormattingShort
-    $factory = [ConsoleMonster.PowerShell.ConsoleViewRegistration].Assembly.GetType('ConsoleMonster.PowerShell.PSHelp').GetMethod('CreateView', [Reflection.BindingFlags]'Static,NonPublic')
+    $factory = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleViewRegistration')).Assembly.GetType('ConsoleMonster.PowerShell.PSHelp').GetMethod('CreateView', [Reflection.BindingFlags]'Static,NonPublic')
     $view = $factory.Invoke($null, @($native, (Get-Command Get-HelpFormattingShort).PSObject.BaseObject, $false, $false, $true))
     $expected = $view | Export-ConsoleFrame -Format Text -Width $width
     & { Get-Help Get-HelpFormattingShort } | Out-Default
@@ -147,32 +147,32 @@ try {
     $full = Microsoft.PowerShell.Core\Get-Help Get-HelpFormattingShort -Full
     $pagedView = $factory.Invoke($null, @($full, (Get-Command Get-HelpFormattingShort).PSObject.BaseObject, $false, $false, $true))
     $pagedExpected = $pagedView | Export-ConsoleFrame -Format Text -Width $width
-    $input = [ConsoleMonster.Input.ScriptedInput]::new('q')
-    [ConsoleMonster.Input.ConsoleInput]::Override = $input
+    $input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('q')
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $input
     & { help Get-HelpFormattingShort } | Out-Default
     Assert-HelpFrame $pagedExpected 'short help pager'
-    if ($input.Remaining -ne 1 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'Short help consumed input' }
+    if ($input.Remaining -ne 1 -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'Short help consumed input' }
     $checks.Add('Short help skips pager and leaves input alone')
 
     # Space advances, b returns, q exits. A remaining key proves early quit.
-    [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($width, 10, 'None')
-    $input = [ConsoleMonster.Input.ScriptedInput]::new('Space b q Space')
-    [ConsoleMonster.Input.ConsoleInput]::Override = $input
+    [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, 10, 'None')
+    $input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space b q Space')
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $input
     & { help Get-HelpFormattingValue -Full } | Out-Default
-    if ($input.Remaining -ne 1 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'Pager did not advance/quit/release input' }
+    if ($input.Remaining -ne 1 -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'Pager did not advance/quit/release input' }
     $checks.Add('Paged help advances with Space, returns with b, quits with q, releases input')
 
-    $input = [ConsoleMonster.Input.ScriptedInput]::new('q Space')
-    [ConsoleMonster.Input.ConsoleInput]::Override = $input
+    $input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('q Space')
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $input
     & { help Get-HelpFormattingValue -Parameter * } | Out-Default
-    if ($input.Remaining -ne 1 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'q did not stop all parameter help results' }
+    if ($input.Remaining -ne 1 -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'q did not stop all parameter help results' }
     & { Get-Help Get-HelpFormattingShort -Full } | Out-Default
     if ($input.Remaining -ne 1) { throw 'Paging state leaked into the next Get-Help command' }
     $checks.Add('q stops remaining parameter results and paging state does not leak')
 
     # A failed producer must release its marker before another command reuses this same active output pipe.
-    $input = [ConsoleMonster.Input.ScriptedInput]::new('q Space')
-    [ConsoleMonster.Input.ConsoleInput]::Override = $input
+    $input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('q Space')
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $input
     $script:HelpFailureCaught = $false
     & {
         try { help Get-HelpFormattingValue -Parameter NoSuchParameter -ErrorAction Stop }
@@ -180,7 +180,7 @@ try {
         Get-Help Get-HelpFormattingValue -Full
     } | Out-Default
     if (-not $script:HelpFailureCaught) { throw 'The invalid parameter request did not exercise a terminating producer error' }
-    if ($input.Remaining -ne 2 -or [ConsoleMonster.Input.ConsoleInput]::IsAcquired) { throw 'A failed help producer leaked paging into the same output sink' }
+    if ($input.Remaining -ne 2 -or ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired) { throw 'A failed help producer leaked paging into the same output sink' }
     $checks.Add('Terminating help failure releases paging before the same output sink continues')
 
     Disable-ConsoleFormatting
@@ -193,7 +193,7 @@ try {
     try { Stop-Transcript -ErrorAction Stop | Out-Null } catch { }
     Disable-ConsoleFormatting
     [ConsoleMonster.Terminal]::Profile = $savedProfile
-    [ConsoleMonster.Input.ConsoleInput]::Override = $savedInput
+    ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $savedInput
     $env:PAGER = $savedPager
     Remove-Item Function:Out-HelpFormattingTestPager -ErrorAction Ignore
     Remove-Item -LiteralPath $directory -Recurse

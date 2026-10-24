@@ -13,7 +13,7 @@ With -Result, counts one completed step (or -Steps steps) as passed, failed, war
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Update-ConsoleLane [-Key] <string> [-Name <string>] [-Result <StatusKind>] [-Steps <double>] [-Status <StatusKind>] [-Detail <Object>] [-Label <Object>] [-Total <double>] [-Complete] [-Session <LiveSession>] [<CommonParameters>]
+Update-ConsoleLane [[-WidgetId] <string>] [-Key] <string> [-Result <StatusKind>] [-Steps <double>] [-Status <StatusKind>] [-Detail <Object>] [-Label <Object>] [-Total <double>] [-Complete] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -81,7 +81,7 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -92,22 +92,6 @@ The lane label (when adding or renaming).
 
 ```yaml
 Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The lanes widget name (default lanes).
-
-```yaml
-Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -194,6 +178,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The lanes widget name (default lanes).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

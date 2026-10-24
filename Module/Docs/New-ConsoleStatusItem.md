@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates one status item, a step with a status and a detail, for New-ConsoleStatusList and New-ConsolePhases.
 
-Use it inside the script block of New-ConsoleStatusList (a checklist) or New-ConsolePhases (a strip of stages). -Status is the shared status vocabulary: Pass, Fail, Warn, Skip, Info, Running or Pending, and PowerShell's words such as Success, Warning and Error. -Detail is a muted note on the right, such as a duration. The label is shown literally; rich text from New-ConsoleText keeps its colours. -Key names the item for live updates (Update-ConsoleStatus, Update-ConsolePhase) when it differs from the label. To add items to a list made earlier, pipe the list to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleStatusList (a checklist) or New-ConsolePhases (a strip of stages). -Status is the shared status vocabulary: Pass, Fail, Warn, Skip, Info, Running or Pending, and PowerShell's words such as Success, Warning and Error. -Detail is a muted note on the right, such as a duration. The label is shown literally; rich text from New-ConsoleText keeps its colours. -Key names the item for live updates (Update-ConsoleStatusItem, Update-ConsolePhase) when it differs from the label. To add items to a list made earlier, pipe the list to Add-ConsoleItem.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,28 +19,28 @@ New-ConsoleStatusItem [-Label] <Object> [[-Status] <StatusKind>] [-Detail <Objec
 ## DESCRIPTION
 Creates one status item, a step with a status and a detail, for New-ConsoleStatusList and New-ConsolePhases.
 
-Use it inside the script block of New-ConsoleStatusList (a checklist) or New-ConsolePhases (a strip of stages). -Status is the shared status vocabulary: Pass, Fail, Warn, Skip, Info, Running or Pending, and PowerShell's words such as Success, Warning and Error. -Detail is a muted note on the right, such as a duration. The label is shown literally; rich text from New-ConsoleText keeps its colours. -Key names the item for live updates (Update-ConsoleStatus, Update-ConsolePhase) when it differs from the label. To add items to a list made earlier, pipe the list to Add-ConsoleItem.
+Use it inside the script block of New-ConsoleStatusList (a checklist) or New-ConsolePhases (a strip of stages). -Status is the shared status vocabulary: Pass, Fail, Warn, Skip, Info, Running or Pending, and PowerShell's words such as Success, Warning and Error. -Detail is a muted note on the right, such as a duration. The label is shown literally; rich text from New-ConsoleText keeps its colours. -Key names the item for live updates (Update-ConsoleStatusItem, Update-ConsolePhase) when it differs from the label. To add items to a list made earlier, pipe the list to Add-ConsoleItem.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleStatusList {
+New-ConsoleStatusList -Content {
     New-ConsoleStatusItem 'Restore NuGet packages' -Status Pass -Detail '1.6 s'
     New-ConsoleStatusItem 'Run Pester on PowerShell 7' -Status Warn -Detail '1 skipped'
     New-ConsoleStatusItem 'Publish to PowerShell Gallery' -Status Pending
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 A build checklist
 
 ### EXAMPLE 2
 ```powershell
-New-ConsolePhases {
+New-ConsolePhases -Content {
     New-ConsoleStatusItem 'Discover' -Status Pass -Detail '2.1s'
     New-ConsoleStatusItem 'Evaluate' -Status Running -Detail '64%'
     New-ConsoleStatusItem 'Report'
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Phases of a run
@@ -64,7 +64,7 @@ Accept wildcard characters: False
 ```
 
 ### -Key
-The key for live updates (Update-ConsoleStatus -Key, Update-ConsolePhase -Key); defaults to the label's text.
+The key for live updates (Update-ConsoleStatusItem -Key, Update-ConsolePhase -Key); defaults to the label's text.
 
 ```yaml
 Type: String

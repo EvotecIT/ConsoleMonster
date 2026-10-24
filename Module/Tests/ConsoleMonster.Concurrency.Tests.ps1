@@ -13,12 +13,12 @@ Describe 'Parallel live stream routing' {
         @{ Mode = 'Interactive'; LineEnding = 'CRLF' }
     ) {
         $body = @'
-$target = [ConsoleMonster.Output.RecordingTarget]::new([ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 20, 'None', 'Full', '__MODE__'))
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 20, 'None', 'Full', '__MODE__'))
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $newline = if ('__LINE_ENDING__' -eq 'CRLF') { "`r`n" } else { "`n" }
-    $dashboard = New-ConsoleDashboard -Title 'No log' { New-ConsoleText 'working' }
-    1..2 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 2 -ArgumentList $newline {
+    $dashboard = New-ConsoleDashboard -Title 'No log' -Content { New-ConsoleText 'working' }
+    1..2 | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 2 -ArgumentList $newline {
         param($item, $newline)
         Write-Host "host-$item-first${newline}host-$item-second"
         Write-Warning "warning-$item-first${newline}warning-$item-second"
@@ -44,8 +44,7 @@ try {
     }
 
     It 'routes host, warning and nested progress from <CommandName> without changing result records' -ForEach @(
-        @{ CommandName = 'Start-ConsoleDashboard' }
-        @{ CommandName = 'ForEach-ConsoleItem' }
+        @{ CommandName = 'Invoke-ConsoleDashboard' }
         @{ CommandName = 'Invoke-ConsoleRun' }
     ) {
         $setup = @(
@@ -74,7 +73,7 @@ try {
 }
 '@
             @'
-$target = [ConsoleMonster.Output.RecordingTarget]::new([ConsoleMonster.Capabilities.TerminalProfile]::Fixed(120, 40, 'None'))
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(120, 40, 'None'))
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $body = {
@@ -92,9 +91,9 @@ try {
         "result-$item"
     }
     $warnings = @()
-    if ('__COMMAND__' -eq 'Start-ConsoleDashboard') {
-        $dashboard = New-ConsoleDashboard -Title 'Parallel streams' { New-ConsoleLog }
-        $results = @(1..4 | Start-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 $body -ArgumentList $probe)
+    if ('__COMMAND__' -eq 'Invoke-ConsoleDashboard') {
+        $dashboard = New-ConsoleDashboard -Title 'Parallel streams' -Content { New-ConsoleLogRegion }
+        $results = @(1..4 | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 $body -ArgumentList $probe)
     } else {
         $results = @(1..4 | __COMMAND__ -Parallel -ThrottleLimit 4 $body -WarningVariable warnings -WarningAction SilentlyContinue)
     }
@@ -112,7 +111,7 @@ try {
     $scope.Dispose()
 }
 'PROBE:' + ($report | ConvertTo-Json -Depth 5 -Compress)
-'@.Replace('__COMMAND__', $CommandName).Replace('__PROBE_SETUP__', $(if ($CommandName -eq 'Start-ConsoleDashboard') { '' } else { '$probe = $using:probe' }))
+'@.Replace('__COMMAND__', $CommandName).Replace('__PROBE_SETUP__', $(if ($CommandName -eq 'Invoke-ConsoleDashboard') { '' } else { '$probe = $using:probe' }))
         ) -join "`n"
         $setup = "try {`n$setup`n} catch { [Console]::Out.WriteLine((`$_ | Out-String)); exit 1 }"
         $lines = @(Invoke-TestChild -Runtime $script:ConcurrencyRuntime -Script $setup -TimeoutSeconds 180)
@@ -122,7 +121,7 @@ try {
         $json.Count | Should -Be 1 -Because ($lines -join "`n")
         $report = $json[0].Substring(6) | ConvertFrom-Json
         ($report.Results | Sort-Object) -join ',' | Should -Be 'result-1,result-2,result-3,result-4'
-        if ($CommandName -ne 'Start-ConsoleDashboard') {
+        if ($CommandName -ne 'Invoke-ConsoleDashboard') {
             $report.Results -join ',' | Should -Be 'result-1,result-2,result-3,result-4'
             ($report.Warnings | Sort-Object) -join ',' | Should -Be 'warn-1,warn-2,warn-3,warn-4'
         }

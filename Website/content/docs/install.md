@@ -23,7 +23,7 @@ Then import it and print a first table:
 
 ```powershell
 Import-Module ConsoleMonster
-Get-Service | Select-Object -First 8 Name, Status, StartType | Write-ConsoleTable -Title 'Services' -StatusProperty Status
+Get-Service | Select-Object -First 8 Name, Status, StartType | Show-ConsoleTable -Title 'Services' -StatusProperty Status
 ```
 
 The module runs on Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.

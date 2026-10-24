@@ -31,7 +31,7 @@ LineChart throughput = new LineChart("throughput").WithHeight(7);
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
 Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations").WithHeight(6).WithUnit("s");
-BarChart findings = new BarChart("findings").WithBarToken(ThemeToken.Fail);
+BarChart findings = new BarChart("findings").WithRole(ThemeToken.Fail);
 foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) {
     findings.Add(category, 0);
 }

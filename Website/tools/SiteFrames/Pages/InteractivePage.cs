@@ -161,19 +161,19 @@ namespace SiteFrames.Pages {
             }
             string q(string text) => "'" + text.Replace("'", "''") + "'";
             string driver =
-                "$cmCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
-                "$cmKeys = [ConsoleMonster.Input.ScriptedInput]::new(" + q(story.Keys) + ")\n" +
+                "$cmCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(" + story.Width + ", " + story.Height + ", $" + (story.Inline ? "true" : "false") + ")\n" +
+                "$cmKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new(" + q(story.Keys) + ")\n" +
                 "$cmKeys.Paced = $true\n$cmKeys.RealTime = $" + (story.RealTime ? "true" : "false") + "\n" +
-                "$cmOptions = [ConsoleMonster.Interactive.InteractiveOptions]::Default\n" +
+                "$cmOptions = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default\n" +
                 "$cmOptions.Mode = 'Rich'\n$cmOptions.Input = $cmKeys\n$cmOptions.Capture = $cmCapture\n" +
-                "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::" + ThemeName(story) + "\n$cmOptions.Labels = [ConsoleMonster.Interactive.PromptLabels]::new()\n" +
+                "$cmOptions.Theme = [ConsoleMonster.Styling.Theme]::" + ThemeName(story) + "\n$cmOptions.Labels = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.PromptLabels'))::new()\n" +
                 "$cmCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n" +
-                "$cmOptions.Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(" + story.Width + ", " + story.Height + ", '" + story.Depth + "', '" + story.Glyphs + "').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
+                "$cmOptions.Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(" + story.Width + ", " + story.Height + ", '" + story.Depth + "', '" + story.Glyphs + "').WithCulture($cmCulture).WithLanguage($cmCulture)\n" +
                 ". " + q(script) + "\n" +
                 "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
                 "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
                 "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
-                "    $cmHtml = [ConsoleMonster.Export.ConsoleExporter]::ToHtml($cmFrame)\n" +
+                "    $cmHtml = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToHtml($cmFrame)\n" +
                 "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
                 "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
                 "}\n" +

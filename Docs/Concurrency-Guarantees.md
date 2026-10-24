@@ -5,7 +5,7 @@ PowerShell's parallel commands use the same dispatcher on Windows PowerShell 5.1
 
 ```powershell
 Import-Module ConsoleMonster
-'alpha', 'beta', 'gamma' | ForEach-ConsoleItem -Parallel -ThrottleLimit 3 {
+'alpha', 'beta', 'gamma' | Invoke-ConsoleRun -Parallel -ThrottleLimit 3 {
     Write-Host "Checking $_"
     Write-Progress -Id 0 -Activity "Checking $_" -PercentComplete 50
     if ($_ -eq 'beta') { Write-Warning 'A retry was needed' }
@@ -20,7 +20,7 @@ Ordinary results keep input order. Native warning/error/information records are 
 preserving `-WarningVariable` and downstream records; the live log contains one copy of each captured message.
 Without an interactive console, run commands print finished-item lines and a summary while results travel through the pipeline.
 
-`Start-ConsoleDashboard -Parallel` also captures host, warning, information, verbose/debug, error, and progress streams from
+`Invoke-ConsoleDashboard -Parallel` also captures host, warning, information, verbose/debug, error, and progress streams from
 its owned runspaces. Dashboard scripts receive caller values with `-ArgumentList` and `param()`; the run commands use `$using:name`.
 
 ## Output and queue behavior
@@ -67,7 +67,7 @@ They flush once when the render thread returns. Invalid strict markup in an uncl
 
 ## .NET alternative
 
-Create widgets on the definition thread, then use handles from workers. Direct widget mutations such as `Slot.Set`,
+Create widgets on the definition thread, then use handles from workers. Direct widget mutations such as `RegionWidget.Set`,
 `LogRegion.Write`, and property changes remain setup operations, not thread-safe live updates.
 
 ```csharp
@@ -78,7 +78,7 @@ using ConsoleMonster.Widgets;
 using System.Threading.Tasks;
 
 var summary = new SummaryBar("summary");
-var slot = new Slot("main", TextBlock.Plain("Waiting"));
+var slot = new RegionWidget("main", TextBlock.Plain("Waiting"));
 var log = new LogRegion();
 using (var session = new LiveSession(new Rows().Add(summary).Add(slot).Add(log))) {
     session.Run(s => {
@@ -94,7 +94,7 @@ using (var session = new LiveSession(new Rows().Add(summary).Add(slot).Add(log))
 ```
 
 `SummaryBarHandle.SetProgress` can update either value independently; omitted values retain the preceding queued value.
-`SetCounter` replaces a counter by label in apply order. `session.Region(name).Set(widget)` and `Slot.Handle(session).Set(widget)`
+`SetCounter` replaces a counter by label in apply order. `session.Region(name).Set(widget)` and `RegionWidget.Handle(session).Set(widget)`
 enqueue swaps. The next frame measures the new content and redraws only changed cells. The VT output contract is proved by
 [`RegionReplacement_UsesCellDiffWithoutFullInvalidation`](../ConsoleMonster.Tests/Live/SlotDiffTests.cs).
 Normal application happens on the render thread; after that thread joins, the stopping caller can perform the final drain.
@@ -117,7 +117,7 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Posting proceeds with blocked Apply; every accepted flood event drains | `Flood_PostingFinishesWhileApplyIsBlocked_ThenEveryAcceptedUpdateDrains` in the same file |
 | Producer order and serialized normal application under stress | [`ConcurrentProducersPreserveEveryEventAndProducerOrderOnTheRenderThread`](../ConsoleMonster.Tests/Live/LiveSessionTests.cs) |
 | ThrottleLimit bounds ForEachAsync bodies | [`ForEachAsync_ThrottleBoundsActiveBodiesUnderPressure`](../ConsoleMonster.Tests/Live/ThrottleConcurrencyTests.cs), limits 1, 3, and 8 |
-| Concurrent handles, SummaryBar partial updates, and queued Slot swaps | [`HandlesAndSlotSet_KeepEveryUpdateAndEachProducersLastValue`](../ConsoleMonster.Tests/Live/HandleConcurrencyTests.cs) |
+| Concurrent handles, SummaryBar partial updates, and queued RegionWidget swaps | [`HandlesAndSlotSet_KeepEveryUpdateAndEachProducersLastValue`](../ConsoleMonster.Tests/Live/HandleConcurrencyTests.cs) |
 | Per-thread fragments, CR/LF, and exactly-once tail flushing | [`ConcurrentFragments_StayWithTheirProducerUntilNewline`, `CarriageReturnState_BelongsToTheProducer`, `Complete_FlushesEveryProducerTailExactlyOnce`](../ConsoleMonster.Tests/Live/CaptureWriterConcurrencyTests.cs) |
 | Progressive no-log output and bounded full-screen tail with scrollback | [`StreamWithoutLog_WritesCapturedAndPostedLinesBeforeStopInApplyOrder`, `FullScreenWithoutLog_ShowsABoundedCaptureTailAndRetainsScrollback`](../ConsoleMonster.Tests/Live/UnclaimedOutputTests.cs) |
 | Strict malformed markup remains literal and later log events still arrive | `UnclaimedInvalidMarkup_IsLiteralAndDoesNotStopLaterEvents` in the same file, stream and full screen |

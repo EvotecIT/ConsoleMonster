@@ -5,23 +5,23 @@
 
     It 'restores process-wide interactive defaults after an isolated session changes or mutates them' {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')
-        $saved = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+        $saved = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
         $nonInteractive = $saved.NonInteractive
-        Invoke-GridViewSession '[ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = -not [ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive'
-        [object]::ReferenceEquals($saved, [ConsoleMonster.Interactive.InteractiveOptions]::Default) | Should -BeTrue
+        Invoke-GridViewSession '([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Interactive.InteractiveOptions''))::Default.NonInteractive = -not ([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Interactive.InteractiveOptions''))::Default.NonInteractive'
+        [object]::ReferenceEquals($saved, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default) | Should -BeTrue
         $saved.NonInteractive | Should -Be $nonInteractive
-        { Invoke-GridViewSession '[ConsoleMonster.Interactive.InteractiveOptions]::Default = [ConsoleMonster.Interactive.InteractiveOptions]::new(); throw "synthetic failure"' } | Should -Throw '*synthetic failure*'
-        [object]::ReferenceEquals($saved, [ConsoleMonster.Interactive.InteractiveOptions]::Default) | Should -BeTrue
+        { Invoke-GridViewSession '([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Interactive.InteractiveOptions''))::Default = ([ConsoleMonster.Terminal].Assembly.GetType(''ConsoleMonster.Interactive.InteractiveOptions''))::new(); throw "synthetic failure"' } | Should -Throw '*synthetic failure*'
+        [object]::ReferenceEquals($saved, ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default) | Should -BeTrue
     }
 
     It 'uses the terminal fallback for the Microsoft desktop stub on non-Windows hosts' -Skip:($env:OS -eq 'Windows_NT') {
         Invoke-GridViewSession -Native @'
 $native = Get-Command Out-GridView -CommandType Cmdlet
 if ($native.ImplementingType.FullName -ne 'Microsoft.PowerShell.Commands.OutGridViewCommand') { throw 'The desktop stub baseline is missing.' }
-$options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
-$options.Capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 22)
-$options.Input = [ConsoleMonster.Input.ScriptedInput]::new('F10')
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+$options.Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 22)
+$options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('F10')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
 Enable-ConsoleFormatting -Feature GridView
 if ((Get-Command Out-GridView).CommandType -ne 'Function') { throw 'The unusable desktop stub won command resolution.' }
@@ -51,7 +51,7 @@ if ($saved -cne ${function:global:Out-GridView}) { throw 'Native wrapper changed
     It 'requires explicit opt-in, excludes GridView from All, and installs no Out-Default or Write proxy' {
         Invoke-GridViewSession @'
 if (Get-Command Out-GridView -ErrorAction Ignore) { throw 'Missing-cmdlet namespace is not isolated.' }
-if (([int][ConsoleMonster.PowerShell.ConsoleFormattingFeature]::All -band 256) -ne 0) { throw 'GridView is in All.' }
+if (([int]((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ConsoleFormattingFeature'))::All -band 256) -ne 0) { throw 'GridView is in All.' }
 $write = @(Get-Command Write-* | ForEach-Object { $_.Name + ':' + $_.CommandType + ':' + $_.Definition }) -join "`n"
 $default = ${function:global:Out-Default}
 Enable-ConsoleFormatting -Feature GridView
@@ -186,11 +186,11 @@ if ((Out-GridView) -ne 'new user function') { throw 'Later user replacement was 
         @{ Mode = 'Wait'; Arguments = '-Wait'; Keys = 'Escape'; Expected = '' }
     ) {
         $body = @'
-$options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
-$capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 22)
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 22)
 $options.Capture = $capture
-$options.Input = [ConsoleMonster.Input.ScriptedInput]::new('__KEYS__')
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+$options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('__KEYS__')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $values = @([pscustomobject]@{ Name = 'alpha'; Id = 1 }, [pscustomobject]@{ Name = 'beta'; Id = 2 })
 Enable-ConsoleFormatting -Feature GridView
 $selected = @($values | Out-GridView -Title 'My selection' __ARGS__)
@@ -217,10 +217,10 @@ foreach ($arguments in @(@{PassThru=$true;Wait=$true}, @{PassThru=$true;OutputMo
 
     It 'maps explicit InputObject and output-variable captures without losing collection items' {
         Invoke-GridViewSession @'
-$options = [ConsoleMonster.Interactive.InteractiveOptions]::new()
-$options.Capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 22)
-$options.Input = [ConsoleMonster.Input.ScriptedInput]::new('Ctrl+A F10')
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+$options.Capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 22)
+$options.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+A F10')
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
 Enable-ConsoleFormatting -Feature GridView
 $selected = @(Out-GridView -InputObject $values -PassThru -OutVariable captured)
@@ -265,8 +265,8 @@ Disable-ConsoleFormatting
 
     It 'uses the existing noninteractive table fallback with no invented selections for captures and jobs' {
         Invoke-GridViewSession @'
-[ConsoleMonster.Interactive.InteractiveOptions]::Default = [ConsoleMonster.Interactive.InteractiveOptions]::new()
-[ConsoleMonster.Interactive.InteractiveOptions]::Default.NonInteractive = $true
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::new()
+([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.NonInteractive = $true
 Enable-ConsoleFormatting -Feature GridView
 $values = @([pscustomobject]@{Name='alpha'; Id=1}, [pscustomobject]@{Name='beta';Id=2})
 $warnings = @()

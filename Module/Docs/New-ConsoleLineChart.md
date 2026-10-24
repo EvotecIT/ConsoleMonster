@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).
 
-Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -Data (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
+Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -InputObject (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLineChart [[-Data] <Object>] [[-Content] <scriptblock>] [-InputObject <psobject>] [-Series <string[]>] [-Height <int>] [-Scatter] [-Unit <string>] [-Minimum <Double>] [-Maximum <Double>] [-Name <string>] [<CommonParameters>]
+New-ConsoleLineChart [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Content] <scriptblock>] [-Series <string[]>] [-Height <int>] [-Scatter] [-Unit <string>] [-Minimum <Double>] [-Maximum <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a line or scatter chart (braille on modern fonts, half blocks on Consolas, characters in ASCII mode).
 
-Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -Data (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
+Series come from a script block of New-ConsoleChartSeries calls (each with its values and an optional tone), from the pipeline, or from -InputObject (series names mapped to arrays of values). Values are spaced evenly. -Series declares empty series for a live chart. To add a series later, pipe the chart to Add-ConsoleItem; in a live dashboard, append values with Add-ConsoleValue -Key series.
 
 ## EXAMPLES
 
@@ -27,17 +27,17 @@ Series come from a script block of New-ConsoleChartSeries calls (each with its v
 ```powershell
 $completed = foreach ($i in 0..47) { 20 + 9 * [math]::Sin($i / 7) + $i % 3 }
 $failed = foreach ($i in 0..47) { 3 + 2 * [math]::Cos($i / 5) }
-New-ConsoleLineChart -Height 7 {
-    New-ConsoleChartSeries 'completed' -Value $completed -Tone Accent
-    New-ConsoleChartSeries 'failed' -Value $failed -Tone Fail
-} | Write-ConsoleWidget
+New-ConsoleLineChart -Height 7 -Content {
+    New-ConsoleChartSeries 'completed' -Value $completed -Role Accent
+    New-ConsoleChartSeries 'failed' -Value $failed -Role Fail
+} | Show-Console
 ```
 
 Two series with their own tones
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleLineChart -Height 8 -Data ([ordered] @{ cpu = 12, 30, 45, 38, 52; memory = 40, 41, 43, 47, 50 }) | Write-ConsoleWidget
+New-ConsoleLineChart -Height 8 -InputObject ([ordered] @{ cpu = 12, 30, 45, 38, 52; memory = 40, 41, 43, 47, 50 }) | Show-Console
 ```
 
 Series from a hashtable
@@ -45,7 +45,7 @@ Series from a hashtable
 ### EXAMPLE 3
 ```powershell
 $samples = foreach ($i in 0..59) { 40 + ($i * 37) % 23 }
-New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' { New-ConsoleChartSeries 'latency' $samples -Tone Accent2 } | Write-ConsoleWidget
+New-ConsoleLineChart -Scatter -Height 7 -Unit 'ms' -Content { New-ConsoleChartSeries 'latency' $samples -Role Accent2 } | Show-Console
 ```
 
 A scatter of latency samples
@@ -62,23 +62,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Data
-Series names mapped to value arrays (a script block here is taken as -Content).
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: 0
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -110,7 +94,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
+Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -137,22 +121,6 @@ The lowest value on the axis (default: the smallest value).
 
 ```yaml
 Type: Double
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live name (default chart).
-
-```yaml
-Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -207,6 +175,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default chart).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

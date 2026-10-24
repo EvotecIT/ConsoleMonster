@@ -11,4 +11,4 @@ Enable-ConsoleFormatting
 Get-Process svchost | Sort-Object CPU -Descending | Select-Object -First 8
 Get-ChildItem
 @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = $false }
-Get-Service W* | Format-ConsoleTable -GroupBy Status -Top 6
+Get-Service W* | Show-ConsoleTable -GroupBy Status -Top 6

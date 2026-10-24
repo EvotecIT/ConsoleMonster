@@ -47,7 +47,7 @@ try {
 Enable-ConsoleFormatting -Feature Prompt
 $table = [pscustomobject]@{ Name = 'sample'; Value = 42 } | Format-Table | Out-String
 if ($table -cne $nativeTable) { throw 'Native format pipeline changed.' }
-$target = [ConsoleMonster.Output.RecordingTarget]::new([ConsoleMonster.Terminal]::GetCurrentProfile())
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new([ConsoleMonster.Terminal]::GetCurrentProfile())
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     if ((prompt | Out-String) -cne $native) { throw 'Recording changed prompt bytes.' }
@@ -87,6 +87,6 @@ $fallbackRoutes = foreach ($route in 'SimpleMerge', 'Merge', 'AllStreams', 'Supp
     Routes = @($fallbackRoutes)
     AttachedConsole = $true
 } | ConvertTo-Json | Set-Content -LiteralPath ($ResultPath + '.fallback.json') -Encoding UTF8
-Set-ConsoleTheme -Name Dark
+Set-ConsoleTheme -Theme Dark
 Enable-ConsoleFormatting -Feature Prompt
 [Console]::WriteLine('PROMPT_HOST_CONTRACTS_OK')

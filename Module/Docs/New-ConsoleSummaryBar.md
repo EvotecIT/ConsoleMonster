@@ -8,24 +8,24 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a summary bar: one line with progress, done of total, the time left and result counters.
 
-The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -Elapsed and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
+The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSummaryBar [[-Done] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-Elapsed <TimeSpan>] [-BarWidth <int>] [-Name <string>] [<CommonParameters>]
+New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Done] <double>] [[-Total] <double>] [-Counter <IDictionary>] [-ElapsedSeconds <Double>] [-BarWidth <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a summary bar: one line with progress, done of total, the time left and result counters.
 
-The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -Elapsed and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
+The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSummaryBar -Done 30 -Total 40 -Elapsed (New-TimeSpan -Seconds 42) -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Write-ConsoleWidget
+New-ConsoleSummaryBar -Done 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console
 ```
 
 A run three quarters through
@@ -74,33 +74,17 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Elapsed
-The time the run has taken so far, for the time left: a TimeSpan, seconds, or a number with a unit (42s, 1.5m).
+### -ElapsedSeconds
+Elapsed seconds used to estimate remaining time. Fractional seconds are accepted.
 
 ```yaml
-Type: TimeSpan
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-The live name (default summary).
-
-```yaml
-Type: String
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -122,7 +106,23 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: 1
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WidgetId
+The live name (default summary).
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

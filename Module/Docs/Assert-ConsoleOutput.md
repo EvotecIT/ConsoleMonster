@@ -26,7 +26,7 @@ Renders a widget at a fixed width, glyph tier and culture (invariant by default)
 ### EXAMPLE 1
 ```powershell
 It 'renders the report table' {
-    $rows | Format-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
+    $rows | Show-ConsoleTable -AsWidget | Assert-ConsoleOutput -GoldenPath "$PSScriptRoot\Golden\report.txt" -Width 80
 }
 ```
 
@@ -131,7 +131,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Width in cells (default 80).
+Width in cells (default 0: terminal width, falling back to 100).
 
 ```yaml
 Type: Int32

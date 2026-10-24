@@ -13,7 +13,7 @@ Use it inside the script block of New-ConsoleLanes when lanes differ: each has i
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLane [-Key] <string> [-Label <Object>] [-Total <double>] [-Done <double>] [-Status <StatusKind>] [-Detail <Object>] [-Passed <int>] [-Failed <int>] [-Warned <int>] [-Skipped <int>] [-Started <TimeSpan>] [-Finished <TimeSpan>] [<CommonParameters>]
+New-ConsoleLane [-Key] <string> [-Label <Object>] [-Total <double>] [-Done <double>] [-Status <StatusKind>] [-Detail <Object>] [-Passed <int>] [-Failed <int>] [-Warned <int>] [-Skipped <int>] [-StartedSeconds <Double>] [-FinishedSeconds <Double>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,11 +25,11 @@ Use it inside the script block of New-ConsoleLanes when lanes differ: each has i
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLanes {
+New-ConsoleLanes -Content {
     New-ConsoleLane 'DC01' -Total 40 -Done 40 -Status Pass -Passed 40
     New-ConsoleLane 'DC02' -Total 40 -Done 22 -Status Running -Passed 21 -Warned 1 -Detail 'replication'
     New-ConsoleLane 'DC03' -Total 40
-} | Write-ConsoleWidget
+} | Show-Console
 ```
 
 Three servers at different points
@@ -84,11 +84,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Finished
-When the lane finished, measured from the start of the session. Together with -Started, makes elapsed-time columns deterministic.
+### -FinishedSeconds
+When the lane finished, measured from the start of the session. Together with -StartedSeconds, makes elapsed-time columns deterministic.
 
 ```yaml
-Type: TimeSpan
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -164,11 +164,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Started
+### -StartedSeconds
 When the lane started, measured from the start of the session. Preserved when added to New-ConsoleLanes or Add-ConsoleItem.
 
 ```yaml
-Type: TimeSpan
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

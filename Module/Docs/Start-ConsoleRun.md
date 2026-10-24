@@ -4,7 +4,7 @@ Module Name: ConsoleMonster
 online version: https://github.com/EvotecIT/ConsoleMonster
 schema: 2.0.0
 ---
-# New-ConsoleRun
+# Start-ConsoleRun
 ## SYNOPSIS
 Starts a bounded run dashboard for work scheduled by your script.
 
@@ -13,7 +13,7 @@ Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleRun -Items <psobject[]> [-Title <string>] [-Name <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-Trend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressSeconds <double>] [-ReportPath <string>] [<CommonParameters>]
+Start-ConsoleRun -Items <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-Trend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,12 +26,12 @@ Declares the queued items and returns a LiveRun handle. Use Update-ConsoleRun as
 ### EXAMPLE 1
 ```powershell
 $files = @(Get-ChildItem *.log)
-$run = New-ConsoleRun -Items $files -Title 'Archive logs' -Name Name -Target DirectoryName
+$run = Start-ConsoleRun -Items $files -Title 'Archive logs' -Label Name -Target DirectoryName
 try {
     for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-ConsoleRun $run -Index $i -State Running -Phase 'archiving'
-        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -State Pass }
-        catch { Update-ConsoleRun $run -Index $i -State Fail -Message $_.Exception.Message }
+        Update-ConsoleRun $run -Index $i -Status Running -Phase 'archiving'
+        try { Compress-Archive $files[$i].FullName "$($files[$i].FullName).zip" -ErrorAction Stop; Update-ConsoleRun $run -Index $i -Status Pass }
+        catch { Update-ConsoleRun $run -Index $i -Status Fail -Message $_.Exception.Message }
     }
 } finally { Complete-ConsoleRun $run }
 ```
@@ -40,7 +40,7 @@ Track a script without changing its output
 
 ### EXAMPLE 2
 ```powershell
-$run = New-ConsoleRun -Items $checks -Name Name -Target Server -Group Category -NoLive -ProgressEvery 20
+$run = Start-ConsoleRun -Items $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
 ```
 
 Use append-only output in CI
@@ -111,7 +111,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
+### -Label
 A name property or script block ($_ is the item). Default the item's display title.
 
 ```yaml
@@ -159,7 +159,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ProgressSeconds
+### -ProgressIntervalSeconds
 Print CI progress at this interval in seconds (default 10). Zero disables the timer.
 
 ```yaml

@@ -128,7 +128,7 @@ function Convert-CapturedSgrStyle {
         throw 'Unsupported captured foreground preference; no approximate style substituted.'
     }
     $markup = '[' + $specification + ']x[/]'
-    $parsed = [ConsoleMonster.Text.Markup]::Parse($markup, $null, [ConsoleMonster.Capabilities.ColorDepth]::TrueColor, $true)
+    $parsed = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.Markup'))::Parse($markup, $null, [ConsoleMonster.Capabilities.ColorDepth]::TrueColor, $true)
     $parsed.Lines[0][0].Style
 }
 $childTemplate = @'
@@ -138,7 +138,7 @@ $ProgressPreference = 'SilentlyContinue'
 try {
     Import-Module '__MODULE__'
     if ($Host.Name -ne 'ConsoleHost') { throw 'A genuine ConsoleHost is required.' }
-    Set-ConsoleTheme -Name '__THEME__'
+    Set-ConsoleTheme -Theme '__THEME__'
     # Synthetic host canvas only; never modify the parent's console or production defaults.
     $Host.UI.RawUI.BackgroundColor = '__BACKGROUND__'
     $Host.UI.RawUI.ForegroundColor = '__FOREGROUND__'
@@ -241,8 +241,8 @@ foreach ($theme in 'Light', 'Dark') {
         if ($state -eq 'before') { $beforeText = $plain } elseif ($plain -cne $beforeText) {
             throw "Streams changed native text for $runtimeName/$theme; before/after must differ only cosmetically."
         }
-        $canvas = [ConsoleMonster.Text.Markup]::Parse("[console.$foreground on console.$background]x[/]", $null, 'TrueColor', $true).Lines[0][0].Style
-        $frame = [ConsoleMonster.Canvas.CellBuffer]::new(96, 3)
+        $canvas = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.Markup'))::Parse("[console.$foreground on console.$background]x[/]", $null, 'TrueColor', $true).Lines[0][0].Style
+        $frame = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Canvas.CellBuffer'))::new(96, 3)
         $frame.Clear($canvas)
         $styles = [Collections.Generic.List[object]]::new()
         for ($row = 0; $row -lt 3; $row++) {
@@ -251,10 +251,10 @@ foreach ($theme in 'Light', 'Dark') {
                 $streamStyle = Convert-CapturedSgrStyle $configuration.Sgr
             } else {
                 $specification = '[console.' + $configuration.HostForeground + ' on console.' + $configuration.HostBackground + ']x[/]'
-                $streamStyle = [ConsoleMonster.Text.Markup]::Parse($specification, $null, 'TrueColor', $true).Lines[0][0].Style
+                $streamStyle = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.Markup'))::Parse($specification, $null, 'TrueColor', $true).Lines[0][0].Style
             }
             $resolved = $canvas.Combine($streamStyle)
-            if ([ConsoleMonster.Text.DisplayWidth]::Measure($lines[$row]) -gt 96) { throw 'Native output exceeds review width.' }
+            if (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($lines[$row]) -gt 96) { throw 'Native output exceeds review width.' }
             $null = $frame.Write(0, $row, $lines[$row], $resolved, 96)
             $styles.Add([pscustomobject]@{ Stream = $configuration.Name; Style = $resolved })
         }

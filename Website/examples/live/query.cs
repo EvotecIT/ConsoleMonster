@@ -68,6 +68,6 @@ Terminal.Write(new Rows()
     .Add(table)
     .Add(new Columns(
         new Panel(delegation, "Delegation"),
-        new Panel(new Rows(checks, new Rule(), latency), "Mail security").WithCaption("evotec.xyz"))));
+        new Panel(new Rows(checks, new Rule(), latency), "Mail security").WithHeaderRight("evotec.xyz"))));
 
 record DnsRecord(string Name, string Type, string Ttl, string Data);

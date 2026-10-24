@@ -4,7 +4,7 @@ Use the PowerShell-native surface when working in a PowerShell session:
 
 ```powershell
 Show-ConsoleHelp Get-ChildItem
-Get-Process | Format-ConsoleTable -Property ProcessName, Id, WorkingSet64
+Get-Process | Show-ConsoleTable -Property ProcessName, Id, WorkingSet64
 ```
 
 .NET hosts can use the same presentation library while keeping their own parser and execution model. The

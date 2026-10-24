@@ -184,7 +184,7 @@ namespace SiteFrames.Tests {
 
         [Theory]
         [InlineData("{\"a\":{\"frame\":{\"dark\":\"x\"}}}", 1)]
-        [InlineData("{\"a\":{\"script\":\"Write-ConsoleRule\",\"frame\":{\"dark\":\"x\"}}}", 0)]
+        [InlineData("{\"a\":{\"script\":\"Show-ConsoleRule\",\"frame\":{\"dark\":\"x\"}}}", 0)]
         [InlineData("{\"a\":{\"csharp\":\"x\",\"hosts\":[{\"frame\":{\"dark\":\"x\"}}]}}", 0)]
         [InlineData("{\"a\":{\"programRepo\":\"P/Program.cs\",\"frame\":{\"dark\":\"x\"}}}", 0)]
         [InlineData("{\"a\":{\"source\":\"x\"},\"b\":{\"sourceOf\":\"a\",\"poster\":{\"dark\":\"x\"}}}", 0)]
@@ -212,7 +212,7 @@ namespace SiteFrames.Tests {
         [Fact]
         public void PowerShellSyntax_ParseErrors_AreReportedWithTheirPageLine() {
             System.Collections.Generic.List<string> problems = SiteFrames.Capture.PowerShellSyntax.Check(new[] {
-                ("ok.md", 3, "Import-Module ConsoleMonster\nGet-Service | Format-ConsoleTable"),
+                ("ok.md", 3, "Import-Module ConsoleMonster\nGet-Service | Show-ConsoleTable"),
                 ("broken.md", 10, "Import-Module ConsoleMonster\nif ($x { 'missing paren' }")
             });
             Assert.NotEmpty(problems);

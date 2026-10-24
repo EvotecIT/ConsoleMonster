@@ -23,12 +23,12 @@ Describe 'Live regions, live tables, targets and symbol fallback' {
 
     It 'swaps a region and updates the live widgets inside the new content' {
         $text = Invoke-ContentChild -Script @'
-$d = New-ConsoleDashboard -Title 'Swap' { New-ConsolePanel -Title 'Main' { New-ConsoleRegion -Name main { New-ConsoleSpinner -Label 'waiting' } } }
-Start-ConsoleDashboard $d {
-    Set-ConsoleRegion -Name main { New-ConsoleLanes -Name servers }
-    Update-ConsoleLane -Name servers -Key srv1 -Status Running
-    Update-ConsoleLane -Name servers -Key srv1 -Result Pass
-    Update-ConsoleLane -Name servers -Key srv1 -Complete
+$d = New-ConsoleDashboard -Title 'Swap' -Content { New-ConsolePanel -Title 'Main' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleSpinner -Label 'waiting' } } }
+Invoke-ConsoleDashboard $d {
+    Set-ConsoleRegion -WidgetId main -Content { New-ConsoleLanes -WidgetId servers }
+    Update-ConsoleLane -WidgetId servers -Key srv1 -Status Running
+    Update-ConsoleLane -WidgetId servers -Key srv1 -Result Pass
+    Update-ConsoleLane -WidgetId servers -Key srv1 -Complete
 }
 '@
         $text | Should -Match 'srv1 started'
@@ -37,12 +37,12 @@ Start-ConsoleDashboard $d {
 
     It 'adds, updates and removes live table rows by key' {
         $text = Invoke-ContentChild -Script @'
-$d = New-ConsoleDashboard -Title 'Jobs' { New-ConsoleLiveTable -Name jobs -Column 'Job', 'State' -MaxRows 10 }
-Start-ConsoleDashboard $d {
-    Update-ConsoleTable -Name jobs -Key 1 -Value 'backup', 'running'
-    Update-ConsoleTable -Name jobs -Key 1 -Value 'backup', 'done'
-    Update-ConsoleTable -Name jobs -Key 2 -Value 'sync', 'running'
-    Update-ConsoleTable -Name jobs -Key 2 -Remove
+$d = New-ConsoleDashboard -Title 'Jobs' -Content { New-ConsoleLiveTable -WidgetId jobs -Column 'Job', 'State' -MaxRows 10 }
+Invoke-ConsoleDashboard $d {
+    Update-ConsoleLiveTable -WidgetId jobs -Key 1 -Value 'backup', 'running'
+    Update-ConsoleLiveTable -WidgetId jobs -Key 1 -Value 'backup', 'done'
+    Update-ConsoleLiveTable -WidgetId jobs -Key 2 -Value 'sync', 'running'
+    Update-ConsoleLiveTable -WidgetId jobs -Key 2 -Remove
 }
 '@
         $text | Should -Match 'backup  running'
@@ -53,8 +53,8 @@ Start-ConsoleDashboard $d {
     It 'returns the output of a script block as a string with Use-ConsoleTarget' {
         $text = Invoke-ContentChild -Script @'
 $captured = Use-ConsoleTarget -Width 30 {
-    Write-ConsoleMarkup '[pass]inside[/]'
-    [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Format-ConsoleTable
+    Write-ConsoleText -Markup '[pass]inside[/]'
+    [pscustomobject] @{ Name = 'alpha'; Count = 7 } | Show-ConsoleTable
     'pipeline output'
 }
 'OUTER-START'
@@ -71,7 +71,7 @@ $captured
 
     It 'writes to a file with Use-ConsoleTarget -Path' {
         $file = Join-Path $TestDrive 'report.txt'
-        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Write-ConsoleRule -Title 'Report'; Write-ConsoleMarkup '[muted]end[/]' }"
+        $null = Invoke-ContentChild -Script "Use-ConsoleTarget -Path '$file' -Width 40 { Show-ConsoleRule -Title 'Report'; Write-ConsoleText -Markup '[muted]end[/]' }"
         $content = Get-Content -LiteralPath $file
         $content[0] | Should -Match 'Report'
         $content[0].Length | Should -Be 40
@@ -80,26 +80,26 @@ $captured
 
     It 'shows emoji as ASCII on the ASCII glyph tier' {
         $text = Invoke-ContentChild -Environment @{ CONSOLEMONSTER_GLYPHS = 'ascii' } -Script @'
-[pscustomobject] @{ Check = "$([char]0x2705) backup"; Result = 'ok' } | Format-ConsoleTable -Width 40
+[pscustomobject] @{ Check = "$([char]0x2705) backup"; Result = 'ok' } | Show-ConsoleTable -Width 40
 '@
         $text | Should -Match '\[OK\] backup'
     }
 
     It 'updates cells, the summary bar and activities by name, keeping the bar''s total' {
         $text = Invoke-ContentChild -Script @'
-$map = New-ConsoleCellMap -Name checks -Count 4 -Columns 2 -RowLabels 'SRV01', 'SRV02'
+$map = New-ConsoleCellMap -WidgetId checks -Count 4 -Columns 2 -RowLabels 'SRV01', 'SRV02'
 $bar = New-ConsoleSummaryBar -Total 4 -Counter ([ordered] @{ passed = 0; failed = 0 })
-$list = New-ConsoleActivityList -Name running
-$d = New-ConsoleDashboard -Title 'Fleet' { $bar; $map; $list }
-Start-ConsoleDashboard $d {
-    Update-ConsoleActivity -Name running -Id 1 -Activity 'SRV01 check'
-    Update-ConsoleActivity -Name running -Id 2 -Activity 'SRV02 check' -Percent 50 -Status 'second try'
-    Update-ConsoleCell -Name checks -Index 0, 1 -Status Pass
-    Update-ConsoleCell -Name checks -Index 3 -Status Error
-    Update-ConsoleCell -Name checks -Add -Status Warn
+$list = New-ConsoleActivityList -WidgetId running
+$d = New-ConsoleDashboard -Title 'Fleet' -Content { $bar; $map; $list }
+Invoke-ConsoleDashboard $d {
+    Update-ConsoleActivity -WidgetId running -Id 1 -Activity 'SRV01 check'
+    Update-ConsoleActivity -WidgetId running -Id 2 -Activity 'SRV02 check' -PercentComplete 50 -Detail 'second try'
+    Update-ConsoleCell -WidgetId checks -Index 0, 1 -Status Pass
+    Update-ConsoleCell -WidgetId checks -Index 3 -Status Error
+    Update-ConsoleCell -WidgetId checks -Add -Status Warn
     Update-ConsoleSummaryBar -Done 1 -Counter ([ordered] @{ passed = 1 })
     Update-ConsoleSummaryBar -Done 3 -Counter ([ordered] @{ passed = 2; failed = 1 })
-    Update-ConsoleActivity -Name running -Id 1 -Complete
+    Update-ConsoleActivity -WidgetId running -Id 1 -Completed
 }
 "map=$($map[0]),$($map[1]),$($map[2]),$($map[3]),$($map[4])"
 "bar=$($bar.Done)/$($bar.Total)"
@@ -112,14 +112,14 @@ Start-ConsoleDashboard $d {
         $text | Should -Match '2 passed'
     }
 
-    It 'shows the time of a simulated clock in the header and the log with Start-ConsoleDashboard -Clock' {
+    It 'shows the time of a simulated clock in the header and the log with Invoke-ConsoleDashboard -Clock' {
         $text = Invoke-ContentChild -Script @'
-$clock = New-ConsoleClock -Speed 0
-$d = New-ConsoleDashboard -Title 'Replay' { New-ConsoleLog -Height 3 }
-Start-ConsoleDashboard $d -Clock $clock -ArgumentList $clock {
+$clock = New-ConsoleSimulatedClock -Speed 0
+$d = New-ConsoleDashboard -Title 'Replay' -Content { New-ConsoleLogRegion -Height 3 }
+Invoke-ConsoleDashboard $d -Clock $clock -ArgumentList $clock {
     param($Clock)
     $Clock.Advance(83)
-    Write-ConsoleLog 'replayed'
+    Write-ConsoleLogEntry 'replayed'
 }
 '@
         $text | Should -Match '00:01:23'

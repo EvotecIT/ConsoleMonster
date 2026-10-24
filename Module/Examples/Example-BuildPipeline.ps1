@@ -16,20 +16,20 @@ $steps = @(
     @{ Phase = 'Publish'; Key = 'publish'; Label = 'Publish to PowerShell Gallery'; Seconds = 0.3; Result = 'Skip' }
 )
 
-$dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Build-Module ConsoleMonster' -Gap 1 {
+$dashboard = New-ConsoleDashboard -Title '[bold]Module build[/]' -Subtitle 'Build-Module ConsoleMonster' -Gap 1 -Content {
     New-ConsolePhases -Phase 'Prepare', 'Restore', 'Build', 'Test', 'Docs', 'Package', 'Publish'
-    New-ConsoleColumns {
-        New-ConsolePanel -Title 'Steps' -Weight 1.5 { New-ConsoleStatusList -Name steps -Item $steps.Label }
-        New-ConsolePanel -Title 'Module' {
-            New-ConsoleKeyValue -Name module -Data ([ordered] @{ Module = 'ConsoleMonster'; Version = '2.0.0'; Frameworks = 'netstandard2.0 · net472 · net8.0'; Elapsed = '-' })
+    New-ConsoleColumns -Content {
+        New-ConsolePanel -Title 'Steps' -Weight 1.5 -Content { New-ConsoleStatusList -WidgetId steps -Item $steps.Label }
+        New-ConsolePanel -Title 'Module' -Content {
+            New-ConsoleKeyValue -WidgetId module -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Version = '2.0.0'; Frameworks = 'netstandard2.0 · net472 · net8.0'; Elapsed = '-' })
             New-ConsoleRule
-            New-ConsoleProgress -Name overall -Label 'Overall' -Total $steps.Count
+            New-ConsoleProgress -WidgetId overall -Label 'Overall' -Total $steps.Count
         }
     }
-    New-ConsolePanel -Title 'Output' -Fill { New-ConsoleLog }
+    New-ConsolePanel -Title 'Output' -Fill -Content { New-ConsoleLogRegion }
 }
 
-Start-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
+Invoke-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
     param($Steps)
     $watch = [System.Diagnostics.Stopwatch]::StartNew()
     $phase = $null
@@ -42,19 +42,19 @@ Start-ConsoleDashboard $dashboard -ArgumentList (, $steps) {
             $phase = $step.Phase
             Update-ConsolePhase -Key $phase -Status Running
         }
-        Update-ConsoleStatus -Name steps -Key $step.Label -Status Running
+        Update-ConsoleStatusItem -WidgetId steps -Key $step.Label -Status Running
         Write-Host "$($step.Label)..."
         Start-Sleep -Milliseconds ([int] ($step.Seconds * 1000))
         if ($step.Result -eq 'Warn') {
             Write-Warning '1 Pester test skipped on PowerShell 7 (requires conhost)'
         }
-        Update-ConsoleStatus -Name steps -Key $step.Label -Status $step.Result -Detail ($step.Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+        Update-ConsoleStatusItem -WidgetId steps -Key $step.Label -Status $step.Result -Detail ($step.Seconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
         $index++
-        Update-ConsoleProgress -Name overall -Value $index
-        Set-ConsoleValue -Name module -Key Elapsed -Value ($watch.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
+        Update-ConsoleProgress -WidgetId overall -Value $index
+        Set-ConsoleValue -WidgetId module -Key Elapsed -Value ($watch.Elapsed.TotalSeconds.ToString('0.0', [cultureinfo]::InvariantCulture) + 's')
     }
     Update-ConsolePhase -Key $phase -Status Skip
-    Update-ConsoleProgress -Name overall -Status Pass
+    Update-ConsoleProgress -WidgetId overall -Status Pass
     Write-Host 'Build completed: Artefacts\Packed\ConsoleMonster-PowerShellModule.v2.0.0.zip'
     Start-Sleep -Seconds 2
 }

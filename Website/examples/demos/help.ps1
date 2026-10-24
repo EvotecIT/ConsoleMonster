@@ -23,7 +23,7 @@ function Test-MailDomain {
     Test-MailDomain -Domain evotec.xyz
 
     .EXAMPLE
-    'evotec.xyz', 'evotec.pl' | Test-MailDomain -Selector selector1, selector2 | Format-ConsoleTable
+    'evotec.xyz', 'evotec.pl' | Test-MailDomain -Selector selector1, selector2 | Show-ConsoleTable
     #>
     [CmdletBinding()]
     param(

@@ -50,7 +50,7 @@ function Assert-PromptFallback {
         $preferences = $ErrorActionPreference, $WarningPreference, $VerbosePreference, $DebugPreference, $InformationPreference, $ProgressPreference
         if ($Route -eq 'Recording') {
             $previousTarget = [ConsoleMonster.Terminal]::Target
-            $target = [ConsoleMonster.Output.RecordingTarget]::new([ConsoleMonster.Terminal]::GetCurrentProfile())
+            $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new([ConsoleMonster.Terminal]::GetCurrentProfile())
             $scope = [ConsoleMonster.Terminal]::Use($target)
         }
         $results = foreach ($enabled in $false, $true) {

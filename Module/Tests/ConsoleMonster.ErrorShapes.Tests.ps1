@@ -15,13 +15,13 @@ Describe 'Synthetic compact error shapes' {
         $script:RuntimeName = if ($PSVersionTable.PSVersion.Major -ge 7) { 'ps7' } else { 'ps5' }
         $script:NativeErrorView = if ($PSVersionTable.PSVersion.Major -ge 7) { 'ConciseView' } else { 'NormalView' }
         $script:English = [Globalization.CultureInfo]::GetCultureInfo('en-US')
-        [ConsoleMonster.Terminal]::Profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(120, 80).WithLanguage($script:English).WithCulture($script:English)
+        [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(120, 80).WithLanguage($script:English).WithCulture($script:English)
     }
     AfterAll { [ConsoleMonster.Terminal]::Profile = $script:SavedProfile; $global:ErrorView = $script:SavedErrorView; Disable-ConsoleFormatting }
 
     It 'uses the fallback header for a script-level throw without inventing a command name' {
         $record = try { & { throw 'Synthetic script-level failure.' } } catch { $_ }
-        $widget = $record | Format-ConsoleError -Compact -AsWidget
+        $widget = $record | Show-ConsoleError -Compact -AsWidget
         $text = [ConsoleMonster.Terminal]::RenderText($widget, [ConsoleMonster.Terminal]::Profile, [ConsoleMonster.Styling.Theme]::Dark)
         $text | Should -Match '^Error: Synthetic script-level failure\.'
         $text | Should -Not -Match 'NotSpecified'
@@ -40,13 +40,13 @@ Describe 'Synthetic compact error shapes' {
                 Enable-ConsoleFormatting -Feature Errors
                 try { ($record | Out-String -Width $Width) | Should -BeExactly $native }
                 finally { Disable-ConsoleFormatting -Feature Errors }
-                $widgets.Add(($record | Format-ConsoleError -Compact -AsWidget))
-            } else { $widgets.Add([ConsoleMonster.Widgets.TextBlock]::Plain([string] $record)) }
+                $widgets.Add(($record | Show-ConsoleError -Compact -AsWidget))
+            } else { $widgets.Add(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TextBlock'))::Plain([string] $record)) }
         }
-        $view = [ConsoleMonster.Layout.Rows]::new($widgets.ToArray())
+        $view = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Layout.Rows'))::new($widgets.ToArray())
         $frame = [ConsoleMonster.Terminal]::Render($view, $profile, $themeObject)
         $text = $frame.ToPlainText().Replace("`r", '').TrimEnd()
-        @($text -split "`n" | Where-Object { [ConsoleMonster.Text.DisplayWidth]::Measure($_) -gt $Width }).Count | Should -Be 0
+        @($text -split "`n" | Where-Object { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Text.DisplayWidth'))::Measure($_) -gt $Width }).Count | Should -Be 0
         switch ($Shape) {
             'splat-command' {
                 $records[0].InvocationInfo.MyCommand.CommandType | Should -Be ([Management.Automation.CommandTypes]::Cmdlet)
@@ -77,7 +77,7 @@ Describe 'Synthetic compact error shapes' {
                 $text | Should -Match 'detached worker'
                 $written = @(& { Write-Error -Exception $records[0].Exception -ErrorAction Continue } 2>&1)
                 $written[0] | Should -BeOfType ([Management.Automation.ErrorRecord])
-                $writtenWidget = $written[0] | Format-ConsoleError -Compact -AsWidget
+                $writtenWidget = $written[0] | Show-ConsoleError -Compact -AsWidget
                 $writtenText = [ConsoleMonster.Terminal]::RenderText($writtenWidget, $profile, $themeObject)
                 $writtenText | Should -Match 'detached worker'
                 $writtenText | Should -Not -Match '(?m)^\s*:\d+'

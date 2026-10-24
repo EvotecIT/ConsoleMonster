@@ -33,7 +33,7 @@ Enable-ConsoleFormatting
 Get-ContosoServer
 
 # Explicit formatting and export use the same registered columns.
-Get-ContosoServer | Format-ConsoleTable -As Markdown
+Get-ContosoServer | Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Markdown
 ```
 
 Files extend the existing `Register-ConsoleView` registry. An explicit registration takes precedence over automatically discovered module data. Registrations belong to the current PowerShell runspace. Disabling session formatting preserves registrations for later use.
@@ -49,7 +49,7 @@ Register-ConsoleView -TypeName Contoso.Server -Property Name, @{
     FormatString = 'N1'
 }
 
-Register-ConsoleView -TypeName Contoso.Server -Remove
+Unregister-ConsoleView -TypeName Contoso.Server
 ```
 
 Discovery does not import other modules or alter their objects. A discovered module is inspected once per session; use `Register-ConsoleView -Path` to reload a file during development. Existing explicit registrations are kept during automatic discovery. PowerShell's own named `Format-* -View` definitions remain separate and come from `.format.ps1xml` files.

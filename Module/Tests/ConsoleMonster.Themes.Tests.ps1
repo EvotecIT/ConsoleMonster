@@ -15,7 +15,7 @@
 
     It 'selects each built-in preset including ColorBlindSafe' {
         foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
-            Set-ConsoleTheme -Name $preset
+            Set-ConsoleTheme -Theme $preset
             [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $preset
         }
     }
@@ -31,7 +31,7 @@
         $file | Should -BeOfType System.IO.FileInfo
         $file.FullName | Should -BeExactly $path
         [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
-        Set-ConsoleTheme -Name Light
+        Set-ConsoleTheme -Theme Light
         Set-ConsoleTheme -Path $path
         [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $before.Name
         foreach ($token in [Enum]::GetValues([ConsoleMonster.Styling.ThemeToken])) {
@@ -40,8 +40,8 @@
             }
             $expected = $before.Get($token)
             $actual = [ConsoleMonster.Terminal]::Theme.Get($token)
-            [object]::Equals($actual.Foreground, $expected.Foreground) | Should -BeTrue
-            [object]::Equals($actual.Background, $expected.Background) | Should -BeTrue
+            [object]::Equals($actual.Color, $expected.Color) | Should -BeTrue
+            [object]::Equals($actual.BackgroundColor, $expected.BackgroundColor) | Should -BeTrue
             $actual.Decoration | Should -Be $expected.Decoration
         }
         if ($Extension -eq 'psd1') {
@@ -60,9 +60,9 @@
         }
         $theme = [ConsoleMonster.Terminal]::Theme
         $theme.Name | Should -BeExactly 'Team'
-        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Pass).Foreground.TrueColor.ToString() | Should -BeExactly '#123456'
-        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Pass).Foreground.Ansi16 | Should -Be 14
-        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Focus).Background | Should -BeNullOrEmpty
+        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Pass).Color.TrueColor.ToString() | Should -BeExactly '#123456'
+        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Pass).Color.Ansi16 | Should -Be 14
+        $theme.Get([ConsoleMonster.Styling.ThemeToken]::Focus).BackgroundColor | Should -BeNullOrEmpty
         $theme.Get([ConsoleMonster.Styling.ThemeToken]::Header).Equals([ConsoleMonster.Styling.Theme]::Light.Get([ConsoleMonster.Styling.ThemeToken]::Header)) | Should -BeTrue
     }
 
@@ -74,7 +74,7 @@
         @{ Case = 'malformed-json'; File = 'malformed.json'; Message = '*JSON*' }
         @{ Case = 'duplicate-key'; File = 'duplicate.json'; Message = '*Duplicate*' }
     ) {
-        Set-ConsoleTheme -Name HighContrast
+        Set-ConsoleTheme -Theme HighContrast
         $before = [ConsoleMonster.Terminal]::Theme
         { Set-ConsoleTheme -Path (Join-Path $script:Fixtures $File) -ErrorAction Stop } | Should -Throw -ExpectedMessage $Message
         [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue

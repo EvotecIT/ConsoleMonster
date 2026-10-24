@@ -211,7 +211,7 @@ namespace SiteFrames.Frames {
                     continue;
                 }
                 Style s = cell.Style;
-                if (!s.Background.IsDefault || (s.Decoration & (TextDecoration.Underline | TextDecoration.Strikethrough | TextDecoration.Reverse)) != 0) {
+                if (!s.BackgroundColor.IsDefault || (s.Decoration & (TextDecoration.Underline | TextDecoration.Strikethrough | TextDecoration.Reverse)) != 0) {
                     return x + 1;
                 }
             }
@@ -268,8 +268,8 @@ namespace SiteFrames.Frames {
         public IEnumerable<string> Glyphs => _glyphs;
 
         public string ClassesFor(Style style, Screen screen) {
-            string? fg = Css(style.Foreground);
-            string? bg = Css(style.Background);
+            string? fg = Css(style.Color);
+            string? bg = Css(style.BackgroundColor);
             TextDecoration d = style.Decoration;
             bool reverse = (d & TextDecoration.Reverse) != 0;
             List<string> classes = new List<string>(4);

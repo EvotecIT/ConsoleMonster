@@ -38,15 +38,15 @@ Describe 'Talks and demos' {
         $files = @(Export-ConsoleRecording $cast -Format Png -PerChapter -Destination $slides -Preset Slide16x9 -PassThru)
         $files.Count | Should -Be 2
         $files[0].Name | Should -Be 'slide-001.png'
-        Export-ConsoleRecording $cast -Format Png -At '00:00:00.2' -Preset Social -Fit Terminal -Background Gradient -BackgroundColor '#142238' -BackgroundEndColor '#090e17' -Destination (Join-Path $TestDrive 'at.png')
+        Export-ConsoleRecording $cast -Format Png -AtSeconds 00.2 -Preset Social -Fit Terminal -Background Gradient -BackgroundColor '#142238' -BackgroundEndColor '#090e17' -Destination (Join-Path $TestDrive 'at.png')
         Export-ConsoleRecording $cast -Format Png -Chapter First -Destination (Join-Path $TestDrive 'chapter.png')
         foreach ($format in @('Gif', 'Apng')) {
             $target = Join-Path $TestDrive ('talk.' + $format.ToLowerInvariant())
-            Export-ConsoleRecording $cast -Format $format -Destination $target -LoopCount 2 -IdleLimit 0.5
+            Export-ConsoleRecording $cast -Format $format -Destination $target -LoopCount 2 -IdleLimitSeconds 0.5
             (Get-Item $target).Length | Should -BeGreaterThan 100
         }
-        { Export-ConsoleRecording $cast -Format Gif -At '00:00:01' -Destination (Join-Path $TestDrive 'bad.gif') } | Should -Throw '*PNG selector*'
-        { Export-ConsoleRecording $cast -Format Png -At '00:00:01' -PerChapter -Destination $slides } | Should -Throw '*Choose one*'
+        { Export-ConsoleRecording $cast -Format Gif -AtSeconds 01 -Destination (Join-Path $TestDrive 'bad.gif') } | Should -Throw '*PNG selector*'
+        { Export-ConsoleRecording $cast -Format Png -AtSeconds 01 -PerChapter -Destination $slides } | Should -Throw '*Choose one*'
     }
 
     It 'records typed commands in a real PowerShell child with a custom prompt' -Skip:([Environment]::OSVersion.Platform -eq 'Win32NT') {
@@ -60,11 +60,11 @@ Write-Host ('answer=' + (6 * 7))
 # demo: wait answer=42
 '@)
         $cast = Join-Path $TestDrive 'typed.cast'
-        Invoke-ConsoleDemo -Path $demo -Destination $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
+        Invoke-ConsolePresentation -Path $demo -Destination $cast -Width 50 -Height 8 | Should -BeOfType ([IO.FileInfo])
         $text = Export-ConsoleRecording $cast -Format Text
         $text | Should -Match 'answer=42'
         $text | Should -Match '任意>'
         Get-Content $cast -Raw | Should -Not -Match 'do-not-record-setup'
-        { Start-ConsoleDemo -Path $demo } | Should -Throw '*needs a terminal*'
+        { Show-ConsolePresentation -Path $demo } | Should -Throw '*needs a terminal*'
     }
 }

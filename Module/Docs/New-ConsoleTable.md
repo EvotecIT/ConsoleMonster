@@ -13,12 +13,12 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
+New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <Object[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ### Bind
 ```powershell
-New-ConsoleTable -Bind <scriptblock> [-Property <string[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
+New-ConsoleTable -Bind <scriptblock> [-Property <Object[]>] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,14 +30,14 @@ Columns come from -Property or from the first object's properties (or hashtable 
 
 ### EXAMPLE 1
 ```powershell
-Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Write-ConsoleWidget
+Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable -Title 'Services' | Show-Console
 ```
 
 Services as a table with a status column
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleApp { New-ConsoleTextInput -Name Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }
+Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status }
 ```
 
 Filter objects from current application state.
@@ -144,7 +144,7 @@ Accept wildcard characters: False
 Properties to show, in order.
 
 ```yaml
-Type: String[]
+Type: Object[]
 Parameter Sets: Objects, Bind
 Aliases: None
 Possible values:

@@ -28,7 +28,7 @@
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Name = 'a'; Count = 1 }))
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Name = 'b'; Color = 'blue'; Count = 2 }))
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, [object[]]@('N*', '*ount', 'Name'))
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@('N*', '*ount', 'Name'))
 'BINDING:' + (@($columns | ForEach-Object Name) | ConvertTo-Json -Compress)
 '@
         $result | Should -Be @('Name', 'Count')
@@ -43,7 +43,7 @@ $props = [object[]]@(
     @{ Name = 'Upper'; Expression = { $_.Name.ToUpperInvariant() } },
     @{ Name = 'Points'; Expression = 'Score' }
 )
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, $props)
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, $props)
 'BINDING:' + (@($columns | ForEach-Object { $_.GetValue($item) }) | ConvertTo-Json -Compress)
 '@
         $result | Should -Be @('ADA', 42)
@@ -53,13 +53,13 @@ $columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, $pro
         $result = Invoke-BindingChild @'
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Score = 95 }))
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, [object[]]@(@{
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@(@{
     Name = 'Score'; Header = 'Health'; Overflow = 'TruncateMiddle'; MaxLines = 2; Priority = 7; Key = $true
     MinWidth = 4; MaxWidth = 20; Width = 12; Alignment = 'Right'; Presenter = 'Number'; Unit = '%'
-    Aggregate = 'Average'; Flexible = $true; FailAbove = 90; Tone = @{ Above = 80; Tone = 'Warn' }
+    Aggregate = 'Average'; Flexible = $true; FailAbove = 90; Role = @{ Above = 80; Role = 'Warn' }
 }))
 $c = $columns[0].Column
-'BINDING:' + (@{ Header = $c.Header; Overflow = $c.Overflow.ToString(); MaxLines = $c.MaxLines; Priority = $c.Priority; Key = $c.IsKey; Min = $c.MinWidth; Max = $c.MaxWidth; Width = $c.Width; Alignment = $c.Alignment.ToString(); Presenter = $c.Presenter.GetType().Name; Aggregate = $c.Aggregate.ToString(); Flexible = $c.Flexible; ToneCount = $c.ToneRules.Count } | ConvertTo-Json -Compress)
+'BINDING:' + (@{ Header = $c.Header; Overflow = $c.Overflow.ToString(); MaxLines = $c.MaxLines; Priority = $c.Priority; Key = $c.IsKey; Min = $c.MinWidth; Max = $c.MaxWidth; Width = $c.Width; Alignment = $c.Alignment.ToString(); Presenter = $c.Presenter.GetType().Name; Aggregate = $c.Aggregate.ToString(); Flexible = $c.Flexible; ToneCount = $c.RoleRules.Count } | ConvertTo-Json -Compress)
 '@
         $result.Header | Should -Be 'Health'
         $result.Overflow | Should -Be 'TruncateMiddle'
@@ -81,7 +81,7 @@ $c = $columns[0].Column
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ A = 1 }))
 try {
-    [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, [object[]]@(@{ Name = 'A'; Bogus = 1 })) | Out-Null
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@(@{ Name = 'A'; Bogus = 1 })) | Out-Null
     throw 'expected binder failure'
 }
 catch {
@@ -97,8 +97,8 @@ catch {
 $item = [pscustomobject]@{ Score = 9; Team = 'red' }
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $items.Add([System.Management.Automation.PSObject]::AsPSObject($item))
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, [object[]]@(@{ Name = 'Score' }, @{ Name = 'Team'; Key = $true }))
-$broken = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, [object[]]@(@{ Name = 'Broken'; Expression = { throw 'evaluation failed' } }))
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@(@{ Name = 'Score' }, @{ Name = 'Team'; Key = $true }))
+$broken = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, [object[]]@(@{ Name = 'Broken'; Expression = { throw 'evaluation failed' } }))
 $value = $broken[0].GetValue($items[0])
 'BINDING:' + (@{ Keys = @($columns | ForEach-Object { $_.Column.IsKey }); Value = $value; Error = $broken[0].LastError } | ConvertTo-Json -Compress)
 '@
@@ -116,12 +116,12 @@ Update-TypeData -TypeName ConsoleMonster.Binding.DisplaySample -DefaultDisplayPr
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($p)
 $objects = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $objects.Add($wrapped)
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($objects, $null)
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($objects, $null)
 $scalars = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $scalars.Add([System.Management.Automation.PSObject]::AsPSObject(1))
 $scalars.Add([System.Management.Automation.PSObject]::AsPSObject(2))
 $scalars.Add([System.Management.Automation.PSObject]::AsPSObject(3))
-$scalarColumns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($scalars, $null)
+$scalarColumns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($scalars, $null)
 'BINDING:' + (@{ Names = @($columns | ForEach-Object Name); ScalarName = $scalarColumns[0].Name; ScalarValue = $scalarColumns[0].GetValue([System.Management.Automation.PSObject]::AsPSObject(2)) } | ConvertTo-Json -Compress)
 '@
         $result.Names | Should -Be @('Second', 'First')
@@ -137,7 +137,7 @@ $item = [pscustomobject]@{ Name = 'Ada'; Extra = 'included by the property union
 $item.PSObject.TypeNames.Insert(0, 'ConsoleMonster.Binding.MixedScalarFirstSample')
 Update-TypeData -TypeName ConsoleMonster.Binding.MixedScalarFirstSample -DefaultDisplayPropertySet @('Name') -Force
 $items.Add([System.Management.Automation.PSObject]::AsPSObject($item))
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, $null)
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, $null)
 $objectName = $columns | Where-Object Name -eq 'Name' | ForEach-Object { $_.GetValue($items[1]) }
 'BINDING:' + (@{ Names = @($columns | ForEach-Object Name); Scalar = $columns[0].GetValue($items[0]); ObjectName = $objectName } | ConvertTo-Json -Compress)
 '@
@@ -155,7 +155,7 @@ Update-TypeData -TypeName ConsoleMonster.Binding.MixedDisplaySample -DefaultDisp
 $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
 $items.Add([System.Management.Automation.PSObject]::AsPSObject($record))
 $items.Add([System.Management.Automation.PSObject]::AsPSObject(8))
-$columns = [ConsoleMonster.PowerShell.Binding.PropertyBinder]::Bind($items, $null)
+$columns = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PropertyBinder'))::Bind($items, $null)
 $objectName = $columns | Where-Object Name -eq 'Name' | ForEach-Object { $_.GetValue($items[0]) }
 'BINDING:' + (@{ Names = @($columns | ForEach-Object Name); Scalar = $columns[0].GetValue($items[1]); ObjectName = $objectName } | ConvertTo-Json -Compress)
 '@
@@ -170,8 +170,8 @@ $items = [System.Collections.Generic.List[System.Management.Automation.PSObject]
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Name = 'a'; Team = 'red'; Score = 2 }))
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Name = 'b'; Team = 'blue'; Score = 3 }))
 $items.Add([System.Management.Automation.PSObject]::AsPSObject([pscustomobject]@{ Name = 'c'; Team = 'red'; Score = 4 }))
-$byName = [ConsoleMonster.PowerShell.Binding.GroupBinder]::Group($items, 'Team')
-$byScript = [ConsoleMonster.PowerShell.Binding.GroupBinder]::Group($items, {
+$byName = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.GroupBinder'))::Group($items, 'Team')
+$byScript = ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.GroupBinder'))::Group($items, {
     if ($_.Score -gt 2) {
         'high'
     }
@@ -189,10 +189,10 @@ $byScript = [ConsoleMonster.PowerShell.Binding.GroupBinder]::Group($items, {
     It 'inspects a nested PSCustomObject through PSObjectMemberSource' {
         $result = Invoke-BindingChild @'
 $item = [pscustomobject]@{ Name = 'root'; Child = [pscustomobject]@{ Value = 17 } }
-$options = [ConsoleMonster.Data.InspectorOptions]::new()
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add([ConsoleMonster.PowerShell.Binding.PSObjectMemberSource]::new())
-$tree = [ConsoleMonster.Data.ObjectInspector]::Inspect($item, $options)
+$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
+$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($item, $options)
 $child = $tree.Members | Where-Object Name -eq 'Child'
 'BINDING:' + (@{ TypeName = $tree.TypeName; ChildType = $child.TypeName; Field = $child.Members[0].Name; Value = $child.Members[0].Value } | ConvertTo-Json -Compress)
 '@
@@ -206,14 +206,14 @@ $child = $tree.Members | Where-Object Name -eq 'Child'
         $result = Invoke-BindingChild @'
 $value = @{ Name = 'root'; Child = @{ A = 1 } }
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($value)
-$options = [ConsoleMonster.Data.InspectorOptions]::new()
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add([ConsoleMonster.PowerShell.Binding.PSObjectMemberSource]::new())
+$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    [ConsoleMonster.PowerShell.Binding.PSObjectMemberSource].GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
 )
-$tree = [ConsoleMonster.Data.ObjectInspector]::Inspect($wrapped, $options)
+$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 $child = $tree.Members | Where-Object Name -eq 'Child'
 'BINDING:' + (@{
     TypeName = $tree.TypeName
@@ -235,14 +235,14 @@ $child = $tree.Members | Where-Object Name -eq 'Child'
 $value = @{}
 $value.Self = $value
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($value)
-$options = [ConsoleMonster.Data.InspectorOptions]::new()
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add([ConsoleMonster.PowerShell.Binding.PSObjectMemberSource]::new())
+$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    [ConsoleMonster.PowerShell.Binding.PSObjectMemberSource].GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
 )
-$tree = [ConsoleMonster.Data.ObjectInspector]::Inspect($wrapped, $options)
+$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 $cycle = $tree.Members[0]
 'BINDING:' + (@{ Kind = $cycle.Kind.ToString(); Path = $cycle.Path; TargetPath = $cycle.TargetPath } | ConvertTo-Json -Compress)
 '@
@@ -257,14 +257,14 @@ $values = [System.Collections.ArrayList]::new()
 [void]$values.Add([pscustomobject]@{ Name = 'first'; Score = 1 })
 [void]$values.Add([pscustomobject]@{ Name = 'second'; Score = 2 })
 $wrapped = [System.Management.Automation.PSObject]::AsPSObject($values)
-$options = [ConsoleMonster.Data.InspectorOptions]::new()
+$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.InspectorOptions'))::new()
 $options.UseReflection = $false
-$options.Sources.Add([ConsoleMonster.PowerShell.Binding.PSObjectMemberSource]::new())
+$options.Sources.Add(((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource'))::new())
 $options.Unwrap = [System.Delegate]::CreateDelegate(
     [System.Func[object, object]],
-    [ConsoleMonster.PowerShell.Binding.PSObjectMemberSource].GetMethod('UnwrapPSObject')
+    ((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.Binding.PSObjectMemberSource')).GetMethod('UnwrapPSObject')
 )
-$tree = [ConsoleMonster.Data.ObjectInspector]::Inspect($wrapped, $options)
+$tree = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Data.ObjectInspector'))::Inspect($wrapped, $options)
 'BINDING:' + (@{
     Kind = $tree.Kind.ToString()
     Columns = @($tree.Columns)

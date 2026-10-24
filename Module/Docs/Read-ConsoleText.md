@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Asks for a line of text.
 
-A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
+A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validate <scriptblock>] [-History <string[]>] [-Prefill] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleText [-Title] <string> [-Default <string>] [-Placeholder <string>] [-Required] [-MinLength <int>] [-MaxLength <int>] [-Pattern <string>] [-PatternMessage <string>] [-Validator <scriptblock>] [-History <string[]>] [-PrefillDefault] [-Multiline] [-MaxLines <int>] [-Height <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Asks for a line of text.
 
-A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validate check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
+A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
 ## EXAMPLES
 
@@ -32,7 +32,7 @@ A validated name
 
 ### EXAMPLE 2
 ```powershell
-Read-ConsoleText 'Email' -Validate { if ($_ -notmatch '@') { 'Enter an email address' } }
+Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }
 ```
 
 A scriptblock validator ($_ is the answer; return $true, $false or an error message)
@@ -189,7 +189,7 @@ The parameter of your script that supplies this value without a prompt (named in
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Parameter
+Aliases: None
 Possible values:
 
 Required: False
@@ -247,7 +247,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Prefill
+### -PrefillDefault
 Puts the default in the box (editable) instead of showing it as a hint.
 
 ```yaml
@@ -301,7 +301,7 @@ The question.
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Prompt, Question
+Aliases: None
 Possible values:
 
 Required: True
@@ -311,7 +311,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Validate
+### -Validator
 A validator: $_ is the answer; return $true (or nothing) to accept, $false or an error message to refuse.
 
 ```yaml

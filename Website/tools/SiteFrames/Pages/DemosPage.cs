@@ -141,7 +141,7 @@ namespace SiteFrames.Pages {
                 Chapters = new[] { ("Menu", "Fleet health check"), ("Form", "New check › Scope"), ("Dashboard", "Check map"), ("Results", "Fleet check finished") },
                 EndsOn = "Fleet check finished"
             };
-            yield return new Demo("parallel", "ForEach-ConsoleItem -Parallel", 100, 24) {
+            yield return new Demo("parallel", "Invoke-ConsoleRun -Parallel", 100, 24) {
                 Script = "parallel.ps1",
                 AllowErrors = true,
                 CSharpProgram = "parallel.cs",
@@ -157,7 +157,7 @@ namespace SiteFrames.Pages {
                 Fps = 5,
                 Chapters = new[] { ("Before", "# PowerShell's own output"), ("After", "# The same commands now") }
             };
-            yield return new Demo("shaping", "Format-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
+            yield return new Demo("shaping", "Show-ConsoleTable -GroupBy Site", 100, 40) { Script = "shaping.ps1", Static = true };
             // Format-Table, Format-List and Format-Wide before and after the separate FormatCommands opt-in.
             yield return new Demo("format-commands", "Enable-ConsoleFormatting -Feature FormatCommands", 100, 46) {
                 Script = "format-commands.ps1",
@@ -176,11 +176,11 @@ namespace SiteFrames.Pages {
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { Script = "help.ps1", Session = true, PosterShare = 1 };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true };
-            yield return new Demo("errors", "Format-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
+            yield return new Demo("errors", "Show-ConsoleError", 100, 20) { Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
             // through the same dashboard when CI is detected.
             yield return new Demo("threads-naive", "ForEach-Object -Parallel", 100, 24) { Script = "threads-naive.ps1", CSharpProgram = "threads-naive.cs", PosterShare = 0.6, Fps = 8 };
-            yield return new Demo("threads-live", "Start-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
+            yield return new Demo("threads-live", "Invoke-ConsoleDashboard -Parallel", 100, 22) { Script = "threads-dashboard.ps1", CSharpProgram = "threads-live.cs", PosterShare = 0.6, Fps = 8 };
             yield return new Demo("threads-ci", "CI=true", 100, 30) { Script = "threads-dashboard.ps1", Setup = "$env:CI = 'true'", PosterShare = 0.55, Fps = 8 };
             yield return new Demo("session", "session.ps1", 100, 14) { Script = "session.ps1", CSharpProgram = "session.cs", PosterShare = 0.6, Fps = 6 };
             yield return new Demo("record", "record.ps1", 100, 18) { Script = "record.ps1", CSharpProgram = "record.cs", PosterShare = 0.4, Fps = 6 };

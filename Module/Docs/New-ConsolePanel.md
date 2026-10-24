@@ -13,7 +13,7 @@ Creates a bordered panel with a title around other console widgets.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsolePanel [[-Content] <Object>] [-Widget <IWidget>] [-Title <Object>] [-Caption <Object>] [-Footer <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
+New-ConsolePanel [[-Content] <Object>] [-Widget <IWidget>] [-Title <Object>] [-HeaderRight <Object>] [-Caption <Object>] [-Border <BoxStyle>] [-Weight <double>] [-Height <int>] [-Fill] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Creates a bordered panel with a title around other console widgets.
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Title 'Targets' -Weight 2 { New-ConsoleLanes -Name targets }
+New-ConsolePanel -Title 'Targets' -Weight 2 -Content { New-ConsoleLanes -WidgetId targets }
 ```
 
 A panel holding a lanes widget, taking two shares of a row
@@ -49,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -Caption
-Text on the right of the top border, for example a count.
+Text on the right of the bottom border.
 
 ```yaml
 Type: Object
@@ -65,7 +65,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Format-ConsoleList and Format-ConsoleTable).
+The panel content: a scriptblock that emits widgets, text or objects, a widget, a string, or objects (one object is shown as labelled fields, several as a table, through the same rules as Show-ConsoleList and Show-ConsoleTable).
 
 ```yaml
 Type: Object
@@ -96,8 +96,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Footer
-Text on the right of the bottom border.
+### -HeaderRight
+Text on the right of the top border, for example a count.
 
 ```yaml
 Type: Object

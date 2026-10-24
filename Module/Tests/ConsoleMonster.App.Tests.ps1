@@ -5,28 +5,28 @@ Describe 'Native console applications' {
     }
 
     It 'reports invalid native state keys with the application diagnostic and releases its input' {
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"x" Escape')
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"x" Escape')
         {
-            Show-ConsoleApp {
-                New-ConsoleTextInput -Name Query -OnChange { $State[17] = 'invalid' }
+            Show-ConsoleApp -Content {
+                New-ConsoleTextInput -Key Query -OnChange { $State[17] = 'invalid' }
             } -InputSource $inputSource -Capture $capture -ErrorAction Stop
         } | Should -Throw -ExpectedMessage '*Application state keys must be strings*'
-        [ConsoleMonster.Input.ConsoleInput]::IsAcquired | Should -BeFalse
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
     It 'calls back once per committed edit before the next read and returns one ordinary hashtable' {
         $edits = [System.Collections.Generic.List[object]]::new()
         $thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"ab" Left Right Backspace "c" Escape')
-        $output = @(Show-ConsoleApp {
-            New-ConsoleTextInput -Name Query -OnChange {
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"ab" Left Right Backspace "c" Escape')
+        $output = @(Show-ConsoleApp -Content {
+            New-ConsoleTextInput -Key Query -OnChange {
                 param($Value, $State)
                 $edits.Add([pscustomobject]@{
                     Value = $Value
                     Current = $State.Query
-                    Control = $Control.Name
+                    Control = $Control.Key
                     NativeState = $State -is [hashtable]
                     Thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId
                 })
@@ -51,10 +51,10 @@ Describe 'Native console applications' {
         )
         $seen = [System.Collections.Generic.List[string]]::new()
         $thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"bet" Escape')
-        $result = Show-ConsoleApp {
-            New-ConsoleTextInput -Name Query
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"bet" Escape')
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleTextInput -Key Query
             New-ConsoleTable -Bind {
                 param($State)
                 if ($State -isnot [hashtable]) { throw 'Expected native state' }
@@ -62,7 +62,7 @@ Describe 'Native console applications' {
                 $seen.Add($State.Query)
                 $items | Where-Object Name -Like "*$($State.Query)*"
             } -Property Name, Status -StatusProperty Status -Title Matches -Caption Filtered -Border Minimal -Expand -NoHeaderSeparator
-            New-ConsoleBinding -Name Summary {
+            New-ConsoleBinding -WidgetId Summary -Content {
                 param($State)
                 "Current query: $($State.Query)"
                 'Second widget'
@@ -85,16 +85,16 @@ Describe 'Native console applications' {
         $edits = [System.Collections.Generic.List[object]]::new()
         $changed = {
             param($Value, $State)
-            $edits.Add([pscustomobject]@{ Name = $Control.Name; Value = $Value })
-            $State.LastEdited = $Control.Name
+            $edits.Add([pscustomobject]@{ Name = $Control.Key; Value = $Value })
+            $State.LastEdited = $Control.Key
         }
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 40)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('Space Tab "note" Tab Down Enter Tab Space Escape')
-        $result = Show-ConsoleApp {
-            New-ConsoleToggle -Name Enabled -OnChange $changed
-            New-ConsoleTextArea -Name Notes -Height 3 -OnChange $changed
-            New-ConsoleSelect -Name Site -Choices 'Warsaw', 'Berlin' -OnChange $changed
-            New-ConsoleMultiSelect -Name Sites -Choices 'Warsaw', 'Berlin' -OnChange $changed
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 40)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space Tab "note" Tab Down Enter Tab Space Escape')
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleToggle -Key Enabled -OnChange $changed
+            New-ConsoleTextArea -Key Notes -Height 3 -OnChange $changed
+            New-ConsoleSelect -Key Site -Choices 'Warsaw', 'Berlin' -OnChange $changed
+            New-ConsoleMultiSelect -Key Sites -Choices 'Warsaw', 'Berlin' -OnChange $changed
         } -InputSource $inputSource -Capture $capture -PassThru
 
         $result.Enabled | Should -BeTrue
@@ -110,18 +110,18 @@ Describe 'Native console applications' {
 
     It 'captures initialized controls and bound objects without consuming input in static mode' {
         $choice = [pscustomobject]@{ Name = 'Warsaw'; Id = 12 }
-        $other = [ConsoleMonster.Interactive.Choice]::new('Berlin', 'Berlin')
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(100, 50)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"untouched" Escape')
+        $other = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Choice'))::new('Berlin', 'Berlin')
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(100, 50)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"untouched" Escape')
         $remaining = $inputSource.Remaining
         $calls = [System.Collections.Generic.List[string]]::new()
-        $result = Show-ConsoleApp {
-            New-ConsoleTextInput -Name Query -Label Filter -Value seed -Placeholder Search -MaxLength 20 -OnChange { $calls.Add('change') }
-            New-ConsoleTextArea -Name Notes -Value 'Draft' -Height 3 -MaxLength 80 -Placeholder Notes
-            New-ConsoleToggle -Name Enabled -Value $true -Disabled -TabIndex 2
-            New-ConsoleSelect -Name Site -Choices $choice, $other -Display Name -Value $choice
-            New-ConsoleMultiSelect -Name Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw
-            New-ConsoleButton -Name Apply -OnClick { $calls.Add('click') }
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleTextInput -Key Query -Label Filter -Value seed -Placeholder Search -MaxLength 20 -OnChange { $calls.Add('change') }
+            New-ConsoleTextArea -Key Notes -Value 'Draft' -Height 3 -MaxLength 80 -Placeholder Notes
+            New-ConsoleToggle -Key Enabled -Value $true -Disabled -TabIndex 2
+            New-ConsoleSelect -Key Site -Choices $choice, $other -Display Name -Value $choice
+            New-ConsoleMultiSelect -Key Sites -Choices 'Warsaw', 'Berlin' -Value Warsaw
+            New-ConsoleButton -Key Apply -OnClick { $calls.Add('click') }
             New-ConsoleTable -Bind { param($State) [pscustomobject]@{ Query = $State.Query } } -Property Query
         } -StaticSnapshot -Mode None -InputSource $inputSource -Capture $capture -PassThru
 
@@ -141,16 +141,16 @@ Describe 'Native console applications' {
     It 'dispatches external controls only while attached and isolates repeated runs' {
         $changes = [System.Collections.Generic.List[string]]::new()
         $clicks = [System.Collections.Generic.List[int]]::new()
-        $query = New-ConsoleTextInput -Name Query -OnChange { $changes.Add($Value); $State.Edits = 1 + $State.Edits }
-        $button = New-ConsoleButton -Name Apply -OnClick {
+        $query = New-ConsoleTextInput -Key Query -OnChange { $changes.Add($Value); $State.Edits = 1 + $State.Edits }
+        $button = New-ConsoleButton -Key Apply -OnClick {
             param($Value, $State)
             $clicks.Add($Value)
             $State.Applied = $State.Query
             'discard click output'
         }
-        $firstCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $firstInput = [ConsoleMonster.Input.ScriptedInput]::new('"a" Tab Enter Escape')
-        $first = @(Show-ConsoleApp { $query; $button } -InputSource $firstInput -Capture $firstCapture -PassThru)
+        $firstCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $firstInput = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"a" Tab Enter Escape')
+        $first = @(Show-ConsoleApp -Content { $query; $button } -InputSource $firstInput -Capture $firstCapture -PassThru)
         $first.Count | Should -Be 1
         $first[0].Edits | Should -Be 1
         $first[0].Applied | Should -Be 'a'
@@ -158,9 +158,9 @@ Describe 'Native console applications' {
         $query.Value = ''
         $changes.Count | Should -Be 1
 
-        $secondCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $secondInput = [ConsoleMonster.Input.ScriptedInput]::new('"b" Tab Enter Escape')
-        $second = Show-ConsoleApp { $query; $button } -InputSource $secondInput -Capture $secondCapture -PassThru
+        $secondCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $secondInput = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"b" Tab Enter Escape')
+        $second = Show-ConsoleApp -Content { $query; $button } -InputSource $secondInput -Capture $secondCapture -PassThru
         $second.Edits | Should -Be 1
         $second.Applied | Should -Be 'b'
         $second.Apply | Should -Be 2
@@ -171,24 +171,24 @@ Describe 'Native console applications' {
 
     It 'detaches subscriptions after a callback fails and allows a fresh app run' {
         $calls = [System.Collections.Generic.List[string]]::new()
-        $query = New-ConsoleTextInput -Name Query -OnChange { $calls.Add($Value); throw 'callback failed' }
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"a" Escape')
-        { Show-ConsoleApp { $query } -InputSource $inputSource -Capture $capture -ErrorAction Stop } | Should -Throw '*callback failed*'
+        $query = New-ConsoleTextInput -Key Query -OnChange { $calls.Add($Value); throw 'callback failed' }
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"a" Escape')
+        { Show-ConsoleApp -Content { $query } -InputSource $inputSource -Capture $capture -ErrorAction Stop } | Should -Throw '*callback failed*'
         $query.Value = 'outside'
         $calls.Count | Should -Be 1
-        $freshCapture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        $fresh = Show-ConsoleApp { New-ConsoleTextInput -Name Other -Value clean } -StaticSnapshot -Capture $freshCapture -PassThru
+        $freshCapture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        $fresh = Show-ConsoleApp -Content { New-ConsoleTextInput -Key Other -Value clean } -StaticSnapshot -Capture $freshCapture -PassThru
         $fresh.Count | Should -Be 1
         $fresh.Other | Should -Be 'clean'
     }
 
     It 'emits no success output without PassThru and rejects inputs inside a dependent binding' {
-        $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-        @(Show-ConsoleApp { New-ConsoleTextInput -Name Query } -StaticSnapshot -Capture $capture).Count | Should -Be 0
-        { Show-ConsoleApp { New-ConsoleBinding { New-ConsoleToggle -Name Nested } } -StaticSnapshot -Capture $capture -ErrorAction Stop } | Should -Throw
-        { Write-ConsoleTable -Bind { [pscustomobject]@{ Name = 'host' } } -ErrorAction Stop } |
-            Should -Throw '*Use New-ConsoleTable -Bind inside Show-ConsoleApp*'
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+        @(Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query } -StaticSnapshot -Capture $capture).Count | Should -Be 0
+        { Show-ConsoleApp -Content { New-ConsoleBinding -Content { New-ConsoleToggle -Key Nested } } -StaticSnapshot -Capture $capture -ErrorAction Stop } | Should -Throw
+        { Show-ConsoleTable -Bind { [pscustomobject]@{ Name = 'host' } } -ErrorAction Stop } |
+            Should -Throw '*parameter*Bind*'
     }
 
     It 'attaches controls and bindings created in an earlier pipeline of the same runspace' {
@@ -201,8 +201,8 @@ Describe 'Native console applications' {
             $setup = {
                 param($ModulePath)
                 Import-Module $ModulePath -Force
-                $script:Query = New-ConsoleTextInput -Name Query -OnChange { $State.Edits = 1 + $State.Edits }
-                $script:Summary = New-ConsoleBinding { "Current: $($State.Query)" }
+                $script:Query = New-ConsoleTextInput -Key Query -OnChange { $State.Edits = 1 + $State.Edits }
+                $script:Summary = New-ConsoleBinding -Content { "Current: $($State.Query)" }
                 $script:Table = New-ConsoleTable -Bind { [pscustomobject]@{ Query = $State.Query } } -Property Query
             }.ToString()
             $null = $shell.AddScript($setup).AddArgument($script:AppModulePath)
@@ -210,9 +210,9 @@ Describe 'Native console applications' {
             $shell.HadErrors | Should -BeFalse
             $shell.Commands.Clear()
             $run = {
-                $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-                $inputSource = [ConsoleMonster.Input.ScriptedInput]::new('"z" Escape')
-                Show-ConsoleApp { $script:Query; $script:Summary; $script:Table } -InputSource $inputSource -Capture $capture -PassThru
+                $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+                $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"z" Escape')
+                Show-ConsoleApp -Content { $script:Query; $script:Summary; $script:Table } -InputSource $inputSource -Capture $capture -PassThru
             }.ToString()
             $null = $shell.AddScript($run)
             $output = @($shell.Invoke())
@@ -230,10 +230,10 @@ Describe 'Native console applications' {
         $scriptText = {
             param($ModulePath, $Text)
             Import-Module $ModulePath -Force
-            $capture = [ConsoleMonster.Interactive.ScreenCapture]::new(80, 24)
-            $inputSource = [ConsoleMonster.Input.ScriptedInput]::new(('"{0}" Escape' -f $Text))
-            Show-ConsoleApp {
-                New-ConsoleTextInput -Name Query -OnChange { $State.Edits = 1 + $State.Edits }
+            $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 24)
+            $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new(('"{0}" Escape' -f $Text))
+            Show-ConsoleApp -Content {
+                New-ConsoleTextInput -Key Query -OnChange { $State.Edits = 1 + $State.Edits }
             } -InputSource $inputSource -Capture $capture -PassThru
         }.ToString()
         foreach ($text in 'a', 'xy') {

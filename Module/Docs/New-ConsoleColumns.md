@@ -25,17 +25,17 @@ Children share the width equally unless they were created with -Weight. -FixedWi
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleColumns { New-ConsolePanel -Title 'Steps' -Weight 2 { New-ConsoleStatusList -Name steps }; New-ConsolePanel -Title 'Info' { New-ConsoleKeyValue -Name info } }
+New-ConsoleColumns -Content { New-ConsolePanel -Title 'Steps' -Weight 2 -Content { New-ConsoleStatusList -WidgetId steps }; New-ConsolePanel -Title 'Info' -Content { New-ConsoleKeyValue -WidgetId info } }
 ```
 
 Two panels, the first twice as wide
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 {
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 { New-ConsoleLiveTable -Name failures -Column 'Server', 'Check' }
-    New-ConsolePanel -Title 'Slowest' { New-ConsoleLiveTable -Name slowest -Column 'Check', 'Took' }
-    New-ConsolePanel -Title 'Durations' { New-ConsoleHistogram -Name durations -Edge 0, 2, 4, 8 -Height 5 }
+New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleLiveTable -WidgetId failures -Column 'Server', 'Check' }
+    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleLiveTable -WidgetId slowest -Column 'Check', 'Took' }
+    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleHistogram -WidgetId durations -Edge 0, 2, 4, 8 -Height 5 }
 }
 ```
 

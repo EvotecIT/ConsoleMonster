@@ -19,17 +19,17 @@ $components = @(
     [pscustomobject] @{ Name = 'CDN purge'; Id = 'cdn'; Area = 'Edge'; Summary = 'Clears cached pages and assets'; Size = $null }
 )
 
-Write-ConsoleText 'Release helper' -Role Accent -Style Bold
+Write-ConsoleText 'Release helper' -Role Accent -Decoration Bold
 
 if (-not $Environment) {
-    $Environment = Read-ConsoleSelection 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment' -Describe {
+    $Environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging' -ParameterName '-Environment' -Describe {
         switch ($_) { 'Production' { 'Customers see this one: changes need an approved ticket.' } 'Staging' { 'A copy of production refreshed nightly.' } default { 'Your own sandbox.' } }
     }
 }
 if ($Component) {
     $selected = $components | Where-Object { $_.Id -in $Component }
 } else {
-    $selected = Read-ConsoleMultiSelection 'Components' -Choices $components -Display Name -GroupBy Area -Describe Summary -Badge Size -Selected 'Web front end', 'Public API' -Minimum 1 -ParameterName '-Component'
+    $selected = Read-ConsoleMultiSelect 'Components' -Choices $components -Display Name -GroupBy Area -Describe Summary -Badge Size -Selected 'Web front end', 'Public API' -Minimum 1 -ParameterName '-Component'
 }
 if (-not $Release) {
     $Release = Read-ConsoleText 'Release name' -Default ('release-' + (Get-Date -Format 'yyyyMMdd')) -Pattern '[a-z0-9][a-z0-9.-]{2,40}' -PatternMessage 'Lower case letters, digits, dots and dashes' -ParameterName '-Release'
@@ -38,10 +38,10 @@ if (-not $Release) {
 $question = "Deploy $(@($selected).Count) components to ${Environment}?"
 if ($Force -or (Read-ConsoleConfirm $question -Default ($Environment -ne 'Production') -Destructive:($Environment -eq 'Production'))) {
     foreach ($item in $selected) {
-        Write-ConsoleStatus 'Deploying ', $item.Name -Color Gray, Cyan -Spinner -ShowElapsed
+        Show-ConsoleStatusLine 'Deploying ', $item.Name -Color Gray, Cyan -Spinner -ShowElapsed
         Start-Sleep -Milliseconds 700
     }
-    Write-ConsoleStatus 'Deployed ', $Release, ' to ', $Environment -Color Gray, Cyan, Gray, Green -Status Pass -ShowElapsed -Complete
+    Show-ConsoleStatusLine 'Deployed ', $Release, ' to ', $Environment -Color Gray, Cyan, Gray, Green -Status Pass -ShowElapsed -Complete
 } else {
     Write-ConsoleText 'Nothing was deployed.' -Role Muted
 }

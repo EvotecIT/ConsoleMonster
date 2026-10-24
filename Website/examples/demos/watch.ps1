@@ -2,7 +2,7 @@
 
 # The mail queues every 1.5 seconds; -Differences marks the cells that changed since the last run.
 $script:tick = 0
-Watch-Console -Title 'Mail queues' -Interval 1.5 -Count 6 -Differences {
+Watch-Console -Title 'Mail queues' -PollIntervalSeconds 1.5 -Count 6 -Differences {
     $script:tick++
     $servers = 'MX01', 'MX02', 'MX03', 'MX04'
     for ($i = 0; $i -lt $servers.Count; $i++) {

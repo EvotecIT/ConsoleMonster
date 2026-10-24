@@ -13,7 +13,7 @@ Arrows move, Right and Left expand and collapse, Enter drills into a member, Bac
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleObject [[-Output] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Mode <InteractionMode>] [-Width <int>] [<CommonParameters>]
+Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [-Mode <InteractionMode>] [-Width <int>] [-StaticSnapshot] [-AsString] [-AsWidget] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,6 +45,38 @@ $config | Show-ConsoleObject -RootPath '$config' -PassThru Path
 Return its PowerShell path
 
 ## PARAMETERS
+
+### -AsString
+Returns one plain-text static inspector.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsWidget
+Returns the static inspector widget.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Depth
 Maximum member depth below the root; default 8.
@@ -111,7 +143,7 @@ Accept wildcard characters: False
 ```
 
 ### -MaxItems
-Maximum items read from each collection; default 100.
+Maximum items read from each collection; default 0: terminal width, falling back to 100.
 
 ```yaml
 Type: Int32
@@ -158,22 +190,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Output
-Value (default) or Path. The positional form supports -PassThru Path.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Value, Path
-
-Required: False
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -PassThru
 Returns the selected value after F10 or Ctrl+Enter. Add the positional word Path to return its expression instead.
 
@@ -195,6 +211,38 @@ The variable expression at the start of returned paths; default $x. It is displa
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SelectionOutput
+Value (default) or Path. The positional form supports -PassThru Path.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Value, Path
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StaticSnapshot
+Prints a static inspector without reading keys.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

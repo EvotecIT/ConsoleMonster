@@ -8,23 +8,23 @@ schema: 2.0.0
 ## SYNOPSIS
 Follows a log file or a local Windows event log with a live, scrollable log view.
 
-File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -Plain output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.
+File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.
 
 ## SYNTAX
 ### Path (Default)
 ```powershell
-Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
+Watch-ConsoleLog [-Path] <string> [-Encoding <string>] [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ### EventLog
 ```powershell
-Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-Interval <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-Plain] [<CommonParameters>]
+Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-PollIntervalSeconds <double>] [-Filter <string>] [-Highlight <string>] [-TimestampFormat <string>] [-Capacity <int>] [-NoLive] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Follows a log file or a local Windows event log with a live, scrollable log view.
 
-File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -Plain output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.
+File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.
 
 ## EXAMPLES
 
@@ -131,22 +131,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Interval
-Seconds between polls, from 0.05 to 86400; defaults to 0.25.
-
-```yaml
-Type: Double
-Parameter Sets: Path, EventLog
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -LogName
 One literal local Windows event-log name, such as Application or System. Wildcards are not supported.
 
@@ -163,13 +147,29 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoLive
+Writes literal lines without a live screen or keyboard input.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Path, EventLog
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Path
 One literal FileSystem path. Wildcards are not expanded.
 
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases: LiteralPath
+Aliases: None
 Possible values:
 
 Required: True
@@ -179,11 +179,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Plain
-Writes literal lines without a live screen or keyboard input.
+### -PollIntervalSeconds
+Seconds between polls, from 0.05 to 86400; defaults to 0.25.
 
 ```yaml
-Type: SwitchParameter
+Type: Double
 Parameter Sets: Path, EventLog
 Aliases: None
 Possible values:

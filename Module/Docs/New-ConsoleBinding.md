@@ -13,7 +13,7 @@ Content receives param($State) and injected $State as a native hashtable. Emit w
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleBinding [-Content] <scriptblock> [-Name <string>] [<CommonParameters>]
+New-ConsoleBinding [[-WidgetId] <string>] [-Content] <scriptblock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Content receives param($State) and injected $State as a native hashtable. Emit w
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleApp { New-ConsoleTextInput -Name Query; New-ConsoleBinding { "Query: $($State.Query)" } }
+Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleBinding -Content { "Query: $($State.Query)" } }
 ```
 
 Display the current input.
@@ -42,13 +42,13 @@ Aliases: None
 Possible values:
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
+### -WidgetId
 Optional stable name for the dependent display region.
 
 ```yaml
@@ -58,7 +58,7 @@ Aliases: None
 Possible values:
 
 Required: False
-Position: named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

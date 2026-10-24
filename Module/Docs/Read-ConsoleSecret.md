@@ -13,7 +13,7 @@ The typed text is masked (or not shown at all with -Hidden); Ctrl+R reveals it w
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleSecret [-Title] <string> [-AsPlainText] [-Hidden] [-AllowEmpty] [-MinLength <int>] [-Validate <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleSecret [-Title] <string> [-AsPlainText] [-Hidden] [-AllowEmpty] [-MinLength <int>] [-Validator <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -134,7 +134,7 @@ The parameter of your script that supplies this value without a prompt (named in
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Parameter
+Aliases: None
 Possible values:
 
 Required: False
@@ -166,7 +166,7 @@ The question.
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Prompt, Question
+Aliases: None
 Possible values:
 
 Required: True
@@ -176,7 +176,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Validate
+### -Validator
 A validator: $_ is the secret; return $true, $false or an error message.
 
 ```yaml

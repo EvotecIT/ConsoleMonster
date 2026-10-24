@@ -13,7 +13,7 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validate <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
+Read-ConsoleNumber [-Title] <string> [-Default <Decimal>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <decimal>] [-Integer] [-Validator <scriptblock>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [-StaticSnapshot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -134,7 +134,7 @@ The parameter of your script that supplies this value without a prompt (named in
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Parameter
+Aliases: None
 Possible values:
 
 Required: False
@@ -182,7 +182,7 @@ The question.
 ```yaml
 Type: String
 Parameter Sets: __AllParameterSets
-Aliases: Prompt, Question
+Aliases: None
 Possible values:
 
 Required: True
@@ -192,7 +192,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Validate
+### -Validator
 A validator: $_ is the number; return $true, $false or an error message.
 
 ```yaml
