@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Implicit host-only Unix defaults; explicit native properties and views keep their own contracts.</summary>
     internal static class UnixFormatDefaults {
+        // A directory entry's own byte count is not its contents' size. Links retain their own size, including directory links.
+        internal const string FileSizeScript = "if (-not $_.PSIsContainer -or $_.UnixMode -like 'l*') { $_.UnixStat.Size }";
+
         // Typed cells keep names literal while preserving Unix directory, link and executable cues.
         internal const string FileNameScript = "$name = [ConsoleMonster.Text.Markup]::Escape($_.Name); "
             + "$tone = if ($_.UnixMode -like 'l*') { 'accent2' } elseif ($_.PSIsContainer) { 'accent' } elseif ($_.UnixMode -match 'x') { 'pass' }; "
@@ -25,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
             foreach (string field in fields) {
                 string label = field == "Length" ? "Size" : field == "WorkingSet64" ? "Memory" : field == "CPU" ? "CPU (s)" : field;
                 object expression = file && field == "Name" ? (object)ScriptBlock.Create(FileNameScript) : field == "Threads" ? (object)ScriptBlock.Create("$_.Threads.Count")
-                    : field == "Length" ? ScriptBlock.Create("$_.UnixStat.Size") : field;
+                    : field == "Length" ? ScriptBlock.Create(FileSizeScript) : field;
                 result.Columns.Add(new Hashtable(StringComparer.OrdinalIgnoreCase) { ["Label"] = label, ["Expression"] = expression });
             }
             return result;

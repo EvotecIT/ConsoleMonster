@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -36,13 +37,14 @@ namespace ConsoleMonster.Overview {
         internal static async Task<OverviewSection?> ResourcesAsync(CancellationToken token) {
             List<OverviewItem> items = new List<OverviewItem>();
             if (TryCpu(out double total, out double idle)) {
-                await Task.Delay(80, token).ConfigureAwait(false);
+                // A one-shot welcome screen needs a complete interval on its first collection.
+                // The collector keeps its own shorter caller budget and returns pending if this cannot fit.
+                await Task.Delay(250, token).ConfigureAwait(false);
                 if (TryCpu(out double nextTotal, out double nextIdle)) {
-                    OverviewItem? cpu = CpuObservation(total, idle, nextTotal, nextIdle, Mac);
+                    OverviewItem? cpu = CpuObservation(total, idle, nextTotal, nextIdle);
                     if (cpu != null) { items.Add(cpu); }
                 }
             }
-            if (items.Count == 0) { items.Add(new OverviewItem("CPU", "measuring…")); }
             token.ThrowIfCancellationRequested();
             if (TryMemory(out double bytes, out double available) && bytes > 0) {
                 items.Add(MemoryObservation(bytes, available));
@@ -51,9 +53,8 @@ namespace ConsoleMonster.Overview {
         }
 
         /// <summary>Builds CPU usage only from advancing counters; cached or reset samples have no measurable interval.</summary>
-        internal static OverviewItem? CpuObservation(double total, double idle, double nextTotal, double nextIdle, bool requireIdleProgress) {
-            // Darwin can defer idle accounting. A short interval without fresh idle ticks cannot establish 100% load.
-            if (!(nextTotal > total) || nextIdle < idle || nextIdle - idle > nextTotal - total || (requireIdleProgress && nextIdle == idle)) { return null; }
+        internal static OverviewItem? CpuObservation(double total, double idle, double nextTotal, double nextIdle) {
+            if (!(nextTotal > total) || nextIdle < idle || nextIdle - idle > nextTotal - total) { return null; }
             double used = Math.Max(0, Math.Min(100, 100 * (1 - (nextIdle - idle) / (nextTotal - total))));
             return new OverviewItem("CPU", Environment.ProcessorCount.ToString(CultureInfo.InvariantCulture) + " logical CPUs", used);
         }
@@ -119,16 +120,23 @@ namespace ConsoleMonster.Overview {
                 token.ThrowIfCancellationRequested();
                 try {
                     if (HiddenInterface(adapter.Name) || adapter.OperationalStatus != OperationalStatus.Up || adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback) { continue; }
-                    List<string> addresses = new List<string>();
-                    foreach (UnicastIPAddressInformation address in adapter.GetIPProperties().UnicastAddresses) {
-                        if (address.Address.AddressFamily == AddressFamily.InterNetwork || (address.Address.AddressFamily == AddressFamily.InterNetworkV6 && !address.Address.IsIPv6LinkLocal)) {
-                            addresses.Add(address.Address.ToString());
-                        }
-                    }
-                    if (addresses.Count > 0) { items.Add(new OverviewItem(adapter.Name, string.Join(", ", addresses.OrderBy(address => address.IndexOf(':') >= 0 ? 1 : 0)))); }
+                    IPAddress[] addresses = NetworkAddresses(adapter.GetIPProperties().UnicastAddresses.Select(address => address.Address));
+                    if (addresses.Length > 0) { items.Add(new OverviewItem(adapter.Name, string.Join(", ", addresses.Select(address => address.ToString())))); }
                 } catch (Exception ex) when (OptionalFailure(ex) || ex is NetworkInformationException) { }
             }
             return new OverviewSection("Network", "Network", items);
+        }
+
+        /// <summary>Prefers IPv4, retaining global IPv6 alongside it and local IPv6 only as an IPv6-only fallback.</summary>
+        internal static IPAddress[] NetworkAddresses(IEnumerable<IPAddress> addresses) {
+            IPAddress[] usable = addresses.Where(address => !IPAddress.IsLoopback(address)
+                && (address.AddressFamily == AddressFamily.InterNetwork
+                    || (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv6LinkLocal && !address.IsIPv6Multicast
+                        && !address.Equals(IPAddress.IPv6Any)))).Distinct().ToArray();
+            bool ipv4 = usable.Any(address => address.AddressFamily == AddressFamily.InterNetwork);
+            // Global unicast IPv6 occupies 2000::/3; ULA, site-local and mapped addresses are not global.
+            return usable.Where(address => address.AddressFamily == AddressFamily.InterNetwork || !ipv4 || (address.GetAddressBytes()[0] & 0xe0) == 0x20)
+                .OrderBy(address => address.AddressFamily == AddressFamily.InterNetwork ? 0 : 1).ToArray();
         }
 
         internal static OverviewSection? Services(CancellationToken token) => Windows ? OverviewWindowsNative.Services(token) : Linux ? OverviewLinuxServices.Collect(token) : null;

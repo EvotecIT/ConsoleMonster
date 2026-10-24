@@ -245,7 +245,7 @@ namespace ConsoleMonster.PowerShell {
             object[] files = unix ? new object[] {
                 "UnixMode", "User",
                 Hashtable("LastWriteTime", ScriptBlock.Create("$_.LastWriteTime"), "Date"),
-                Hashtable("Size", ScriptBlock.Create("$_.UnixStat.Size"), "Bytes"),
+                Hashtable("Size", ScriptBlock.Create(UnixFormatDefaults.FileSizeScript), "Bytes"),
                 Hashtable("Name", ScriptBlock.Create(UnixFormatDefaults.FileNameScript), null)
             } : new object[] {
                 "Mode",

@@ -1,16 +1,12 @@
 using System;
+using System.Linq;
+using System.Net;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Overview;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Overview {
     public sealed class OverviewPlatformTests {
-        [Fact]
-        public void MacShortIntervalWithoutFreshIdleAccountingRemainsMeasuring() {
-            Assert.Null(OverviewPlatform.CpuObservation(100, 40, 110, 40, true));
-            Assert.NotNull(OverviewPlatform.CpuObservation(100, 40, 110, 45, true));
-        }
-
         [Fact]
         public void UnixIdentityUsesProductAndDistributionMetadata() {
             Assert.Equal("macOS 26.1 (Tahoe)", OverviewPlatform.MacName("26.1"));
@@ -38,12 +34,22 @@ namespace ConsoleMonster.Tests.Overview {
         public void VirtualDiscoveryInterfacesAreHidden(string name, bool hidden) => Assert.Equal(hidden, OverviewPlatform.HiddenInterface(name));
 
         [Theory]
+        [InlineData("fd42::1,192.0.2.10,fe80::1", "192.0.2.10")]
+        [InlineData("2001:db8::1,192.0.2.10,fc00::1,fec0::1", "192.0.2.10,2001:db8::1")]
+        [InlineData("fd42::1,fe80::1,::1,::,ff02::1", "fd42::1")]
+        [InlineData("fe80::1,::1,::", "")]
+        public void NetworkPrefersIpv4AndSuppressesLocalIpv6UnlessItIsTheOnlyAddressFamily(string input, string expected) {
+            IPAddress[] addresses = input.Split(',').Select(IPAddress.Parse).ToArray();
+            Assert.Equal(expected, string.Join(",", OverviewPlatform.NetworkAddresses(addresses).Select(address => address.ToString())));
+        }
+
+        [Theory]
         [InlineData(100, 40, 100, 40)]
         [InlineData(100, 40, 90, 35)]
         [InlineData(100, 40, 200, 39)]
         [InlineData(100, 40, 200, 141)]
         public void CachedOrResetCpuCountersDoNotInventAUsagePercentage(double total, double idle, double nextTotal, double nextIdle) {
-            Assert.Null(OverviewPlatform.CpuObservation(total, idle, nextTotal, nextIdle, false));
+            Assert.Null(OverviewPlatform.CpuObservation(total, idle, nextTotal, nextIdle));
         }
 
         [Theory]
@@ -51,7 +57,7 @@ namespace ConsoleMonster.Tests.Overview {
         [InlineData(100, 40, 200, 65, 75)]
         [InlineData(100, 40, 200, 140, 0)]
         public void AdvancingCpuCountersMeasureUsedTime(double total, double idle, double nextTotal, double nextIdle, double expected) {
-            OverviewItem? item = OverviewPlatform.CpuObservation(total, idle, nextTotal, nextIdle, false);
+            OverviewItem? item = OverviewPlatform.CpuObservation(total, idle, nextTotal, nextIdle);
             Assert.NotNull(item);
             Assert.Equal("CPU", item.Label);
             Assert.Equal(expected, item.Percentage);
