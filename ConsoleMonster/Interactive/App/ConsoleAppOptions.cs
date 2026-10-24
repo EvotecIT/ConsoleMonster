@@ -10,7 +10,8 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Optional full-screen live-session configuration, set before the run begins. Inline mode is rejected because its moving origin cannot provide frame-local mouse coordinates.</summary>
         public LiveSessionOptions? Live { get; set; }
 
-        /// <summary>Prints or captures one initialized snapshot instead of reading input, including on CI and redirected output.</summary>
+        /// <summary>Prints or captures one initialized snapshot instead of reading input, including on CI and redirected output.
+        /// <c>CONSOLEMONSTER_SNAPSHOT=1</c> also selects this mode when no scripted or explicit input is available.</summary>
         public bool StaticSnapshot { get; set; }
 
         /// <summary>Enables optional terminal mouse reporting for an interactive run. Keyboard operation is always available.</summary>

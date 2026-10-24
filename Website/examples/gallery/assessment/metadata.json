@@ -27,5 +27,45 @@
   "steps": 12,
   "tier": "showcase",
   "useCase": "Use it when parallel checks need one screen for progress, findings and the next action.",
-  "featured": true
+  "featured": true,
+  "capture": {
+    "states": [
+      {
+        "checkpoint": 13
+      },
+      {
+        "checkpoint": 20
+      },
+      {
+        "checkpoint": 24
+      },
+      {
+        "checkpoint": 223
+      },
+      {
+        "checkpoint": 355
+      },
+      {
+        "checkpoint": 590
+      },
+      {
+        "checkpoint": 815
+      },
+      {
+        "checkpoint": 1055
+      },
+      {
+        "checkpoint": 1254
+      },
+      {
+        "checkpoint": 1365
+      },
+      {
+        "checkpoint": 1434
+      },
+      {
+        "checkpoint": 1445
+      }
+    ]
+  }
 }

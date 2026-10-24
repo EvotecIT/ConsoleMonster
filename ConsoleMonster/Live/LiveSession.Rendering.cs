@@ -34,11 +34,13 @@ namespace ConsoleMonster.Live {
                     // nor cap throughput (a fixed per-tick count capped a 15 fps loop near 60k events/s).
                     Drain(int.MaxValue, Math.Max(20, period * 0.6));
                     RecordSlotSnapshots(false);
-                    if (_output!.SupportsLiveFrames) {
+                    // Capture checkpoints own their render schedule. Background frames would make width history
+                    // and animations depend on the producer's speed instead of the selected updates.
+                    if (_output!.SupportsLiveFrames && _recordingTarget?.SkipDelays != true) {
                         if (Volatile.Read(ref _paused) == 0) {
                             RenderFinal();
                         }
-                    } else if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - heartbeat >= _options.StreamHeartbeat) {
+                    } else if (_recordingTarget?.SkipDelays != true && _options.StreamHeartbeat > TimeSpan.Zero && Elapsed - heartbeat >= _options.StreamHeartbeat) {
                         Heartbeat();
                         heartbeat = Elapsed;
                     }
@@ -69,6 +71,10 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.Target == "$checkpoint" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> checkpoint) {
+                ApplyCheckpoint(checkpoint);
+                return;
+            }
             if (liveEvent.Target == "$flush" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> flush) {
                 try {
                     lock (_outputGate) { FlushUnrouted(); }

@@ -40,9 +40,14 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public double Total { get; set; }
 
+        /// <summary><para type="description">Milliseconds since the run began. Zero lets the session stamp the event; supply the original time when forwarding timestamped updates.</para></summary>
+        [Parameter]
+        [ValidateRange(0, long.MaxValue)]
+        public long TimeMilliseconds { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            Send(new LiveEvent(Target, Operation, Key, Text, State, Value, Total));
+            Send(new LiveEvent(Target, Operation, Key, Text, State, Value, Total, TimeMilliseconds));
         }
     }
 }

@@ -11,7 +11,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Browse the gallery.</para><code>Get-ConsoleDemo | Select-Object Slug, Title, Pitch</code></example>
     /// <example><para>List the welcome demos.</para><code>Get-ConsoleDemo 'welcome-*'</code></example>
     /// <example><para>Export a demo to customize and run.</para><code>Get-ConsoleDemo assessment -Path ./assessment.ps1
-    /// ./assessment.ps1 -StaticSnapshot -Step 0</code></example>
+    /// ./assessment.ps1</code></example>
     [Cmdlet(VerbsCommon.Get, "ConsoleDemo", DefaultParameterSetName = "List", SupportsShouldProcess = true)]
     [OutputType(typeof(PSObject), ParameterSetName = new[] { "List" })]
     [OutputType(typeof(FileInfo), ParameterSetName = new[] { "Export" })]

@@ -28,9 +28,6 @@ var checks = new[] {
     ("BIMI record", StatusKind.Skip, "optional")
 };
 var resolvers = new[] { ("Edge west", 12), ("Edge east", 18), ("Cache north", 24), ("Cache south", 31), ("Local resolver", 47) };
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step != 0) throw new ArgumentOutOfRangeException(nameof(step));
 
 // Layout: keep the dense report readable through wrapping and two balanced panels.
 KeyValueList summary = new KeyValueList()
@@ -60,5 +57,5 @@ IWidget report = new Rows(
     new Columns(new Panel(delegation, "Delegation"),
         new Panel(new Rows(mail, new Rule(), latency) { Gap = 0 }, "Mail security") { Caption = domain })) { Gap = 1 };
 
-// Behaviour: a print-once report works interactively and in redirected snapshots.
+// Behaviour: print the report once to the terminal or redirected output.
 Terminal.Write(report);

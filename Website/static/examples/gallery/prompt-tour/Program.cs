@@ -10,38 +10,33 @@ using ConsoleMonster.Widgets;
 
 // Data: fictional inventory and tasks. Answers never trigger the operations described.
 // The path points into an absent sample folder; no directories or presets are created.
-var servers = new[] {
-    new Server("FS01", "Warsaw", "File", "Windows Server 2022"),
-    new Server("FS02", "Warsaw", "File", "Windows Server 2022"),
-    new Server("WEB01", "Warsaw", "Web", "Linux"),
-    new Server("SQL01", "Warsaw", "Database", "Linux"),
-    new Server("FS11", "Berlin", "File", "Windows Server 2022"),
-    new Server("WEB11", "Berlin", "Web", "Linux"),
-    new Server("PRN11", "Berlin", "Print", "Windows Server 2022", "offline since 09:12"),
-    new Server("BKP21", "Dublin", "Backup", "Linux"),
-    new Server("SQL21", "Dublin", "Database", "Linux"),
-    new Server("LAB01", "Lab", "Test", "Linux"),
-    new Server("LAB02", "Lab", "Test", "Linux", "in maintenance until Friday")
-};
-var tasks = new[] {
-    new Job("DiskCleanup", "Disk cleanup", "Maintenance", "Removes temporary files, old update caches and crash dumps older than 30 days.", 3, true),
-    new Job("LogRotation", "Log rotation", "Maintenance", "Compresses logs older than 7 days and removes archives older than 90 days.", 2, true),
-    new Job("RestartPending", "Pending restart check", "Maintenance", "Reports servers waiting for a restart after updates or role changes.", 1, false),
-    new Job("PatchStatus", "Patch status", "Security", "Lists missing security updates and the last successful install.", 2, false),
-    new Job("Certificates", "Certificate expiry", "Security", "Finds certificates expiring within 30 days and the services using them.", 1, false),
-    new Job("LocalAdmins", "Local administrators audit", "Security", "Compares local administrator membership with the approved list.", 1, false),
-    new Job("Firewall", "Firewall rules review", "Security", "Flags inbound allow rules open to any address.", 2, false),
-    new Job("EventErrors", "Event log errors", "Health", "Summarizes errors from the last 24 hours.", 1, false),
-    new Job("Services", "Service health", "Health", "Checks automatic services and restarts stopped ones.", 1, true),
-    new Job("DiskSpace", "Disk space", "Health", "Warns below 15% free and fails below 5% on each volume.", 1, false),
-    new Job("Uptime", "Uptime and reboots", "Health", "Reports uptime and unexpected reboots in the last 30 days.", 1, false)
-};
-string[] titles = { "Typed selection", "Multiple selection", "Confirmation", "Text", "Secret", "Number", "Path", "Typed confirmation", "Dashboard pause" };
+Server[] servers = [
+    new(Name: "FS01", Site: "Warsaw", Role: "File", OS: "Windows Server 2022"),
+    new(Name: "FS02", Site: "Warsaw", Role: "File", OS: "Windows Server 2022"),
+    new(Name: "WEB01", Site: "Warsaw", Role: "Web", OS: "Linux"),
+    new(Name: "SQL01", Site: "Warsaw", Role: "Database", OS: "Linux"),
+    new(Name: "FS11", Site: "Berlin", Role: "File", OS: "Windows Server 2022"),
+    new(Name: "WEB11", Site: "Berlin", Role: "Web", OS: "Linux"),
+    new(Name: "PRN11", Site: "Berlin", Role: "Print", OS: "Windows Server 2022", Offline: "offline since 09:12"),
+    new(Name: "BKP21", Site: "Dublin", Role: "Backup", OS: "Linux"),
+    new(Name: "SQL21", Site: "Dublin", Role: "Database", OS: "Linux"),
+    new(Name: "LAB01", Site: "Lab", Role: "Test", OS: "Linux"),
+    new(Name: "LAB02", Site: "Lab", Role: "Test", OS: "Linux", Offline: "in maintenance until Friday"),
+];
+Job[] tasks = [
+    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files, old update caches and crash dumps older than 30 days.", Minutes: 3, Changes: true),
+    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days and removes archives older than 90 days.", Minutes: 2, Changes: true),
+    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports servers waiting for a restart after updates or role changes.", Minutes: 1, Changes: false),
+    new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates and the last successful install.", Minutes: 2, Changes: false),
+    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days and the services using them.", Minutes: 1, Changes: false),
+    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local administrator membership with the approved list.", Minutes: 1, Changes: false),
+    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Minutes: 2, Changes: false),
+    new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Minutes: 1, Changes: false),
+    new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks automatic services and restarts stopped ones.", Minutes: 1, Changes: true),
+    new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% free and fails below 5% on each volume.", Minutes: 1, Changes: false),
+    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports uptime and unexpected reboots in the last 30 days.", Minutes: 1, Changes: false),
+];
 string reportFolder = "./toolbox-reports/weekly";
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 8) throw new ArgumentOutOfRangeException(nameof(step));
 
 // Layout: the prompts themselves draw choices, validation, masks and editing hints.
 IWidget Preview(Job job) => new Rows(new TextBlock(Markup.Escape(job.Description)),
@@ -73,85 +68,71 @@ MultiSelectPrompt<Job> TaskPrompt() {
     };
 }
 
-// Render the initial native prompt without reading input or returning an answer.
-void Draw<T>(Prompt<T> prompt) {
-    Terminal.Write(prompt.Snapshot());
-}
-T Ask<T>(Prompt<T> prompt) {
-    if (snapshot) { Draw(prompt); return default!; }
-    return prompt.Show();
-}
+// Behaviour: each native prompt returns an answer; the tour performs no external action.
+Terminal.Write(new Rule("[bold]1 / 9 · Typed selection[/]"));
+Server server = ServerPrompt().Show();
+Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (Server)"));
 
-// Behaviour: each answer is returned as its original type; the tour performs no action.
-for (int page = snapshot ? step : 0; page <= (snapshot ? step : 8); page++) {
-    if (!snapshot) Terminal.Write(new Rule($"[bold]{page + 1} / 9 · {titles[page]}[/]"));
-    switch (page) {
-        case 0:
-            Server server = Ask(ServerPrompt());
-            if (!snapshot) Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (Server)"));
-            break;
-        case 1:
-            IReadOnlyList<Job> selected = Ask(TaskPrompt());
-            if (!snapshot) Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Select(t => t.Id)));
-            break;
-        case 2:
-            Ask(new ConfirmPrompt("Restart the report agent on FS01?", true));
-            break;
-        case 3:
-            Ask(new TextPrompt("Share name") {
-                Default = "Reports", Pattern = "[A-Za-z][A-Za-z0-9_-]{1,23}",
-                PatternMessage = "Start with a letter; letters, digits, - and _ only",
-                Description = "Shown to users when they browse the server."
-            });
-            break;
-        case 4:
-            Ask(new SecretPrompt("Password for svc-backup") {
-                MinLength = 8, Description = "Try example-passphrase; at least 8 characters."
-            });
-            break;
-        case 5:
-            Ask(new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 });
-            break;
-        case 6:
-            Ask(new PathPrompt("Report folder") { Kind = PathKind.Folder, Default = reportFolder });
-            break;
-        case 7:
-            Ask(new TypedConfirmPrompt("Remove FS01 from the inventory?", "FS01") {
-                Default = false, Warning = "Its history and reports would be removed too. Type FS01 to confirm."
-            });
-            break;
-        case 8:
-            if (snapshot) {
-                Draw(new ConfirmPrompt("WEB01 failed. Continue with the other servers?", true) {
-                    Description = "The patch dashboard pauses for your answer, then resumes."
-                });
-                break;
+Terminal.Write(new Rule("[bold]2 / 9 · Multiple selection[/]"));
+IReadOnlyList<Job> selected = TaskPrompt().Show();
+Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Select(t => t.Id)));
+
+Terminal.Write(new Rule("[bold]3 / 9 · Confirmation[/]"));
+new ConfirmPrompt("Restart the report agent on FS01?", true).Show();
+
+Terminal.Write(new Rule("[bold]4 / 9 · Text[/]"));
+new TextPrompt("Share name") {
+    Default = "Reports", Pattern = "[A-Za-z][A-Za-z0-9_-]{1,23}",
+    PatternMessage = "Start with a letter; letters, digits, - and _ only",
+    Description = "Shown to users when they browse the server."
+}.Show();
+
+Terminal.Write(new Rule("[bold]5 / 9 · Secret[/]"));
+new SecretPrompt("Password for svc-backup") {
+    MinLength = 8, Description = "Try example-passphrase; at least 8 characters."
+}.Show();
+
+Terminal.Write(new Rule("[bold]6 / 9 · Number[/]"));
+new NumberPrompt("Port") { WholeNumber = true, Minimum = 1, Maximum = 65535, Default = 443 }.Show();
+
+Terminal.Write(new Rule("[bold]7 / 9 · Path[/]"));
+new PathPrompt("Report folder") { Kind = PathKind.Folder, Default = reportFolder }.Show();
+
+Terminal.Write(new Rule("[bold]8 / 9 · Typed confirmation[/]"));
+new TypedConfirmPrompt("Remove FS01 from the inventory?", "FS01") {
+    Default = false, Warning = "Its history and reports would be removed too. Type FS01 to confirm."
+}.Show();
+
+Terminal.Write(new Rule("[bold]9 / 9 · Dashboard pause[/]"));
+Lanes lanes = new Lanes();
+foreach (Server host in servers.Take(5)) lanes.Add(host.Name, host.Name, 6);
+LogRegion log = new LogRegion { PreferredHeight = 6 };
+Dashboard dashboard = new DashboardBuilder("[bold]Patching[/]").Subtitle("5 servers")
+    .Panel("Servers", lanes).Panel("Log", log, fill: true).BuildDashboard();
+using (LiveSession session = new LiveSession(dashboard)) {
+    try {
+        session.Run(live => {
+            for (int tick = 1; tick <= 6; tick++) {
+                live.Cancellation.ThrowIfCancellationRequested();
+                foreach (Server host in servers.Take(5)) {
+                    lanes.Handle(live).Advance(host.Name,
+                        host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass, "step " + tick);
+                }
+                log.Handle(live).Write("step " + tick + " done");
+                live.Delay(TimeSpan.FromMilliseconds(350));
+                if (tick == 3) {
+                    log.Handle(live).Error("WEB01: update verification failed");
+                    bool go = new ConfirmPrompt("WEB01 failed. Continue with the other servers?", true) {
+                        Description = "The patch dashboard pauses for your answer, then resumes."
+                    }.Show();
+                    log.Handle(live).Write(go ? "continuing" : "stopping after this step");
+                    if (!go) break;
+                }
             }
-            Lanes lanes = new Lanes();
-            foreach (Server host in servers.Take(5)) lanes.Add(host.Name, host.Name, 6);
-            LogRegion log = new LogRegion { PreferredHeight = 6 };
-            Dashboard dashboard = new DashboardBuilder("[bold]Patching[/]").Subtitle("5 servers")
-                .Panel("Servers", lanes).Panel("Log", log, fill: true).BuildDashboard();
-            using (LiveSession live = new LiveSession(dashboard)) {
-                live.Run(s => {
-                    for (int tick = 1; tick <= 6; tick++) {
-                        s.Cancellation.ThrowIfCancellationRequested();
-                        foreach (Server host in servers.Take(5)) lanes.Handle(s).Advance(host.Name,
-                            host.Name == "WEB01" && tick == 3 ? StatusKind.Fail : StatusKind.Pass, "step " + tick);
-                        log.Handle(s).Write("step " + tick + " done");
-                        Thread.Sleep(350);
-                        if (tick == 3) {
-                            log.Handle(s).Error("WEB01: update verification failed");
-                            bool go = new ConfirmPrompt("WEB01 failed. Continue with the other servers?", true) {
-                                Description = "The patch dashboard pauses for your answer, then resumes."
-                            }.Show();
-                            log.Handle(s).Write(go ? "continuing" : "stopping after this step");
-                            if (!go) break;
-                        }
-                    }
-                });
-            }
-            break;
+        });
+    } catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+        // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+        return;
     }
 }
 

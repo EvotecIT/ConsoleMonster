@@ -1,10 +1,6 @@
 ﻿# Show the same task data as plain text and a formatted table.
-param(
-    [switch]$StaticSnapshot,
-    [ValidateRange(0, 0)][int]$Step = 0
-)
 
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 # All data is synthetic and inline; no services are contacted or changed.
 
 # Data: fictional inputs kept in memory.
@@ -14,17 +10,17 @@ $tasks = @(
     [pscustomobject]@{ Task = 'Review examples'; State = 'In progress'; Minutes = 25 }
     [pscustomobject]@{ Task = 'Archive old drafts'; State = 'Waiting'; Minutes = 8 }
 )
-$baseline = ($tasks | ForEach-Object { "$($_.Task) | $($_.State) | $($_.Minutes) min" }) -join "`n"
+$baseline = ($tasks | ForEach-Object -Process { "$($_.Task) | $($_.State) | $($_.Minutes) min" }) -join "`n"
 
 # Layout: compose the screen from the data above.
-$screen = New-ConsoleRows -Gap 1 {
-    New-ConsoleRule '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
+$screen = New-ConsoleRows -Gap 1 -Content {
+    New-ConsoleRule -Title '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
     New-ConsoleText -Markup '[bold]Before[/] [muted]| plain text[/]'
-    New-ConsoleText $baseline
+    New-ConsoleText -Text $baseline
     New-ConsoleText -Markup '[bold]After[/] [muted]| ConsoleMonster table[/]'
     $tasks | New-ConsoleTable -Property Task, State, Minutes -Expand
     New-ConsoleText -Markup '[muted]Three tasks. Aligned columns and right-aligned numbers.[/]'
 }
 
-# Live updates: this static screen prints once and returns immediately.
+# Behaviour: print the screen once and return.
 $screen | Write-ConsoleWidget

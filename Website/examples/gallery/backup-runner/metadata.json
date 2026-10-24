@@ -26,5 +26,24 @@
   "steps": 3,
   "tier": "starter",
   "useCase": "Use it when independent backup jobs need a concurrency limit and a bounded recovery attempt.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "outputStart": "Nightly backup",
+        "occurrence": 0,
+        "rows": 12
+      },
+      {
+        "outputStart": "Nightly backup",
+        "occurrence": 1,
+        "rows": 12
+      },
+      {
+        "outputStart": "Nightly backup",
+        "occurrence": 2,
+        "rows": 12
+      }
+    ]
+  }
 }

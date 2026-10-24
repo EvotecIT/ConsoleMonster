@@ -8,14 +8,9 @@ using ConsoleMonster.Widgets;
 string installFolder = "./toolbox-agent";
 string[] components = { "Core", "Core + reports" };
 
-// Run options: redirected input selects a deterministic snapshot.
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
 
 // Layout: construct the widgets shown on screen.
-int page = step;
+int page = 0;
 TextInput folder = new TextInput("Folder", installFolder) { Label = "Install folder" };
 Select component = new Select("Component", components.Select(name => new Choice(name))) {
     Label = "Component", Value = "Core"
@@ -34,6 +29,5 @@ Rows layout = new Rows(new TextBlock("[bold]Install Toolbox Agent[/] [muted]· T
                 new TextBlock("[pass]Ready to install. Review the folder and components.[/]"));
         return new Panel(content, title);
     })) { Gap = 1 };
-// Live updates: ConsoleApp handles input and reevaluates AppBinding as state changes.
-// Escape exits; snapshot mode prints the selected state without reading keys.
-ConsoleApp.Run(layout, options: new ConsoleAppOptions { StaticSnapshot = snapshot });
+// Behaviour: edit controls to update the view; Escape exits the app.
+ConsoleApp.Run(layout);

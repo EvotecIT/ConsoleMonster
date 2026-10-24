@@ -25,8 +25,57 @@
     "Store completed runs and connect report delivery."
   ],
   "mode": "live",
-  "steps": 6,
+  "steps": 8,
   "tier": "showcase",
   "useCase": "Use it when operators need to plan, run and review health checks across several sites.",
-  "featured": true
+  "featured": true,
+  "capture": {
+    "runKeys": "Ctrl+Q",
+    "states": [
+      {
+        "keys": "Escape",
+        "incomplete": true
+      },
+      {
+        "keys": "n wait:1000 Down Enter",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "n wait:1000 PageDown Enter",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "n wait:1000 PageDown PageDown",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "n wait:1000 PageDown PageDown PageDown",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "wait:1000 h",
+        "realTime": true,
+        "incomplete": true,
+        "contains": "When"
+      },
+      {
+        "keys": "n wait:1000 PageDown PageDown PageDown Enter",
+        "realTime": true,
+        "incomplete": true,
+        "checkpoint": 9,
+        "contains": "› Running",
+        "first": true
+      },
+      {
+        "keys": "n wait:1000 PageDown PageDown PageDown Enter",
+        "incomplete": true,
+        "contains": "Fleet check finished",
+        "realTime": true
+      }
+    ]
+  }
 }

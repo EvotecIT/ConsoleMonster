@@ -6,7 +6,7 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
 // Data: fictional inputs kept in memory.
-// The same synthetic objects feed both views. Static arguments can be ignored.
+// The same synthetic objects feed both views.
 var tasks = new[] {
     new { Task = "Draft release notes", State = "Ready", Minutes = 12 },
     new { Task = "Review examples", State = "In progress", Minutes = 25 },
@@ -34,5 +34,5 @@ Rows layout = new Rows(
     table,
     new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]")) { Gap = 1 };
 
-// Live updates: this static screen prints once and returns immediately.
+// Behaviour: print the screen once and return.
 Terminal.Write(layout);

@@ -26,5 +26,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when a storage report should explain both capacity pressure and where the space went.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

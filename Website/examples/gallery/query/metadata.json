@@ -28,5 +28,10 @@
   "steps": 1,
   "tier": "showcase",
   "useCase": "Use it when a diagnostic report needs records, hierarchy, checks and timings together.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

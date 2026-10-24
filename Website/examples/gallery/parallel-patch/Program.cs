@@ -6,86 +6,105 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: all hosts, outcomes and delays are synthetic. No remote command runs.
-string[] servers = Enumerable.Range(1, 40).Select(n => $"web{n:00}").ToArray();
-string[] operations = { "Stage update", "Apply update", "Restart", "Verify health" };
-int[] restartFailures = { 13, 26, 39 };
-int timeoutHost = 22;
+Host[] servers = [
+    new(Name: "web01", DelayMilliseconds: 637, RestartFailure: false, TimesOut: false),
+    new(Name: "web02", DelayMilliseconds: 774, RestartFailure: false, TimesOut: false),
+    new(Name: "web03", DelayMilliseconds: 911, RestartFailure: false, TimesOut: false),
+    new(Name: "web04", DelayMilliseconds: 1048, RestartFailure: false, TimesOut: false),
+    new(Name: "web05", DelayMilliseconds: 1185, RestartFailure: false, TimesOut: false),
+    new(Name: "web06", DelayMilliseconds: 1322, RestartFailure: false, TimesOut: false),
+    new(Name: "web07", DelayMilliseconds: 559, RestartFailure: false, TimesOut: false),
+    new(Name: "web08", DelayMilliseconds: 696, RestartFailure: false, TimesOut: false),
+    new(Name: "web09", DelayMilliseconds: 833, RestartFailure: false, TimesOut: false),
+    new(Name: "web10", DelayMilliseconds: 970, RestartFailure: false, TimesOut: false),
+    new(Name: "web11", DelayMilliseconds: 1107, RestartFailure: false, TimesOut: false),
+    new(Name: "web12", DelayMilliseconds: 1244, RestartFailure: false, TimesOut: false),
+    new(Name: "web13", DelayMilliseconds: 1381, RestartFailure: true, TimesOut: false),
+    new(Name: "web14", DelayMilliseconds: 618, RestartFailure: false, TimesOut: false),
+    new(Name: "web15", DelayMilliseconds: 755, RestartFailure: false, TimesOut: false),
+    new(Name: "web16", DelayMilliseconds: 892, RestartFailure: false, TimesOut: false),
+    new(Name: "web17", DelayMilliseconds: 1029, RestartFailure: false, TimesOut: false),
+    new(Name: "web18", DelayMilliseconds: 1166, RestartFailure: false, TimesOut: false),
+    new(Name: "web19", DelayMilliseconds: 1303, RestartFailure: false, TimesOut: false),
+    new(Name: "web20", DelayMilliseconds: 540, RestartFailure: false, TimesOut: false),
+    new(Name: "web21", DelayMilliseconds: 677, RestartFailure: false, TimesOut: false),
+    new(Name: "web22", DelayMilliseconds: 814, RestartFailure: false, TimesOut: true),
+    new(Name: "web23", DelayMilliseconds: 951, RestartFailure: false, TimesOut: false),
+    new(Name: "web24", DelayMilliseconds: 1088, RestartFailure: false, TimesOut: false),
+    new(Name: "web25", DelayMilliseconds: 1225, RestartFailure: false, TimesOut: false),
+    new(Name: "web26", DelayMilliseconds: 1362, RestartFailure: true, TimesOut: false),
+    new(Name: "web27", DelayMilliseconds: 599, RestartFailure: false, TimesOut: false),
+    new(Name: "web28", DelayMilliseconds: 736, RestartFailure: false, TimesOut: false),
+    new(Name: "web29", DelayMilliseconds: 873, RestartFailure: false, TimesOut: false),
+    new(Name: "web30", DelayMilliseconds: 1010, RestartFailure: false, TimesOut: false),
+    new(Name: "web31", DelayMilliseconds: 1147, RestartFailure: false, TimesOut: false),
+    new(Name: "web32", DelayMilliseconds: 1284, RestartFailure: false, TimesOut: false),
+    new(Name: "web33", DelayMilliseconds: 521, RestartFailure: false, TimesOut: false),
+    new(Name: "web34", DelayMilliseconds: 658, RestartFailure: false, TimesOut: false),
+    new(Name: "web35", DelayMilliseconds: 795, RestartFailure: false, TimesOut: false),
+    new(Name: "web36", DelayMilliseconds: 932, RestartFailure: false, TimesOut: false),
+    new(Name: "web37", DelayMilliseconds: 1069, RestartFailure: false, TimesOut: false),
+    new(Name: "web38", DelayMilliseconds: 1206, RestartFailure: false, TimesOut: false),
+    new(Name: "web39", DelayMilliseconds: 1343, RestartFailure: true, TimesOut: false),
+    new(Name: "web40", DelayMilliseconds: 580, RestartFailure: false, TimesOut: false),
+];
 const int throttle = 8;
 const int timeoutSeconds = 4;
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 3) throw new ArgumentOutOfRangeException(nameof(step));
 
 // Layout: a wave summary, every host, eight lane details and retained failures.
-IWidget Frame(int phase, IReadOnlyList<RunResult<string, string>>? actual = null) {
-    int done = new[] { 0, 8, 24, 40 }[phase];
-    int active = phase is 0 or 3 ? 0 : 8;
-    StatusKind State(int n) => n <= done
-        ? restartFailures.Contains(n) || n == timeoutHost ? StatusKind.Fail : StatusKind.Pass
-        : n <= done + active ? StatusKind.Running : StatusKind.Pending;
-    if (actual != null) done = actual.Count;
+IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes) {
+    var byHost = outcomes.ToDictionary(result => result.Item.Name);
+    int done = outcomes.Count;
+    int failed = outcomes.Count(result => !result.Succeeded);
+    bool finished = done == servers.Length;
+    StatusKind State(string host) => byHost.TryGetValue(host, out var result)
+        ? result.Succeeded ? StatusKind.Pass : StatusKind.Fail : StatusKind.Pending;
     CellMap map = new CellMap { Columns = 10, LegendLines = 2 };
-    for (int i = 0; i < servers.Length; i++) {
-        map.Add(actual == null ? State(i + 1) : actual[i].Succeeded ? StatusKind.Pass : StatusKind.Fail);
-    }
+    foreach (Host server in servers) map.Add(State(server.Name));
     foreach (string label in new[] { "web01–10", "web11–20", "web21–30", "web31–40" }) map.RowLabels.Add(label);
-    int failed = actual?.Count(r => !r.Succeeded) ?? Enumerable.Range(1, done).Count(n => State(n) == StatusKind.Fail);
-    SummaryBar summary = new SummaryBar();
-    summary.SetProgress(done, 40);
-    summary.SetCounter("passed", done - failed, StatusKind.Pass);
-    summary.SetCounter("failed", failed, StatusKind.Fail);
-    summary.SetCounter("running", active, StatusKind.Running);
-    summary.SetCounter("pending", 40 - done - active, StatusKind.Pending);
+    SummaryBar summary = new SummaryBar().SetProgress(done, servers.Length)
+        .SetCounter("passed", done - failed, StatusKind.Pass)
+        .SetCounter("failed", failed, StatusKind.Fail)
+        .SetCounter("running", 0, StatusKind.Running)
+        .SetCounter("pending", servers.Length - done, StatusKind.Pending);
     Lanes lanes = new Lanes();
-    for (int lane = 0; lane < throttle; lane++) {
-        int n = phase == 3 ? 33 + lane : done + lane + 1;
-        StatusKind status = actual == null ? State(n) : actual[n - 1].Succeeded ? StatusKind.Pass : StatusKind.Fail;
-        bool finished = phase == 3;
-        int progress = finished ? 4 : phase == 0 ? 0 : 1 + lane % 3;
-        string detail = finished ? (status == StatusKind.Fail ? "Restart verification failed" : "Health verified")
-            : phase == 0 ? "Waiting for a worker" : operations[progress - 1];
-        Lane item = lanes.Add(servers[n - 1], servers[n - 1], 4);
-        item.Done = progress;
-        item.Status = status;
-        item.Passed = finished ? status == StatusKind.Pass ? 4 : 3 : progress;
-        item.Failed = finished && status == StatusKind.Fail ? 1 : 0;
-        item.Detail = detail;
+    foreach (Host host in finished ? servers.TakeLast(throttle) : servers.Take(throttle)) {
+        bool hasResult = byHost.TryGetValue(host.Name, out var result);
+        Lane lane = lanes.Add(host.Name, host.Name, 4);
+        lane.Done = hasResult ? 4 : 0;
+        lane.Status = State(host.Name);
+        lane.Passed = hasResult ? result!.Succeeded ? 4 : 3 : 0;
+        lane.Failed = hasResult && !result!.Succeeded ? 1 : 0;
+        lane.Detail = !hasResult ? "Waiting for a worker" : result!.Succeeded ? "Health verified"
+            : result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed";
     }
     StatusList failures = new StatusList();
-    if (actual != null) {
-        foreach (var result in actual.Where(r => !r.Succeeded)) {
-            failures.Add(result.Item, StatusKind.Fail, result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed");
-        }
-    } else {
-        foreach (int n in Enumerable.Range(1, done).Where(n => State(n) == StatusKind.Fail)) {
-            failures.Add(servers[n - 1], StatusKind.Fail, n == timeoutHost ? "4s timeout · retry separately" : "Restart verification failed");
-        }
+    foreach (var result in outcomes.Where(result => !result.Succeeded)) {
+        failures.Add(result.Item.Name, StatusKind.Fail,
+            result.TimedOut ? "4s timeout · retry separately" : "Restart verification failed");
     }
     IWidget failureContent = failures.Items.Count == 0 ? new TextBlock("[muted]No failures recorded[/]") : failures;
     return new Rows(new Rule("[bold]Patching the web farm[/]"),
         new TextBlock("40 hosts · throttle 8 · per-host timeout 4s"), summary,
         new Panel(map, "Host outcomes"),
-        new Panel(lanes, phase == 3 ? "Last eight hosts" : "Worker lanes"),
+        new Panel(lanes, finished ? "Last eight hosts" : "Worker lanes"),
         new Panel(failureContent, "Retained failures"),
-        new TextBlock(phase == 3 ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry"
+        new TextBlock(finished ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry"
             : "[muted]Ctrl+C cancels active work and skips queued hosts[/]")) { Gap = 1 };
 }
 
 // Behaviour: the native run monitor owns scheduling, cancellation and the live UI.
-if (snapshot) {
-    Terminal.Write(Frame(step));
-    return;
-}
-IReadOnlyList<RunResult<string, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
-    int n = int.Parse(server.AsSpan(3), System.Globalization.CultureInfo.InvariantCulture);
-    await Task.Delay(500 + n * 137 % 900, cancel);
-    if (restartFailures.Contains(n)) throw new InvalidOperationException(server + " restart verification failed");
-    if (n == timeoutHost) await Task.Delay(TimeSpan.FromSeconds(10), cancel);
-    return server + " patched";
+Terminal.Write(Summary(Array.Empty<RunResult<Host, string>>()));
+IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(servers, async (server, cancel) => {
+    await Task.Delay(server.DelayMilliseconds, cancel);
+    if (server.RestartFailure) throw new InvalidOperationException(server.Name + " restart verification failed");
+    if (server.TimesOut) await Task.Delay(TimeSpan.FromSeconds(10), cancel);
+    return server.Name + " patched";
 }, new RunOptions {
     ThrottleLimit = throttle, Timeout = TimeSpan.FromSeconds(timeoutSeconds),
-    Title = "Patching the web farm", Interactive = true
+    Title = "Patching the web farm", Interactive = true, Label = item => ((Host)item!).Name
 });
 // Keep the structured outcomes; never retry automatically after a failure.
-Terminal.Write(Frame(3, results));
+Terminal.Write(Summary(results));
+
+record Host(string Name, int DelayMilliseconds, bool RestartFailure, bool TimesOut);

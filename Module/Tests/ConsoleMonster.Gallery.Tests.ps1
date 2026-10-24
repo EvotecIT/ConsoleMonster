@@ -13,6 +13,7 @@ Describe 'ConsoleMonster gallery runner' {
         $null = New-Item -ItemType Directory -Path $script:GalleryModuleLinkRoot
         $script:GalleryModuleLinks = @()
         $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+        $script:GalleryCapturePath = Join-Path $repository 'ConsoleMonster.PowerShell/Gallery/DemoCapture.ps1'
         $linkType = if ($env:OS -eq 'Windows_NT') { 'Junction' } else { 'SymbolicLink' }
         foreach ($link in @(
             @{ Name = 'ConsoleMonster'; Target = (Join-Path $repository 'Module') }
@@ -36,6 +37,8 @@ Describe 'ConsoleMonster gallery runner' {
                 '[Threading.Thread]::CurrentThread.CurrentUICulture = [Globalization.CultureInfo]::GetCultureInfo(''en-US'')'
                 '$env:NO_COLOR = ''1'''
                 '$env:CONSOLEMONSTER_MODE = ''Plain'''
+                '$env:CONSOLEMONSTER_INPUT = $null'
+                '$env:CONSOLEMONSTER_SNAPSHOT = $null'
                 '$env:CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION = ''Release'''
                 "`$env:PSModulePath = '$($script:GalleryModuleLinkRoot.Replace("'", "''"))' + [IO.Path]::PathSeparator + `$env:PSModulePath"
                 'Import-Module ConsoleMonster -Force -ErrorAction Stop'
@@ -67,14 +70,19 @@ $demo = Get-ConsoleDemo $slug
 $capture = [ConsoleMonster.Interactive.ScreenCapture]::new($demo.Terminal.Width, $demo.Terminal.Height)
 $inputSource = [ConsoleMonster.Input.ScriptedInput]::new($keys)
 $inputSource.Paced = $true
-$state = & $path -AppOptions @{
-    InputSource = $inputSource
-    Capture = $capture
-    PassThru = $true
-    NoMouse = $true
+$previous = [ConsoleMonster.Interactive.InteractiveOptions]::Default
+$options = $previous.Clone()
+$options.Input = $inputSource
+$options.Capture = $capture
+$options.Mode = 'Rich'
+$options.NonInteractive = $false
+try {
+    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $options
+    & $path
+} finally {
+    [ConsoleMonster.Interactive.InteractiveOptions]::Default = $previous
 }
 [pscustomobject] @{
-    State = $state
     Frame = $capture.LastFrame.ToPlainText()
     FrameCount = $capture.Frames.Count
     Remaining = $inputSource.Remaining
@@ -140,8 +148,7 @@ $state = & $path -AppOptions @{
         $parseErrors = $null
         $ast = [Management.Automation.Language.Parser]::ParseFile($path, [ref] $tokens, [ref] $parseErrors)
         @($parseErrors).Count | Should -Be 0
-        $ast.ParamBlock.Parameters.Name.VariablePath.UserPath | Should -Contain 'StaticSnapshot'
-        $ast.ParamBlock.Parameters.Name.VariablePath.UserPath | Should -Contain 'Step'
+        $ast.ParamBlock | Should -BeNullOrEmpty
     }
 
     It 'preserves an existing file unless Force is explicit and honors WhatIf' {
@@ -167,22 +174,36 @@ $state = & $path -AppOptions @{
         { Get-ConsoleDemo fleet-filter -Path 'Variable:GalleryDemoExport' } | Should -Throw -ErrorId 'ConsoleDemoExportFailed*'
     }
 
-    It 'exports <Slug> byte for byte and runs its embedded static snapshot' -ForEach @(
+    It 'exports <Slug> byte for byte with its BOM and runs a runner-selected snapshot' -ForEach @(
         Get-ChildItem (Join-Path $PSScriptRoot '../../Website/examples/gallery/*/metadata.json') | ForEach-Object { @{ Slug = $_.Directory.Name } }
     ) {
         $path = Join-Path $TestDrive "$Slug.ps1"
         $null = Get-ConsoleDemo $Slug -Path $path -Force
         $canonical = Join-Path $PSScriptRoot "../../Website/examples/gallery/$Slug/$Slug.ps1"
-        [Convert]::ToBase64String([IO.File]::ReadAllBytes($path)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($canonical)))
+        $bytes = [IO.File]::ReadAllBytes($path)
+        [Convert]::ToBase64String($bytes) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($canonical)))
+        ($bytes[0..2] -join ',') | Should -BeExactly '239,187,191'
         $text = Invoke-GalleryChild -Body "Show-ConsoleDemo '$Slug' -StaticSnapshot -Step 0"
         $text.Trim() | Should -Not -BeNullOrEmpty
     }
 
-    It 'forwards Step and produces the same deterministic snapshot as an exported standalone script' {
+    It 'drives the selected state in the runner for both embedded and exported ordinary scripts' {
         $path = Join-Path $TestDrive 'standalone.ps1'
         $null = Get-ConsoleDemo build-steps -Path $path
         $embedded = Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1'
-        $exported = Invoke-GalleryChild -Body "Set-Location '$($TestDrive.Replace("'", "''"))'; & '$($path.Replace("'", "''"))' -StaticSnapshot -Step 1"
+        $body = @(
+            "Set-Location '$($TestDrive.Replace("'", "''"))'"
+            "`$frame = & '$($script:GalleryCapturePath.Replace("'", "''"))' -Demo { & '$($path.Replace("'", "''"))' } -Metadata (Get-ConsoleDemo build-steps) -Step 1"
+            @'
+$output = [ConsoleMonster.Terminal]::CreateOutput([ConsoleMonster.Terminal]::GetCurrentProfile(), [ConsoleMonster.Terminal]::Target.Writer)
+try {
+    $output.WriteBlock($frame)
+} finally {
+    $output.Dispose()
+}
+'@
+        )
+        $exported = Invoke-GalleryChild -Body ($body -join "`n")
         $embedded | Should -Match 'Restore\s+complete'
         $embedded | Should -Match 'Compile\s+running'
         $embedded | Should -Not -Match 'Restore\s+running'
@@ -190,12 +211,18 @@ $state = & $path -AppOptions @{
         $embedded | Should -BeExactly (Invoke-GalleryChild -Body 'Show-ConsoleDemo build-steps -StaticSnapshot -Step 1')
     }
 
-    It 'filters the exported <Slug> app through real scripted input and returns its final query' -ForEach @(
-        @{ Slug = 'fleet-filter'; Query = 'missing'; Expected = 'No matching hosts'; Absent = 'web-01' }
-        @{ Slug = 'live-filter'; Query = 'sql'; Expected = 'sql-02'; Absent = 'web-01' }
+    It 'keeps the loaded fleet defaults selected in the native editor' {
+        $text = Invoke-GalleryChild -Body 'Show-ConsoleDemo fleet -StaticSnapshot -Step 1'
+        $text | Should -Match '5 of 5 selected'
+    }
+
+    It 'filters the exported <Slug> app through real scripted input and shows the matching result' -ForEach @(
+        @{ Slug = 'fleet-filter'; Query = 'missing'; Expected = 'No matching hosts'; Absent = 'web-01'; Count = 0 }
+        @{ Slug = 'live-filter'; Query = 'sql'; Expected = 'sql-02'; Absent = 'web-01'; Count = 2 }
     ) {
         $result = Invoke-GalleryAppChild -Slug $Slug -Keys ('"{0}" Escape' -f $Query)
-        $result.State.Query | Should -BeExactly $Query
+        $result.Frame | Should -Match ([regex]::Escape($Query))
+        $result.Frame | Should -Match "$Count of 5 hosts"
         $result.Frame | Should -Match ([regex]::Escape($Expected))
         $result.Frame | Should -Not -Match ([regex]::Escape($Absent))
         $result.FrameCount | Should -BeGreaterThan 1
@@ -203,9 +230,9 @@ $state = & $path -AppOptions @{
         $result.InputAcquired | Should -BeFalse
     }
 
-    It 'selects a queue preview in the exported task-menu and returns the chosen task' {
+    It 'selects and shows a queue preview in the exported task-menu' {
         $result = Invoke-GalleryAppChild -Slug task-menu -Keys 'Down Enter Escape'
-        $result.State.Task | Should -BeExactly 'Inspect queue'
+        $result.Frame | Should -Match 'Inspect queue'
         $result.Frame | Should -Match '12 jobs waiting'
         $result.Frame | Should -Not -Match 'CPU 24%'
         $result.FrameCount | Should -BeGreaterThan 1
@@ -215,12 +242,9 @@ $state = & $path -AppOptions @{
 
     It 'chooses reports and advances the exported setup-basic to its final review' {
         $result = Invoke-GalleryAppChild -Slug setup-basic -Keys 'Tab Down Enter Tab Tab Enter Enter Escape'
-        $result.State.Folder | Should -BeExactly './toolbox-agent'
-        $result.State.Component | Should -BeExactly 'Core + reports'
-        $result.State.Next | Should -Be 2
-        $result.State.Back | Should -Be 0
         $result.Frame | Should -Match '3 / 3'
         $result.Frame | Should -Match 'Ready to install'
+        $result.Frame | Should -Match 'Folder: \./toolbox-agent'
         $result.Frame | Should -Match 'Component: Core \+ reports'
         $result.Frame | Should -Not -Match 'Choose a writable folder'
         $result.FrameCount | Should -BeGreaterThan 1

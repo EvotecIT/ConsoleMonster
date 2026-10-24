@@ -10,6 +10,20 @@ namespace ConsoleMonster.Interactive {
     /// teaches the non-interactive form. Values are quoted for the chosen style; switches appear only when on.
     /// </summary>
     public static class CommandLine {
+        /// <summary>Builds an equivalent command from named values, retaining their enumeration order.</summary>
+        /// <param name="command">The command text.</param>
+        /// <param name="arguments">Named strings, numbers, switches or lists. Empty and disabled arguments are omitted.</param>
+        /// <param name="style">The argument quoting style.</param>
+        /// <returns>Command text for display or copying; this method does not execute it.</returns>
+        public static string Build(string command, IEnumerable<KeyValuePair<string, object?>> arguments, CommandStyle style = CommandStyle.PowerShell) {
+            if (arguments == null) { throw new ArgumentNullException(nameof(arguments)); }
+            List<string> formatted = new List<string>();
+            foreach (KeyValuePair<string, object?> argument in arguments) {
+                formatted.Add(Argument(argument.Key, argument.Value, style));
+            }
+            return Join(command, formatted);
+        }
+
         /// <summary>Formats a parameter name for a style (<c>Domain</c> → <c>-Domain</c>, <c>--domain</c> or <c>/domain</c>).</summary>
         /// <param name="name">The name, with or without its prefix.</param>
         /// <param name="style">The style.</param>

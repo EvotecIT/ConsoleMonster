@@ -1,6 +1,5 @@
 // Fleet health check: menus, selections, review, live work and actionable results.
 // Synthetic data and timings; reports and notifications stay in memory. No remote effects.
-using ConsoleMonster;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
@@ -9,26 +8,26 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = {
-    new("DC01", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.11", ""),
-    new("DC02", "corp.example.test", "Warsaw", "Domain controller", "10.20.1.12", ""),
-    new("FS01", "corp.example.test", "Dublin", "File", "10.30.1.21", ""),
-    new("SQL01", "corp.example.test", "Dublin", "Database", "10.30.1.31", ""),
-    new("WEB01", "corp.example.test", "Berlin", "Web", "10.40.1.41", ""),
-    new("FS22", "corp.example.test", "Berlin", "File", "10.40.1.22", "offline since 07:12"),
-    new("LAB01", "lab.example.test", "Lab", "Web", "192.168.50.40", ""),
-    new("LAB02", "lab.example.test", "Lab", "Database", "192.168.50.30", ""),
-};
-Check[] catalog = {
-    new("SecureChannel", "Secure channel", "Identity", "Tests the computer account trust with the domain.", "trusted", 1.2, false),
-    new("TimeOffset", "Time offset", "Identity", "Compares the clock with the domain time source.", "under 1 s", 0.8, false),
-    new("ForwardRecord", "Forward record", "DNS", "Compares the A record with the server address.", "matches IP", 0.6, false),
-    new("CertExpiry", "Cert expiry", "Certificates", "Finds machine certificates expiring within 30 days.", "30+ days", 1.8, false),
-    new("CertChain", "Cert chain", "Certificates", "Builds each certificate chain to a trusted root.", "trusted root", 3.5, false),
-    new("MissingUpdates", "Missing updates", "Updates", "Lists missing security updates older than 14 days.", "0", 6.5, false),
-    new("FreeSpace", "Free space", "Storage", "Measures free space on every fixed volume.", "15% free", 1.3, false),
-    new("AutoServices", "Auto services", "Services", "Checks that automatic services are running.", "all running", 2.2, false),
-};
+Node[] inventory = [
+    new(Name: "DC01", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.11", Offline: "", Online: true),
+    new(Name: "DC02", Domain: "corp.example.test", Site: "Warsaw", Role: "Domain controller", Detail: "10.20.1.12", Offline: "", Online: true),
+    new(Name: "FS01", Domain: "corp.example.test", Site: "Dublin", Role: "File", Detail: "10.30.1.21", Offline: "", Online: true),
+    new(Name: "SQL01", Domain: "corp.example.test", Site: "Dublin", Role: "Database", Detail: "10.30.1.31", Offline: "", Online: true),
+    new(Name: "WEB01", Domain: "corp.example.test", Site: "Berlin", Role: "Web", Detail: "10.40.1.41", Offline: "", Online: true),
+    new(Name: "FS22", Domain: "corp.example.test", Site: "Berlin", Role: "File", Detail: "10.40.1.22", Offline: "offline since 07:12", Online: false),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Web", Detail: "192.168.50.40", Offline: "", Online: true),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Database", Detail: "192.168.50.30", Offline: "", Online: true),
+];
+Check[] catalog = [
+    new(Id: "SecureChannel", Name: "Secure channel", Category: "Identity", Description: "Tests the computer account trust with the domain.", Expected: "trusted", Seconds: 1.2, Changes: false),
+    new(Id: "TimeOffset", Name: "Time offset", Category: "Identity", Description: "Compares the clock with the domain time source.", Expected: "under 1 s", Seconds: 0.8, Changes: false),
+    new(Id: "ForwardRecord", Name: "Forward record", Category: "DNS", Description: "Compares the A record with the server address.", Expected: "matches IP", Seconds: 0.6, Changes: false),
+    new(Id: "CertExpiry", Name: "Cert expiry", Category: "Certificates", Description: "Finds machine certificates expiring within 30 days.", Expected: "30+ days", Seconds: 1.8, Changes: false),
+    new(Id: "CertChain", Name: "Cert chain", Category: "Certificates", Description: "Builds each certificate chain to a trusted root.", Expected: "trusted root", Seconds: 3.5, Changes: false),
+    new(Id: "MissingUpdates", Name: "Missing updates", Category: "Updates", Description: "Lists missing security updates older than 14 days.", Expected: "0", Seconds: 6.5, Changes: false),
+    new(Id: "FreeSpace", Name: "Free space", Category: "Storage", Description: "Measures free space on every fixed volume.", Expected: "15% free", Seconds: 1.3, Changes: false),
+    new(Id: "AutoServices", Name: "Auto services", Category: "Services", Description: "Checks that automatic services are running.", Expected: "all running", Seconds: 2.2, Changes: false),
+];
 Dictionary<string, (StatusKind Status, string Actual)> findings = new() {
     ["DC02/TimeOffset"] = (StatusKind.Fail, "4.7 s"),
     ["FS01/MissingUpdates"] = (StatusKind.Fail, "3 updates"),
@@ -37,23 +36,20 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new() {
     ["WEB01/CertChain"] = (StatusKind.Warn, "intermediate ends in 40 days"),
     ["SQL01/AutoServices"] = (StatusKind.Warn, "1 restarted"),
 };
-List<HistoryRow> history = new() {
-    new("Mon 19 Oct 21:04", 3, 4, 10, 1, 1, TimeSpan.FromSeconds(372)), new("Tue 20 Oct 07:30", 2, 3, 6, 0, 0, TimeSpan.FromSeconds(66))
-};
+List<HistoryRow> history = [
+    new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
+    new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
+];
 string reportRoot = OperatingSystem.IsWindows() ? @"C:\Reports\Fleet" : "/tmp/reports/fleet";
 Node[] targets = inventory.Where(n => n.Domain == "corp.example.test" && n.Offline == "").Take(5).ToArray();
 Check[] checks = catalog.Where(c => new[] { "SecureChannel", "TimeOffset", "ForwardRecord", "CertExpiry", "CertChain", "MissingUpdates", "FreeSpace", "AutoServices" }.Contains(c.Id)).ToArray();
 string domain = "corp.example.test", format = "Html", report = reportRoot, email = "ops@example.test";
 int parallel = 3;
 bool notify = false;
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 5) throw new ArgumentOutOfRangeException(nameof(step));
 
 List<Work> Plan() => checks.SelectMany((c, ci) => targets.Select((n, ni) => {
-    var outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
-    return new Work(n, c, ni * checks.Length + ci, outcome.Item1, outcome.Item2, Math.Round(c.Seconds * (1 + ni * .17), 1));
+    (StatusKind Status, string Actual) outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
+    return new Work(n, c, ni * checks.Length + ci, outcome.Status, outcome.Actual, Math.Round(c.Seconds * (1 + ni * .17), 1));
 })).ToList();
 StatusKind Verdict(IEnumerable<Work> work) => work.Any(w => w.Status == StatusKind.Fail) ? StatusKind.Fail
     : work.Any(w => w.Status == StatusKind.Warn) ? StatusKind.Warn : StatusKind.Pass;
@@ -81,7 +77,7 @@ IWidget Preview(Check c) => new Rows(new TextBlock(Markup.Escape(c.Description))
     .Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + Seconds(c.Seconds))
     .Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id)) { Gap = 1 };
 
-// Layout: snapshots and live work use this same widget tree.
+// Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase) {
     Work[] finished = work.Take(done).ToArray();
     Work[] active = phase == 2 ? work.Skip(done).TakeWhile(w => w.Check.Id == work[done].Check.Id).Take(parallel).ToArray() : Array.Empty<Work>();
@@ -130,9 +126,6 @@ IWidget Body(List<Work> work, int done, int phase) {
     bottom.CollapseBelow = 100;
     return new Rows(summary, phases, top, bottom, new Panel(log, "Log"));
 }
-Dashboard Dashboard(List<Work> work, int done, int phase) => new("[bold]Fleet health check[/]", Body(work, done, phase)) {
-    Subtitle = $"{domain} · {targets.Length} servers · {checks.Length} checks", Footer = "Ctrl+C cancel · results keep the findings"
-};
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work) {
@@ -140,7 +133,10 @@ void Execute(MenuContext context, List<Work> work) {
     Dashboard dashboard = new("[bold]Fleet health check[/]", body) { Subtitle = domain, Footer = "Ctrl+C cancel · results keep the findings" };
     bool completed = false;
     RunResult outcome = context.Run(dashboard, run => {
-        void Show(int done, int phase) { body.Handle(run.Session).Set(Body(work, done, phase)); if (run.CancellationToken.WaitHandle.WaitOne(240)) run.CancellationToken.ThrowIfCancellationRequested(); }
+        void Show(int done, int phase) {
+            body.Handle(run.Session).Set(Body(work, done, phase));
+            run.Session.Delay(TimeSpan.FromMilliseconds(240));
+        }
         Show(0, 0); Show(0, 1);
         int done = 0;
         foreach (var operation in work.GroupBy(w => w.Check.Id)) {
@@ -150,8 +146,8 @@ void Execute(MenuContext context, List<Work> work) {
         RunResult result = Result(work); completed = true; return result;
     });
     if (!completed) return;
-    history.Add(new("Tue 20 Oct 09:30", work.Select(w => w.Node.Name).Distinct().Count(), work.Select(w => w.Check.Id).Distinct().Count(),
-        work.Count(w => w.Status == StatusKind.Pass), work.Count(w => w.Status == StatusKind.Warn), work.Count(w => w.Status == StatusKind.Fail), outcome.Elapsed));
+    history.Add(new(When: "Tue 20 Oct 09:30", Servers: work.Select(w => w.Node.Name).Distinct().Count(), Checks: work.Select(w => w.Check.Id).Distinct().Count(),
+        Passed: work.Count(w => w.Status == StatusKind.Pass), Warnings: work.Count(w => w.Status == StatusKind.Warn), Failed: work.Count(w => w.Status == StatusKind.Fail), Elapsed: outcome.Elapsed));
 }
 RunResult Result(List<Work> work) {
     RunResult result = new("Fleet check finished", Verdict(work)) {
@@ -194,7 +190,7 @@ servers.Loader = async (values, token) => {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain")).Select(n => new Choice(n.Name) {
         Title = n.Name, Group = n.Site, Badge = RichText.Plain(n.Role, new RichStyle(ThemeToken.Muted)),
-        Description = n.Role + " · " + n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == ""
+        Description = n.Detail, DisabledReason = n.Offline == "" ? null : n.Offline, Selected = n.Offline == ""
     });
 };
 servers.Default = targets.Select(n => n.Name).ToArray();
@@ -223,14 +219,9 @@ menu.Item("New check", i => i.Hotkey('n').WithIcon(GlyphIcon.Run).Describe("Choo
 }));
 menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).State(() => history.Count + " runs"));
 menu.Separator(); menu.Exit("Quit");
-if (snapshot) {
-    List<Work> work = Plan();
-    int done = step < 2 ? 0 : step == 2 ? Math.Min(work.Count, targets.Length + 2) : step == 3 ? work.Count * 2 / 3 : work.Count;
-    int phase = step < 2 ? step : step < 4 ? 2 : step == 4 ? 3 : 4;
-    Terminal.Write(Dashboard(work, done, phase));
-} else menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Fleet health check gallery" });
+menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Fleet health check gallery" });
 
-record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline);
+record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline, bool Online);
 record Check(string Id, string Name, string Category, string Description, string Expected, double Seconds, bool Changes);
 record Work(Node Node, Check Check, int Cell, StatusKind Status, string Actual, double Seconds);
 record HistoryRow(string When, int Servers, int Checks, int Passed, int Warnings, int Failed, TimeSpan Elapsed);

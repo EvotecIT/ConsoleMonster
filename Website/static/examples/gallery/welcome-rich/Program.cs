@@ -5,7 +5,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 // Data: fictional inputs kept in memory.
-// Fictional host and git values; --snapshot and --step 0 need no special handling.
+// Fictional host and git values keep the greeting independent of local probes.
 // Replace fixed strings with cached local data to keep profile startup fast.
 var hostData = new[] {
     (Label: "Host", Value: "comet-devbox"),
@@ -26,5 +26,5 @@ Rows layout = new Rows(
     new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
     new TextBlock("[muted]Ready when you are.[/]")) { Gap = 1 };
 
-// Live updates: this static screen prints once and returns immediately.
+// Behaviour: print the screen once and return.
 Terminal.Write(layout);

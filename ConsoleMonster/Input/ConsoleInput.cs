@@ -17,12 +17,35 @@ namespace ConsoleMonster.Input {
         private static int _depth;
         private static bool _inputStarted;
         private static bool _ownsSource;
+        private static IInputSource? _override;
+        private static string? _environmentScript;
+        private static ScriptedInput? _environmentInput;
 
         /// <summary>
         /// A source to use instead of the console (a script in tests or demos, or an embedding host's own input).
-        /// Null uses the console.
+        /// Null uses <c>CONSOLEMONSTER_INPUT</c> when set, otherwise the console. The environment variable accepts
+        /// <see cref="ScriptedInput"/> syntax and supplies one shared sequence for the process, including successive
+        /// prompts. An explicit override always wins. Clear the variable when returning to keyboard input.
         /// </summary>
-        public static IInputSource? Override { get; set; }
+        public static IInputSource? Override {
+            get {
+                if (_override != null) { return _override; }
+                lock (Gate) {
+                    string? script = Environment.GetEnvironmentVariable("CONSOLEMONSTER_INPUT");
+                    if (string.IsNullOrEmpty(script)) {
+                        _environmentScript = null;
+                        _environmentInput = null;
+                        return null;
+                    }
+                    if (script != _environmentScript) {
+                        _environmentInput = new ScriptedInput(script) { Paced = true };
+                        _environmentScript = script;
+                    }
+                    return _environmentInput;
+                }
+            }
+            set => _override = value;
+        }
 
         /// <summary>Whether the console (or <see cref="Override"/>) is currently leased.</summary>
         public static bool IsAcquired {

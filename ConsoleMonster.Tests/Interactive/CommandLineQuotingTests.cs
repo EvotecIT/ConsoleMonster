@@ -9,6 +9,22 @@ using Xunit;
 namespace ConsoleMonster.Tests.Interactive {
     /// <summary>Windows argument encoding is checked against the operating system's independent argv parser.</summary>
     public sealed class CommandLineQuotingTests {
+        [Fact]
+        public void Build_PreservesNamedValuesAndUsesTheSharedQuotingRules() {
+            KeyValuePair<string, object?>[] arguments = {
+                new("ComputerName", new[] { "WEB01", "O'Brien lab" }),
+                new("ThrottleLimit", 3),
+                new("WhatIf", true),
+                new("Notify", false),
+                new("Empty", ""),
+                new("Missing", null)
+            };
+            Assert.Equal("Invoke-FleetCheck -ComputerName WEB01,'O''Brien lab' -ThrottleLimit 3 -WhatIf",
+                CommandLine.Build("Invoke-FleetCheck", arguments));
+            Assert.Equal("check --ComputerName WEB01,'O'\\''Brien lab' --ThrottleLimit 3 --WhatIf",
+                CommandLine.Build("check", arguments, CommandStyle.Posix));
+        }
+
         [Theory]
         [InlineData("", "\"\"")]
         [InlineData("plain", "plain")]

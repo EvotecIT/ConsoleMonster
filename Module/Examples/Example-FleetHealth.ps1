@@ -11,43 +11,31 @@ Import-Module ConsoleMonster
 
 #region more
 # The data: servers by domain, the checks, the results that are not a plain pass, presets and earlier runs.
-$servers = foreach ($server in @(
-        , @('DC01', 'corp.contoso.com', 'Warsaw', 'Domain controller', '10.20.1.11', $null)
-        , @('DC02', 'corp.contoso.com', 'Warsaw', 'Domain controller', '10.20.1.12', $null)
-        , @('FS01', 'corp.contoso.com', 'Warsaw', 'File', '10.20.1.21', $null)
-        , @('SQL01', 'corp.contoso.com', 'Warsaw', 'Database', '10.20.1.31', $null)
-        , @('WEB01', 'corp.contoso.com', 'Warsaw', 'Web', '10.20.1.41', $null)
-        , @('DC11', 'corp.contoso.com', 'Dublin', 'Domain controller', '10.30.1.11', $null)
-        , @('FS11', 'corp.contoso.com', 'Dublin', 'File', '10.30.1.21', $null)
-        , @('SQL11', 'corp.contoso.com', 'Dublin', 'Database', '10.30.1.31', $null)
-        , @('WEB11', 'corp.contoso.com', 'Dublin', 'Web', '10.30.1.41', $null)
-        , @('DC21', 'corp.contoso.com', 'Berlin', 'Domain controller', '10.40.1.11', $null)
-        , @('WEB21', 'corp.contoso.com', 'Berlin', 'Web', '10.40.1.41', $null)
-        , @('FS22', 'corp.contoso.com', 'Berlin', 'File', '10.40.1.22', 'offline since 07:12')
-        , @('OSL-DC1', 'fabrikam.net', 'Oslo', 'Domain controller', '172.16.1.10', $null)
-        , @('OSL-FS1', 'fabrikam.net', 'Oslo', 'File', '172.16.1.20', $null)
-        , @('OSL-WEB1', 'fabrikam.net', 'Oslo', 'Web', '172.16.1.40', $null)
-        , @('MAD-DC1', 'fabrikam.net', 'Madrid', 'Domain controller', '172.17.1.10', $null)
-        , @('MAD-APP1', 'fabrikam.net', 'Madrid', 'Web', '172.17.1.40', $null)
-        , @('MAD-SQL1', 'fabrikam.net', 'Madrid', 'Database', '172.17.1.30', $null)
-        , @('LAB-DC1', 'lab.adatum.com', 'Lab', 'Domain controller', '192.168.50.10', $null)
-        , @('LAB-WEB1', 'lab.adatum.com', 'Lab', 'Web', '192.168.50.40', $null)
-        , @('LAB-SQL1', 'lab.adatum.com', 'Lab', 'Database', '192.168.50.30', $null)
-        , @('LAB-TEST1', 'lab.adatum.com', 'Lab', 'File', '192.168.50.90', 'in maintenance until Friday')
-    )) {
-    # Database servers and the remote site are slower.
-    $roleFactor = if ($server[3] -eq 'Database') { 1.5 } else { 1.0 }
-    $siteFactor = if ($server[2] -eq 'Berlin') { 1.3 } else { 1.0 }
-    [pscustomobject] @{
-        Name     = $server[0]
-        Domain   = $server[1]
-        Site     = $server[2]
-        Role     = $server[3]
-        Address  = $server[4]
-        Offline  = $server[5]
-        Slowness = $roleFactor * $siteFactor
-    }
-}
+# Database servers and the remote site have longer synthetic timings.
+$servers = @(
+    [pscustomobject] @{ Name = 'DC01'; Domain = 'corp.contoso.com'; Site = 'Warsaw'; Role = 'Domain controller'; Address = '10.20.1.11'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'DC02'; Domain = 'corp.contoso.com'; Site = 'Warsaw'; Role = 'Domain controller'; Address = '10.20.1.12'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'FS01'; Domain = 'corp.contoso.com'; Site = 'Warsaw'; Role = 'File'; Address = '10.20.1.21'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'SQL01'; Domain = 'corp.contoso.com'; Site = 'Warsaw'; Role = 'Database'; Address = '10.20.1.31'; Offline = $null; Slowness = 1.5 }
+    [pscustomobject] @{ Name = 'WEB01'; Domain = 'corp.contoso.com'; Site = 'Warsaw'; Role = 'Web'; Address = '10.20.1.41'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'DC11'; Domain = 'corp.contoso.com'; Site = 'Dublin'; Role = 'Domain controller'; Address = '10.30.1.11'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'FS11'; Domain = 'corp.contoso.com'; Site = 'Dublin'; Role = 'File'; Address = '10.30.1.21'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'SQL11'; Domain = 'corp.contoso.com'; Site = 'Dublin'; Role = 'Database'; Address = '10.30.1.31'; Offline = $null; Slowness = 1.5 }
+    [pscustomobject] @{ Name = 'WEB11'; Domain = 'corp.contoso.com'; Site = 'Dublin'; Role = 'Web'; Address = '10.30.1.41'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'DC21'; Domain = 'corp.contoso.com'; Site = 'Berlin'; Role = 'Domain controller'; Address = '10.40.1.11'; Offline = $null; Slowness = 1.3 }
+    [pscustomobject] @{ Name = 'WEB21'; Domain = 'corp.contoso.com'; Site = 'Berlin'; Role = 'Web'; Address = '10.40.1.41'; Offline = $null; Slowness = 1.3 }
+    [pscustomobject] @{ Name = 'FS22'; Domain = 'corp.contoso.com'; Site = 'Berlin'; Role = 'File'; Address = '10.40.1.22'; Offline = 'offline since 07:12'; Slowness = 1.3 }
+    [pscustomobject] @{ Name = 'OSL-DC1'; Domain = 'fabrikam.net'; Site = 'Oslo'; Role = 'Domain controller'; Address = '172.16.1.10'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'OSL-FS1'; Domain = 'fabrikam.net'; Site = 'Oslo'; Role = 'File'; Address = '172.16.1.20'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'OSL-WEB1'; Domain = 'fabrikam.net'; Site = 'Oslo'; Role = 'Web'; Address = '172.16.1.40'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'MAD-DC1'; Domain = 'fabrikam.net'; Site = 'Madrid'; Role = 'Domain controller'; Address = '172.17.1.10'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'MAD-APP1'; Domain = 'fabrikam.net'; Site = 'Madrid'; Role = 'Web'; Address = '172.17.1.40'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'MAD-SQL1'; Domain = 'fabrikam.net'; Site = 'Madrid'; Role = 'Database'; Address = '172.17.1.30'; Offline = $null; Slowness = 1.5 }
+    [pscustomobject] @{ Name = 'LAB-DC1'; Domain = 'lab.adatum.com'; Site = 'Lab'; Role = 'Domain controller'; Address = '192.168.50.10'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'LAB-WEB1'; Domain = 'lab.adatum.com'; Site = 'Lab'; Role = 'Web'; Address = '192.168.50.40'; Offline = $null; Slowness = 1.0 }
+    [pscustomobject] @{ Name = 'LAB-SQL1'; Domain = 'lab.adatum.com'; Site = 'Lab'; Role = 'Database'; Address = '192.168.50.30'; Offline = $null; Slowness = 1.5 }
+    [pscustomobject] @{ Name = 'LAB-TEST1'; Domain = 'lab.adatum.com'; Site = 'Lab'; Role = 'File'; Address = '192.168.50.90'; Offline = 'in maintenance until Friday'; Slowness = 1.0 }
+)
 $domains = [ordered] @{
     'corp.contoso.com' = 'Warsaw, Dublin, Berlin'
     'fabrikam.net'     = 'Oslo, Madrid'
@@ -130,22 +118,38 @@ $presets = @(
         Checks   = 'CertExpiry', 'CertChain', 'ForwardRecord'
     }
 )
-$script:history = foreach ($run in @(
-        , @('Sun 18 Oct 02:00', 'corp.contoso.com', 11, 10, 104, 5, 1, 83)
-        , @('Mon 19 Oct 02:00', 'corp.contoso.com', 11, 10, 103, 6, 1, 86)
-        , @('Mon 19 Oct 07:00', 'fabrikam.net', 2, 6, 12, 0, 0, 14)
-    )) {
+$script:history = @(
     [pscustomobject] @{
-        When     = $run[0]
-        Domain   = $run[1]
-        Servers  = $run[2]
-        Checks   = $run[3]
-        Passed   = $run[4]
-        Warnings = $run[5]
-        Failed   = $run[6]
-        Elapsed  = [timespan]::FromSeconds($run[7])
+        When     = 'Sun 18 Oct 02:00'
+        Domain   = 'corp.contoso.com'
+        Servers  = 11
+        Checks   = 10
+        Passed   = 104
+        Warnings = 5
+        Failed   = 1
+        Elapsed  = [timespan]::FromSeconds(83)
     }
-}
+    [pscustomobject] @{
+        When     = 'Mon 19 Oct 02:00'
+        Domain   = 'corp.contoso.com'
+        Servers  = 11
+        Checks   = 10
+        Passed   = 103
+        Warnings = 6
+        Failed   = 1
+        Elapsed  = [timespan]::FromSeconds(86)
+    }
+    [pscustomobject] @{
+        When     = 'Mon 19 Oct 07:00'
+        Domain   = 'fabrikam.net'
+        Servers  = 2
+        Checks   = 6
+        Passed   = 12
+        Warnings = 0
+        Failed   = 0
+        Elapsed  = [timespan]::FromSeconds(14)
+    }
+)
 $loadDelay = if ($Speed -gt 0) { 1100 } else { 0 }
 #endregion
 

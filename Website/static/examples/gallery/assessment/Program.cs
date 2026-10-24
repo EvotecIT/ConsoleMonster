@@ -1,75 +1,77 @@
 // Forest assessment: twelve targets, six workers, 332 rules and a complete findings dashboard.
 using System.Globalization;
-using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: fictional targets and rules, generated entirely in memory. No network checks or files are written.
-SyntheticRule[] DcRules = {
-    new SyntheticRule("Domain controllers", "LDAP signing required", "LDAPServerIntegrity is 1 (signing not required)", "12 unsigned binds in the last 24h"),
-    new SyntheticRule("Domain controllers", "LDAP channel binding", "LdapEnforceChannelBinding is 0", "channel binding set to 'when supported'"),
-    new SyntheticRule("Domain controllers", "SMB signing enforced", "RequireSecuritySignature is disabled", "SMB1 client still installed"),
-    new SyntheticRule("Domain controllers", "Print Spooler disabled", "Spooler service is running", "Spooler set to manual start"),
-    new SyntheticRule("Domain controllers", "LSA protection enabled", "RunAsPPL is not set", "RunAsPPL set without UEFI lock"),
-    new SyntheticRule("Domain controllers", "Credential Guard posture", "virtualization-based security is off", "Credential Guard configured but not running", 1.4),
-    new SyntheticRule("Domain controllers", "Secure Boot certificate rollout", "2023 CA certificate not applied", "update staged, reboot pending"),
-    new SyntheticRule("Domain controllers", "Windows Update compliance", "last cumulative update 94 days ago", "update installed, restart pending", 2.2),
-    new SyntheticRule("Domain controllers", "Operating system support", "Windows Server 2012 R2 is out of support", "support ends in 11 months"),
-    new SyntheticRule("Domain controllers", "NTLM audit configuration", "NTLM auditing is disabled", "audit enabled for incoming traffic only"),
-    new SyntheticRule("Replication", "Replication latency per partner", "no successful inbound replication from DC02 for 4h", "latency to DC05 is 42 minutes", 2.6),
-    new SyntheticRule("Replication", "USN rollback detection", "event 2095 logged (USN rollback suspected)", "invocation ID changed after restore", 1.8),
-    new SyntheticRule("Replication", "SYSVOL DFSR state", "DFSR state is 'In Error' (5)", "DFSR backlog of 37 files", 1.5),
-    new SyntheticRule("Replication", "Tombstone lifetime", "tombstone lifetime is 60 days", "tombstone lifetime not set explicitly"),
-    new SyntheticRule("Replication", "Lingering objects", "3 lingering objects in the configuration partition", "strict replication consistency is off", 2.0),
-    new SyntheticRule("DNS", "DNS forwarders consistency", "forwarders differ from the domain baseline", "one forwarder does not answer"),
-    new SyntheticRule("DNS", "DNS scavenging", "scavenging disabled on all zones", "no-refresh interval longer than 7 days"),
-    new SyntheticRule("DNS", "Root hints reachable", "4 of 13 root servers unreachable", "root hints file older than 2 years", 1.6),
-    new SyntheticRule("DNS", "DC locator SRV records", "_ldap._tcp.dc._msdcs record missing", "stale SRV record for a retired DC"),
-    new SyntheticRule("Time", "Time source hierarchy", "PDC emulator syncs from the local CMOS clock", "NTP server configured by IP address"),
-    new SyntheticRule("Time", "Clock skew", "clock skew of 7 minutes against the PDC emulator", "clock skew of 48 seconds"),
-    new SyntheticRule("Kerberos", "Kerberos AES-only encryption", "RC4 still allowed for Kerberos", "3 accounts without AES keys"),
-    new SyntheticRule("Kerberos", "krbtgt password age", "krbtgt password not changed for 812 days", "krbtgt password is 190 days old"),
-    new SyntheticRule("Kerberos", "Unconstrained delegation", "2 servers trusted for unconstrained delegation", "1 service account trusted for delegation"),
-    new SyntheticRule("Security", "Audit policy baseline", "advanced audit policy not applied", "logon auditing set to success only", 1.3),
-    new SyntheticRule("Security", "Event log sizes", "Security log is 20 MB and overwrites in 2 hours", "Directory Service log under 64 MB"),
-    new SyntheticRule("Security", "Local administrators", "4 unexpected members in BUILTIN\\Administrators", "nested group in BUILTIN\\Administrators"),
-    new SyntheticRule("Security", "Firewall profile", "domain firewall profile is disabled", "inbound rule allows any remote address"),
-    new SyntheticRule("Security", "Remote Desktop exposure", "RDP allowed without network level authentication", "RDP open to all internal subnets"),
-    new SyntheticRule("Security", "PowerShell logging", "script block logging is disabled", "transcription not configured")
-};
+SyntheticRule[] DcRules = [
+    new(Category: "Domain controllers", Name: "LDAP signing required", FailReason: "LDAPServerIntegrity is 1 (signing not required)", WarnReason: "12 unsigned binds in the last 24h", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "LDAP channel binding", FailReason: "LdapEnforceChannelBinding is 0", WarnReason: "channel binding set to 'when supported'", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "SMB signing enforced", FailReason: "RequireSecuritySignature is disabled", WarnReason: "SMB1 client still installed", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "Print Spooler disabled", FailReason: "Spooler service is running", WarnReason: "Spooler set to manual start", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "LSA protection enabled", FailReason: "RunAsPPL is not set", WarnReason: "RunAsPPL set without UEFI lock", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "Credential Guard posture", FailReason: "virtualization-based security is off", WarnReason: "Credential Guard configured but not running", Weight: 1.4),
+    new(Category: "Domain controllers", Name: "Secure Boot certificate rollout", FailReason: "2023 CA certificate not applied", WarnReason: "update staged, reboot pending", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "Windows Update compliance", FailReason: "last cumulative update 94 days ago", WarnReason: "update installed, restart pending", Weight: 2.2),
+    new(Category: "Domain controllers", Name: "Operating system support", FailReason: "Windows Server 2012 R2 is out of support", WarnReason: "support ends in 11 months", Weight: 1.0),
+    new(Category: "Domain controllers", Name: "NTLM audit configuration", FailReason: "NTLM auditing is disabled", WarnReason: "audit enabled for incoming traffic only", Weight: 1.0),
+    new(Category: "Replication", Name: "Replication latency per partner", FailReason: "no successful inbound replication from DC02 for 4h", WarnReason: "latency to DC05 is 42 minutes", Weight: 2.6),
+    new(Category: "Replication", Name: "USN rollback detection", FailReason: "event 2095 logged (USN rollback suspected)", WarnReason: "invocation ID changed after restore", Weight: 1.8),
+    new(Category: "Replication", Name: "SYSVOL DFSR state", FailReason: "DFSR state is 'In Error' (5)", WarnReason: "DFSR backlog of 37 files", Weight: 1.5),
+    new(Category: "Replication", Name: "Tombstone lifetime", FailReason: "tombstone lifetime is 60 days", WarnReason: "tombstone lifetime not set explicitly", Weight: 1.0),
+    new(Category: "Replication", Name: "Lingering objects", FailReason: "3 lingering objects in the configuration partition", WarnReason: "strict replication consistency is off", Weight: 2.0),
+    new(Category: "DNS", Name: "DNS forwarders consistency", FailReason: "forwarders differ from the domain baseline", WarnReason: "one forwarder does not answer", Weight: 1.0),
+    new(Category: "DNS", Name: "DNS scavenging", FailReason: "scavenging disabled on all zones", WarnReason: "no-refresh interval longer than 7 days", Weight: 1.0),
+    new(Category: "DNS", Name: "Root hints reachable", FailReason: "4 of 13 root servers unreachable", WarnReason: "root hints file older than 2 years", Weight: 1.6),
+    new(Category: "DNS", Name: "DC locator SRV records", FailReason: "_ldap._tcp.dc._msdcs record missing", WarnReason: "stale SRV record for a retired DC", Weight: 1.0),
+    new(Category: "Time", Name: "Time source hierarchy", FailReason: "PDC emulator syncs from the local CMOS clock", WarnReason: "NTP server configured by IP address", Weight: 1.0),
+    new(Category: "Time", Name: "Clock skew", FailReason: "clock skew of 7 minutes against the PDC emulator", WarnReason: "clock skew of 48 seconds", Weight: 1.0),
+    new(Category: "Kerberos", Name: "Kerberos AES-only encryption", FailReason: "RC4 still allowed for Kerberos", WarnReason: "3 accounts without AES keys", Weight: 1.0),
+    new(Category: "Kerberos", Name: "krbtgt password age", FailReason: "krbtgt password not changed for 812 days", WarnReason: "krbtgt password is 190 days old", Weight: 1.0),
+    new(Category: "Kerberos", Name: "Unconstrained delegation", FailReason: "2 servers trusted for unconstrained delegation", WarnReason: "1 service account trusted for delegation", Weight: 1.0),
+    new(Category: "Security", Name: "Audit policy baseline", FailReason: "advanced audit policy not applied", WarnReason: "logon auditing set to success only", Weight: 1.3),
+    new(Category: "Security", Name: "Event log sizes", FailReason: "Security log is 20 MB and overwrites in 2 hours", WarnReason: "Directory Service log under 64 MB", Weight: 1.0),
+    new(Category: "Security", Name: "Local administrators", FailReason: "4 unexpected members in BUILTIN\\Administrators", WarnReason: "nested group in BUILTIN\\Administrators", Weight: 1.0),
+    new(Category: "Security", Name: "Firewall profile", FailReason: "domain firewall profile is disabled", WarnReason: "inbound rule allows any remote address", Weight: 1.0),
+    new(Category: "Security", Name: "Remote Desktop exposure", FailReason: "RDP allowed without network level authentication", WarnReason: "RDP open to all internal subnets", Weight: 1.0),
+    new(Category: "Security", Name: "PowerShell logging", FailReason: "script block logging is disabled", WarnReason: "transcription not configured", Weight: 1.0),
+];
 
-SyntheticRule[] DomainRules = {
-    new SyntheticRule("Group Policy", "GPO permissions baseline", "Authenticated Users can edit 2 GPOs", "a GPO without Authenticated Users read", 2.4),
-    new SyntheticRule("Group Policy", "Orphaned GPO folders", "5 SYSVOL folders without a GPO object", "1 GPO object without a SYSVOL folder"),
-    new SyntheticRule("Group Policy", "Empty GPOs", "9 GPOs with no settings are linked", "3 unlinked empty GPOs"),
-    new SyntheticRule("Group Policy", "LAPS policy", "no LAPS policy applies to member servers", "legacy LAPS still deployed alongside Windows LAPS"),
-    new SyntheticRule("Accounts", "Stale computer accounts", "214 computers inactive for over 180 days", "41 computers inactive for over 90 days", 1.8),
-    new SyntheticRule("Accounts", "Password never expires", "18 user accounts never expire their password", "2 service accounts never expire their password"),
-    new SyntheticRule("Accounts", "Privileged group membership", "Domain Admins has 14 members", "a disabled account is still in Enterprise Admins", 1.5),
-    new SyntheticRule("Accounts", "AdminSDHolder protected objects", "6 orphaned adminCount=1 accounts", "AdminSDHolder ACL differs from the default"),
-    new SyntheticRule("Accounts", "Service account SPN hygiene", "duplicate SPN HTTP/intranet registered twice", "3 SPNs on user accounts with old passwords", 1.4),
-    new SyntheticRule("PKI", "CA weak key size", "issuing CA uses a 1024-bit RSA key", "issuing CA certificate expires in 9 months"),
-    new SyntheticRule("PKI", "Certificate template exposure", "template allows SAN from the requester (ESC1)", "template enrollable by Domain Users", 1.7),
-    new SyntheticRule("Kerberos", "Constrained delegation overview", "protocol transition allowed to DC services", "delegation to CIFS on 2 servers"),
-    new SyntheticRule("Forest", "Recycle Bin enabled", "AD Recycle Bin is not enabled", "deleted object lifetime is 60 days"),
-    new SyntheticRule("Forest", "Site link costs", "site link with cost 0 and 15-minute schedule gaps", "2 site links use default cost 100"),
-    new SyntheticRule("Forest", "Subnets without sites", "11 client subnets are not mapped to a site", "3 overlapping subnet definitions"),
-    new SyntheticRule("Forest", "Functional level", "domain functional level is Windows Server 2008 R2", "forest functional level is behind the domains")
-};
+SyntheticRule[] DomainRules = [
+    new(Category: "Group Policy", Name: "GPO permissions baseline", FailReason: "Authenticated Users can edit 2 GPOs", WarnReason: "a GPO without Authenticated Users read", Weight: 2.4),
+    new(Category: "Group Policy", Name: "Orphaned GPO folders", FailReason: "5 SYSVOL folders without a GPO object", WarnReason: "1 GPO object without a SYSVOL folder", Weight: 1.0),
+    new(Category: "Group Policy", Name: "Empty GPOs", FailReason: "9 GPOs with no settings are linked", WarnReason: "3 unlinked empty GPOs", Weight: 1.0),
+    new(Category: "Group Policy", Name: "LAPS policy", FailReason: "no LAPS policy applies to member servers", WarnReason: "legacy LAPS still deployed alongside Windows LAPS", Weight: 1.0),
+    new(Category: "Accounts", Name: "Stale computer accounts", FailReason: "214 computers inactive for over 180 days", WarnReason: "41 computers inactive for over 90 days", Weight: 1.8),
+    new(Category: "Accounts", Name: "Password never expires", FailReason: "18 user accounts never expire their password", WarnReason: "2 service accounts never expire their password", Weight: 1.0),
+    new(Category: "Accounts", Name: "Privileged group membership", FailReason: "Domain Admins has 14 members", WarnReason: "a disabled account is still in Enterprise Admins", Weight: 1.5),
+    new(Category: "Accounts", Name: "AdminSDHolder protected objects", FailReason: "6 orphaned adminCount=1 accounts", WarnReason: "AdminSDHolder ACL differs from the default", Weight: 1.0),
+    new(Category: "Accounts", Name: "Service account SPN hygiene", FailReason: "duplicate SPN HTTP/intranet registered twice", WarnReason: "3 SPNs on user accounts with old passwords", Weight: 1.4),
+    new(Category: "PKI", Name: "CA weak key size", FailReason: "issuing CA uses a 1024-bit RSA key", WarnReason: "issuing CA certificate expires in 9 months", Weight: 1.0),
+    new(Category: "PKI", Name: "Certificate template exposure", FailReason: "template allows SAN from the requester (ESC1)", WarnReason: "template enrollable by Domain Users", Weight: 1.7),
+    new(Category: "Kerberos", Name: "Constrained delegation overview", FailReason: "protocol transition allowed to DC services", WarnReason: "delegation to CIFS on 2 servers", Weight: 1.0),
+    new(Category: "Forest", Name: "Recycle Bin enabled", FailReason: "AD Recycle Bin is not enabled", WarnReason: "deleted object lifetime is 60 days", Weight: 1.0),
+    new(Category: "Forest", Name: "Site link costs", FailReason: "site link with cost 0 and 15-minute schedule gaps", WarnReason: "2 site links use default cost 100", Weight: 1.0),
+    new(Category: "Forest", Name: "Subnets without sites", FailReason: "11 client subnets are not mapped to a site", WarnReason: "3 overlapping subnet definitions", Weight: 1.0),
+    new(Category: "Forest", Name: "Functional level", FailReason: "domain functional level is Windows Server 2008 R2", WarnReason: "forest functional level is behind the domains", Weight: 1.0),
+];
 const int Workers = 6;
-IReadOnlyList<KeyValuePair<string, string>> Targets() {
-    List<KeyValuePair<string, string>> targets = new List<KeyValuePair<string, string>> {
-        new KeyValuePair<string, string>("dom-ad", "ad.adatum.com (domain)"),
-        new KeyValuePair<string, string>("dom-eu", "eu.ad.adatum.com (domain)")
-    };
-    for (int i = 1; i <= 10; i++) {
-        string dc = "DC" + i.ToString("00", CultureInfo.InvariantCulture) + (i <= 6 ? ".ad.adatum.com" : ".eu.ad.adatum.com");
-        targets.Add(new KeyValuePair<string, string>("dc" + i.ToString(CultureInfo.InvariantCulture), dc));
-    }
-    return targets;
-}
+IReadOnlyList<KeyValuePair<string, string>> Targets() => [
+    new(key: "dom-ad", value: "ad.adatum.com (domain)"),
+    new(key: "dom-eu", value: "eu.ad.adatum.com (domain)"),
+    new(key: "dc1", value: "DC01.ad.adatum.com"),
+    new(key: "dc2", value: "DC02.ad.adatum.com"),
+    new(key: "dc3", value: "DC03.ad.adatum.com"),
+    new(key: "dc4", value: "DC04.ad.adatum.com"),
+    new(key: "dc5", value: "DC05.ad.adatum.com"),
+    new(key: "dc6", value: "DC06.ad.adatum.com"),
+    new(key: "dc7", value: "DC07.eu.ad.adatum.com"),
+    new(key: "dc8", value: "DC08.eu.ad.adatum.com"),
+    new(key: "dc9", value: "DC09.eu.ad.adatum.com"),
+    new(key: "dc10", value: "DC10.eu.ad.adatum.com"),
+];
 int TotalRules = (2 * DomainRules.Length) + (10 * DcRules.Length);
 List<LiveEvent> Generate(int seed = 2026) {
     Random random = new Random(seed);
@@ -275,12 +277,6 @@ void Add(List<LiveEvent> events, double time, string target, string operation, s
 
 // Layout: retain the worker lanes, result split, rate chart, duration histogram and category findings.
 var events = Generate();
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], CultureInfo.InvariantCulture);
-if (step < 0 || step > 11) throw new ArgumentOutOfRangeException(nameof(step));
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-long end = events[^1].Time;
-long cutoff = step switch { 0 => 1, 1 => 4000, 11 => end, _ => 6800 + (end - 11300) * (step - 2) / 8 };
 Phases phases = new Phases().Set("Discover").Set("Collect").Set("Evaluate").Set("Report");
 StackedBar results = new StackedBar("results").Add("Passed", 0, ThemeToken.Pass)
     .Add("Warnings", 0, ThemeToken.Warn).Add("Failed", 0, ThemeToken.Fail).Add("Skipped", 0, ThemeToken.Skip);
@@ -305,23 +301,22 @@ Dashboard dashboard = new Dashboard("[bold]Nightly checks[/]", body) {
     Footer = "[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]"
 };
 
-// Behaviour: a snapshot applies the same timestamped updates as the bounded native live run.
-if (snapshot) {
-    var targets = new ILiveTarget[] { dashboard, phases, results, summary, throughput, durations, findings, lanes, log }
-        .ToDictionary(target => target.Name);
-    foreach (LiveEvent update in events.Where(update => update.Time <= cutoff)) targets[update.Target].Apply(update);
-    Terminal.Write(dashboard);
+// Behaviour: post each synthetic event in a bounded live run, paced at 4x.
+using LiveSession session = new LiveSession(dashboard);
+try {
+    session.Run(live => {
+        long previous = 0;
+        foreach (LiveEvent update in events) {
+            int delay = (int)((update.Time - previous) / 4);
+            live.Cancellation.ThrowIfCancellationRequested();
+            live.Post(update);
+            live.Delay(TimeSpan.FromMilliseconds(delay));
+            previous = update.Time;
+        }
+    });
+} catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+    // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;
 }
-using LiveSession session = new LiveSession(dashboard);
-session.Run(live => {
-    long previous = 0;
-    foreach (LiveEvent update in events) {
-        int delay = (int)((update.Time - previous) / 4);
-        if (live.Cancellation.WaitHandle.WaitOne(delay)) break;
-        live.Post(update);
-        previous = update.Time;
-    }
-});
 
 record SyntheticRule(string Category, string Name, string FailReason, string WarnReason, double Weight = 1);

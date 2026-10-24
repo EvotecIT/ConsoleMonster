@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 
 namespace ConsoleMonster.Live {
@@ -29,8 +30,9 @@ namespace ConsoleMonster.Live {
         }
 
         /// <summary>
-        /// A copy of the last frame the session drew (for exports and screenshots), or null before the first frame and for
-        /// line-based outputs that draw no frames. Safe to call from any thread.
+        /// A copy of the last dashboard frame drawn or captured as a skipped-delay recording checkpoint (for exports
+        /// and screenshots), or null before the first frame and for line-based outputs without checkpoints.
+        /// Safe to call from any thread.
         /// </summary>
         /// <returns>The frame copy, or null.</returns>
         public CellBuffer? Snapshot() {
@@ -53,6 +55,10 @@ namespace ConsoleMonster.Live {
         }
 
         internal bool CanOverlay => IsRunning && _output != null && _output.SupportsLiveFrames && !_restored;
+
+        // Append-only recording outputs still have a checkpoint backdrop for an in-memory prompt overlay.
+        internal bool CanCaptureOverlay(RecordingTarget target) => IsRunning && !_restored &&
+            target.SkipDelays && ReferenceEquals(_recordingTarget, target);
 
         internal void PresentOverlay(CellBuffer frame) {
             lock (_outputGate) {

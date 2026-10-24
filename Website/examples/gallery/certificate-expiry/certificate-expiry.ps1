@@ -1,6 +1,5 @@
 ﻿# Review certificate renewal deadlines with an owner and a concrete next action.
-param([switch] $StaticSnapshot, [ValidateRange(0, 0)][int] $Step = 0)
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 
 # Data: fixed dates and fictional certificates; no certificate store or private key is opened.
 $certificates = @(
@@ -11,14 +10,14 @@ $certificates = @(
 )
 
 # Layout: put urgent renewals beside the inventory, with thresholds visible.
-$report = New-ConsoleRows -Gap 1 {
-    New-ConsoleRule '[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]'
+$report = New-ConsoleRows -Gap 1 -Content {
+    New-ConsoleRule -Title '[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]'
     '[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]'
     New-ConsoleTable -InputObject $certificates -Property Name, Expires, Days, Owner, Status -Expand
-    New-ConsolePanel -Title 'Renewal policy' {
-        New-ConsoleStatusList {
-            New-ConsoleStatusItem 'vpn.example.test' -Status Fail -Detail 'Network · renew before Monday'
-            New-ConsoleStatusItem 'api.example.test' -Status Warn -Detail 'Platform · schedule renewal this week'
+    New-ConsolePanel -Title 'Renewal policy' -Content {
+        New-ConsoleStatusList -Content {
+            New-ConsoleStatusItem -Label 'vpn.example.test' -Status Fail -Detail 'Network · renew before Monday'
+            New-ConsoleStatusItem -Label 'api.example.test' -Status Warn -Detail 'Platform · schedule renewal this week'
         }
         '[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]'
     }

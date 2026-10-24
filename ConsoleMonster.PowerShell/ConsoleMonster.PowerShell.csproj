@@ -35,6 +35,7 @@
                           WithCulture="false" />
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
+        <EmbeddedResource Include="Gallery/DemoCapture.ps1" LogicalName="ConsoleMonster.PowerShell.Gallery.DemoCapture.ps1" />
         <EmbeddedResource Include="Formatting\FormatCommandProxy.ps1" />
         <EmbeddedResource Update="Interactive\App\PSAppMessages.resx" LogicalName="ConsoleMonster.PowerShell.Interactive.App.PSAppMessages.resources" />
         <EmbeddedResource Update="Help\HelpMessages.resx" LogicalName="ConsoleMonster.PowerShell.Help.HelpMessages.resources" />

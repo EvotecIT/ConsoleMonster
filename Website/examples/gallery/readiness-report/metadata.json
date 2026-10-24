@@ -27,5 +27,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when a readiness review needs clear pass, warning and failure results.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

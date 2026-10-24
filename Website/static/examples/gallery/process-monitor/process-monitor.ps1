@@ -1,6 +1,5 @@
 ﻿# Follow CPU and memory pressure in a bounded top-like dashboard.
-param([switch] $StaticSnapshot, [ValidateRange(0, 2)][int] $Step = 0)
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 
 # Data: synthetic counters, not the machine's real process list.
 $processes = @(
@@ -12,33 +11,35 @@ $processes = @(
 $cpuHistory = @(38, 45, 51, 48, 56)
 
 # Layout: build a complete frame from one set of counters.
-function New-ProcessFrame($Tick) {
+function New-ProcessFrame {
+    param(
+        $Tick
+    )
+
     $rows = foreach ($process in $processes) {
         [pscustomobject] @{ Name = $process.Name; Pid = $process.Pid; 'CPU %' = $process.Cpu + $Tick * 3; 'Memory MiB' = $process.Memory + $Tick * 16 }
     }
-    New-ConsoleRows -Gap 1 {
-        New-ConsoleRule '[bold]Process monitor[/] [muted]· refresh 1s[/]'
+    New-ConsoleRows -Gap 1 -Content {
+        New-ConsoleRule -Title '[bold]Process monitor[/] [muted]· refresh 1s[/]'
         New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
-        New-ConsolePanel -Title 'CPU history' {
+        New-ConsolePanel -Title 'CPU history' -Content {
             New-ConsoleSparkline -Label 'CPU %' -Value @($cpuHistory + (56 + $Tick * 5))
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
     }
 }
 
-# Behaviour: one deterministic snapshot in CI; three refreshes in a terminal.
-if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-ProcessFrame $Step | Write-ConsoleWidget
-    return
-}
-$frames = @(0..2 | ForEach-Object { New-ProcessFrame $_ })
+# Behaviour: update each frame in a bounded live run.
+$frames = @(0..2 | ForEach-Object -Process { New-ProcessFrame -Tick $_ })
 $screen = New-ConsoleRegion -Name processes -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+Start-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
-        if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
+        if ($ConsoleSession.Cancellation.IsCancellationRequested) {
+            break
+        }
         Set-ConsoleRegion -Name processes -Widget $frame
-        Start-Sleep -Milliseconds 1000
+        Wait-ConsoleDashboard -Milliseconds 1000
     }
 }

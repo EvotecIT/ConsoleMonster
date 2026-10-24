@@ -941,6 +941,43 @@ It 'renders the report' {
 - `.github/workflows/test.yml` runs xUnit on net472 and net8.0 and Pester on Windows PowerShell 5.1 and PowerShell 7
   on every push and pull request.
 
+### Capture an ordinary program
+
+The gallery programs contain only their data, layout and behaviour. `Show-ConsoleDemo assessment -StaticSnapshot -Step 3`
+selects a state using the runner's capture recipe; an exported `assessment.ps1` has no capture parameters.
+
+For a script or console program of your own, `CONSOLEMONSTER_INPUT` supplies the same key syntax as `ScriptedInput`:
+`Down Enter`, `"sql" Escape`, or `Tab Space Enter`. The process consumes one sequence across successive prompts.
+An explicit input source takes precedence. Clear the variable before returning to keyboard input.
+
+`CONSOLEMONSTER_SNAPSHOT=1` prints an initialized `ConsoleApp` when no scripted input is supplied and skips dashboard
+pauses. It does not fabricate answers or select application data. Scripted input still runs the real application.
+
+Use `Wait-ConsoleDashboard -Milliseconds 650` inside `Start-ConsoleDashboard`, or
+`live.Delay(TimeSpan.FromMilliseconds(650))` in C#, to pause cancellably between updates. A `RecordingTarget` with
+`SkipDelays = true` applies earlier queued updates and stores compact frames in `Screens` instead of sleeping.
+Its optional zero-based `Checkpoints` array selects delay calls to retain; `CheckpointCount` reports all calls.
+The recording's clock advances by each requested pause unless the session supplies its own clock.
+
+```csharp
+var target = TestTerminal.Target(width: 100, height: 32);
+target.SkipDelays = true;
+target.Checkpoints = [0, 4];
+using (Terminal.Use(target)) {
+    RunDashboard();
+}
+CellBuffer first = target.Screens.Frames[0];
+```
+
+`Send-ConsoleEvent -TimeMilliseconds` retains the original event time when forwarding timestamped updates.
+Omitting it lets the live session stamp the event normally.
+
+A capture host can set `CONSOLEMONSTER_STORAGE_ROOT` to an isolated folder so menus cannot read saved user presets.
+An explicit `StorageRoot` still wins. `New-ConsoleForm -PageDescriptions @{ Scope = "Which servers to check." }`
+maps page guidance to the same `Form.Page(name, description)` API used in C#.
+
+For equivalent commands outside a form, use `Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments ([ordered]@{ ComputerName = @('WEB01', 'SQL01'); WhatIf = $true })`. C# uses `CommandLine.Build(command, arguments)`. Both use the existing form quoting rules for strings, lists, numbers and switches; neither executes the result.
+
 ## Targets: tests, redirection and hosting
 
 Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a capability profile (size, colour

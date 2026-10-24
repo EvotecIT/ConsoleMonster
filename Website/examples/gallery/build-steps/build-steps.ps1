@@ -1,21 +1,19 @@
 ﻿# Animate a build checklist and overall progress without running a build.
-[CmdletBinding()]
-param(
-    [switch] $StaticSnapshot,
-    [ValidateRange(0, 4)] [int] $Step = 0
-)
 
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 # All data is synthetic and inline; no services are contacted or changed.
-# All values are synthetic. This example never connects to a host.
 
 # Data: fictional inputs kept in memory.
 $stages = @('Restore', 'Compile', 'Test', 'Package')
 # Layout: construct the widgets shown on screen.
-function New-DemoFrame($Tick) {
-    New-ConsoleRows -Gap 1 {
+function New-DemoFrame {
+    param(
+        $Tick
+    )
+
+    New-ConsoleRows -Gap 1 -Content {
         '[bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
-        New-ConsolePanel -Title 'Release checklist' {
+        New-ConsolePanel -Title 'Release checklist' -Content {
             foreach ($index in 0..3) {
                 $status = if ($index -lt $Tick) { 'pass' } elseif ($index -eq $Tick) { 'accent' } else { 'muted' }
                 $label = if ($index -lt $Tick) { 'complete' } elseif ($index -eq $Tick) { 'running' } else { 'pending' }
@@ -24,27 +22,25 @@ function New-DemoFrame($Tick) {
         }
         New-ConsoleProgress -Label Overall -Value $Tick -Total 4
         New-ConsoleKeyValue -Data ([ordered] @{
-            'Project' = 'Orbit.Tools'
-            'Version' = '1.2.0'
-            'Artifacts' = './artifacts/'
-            'Publish' = 'manual approval'
-        })
+                'Project' = 'Orbit.Tools'
+                'Version' = '1.2.0'
+                'Artifacts' = './artifacts/'
+                'Publish' = 'manual approval'
+            })
         '[muted]Ctrl+C stops the live run.[/]'
     }
 }
 
-# Live updates: print one state headlessly, or run the bounded simulation.
-if ($StaticSnapshot -or [Console]::IsInputRedirected) {
-    New-DemoFrame $Step | Write-ConsoleWidget
-    return
-}
-$frames = @(0..4 | ForEach-Object { New-DemoFrame $_ })
+# Behaviour: update each frame in a bounded live run.
+$frames = @(0..4 | ForEach-Object -Process { New-DemoFrame -Tick $_ })
 $screen = New-ConsoleRegion -Name demo -Widget $frames[0]
-Start-ConsoleDashboard $screen -ArgumentList (, $frames) {
+Start-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBlock {
     param($Frames)
     foreach ($frame in $Frames) {
-        if ($ConsoleSession.Cancellation.IsCancellationRequested) { break }
+        if ($ConsoleSession.Cancellation.IsCancellationRequested) {
+            break
+        }
         Set-ConsoleRegion -Name demo -Widget $frame
-        Start-Sleep -Milliseconds 650
+        Wait-ConsoleDashboard -Milliseconds 650
     }
 }

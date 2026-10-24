@@ -26,5 +26,24 @@
   "steps": 5,
   "tier": "starter",
   "useCase": "Use it when a script needs to explain the current build stage and overall progress.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "checkpoint": 0
+      },
+      {
+        "checkpoint": 1
+      },
+      {
+        "checkpoint": 2
+      },
+      {
+        "checkpoint": 3
+      },
+      {
+        "checkpoint": 4
+      }
+    ]
+  }
 }
