@@ -2,6 +2,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
@@ -82,6 +84,7 @@ namespace ConsoleMonster.Output {
     public sealed class RecordingTarget : ITerminalTarget {
         private static readonly Regex Escapes = new Regex("\u001b\\[[0-9;?]*[ -/]*[@-~]|\u001b\\][^\u0007\u001b]*(\u0007|\u001b\\\\)", RegexOptions.CultureInvariant);
         private readonly StringTerminalWriter _writer = new StringTerminalWriter();
+        private int _checkpointCount;
 
         /// <summary>Creates a recording target.</summary>
         /// <param name="profile">The profile (use <see cref="Testing.TestTerminal.Profile"/> for a fixed one).</param>
@@ -107,14 +110,48 @@ namespace ConsoleMonster.Output {
         /// <inheritdoc />
         public IInputSource? Input { get; }
 
-        /// <summary>The screens drawn by prompts, menus, forms and grids run against this target.</summary>
+        /// <summary>The screens drawn by prompts, menus, forms, grids and selected live-session checkpoints.</summary>
         public ScreenCapture Screens { get; }
+
+        /// <summary>
+        /// Skips <see cref="Live.LiveSession.Delay"/> waits and captures a compact dashboard checkpoint in
+        /// <see cref="Screens"/> instead. Default false; configure before starting the session.
+        /// </summary>
+        public bool SkipDelays { get; set; }
+
+        /// <summary>
+        /// Zero-based live-session Delay calls to capture when <see cref="SkipDelays"/> is enabled; null captures all,
+        /// an empty array captures none. Configure before starting the session. Checkpoint order assumes one producer.
+        /// </summary>
+        public int[]? Checkpoints { get; set; }
+
+        /// <summary>Total valid Delay calls on sessions using this target, including checkpoints that were not selected.</summary>
+        public int CheckpointCount => Volatile.Read(ref _checkpointCount);
+
+        internal bool SelectCheckpoint() {
+            int index = Interlocked.Increment(ref _checkpointCount) - 1;
+            int[]? selected = Checkpoints;
+            return selected == null || Array.IndexOf(selected, index) >= 0;
+        }
+
+        // Called by the live dispatcher after all earlier queued updates have been applied.
+        internal void CaptureCheckpoint(CellBuffer frame) => Screens.Surface.Present(frame, null);
 
         /// <summary>Everything written so far, exactly as written (including colour codes when the profile has colour).</summary>
         public string Output => _writer.ToString();
 
         /// <summary>The output as plain text: escape sequences removed, line endings normalised to <c>\n</c>.</summary>
         public string Text => Escapes.Replace(_writer.ToString(), string.Empty).Replace("\r\n", "\n");
+
+        /// <summary>Replays the captured output into cells, including colours and cursor movement, at this target's fixed size.
+        /// Prompt and application frames captured directly in <see cref="Screens"/> remain separate.</summary>
+        /// <returns>The printed rows, with their original cell styles.</returns>
+        public Canvas.CellBuffer Transcript() {
+            var screen = new Sessions.VtScreen(Profile.Width, Profile.Height);
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(Output);
+            screen.Feed(bytes, bytes.Length);
+            return screen.Transcript();
+        }
 
         /// <summary>Forgets the output written so far.</summary>
         public void Clear() => _writer.Clear();

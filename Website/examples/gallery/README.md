@@ -21,13 +21,13 @@ programs. For example, `Show-ConsoleDemo fleet` opens the shell workflow
 with presets, scope selection, a review, live check progress, and results.
 `Show-ConsoleDemo fleet-filter` opens the smaller searchable host list.
 
-Edit `fleet.ps1`, then run it from your shell. Use `-StaticSnapshot -Step 0`
-to print a state without reading input. `Steps` in the metadata gives the number
-of available states, starting at zero. Redirected runs also select snapshot mode.
-Live dashboards finish after a short simulated run; apps exit with Escape.
+Edit `fleet.ps1`, then run it from your shell. The copied program has no capture
+parameters. `Show-ConsoleDemo fleet -StaticSnapshot -Step 0` selects a state through
+the runner. `steps` in the metadata gives the number of available states, starting
+at zero. Live dashboards finish after a short simulated run; apps exit with Escape.
 
 For a welcome screen, export the script and call it from `$PROFILE`, or copy its
-body after the `param` block into your profile. Replace the fictional values
+body into your profile. Replace the fictional values
 with cached local information as needed; avoid network requests at shell startup.
 
 Install `ConsoleMonster.Templates` with `dotnet new install`, then create a demo:
@@ -39,9 +39,10 @@ dotnet run
 ```
 
 The generated project contains the gallery's `Program.cs` and needs only the
-ConsoleMonster package. Run it with `dotnet run -- --snapshot --step 1` to print
-a deterministic state. Omitting `--demo` creates the full menu/logging/hosting
-starter as before. The PowerShell assembly embeds the canonical scripts and
+ConsoleMonster package. Set `CONSOLEMONSTER_SNAPSHOT=1` to initialize an app without
+reading input and skip dashboard pauses. `CONSOLEMONSTER_INPUT` supplies scripted
+keys for native menus, forms and prompts. Omitting `--demo` creates the full
+menu/logging/hosting starter as before. The PowerShell assembly embeds the canonical scripts and
 metadata; the template package includes the canonical C# files directly at pack
 time. There is no second maintained copy of either source.
 
@@ -49,7 +50,10 @@ time. There is no second maintained copy of either source.
 
 `metadata.json` defines the title, pitch, category, tags, terminal size, supported
 runtimes, add-ons, three customization suggestions, mode, state count, `tier`,
-and `useCase`. The use-case sentence starts with "Use it when". `featured` marks
+and `useCase`. Its `capture` recipes select real screens with scripted keys,
+live delay checkpoints or printed result markers. `capture.runKeys` is used only
+when an unattended full run needs input; ordinary apps use the snapshot environment
+switch. Capture controls never enter the copyable programs. The use-case sentence starts with "Use it when". `featured` marks
 the strongest showcase programs. Keep starters at 250 lines or less and
 showcases at 450 lines or less. No entry requires an add-on.
 
@@ -67,9 +71,9 @@ and `csharp` entries, `lines` with each file's line count, download URLs, run
 commands, a `frame`, a `thumbnail` SVG URL, and per-state cell parity results.
 Featured entries come first, followed by slug order. Live entries also carry
 `url`, `duration` in milliseconds, `frames`, `fps`, and `start` for the existing
-player. Their `capture` field identifies them as deterministic snapshot
-storyboards: they show the sample's successive states at fixed intervals,
-rather than recording keyboard timing or claiming measured performance.
+player. Their `capture` field identifies a scripted native program. These deterministic
+storyboards show its actual successive states at fixed intervals, rather than
+recording keyboard timing or claiming measured performance.
 
 `replay` is null for a static entry. For a live entry it has the existing player
 shape: `url`, `w`, `h`, `poster` (`w`, `h`, `dark`), `start`, and `hero`. Its
@@ -78,8 +82,9 @@ flat replay and source fields remain available. Recordings of a different
 program are not reused as evidence for a new port.
 
 Each language entry in `source` contains `file`, `text`, and `repo`. `text` is
-the complete runnable file, read directly from its canonical UTF-8 bytes, including
-the final newline. `repo` is its repository-relative path, for example
+the complete runnable file, read directly from its canonical UTF-8 source, including
+the final newline and omitting its BOM. PowerShell source files and downloads retain
+exactly one UTF-8 BOM for Windows PowerShell 5.1. `repo` is its repository-relative path, for example
 `Website/examples/gallery/fleet/fleet.ps1` or
 `Website/examples/gallery/fleet/Program.cs`. Append it to
 `https://github.com/EvotecIT/ConsoleMonster/blob/master/` for the source link.

@@ -1,5 +1,4 @@
 // Follow CPU and memory pressure in a bounded top-like dashboard.
-using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
@@ -31,19 +30,17 @@ IWidget Frame(int tick) {
         new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]")) { Gap = 1 };
 }
 
-// Behaviour: one deterministic snapshot in CI; three refreshes in a terminal.
-int at = Array.IndexOf(args, "--step");
-int step = at < 0 ? 0 : int.Parse(args[at + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 2) throw new ArgumentOutOfRangeException(nameof(step));
-if (args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected)) {
-    Terminal.Write(Frame(step));
-    return;
-}
+// Behaviour: update each frame in a bounded live run.
 Slot screen = new Slot("processes", Frame(0));
 using LiveSession session = new LiveSession(screen);
-session.Run(live => {
-    for (int tick = 0; tick <= 2 && !live.Cancellation.IsCancellationRequested; tick++) {
-        screen.Handle(live).Set(Frame(tick));
-        if (live.Cancellation.WaitHandle.WaitOne(1000)) break;
-    }
-});
+try {
+    session.Run(live => {
+        for (int tick = 0; tick <= 2 && !live.Cancellation.IsCancellationRequested; tick++) {
+            screen.Handle(live).Set(Frame(tick));
+            live.Delay(TimeSpan.FromMilliseconds(1000));
+        }
+    });
+} catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+    // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+    return;
+}

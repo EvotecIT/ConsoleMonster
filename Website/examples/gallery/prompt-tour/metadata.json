@@ -27,5 +27,57 @@
   "steps": 9,
   "tier": "showcase",
   "useCase": "Use it when a command needs guided input that preserves typed values and clear validation.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "runKeys": "Enter Enter Enter Enter \"example-passphrase\" Enter Enter Enter \"FS01\" Enter Enter",
+    "states": [
+      {
+        "keys": "wait:1",
+        "incomplete": true,
+        "contains": "? Target server",
+        "realTime": true
+      },
+      {
+        "keys": "Enter",
+        "incomplete": true,
+        "contains": "? Tasks"
+      },
+      {
+        "keys": "Enter Enter",
+        "incomplete": true,
+        "contains": "Restart the report agent on FS01?"
+      },
+      {
+        "keys": "Enter Enter Enter",
+        "incomplete": true,
+        "contains": "? Share name"
+      },
+      {
+        "keys": "Enter Enter Enter Enter",
+        "incomplete": true,
+        "contains": "? Password for svc-backup"
+      },
+      {
+        "keys": "Enter Enter Enter Enter \"example-passphrase\" Enter",
+        "incomplete": true,
+        "contains": "? Port"
+      },
+      {
+        "keys": "Enter Enter Enter Enter \"example-passphrase\" Enter Enter",
+        "incomplete": true,
+        "contains": "? Report folder"
+      },
+      {
+        "keys": "Enter Enter Enter Enter \"example-passphrase\" Enter Enter Enter",
+        "incomplete": true,
+        "contains": "Remove FS01 from the inventory?"
+      },
+      {
+        "keys": "Enter Enter Enter Enter \"example-passphrase\" Enter Enter Enter \"FS01\" Enter",
+        "incomplete": true,
+        "contains": "WEB01 failed. Continue with the other servers?",
+        "checkpoint": 2
+      }
+    ]
+  }
 }

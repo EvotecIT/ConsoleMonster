@@ -15,7 +15,7 @@ namespace ConsoleMonster.Building {
     public sealed class DashboardBuilder : RowsBuilderBase<DashboardBuilder> {
         private readonly string _title;
         private string? _subtitle;
-        private string? _footer = "[muted]Ctrl+C[/] stop";
+        private string? _footer;
 
         /// <summary>Creates a builder.</summary>
         /// <param name="title">The dashboard title (markup).</param>
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Building {
             return this;
         }
 
-        /// <summary>Sets the footer; <c>null</c> hides it.</summary>
+        /// <summary>Sets custom footer text; <c>null</c> uses the dashboard's default key hints.</summary>
         /// <param name="footer">The footer (markup).</param>
         /// <returns>This builder.</returns>
         public DashboardBuilder Footer(string? footer) {

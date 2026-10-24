@@ -12,35 +12,30 @@ using ConsoleMonster.Widgets;
 // No files, services, launch entries, network connections or persistent presets are created.
 string installFolder = "./toolbox-agent";
 string dataFolder = "./toolbox-data";
-var components = new[] {
-    new Part("Agent", "Agent service", "Core", "18 MB", "Runs tasks and reports results.", true),
-    new Part("Cli", "Command-line tools", "Core", "6 MB", "The toolbox command and PowerShell module.", true),
-    new Part("Html", "HTML reports", "Reporting", "4 MB", "Interactive reports with tables and charts.", true),
-    new Part("Pdf", "PDF export", "Reporting", "31 MB", "Prints reports to PDF."),
-    new Part("Chat", "Chat notifications", "Integrations", "1 MB", "Posts run summaries to a channel."),
-    new Part("Mail", "Email notifications", "Integrations", "1 MB", "Sends reports by email."),
-    new Part("Syslog", "Syslog forwarder", "Integrations", "1 MB", "Forwards findings to a collector.", false, "needs the Enterprise licence")
-};
+Part[] components = [
+    new(Id: "Agent", Name: "Agent service", Group: "Core", Size: "18 MB", Description: "Runs tasks and reports results.", Selected: true),
+    new(Id: "Cli", Name: "Command-line tools", Group: "Core", Size: "6 MB", Description: "The toolbox command and PowerShell module.", Selected: true),
+    new(Id: "Html", Name: "HTML reports", Group: "Reporting", Size: "4 MB", Description: "Interactive reports with tables and charts.", Selected: true),
+    new(Id: "Pdf", Name: "PDF export", Group: "Reporting", Size: "31 MB", Description: "Prints reports to PDF."),
+    new(Id: "Chat", Name: "Chat notifications", Group: "Integrations", Size: "1 MB", Description: "Posts run summaries to a channel."),
+    new(Id: "Mail", Name: "Email notifications", Group: "Integrations", Size: "1 MB", Description: "Sends reports by email."),
+    new(Id: "Syslog", Name: "Syslog forwarder", Group: "Integrations", Size: "1 MB", Description: "Forwards findings to a collector.", Selected: false, Disabled: "needs the Enterprise licence"),
+];
 var accounts = new[] {
     new Choice("CurrentUser", "Current user") { Description = "Runs with your signed-in identity." },
     new Choice("ServiceUser", "Dedicated service identity") { Description = "Uses the platform's managed service identity." },
     new Choice("Custom", "A specific account") { Description = "An account you name; password stays out of the command." }
 };
-string[] pageNames = { "Location", "Components", "Service", "Connection", "Review", "Install", "Result" };
 string[] installSteps = { "Copy files", "Register agent", "Configure connection", "Start agent" };
-var endpoints = new[] {
-    new Endpoint("eu", "eu-west.example.test", "Dublin", "12 ms"),
-    new Endpoint("eu", "eu-central.example.test", "Frankfurt", "9 ms"),
-    new Endpoint("eu", "eu-north.example.test", "Stockholm", "31 ms"),
-    new Endpoint("us", "us-east.example.test", "East", "18 ms"),
-    new Endpoint("us", "us-west.example.test", "West", "74 ms"),
-    new Endpoint("ap", "ap-south.example.test", "South", "121 ms"),
-    new Endpoint("ap", "ap-east.example.test", "East", "", "maintenance until 18:00")
-};
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 6) throw new ArgumentOutOfRangeException(nameof(step));
+Endpoint[] endpoints = [
+    new(Region: "eu", Host: "eu-west.example.test", City: "Dublin", Latency: "12 ms"),
+    new(Region: "eu", Host: "eu-central.example.test", City: "Frankfurt", Latency: "9 ms"),
+    new(Region: "eu", Host: "eu-north.example.test", City: "Stockholm", Latency: "31 ms"),
+    new(Region: "us", Host: "us-east.example.test", City: "East", Latency: "18 ms"),
+    new(Region: "us", Host: "us-west.example.test", City: "West", Latency: "74 ms"),
+    new(Region: "ap", Host: "ap-south.example.test", City: "South", Latency: "121 ms"),
+    new(Region: "ap", Host: "ap-east.example.test", City: "East", Latency: "", Disabled: "maintenance until 18:00"),
+];
 Choice[] Parts() => components.Select(p => new Choice(p.Id, p.Name) {
     Group = p.Group, Description = p.Description, Badge = RichText.Plain(p.Size, new RichStyle(ThemeToken.Muted)),
     Selected = p.Selected, DisabledReason = p.Disabled
@@ -98,67 +93,8 @@ Form BuildForm() {
     return form;
 }
 
-// The snapshot uses native app controls on each wizard page, without asking for input.
-IWidget SnapshotPage(int page) {
-    IWidget content;
-    switch (page) {
-        case 0:
-            content = new Rows(new TextBlock("Where the agent and its data go."),
-                new TextInput("Path", installFolder) { Label = "Install folder" },
-                new TextInput("Data", dataFolder) { Label = "Data folder" },
-                new Toggle("Launcher", true) { Label = "Launcher entry" },
-                new TextBlock("[muted]Logs, reports and the local queue use the data folder.[/]")) { Gap = 1 };
-            break;
-        case 1:
-            Table parts = Table.For(components.Select(p => new { Component = p.Name, Group = p.Group, Size = p.Size, Description = p.Description }))
-                .WithExpand().Column(p => p.Component).Column(p => p.Group).Column(p => p.Size).Column(p => p.Description, c => c.WithFlexible());
-            content = new Rows(new MultiSelect("Components", Parts()) { Label = "Components" }, parts,
-                new TextBlock("[muted]Syslog forwarder needs the Enterprise licence. At least one component is required.[/]")) { Gap = 1 };
-            break;
-        case 2:
-            content = new Rows(new Select("Account", accounts) { Label = "Service account", Value = "ServiceUser" },
-                new Toggle("AutoStart", true) { Label = "Start automatically" },
-                new TextBlock("Choose a specific account to reveal user name and password fields."),
-                new TextBlock("[muted]Secrets are omitted from the equivalent command.[/]")) { Gap = 1 };
-            break;
-        case 3:
-            content = new Rows(new Select("Region", new[] { new Choice("eu", "Europe"), new Choice("us", "Americas"), new Choice("ap", "Asia Pacific") }) { Label = "Region", Value = "eu" },
-                new Select("Server", Servers("eu")) { Label = "Server", Value = "eu-central.example.test" },
-                new TextInput("Port", "443") { Label = "Port (1–65535)" },
-                new Toggle("UseProxy") { Label = "Use a proxy" },
-                new TextBlock("[muted]Changing the region reloads servers. Enabling a proxy reveals its address.[/]")) { Gap = 1 };
-            break;
-        case 4:
-            content = new Rows(new KeyValueList().Add("Install folder", installFolder).Add("Data folder", dataFolder)
-                .Add("Components", "Agent, Cli, Html").Add("Service account", "Dedicated service identity")
-                .Add("Server", "eu-central.example.test:443").Add("Launcher / auto start", "Yes / Yes"),
-                new Panel(new TextBlock("Install-ToolboxAgent -Path './toolbox-agent' -DataPath './toolbox-data' -Component Agent,Cli,Html -Account ServiceUser -Region eu -Server eu-central.example.test -Port 443 -Launcher -AutoStart"), "Equivalent command"),
-                new Button("Install", "Install"), new Button("Back", "Back")) { Gap = 1 };
-            break;
-        default:
-            StatusList tasks = new StatusList();
-            for (int i = 0; i < installSteps.Length; i++) tasks.Add(installSteps[i], page == 6 || i < 2 ? StatusKind.Pass : i == 2 ? StatusKind.Running : StatusKind.Pending);
-            ProgressBar progress = new ProgressBar("Install") {
-                Total = 40, Value = page == 6 ? 40 : 24,
-                Status = page == 6 ? StatusKind.Pass : StatusKind.Running
-            };
-            content = new Rows(tasks, progress, new TextBlock(page == 6
-                ? "[pass]Toolbox Agent installed[/] · 4 steps done · launch with the toolbox command"
-                : "Configuring eu-central.example.test:443")) { Gap = 1 };
-            break;
-    }
-    Phases strip = new Phases();
-    for (int i = 0; i < pageNames.Length; i++) strip.Set(pageNames[i], page == 6 || i < page ? StatusKind.Pass : i == page ? StatusKind.Running : StatusKind.Pending);
-    return new Rows(new Rule("[bold]Install Toolbox Agent[/]"), strip,
-        new Panel(content, $"{page + 1} / 7 · {pageNames[page]}")) { Gap = 1 };
-}
-
 // Behaviour: edit every page, review, then run a bounded in-memory installation.
-if (snapshot) {
-    ConsoleApp.Run(SnapshotPage(step), options: new ConsoleAppOptions { StaticSnapshot = true });
-    return;
-}
-FormResult answers = BuildForm().Show(new FormOptions());
+FormResult answers = BuildForm().Show();
 if (!answers.Submitted) return;
 StatusList install = new StatusList("steps");
 foreach (string label in installSteps) install.Add(label, StatusKind.Pending);
@@ -167,20 +103,26 @@ Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
     .Panel("Steps", install).Add(new Padding(bar, 1, 0, 1, 0)).BuildDashboard();
 using (LiveSession session = new LiveSession(dashboard)) {
-    session.Run(s => {
-        StatusListHandle status = install.Handle(s);
-        ProgressHandle progress = bar.Handle(s);
-        foreach (string label in installSteps) {
-            status.Set(label, StatusKind.Running);
-            progress.Label(label);
-            for (int i = 0; i < 10; i++) {
-                s.Cancellation.ThrowIfCancellationRequested();
-                Thread.Sleep(90); progress.Advance();
+    try {
+        session.Run(s => {
+            StatusListHandle status = install.Handle(s);
+            ProgressHandle progress = bar.Handle(s);
+            foreach (string label in installSteps) {
+                status.Set(label, StatusKind.Running);
+                progress.Label(label);
+                for (int i = 0; i < 10; i++) {
+                    s.Cancellation.ThrowIfCancellationRequested();
+                    progress.Advance();
+                    s.Delay(TimeSpan.FromMilliseconds(90));
+                }
+                status.Set(label, StatusKind.Pass);
             }
-            status.Set(label, StatusKind.Pass);
-        }
-        progress.Complete();
-    });
+            progress.Complete();
+        });
+    } catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+        // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+        return;
+    }
 }
 Terminal.Write(new Panel(new KeyValueList().Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path")))
     .Add("Components", Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components"))))

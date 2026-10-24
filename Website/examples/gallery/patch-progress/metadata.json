@@ -23,8 +23,22 @@
     "Use the success results and retained failures to retry hosts and produce a report."
   ],
   "mode": "live",
-  "steps": 3,
+  "steps": 2,
   "tier": "starter",
   "useCase": "Use it when independent jobs need bounded concurrency and retained failures for retry.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "outputStart": "Parallel patch run",
+        "occurrence": 0,
+        "rows": 14
+      },
+      {
+        "outputStart": "Parallel patch run",
+        "occurrence": 1,
+        "rows": 14
+      }
+    ]
+  }
 }

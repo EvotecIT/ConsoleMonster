@@ -26,5 +26,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when several repositories need review before you change branches or start a release.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

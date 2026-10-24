@@ -45,7 +45,7 @@ List the welcome demos.
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo assessment -Path ./assessment.ps1
-            ./assessment.ps1 -StaticSnapshot -Step 0
+            ./assessment.ps1
 ```
 
 Export a demo to customize and run.

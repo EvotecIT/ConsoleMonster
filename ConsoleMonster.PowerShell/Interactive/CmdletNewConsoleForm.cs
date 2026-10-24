@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Interactive;
@@ -5,12 +6,12 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</para>
-    /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</para>
+    /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.</para>
     /// </summary>
     /// <example>
     ///   <para>A two-page wizard</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' {
+    /// $form = New-ConsoleForm 'New share' -Command 'New-AppShare' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } {
     ///     New-ConsoleField Name 'Share name' -Page Basics -Required -Parameter Name
     ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -Parameter Path
     ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -Parameter ReadOnly
@@ -43,6 +44,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">A sentence under the title.</para></summary>
         [Parameter]
         public string? Description { get; set; }
+
+        /// <summary><para type="description">Descriptions by page name, for pages declared by the fields. Pages without a matching entry keep their default description.</para></summary>
+        [Parameter]
+        public IDictionary? PageDescriptions { get; set; }
 
         /// <summary><para type="description">The command the equivalent command line starts with.</para></summary>
         [Parameter]
@@ -99,7 +104,10 @@ namespace ConsoleMonster.PowerShell {
             foreach (Field field in fields) {
                 string name = PSForms.PageOf(field) ?? Title;
                 if (!pages.TryGetValue(name, out FormPage? page)) {
-                    page = form.Page(name);
+                    string? description = PageDescriptions != null && PageDescriptions.Contains(name)
+                        ? LanguagePrimitives.ConvertTo<string>(PageDescriptions[name])
+                        : null;
+                    page = form.Page(name, description);
                     pages[name] = page;
                 }
                 page.Add(field);

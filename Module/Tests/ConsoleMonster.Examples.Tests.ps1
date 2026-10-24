@@ -1,4 +1,4 @@
-param([string[]] $ExampleName)
+﻿param([string[]] $ExampleName)
 
 BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
@@ -8,6 +8,14 @@ BeforeDiscovery {
         # Pester test files are fixtures for the Pester demo, not examples of their own.
         Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Website\examples') -Filter *.ps1 -Recurse | Where-Object Name -NotLike '*.Tests.ps1'
         Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Module\Examples') -Filter *.ps1
+    ) | Sort-Object FullName | ForEach-Object {
+        @{ Path = $_.FullName; Name = $_.FullName.Substring($script:RepositoryRoot.Length + 1).Replace('\', '/') }
+    }
+
+    $script:ExampleSources = @(
+        Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Website/examples') -Recurse -File |
+            Where-Object { $_.Extension -in '.ps1', '.cs' -and $_.FullName -notmatch '[/\\](bin|obj)[/\\]' }
+        Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'Module/Examples') -Filter *.ps1 -Recurse
     ) | Sort-Object FullName | ForEach-Object {
         @{ Path = $_.FullName; Name = $_.FullName.Substring($script:RepositoryRoot.Length + 1).Replace('\', '/') }
     }
@@ -65,6 +73,166 @@ BeforeAll {
             foreach ($rule in $script:ForbiddenPatterns.GetEnumerator()) {
                 if ($code -match $rule.Value) {
                     "$($rule.Key): $($line.Trim())"
+                }
+            }
+        }
+    }
+
+    # Read literal data without executing example code. A preceding assignment also covers a here-string
+    # stored in a variable before it is split or piped to ConvertFrom-Csv; command output stays dynamic.
+    function Get-ExampleLiteralData {
+        param($Node, $Root)
+        if ($Node -is [System.Management.Automation.Language.CommandExpressionAst]) { $Node = $Node.Expression }
+        if ($Node -is [System.Management.Automation.Language.VariableExpressionAst]) {
+            $variable = $Node.VariablePath.UserPath
+            $offset = $Node.Extent.StartOffset
+            $assignment = $Root.FindAll({
+                param($item)
+                $item -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+                    $item.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    $item.Left.VariablePath.UserPath -eq $variable -and $item.Extent.EndOffset -le $offset
+            }, $true) | Sort-Object { $_.Extent.EndOffset } -Descending | Select-Object -First 1
+            if ($null -eq $assignment) { return }
+            $Node = $assignment.Right
+        }
+        if ($Node -is [System.Management.Automation.Language.PipelineAst] -and $Node.PipelineElements.Count -eq 1) {
+            $Node = $Node.PipelineElements[0]
+        }
+        if ($Node -is [System.Management.Automation.Language.CommandExpressionAst]) { $Node = $Node.Expression }
+        try { $Node.SafeGetValue() } catch { } # Runtime data is deliberately outside this fixture check.
+    }
+
+    # Shipped examples teach direct data declarations and public APIs. Capture controls belong to the runner.
+    function Get-ExampleSourceViolation {
+        param([string] $Code, [string] $Name)
+        if ($Name.EndsWith('.cs')) {
+            # Keep string literals while removing comments, including comments that mention capture switches.
+            $lexemes = '(?s)//[^\r\n]*|/\*.*?\*/|(?<literal>""".*?"""|@"(?:""|[^"])*"|"(?:\\.|[^"\\])*"|''(?:\\.|[^''\\])*'')'
+            $source = [regex]::Replace($Code, $lexemes, {
+                param($match)
+                if ($match.Groups['literal'].Success) { $match.Value } else { ' ' }
+            })
+            if ($source -match '(?i)"--(?:snapshot|static-snapshot|step|interactive|width|height)"') {
+                'capture harness command-line switches'
+            }
+            $parseTypes = '(?:System\.)?(?:int|long|short|byte|sbyte|uint|ulong|ushort|float|double|decimal|bool|Int16|Int32|Int64|UInt16|UInt32|UInt64|Single|Boolean|DateTime|DateTimeOffset|TimeSpan|Guid)'
+            if ($source -match ('\b' + $parseTypes + '\s*\.\s*Parse\s*\(\s*@?"')) {
+                'literal fixture data passed to Parse'
+            }
+            foreach ($literal in [regex]::Matches($source, $lexemes)) {
+                if (-not $literal.Groups['literal'].Success -or -not $literal.Value.Contains('|')) { continue }
+                $before = $source.Substring(0, $literal.Index)
+                $after = $source.Substring($literal.Index + $literal.Length)
+                $assignment = [regex]::Match($before, '(?<variable>\w+)\s*=\s*$')
+                if ($after -match '^\s*\.\s*Split\s*\(' -or
+                    ($assignment.Success -and $after -match ('\b' + [regex]::Escape($assignment.Groups['variable'].Value) + '\s*\.\s*Split\s*\('))) {
+                    'pipe-table fixture text with Split'
+                }
+            }
+            return
+        }
+
+        $tokens = $null
+        $parseErrors = $null
+        $root = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref] $tokens, [ref] $parseErrors)
+        foreach ($error in $parseErrors) { "line $($error.Extent.StartLineNumber): invalid PowerShell: $($error.Message)" }
+        $nodes = $root.FindAll({ param($node) $true }, $true)
+        foreach ($node in $nodes) {
+            $line = $node.Extent.StartLineNumber
+            if ($node -is [System.Management.Automation.Language.ParameterAst] -and
+                $node.Name.VariablePath.UserPath -match '^(StaticSnapshot|Snapshot|Step)$') {
+                "line ${line}: capture harness parameter $($node.Name.Extent.Text)"
+            }
+
+            if ($Name -like 'Website/examples/gallery/*' -and
+                $node -is [System.Management.Automation.Language.HashtableAst]) {
+                # Calculated-column options are dictionaries required by -Property/-Column, not data records.
+                $keys = @($node.KeyValuePairs | ForEach-Object { $_.Item1.Value })
+                $columnKeys = 'Name', 'Presenter', 'Expression', 'Flexible'
+                $columnOptions = $keys -contains 'Name' -and
+                    ($keys -contains 'Presenter' -or $keys -contains 'Expression' -or $keys -contains 'Flexible') -and
+                    @($keys | Where-Object { $_ -notin $columnKeys }).Count -eq 0
+                # Sort-Object also accepts a dictionary to describe direction for a calculated property.
+                $sortKeys = 'Expression', 'Descending', 'Ascending'
+                $sortOptions = $keys -contains 'Expression' -and
+                    @($keys | Where-Object { $_ -notin $sortKeys }).Count -eq 0
+                if (-not $columnOptions -and -not $sortOptions) {
+                    $parent = $node.Parent
+                    # Only unwrap expression containers. A containing map, cast or command has its own meaning.
+                    while ($parent -is [System.Management.Automation.Language.CommandExpressionAst] -or
+                        $parent -is [System.Management.Automation.Language.PipelineAst] -or
+                        $parent -is [System.Management.Automation.Language.StatementBlockAst] -or
+                        ($parent -is [System.Management.Automation.Language.ConvertExpressionAst] -and
+                            $parent.Type.TypeName.FullName -eq 'ordered')) {
+                        $parent = $parent.Parent
+                    }
+                    if ($parent -is [System.Management.Automation.Language.ArrayExpressionAst] -or
+                        $parent -is [System.Management.Automation.Language.ArrayLiteralAst] -or
+                        ($parent -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+                            $parent.Operator -eq 'PlusEquals')) {
+                        "line ${line}: hashtable data row; declare [pscustomobject] instead"
+                    }
+                }
+            }
+
+            $splitInput = $null
+            if ($node -is [System.Management.Automation.Language.BinaryExpressionAst] -and
+                $node.Operator -in 'Split', 'Isplit', 'Csplit') { $splitInput = $node.Left }
+            if ($node -is [System.Management.Automation.Language.InvokeMemberExpressionAst] -and
+                $node.Member.Value -eq 'Split') { $splitInput = $node.Expression }
+            if ($null -ne $splitInput) {
+                $data = Get-ExampleLiteralData -Node $splitInput -Root $root
+                if ($data -is [string] -and $data.Contains('|')) { "line ${line}: pipe-table fixture text with split" }
+            }
+
+            if ($node -is [System.Management.Automation.Language.InvokeMemberExpressionAst] -and
+                $node.Static -and $node.Member.Value -eq 'Parse' -and $node.Arguments.Count -gt 0) {
+                $data = Get-ExampleLiteralData -Node $node.Arguments[0] -Root $root
+                if ($data -is [string]) {
+                    # Only this deliberately invalid call, immediately preceded by this comment, may opt out.
+                    $marker = '# example-source-guard: intentional-error int.Parse production'
+                    $exception = $Name -eq 'Website/examples/errors/compact.ps1' -and
+                        $node.Extent.Text -ceq "[int]::Parse('production')" -and
+                        @($tokens | Where-Object {
+                            $_.Kind -eq 'Comment' -and $_.Text -ceq $marker -and $_.Extent.EndLineNumber -eq $line - 1
+                        }).Count -eq 1
+                    if (-not $exception) { "line ${line}: literal fixture data passed to Parse" }
+                }
+            }
+
+            if ($node -isnot [System.Management.Automation.Language.CommandAst]) { continue }
+            $command = $node.GetCommandName()
+            if ($command -eq 'ConvertFrom-Csv') {
+                $pipeline = $node.Parent
+                $inputNode = $null
+                if ($pipeline -is [System.Management.Automation.Language.PipelineAst] -and $pipeline.PipelineElements[0] -ne $node) {
+                    $inputNode = $pipeline.PipelineElements[0]
+                }
+                for ($i = 1; $i -lt $node.CommandElements.Count - 1; $i++) {
+                    if ($node.CommandElements[$i] -is [System.Management.Automation.Language.CommandParameterAst] -and
+                        $node.CommandElements[$i].ParameterName -eq 'InputObject') { $inputNode = $node.CommandElements[$i + 1] }
+                }
+                $data = Get-ExampleLiteralData -Node $inputNode -Root $root
+                if ($null -ne $data) { "line ${line}: inline CSV fixture data" }
+            }
+            if ($command -in 'ForEach-Object', '%', 'foreach') {
+                foreach ($block in $node.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.ScriptBlockExpressionAst] }) {
+                    $statements = @($block.ScriptBlock.EndBlock.Statements)
+                    $objectsOnly = $statements.Count -gt 0
+                    foreach ($statement in $statements) {
+                        $expression = $null
+                        if ($statement -is [System.Management.Automation.Language.PipelineAst] -and $statement.PipelineElements.Count -eq 1) {
+                            $expression = $statement.PipelineElements[0].Expression
+                        }
+                        if ($expression -isnot [System.Management.Automation.Language.ConvertExpressionAst] -or
+                            $expression.Type.TypeName.FullName -ne 'pscustomobject' -or
+                            $expression.Child -isnot [System.Management.Automation.Language.HashtableAst]) {
+                            $objectsOnly = $false
+                            break
+                        }
+                        try { $null = $expression.Child.SafeGetValue() } catch { $objectsOnly = $false }
+                    }
+                    if ($objectsOnly) { "line ${line}: object-only ForEach-Object fixture block; declare an array instead" }
                 }
             }
         }
@@ -208,6 +376,27 @@ BeforeAll {
             Selection = @('api-east', 'worker-west')
         }
     }
+    # Run copied gallery files with capture controls supplied by the test host, never script parameters.
+    foreach ($file in Get-ChildItem -Path (Join-Path $script:RepositoryRoot 'Website/examples/gallery/*/metadata.json')) {
+        $demo = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
+        $name = "Website/examples/gallery/$($demo.slug)/$($demo.slug).ps1"
+        $case = @{ Snapshot = $true }
+        if ($demo.slug -in 'parallel-patch', 'patch-progress', 'backup-runner') {
+            # These ordinary programs retain failures deliberately, then render the actual outcomes.
+            $case.ExpectErrors = $true
+            $case.Expect = switch ($demo.slug) {
+                'parallel-patch' { 'Wave finished'; 'Restart verification failed'; '4s timeout' }
+                'patch-progress' { '5 passed'; '1 retry needed' }
+                'backup-runner' { '4 passed'; '1 recovered on retry' }
+            }
+        }
+        if ($demo.capture.runKeys) {
+            $case.Input = $demo.capture.runKeys
+            $case.Paced = $true
+            $case.Screen = "$($demo.terminal.width)x$($demo.terminal.height)"
+        }
+        $script:ExampleCases[$name] = $case
+    }
     $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1 (60 columns)'] = @{} + $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1']
     $script:ExampleCases['Website/examples/interactive/gridview-fallback.ps1 (60 columns)'].Screen = '60x20'
     # The site's prompt stories answer with the keys the site records them with (data/interactive.json, written by the site
@@ -292,6 +481,7 @@ Import-Module ConsoleMonster -Force
 if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Write-ConsoleWidget).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $keys
 $screen
+$(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
 $pager
 $location
 try {
@@ -381,6 +571,69 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
         @(Get-NativeStyleViolation -Code "`$log.Write('text', 'info')").Count | Should -Be 1
         @(Get-NativeStyleViolation -Code "New-ConsoleTree 'x' { New-ConsoleTreeNode 'MX' -Status Pass }").Count | Should -Be 0
         @(Get-NativeStyleViolation -Code "#region Using the object directly`n`$log.Write('text')`n#endregion").Count | Should -Be 0
+    }
+}
+
+Describe 'Examples teach direct data and keep capture controls in the runner' -Tag 'Examples', 'ExampleSource' {
+    It '<Name> has no fixture parsing, hashtable data rows or capture harness parameters' -ForEach $script:ExampleSources {
+        $violations = @(Get-ExampleSourceViolation -Code (Get-Content -LiteralPath $Path -Raw) -Name $Name)
+        $violations | Should -BeNullOrEmpty -Because ($violations -join '; ')
+    }
+
+    It 'rejects <Label>' -ForEach @(
+        @{ Label = 'pipe-table here-strings with -split'; Name = 'example.ps1'; Code = "@'`na|1`nb|2`n'@ -split '\r?\n'" }
+        @{ Label = 'assigned pipe-table here-strings with Split'; Name = 'example.ps1'; Code = "`$rows = @'`na|1`nb|2`n'@`n`$rows.Split([char]10)" }
+        @{ Label = 'PowerShell literal Parse'; Name = 'example.ps1'; Code = "[double]::Parse('1.4', [cultureinfo]::InvariantCulture)" }
+        @{ Label = 'C# literal Parse'; Name = 'example.cs'; Code = 'var weight = double.Parse("1.4", CultureInfo.InvariantCulture);' }
+        @{ Label = 'inline CSV'; Name = 'example.ps1'; Code = "'Name,Weight', 'DNS,1.4' | ConvertFrom-Csv" }
+        @{ Label = 'assigned inline CSV'; Name = 'example.ps1'; Code = "`$csv = 'Name,Weight', 'DNS,1.4'; `$csv | ConvertFrom-Csv" }
+        @{ Label = 'CSV InputObject literals'; Name = 'example.ps1'; Code = "ConvertFrom-Csv -InputObject 'Name,Weight'" }
+        @{ Label = 'object-only fixture blocks'; Name = 'example.ps1'; Code = "1 | ForEach-Object { [pscustomobject]@{ Name = 'DNS'; Weight = 1.4 }; [pscustomobject]@{ Name = 'LDAP'; Weight = 2 } }" }
+        @{ Label = 'gallery hashtable data rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @(@{ Name = 'Build'; Seconds = 0.4 })" }
+        @{ Label = 'gallery comma-separated hashtable rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @{ Name = 'Build' }, @{ Name = 'Test' }" }
+        @{ Label = 'gallery appended hashtable rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows += @{ Name = 'Build'; Seconds = 0.4 }" }
+        @{ Label = 'gallery ordered dictionary rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @([ordered]@{ Name = 'Build'; Seconds = 0.4 })" }
+        @{ Label = 'PowerShell snapshot parameters'; Name = 'example.ps1'; Code = 'param([switch]$StaticSnapshot)' }
+        @{ Label = 'PowerShell step parameters'; Name = 'example.ps1'; Code = 'param([int]$Step = 0)' }
+        @{ Label = 'C# step switches'; Name = 'example.cs'; Code = 'int index = Array.IndexOf(args, "--step");' }
+        @{ Label = 'C# snapshot switches'; Name = 'example.cs'; Code = 'bool snapshot = args.Contains("--snapshot");' }
+        @{ Label = 'C# pipe-table splitting'; Name = 'example.cs'; Code = "var rows = `"`"`"`na|1`nb|2`n`"`"`".Split('\n');" }
+        @{ Label = 'C# assigned pipe-table splitting'; Name = 'example.cs'; Code = "var rows = `"`"`"`na|1`nb|2`n`"`"`"; var cells = rows.Split('|');" }
+    ) {
+        $violations = @(Get-ExampleSourceViolation -Code $Code -Name $Name)
+        @($violations | Where-Object { $_ -like '*invalid PowerShell*' }) | Should -BeNullOrEmpty
+        $violations.Count | Should -BeGreaterThan 0
+    }
+
+    It 'allows <Label>' -ForEach @(
+        @{ Label = 'gallery object data rows'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows = @([pscustomobject]@{ Name = 'Build'; Seconds = 0.4 })" }
+        @{ Label = 'gallery lookup dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$lookup = @{ Build = [pscustomobject]@{ Seconds = 0.4 } }" }
+        @{ Label = 'gallery parameter splats'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$options = @{ Title = 'Build'; Total = 16 }; New-ConsoleProgress @options" }
+        @{ Label = 'gallery sort option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$rows | Sort-Object -Property @{ Expression = 'Seconds'; Descending = `$true }, Name" }
+        @{ Label = 'gallery calculated-column option dictionaries'; Name = 'Website/examples/gallery/example/example.ps1'; Code = "`$columns = @(@{ Name = 'Duration'; Expression = { `$_.Seconds }; Presenter = 'Text' }); `$rows | Format-ConsoleTable -Property `$columns" }
+        @{ Label = 'operating-system output parsing'; Name = 'example.ps1'; Code = "`$row = & systemctl --failed --no-legend --plain; `$row -split '\s+'" }
+        @{ Label = 'runtime numeric parsing'; Name = 'example.ps1'; Code = '[double]::Parse($value, [cultureinfo]::InvariantCulture)' }
+        @{ Label = 'C# runtime numeric parsing'; Name = 'example.cs'; Code = 'int number = int.Parse(server.AsSpan(3), CultureInfo.InvariantCulture);' }
+        @{ Label = 'C# runtime splitting beside a display label'; Name = 'example.cs'; Code = 'string title = "Name|State"; var cells = response.Split(''|'');' }
+        @{ Label = 'a parser API demonstrated with input'; Name = 'example.cs'; Code = 'DemoScript script = DemoScript.Parse("show dashboard");' }
+        @{ Label = 'CSV read from a file'; Name = 'example.ps1'; Code = "Get-Content 'inventory.csv' | ConvertFrom-Csv" }
+        @{ Label = 'algorithmic sample generation'; Name = 'example.ps1'; Code = '0..47 | ForEach-Object { 18000 + ($_ * 7919 % 11000) }' }
+        @{ Label = 'computed sample records'; Name = 'example.ps1'; Code = '1..12 | ForEach-Object { [pscustomobject]@{ Name = "web{0:d2}" -f $_; Index = $_ } }' }
+        @{ Label = 'projection of runtime records'; Name = 'example.ps1'; Code = '$servers | ForEach-Object { [pscustomobject]@{ Name = $_.Name; State = $_.State } }' }
+        @{ Label = 'capture comments in PowerShell'; Name = 'example.ps1'; Code = '# param([switch]$StaticSnapshot); [int]::Parse("1")' }
+        @{ Label = 'capture comments in C#'; Name = 'example.cs'; Code = '// --step and args.Contains("--snapshot") belong to the runner; double.Parse("1")' }
+        @{ Label = 'native snapshot API options'; Name = 'example.cs'; Code = 'var options = new ConsoleAppOptions { StaticSnapshot = true };' }
+    ) {
+        @(Get-ExampleSourceViolation -Code $Code -Name $Name) | Should -BeNullOrEmpty
+    }
+
+    It 'limits the intentional-error marker to the exact compact error demonstration' {
+        $code = "# example-source-guard: intentional-error int.Parse production`n[int]::Parse('production')"
+        @(Get-ExampleSourceViolation -Code $code -Name 'Website/examples/errors/compact.ps1') | Should -BeNullOrEmpty
+        @(Get-ExampleSourceViolation -Code $code -Name 'Website/examples/other.ps1').Count | Should -Be 1
+        @(Get-ExampleSourceViolation -Code $code.Replace("'production'", "'12'") -Name 'Website/examples/errors/compact.ps1').Count | Should -Be 1
+        @(Get-ExampleSourceViolation -Code $code.Replace('int.Parse production', 'other') -Name 'Website/examples/errors/compact.ps1').Count | Should -Be 1
+        @(Get-ExampleSourceViolation -Code ($code + "`n[int]::Parse('12')") -Name 'Website/examples/errors/compact.ps1').Count | Should -Be 1
     }
 }
 

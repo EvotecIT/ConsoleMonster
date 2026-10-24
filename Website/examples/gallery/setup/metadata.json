@@ -27,5 +27,45 @@
   "steps": 7,
   "tier": "showcase",
   "useCase": "Use it when an installer needs editable options, a review step and visible progress.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "runKeys": "Escape",
+    "states": [
+      {
+        "keys": "wait:1",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "PageDown",
+        "incomplete": true
+      },
+      {
+        "keys": "PageDown PageDown",
+        "incomplete": true
+      },
+      {
+        "keys": "PageDown PageDown PageDown wait:1000",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "PageDown PageDown PageDown wait:1000 Down Enter Enter PageDown",
+        "incomplete": true,
+        "realTime": true
+      },
+      {
+        "keys": "PageDown PageDown PageDown wait:1000 Down Enter Enter PageDown Enter",
+        "checkpoint": 19,
+        "contains": "Installing Toolbox Agent",
+        "realTime": true
+      },
+      {
+        "keys": "PageDown PageDown PageDown wait:1000 Down Enter Enter PageDown Enter",
+        "outputStart": "Toolbox Agent installed",
+        "rows": 7,
+        "realTime": true
+      }
+    ]
+  }
 }

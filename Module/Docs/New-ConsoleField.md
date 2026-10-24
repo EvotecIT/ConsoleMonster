@@ -173,7 +173,7 @@ Accept wildcard characters: False
 ```
 
 ### -Describe
-A sentence for the focused choice: a property name or a scriptblock.
+A sentence for the focused choice: a property name or a scriptblock. With -LoadChoices, use a property name.
 
 ```yaml
 Type: Object
@@ -621,7 +621,7 @@ Accept wildcard characters: False
 ```
 
 ### -Selected
-Whether a choice starts selected: a property name or a scriptblock returning $true. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).
+Whether a choice starts selected: a property name or a scriptblock returning $true. With -LoadChoices, use a property name. Works for loaded choices too, so the choices a loader marks are chosen once they arrive (a preset's values take their place when one is applied).
 
 ```yaml
 Type: Object

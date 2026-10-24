@@ -27,5 +27,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when raw object output needs readable columns and meaningful status colours.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

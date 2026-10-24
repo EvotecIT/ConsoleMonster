@@ -28,5 +28,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when a shell session should open with cached host and repository context.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

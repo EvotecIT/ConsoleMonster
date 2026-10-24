@@ -27,5 +27,10 @@
   "steps": 1,
   "tier": "starter",
   "useCase": "Use it when your shell profile needs a useful greeting in three lines.",
-  "featured": false
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
 }

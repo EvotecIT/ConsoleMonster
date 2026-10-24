@@ -36,6 +36,30 @@
         }
     }
 
+    It 'formats ordered command arguments with native types and shared escaping' {
+        Import-Module $script:ModulePath -Force
+        $arguments = [ordered] @{
+            ComputerName = @('WEB01', "O'Brien lab")
+            ThrottleLimit = 3
+            WhatIf = $true
+            Notify = $false
+            Empty = ''
+            Missing = $null
+        }
+        $command = Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments
+        $command | Should -BeExactly "Invoke-FleetCheck -ComputerName WEB01,'O''Brien lab' -ThrottleLimit 3 -WhatIf"
+    }
+
+    It 'formats native switch parameters as switches without collapsing case-sensitive names' {
+        Import-Module $script:ModulePath -Force
+        $arguments = [ordered] @{ WhatIf = [switch]$false; Confirm = [switch]$true }
+        Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments | Should -BeExactly 'Invoke-FleetCheck -Confirm'
+        $options = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+        $options.Add('o', 'app')
+        $options.Add('O', [switch]$true)
+        Format-ConsoleCommand -Command cc -Arguments $options -Style Posix | Should -BeExactly 'cc -o app -O'
+    }
+
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
 $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 30, 'None', 'Ascii')
@@ -340,6 +364,47 @@ Show-ConsoleMenu $menu -Layout Inline
             $loaded[1].DisabledReason | Should -Be 'offline since 07:12'
             [string] $loaded[1].Value | Should -Be 'SRV02'
             $loaded[1].Value.Domain | Should -Be 'corp.example.test'
+        }
+
+        It 'rejects calculated selectors for loaded choices instead of silently dropping their metadata' {
+            { New-ConsoleField -Name Server -Type Select -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+            { New-ConsoleMenuItem -Title Targets -LoadChoices { 'api' } -Describe { "Server $_" } -ErrorAction Stop } | Should -Throw '*property names*'
+        }
+
+        It 'omits an unchanged loaded command value from the equivalent command' {
+            $field = New-ConsoleField -Name Server -Type Select -Default SRV01 -Display Name -CommandValue Name -Parameter ComputerName -LoadChoices {
+                [pscustomobject] @{ Name = 'SRV01'; Role = 'Web' }
+                [pscustomobject] @{ Name = 'SRV02'; Role = 'Database' }
+            }
+            $form = New-ConsoleForm -Title Fleet -Command Invoke-FleetCheck -Field $field
+            $loaded = @($field.Loader.Invoke($form.GetValues(), [Threading.CancellationToken]::None).GetAwaiter().GetResult())
+            foreach ($choice in $loaded) { $field.Choices.Add($choice) }
+            $field.Loader = $null
+            # Applying a preset resolves its scalar key to the loaded value, retaining its properties.
+            Set-ConsoleFormValue -Form $form -Value @{ Server = 'SRV01' }
+            $form.BuildCommand() | Should -BeExactly 'Invoke-FleetCheck'
+            $field.Value.Role | Should -Be 'Web'
+        }
+
+        It 'applies page descriptions while preserving the form description and defaults for other pages' {
+            $fields = @(
+                New-ConsoleField -Name Domain -Label Domain -Page Scope
+                New-ConsoleField -Name Checks -Label Checks -Page Checks
+                New-ConsoleField -Name Parallel -Label Parallel -Page Options
+            )
+            $form = New-ConsoleForm -Title Fleet -Description 'Choose the scope, checks and run options.' -Field $fields -PageDescriptions @{
+                Scope = 'Which servers to check.'
+                Checks = 'What a healthy server reports appears in the preview.'
+            }
+
+            ($form.Pages | ForEach-Object -MemberName Title) -join ',' | Should -Be 'Scope,Checks,Options'
+            $form.Pages[0].Description | Should -Be 'Which servers to check.'
+            $form.Pages[1].Description | Should -Be 'What a healthy server reports appears in the preview.'
+            $form.Pages[2].Description | Should -BeNullOrEmpty
+            $form.Description | Should -Be 'Choose the scope, checks and run options.'
+
+            $defaults = New-ConsoleForm -Title Fleet -Field $fields
+            $defaults.Pages[0].Description | Should -BeNullOrEmpty
         }
 
         It 'gives a form built-in presets from its scriptblock and -Preset, with values matched to its choices' {

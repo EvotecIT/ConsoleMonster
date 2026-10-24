@@ -30,16 +30,20 @@ namespace ConsoleMonster.Interactive {
             // Capability detection may enable Windows VT on Terminal's very first use. The session's
             // own guard starts later, so retain the entry mode across initialization and all exit paths.
             using TerminalGuard outputMode = new TerminalGuard(() => { }, false);
-            InteractiveOptions interactive = settings.Interactive ?? InteractiveOptions.Default;
+            InteractiveOptions interactive = (settings.Interactive ?? InteractiveOptions.Default).Clone();
+            if (interactive.Capture == null && interactive.ResolveTarget() is RecordingTarget recording) {
+                interactive.Capture = recording.Screens;
+            }
             TerminalProfile profile = interactive.ResolveProfile();
-            if (!settings.StaticSnapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
+            bool snapshot = settings.StaticSnapshot || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
+            if (!snapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
             values.BeginRun();
-            using InputLease? lease = settings.StaticSnapshot ? null : ConsoleInput.Acquire(interactive.Input);
+            using InputLease? lease = snapshot ? null : ConsoleInput.Acquire(interactive.Input);
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
             using (AppController app = new AppController(layout, values, context, settings.ReflowBelow)) {
-                if (settings.StaticSnapshot) {
+                if (snapshot) {
                     CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
                     if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }
                     else if (settings.Live?.Output != null) { settings.Live.Output.WriteBlock(frame); }
@@ -111,6 +115,12 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The final application state.</returns>
         public static Task<AppState> RunAsync(IWidget layout, AppState? state = null, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) =>
             Task.Run(() => Run(layout, state, options, cancellationToken), cancellationToken);
+
+        private static bool SnapshotRequested() {
+            string? value = Environment.GetEnvironmentVariable("CONSOLEMONSTER_SNAPSHOT");
+            return value == "1" || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
+        }
 
         private static MouseReporting? OpenMouse(ConsoleAppOptions settings, InteractiveOptions interactive, TerminalProfile profile, LiveSessionOptions live, IInputSource input) {
             if (!settings.Mouse || !(input is ConsoleKeyInput) || live.Output != null || interactive.Capture != null

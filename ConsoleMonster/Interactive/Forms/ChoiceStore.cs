@@ -31,9 +31,12 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The folder the files live in.</summary>
         public string Folder { get; }
 
-        /// <summary>The per-user root: the roaming AppData folder on Windows, the XDG config folder elsewhere.</summary>
+        /// <summary>The configured <c>CONSOLEMONSTER_STORAGE_ROOT</c>, or the per-user root: the roaming AppData folder on Windows,
+        /// the XDG config folder elsewhere. A capture host can isolate presets without changing the program it runs.</summary>
         /// <returns>The folder.</returns>
         public static string DefaultRoot() {
+            string? configured = Environment.GetEnvironmentVariable("CONSOLEMONSTER_STORAGE_ROOT");
+            if (!string.IsNullOrWhiteSpace(configured)) { return configured!; }
             if (Interop.WindowsConsole.IsWindows) {
                 return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ConsoleMonster");
             }

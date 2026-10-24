@@ -54,6 +54,9 @@ namespace SiteFrames {
                 return 2;
             }
             switch (command) {
+                case "verify-gallery":
+                    GalleryPage.Verify(new Site(website), only);
+                    return 0;
                 case "gallery-review":
                     GalleryPage.Render(new Site(website), only ?? throw new ArgumentException("Pass an output directory."));
                     return 0;

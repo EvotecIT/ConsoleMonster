@@ -44,7 +44,8 @@ namespace SiteFrames.Pages {
                     Metadata["makeItYours"]!.AsArray().Count != 3 || Metadata["addons"]!.AsArray().Count != 0 ||
                     Metadata["tags"]!.AsArray().Count == 0 || Metadata["runtime"] is not JsonObject ||
                     Width < 40 || Width > 160 || Height < 4 || Height > 60 || Steps < 1 || Steps > 12 ||
-                    Metadata["mode"]!.GetValue<string>() != (Steps == 1 ? "static" : "live")) {
+                    Metadata["mode"]!.GetValue<string>() != (Steps == 1 ? "static" : "live") ||
+                    Metadata["capture"]?["states"] is not JsonArray states || states.Count != Steps) {
                     throw new InvalidDataException("Invalid gallery metadata: " + Slug);
                 }
                 foreach (string path in new[] { PowerShell, CSharp }) {
@@ -79,9 +80,9 @@ namespace SiteFrames.Pages {
             Parity.Transcript(File.ReadAllBytes(CapturePath(site, demo, demo.Steps - 1)), demo.Width, demo.Height);
 
         // Pin only portable inputs. Host versions and machine paths do not belong in deterministic data.
-        private static string Stamp(Demo demo) => Replays.Fingerprint(
-            Site.ReadText(demo.PowerShell), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
-            demo.Steps.ToString(CultureInfo.InvariantCulture), "en-US/dark/truecolor/full/gallery-v1");
+        private static string Stamp(Site site, Demo demo) => Replays.Fingerprint(
+            Site.ReadText(demo.PowerShell), Site.ReadText(Path.Combine(site.Website, "..", "ConsoleMonster.PowerShell", "Gallery", "DemoCapture.ps1")), demo.Width.ToString(CultureInfo.InvariantCulture), demo.Height.ToString(CultureInfo.InvariantCulture),
+            demo.Metadata["capture"]!.ToJsonString(), "en-US/dark/truecolor/full/gallery-v2");
 
         /// <summary>Captures every snapshot on PowerShell 7, on macOS, Linux or Windows; no pseudo-console is required.</summary>
         public static int Capture(Site site) {
@@ -113,7 +114,7 @@ namespace SiteFrames.Pages {
                         string path = CapturePath(site, demo, step);
                         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                         File.Copy(Path.Combine(output, step.ToString(CultureInfo.InvariantCulture) + ".ansi"), path, true);
-                        Stamps.Write(site, path, Stamp(demo));
+                        Stamps.Write(site, path, Stamp(site, demo));
                     }
                     Console.WriteLine("captured gallery " + demo.Slug + " (" + demo.Steps + " states)");
                 } finally {
@@ -133,14 +134,7 @@ namespace SiteFrames.Pages {
                 List<TimedFrame> timeline = new List<TimedFrame>();
                 JsonArray parity = new JsonArray();
                 for (int step = 0; step < demo.Steps; step++) {
-                    CellBuffer frame = Frame(demo, step);
-                    string path = CapturePath(site, demo, step);
-                    if (!File.Exists(path)) throw new InvalidDataException("Missing " + demo.Slug + " capture; run SiteFrames capture Website gallery.");
-                    string? stale = Stamps.Check(site, path, Stamp(demo), "gallery");
-                    if (stale != null) throw new InvalidDataException(stale);
-                    CellBuffer twin = Parity.Transcript(File.ReadAllBytes(path), demo.Width, demo.Height);
-                    ParityResult result = Parity.Compare(frame, twin);
-                    if (!result.Identical) throw new InvalidDataException(demo.Slug + " step " + step + ": " + result.Detail + "\nC#:\n" + Parity.Describe(frame) + "PowerShell:\n" + Parity.Describe(twin));
+                    CellBuffer frame = TwinFrame(site, demo, step);
                     timeline.Add(new TimedFrame(step * 900, frame));
                     parity.Add(new JsonObject { ["step"] = step, ["identical"] = true });
                     if (review != null) {
@@ -188,7 +182,7 @@ namespace SiteFrames.Pages {
                     string replay = PlayerData.Write(site, timeline, demo.Title, 10, 1800, out long duration, out int count);
                     site.Write(site.Static("replays/gallery-" + demo.Slug + ".json"), replay);
                     entry["url"] = "/replays/gallery-" + demo.Slug + ".json";
-                    entry["capture"] = "deterministic snapshot storyboard";
+                    entry["capture"] = "scripted native program";
                     entry["duration"] = duration;
                     entry["frames"] = count;
                     entry["start"] = 0;
@@ -250,6 +244,26 @@ namespace SiteFrames.Pages {
             }
         }
 
+        /// <summary>Checks recorded PowerShell against the ordinary C# programs without rewriting site assets.</summary>
+        internal static void Verify(Site site, string? selected = null) {
+            foreach (Demo demo in Read(site).Where(demo => selected == null || selected.Split(',').Contains(demo.Slug, StringComparer.Ordinal))) {
+                for (int step = 0; step < demo.Steps; step++) TwinFrame(site, demo, step);
+                Console.WriteLine(demo.Slug + ": " + demo.Steps + " twin states identical");
+            }
+        }
+
+        private static CellBuffer TwinFrame(Site site, Demo demo, int step) {
+            CellBuffer frame = Frame(demo, step);
+            string path = CapturePath(site, demo, step);
+            if (!File.Exists(path)) throw new InvalidDataException("Missing " + demo.Slug + " capture; run SiteFrames capture Website gallery.");
+            string? stale = Stamps.Check(site, path, Stamp(site, demo), "gallery");
+            if (stale != null) throw new InvalidDataException(stale);
+            CellBuffer twin = Parity.Transcript(File.ReadAllBytes(path), demo.Width, demo.Height);
+            ParityResult result = Parity.Compare(frame, twin);
+            if (!result.Identical) throw new InvalidDataException(demo.Slug + " step " + step + ": " + result.Detail + "\nC#:\n" + Parity.Describe(frame) + "PowerShell:\n" + Parity.Describe(twin));
+            return frame;
+        }
+
         // Display the whole UTF-8 program without the encoding marker; downloads retain the original bytes.
         // Site.ReadText is for normalized snippets and must not be used for copyable full sources.
         private static JsonObject Source(string path, string slug) => new JsonObject {
@@ -259,11 +273,7 @@ namespace SiteFrames.Pages {
         };
 
         private static CellBuffer Frame(Demo demo, int step) {
-            var target = CSharpRunner.Execute(demo.CSharp, CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full),
-                Theme.Dark, null, new[] { "--snapshot", "--step", step.ToString(CultureInfo.InvariantCulture) });
-            CellBuffer frame = Parity.Transcript(Encoding.UTF8.GetBytes(target.Output), demo.Width, demo.Height);
-            if (frame.Height >= demo.Height - 1) throw new InvalidDataException(demo.Slug + " needs a taller declared terminal to avoid clipping.");
-            return frame;
+            return GalleryFrames.Run(demo, step);
         }
     }
 }

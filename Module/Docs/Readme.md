@@ -85,6 +85,11 @@ Shows source text with syntax highlighting, line numbers and highlighted lines.
 
 Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, log lines and Markdown, or plain text with -Language Smart (numbers, booleans, GUIDs, IP addresses, URLs, paths, dates, DNs, quoted strings). -Language Auto (the default) picks the language from the file extension, then from the content, and falls back to plain text. Text comes from -Path or from pipeline strings (joined as lines). The text is always literal: markup is not read and control characters are dropped. -LineNumbers adds a gutter, -Highlight marks lines (10, '10-14'), long lines are truncated with an ellipsis or wrapped with -Wrap, and output stops after -MaxLines lines with "+n more lines". A file is shown on a panel titled with its name (-Title changes it, -NoTitle leaves the panel out). Redirected output is plain text.
 
+### [Format-ConsoleCommand](Format-ConsoleCommand.md)
+Builds a copyable command line from named values without executing it.
+
+Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.
+
 ### [Format-ConsoleError](Format-ConsoleError.md)
 Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.
 
@@ -203,7 +208,7 @@ A field has a name (its key in the result), a label, help shown while it has foc
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
+The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleFormPreset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ### [New-ConsoleFormPreset](New-ConsoleFormPreset.md)
 Creates a preset a form comes with: field values under one name, with a description and a preview.
@@ -499,7 +504,7 @@ One object becomes an inspector; objects of one shape a table (cards when the wi
 ### [Show-ConsoleApp](Show-ConsoleApp.md)
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -StaticSnapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ### [Show-ConsoleChanges](Show-ConsoleChanges.md)
 Shows the changes an action would make and asks before making them: the what-if pattern.
@@ -509,7 +514,7 @@ Compares -Before with -After (as Compare-ConsoleObject does), shows the preview,
 ### [Show-ConsoleDemo](Show-ConsoleDemo.md)
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot and -Step are passed to the demo; omitted parameters retain the script's defaults. Demo output and errors follow the normal PowerShell streams.
+Executes the same self-contained PowerShell source offered by Get-ConsoleDemo -Path. The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -StaticSnapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.
@@ -630,6 +635,11 @@ The script runs on the pipeline thread with the caller's variables. While it run
 Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
 
 Inside the script block every ConsoleMonster command (Write-ConsoleText, Format-ConsoleTable, Write-ConsoleMarkup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -Colors lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
+
+### [Wait-ConsoleDashboard](Wait-ConsoleDashboard.md)
+Pauses dashboard work, or captures its next checkpoint during a recording.
+
+Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.
 
 ### [Wait-ConsoleRun](Wait-ConsoleRun.md)
 Waits for worker updates while pumping run progress to the PowerShell host.

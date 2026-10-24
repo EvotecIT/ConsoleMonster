@@ -1,12 +1,15 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Text;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
+using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using SiteFrames.Capture;
 using SiteFrames.Pages;
@@ -20,6 +23,55 @@ namespace SiteFrames.Tests {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) root = root.Parent;
             return new Site(Path.Combine(root!.FullName, "Website"));
+        }
+
+        [Theory]
+        [InlineData("assessment")]
+        [InlineData("stress")]
+        [InlineData("build-steps")]
+        [InlineData("log-tail")]
+        [InlineData("worker-progress")]
+        [InlineData("process-monitor")]
+        [InlineData("pipeline")]
+        [InlineData("setup")]
+        [InlineData("prompt-tour")]
+        public void CancellingAnOrdinaryDemoDuringItsPauseExitsCleanly(string slug) {
+            GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == slug);
+            var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
+            string? keys = slug == "setup" ? demo.Metadata["capture"]!["states"]!.AsArray().Last()!["keys"]!.GetValue<string>()
+                : demo.Metadata["capture"]!["runKeys"]?.GetValue<string>();
+            var target = new RecordingTarget(profile, keys);
+            if (target.Input is ScriptedInput input) input.RealTime = true;
+            Thread producer = Thread.CurrentThread;
+            using var finished = new ManualResetEventSlim();
+            bool cancelled = false;
+            var cancellation = new Thread(() => {
+                var timeout = System.Diagnostics.Stopwatch.StartNew();
+                while (!finished.IsSet && timeout.Elapsed < TimeSpan.FromSeconds(20)) {
+                    LiveSession? current = LiveSession.Current;
+                    if (current != null && target.CheckpointCount > 0 && (producer.ThreadState & ThreadState.WaitSleepJoin) != 0) {
+                        cancelled = true;
+                        current.Cancel();
+                        return;
+                    }
+                    finished.Wait(1);
+                }
+            }) { IsBackground = true };
+            Assert.Null(LiveSession.Current);
+            cancellation.Start();
+            try {
+                CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
+                    Target = target, Input = target.Input, Capture = target.Screens,
+                    Mode = target.Input == null ? InteractionMode.None : InteractionMode.Rich
+                }, recording: target);
+            } finally {
+                finished.Set();
+                Assert.True(cancellation.Join(TimeSpan.FromSeconds(5)), "Cancellation worker did not finish.");
+            }
+            Assert.True(cancelled, "The demo never reached a cancellable pause.");
+            Assert.Null(LiveSession.Current);
+            Assert.False(ConsoleInput.IsAcquired);
+            if (slug == "setup") Assert.DoesNotContain("Toolbox Agent installed", target.Text);
         }
 
         [Fact]
@@ -124,7 +176,7 @@ namespace SiteFrames.Tests {
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
             CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, new InteractiveOptions {
                 Input = input, Capture = capture, Mode = InteractionMode.Rich, Profile = profile, Theme = Theme.Dark
-            }, new[] { "--interactive" });
+            });
             Assert.NotNull(capture.LastFrame);
             string result = ConsoleExporter.ToText(capture.LastFrame!);
             Assert.Contains(expected, result, StringComparison.Ordinal);
@@ -142,7 +194,7 @@ namespace SiteFrames.Tests {
         public void LiveDriversFinishAndRetainTheirResult(string slug, string expected, string detail) {
             GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == slug);
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);
-            var target = CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, null, new[] { "--interactive" });
+            var target = CSharpRunner.Execute(demo.CSharp, profile, Theme.Dark, null);
             string text = Parity.Describe(Parity.Transcript(System.Text.Encoding.UTF8.GetBytes(target.Output), demo.Width, demo.Height));
             Assert.Contains(expected, text, StringComparison.Ordinal);
             Assert.Contains(detail, text, StringComparison.Ordinal);

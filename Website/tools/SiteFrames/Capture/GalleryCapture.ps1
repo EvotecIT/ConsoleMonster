@@ -18,9 +18,14 @@ if (-not $binary.StartsWith($ModuleRoot, [StringComparison]::OrdinalIgnoreCase))
 }
 $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed($Width, $Height, 'TrueColor', 'Full')
 $profile = $profile.WithCulture([Globalization.CultureInfo]::GetCultureInfo('en-US'))
+$metadata = Get-Content -LiteralPath (Join-Path (Split-Path -Parent $Source) 'metadata.json') -Raw | ConvertFrom-Json
+$driver = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../../ConsoleMonster.PowerShell/Gallery/DemoCapture.ps1'))
+$demo = [scriptblock]::Create("& '$($Source.Replace("'", "''"))'")
 for ($step = 0; $step -lt $Steps; $step++) {
+    $frame = & $driver -Demo $demo -Metadata $metadata -Step $step
     $target = [ConsoleMonster.Output.RecordingTarget]::new($profile)
-    $target.Theme = [ConsoleMonster.Styling.Theme]::Dark
-    Use-ConsoleTarget -Target $target { & $Source -StaticSnapshot -Step $step }
+    $outputWriter = [ConsoleMonster.Terminal]::CreateOutput($profile, $target.Writer)
+    try { $outputWriter.WriteBlock($frame) }
+    finally { $outputWriter.Dispose() }
     [IO.File]::WriteAllText((Join-Path $Output "$step.ansi"), $target.Output, [Text.UTF8Encoding]::new($false))
 }

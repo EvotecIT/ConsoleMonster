@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -120,6 +122,16 @@ namespace ConsoleMonster.Interactive {
                 RenderContext context = Terminal.CreateContext(profile, options.ResolveTheme());
                 IPromptSurface? surface = options.Surface;
                 bool owns = false;
+                // A skipped-delay recording captures the real live overlay, including its checkpoint backdrop.
+                // A separately supplied surface/capture keeps its usual standalone prompt behavior.
+                if (options.ResolveTarget() is RecordingTarget recording && recording.SkipDelays &&
+                    ReferenceEquals(surface, recording.Screens.Surface)) {
+                    IPromptSurface? overlay = LivePromptSurface.TryCreate(context, recording);
+                    if (overlay != null) {
+                        surface = overlay;
+                        owns = true;
+                    }
+                }
                 if (surface == null) {
                     surface = PromptHost.Resolve(context) ?? new InlineSurface(profile, null, options.MaxInlineHeight);
                     owns = true;
