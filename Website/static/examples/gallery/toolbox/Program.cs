@@ -1,6 +1,5 @@
 // Server toolbox: menus, selections, review, live work and actionable results.
 // Synthetic data and timings; reports and notifications stay in memory. No remote effects.
-using ConsoleMonster;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
@@ -9,32 +8,32 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 // Data: replace these inventories, operations and findings with your own sources.
-Node[] inventory = {
-    new("FS01", "lab.example.test", "Warsaw", "File", "Windows Server 2022", ""),
-    new("FS02", "lab.example.test", "Warsaw", "File", "Windows Server 2022", ""),
-    new("WEB01", "lab.example.test", "Warsaw", "Web", "Windows Server 2025", ""),
-    new("SQL01", "lab.example.test", "Warsaw", "Database", "Windows Server 2019", ""),
-    new("FS11", "lab.example.test", "Berlin", "File", "Windows Server 2022", ""),
-    new("WEB11", "lab.example.test", "Berlin", "Web", "Windows Server 2025", ""),
-    new("PRN11", "lab.example.test", "Berlin", "Print", "Windows Server 2016", "offline since 09:12"),
-    new("BKP21", "lab.example.test", "Dublin", "Backup", "Windows Server 2022", ""),
-    new("SQL21", "lab.example.test", "Dublin", "Database", "Windows Server 2022", ""),
-    new("LAB01", "lab.example.test", "Lab", "Test", "Windows Server 2025", ""),
-    new("LAB02", "lab.example.test", "Lab", "Test", "Windows Server 2025", "maintenance until Friday"),
-};
-Check[] catalog = {
-    new("DiskCleanup", "Disk cleanup", "Maintenance", "Removes temporary files and old update caches.", "cache under 1 GB", 3, true),
-    new("LogRotation", "Log rotation", "Maintenance", "Compresses logs older than 7 days.", "retention 90 days", 2, true),
-    new("RestartPending", "Pending restart check", "Maintenance", "Reports restarts waiting after updates.", "no restart pending", 1, false),
-    new("PatchStatus", "Patch status", "Security", "Lists missing security updates.", "0 missing", 2, false),
-    new("Certificates", "Certificate expiry", "Security", "Finds certificates expiring within 30 days.", "30+ days", 1, false),
-    new("LocalAdmins", "Local administrators audit", "Security", "Compares local Administrators with the approved list.", "approved list", 1, false),
-    new("Firewall", "Firewall rules review", "Security", "Flags inbound allow rules open to any address.", "scoped rules", 2, false),
-    new("EventErrors", "Event log errors", "Health", "Summarizes errors from the last 24 hours.", "under 20", 1, false),
-    new("Services", "Service health", "Health", "Checks and restarts stopped automatic services.", "all running", 1, true),
-    new("DiskSpace", "Disk space", "Health", "Warns below 15% and fails below 5% free.", "15% free", 1, false),
-    new("Uptime", "Uptime and reboots", "Health", "Reports unexpected reboots in the last 30 days.", "0 unexpected", 1, false),
-};
+Node[] inventory = [
+    new(Name: "FS01", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "FS02", Domain: "lab.example.test", Site: "Warsaw", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB01", Domain: "lab.example.test", Site: "Warsaw", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "SQL01", Domain: "lab.example.test", Site: "Warsaw", Role: "Database", Detail: "Windows Server 2019", Offline: ""),
+    new(Name: "FS11", Domain: "lab.example.test", Site: "Berlin", Role: "File", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "WEB11", Domain: "lab.example.test", Site: "Berlin", Role: "Web", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "PRN11", Domain: "lab.example.test", Site: "Berlin", Role: "Print", Detail: "Windows Server 2016", Offline: "offline since 09:12"),
+    new(Name: "BKP21", Domain: "lab.example.test", Site: "Dublin", Role: "Backup", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "SQL21", Domain: "lab.example.test", Site: "Dublin", Role: "Database", Detail: "Windows Server 2022", Offline: ""),
+    new(Name: "LAB01", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: ""),
+    new(Name: "LAB02", Domain: "lab.example.test", Site: "Lab", Role: "Test", Detail: "Windows Server 2025", Offline: "maintenance until Friday"),
+];
+Check[] catalog = [
+    new(Id: "DiskCleanup", Name: "Disk cleanup", Category: "Maintenance", Description: "Removes temporary files and old update caches.", Expected: "cache under 1 GB", Minutes: 3, Changes: true),
+    new(Id: "LogRotation", Name: "Log rotation", Category: "Maintenance", Description: "Compresses logs older than 7 days.", Expected: "retention 90 days", Minutes: 2, Changes: true),
+    new(Id: "RestartPending", Name: "Pending restart check", Category: "Maintenance", Description: "Reports restarts waiting after updates.", Expected: "no restart pending", Minutes: 1, Changes: false),
+    new(Id: "PatchStatus", Name: "Patch status", Category: "Security", Description: "Lists missing security updates.", Expected: "0 missing", Minutes: 2, Changes: false),
+    new(Id: "Certificates", Name: "Certificate expiry", Category: "Security", Description: "Finds certificates expiring within 30 days.", Expected: "30+ days", Minutes: 1, Changes: false),
+    new(Id: "LocalAdmins", Name: "Local administrators audit", Category: "Security", Description: "Compares local Administrators with the approved list.", Expected: "approved list", Minutes: 1, Changes: false),
+    new(Id: "Firewall", Name: "Firewall rules review", Category: "Security", Description: "Flags inbound allow rules open to any address.", Expected: "scoped rules", Minutes: 2, Changes: false),
+    new(Id: "EventErrors", Name: "Event log errors", Category: "Health", Description: "Summarizes errors from the last 24 hours.", Expected: "under 20", Minutes: 1, Changes: false),
+    new(Id: "Services", Name: "Service health", Category: "Health", Description: "Checks and restarts stopped automatic services.", Expected: "all running", Minutes: 1, Changes: true),
+    new(Id: "DiskSpace", Name: "Disk space", Category: "Health", Description: "Warns below 15% and fails below 5% free.", Expected: "15% free", Minutes: 1, Changes: false),
+    new(Id: "Uptime", Name: "Uptime and reboots", Category: "Health", Description: "Reports unexpected reboots in the last 30 days.", Expected: "0 unexpected", Minutes: 1, Changes: false),
+];
 Dictionary<string, (StatusKind Status, string Actual)> findings = new() {
     ["FS02/PatchStatus"] = (StatusKind.Fail, "3 updates missing for 41 days"),
     ["WEB01/Certificates"] = (StatusKind.Warn, "expires in 24 days"),
@@ -42,19 +41,16 @@ Dictionary<string, (StatusKind Status, string Actual)> findings = new() {
     ["FS11/Services"] = (StatusKind.Warn, "1 service restarted"),
     ["FS01/DiskCleanup"] = (StatusKind.Warn, "1.4 GB remains"),
 };
-List<HistoryRow> history = new() {
-    new("Mon 19 Oct 21:04", 3, 4, 10, 1, 1, TimeSpan.FromSeconds(372)), new("Tue 20 Oct 07:30", 2, 3, 6, 0, 0, TimeSpan.FromSeconds(66))
-};
+List<HistoryRow> history = [
+    new(When: "Mon 19 Oct 21:04", Servers: 3, Checks: 4, Passed: 10, Warnings: 1, Failed: 1, Elapsed: TimeSpan.FromSeconds(372)),
+    new(When: "Tue 20 Oct 07:30", Servers: 2, Checks: 3, Passed: 6, Warnings: 0, Failed: 0, Elapsed: TimeSpan.FromSeconds(66)),
+];
 string reportRoot = OperatingSystem.IsWindows() ? @"C:\Reports\Toolbox" : "/tmp/reports/toolbox";
 Node[] targets = inventory.Where(n => n.Domain == "lab.example.test" && n.Offline == "").Take(4).ToArray();
 Check[] checks = catalog.Where(c => new[] { "DiskCleanup", "PatchStatus", "Certificates", "DiskSpace" }.Contains(c.Id)).ToArray();
 string domain = "lab.example.test", format = "Html", report = reportRoot, email = "ops@example.test";
 int parallel = 3;
 bool notify = false, dryRun = false;
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], System.Globalization.CultureInfo.InvariantCulture);
-if (step < 0 || step > 5) throw new ArgumentOutOfRangeException(nameof(step));
 
 List<Work> Plan() => checks.SelectMany(c => targets.Select(n => {
     var outcome = findings.GetValueOrDefault(n.Name + "/" + c.Id, (StatusKind.Pass, c.Expected));
@@ -85,7 +81,7 @@ IWidget Preview(Check c) => new Rows(new TextBlock(Markup.Escape(c.Description))
     .Add("Group", c.Category).Add("Expected", c.Expected).Add("Duration", "about " + c.Minutes + " min per server")
     .Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]").Add("Parameter", c.Id)) { Gap = 1 };
 
-// Layout: snapshots and live work use this same widget tree.
+// Layout: build the dashboard from the completed and active work.
 IWidget Body(List<Work> work, int done, int phase) {
     Work[] finished = work.Take(done).ToArray();
     Work[] active = phase == 2 ? work.Skip(done).TakeWhile(w => w.Check.Id == work[done].Check.Id).Take(parallel).ToArray() : Array.Empty<Work>();
@@ -116,9 +112,6 @@ IWidget Body(List<Work> work, int done, int phase) {
     Columns info = new(new Panel(lanes, "Servers"), new Panel(facts, "Run options")) { CollapseBelow = 90 };
     return new Rows(summary, phases, info, new Panel(Findings(finished), "Findings"), new Panel(log, "Log"));
 }
-Dashboard Dashboard(List<Work> work, int done, int phase) => new("[bold]Server toolbox[/]", Body(work, done, phase)) {
-    Subtitle = $"{domain} · {targets.Length} servers · {checks.Length} tasks", Footer = "Ctrl+C cancel · results keep the findings"
-};
 
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work) {
@@ -126,7 +119,10 @@ void Execute(MenuContext context, List<Work> work) {
     Dashboard dashboard = new("[bold]Server toolbox[/]", body) { Subtitle = domain, Footer = "Ctrl+C cancel · results keep the findings" };
     bool completed = false;
     RunResult outcome = context.Run(dashboard, run => {
-        void Show(int done, int phase) { body.Handle(run.Session).Set(Body(work, done, phase)); if (run.CancellationToken.WaitHandle.WaitOne(240)) run.CancellationToken.ThrowIfCancellationRequested(); }
+        void Show(int done, int phase) {
+            body.Handle(run.Session).Set(Body(work, done, phase));
+            run.Session.Delay(TimeSpan.FromMilliseconds(240));
+        }
         Show(0, 0); Show(0, 1);
         int done = 0;
         foreach (var operation in work.GroupBy(w => w.Check.Id)) {
@@ -202,18 +198,16 @@ menu.Item("Review & run", i => i.Hotkey('r').WithIcon(GlyphIcon.Run).Review(_ =>
     if (targets.Length == 0) review.Problem("Pick at least one target", targetItem);
     if (checks.Length == 0) review.Problem("Pick at least one task", taskItem);
     if (notify && !email.Contains('@')) review.Problem("Enter the email recipient in Options", optionItem);
-    review.Command = "Invoke-ServerToolbox " + CommandLine.Argument("ComputerName", targets.Select(n => n.Name).ToList(), CommandStyle.PowerShell)
-        + " " + CommandLine.Argument("Task", checks.Select(c => c.Id).ToList(), CommandStyle.PowerShell) + " " + options.BuildCommand();
+    Dictionary<string, object?> commandArguments = new() {
+        ["ComputerName"] = targets.Select(n => n.Name).ToArray(),
+        ["Task"] = checks.Select(c => c.Id).ToArray()
+    };
+    review.Command = CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " " + options.BuildCommand();
     review.Run = ctx => Execute(ctx, Plan()); return review;
 }));
 menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).State(() => history.Count + " runs"));
 menu.Separator(); menu.Exit("Quit");
-if (snapshot) {
-    List<Work> work = Plan();
-    int done = step < 2 ? 0 : step == 2 ? Math.Min(work.Count, targets.Length + 2) : step == 3 ? work.Count * 2 / 3 : work.Count;
-    int phase = step < 2 ? step : step < 4 ? 2 : step == 4 ? 3 : 4;
-    Terminal.Write(Dashboard(work, done, phase));
-} else menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox gallery" });
+menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox gallery" });
 
 record Node(string Name, string Domain, string Site, string Role, string Detail, string Offline) {
     public override string ToString() => Name;

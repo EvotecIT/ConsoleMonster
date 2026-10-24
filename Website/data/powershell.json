@@ -363,12 +363,17 @@
     },
     {
       "verb": "Format",
-      "count": 6,
+      "count": 7,
       "commands": [
         {
           "name": "Format-ConsoleCode",
           "synopsis": "Shows source text with syntax highlighting, line numbers and highlighted lines.",
           "url": "/powershell/commands/format-consolecode/"
+        },
+        {
+          "name": "Format-ConsoleCommand",
+          "synopsis": "Builds a copyable command line from named values without executing it.",
+          "url": "/powershell/commands/format-consolecommand/"
         },
         {
           "name": "Format-ConsoleError",
@@ -1116,8 +1121,13 @@
     },
     {
       "verb": "Wait",
-      "count": 1,
+      "count": 2,
       "commands": [
+        {
+          "name": "Wait-ConsoleDashboard",
+          "synopsis": "Pauses dashboard work, or captures its next checkpoint during a recording.",
+          "url": "/powershell/commands/wait-consoledashboard/"
+        },
         {
           "name": "Wait-ConsoleRun",
           "synopsis": "Waits for worker updates while pumping run progress to the PowerShell host.",

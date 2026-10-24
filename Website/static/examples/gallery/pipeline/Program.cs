@@ -1,6 +1,5 @@
 // Module build pipeline: phases, sixteen steps, compiler lanes and captured output.
 using System.Globalization;
-using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -27,12 +26,7 @@ BuildStep[] steps = {
 };
 string[] phaseNames = { "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package", "Publish" };
 string[] compilerNames = { "netstandard2.0", "net472", "net8.0", "PowerShell" };
-int[] checkpoints = { 0, 2, 3, 5, 7, 9, 10, 12, 14, 16 };
-int stepAt = Array.IndexOf(args, "--step");
-int step = stepAt < 0 ? 0 : int.Parse(args[stepAt + 1], CultureInfo.InvariantCulture);
-if (step < 0 || step >= checkpoints.Length) throw new ArgumentOutOfRangeException(nameof(step));
-bool snapshot = args.Contains("--snapshot") || (!args.Contains("--interactive") && Console.IsInputRedirected);
-int completed = snapshot ? checkpoints[step] : 0;
+int completed = 0;
 string PathText(string text) => text.Replace('\\', Path.DirectorySeparatorChar);
 string Duration(double seconds) => seconds.ToString("0.0", CultureInfo.InvariantCulture) + "s";
 StatusKind Worst(IEnumerable<BuildStep> items) => items.Any(item => item.Result == StatusKind.Warn) ? StatusKind.Warn
@@ -78,7 +72,6 @@ Dashboard dashboard = new Dashboard("[bold]Module build[/]", body) {
 };
 
 // Behaviour: native handles update each region while ordinary tool output is captured by the live session.
-if (snapshot) { Terminal.Write(dashboard); return; }
 using LiveSession session = new LiveSession(dashboard);
 session.Run(live => {
     var phaseHandle = phases.Handle(live);
@@ -95,9 +88,10 @@ session.Run(live => {
         progressHandle.Label(item.Phase);
         if (i >= 3 && i <= 6) compilerHandle.Start("c" + (i - 3), "compiling");
         Console.WriteLine(PathText(item.Label) + "...");
-        if (live.Cancellation.WaitHandle.WaitOne((int)(item.Seconds * 400))) break;
+        live.Delay(TimeSpan.FromMilliseconds(item.Seconds * 400));
         foreach (string line in item.Output) {
-            if (item.Result == StatusKind.Warn) Console.Error.WriteLine(PathText(line)); else Console.WriteLine(PathText(line));
+            if (item.Result == StatusKind.Warn) log.Handle(live).Warn(PathText(line));
+            else Console.WriteLine(PathText(line));
         }
         elapsed += item.Seconds;
         stepHandle.Set(item.Key, item.Result);

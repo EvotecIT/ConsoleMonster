@@ -1,6 +1,6 @@
 ---
 title: Stress test
-description: "Keep thirty-two workers, session counters, CPU trends and captured output readable under sustained updates."
+description: "Watch a synthetic thirty-two-worker workload with session counters, CPU trends and captured output."
 slug: demos/stress
 layout: demo
 demo: stress

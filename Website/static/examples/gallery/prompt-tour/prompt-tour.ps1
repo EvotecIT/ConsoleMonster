@@ -1,10 +1,5 @@
 ﻿# A guided tour of typed prompts, task previews and a dashboard paused for confirmation.
-[CmdletBinding()]
-param(
-    [switch] $StaticSnapshot,
-    [ValidateRange(0, 8)] [int] $Step = 0
-)
-Import-Module ConsoleMonster
+Import-Module -Name ConsoleMonster
 
 # Data: fictional inventory and tasks. Answers never trigger the operations described.
 # The path points into an absent sample folder; no directories or presets are created.
@@ -34,79 +29,121 @@ $tasks = @(
     [pscustomobject] @{ Id = 'DiskSpace'; Name = 'Disk space'; Category = 'Health'; Description = 'Warns below 15% free and fails below 5% on each volume.'; Minutes = 1; Changes = $false }
     [pscustomobject] @{ Id = 'Uptime'; Name = 'Uptime and reboots'; Category = 'Health'; Description = 'Reports uptime and unexpected reboots in the last 30 days.'; Minutes = 1; Changes = $false }
 )
-$titles = @('Typed selection', 'Multiple selection', 'Confirmation', 'Text', 'Secret', 'Number', 'Path', 'Typed confirmation', 'Dashboard pause')
 $reportFolder = './toolbox-reports/weekly'
-$snapshot = $StaticSnapshot -or [Console]::IsInputRedirected
-# Native prompt snapshots need the common Read-Console* -StaticSnapshot API.
-$promptOptions = if ($snapshot) { @{ StaticSnapshot = $true } } else { @{} }
-
 # Layout: the prompts themselves draw choices, validation, masks and editing hints.
 $taskPreview = {
-    New-ConsoleRows -Gap 1 {
-        New-ConsoleText $_.Description
-        New-ConsoleKeyValue {
-            New-ConsoleKeyValueItem Group $_.Category
-            New-ConsoleKeyValueItem Duration "about $($_.Minutes) min per server"
-            New-ConsoleKeyValueItem Changes $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }) -Markup
-            New-ConsoleKeyValueItem Parameter "[accent]$($_.Id)[/]" -Markup
+    New-ConsoleRows -Gap 1 -Content {
+        New-ConsoleText -Text $_.Description
+        New-ConsoleKeyValue -Content {
+            New-ConsoleKeyValueItem -Key Group -Value $_.Category
+            New-ConsoleKeyValueItem -Key Duration -Value "about $($_.Minutes) min per server"
+            New-ConsoleKeyValueItem -Key Changes -Value $(if ($_.Changes) { '[warn]yes[/], makes changes' } else { '[pass]no[/], read only' }) -Markup
+            New-ConsoleKeyValueItem -Key Parameter -Value "[accent]$($_.Id)[/]" -Markup
         }
     }
 }
 $taskBadge = {
-    if ($_.Changes) { New-ConsoleText -Markup "[warn]changes [/][muted]~$($_.Minutes) min[/]" }
-    else { New-ConsoleText -Markup "[muted]~$($_.Minutes) min[/]" }
+    if ($_.Changes) {
+        New-ConsoleText -Markup "[warn]changes [/][muted]~$($_.Minutes) min[/]"
+    }
+    else {
+        New-ConsoleText -Markup "[muted]~$($_.Minutes) min[/]"
+    }
 }
 
-# Behaviour: each answer is returned as its original type; the tour performs no action.
-$first = if ($snapshot) { $Step } else { 0 }
-$last = if ($snapshot) { $Step } else { 8 }
-foreach ($page in $first..$last) {
-    if (-not $snapshot) { Write-ConsoleRule "[bold]$($page + 1) / 9 · $($titles[$page])[/]" }
-    switch ($page) {
-        0 {
-            $server = Read-ConsoleSelection 'Target server' -Choices $servers -Display Name -GroupBy Site -Badge { New-ConsoleText $_.Role -Role Muted } -Disabled { $_.Offline } -Describe { "$($_.Role) server · $($_.OS)" } -Description 'Type to filter; offline servers show why they cannot be picked.' -Default $servers[0] @promptOptions
-            if (-not $snapshot) { Write-ConsoleText "returned: $($server.Name) (Server)" }
+# Behaviour: each native prompt returns an answer; the tour performs no external action.
+Write-ConsoleRule -Title '[bold]1 / 9 · Typed selection[/]'
+$serverPrompt = @{
+    Title = 'Target server'
+    Choices = $servers
+    Display = 'Name'
+    GroupBy = 'Site'
+    Badge = { New-ConsoleText -Text $_.Role -Role Muted }
+    Disabled = { $_.Offline }
+    Describe = { "$($_.Role) server · $($_.OS)" }
+    Description = 'Type to filter; offline servers show why they cannot be picked.'
+    Default = $servers[0]
+}
+$server = Read-ConsoleSelection @serverPrompt
+Write-ConsoleText -Text "returned: $($server.Name) (Server)"
+
+Write-ConsoleRule -Title '[bold]2 / 9 · Multiple selection[/]'
+$taskPrompt = @{
+    Title = 'Tasks'
+    Choices = $tasks
+    Display = 'Name'
+    GroupBy = 'Category'
+    Describe = 'Description'
+    Badge = $taskBadge
+    Selected = @($tasks | Where-Object -Property Id -In -Value PatchStatus, DiskSpace)
+    Minimum = 1
+    Preview = $taskPreview
+}
+$selected = @(Read-ConsoleMultiSelection @taskPrompt)
+Write-ConsoleText -Text "returned: $($selected.Id -join ', ')"
+
+Write-ConsoleRule -Title '[bold]3 / 9 · Confirmation[/]'
+$null = Read-ConsoleConfirm -Title 'Restart the report agent on FS01?' -Default $true
+
+Write-ConsoleRule -Title '[bold]4 / 9 · Text[/]'
+$textPrompt = @{
+    Title = 'Share name'
+    Default = 'Reports'
+    Pattern = '[A-Za-z][A-Za-z0-9_-]{1,23}'
+    PatternMessage = 'Start with a letter; letters, digits, - and _ only'
+    Description = 'Shown to users when they browse the server.'
+}
+$null = Read-ConsoleText @textPrompt
+
+Write-ConsoleRule -Title '[bold]5 / 9 · Secret[/]'
+$secretPrompt = @{
+    Title = 'Password for svc-backup'
+    MinLength = 8
+    Description = 'Try example-passphrase; at least 8 characters.'
+}
+$null = Read-ConsoleSecret @secretPrompt
+
+Write-ConsoleRule -Title '[bold]6 / 9 · Number[/]'
+$null = Read-ConsoleNumber -Title Port -Integer -Minimum 1 -Maximum 65535 -Default 443
+
+Write-ConsoleRule -Title '[bold]7 / 9 · Path[/]'
+$null = Read-ConsolePath -Title 'Report folder' -Kind Folder -Default $reportFolder
+
+Write-ConsoleRule -Title '[bold]8 / 9 · Typed confirmation[/]'
+$confirmPrompt = @{
+    Title = 'Remove FS01 from the inventory?'
+    TypedConfirmation = 'FS01'
+    Default = $false
+    Warning = 'Its history and reports would be removed too. Type FS01 to confirm.'
+}
+$null = Read-ConsoleConfirm @confirmPrompt
+
+Write-ConsoleRule -Title '[bold]9 / 9 · Dashboard pause[/]'
+$hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
+$dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
+    New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Lane $hosts -Total 6 }
+    New-ConsolePanel -Title Log -Fill -Content { New-ConsoleLog -Height 6 }
+}
+Start-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBlock {
+    param($Hosts)
+    for ($tick = 1; $tick -le 6; $tick++) {
+        foreach ($hostName in $Hosts) {
+            $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
+            Update-ConsoleLane -Key $hostName -Result $status -Detail "step $tick"
         }
-        1 {
-            $selected = @(Read-ConsoleMultiSelection Tasks -Choices $tasks -Display Name -GroupBy Category -Describe Description -Badge $taskBadge -Selected @($tasks | Where-Object Id -In PatchStatus, DiskSpace) -Minimum 1 -Preview $taskPreview @promptOptions)
-            if (-not $snapshot) { Write-ConsoleText "returned: $($selected.Id -join ', ')" }
-        }
-        2 { $null = Read-ConsoleConfirm 'Restart the report agent on FS01?' -Default $true @promptOptions }
-        3 {
-            $null = Read-ConsoleText 'Share name' -Default Reports -Pattern '[A-Za-z][A-Za-z0-9_-]{1,23}' -PatternMessage 'Start with a letter; letters, digits, - and _ only' -Description 'Shown to users when they browse the server.' @promptOptions
-        }
-        4 { $null = Read-ConsoleSecret 'Password for svc-backup' -MinLength 8 -Description 'Try example-passphrase; at least 8 characters.' @promptOptions }
-        5 { $null = Read-ConsoleNumber Port -Integer -Minimum 1 -Maximum 65535 -Default 443 @promptOptions }
-        6 { $null = Read-ConsolePath 'Report folder' -Kind Folder -Default $reportFolder @promptOptions }
-        7 {
-            $null = Read-ConsoleConfirm 'Remove FS01 from the inventory?' -TypedConfirmation FS01 -Default $false -Warning 'Its history and reports would be removed too. Type FS01 to confirm.' @promptOptions
-        }
-        8 {
-            if ($snapshot) {
-                $null = Read-ConsoleConfirm 'WEB01 failed. Continue with the other servers?' -Default $true -Description 'The patch dashboard pauses for your answer, then resumes.' @promptOptions
+        Write-ConsoleLog -Message "step $tick done"
+        Wait-ConsoleDashboard -Milliseconds 350
+        if ($tick -eq 3) {
+            Write-ConsoleLog -Message 'WEB01: update verification failed' -Level Error
+            $pausePrompt = @{
+                Title = 'WEB01 failed. Continue with the other servers?'
+                Default = $true
+                Description = 'The patch dashboard pauses for your answer, then resumes.'
+            }
+            $go = Read-ConsoleConfirm @pausePrompt
+            Write-ConsoleLog -Message $(if ($go) { 'continuing' } else { 'stopping after this step' })
+            if (-not $go) {
                 break
-            }
-            $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
-            $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' {
-                New-ConsolePanel -Title Servers { New-ConsoleLanes -Lane $hosts -Total 6 }
-                New-ConsolePanel -Title Log -Fill { New-ConsoleLog -Height 6 }
-            }
-            Start-ConsoleDashboard $dashboard -ArgumentList (,$hosts) {
-                param($Hosts)
-                for ($tick = 1; $tick -le 6; $tick++) {
-                    foreach ($hostName in $Hosts) {
-                        $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
-                        Update-ConsoleLane -Key $hostName -Result $status -Detail "step $tick"
-                    }
-                    Write-ConsoleLog "step $tick done"
-                    Start-Sleep -Milliseconds 350
-                    if ($tick -eq 3) {
-                        Write-ConsoleLog 'WEB01: update verification failed' -Level Error
-                        $go = Read-ConsoleConfirm 'WEB01 failed. Continue with the other servers?' -Default $true -Description 'The patch dashboard pauses for your answer, then resumes.'
-                        Write-ConsoleLog $(if ($go) { 'continuing' } else { 'stopping after this step' })
-                        if (-not $go) { break }
-                    }
-                }
             }
         }
     }
