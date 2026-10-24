@@ -41,6 +41,8 @@ In C#, `SessionRecorder.Start` owns the child, `AddMarker` adds a chapter, and `
 
 Windows uses ConPTY and needs Windows 10 version 1809 or later. Linux and macOS use `openpty` with a controlling terminal. The library also targets .NET Standard 2.0 and .NET Framework 4.7.2; the example's recorder API is the same on those targets.
 
+On macOS, each launch extracts a small embedded terminal helper into a private temporary directory and removes it after startup. Hosts that prohibit executing files from temporary directories reject recording startup with an operating-system permission error. Such hosts need a temporary directory where execution is permitted by their policy.
+
 ## Variations
 
 ### Watch a session with typed commands
