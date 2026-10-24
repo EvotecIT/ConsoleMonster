@@ -50,6 +50,16 @@
         $command | Should -BeExactly "Invoke-FleetCheck -ComputerName WEB01,'O''Brien lab' -ThrottleLimit 3 -WhatIf"
     }
 
+    It 'formats native switch parameters as switches without collapsing case-sensitive names' {
+        Import-Module $script:ModulePath -Force
+        $arguments = [ordered] @{ WhatIf = [switch]$false; Confirm = [switch]$true }
+        Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments | Should -BeExactly 'Invoke-FleetCheck -Confirm'
+        $options = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+        $options.Add('o', 'app')
+        $options.Add('O', [switch]$true)
+        Format-ConsoleCommand -Command cc -Arguments $options -Style Posix | Should -BeExactly 'cc -o app -O'
+    }
+
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
 $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 30, 'None', 'Ascii')

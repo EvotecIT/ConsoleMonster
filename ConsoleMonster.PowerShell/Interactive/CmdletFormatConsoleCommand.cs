@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
@@ -27,6 +28,25 @@ namespace ConsoleMonster.PowerShell {
         public CommandStyle Style { get; set; } = CommandStyle.PowerShell;
 
         /// <inheritdoc />
-        protected override void ProcessRecord() => WriteObject(CommandLine.Build(Command, PSForms.ToFieldValues(Arguments, null), Style));
+        protected override void ProcessRecord() {
+            // Command names may be case-sensitive (for example POSIX -o and -O), unlike form field names.
+            List<KeyValuePair<string, object?>> arguments = new List<KeyValuePair<string, object?>>();
+            foreach (DictionaryEntry argument in Arguments) {
+                arguments.Add(new KeyValuePair<string, object?>(PSInteractive.Text(argument.Key), ArgumentValue(argument.Value)));
+            }
+            WriteObject(CommandLine.Build(Command, arguments, Style));
+        }
+
+        // PowerShell boxes switches and pipeline values; the shared formatter consumes their native values.
+        private static object? ArgumentValue(object? value) {
+            object? raw = PSText.Unwrap(value);
+            if (raw is SwitchParameter flag) { return flag.IsPresent; }
+            if (raw is IEnumerable values && !(raw is string)) {
+                List<object?> items = new List<object?>();
+                foreach (object? item in values) { items.Add(ArgumentValue(item)); }
+                return items;
+            }
+            return raw;
+        }
     }
 }

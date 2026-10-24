@@ -64,10 +64,15 @@ IWidget Frame(int tick) {
 // Behaviour: show seven samples through the ordinary live session.
 Slot screen = new Slot("stress", Frame(0));
 using LiveSession session = new LiveSession(screen);
-session.Run(live => {
-    for (int tick = 0; tick <= 6; tick++) {
-        live.Cancellation.ThrowIfCancellationRequested();
-        screen.Handle(live).Set(Frame(tick));
-        live.Delay(TimeSpan.FromSeconds(1));
-    }
-});
+try {
+    session.Run(live => {
+        for (int tick = 0; tick <= 6; tick++) {
+            live.Cancellation.ThrowIfCancellationRequested();
+            screen.Handle(live).Set(Frame(tick));
+            live.Delay(TimeSpan.FromSeconds(1));
+        }
+    });
+} catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+    // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+    return;
+}

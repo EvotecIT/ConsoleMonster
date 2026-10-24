@@ -103,21 +103,26 @@ Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
     .Panel("Steps", install).Add(new Padding(bar, 1, 0, 1, 0)).BuildDashboard();
 using (LiveSession session = new LiveSession(dashboard)) {
-    session.Run(s => {
-        StatusListHandle status = install.Handle(s);
-        ProgressHandle progress = bar.Handle(s);
-        foreach (string label in installSteps) {
-            status.Set(label, StatusKind.Running);
-            progress.Label(label);
-            for (int i = 0; i < 10; i++) {
-                s.Cancellation.ThrowIfCancellationRequested();
-                progress.Advance();
-                s.Delay(TimeSpan.FromMilliseconds(90));
+    try {
+        session.Run(s => {
+            StatusListHandle status = install.Handle(s);
+            ProgressHandle progress = bar.Handle(s);
+            foreach (string label in installSteps) {
+                status.Set(label, StatusKind.Running);
+                progress.Label(label);
+                for (int i = 0; i < 10; i++) {
+                    s.Cancellation.ThrowIfCancellationRequested();
+                    progress.Advance();
+                    s.Delay(TimeSpan.FromMilliseconds(90));
+                }
+                status.Set(label, StatusKind.Pass);
             }
-            status.Set(label, StatusKind.Pass);
-        }
-        progress.Complete();
-    });
+            progress.Complete();
+        });
+    } catch (OperationCanceledException cancelled) when (cancelled.CancellationToken == session.Cancellation) {
+        // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
+        return;
+    }
 }
 Terminal.Write(new Panel(new KeyValueList().Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path")))
     .Add("Components", Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components"))))

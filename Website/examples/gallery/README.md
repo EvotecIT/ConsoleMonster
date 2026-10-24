@@ -71,9 +71,9 @@ and `csharp` entries, `lines` with each file's line count, download URLs, run
 commands, a `frame`, a `thumbnail` SVG URL, and per-state cell parity results.
 Featured entries come first, followed by slug order. Live entries also carry
 `url`, `duration` in milliseconds, `frames`, `fps`, and `start` for the existing
-player. Their `capture` field identifies them as deterministic snapshot
-storyboards: they show the sample's successive states at fixed intervals,
-rather than recording keyboard timing or claiming measured performance.
+player. Their `capture` field identifies a scripted native program. These deterministic
+storyboards show its actual successive states at fixed intervals, rather than
+recording keyboard timing or claiming measured performance.
 
 `replay` is null for a static entry. For a live entry it has the existing player
 shape: `url`, `w`, `h`, `poster` (`w`, `h`, `dark`), `start`, and `hero`. Its
