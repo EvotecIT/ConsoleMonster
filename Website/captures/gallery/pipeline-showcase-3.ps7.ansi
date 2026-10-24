@@ -24,8 +24,8 @@
 [0;38;2;75;80;96m│[0m Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)                                                                           [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m ModuleVersion 0.0.4 -> 2.0.0                                                                                                             [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m CmdletsToExport: 38 binary cmdlets                                                                                                       [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Restored Sources/ConsoleMonster/ConsoleMonster.csproj (in 412 ms)                                                                        [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Restored Sources/ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj (in 380 ms)                                                  [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Restored src/Orion/Orion.csproj (in 412 ms)                                                                                              [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Restored src/Orion.Shell/Orion.Shell.csproj (in 380 ms)                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m ConsoleMonster -> bin/Release/netstandard2.0/ConsoleMonster.dll                                                                          [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m ConsoleMonster -> bin/Release/net472/ConsoleMonster.dll                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Compile ConsoleMonster (net8.0)...                                                                                                       [0;38;2;75;80;96m│[0m

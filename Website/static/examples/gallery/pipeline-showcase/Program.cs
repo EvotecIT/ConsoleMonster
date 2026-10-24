@@ -10,7 +10,7 @@ using ConsoleMonster.Widgets;
 BuildStep[] steps = {
     new("Prepare", "config", "Read Build/project.build.json", 0.4, StatusKind.Pass, "Loaded project.build.json (3 projects, version 2.0.X)", "Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)"),
     new("Prepare", "manifest", "Update ConsoleMonster.psd1", 0.5, StatusKind.Pass, "ModuleVersion 0.0.4 -> 2.0.0", "CmdletsToExport: 38 binary cmdlets"),
-    new("Restore", "restore", "Restore NuGet packages", 1.6, StatusKind.Pass, "Restored Sources\\ConsoleMonster\\ConsoleMonster.csproj (in 412 ms)", "Restored Sources\\ConsoleMonster.PowerShell\\ConsoleMonster.PowerShell.csproj (in 380 ms)"),
+    new("Restore", "restore", "Restore NuGet packages", 1.6, StatusKind.Pass, "Restored src\\Orion\\Orion.csproj (in 412 ms)", "Restored src\\Orion.Shell\\Orion.Shell.csproj (in 380 ms)"),
     new("Build", "core-ns", "Compile ConsoleMonster (netstandard2.0)", 1.8, StatusKind.Pass, "ConsoleMonster -> bin\\Release\\netstandard2.0\\ConsoleMonster.dll"),
     new("Build", "core-fx", "Compile ConsoleMonster (net472)", 1.5, StatusKind.Pass, "ConsoleMonster -> bin\\Release\\net472\\ConsoleMonster.dll"),
     new("Build", "core-net", "Compile ConsoleMonster (net8.0)", 1.4, StatusKind.Pass, "ConsoleMonster -> bin\\Release\\net8.0\\ConsoleMonster.dll"),

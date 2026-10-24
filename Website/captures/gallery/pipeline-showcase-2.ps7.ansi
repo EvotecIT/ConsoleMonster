@@ -26,8 +26,8 @@
 [0;38;2;75;80;96m│[0m Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)                                                                           [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m ModuleVersion 0.0.4 -> 2.0.0                                                                                                             [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m CmdletsToExport: 38 binary cmdlets                                                                                                       [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Restored Sources/ConsoleMonster/ConsoleMonster.csproj (in 412 ms)                                                                        [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m Restored Sources/ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj (in 380 ms)                                                  [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Restored src/Orion/Orion.csproj (in 412 ms)                                                                                              [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m Restored src/Orion.Shell/Orion.Shell.csproj (in 380 ms)                                                                                  [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m Compile ConsoleMonster (netstandard2.0)...                                                                                               [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[0m
 [0m [0;38;2;139;143;154mPrepare ·[11G Restore ·[21G Build ·[29G Test ·[36G Docs ·[43G Sign ·[50G Package ·[60G Publish    Ctrl+C stop[0m

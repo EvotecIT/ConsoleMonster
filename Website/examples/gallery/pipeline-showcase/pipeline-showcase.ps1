@@ -10,7 +10,7 @@ Import-Module ConsoleMonster
 $steps = @(
     @{ Phase = 'Prepare'; Key = 'config'; Label = 'Read Build/project.build.json'; Seconds = 0.4; Result = 'Pass'; Output = @('Loaded project.build.json (3 projects, version 2.0.X)', 'Resolved version 2.0.0 from PowerShell Gallery (current 0.0.4)') }
     @{ Phase = 'Prepare'; Key = 'manifest'; Label = 'Update ConsoleMonster.psd1'; Seconds = 0.5; Result = 'Pass'; Output = @('ModuleVersion 0.0.4 -> 2.0.0', 'CmdletsToExport: 38 binary cmdlets') }
-    @{ Phase = 'Restore'; Key = 'restore'; Label = 'Restore NuGet packages'; Seconds = 1.6; Result = 'Pass'; Output = @('Restored Sources\ConsoleMonster\ConsoleMonster.csproj (in 412 ms)', 'Restored Sources\ConsoleMonster.PowerShell\ConsoleMonster.PowerShell.csproj (in 380 ms)') }
+    @{ Phase = 'Restore'; Key = 'restore'; Label = 'Restore NuGet packages'; Seconds = 1.6; Result = 'Pass'; Output = @('Restored src\Orion\Orion.csproj (in 412 ms)', 'Restored src\Orion.Shell\Orion.Shell.csproj (in 380 ms)') }
     @{ Phase = 'Build'; Key = 'core-ns'; Label = 'Compile ConsoleMonster (netstandard2.0)'; Seconds = 1.8; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\netstandard2.0\ConsoleMonster.dll') }
     @{ Phase = 'Build'; Key = 'core-fx'; Label = 'Compile ConsoleMonster (net472)'; Seconds = 1.5; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net472\ConsoleMonster.dll') }
     @{ Phase = 'Build'; Key = 'core-net'; Label = 'Compile ConsoleMonster (net8.0)'; Seconds = 1.4; Result = 'Pass'; Output = @('ConsoleMonster -> bin\Release\net8.0\ConsoleMonster.dll') }
