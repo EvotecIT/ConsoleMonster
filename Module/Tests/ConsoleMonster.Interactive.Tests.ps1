@@ -36,6 +36,20 @@
         }
     }
 
+    It 'formats ordered command arguments with native types and shared escaping' {
+        Import-Module $script:ModulePath -Force
+        $arguments = [ordered] @{
+            ComputerName = @('WEB01', "O'Brien lab")
+            ThrottleLimit = 3
+            WhatIf = $true
+            Notify = $false
+            Empty = ''
+            Missing = $null
+        }
+        $command = Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments $arguments
+        $command | Should -BeExactly "Invoke-FleetCheck -ComputerName WEB01,'O''Brien lab' -ThrottleLimit 3 -WhatIf"
+    }
+
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
 $profile = [ConsoleMonster.Capabilities.TerminalProfile]::Fixed(80, 30, 'None', 'Ascii')

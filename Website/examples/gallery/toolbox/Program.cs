@@ -198,8 +198,11 @@ menu.Item("Review & run", i => i.Hotkey('r').WithIcon(GlyphIcon.Run).Review(_ =>
     if (targets.Length == 0) review.Problem("Pick at least one target", targetItem);
     if (checks.Length == 0) review.Problem("Pick at least one task", taskItem);
     if (notify && !email.Contains('@')) review.Problem("Enter the email recipient in Options", optionItem);
-    review.Command = "Invoke-ServerToolbox " + CommandLine.Argument("ComputerName", targets.Select(n => n.Name).ToList(), CommandStyle.PowerShell)
-        + " " + CommandLine.Argument("Task", checks.Select(c => c.Id).ToList(), CommandStyle.PowerShell) + " " + options.BuildCommand();
+    Dictionary<string, object?> commandArguments = new() {
+        ["ComputerName"] = targets.Select(n => n.Name).ToArray(),
+        ["Task"] = checks.Select(c => c.Id).ToArray()
+    };
+    review.Command = CommandLine.Build("Invoke-ServerToolbox", commandArguments) + " " + options.BuildCommand();
     review.Run = ctx => Execute(ctx, Plan()); return review;
 }));
 menu.Item("History", i => i.Hotkey('h').WithIcon(GlyphIcon.List).Page(_ => History()).State(() => history.Count + " runs"));

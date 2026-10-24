@@ -387,9 +387,11 @@ $menu = New-ConsoleMenu -Title 'Server toolbox' -Layout Shell -Subtitle 'Tue 20 
             if (-not $plan.Checks.Count) { 'Pick at least one task' }
             if ($plan.Notify -and $plan.Email -notlike '*@*') { 'Enter the email recipient in Options' }
         )
-        # Quote selected identifiers as PowerShell literals; options are produced by the native form.
-        $names = @($plan.Targets.Name | ForEach-Object -Process { "'$($_.Replace("'", "''"))'" }) -join ', '
-        $ids = @($plan.Checks.Id | ForEach-Object -Process { "'$($_.Replace("'", "''"))'" }) -join ', '
+        $commandArguments = [ordered] @{
+            ComputerName = $plan.Targets.Name
+            Task = $plan.Checks.Id
+        }
+        $command = Format-ConsoleCommand -Command Invoke-ServerToolbox -Arguments $commandArguments
         @{
             Title = 'Review & run'
             Description = 'Everything the run uses; the command carries the same options.'
@@ -402,7 +404,7 @@ $menu = New-ConsoleMenu -Title 'Server toolbox' -Layout Shell -Subtitle 'Tue 20 
                 'Dry run' = $(if ($plan.DryRun) { 'yes' } else { 'no' })
             }
             Problems = $problems
-            Command = "Invoke-ServerToolbox -ComputerName $names -Task $ids $($options.BuildCommand())"
+            Command = "$command $($options.BuildCommand())"
             Run = { Invoke-Work -Context $MenuContext -Work @(Get-Work) }
         }
     }

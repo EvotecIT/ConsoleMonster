@@ -27,4 +27,4 @@
 │    █ completed    │ │    0s   1s  8s │ │ PKI           0 │
 ╰───────────────────╯ ╰────────────────╯ ╰─────────────────╯
 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nes…
- Ctrl+C stop
+ ctrl+c stop

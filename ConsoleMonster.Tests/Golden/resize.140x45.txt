@@ -42,4 +42,4 @@
 │ 00:23 ✗ ERR  DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing                                     │
 │ 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\Administrators                                           │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- Ctrl+C stop
+ ctrl+c stop

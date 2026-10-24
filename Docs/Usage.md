@@ -976,6 +976,8 @@ A capture host can set `CONSOLEMONSTER_STORAGE_ROOT` to an isolated folder so me
 An explicit `StorageRoot` still wins. `New-ConsoleForm -PageDescriptions @{ Scope = "Which servers to check." }`
 maps page guidance to the same `Form.Page(name, description)` API used in C#.
 
+For equivalent commands outside a form, use `Format-ConsoleCommand -Command Invoke-FleetCheck -Arguments ([ordered]@{ ComputerName = @('WEB01', 'SQL01'); WhatIf = $true })`. C# uses `CommandLine.Build(command, arguments)`. Both use the existing form quoting rules for strings, lists, numbers and switches; neither executes the result.
+
 ## Targets: tests, redirection and hosting
 
 Every write, live session, prompt and status helper goes to an `ITerminalTarget`: a capability profile (size, colour

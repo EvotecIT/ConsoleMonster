@@ -27,10 +27,10 @@ Describe 'ConsoleMonster module' {
     It 'exports the Console cmdlets on this runtime' {
         Import-Module $script:ModulePath -Force
         $commands = Get-Command -Module ConsoleMonster
-        $commands.Count | Should -Be 139
+        $commands.Count | Should -Be 140
         $manifest = Import-PowerShellDataFile -LiteralPath $script:ModulePath
         $cmdlets = @($commands | Where-Object CommandType -EQ Cmdlet)
-        $cmdlets.Count | Should -Be 138
+        $cmdlets.Count | Should -Be 139
         ($cmdlets.Name | Sort-Object) -join ',' | Should -BeExactly (($manifest.CmdletsToExport | Sort-Object) -join ',')
         ($commands | Where-Object CommandType -EQ Alias).Name | Should -BeExactly 'ForEach-ConsoleItem'
         foreach ($name in 'Get-ConsoleDemo', 'Show-ConsoleDemo') { $cmdlets.Name | Should -Contain $name }

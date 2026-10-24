@@ -118,8 +118,6 @@ class TemplateGalleryTests(unittest.TestCase):
             self.env["CONSOLEMONSTER_STORAGE_ROOT"] = str(self.root / "presets" / metadata["slug"])
             self.env.pop("CONSOLEMONSTER_INPUT", None)
             keys = metadata.get("capture", {}).get("runKeys")
-            if keys is None and metadata["category"] in ("Terminal apps", "Wizards"):
-                keys = "Escape"
             if keys:
                 self.env["CONSOLEMONSTER_INPUT"] = keys
             return self.dotnet(str(assembly))

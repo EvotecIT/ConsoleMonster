@@ -85,6 +85,11 @@ Shows source text with syntax highlighting, line numbers and highlighted lines.
 
 Highlights JSON, XML/HTML, YAML, PowerShell, C#, SQL, INI/TOML, CSV/TSV, diffs, log lines and Markdown, or plain text with -Language Smart (numbers, booleans, GUIDs, IP addresses, URLs, paths, dates, DNs, quoted strings). -Language Auto (the default) picks the language from the file extension, then from the content, and falls back to plain text. Text comes from -Path or from pipeline strings (joined as lines). The text is always literal: markup is not read and control characters are dropped. -LineNumbers adds a gutter, -Highlight marks lines (10, '10-14'), long lines are truncated with an ellipsis or wrapped with -Wrap, and output stops after -MaxLines lines with "+n more lines". A file is shown on a panel titled with its name (-Title changes it, -NoTitle leaves the panel out). Redirected output is plain text.
 
+### [Format-ConsoleCommand](Format-ConsoleCommand.md)
+Builds a copyable command line from named values without executing it.
+
+Formats strings, numbers, switches and lists through the same quoting rules as forms. Use an ordered dictionary to retain argument order. Null, empty strings and false switches are omitted. The result is a plain string, suitable for a review's equivalent command.
+
 ### [Format-ConsoleError](Format-ConsoleError.md)
 Shows errors and exceptions readably: type, message, position, script stack, frames and inner errors.
 
