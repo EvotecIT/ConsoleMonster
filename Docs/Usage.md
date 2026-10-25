@@ -818,6 +818,13 @@ $restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
 Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Action $restart
 ```
 
+Use `Show-ConsoleGrid -Refresh { param($Row, $CommandKey) Get-Service -Name $Row.Name }`
+to re-read each acted-on row after successful work. The callback runs on the
+caller's input thread and returns one replacement object; keep it short. Row
+positions and selection remain stable. A failed refresh is logged while the
+remaining acted-on rows continue to refresh. C# uses `GridOptions.RefreshRow`
+and returns a `GridRow` snapshot in the same column order.
+
 Space marks rows; an action uses the marks in display order, or the focused row
 when nothing is marked. Ctrl+K opens the palette; F8 focuses the action buttons;
 Tab moves between those buttons. No is the default confirmation answer. F6

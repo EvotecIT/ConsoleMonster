@@ -54,6 +54,7 @@ namespace SiteFrames.Tests {
             string output = string.Concat(events.Where(item => item[1]!.GetValue<string>() == "o").Select(item => item[2]!.GetValue<string>()));
             Assert.Contains("Restart WinRM?", output);
             Assert.Contains("Restart: completed", output);
+            Assert.DoesNotContain("Connection to ", output);
             Assert.Contains("\u001b[?1006h", output);
             Assert.Contains("\u001b[?1049h", output);
             SessionRecording recording = SessionRecording.Read(path);
@@ -62,6 +63,14 @@ namespace SiteFrames.Tests {
             Assert.Contains("Service browser", completed);
             Assert.Contains("Restart: completed", completed);
             Assert.Contains("WinRM", completed);
+            Assert.Contains("2556", completed);
+            Assert.Contains("DependsOn", completed);
+            string[] frames = recording.CaptureFrames(new RecordingExportOptions { FramesPerSecond = 10 })
+                .Select(frame => ConsoleExporter.ToText(frame.Frame)).ToArray();
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Stopping WinRM") && !text.Contains("Starting WinRM"));
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Starting WinRM") && !text.Contains("Verifying WinRM"));
+            Assert.Contains(frames, text => text.Contains("Action running") && text.Contains("Verifying WinRM") && !text.Contains("Restart: completed"));
+            if (resizes > 0) { Assert.Contains(frames, text => System.Text.RegularExpressions.Regex.IsMatch(text, @"1–\d+ of 10")); }
             string preview = Path.Combine(root, "Website", "static", "recordings", "fullscreen", name);
             Assert.Contains("Service browser", ConsoleExporter.ToText(SessionRecording.Read(preview).FrameAt(TimeSpan.Zero)));
         }

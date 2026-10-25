@@ -558,24 +558,38 @@ published Mac capture uses scripted keys and SGR reports through the recorder,
 at 120×30. The separate SSH capture includes two resizes; it ran from in-memory
 assemblies without installing files or changing the remote host.
 
-Local builds cover net472, net8.0 and net10.0. On the merged round 1 baseline,
-the net8.0/net10.0 core suites each pass 2,899 tests with eight platform skips,
-including the final narrow-screen arrangement and modal keyboard burst checks.
-The full en-US Pester suite passes 1,417 tests with 19 platform skips, including
-the existing app, menu, grid, explorer and output paths and round 1 vocabulary
-contracts. All 110 gallery twin states match. The 21-step website build passes
-with 173 renderer tests, two native Windows skips and no generated-asset drift.
-Windows PowerShell 5.1 syntax remains supported; a Mac build cannot prove its
-native console behavior.
+I refresh acted-on rows through `Show-ConsoleGrid -Refresh` or
+`GridOptions.RefreshRow` after successful work. The callback runs on the app's
+input thread and preserves row positions and selection. A failed refresh is
+logged without skipping the remaining rows. Captured row indices identify the
+selection through confirmation, action and refresh, including filtered marks
+and rows with shared or null source objects.
+
+Local builds cover net472, net8.0 and net10.0 with zero warnings on master
+`c1f761d`, including round 1. The net8.0/net10.0 core suites each pass 2,946 tests
+with eight platform skips. The full en-US Pester suite passes 1,449 tests with
+19 platform skips; the final four action/refresh integration checks pass again
+after the last grid fix. All 112 gallery twin states match. Five preview
+contracts verify the staged output, refreshed details, transport events and
+capture/export freshness. PowerShell scripts parse without PowerShell 7-only
+syntax; native Windows PowerShell 5.1 behavior remains a separate proof gate.
+
+The fresh website render has no asset drift. The full website pipeline remains
+held by PowerForge's template output budget: the larger gallery index is
+truncated, leaving its last demo unlinked. I need the shared renderer fix and
+a passing full pipeline before calling the website validation complete.
+
+I corrected the requested visual findings: output arrives over several seconds,
+confirmation holds on Yes, the ending shows the refreshed PID, and the compact
+grid has a row-position cue with a readable DependsOn label. The calendar now
+names Today, separates upcoming item statuses, marks future backups as pending
+and shows an operational cadence across the year. Fresh visual acceptance is
+still required before either PR merges.
 
 Before release I still need native conhost and Windows Terminal click, wheel,
 drag, window-origin handling and input-mode restoration, including Quick Edit.
 Physical Windows mouse recording also needs the relay work described above.
-tmux mouse routing and older conhost degradation remain unobserved. Visual
-re-review requests staged log arrival, clearer confirmation/ending pacing with
-refreshed details, and an 80-column scroll cue in the service preview. The
-calendar captures also remain in review. I need those corrections and visual
-acceptance before either PR merges.
+tmux mouse routing and older conhost degradation remain unobserved.
 
 ## Phases and size
 
