@@ -9,6 +9,31 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     public sealed class SharedInputDefinitionTests {
+        [Theory]
+        [InlineData(false, 0)]
+        [InlineData(true, 0)]
+        [InlineData(false, 5)]
+        [InlineData(true, 5)]
+        public void SelectionDefinitionsRetainTheRendererDefaultsAndExplicitPageSize(bool multiple, int pageSize) {
+            var choices = Enumerable.Range(0, 15).Select(index => new Choice("Task " + index)).ToList();
+            var definition = new SelectQuestionOptions { Title = "Tasks", Multiple = multiple, PageSize = pageSize };
+            foreach (Choice choice in choices) { definition.Choices.Add(choice); }
+            var options = new InteractiveOptions { Mode = InteractionMode.Rich, Profile = ConsoleMonster.Capabilities.TerminalProfile.Fixed(100, 30), Theme = Theme.Dark, Labels = new PromptLabels() };
+            ConsoleMonster.Layout.IWidget direct;
+            if (multiple) {
+                var prompt = new MultiSelectPrompt<object?>("Tasks", choices);
+                if (pageSize > 0) { prompt.PageSize = pageSize; }
+                direct = prompt.Snapshot(options);
+            } else {
+                var prompt = new SelectPrompt<object?>("Tasks", choices);
+                if (pageSize > 0) { prompt.PageSize = pageSize; }
+                direct = prompt.Snapshot(options);
+            }
+            Assert.Equal(ConsoleMonster.Export.ConsoleExporter.ToHtml(direct), ConsoleMonster.Export.ConsoleExporter.ToHtml(Question.Select(definition).Snapshot(options)));
+            definition.PageSize = -1;
+            Assert.Throws<ArgumentOutOfRangeException>(() => Question.Select(definition));
+        }
+
         [Fact]
         public void ChoiceSelectorsPreserveStoredMetadataAndExistingChoiceIdentity() {
             var row = new { Name = "web-01", Site = "Warsaw", Detail = "Ready", Reason = "Maintenance" };

@@ -42,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
             var definition = new SelectQuestionOptions { Title = Title, Description = Description, ParameterName = ParameterName, Multiple = Multiple.IsPresent };
             foreach (Choice choice in choices) { definition.Choices.Add(choice); }
             if (Preview != null) { ScriptBlock preview = Preview; definition.Preview = value => PSInteractive.ToWidget(PSInteractive.InvokeWith(preview, value)); }
-            if (PageSize > 0) { definition.PageSize = PageSize; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PageSize))) { definition.PageSize = PageSize; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Minimum))) { definition.Minimum = Minimum; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Maximum))) { definition.Maximum = Maximum; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Collapsed))) { definition.Collapsed = Collapsed.IsPresent; }

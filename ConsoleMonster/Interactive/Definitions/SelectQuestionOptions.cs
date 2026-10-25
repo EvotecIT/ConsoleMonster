@@ -29,8 +29,8 @@ namespace ConsoleMonster.Interactive {
         private bool _collapsed;
         /// <summary>Whether groups start collapsed; valid only with Multiple.</summary>
         public bool Collapsed { get => _collapsed; set { _collapsed = value; _bound.Add(nameof(Collapsed)); } }
-        /// <summary>The preferred number of visible choices.</summary>
-        public int PageSize { get; set; } = 10;
+        /// <summary>The preferred number of visible choices; zero retains the renderer default (10 single, 12 multiple).</summary>
+        public int PageSize { get; set; }
         /// <summary>Preview content for the focused value.</summary>
         public Func<object?, IWidget?>? Preview { get; set; }
     }

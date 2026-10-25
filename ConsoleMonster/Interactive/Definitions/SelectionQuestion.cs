@@ -10,7 +10,7 @@ namespace ConsoleMonster.Interactive {
         private readonly SelectPrompt<object?>? _single;
         private readonly MultiSelectPrompt<object?>? _multiple;
         internal SelectionQuestion(SelectQuestionOptions options) {
-            if (options.PageSize < 1) { throw new ArgumentOutOfRangeException(nameof(options.PageSize)); }
+            if (options.PageSize < 0) { throw new ArgumentOutOfRangeException(nameof(options.PageSize)); }
             if (options.Choices.Count == 0) { throw new ArgumentException("There is nothing to choose from.", nameof(options)); }
             if (!options.Multiple && (options.Has(nameof(options.Minimum)) || options.Has(nameof(options.Maximum)) || options.Has(nameof(options.Collapsed)))) {
                 throw new ArgumentException("Minimum, Maximum and Collapsed require Multiple.", nameof(options));
@@ -19,8 +19,9 @@ namespace ConsoleMonster.Interactive {
             if (options.Multiple) {
                 _multiple = new MultiSelectPrompt<object?>(options.Title, options.Choices) {
                     Description = options.Description, ParameterName = options.ParameterName, Minimum = options.Minimum, Maximum = options.Maximum,
-                    Collapsed = options.Collapsed, PageSize = options.PageSize, Preview = options.Preview
+                    Collapsed = options.Collapsed, Preview = options.Preview
                 };
+                if (options.PageSize > 0) { _multiple.PageSize = options.PageSize; }
                 if (options.Has(nameof(options.Default))) {
                     var selected = new List<object?>();
                     if (options.Default is IEnumerable values && !(options.Default is string)) { foreach (object? value in values) { selected.Add(value); } }
@@ -30,8 +31,9 @@ namespace ConsoleMonster.Interactive {
                 }
             } else {
                 _single = new SelectPrompt<object?>(options.Title, options.Choices) {
-                    Description = options.Description, ParameterName = options.ParameterName, PageSize = options.PageSize, Preview = options.Preview
+                    Description = options.Description, ParameterName = options.ParameterName, Preview = options.Preview
                 };
+                if (options.PageSize > 0) { _single.PageSize = options.PageSize; }
                 if (options.Has(nameof(options.Default))) { RequireChoice(options, options.Default); _single.Default = options.Default; }
             }
         }
