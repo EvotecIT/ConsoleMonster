@@ -53,7 +53,7 @@ namespace SiteFrames.Pages {
                 new Section("certificate", "One record as a record view", "A certificate as sections, fields and nested tables. Empty fields are hidden and dates show both absolute and relative forms.",
                     new[] { "Sections, groups and nested widgets", "Boolean presenters can mark either value as the problem", "A single record from Show-ConsoleTable renders this way" }),
                 new Section("inspector", "The object inspector", "Nested dictionaries and lists, shown as indented sections and nested tables. The inspector also reads .NET objects, PSObjects and JSON, with depth, item and node limits.",
-                    new[] { "MaxDepth, MaxItems and MaxNodes bound one inspection", "Cycles are detected and marked", "Show-ConsoleTree -AsInspector in PowerShell" })
+                    new[] { "MaxDepth, MaxItems and MaxNodes bound one inspection", "Cycles are detected and marked", "Show-ConsoleObject in PowerShell" })
             };
 
             JsonArray list = new JsonArray();

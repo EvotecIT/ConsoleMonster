@@ -158,7 +158,7 @@ and [team-light.json](../Website/examples/themes/team-light.json), then run:
 The sample data includes pass, warning, failure and pending states. Use the first
 command on a dark terminal and the second on a light terminal. Add
 `-ExportDirectory ./presets` to write all four starting preset files. The script
-leaves the team theme active; `Set-ConsoleTheme -Name Dark` or `Light` restores a
+leaves the team theme active; `Set-ConsoleTheme -Theme Dark` or `Light` restores a
 built-in palette.
 
 ## .NET

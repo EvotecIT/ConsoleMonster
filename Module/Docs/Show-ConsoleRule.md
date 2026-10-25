@@ -33,7 +33,7 @@ A section header
 ## PARAMETERS
 
 ### -Alignment
-Alignment of the section title.
+Alignment of the section title (default left, as on the rule builder).
 
 ```yaml
 Type: HorizontalAlignment

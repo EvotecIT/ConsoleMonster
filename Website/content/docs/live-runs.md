@@ -37,7 +37,7 @@ In C#, `ConsoleRun.ForEachAsync` runs the same view around any async work, and `
 
 {{< cm-demo id="watch" heading="h2" >}}
 
-`Watch-Console` runs the script block every `-Interval` seconds and replaces the view with its latest output, shaped as `Show-ConsoleTable` shapes it. `-Differences` marks the cells that changed since the previous run, a run that fails shows its error and the watch goes on, and `-Count` ends it after that many runs. Ctrl+C ends it and leaves the last frame in the scrollback. Piped on, or without an interactive console, every run is printed instead.
+`Watch-Console` runs the script block every `-PollIntervalSeconds` seconds and replaces the view with its latest output, shaped as `Show-ConsoleTable` shapes it. `-Differences` marks the cells that changed since the previous run, a run that fails shows its error and the watch goes on, and `-Count` ends it after that many runs. Ctrl+C ends it and leaves the last frame in the scrollback. Piped on, or without an interactive console, every run is printed instead.
 
 {{< cm-demo id="pester" heading="h2" >}}
 

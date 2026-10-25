@@ -99,7 +99,7 @@ namespace SiteFrames {
             Widget("widgets", "bar", "New-ConsoleBarChart");
             Demo("parallel", "parallel", "Invoke-ConsoleRun -Parallel");
             Widget("csharp", "statuslist", "dotnet run");
-            Figure("markdown", "export-markdown", "Show-ConsoleTable -As Markdown");
+            Figure("markdown", "export-markdown", "Export-ConsoleFrame -Format Markdown");
             return images;
         }
 

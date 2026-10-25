@@ -56,7 +56,7 @@ This sample uses the platform's `Get-WinEvent` command. It is documentation only
 
 ## Polling, retention and plain output
 
-`-Tail` defaults to **10** initial completed lines or events. `-Tail 0` starts with subsequent entries. `-Count` defaults to **0**, following until quit or cancellation; it counts source polls, including empty polls. `-Count 1` is a snapshot, not a one-line limit. `-Interval` defaults to **0.25 seconds**.
+`-Tail` defaults to **10** initial completed lines or events. `-Tail 0` starts with subsequent entries. `-Count` defaults to **0**, following until quit or cancellation; it counts source polls, including empty polls. `-Count 1` is a snapshot, not a one-line limit. `-PollIntervalSeconds` defaults to **0.25 seconds**.
 
 `-Capacity` defaults to **1000 retained history entries**. Updates use the existing live session's unbounded queue. Accepted updates are applied before history eviction; posts after shutdown follow the session's normal dropped-update rule. Capacity limits history after application, rather than the entire memory footprint. Scrolling pauses the viewport, not ingestion; eviction can remove the oldest retained history.
 

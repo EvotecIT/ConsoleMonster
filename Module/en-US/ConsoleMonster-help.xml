@@ -29451,7 +29451,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Alignment</maml:name>
           <maml:description>
-            <maml:para>Alignment of the section title.</maml:para>
+            <maml:para>Alignment of the section title (default left, as on the rule builder).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">HorizontalAlignment</command:parameterValue>
           <command:parameterValueGroup>
@@ -29519,7 +29519,7 @@ because the existing sparkline renderer scales from zero. Output uses the normal
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Alignment</maml:name>
         <maml:description>
-          <maml:para>Alignment of the section title.</maml:para>
+          <maml:para>Alignment of the section title (default left, as on the rule builder).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">HorizontalAlignment</command:parameterValue>
         <command:parameterValueGroup>

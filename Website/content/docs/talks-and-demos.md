@@ -93,7 +93,7 @@ Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -D
 New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset Social -Path ./ready.png
 ```
 
-`-Chapter` selects the last view before the next chapter; the last chapter uses the final frame. `-PerChapter` writes `slide-001.png`, `slide-002.png` and so on into a directory. Source-time selection happens before playback speed or idle compression. Choose one of `-At`, `-Chapter`, `-PerChapter` or `-FinalFrame`.
+`-Chapter` selects the last view before the next chapter; the last chapter uses the final frame. `-PerChapter` writes `slide-001.png`, `slide-002.png` and so on into a directory. Source-time selection happens before playback speed or idle compression. Choose one of `-AtSeconds`, `-Chapter`, `-PerChapter` or `-FinalFrame`.
 
 ## Present live
 
