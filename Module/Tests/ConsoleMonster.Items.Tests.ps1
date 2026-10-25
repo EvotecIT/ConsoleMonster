@@ -145,6 +145,17 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $script:liveExpressionReads | Should -Be 2
         }
 
+        It 'keeps default live-row identities separate from rounded display values without evaluating twice' {
+            $script:liveIdentityReads = 0
+            $table = @([pscustomobject] @{ Id = 1.1 }, [pscustomobject] @{ Id = 1.2 }) | New-ConsoleTable -Live -Property @(
+                @{ Name = 'Id'; Expression = { $script:liveIdentityReads++; $_.Id }; FormatString = 'F0' }
+            )
+            $null = $table | Get-WidgetText
+            $table.Keys | Should -Be @('1.1', '1.2')
+            $table.Table.Rows.Count | Should -Be 2
+            $script:liveIdentityReads | Should -Be 2
+        }
+
         It 'keeps record values literal unless a presenter is explicit' {
             $literal = [pscustomobject]@{ Key = 'Install folder'; Value = './toolbox-agent' } | New-ConsoleKeyValue
             $literal.Items[0].Cell | Should -BeNullOrEmpty

@@ -34,7 +34,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Live tables retain these evaluated rows, including calculated expressions and FormatString results.
-        internal static Table TableModelCore(IReadOnlyList<PSObject> inputObject, ConsoleTableViewOptions? options, PSCmdlet? source, Action<PSObject, object?[]>? boundRow) {
+        internal static Table TableModelCore(IReadOnlyList<PSObject> inputObject, ConsoleTableViewOptions? options, PSCmdlet? source, Action<PSObject, object?[], object?>? boundRow) {
             if (inputObject == null) { throw new ArgumentNullException(nameof(inputObject)); }
             options ??= new ConsoleTableViewOptions();
             Values.ShapeOptions shape = Binding.PSShaping.Options(options.Culture);

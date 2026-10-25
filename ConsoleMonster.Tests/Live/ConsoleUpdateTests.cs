@@ -92,6 +92,43 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
+        [Fact]
+        public void CellAppendUsesAcceptedQueuedCapacityIncludingRawEvents() {
+            var cells = new CellMap("cells").Resize(CellMap.MaxItems - 1);
+            Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Events(cells, new WidgetUpdate { AppendCells = true, Count = 2 }));
+            using (var session = new LiveSession(new CellMap("queued"))) {
+                ConsoleUpdate.Apply(session, "queued", new WidgetUpdate { CellCount = CellMap.MaxItems - 1 });
+                Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Apply(session, "queued", new WidgetUpdate { AppendCells = true, Count = 2 }));
+                Assert.Equal(1, session.EventsPosted);
+                session.Post(new LiveEvent("queued", "add"));
+                Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Apply(session, "queued", new WidgetUpdate { AppendCells = true }));
+                Assert.Equal(2, session.EventsPosted);
+                session.Post(new LiveEvent("queued", "count", value: 1));
+                ConsoleUpdate.Apply(session, "queued", new WidgetUpdate { AppendCells = true, Count = 2 });
+                Assert.Equal(5, session.EventsPosted);
+                session.Post(new LiveEvent("queued", "set", key: (CellMap.MaxItems - 1).ToString(System.Globalization.CultureInfo.InvariantCulture)));
+                Assert.Throws<ArgumentOutOfRangeException>(() => ConsoleUpdate.Apply(session, "queued", new WidgetUpdate { AppendCells = true }));
+                Assert.Equal(6, session.EventsPosted);
+            }
+        }
+
+        [Fact]
+        public void ConcurrentCellAppendsReserveCapacityBeforePublication() {
+            using (var session = new LiveSession(new CellMap("cells"))) {
+                ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { CellCount = CellMap.MaxItems - 1 });
+                int accepted = 0, rejected = 0;
+                System.Threading.Tasks.Parallel.For(0, 2, _ => {
+                    try {
+                        ConsoleUpdate.Apply(session, "cells", new WidgetUpdate { AppendCells = true });
+                        System.Threading.Interlocked.Increment(ref accepted);
+                    } catch (ArgumentOutOfRangeException) { System.Threading.Interlocked.Increment(ref rejected); }
+                });
+                Assert.Equal(1, accepted);
+                Assert.Equal(1, rejected);
+                Assert.Equal(2, session.EventsPosted);
+            }
+        }
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]

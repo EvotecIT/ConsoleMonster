@@ -248,7 +248,7 @@ namespace ConsoleMonster.Live {
         /// <inheritdoc />
         public void Update(string widgetId, WidgetUpdate update) => ConsoleUpdate.Apply(this, widgetId, update);
 
-        /// <summary>Enqueues without locks or per-event signaling. Events may be queued before Start.</summary>
+        /// <summary>Enqueues without per-event signaling. Topology and cell-capacity operations share the update gate. Events may be queued before Start.</summary>
         /// <param name="liveEvent">Event; zero timestamps are stamped relative to Start.</param>
         public void Post(LiveEvent liveEvent) {
             if (liveEvent == null) { throw new ArgumentNullException(nameof(liveEvent)); }
@@ -263,8 +263,12 @@ namespace ConsoleMonster.Live {
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
             try {
-                if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") {
-                    lock (_updateGate) { ProjectContent(liveEvent); Enqueue(liveEvent); }
+                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear") {
+                    lock (_updateGate) {
+                        if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") { ProjectContent(liveEvent); }
+                        ProjectCellCount(liveEvent);
+                        Enqueue(liveEvent);
+                    }
                 } else { Enqueue(liveEvent); }
             } finally { Interlocked.Decrement(ref _admission); }
             return true;

@@ -116,7 +116,7 @@ namespace ConsoleMonster.PowerShell {
         internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool total, bool autoPresenters = false, PSCmdlet? cmdlet = null, CultureInfo? culture = null) =>
             BuildTable(items, property, groupBy, new TableBuildOptions { Total = total, AutoPresenters = autoPresenters, Cmdlet = cmdlet, Culture = culture }, null);
 
-        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, ShapeOptions? shapeOptions, Action<PSObject, object?[]>? boundRow = null) {
+        internal static Table BuildTable(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, TableBuildOptions options, ShapeOptions? shapeOptions, Action<PSObject, object?[], object?>? boundRow = null) {
             ShapeOptions shape = shapeOptions ?? PSShaping.Options(options.Culture);
             ShapeBudget budget = ShapeBudget.For(shape);
             ConsoleViewRegistration? view = null;
@@ -150,9 +150,9 @@ namespace ConsoleMonster.PowerShell {
             }
             List<object?[]> rows = new List<object?[]>(items.Count);
             foreach (PSObject item in items) {
-                object?[] values = Values(columns, item, shape, budget);
+                object?[] values = Values(columns, item, shape, budget, out object? identity);
                 rows.Add(values);
-                boundRow?.Invoke(item, values);
+                boundRow?.Invoke(item, values, identity);
             }
             ChoosePresenters(columns, rows, options.AutoPresenters);
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };
@@ -584,9 +584,13 @@ namespace ConsoleMonster.PowerShell {
         }
 #pragma warning restore IL2026
 
-        private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget) {
+        private static object?[] Values(IReadOnlyList<BoundColumn> columns, PSObject item, ShapeOptions shape, ShapeBudget budget, out object? identity) {
             object?[] values = new object?[columns.Count];
-            for (int c = 0; c < columns.Count; c++) { values[c] = Read(columns[c], item, budget); }
+            object? key = null;
+            for (int c = 0; c < columns.Count; c++) {
+                values[c] = c == 0 ? budget.Guard(columns[c], () => columns[0].GetValue(item, out key)) : Read(columns[c], item, budget);
+            }
+            identity = key;
             return ShapeValues(columns, values, shape);
         }
 

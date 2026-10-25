@@ -35,7 +35,7 @@ namespace ConsoleMonster.Live {
         }
 
         // Event creation is separate from publication so every field and payload is checked before the first enqueue.
-        internal static IReadOnlyList<LiveEvent> Events(ILiveTarget target, WidgetUpdate update) {
+        internal static IReadOnlyList<LiveEvent> Events(ILiveTarget target, WidgetUpdate update, int? cellCount = null) {
             string allowed = Allowed(target);
             var fields = new HashSet<string>(allowed.Split(' '), StringComparer.Ordinal);
             foreach (string field in update.Bound) {
@@ -44,7 +44,7 @@ namespace ConsoleMonster.Live {
                 }
             }
             if (!update.Bound.Any()) { throw new ArgumentException("Specify at least one update field.", nameof(update)); }
-            Validate(target, update);
+            Validate(target, update, cellCount);
             return Build(target, update);
         }
 
@@ -66,7 +66,7 @@ namespace ConsoleMonster.Live {
             throw new ConsoleUpdateException("ConsoleMonsterUnsupportedUpdateTarget", "Use the raw event API for custom target " + target.GetType().FullName + ".");
         }
 
-        private static void Validate(ILiveTarget target, WidgetUpdate u) {
+        private static void Validate(ILiveTarget target, WidgetUpdate u, int? cellCount) {
             if (u.Has(nameof(u.Value)) && u.Has(nameof(u.Increment))) { throw new ArgumentException("Value and Increment cannot be combined."); }
             if (u.Has(nameof(u.Status)) && !Enum.IsDefined(typeof(StatusKind), u.Status)) { throw new ArgumentOutOfRangeException(nameof(u.Status)); }
             if (u.Has(nameof(u.Result)) && !Enum.IsDefined(typeof(StatusKind), u.Result)) { throw new ArgumentOutOfRangeException(nameof(u.Result)); }
@@ -101,6 +101,7 @@ namespace ConsoleMonster.Live {
                 if (u.Has(nameof(u.Index)) && (u.Index == null || u.Index.Length == 0 || u.Index.Any(x => x < 0 || x >= CellMap.MaxItems) || !u.Has(nameof(u.Status)))) { throw new ArgumentException("Index requires positions below CellMap.MaxItems and Status."); }
                 if (u.Has(nameof(u.Count)) && !u.AppendCells) { throw new ArgumentException("Count requires AppendCells."); }
                 if (u.AppendCells && (u.Count < 1 || u.Count > CellMap.MaxItems)) { throw new ArgumentOutOfRangeException(nameof(u.Count)); }
+                if (u.AppendCells && u.Count > CellMap.MaxItems - (cellCount ?? ((CellMap)target).Count)) { throw new ArgumentOutOfRangeException(nameof(u.Count), "The appended cells exceed CellMap.MaxItems."); }
                 if (u.Has(nameof(u.CellCount)) && (u.CellCount < 1 || u.CellCount > CellMap.MaxItems)) { throw new ArgumentOutOfRangeException(nameof(u.CellCount)); }
             }
             if (target is LiveTable) {

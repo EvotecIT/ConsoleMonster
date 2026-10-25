@@ -91,7 +91,7 @@ namespace ConsoleMonster.PowerShell {
             }
             if (Columns != null && Property != null) { throw new PSArgumentException("Use Columns or Property, not both."); }
             if (Columns != null && Table != null) { throw new PSArgumentException("Use Columns or Table, not both."); }
-            var boundRows = Live.IsPresent && Table == null ? new List<KeyValuePair<PSObject, object?[]>>() : null;
+            var boundRows = Live.IsPresent && Table == null ? new List<(PSObject Input, object?[] Values, object? Identity)>() : null;
             Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
@@ -99,13 +99,14 @@ namespace ConsoleMonster.PowerShell {
                 if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
                 if (boundRows == null) { PSItems.AddAll(this, live, _items, KeyProperty); }
                 else {
-                    foreach (KeyValuePair<PSObject, object?[]> row in boundRows) {
-                        object? key = row.Value[0];
-                        if (KeyProperty != null && (!Values.ValueShaper.TryGetField(row.Key, KeyProperty, out key, Binding.PSShaping.Options()) || key == null || key is Values.FieldError)) {
+                    foreach (var row in boundRows) {
+                        object? key = row.Identity;
+                        if (KeyProperty != null && (!Values.ValueShaper.TryGetField(row.Input, KeyProperty, out key, Binding.PSShaping.Options()) || key == null || key is Values.FieldError)) {
                             throw new PSArgumentException("The row has no '" + KeyProperty + "' value to use as its key.");
                         }
+                        if (key == null || key is Values.FieldError || key is Values.BudgetExceeded) { throw new PSArgumentException("The row needs an unformatted first-column value or an explicit KeyProperty for its stable key."); }
                         if (key is TableCell cell) { key = cell.HasValue ? cell.Value : Text.Markup.Strip(cell.Markup); }
-                        live.Set(PSWidgets.ToText(key), row.Value);
+                        live.Set(PSWidgets.ToText(key), row.Values);
                     }
                 }
                 WriteObject(live);
@@ -116,7 +117,7 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The table.</returns>
         protected Table BuildTable() => BuildTable(_items);
 
-        private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null, List<KeyValuePair<PSObject, object?[]>>? boundRows = null) {
+        private Table BuildTable(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null, List<(PSObject Input, object?[] Values, object? Identity)>? boundRows = null) {
             // The same columns and cell values as Show-ConsoleTable (registered views, PowerShell's table views, data keys,
             // shared value rules); -StatusProperty shows that column as status markers.
             object[]? property = Columns ?? (Property != null && Property.Length > 0 ? Property : null);
@@ -129,7 +130,7 @@ namespace ConsoleMonster.PowerShell {
                     table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }
             } else { table = ConsoleHostViews.TableModelCore(items, new ConsoleTableViewOptions { Property = property }, cmdlet ?? this,
-                boundRows == null ? null : (row, values) => boundRows.Add(new KeyValuePair<PSObject, object?[]>(row, values))); }
+                boundRows == null ? null : (row, values, identity) => boundRows.Add((row, values, identity))); }
             if (StatusProperty != null) {
                 foreach (TableColumn column in table.Columns) {
                     if (string.Equals(column.Key, StatusProperty, System.StringComparison.OrdinalIgnoreCase) || string.Equals(Text.Markup.Strip(column.Header), StatusProperty, System.StringComparison.OrdinalIgnoreCase)) {
