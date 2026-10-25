@@ -199,6 +199,9 @@ main > .cm-band { contain-intrinsic-size: auto 900px; }
    fit scrolls sideways at that size instead, and docs pages give frames wider than a reading column (cm-window--wide,
    partials/screen.html) the article's full width (docs.css). Phones keep the 9 px minimum. */
 @media (min-width: 761px) { .cm-screen { --cm-min-font: 11.5px; } }
+/* A card thumbnail is a picture of the frame, not a frame to read: it always shows the terminal's full width, however
+   narrow the card (three cards to a row, Windows display scaling), instead of cropping at the readable minimum. */
+.cm-window--thumb .cm-screen { --cm-min-font: 2px; --cm-pad: 8px; }
 /* A frame that still does not fit at the smallest font scrolls inside its window, and the window says so (frames.js marks it). */
 .cm-window.is-scrollable .cm-window__meta::before { content: "scroll sideways"; display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 4px; background: var(--cm-accent); color: var(--cm-accent-ink); font: 600 11px/1 var(--cm-mono); white-space: nowrap; }
 .cm-screen--dark { --cm-term-fg: #cccccc; --cm-term-bg: #0c0c0c; }
