@@ -190,11 +190,11 @@ Pacing is applied when exporting, so the same cast can produce a quick preview a
 | Normal | 1.2–8 s | 23.81 ms | 80 ms |
 | Fast | 0.55–4 s | 13.89 ms | 40 ms |
 
-The budget is the new visible character count times its per-character time, plus the allowance for each changed line, bounded by the minimum and maximum. Slow gives about 1.5–2× Normal's reading time; Fast uses about half. The text rates (28 / 42 / 72 characters per second), line allowances and minimum holds follow Stories' Slow/Normal/Fast presets. The larger whole-screen maximum keeps Slow distinct on dense output.
+The budget is the new visible character count times its per-character time, plus the allowance for each changed line, bounded by the minimum and maximum. Slow gives about 1.5–2× Normal's reading time; Fast uses about half. The text rates (28 / 42 / 72 characters per second), line allowances and minimum holds follow ChartForgeX's terminal playback presets. The larger whole-screen maximum keeps Slow distinct on dense output.
 
 Source time already spent on the settled frame counts towards its budget; export adds only the missing reading time. Speed and per-chapter speed scale this budget. Explicit marker, chapter and final holds are additional and keep their durations. Colour-only changes add no reading time. These ratios describe reading budgets; a recording's total duration also includes its source timing and explicit holds.
 
-For 225 new characters on three lines, the reading budgets are 8.456 / 5.597 / 3.245 seconds for Slow / Normal / Fast, matching Stories' typing and line timing for the same text. `Source` adds no reading time; combine it with `-IdleLimitSeconds 0` to keep all source gaps.
+For 225 new characters on three lines, the reading budgets are 8.456 / 5.597 / 3.245 seconds for Slow / Normal / Fast, matching ChartForgeX's terminal typing and line timing for the same text. `Source` adds no reading time; combine it with `-IdleLimitSeconds 0` to keep all source gaps.
 
 In the pipeline recording used to check these presets, the same cast exports to a 1920×1080 GIF lasting 15.51 seconds at Source, 19.51 at Fast, 23.51 at Normal and 31.51 at Slow. These exports disable idle capping and include a two-second final hold and the playable cadence for retained instantaneous redraws. The preset changes the delays, without dropping screens or rerecording the demo.
 

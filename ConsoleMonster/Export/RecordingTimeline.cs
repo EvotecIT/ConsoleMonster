@@ -158,7 +158,7 @@ namespace ConsoleMonster.Export {
         }
         private static double ReadingMilliseconds(RecordingPace pace, int characters, int lines) {
             if (pace == RecordingPace.Source || characters == 0) { return 0; }
-            // Stories' text rates, line delays and tab holds, with whole-screen caps that retain
+            // Terminal playback text rates, line delays and tab holds, with whole-screen caps that retain
             // the preset separation even when a dense screen exceeds the Normal reading budget.
             double cps = pace == RecordingPace.Slow ? 28 : pace == RecordingPace.Fast ? 72 : 42;
             double lineDelay = pace == RecordingPace.Slow ? 0.14 : pace == RecordingPace.Fast ? 0.04 : 0.08;

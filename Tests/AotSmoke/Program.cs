@@ -28,7 +28,8 @@ internal static class Program {
         Require(ConsoleExporter.ToText(new InspectorView(InspectWithoutReflection(pairs))), "Name", "pair-server");
         Require(ConsoleExporter.ToHtml(table), "web-01");
         Require(ConsoleExporter.ToSvg(table), "web-01");
-        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, JSON and dictionary inspection, text/HTML/SVG exports.");
+        GraphicsSmoke.Run();
+        Console.WriteLine("Native AOT smoke passed: typed and inferred tables, JSON and dictionary inspection, text/HTML/SVG and PNG/GIF/APNG exports.");
         return 0;
     }
 
