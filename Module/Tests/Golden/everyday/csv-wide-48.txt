@@ -1,4 +1,3 @@
-```text
 2 records
 
 api-01
@@ -20,4 +19,3 @@ api-02
   Ticket       12346
   Queue        backup
   Notes        Waiting for backup
-```

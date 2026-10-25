@@ -1,4 +1,3 @@
-```text
 api-01
 Settings  Region=west, Retry={Count=3}
 Tags      blue, ready
@@ -11,4 +10,3 @@ Checks
   │ dns  │
   │ http │
   ╰──────╯
-```

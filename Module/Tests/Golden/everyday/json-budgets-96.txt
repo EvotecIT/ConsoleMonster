@@ -1,4 +1,3 @@
-```text
 payload
 Tags         tag-1, tag-2, tag-3, tag-4, tag-5, tag-6, +4 more
 Settings     Region=west, Retry=—
@@ -20,4 +19,3 @@ Checks
   │ check-5 │ Ready │
   ╰─────────┴───────╯
    +3 more rows
-```

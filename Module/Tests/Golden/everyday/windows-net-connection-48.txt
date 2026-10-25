@@ -1,4 +1,3 @@
-```text
 2 records
 
 api.example.test
@@ -14,4 +13,3 @@ api.example.test
   Interface      Ethernet
   Ping           ✗ Failed
   TCP            ✗ Failed
-```

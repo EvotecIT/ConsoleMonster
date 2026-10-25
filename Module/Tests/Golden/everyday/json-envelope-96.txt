@@ -1,4 +1,3 @@
-```text
 Total  3
 Next   —
 
@@ -10,4 +9,3 @@ Items
   │ api-02    │ east   │ – no  │
   │ worker-01 │ west   │ ✓ yes │
   ╰───────────┴────────┴───────╯
-```

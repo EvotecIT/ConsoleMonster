@@ -240,7 +240,7 @@ namespace ConsoleMonster.PowerShell {
             }
             if (_batchView.IsStructuredData) {
                 IWidget data = EverydayDataView.Build(_batch, _omittedRows);
-                if (As != null) { _exportWidgets.Add(data); } else { PSFormatting.Write(this, data, 0); }
+                if (Format != null) { _exportWidgets.Add(data); } else { PSFormatting.Write(this, data, 0); }
                 _batch.Clear();
                 _omittedRows = 0;
                 _batchView = null;

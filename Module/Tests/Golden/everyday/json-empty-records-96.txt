@@ -1,4 +1,3 @@
-```text
 Total  2
 
 Items
@@ -16,4 +15,3 @@ Mixed
   │ api-01 │
   │ (none) │
   ╰────────╯
-```

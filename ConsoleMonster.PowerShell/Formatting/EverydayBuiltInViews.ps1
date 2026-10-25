@@ -7,8 +7,8 @@
     GroupHeadersAsRows = $true
     Property = @(
         'Name'
-        @{ Name = 'MemberType'; Expression = { [string] $_.MemberType } }
-        @{ Name = 'Definition'; Expression = 'Definition'; Presenter = 'MemberSignature'; MaxLines = 0 }
+        @{ Label = 'MemberType'; Expression = { [string] $_.MemberType } }
+        @{ Label = 'Definition'; Expression = 'Definition'; Presenter = 'MemberSignature'; MaxLines = 0 }
     )
 }
 @{
@@ -27,7 +27,7 @@
     Property = @(
         @{ Label = 'Name'; Expression = { if ($_.CommandType -eq 'Alias') { $_.Name + ' -> ' + $_.Definition } else { $_.Name } }; Priority = 10 }
         @{ Label = 'CommandType'; Expression = { if ($_.CommandType -eq 'ExternalScript') { 'Script' } else { [string] $_.CommandType } }; Presenter = 'Chip'; Priority = 8 }
-        @{ Name = 'Version'; Expression = { if ($_.Version -and $_.Version -ne [version] '0.0' -and $_.Version -ne [version] '0.0.0.0') { [string] $_.Version } } }
+        @{ Label = 'Version'; Expression = { if ($_.Version -and $_.Version -ne [version] '0.0' -and $_.Version -ne [version] '0.0.0.0') { [string] $_.Version } } }
         'Source'
     )
 }
@@ -66,9 +66,9 @@
     TypeName = 'Microsoft.PowerShell.Commands.HistoryInfo'
     Group = 'History'
     Property = @(
-        @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
+        @{ Label = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
         @{ Label = 'Started'; Expression = { $_.StartExecutionTime.ToString('HH:mm:ss') }; Alignment = 'Right' }
-        @{ Name = 'Duration'; Expression = { $_.EndExecutionTime - $_.StartExecutionTime }; Presenter = 'Duration' }
+        @{ Label = 'Duration'; Expression = { $_.EndExecutionTime - $_.StartExecutionTime }; Presenter = 'Duration' }
         @{ Label = 'Status'; Expression = { ([string] $_.ExecutionStatus) -replace 'NotStarted', 'Not started' -replace 'AtBreakpoint', 'At breakpoint' }; Presenter = 'StatusWord' }
         @{ Label = 'CommandLine'; Expression = { $_.CommandLine -replace '[\r\n]+', ' ' }; Highlight = 'PowerShell'; MaxLines = 1; Overflow = 'Truncate'; Priority = 10 }
     )
@@ -93,13 +93,13 @@
             $words = ($name -creplace '(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', ' ') -split ' ', 2
             if ($words.Count -gt 1) { $words[0] + ' ' + $words[1].ToLowerInvariant() } else { $words[0] }
         }; Presenter = 'Text'; Priority = 8
-            Tone = @(
-                @{ Equals = 'Success'; Tone = 'Pass' }
+            Role = @(
+                @{ Equals = 'Success'; Role = 'Pass' }
                 foreach ($status in 'Unknown', 'Network unreachable', 'Host unreachable', 'Protocol unreachable',
                     'Port unreachable', 'No resources', 'Bad option', 'Hardware error', 'Packet too big', 'Timed out',
                     'Bad route', 'TTL expired', 'TTL reassembly time exceeded', 'Parameter problem', 'Source quench', 'Bad destination',
                     'Unreachable', 'Time exceeded', 'Bad header', 'Unrecognized next header', 'ICMP error', 'Scope mismatch') {
-                    @{ Equals = $status; Tone = 'Fail' }
+                    @{ Equals = $status; Role = 'Fail' }
                 }
             )
         }

@@ -27,7 +27,6 @@ $source = @'
 $ErrorActionPreference = 'Stop'
 [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
 [Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
-[Threading.Thread]::CurrentThread.CurrentUICulture = [cultureinfo]'en-US'
 Import-Module '__MODULE__'
 . '__SAMPLE__'
 foreach ($view in '__VIEWS__' -split ',') {

@@ -1,4 +1,3 @@
-```text
 1 record
 
 Ethernet
@@ -6,4 +5,3 @@ Ethernet
   Prefix   24
   Family   IPv4
   State    Preferred
-```

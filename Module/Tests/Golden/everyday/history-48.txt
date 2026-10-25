@@ -1,4 +1,3 @@
-```text
 2 records
 
 101
@@ -12,4 +11,3 @@
   Duration     2.0 s
   Status       ✗ Failed
   CommandLine  Invoke-Inventory -ComputerName "…
-```

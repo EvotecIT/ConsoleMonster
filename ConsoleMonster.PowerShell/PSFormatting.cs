@@ -453,7 +453,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>
-        /// The view of a script's output, shaped as the Format-Console commands shape it: widgets as they are, text as lines,
+        /// The view of a script's output, shaped as the Show-Console commands shape it: widgets as they are, text as lines,
         /// objects as tables (one object stays a one-row table, so a watched view keeps its shape), one dictionary as a
         /// record; an empty output is an empty line.
         /// </summary>
