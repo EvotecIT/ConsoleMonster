@@ -9,8 +9,6 @@ using ConsoleMonster.Sessions;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Sessions {
-    // Long-record correctness checks keep the production regex deadline and must not race
-    // other allocation-heavy collections for that budget. Exact content/leak assertions remain active.
     [Collection("Live sessions")]
     public sealed class SessionStreamingBoundaryContractTests {
         public static IEnumerable<object[]> TerminalStringReads() {
@@ -105,6 +103,18 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\u0001", true)]
         [InlineData("\u007f", false)]
         [InlineData("\u007f", true)]
+        [InlineData("\u001b[31\u0018", false)]
+        [InlineData("\u001b[31\u0018", true)]
+        [InlineData("\u001b[31\u001a", false)]
+        [InlineData("\u001b[31\u001a", true)]
+        [InlineData("\u001b]title\u0018", false)]
+        [InlineData("\u001b]title\u0018", true)]
+        [InlineData("\u001bPmetadata\u0018", false)]
+        [InlineData("\u001bPmetadata\u0018", true)]
+        [InlineData("\u001bPmetadata\u001b[0m", false)]
+        [InlineData("\u001bPmetadata\u001b[0m", true)]
+        [InlineData("\u001b#", false)]
+        [InlineData("\u001b#", true)]
         public void EscapesInsideControlBodiesFollowReplayWithoutReleasingSecrets(string control, bool builtIn) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-escape-contract-" + Guid.NewGuid().ToString("N"));
             SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
@@ -150,17 +160,55 @@ namespace ConsoleMonster.Tests.Sessions {
             }
         }
 
-        [Fact]
-        public void OscEscapeBellTerminatesBeforeLongSafeOutputAndRecovery() {
+        [Theory]
+        [InlineData("\n")]
+        [InlineData("\r\n")]
+        public void OscBellAfterEscapeKeepsSafeOutputAndRecovery(string newline) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-osc-bell-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
-            string text = "\u001b]0;title\u001b\a" + new string('x', SessionCastWriter.MaximumPendingCharacters + 16) + "\nRecovered\n";
+            SessionRecordingOptions options = new SessionRecordingOptions {
+                Path = Path.Combine(folder, "session.cast"), InProcess = true, MaxBytes = 8 * 1024 * 1024
+            };
+            string control = "\u001b]0;title\u001b\a";
+            string safe = new string('x', SessionCastWriter.MaximumPendingCharacters + 100);
             try {
-                using (SessionCastWriter writer = new SessionCastWriter(options, "test")) { AppendReads(writer, text, 8191); }
+                using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                    AppendReads(writer, control + safe + newline + "Recovered" + newline, 8191);
+                    Assert.False(writer.LimitReached);
+                }
                 string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
-                Assert.Equal(text, output);
+                Assert.Equal(control + safe + newline + "Recovered" + newline, output);
+            } finally {
+                if (Directory.Exists(folder)) { Directory.Delete(folder, true); }
+            }
+        }
+
+        [Theory]
+        [InlineData('\u0018', 1)]
+        [InlineData('\u0018', 17)]
+        [InlineData('\u0018', 65536)]
+        [InlineData('\u001a', 1)]
+        [InlineData('\u001a', 17)]
+        [InlineData('\u001a', 65536)]
+        public void CancellationKeepsTheOpaqueStringProjection(char cancel, int readSize) {
+            string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-opaque-contract-" + Guid.NewGuid().ToString("N"));
+            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            options.Redact.Add("synthetic-secret");
+            string control = "\u001bPmeta" + cancel + "visible\u001b\u001b\\";
+            try {
+                using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
+                    AppendReads(writer, "prefix synthe" + control, readSize);
+                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
+                        Assert.DoesNotContain("synthe", reader.ReadToEnd());
+                    }
+                    AppendReads(writer, "tic-secret\u001b\\ safe\n", readSize);
+                }
+                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                    .Select(line => (List<object?>)MiniJson.Read(line)!)
+                    .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
+                Assert.Equal("prefix [REDACTED]" + control + "\u001b\\ safe\n", output);
             } finally {
                 if (Directory.Exists(folder)) { Directory.Delete(folder, true); }
             }

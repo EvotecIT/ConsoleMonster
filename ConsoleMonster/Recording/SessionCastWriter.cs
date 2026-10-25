@@ -33,6 +33,7 @@ namespace ConsoleMonster.Sessions {
         private bool _suppressRecord;
         private bool _suppressLongControl;
         private RecordingRedactor.TerminalControlState _terminalState;
+        private RecordingRedactor.TerminalControlState _standardTerminalState;
         private RecordingRedactor.TerminalControlState _replayTerminalState;
         private int _contextLength;
         private int _nextFlush = FlushThreshold;
@@ -99,9 +100,12 @@ namespace ConsoleMonster.Sessions {
         private void AppendCharacter(char c, Arrival arrival) {
             _relay.Append(c);
             if (LimitReached) { return; }
-            bool wasControl = _terminalState.IsPending || _replayTerminalState.IsPending;
-            _terminalState.Append(c); _replayTerminalState.Append(c, replay: true);
-            bool lineBoundary = !wasControl && !_terminalState.IsPending && !_replayTerminalState.IsPending && (c == '\r' || c == '\n');
+            bool wasControl = _terminalState.IsPending || _standardTerminalState.IsPending || _replayTerminalState.IsPending;
+            _terminalState.Append(c);
+            _standardTerminalState.Append(c, RecordingRedactor.TerminalInterpretation.Standard);
+            _replayTerminalState.Append(c, RecordingRedactor.TerminalInterpretation.Replay);
+            bool lineBoundary = !wasControl && !_terminalState.IsPending && !_standardTerminalState.IsPending
+                && !_replayTerminalState.IsPending && (c == '\r' || c == '\n');
             if (_suppressRecord) {
                 if (lineBoundary) { _suppressRecord = false; }
                 return;

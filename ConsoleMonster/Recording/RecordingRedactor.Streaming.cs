@@ -23,11 +23,17 @@ namespace ConsoleMonster.Sessions {
 
         /// <summary>Keeps visible and raw pattern lookahead, incomplete controls and unfinished built-in credentials.</summary>
         internal int PrefixLength(string text) {
-            return Math.Min(ProjectionPrefixLength(text, replay: false), ProjectionPrefixLength(text, replay: true));
+            int boundary = text.Length;
+            foreach (TerminalInterpretation interpretation in Interpretations) {
+                boundary = Math.Min(boundary, ProjectionPrefixLength(text, interpretation));
+            }
+            if (boundary == 0) { return 0; }
+            Match pending = PendingCredential.Match(text);
+            return pending.Success ? Math.Min(boundary, pending.Index) : boundary;
         }
 
-        private int ProjectionPrefixLength(string text, bool replay) {
-            string visible = VisibleText(text, stopAtIncomplete: true, out List<int> positions, out List<SourceRange> controls, replay);
+        private int ProjectionPrefixLength(string text, TerminalInterpretation interpretation) {
+            string visible = VisibleText(text, stopAtIncomplete: true, out List<int> positions, out List<SourceRange> controls, interpretation);
             if (positions.Count <= _overlap) { return 0; }
             int boundary = Math.Min(positions[positions.Count - _overlap], text.Length - _overlap);
             foreach (SourceRange control in controls) {
@@ -35,21 +41,23 @@ namespace ConsoleMonster.Sessions {
             }
             Match pending = PendingCredential.Match(visible);
             if (pending.Success) { boundary = Math.Min(boundary, positions[pending.Index]); }
-            pending = PendingCredential.Match(text);
-            if (pending.Success) { boundary = Math.Min(boundary, pending.Index); }
             if (boundary > 0 && char.IsHighSurrogate(text[boundary - 1]) && char.IsLowSurrogate(text[boundary])) { boundary--; }
             return boundary;
         }
 
         /// <summary>Retains a previous visible character and following controls for word-boundary context.</summary>
         internal static int ContextStart(string text, int consumed) {
-            return Math.Min(ProjectionContextStart(text, consumed, replay: false), ProjectionContextStart(text, consumed, replay: true));
+            string prefix = text.Substring(0, consumed);
+            int start = consumed;
+            foreach (TerminalInterpretation interpretation in Interpretations) {
+                start = Math.Min(start, ProjectionContextStart(prefix, interpretation));
+            }
+            return start;
         }
 
-        private static int ProjectionContextStart(string text, int consumed, bool replay) {
-            string prefix = text.Substring(0, consumed);
-            List<SourceRange> controls = TerminalControls(prefix, out _, replay);
-            int lastVisible = -1, lastControl = consumed, controlIndex = 0;
+        private static int ProjectionContextStart(string prefix, TerminalInterpretation interpretation) {
+            List<SourceRange> controls = TerminalControls(prefix, out _, interpretation);
+            int lastVisible = -1, lastControl = prefix.Length, controlIndex = 0;
             for (int i = 0; i < prefix.Length; i++) {
                 if (controlIndex < controls.Count && i == controls[controlIndex].Start) {
                     lastControl = i; i = controls[controlIndex++].End - 1;

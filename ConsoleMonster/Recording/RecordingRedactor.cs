@@ -24,11 +24,15 @@ namespace ConsoleMonster.Sessions {
             try {
                 bool[] masked = new bool[text.Length];
                 List<SourceRange> ranges = new List<SourceRange>();
+                List<List<int>> projections = new List<List<int>>();
                 // Native terminal OSC/DCS handling and VtScreen replay differ for unexpected ESCs.
                 // Protect credentials under both interpretations, as well as raw control payloads.
                 // Every rule sees the original output, never earlier replacement labels.
-                foreach (bool replay in new[] { false, true }) {
-                    string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, replay);
+                foreach (TerminalInterpretation interpretation in Interpretations) {
+                    string plain = VisibleText(text, stopAtIncomplete: false, out List<int> positions, out _, interpretation);
+                    // Equal text alone is insufficient: identical glyphs may have different source offsets.
+                    if (projections.Exists(previous => SamePositions(previous, positions))) { continue; }
+                    projections.Add(positions);
                     int visibleStart = 0;
                     while (visibleStart < positions.Count && positions[visibleStart] < startAt) { visibleStart++; }
                     foreach (Regex pattern in _patterns) {
@@ -64,6 +68,12 @@ namespace ConsoleMonster.Sessions {
                 const string masked = "[REDACTED: pattern timeout]";
                 return new RedactedOutput(masked, new List<int>(new int[masked.Length]), text.Length, timedOut: true);
             }
+        }
+
+        private static bool SamePositions(List<int> first, List<int> second) {
+            if (first.Count != second.Count) { return false; }
+            for (int i = 0; i < first.Count; i++) { if (first[i] != second[i]) { return false; } }
+            return true;
         }
 
         private static List<SourceRange> MergeRanges(List<SourceRange> ranges) {
