@@ -113,6 +113,6 @@ foreach (var(label, status, detail)in checks)
 BarChart latency = new BarChart("latency").Unit(" ms");
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
-IWidget report = new Rows(new Rule("[bold]DNS query results[/] [muted]· example.test[/]"), new Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c => c.Add(summary)), table, new Columns(new Panel().Title("Delegation").Content(c => c.Add(delegation)), new Panel().Title("Mail security").Content(c => c.Add(new Rows(mail, new Rule(), latency).Gap(0))).HeaderRight(domain))).Gap(1);
+IWidget report = new Rows(new Rule("[bold]DNS query results[/] [muted]· example.test[/]"), new Padding().Bottom(0).Right(1).Top(0).Left(1).Content(summary), table, new Columns(new Panel().Title("Delegation").Content(delegation), new Panel().Title("Mail security").Content(new Rows(mail, new Rule(), latency).Gap(0)).HeaderRight(domain))).Gap(1);
 // Behaviour: print the report once to the terminal or redirected output.
 report.Show();

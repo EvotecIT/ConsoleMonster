@@ -135,12 +135,12 @@ IWidget Frame(int tick)
         Lane lane = lanes.Add("w" + id, "worker " + (id + 1).ToString("00", CultureInfo.InvariantCulture), 100000);
         if (tick > 0)
         {
-            lane.Value = tick == 6 ? 100000 : tick * 3200 + id * 97 % 400;
-            lane.Failed = (int)lane.Value / 97;
-            lane.Warned = (int)lane.Value / 17;
-            lane.Passed = (int)lane.Value - lane.Failed - lane.Warned;
-            lane.Status = tick == 6 ? StatusKind.Pass : StatusKind.Running;
-            lane.Detail = actions[(id + tick) % actions.Length] + " item " + Number(lane.Value);
+            lane.Value(tick == 6 ? 100000 : tick * 3200 + id * 97 % 400);
+            lane.Failed((int)lane.Value / 97);
+            lane.Warned((int)lane.Value / 17);
+            lane.Passed((int)lane.Value - lane.Failed - lane.Warned);
+            lane.Status(tick == 6 ? StatusKind.Pass : StatusKind.Running);
+            lane.Detail(actions[(id + tick) % actions.Length] + " item " + Number(lane.Value));
         }
     }
 
@@ -156,8 +156,8 @@ IWidget Frame(int tick)
     LogRegion output = new LogRegion().PreferredHeight(6).ShowElapsed(false);
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5], i % 7 == 0 ? "err" : "info");
-    Rows body = new Rows(new Columns().Add(new Panel().Title("Workers").Content(c => c.Add(lanes)), LayoutSize.Fraction(2.2)).Add(new Panel().Title("Session").Content(c => c.Add(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu))))).Add(new Panel().Title("Captured output").Content(c => c.Add(output)), LayoutSize.Fraction());
-    return new Dashboard().Content(c => c.Add(body)).Title("[bold]Stress test[/]").Subtitle("32 workers · captured tool output · 6s").ShowElapsed(false).Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
+    Rows body = new Rows(new Columns().Add(new Panel().Title("Workers").Content(lanes), LayoutSize.Fraction(2.2)).Add(new Panel().Title("Session").Content(new Rows(stats, new Rule("updates/s"), rate, new Rule("CPU % (100% = one core)"), cpu)))).Add(new Panel().Title("Captured output").Content(output), LayoutSize.Fraction());
+    return new Dashboard().Content(body).Title("[bold]Stress test[/]").Subtitle("32 workers · captured tool output · 6s").ShowElapsed(false).Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
 }
 
 // Behaviour: show seven samples through the ordinary live session.

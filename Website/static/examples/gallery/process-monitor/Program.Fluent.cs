@@ -48,7 +48,7 @@ double[] cpuHistory =
 IWidget Frame(int tick)
 {
     Table table = new Table().Expand(true);
-    table.AddColumn("Name").AddColumn("Pid", column => column.Presenter = CellPresenters.Identifier).AddColumn("CPU %").AddColumn("Memory MiB");
+    table.AddColumn("Name").AddColumn("Pid", column => column.Presenter(CellPresenters.Identifier)).AddColumn("CPU %").AddColumn("Memory MiB");
     foreach (var process in processes)
     {
         table.AddRow(process.Name, TableCell.FromValue(process.Pid), TableCell.FromValue(process.Cpu + tick * 3), TableCell.FromValue(process.Memory + tick * 16));
@@ -56,7 +56,7 @@ IWidget Frame(int tick)
 
     Sparkline history = new Sparkline().Label("CPU %");
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
-    return new Rows(new Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]"), new TextBlock($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]"), table, new Panel().Title("CPU history").Content(c => c.Add(history)), new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]")).Gap(1);
+    return new Rows(new Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]"), new TextBlock($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 processes[/]"), table, new Panel().Title("CPU history").Content(history), new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]")).Gap(1);
 }
 
 // Behaviour: update each frame in a bounded live run.

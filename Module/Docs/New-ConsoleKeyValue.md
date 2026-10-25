@@ -101,7 +101,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputObject
-A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).
+A hashtable or an object whose properties become the pairs. A record containing both Key and Value is an item descriptor, even when Value is null; Key by itself is ordinary data. A script block here is taken as -Content.
 
 ```yaml
 Type: Object

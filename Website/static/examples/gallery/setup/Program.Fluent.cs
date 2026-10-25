@@ -109,7 +109,7 @@ StatusList install = new StatusList("steps");
 foreach (string label in installSteps)
     install.Add(label, StatusKind.Pending);
 ProgressBar bar = new ProgressBar("Install").Total(40);
-Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent").Subtitle(Markup.Escape(answers.Values.Get<string>("Path"))).Panel("Steps", install).Add(new Padding().Bottom(0).Right(1).Top(0).Left(1).Content(c => c.Add(bar))).BuildDashboard();
+Dashboard dashboard = new DashboardBuilder("Installing Toolbox Agent").Subtitle(Markup.Escape(answers.Values.Get<string>("Path"))).Panel("Steps", install).Add(new Padding().Bottom(0).Right(1).Top(0).Left(1).Content(bar)).BuildDashboard();
 using (LiveSession session = new LiveSession(dashboard))
 {
     try
@@ -142,6 +142,6 @@ using (LiveSession session = new LiveSession(dashboard))
     }
 }
 
-new Panel().Title("Toolbox Agent installed").Content(c => c.Add(new KeyValueList().Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path"))).Add("Components", Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components")))).Add("Server", Markup.Escape(answers.Values.Get<string>("Server"))).Add("Steps done", "4", StatusKind.Pass).Add("Launch", "toolbox"))).Show();
+new Panel().Title("Toolbox Agent installed").Content(new KeyValueList().Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path"))).Add("Components", Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components")))).Add("Server", Markup.Escape(answers.Values.Get<string>("Server"))).Add("Steps done", "4", StatusKind.Pass).Add("Launch", "toolbox")).Show();
 record Part(string Id, string Name, string Group, string Size, string Description, bool Selected = false, string? Disabled = null);
 record Endpoint(string Region, string Host, string City, string Latency, string? Disabled = null);

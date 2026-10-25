@@ -29,6 +29,6 @@ foreach (var folder in folders)
         node.Add(child.Item1, null, child.Item2);
 }
 
-Rows report = new Rows(new Rule("[bold]Storage review[/] [muted]· capacity planning[/]"), new Columns(new Panel().Title("Used / 100 GiB").Content(c => c.Add(chart)), new Panel().Title("Largest folders").Content(c => c.Add(tree))), new Panel().Title("Next action").Content(c => c.Add(new Rows(new TextBlock("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build."), new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]"))))).Gap(1);
+Rows report = new Rows(new Rule("[bold]Storage review[/] [muted]· capacity planning[/]"), new Columns(new Panel().Title("Used / 100 GiB").Content(chart), new Panel().Title("Largest folders").Content(tree)), new Panel().Title("Next action").Content(new Rows(new TextBlock("[warn]Artifacts is at 94%.[/] Review the retention policy before the next build."), new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]")))).Gap(1);
 // Behaviour: print once. Review recommendations before connecting any cleanup action.
 report.Show();

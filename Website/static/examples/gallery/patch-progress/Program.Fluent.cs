@@ -21,7 +21,7 @@ string[] servers =
 IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
 {
     var byHost = outcomes.ToDictionary(result => result.Item);
-    Table table = new Table().AddColumn("Host").AddColumn("Stage").AddColumn("Result", column => column.Presenter = CellPresenters.StatusWord);
+    Table table = new Table().AddColumn("Host").AddColumn("Stage").AddColumn("Result", column => column.Presenter(CellPresenters.StatusWord));
     foreach (string server in servers)
     {
         bool finished = byHost.TryGetValue(server, out var outcome);

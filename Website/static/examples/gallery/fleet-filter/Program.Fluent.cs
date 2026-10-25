@@ -48,7 +48,7 @@ var hosts = new[]
 IWidget Results(string query)
 {
     var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-    Table table = new Table().AddColumn("Host").AddColumn("Role").AddColumn("Site").AddColumn("Status", column => column.Presenter = CellPresenters.StatusWord);
+    Table table = new Table().AddColumn("Host").AddColumn("Role").AddColumn("Site").AddColumn("Status", column => column.Presenter(CellPresenters.StatusWord));
     foreach (var host in rows)
         table.AddRow(host.Host, host.Role, host.Site, TableCell.FromValue(host.Status));
     Rows result = new Rows(new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts"), table);
@@ -57,6 +57,6 @@ IWidget Results(string query)
     return result;
 }
 
-Rows layout = new Rows(new TextBlock("[bold]Fleet health[/] [muted]· production inventory[/]"), new Panel().Title("Fleet summary").Content(c => c.Add(new TextBlock("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]"))), new TextInput("Query", string.Empty).Label("Filter").Placeholder("Host, role, site or status"), new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))).Gap(1);
+Rows layout = new Rows(new TextBlock("[bold]Fleet health[/] [muted]· production inventory[/]"), new Panel().Title("Fleet summary").Content(new TextBlock("[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]")), new TextInput("Query", string.Empty).Label("Filter").Placeholder("Host, role, site or status"), new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))).Gap(1);
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

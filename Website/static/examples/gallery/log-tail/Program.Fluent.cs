@@ -20,7 +20,7 @@ IWidget Frame(int tick)
     Rows lines = new Rows();
     foreach (string line in messages.Take(tick + 1))
         lines.Add(new TextBlock(line));
-    return new Rows(new TextBlock("[bold]Application log[/] [muted]· worker events[/]"), new Panel().Title("./logs/worker.log").Content(c => c.Add(lines)), new TextBlock("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]")).Gap(1);
+    return new Rows(new TextBlock("[bold]Application log[/] [muted]· worker events[/]"), new Panel().Title("./logs/worker.log").Content(lines), new TextBlock("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " / 5 events · Ctrl+C stops the live run[/]")).Gap(1);
 }
 
 // Behaviour: update each frame in a bounded live run.

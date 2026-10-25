@@ -24,7 +24,7 @@ IWidget Frame(int tick)
         checklist.Add(new TextBlock("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"), new Panel().Title("Release checklist").Content(c => c.Add(checklist)), new ProgressBar("Overall").Value(tick).Total(4), new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
+    return new Rows(new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"), new Panel().Title("Release checklist").Content(checklist), new ProgressBar("Overall").Value(tick).Total(4), new KeyValueList().Add("Project", "Orbit.Tools").Add("Version", "1.2.0").Add("Artifacts", "./artifacts/").Add("Publish", "manual approval"), new TextBlock("[muted]Ctrl+C stops the live run.[/]")).Gap(1);
 }
 
 // Behaviour: update each frame in a bounded live run.

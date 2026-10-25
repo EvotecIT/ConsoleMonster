@@ -32,7 +32,7 @@ Rows layout = new Rows(new TextBlock("[bold]Server toolbox[/] [muted]· operatio
         "[warn]3 artifacts eligible[/]",
         "Eligible artifacts: build-cache, test-output, old-logs."
     };
-    return new Panel().Title("Preview").Content(c => c.Add(new Rows(lines.Select(line => new TextBlock(line)).ToArray())));
+    return new Panel().Title("Preview").Content(new Rows(lines.Select(line => new TextBlock(line)).ToArray()));
 })).Gap(1);
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);

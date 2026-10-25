@@ -10768,7 +10768,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
-            <maml:para>A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).</maml:para>
+            <maml:para>A hashtable or an object whose properties become the pairs. A record containing both Key and Value is an item descriptor, even when Value is null; Key by itself is ordinary data. A script block here is taken as -Content.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -10918,7 +10918,7 @@ New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
-          <maml:para>A hashtable or an object whose properties become the pairs (a script block here is taken as -Content).</maml:para>
+          <maml:para>A hashtable or an object whose properties become the pairs. A record containing both Key and Value is an item descriptor, even when Value is null; Key by itself is ordinary data. A script block here is taken as -Content.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>

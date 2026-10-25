@@ -48,7 +48,7 @@ var hosts = new[]
 IWidget Results(string query)
 {
     var rows = hosts.Where(host => string.Join(" ", host.Host, host.Role, host.Site, host.Status).IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-    Table table = new Table().AddColumn("Host").AddColumn("Role").AddColumn("Site").AddColumn("Status", column => column.Presenter = CellPresenters.StatusWord);
+    Table table = new Table().AddColumn("Host").AddColumn("Role").AddColumn("Site").AddColumn("Status", column => column.Presenter(CellPresenters.StatusWord));
     foreach (var host in rows)
         table.AddRow(host.Host, host.Role, host.Site, TableCell.FromValue(host.Status));
     Rows result = new Rows(new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts"), table);

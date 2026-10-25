@@ -28,7 +28,7 @@ Rows layout = new Rows(new TextBlock("[bold]Install Toolbox Agent[/] [muted]· T
         "3 / 3 · Review"
     }[page];
     IWidget content = page == 0 ? new TextBlock("Choose a writable folder for the agent.") : page == 1 ? new TextBlock("Core runs local jobs. Reports adds an HTML summary.") : new Rows(new TextBlock("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Folder", ""))), new TextBlock("Component: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>("Component", ""))), new TextBlock("[pass]Ready to install. Review the folder and components.[/]"));
-    return new Panel().Title(title).Content(c => c.Add(content));
+    return new Panel().Title(title).Content(content);
 })).Gap(1);
 // Behaviour: edit controls to update the view; Escape exits the app.
 ConsoleApp.Run(layout);
