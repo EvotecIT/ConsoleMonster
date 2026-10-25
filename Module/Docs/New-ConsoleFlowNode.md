@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a labelled flow node with an optional status glyph and colour.
 
+Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.
+
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,6 +19,8 @@ New-ConsoleFlowNode [-Label] <string> -Key <string> [-Status <StatusKind>] [<Com
 ## DESCRIPTION
 Creates a labelled flow node with an optional status glyph and colour.
 
+Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -24,6 +28,7 @@ Creates a labelled flow node with an optional status glyph and colour.
 New-ConsoleFlowNode -Key client -Label 'Client' -Status Pass
 ```
 
+A client hop that has completed
 
 ## PARAMETERS
 

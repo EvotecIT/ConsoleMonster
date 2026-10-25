@@ -3,8 +3,11 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Creates a labelled connection between adjacent flow nodes.</para></summary>
-    /// <example><code>New-ConsoleFlowEdge -Key tls -From client -To host -Label 'TLS 1.3' -Status Pass</code></example>
+    /// <summary>
+    /// <para type="synopsis">Creates a labelled connection between adjacent flow nodes.</para>
+    /// <para type="description">Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.</para>
+    /// </summary>
+    /// <example><para>A successful TLS connection</para><code>New-ConsoleFlowEdge -Key tls -From client -To host -Label 'TLS 1.3' -Status Pass</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleFlowEdge")]
     [OutputType(typeof(FlowEdge))]
     public sealed class CmdletNewConsoleFlowEdge : PSCmdlet {

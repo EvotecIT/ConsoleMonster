@@ -3,8 +3,11 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Updates a node or edge in a live dashboard's flow strip.</para></summary>
-    /// <example><code>Update-ConsoleFlow -WidgetId chain -NodeKey issuer -Status Fail
+    /// <summary>
+    /// <para type="synopsis">Updates a node or edge in a live dashboard's flow strip.</para>
+    /// <para type="description">Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.</para>
+    /// </summary>
+    /// <example><para>Mark an issuer failure and sever its incoming connection</para><code>Update-ConsoleFlow -WidgetId chain -NodeKey issuer -Status Fail
     /// Update-ConsoleFlow -WidgetId chain -EdgeKey signature -Status Fail -Cut</code></example>
     [Cmdlet(VerbsData.Update, "ConsoleFlow")]
     public sealed class CmdletUpdateConsoleFlow : LiveCmdlet {

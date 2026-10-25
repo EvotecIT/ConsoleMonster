@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Updates a node or edge in a live dashboard's flow strip.
 
+Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.
+
 ## SYNTAX
 ### Node
 ```powershell
@@ -22,6 +24,8 @@ Update-ConsoleFlow -EdgeKey <string> -Status <StatusKind> [-WidgetId <string>] [
 ## DESCRIPTION
 Updates a node or edge in a live dashboard's flow strip.
 
+Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -30,6 +34,7 @@ Update-ConsoleFlow -WidgetId chain -NodeKey issuer -Status Fail
             Update-ConsoleFlow -WidgetId chain -EdgeKey signature -Status Fail -Cut
 ```
 
+Mark an issuer failure and sever its incoming connection
 
 ## PARAMETERS
 

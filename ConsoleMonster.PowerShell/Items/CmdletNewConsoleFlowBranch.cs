@@ -3,8 +3,11 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Creates the single side branch below a flow strip.</para></summary>
-    /// <example><code>New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail</code></example>
+    /// <summary>
+    /// <para type="synopsis">Creates the single side branch below a flow strip.</para>
+    /// <para type="description">Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.</para>
+    /// </summary>
+    /// <example><para>An expiry reason below the issuer</para><code>New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleFlowBranch")]
     [OutputType(typeof(FlowBranch))]
     public sealed class CmdletNewConsoleFlowBranch : PSCmdlet {

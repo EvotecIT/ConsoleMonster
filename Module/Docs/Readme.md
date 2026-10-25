@@ -198,11 +198,17 @@ Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Nod
 ### [New-ConsoleFlowBranch](New-ConsoleFlowBranch.md)
 Creates the single side branch below a flow strip.
 
+Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.
+
 ### [New-ConsoleFlowEdge](New-ConsoleFlowEdge.md)
 Creates a labelled connection between adjacent flow nodes.
 
+Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.
+
 ### [New-ConsoleFlowNode](New-ConsoleFlowNode.md)
 Creates a labelled flow node with an optional status glyph and colour.
+
+Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.
 
 ### [New-ConsoleForm](New-ConsoleForm.md)
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
@@ -627,6 +633,8 @@ Sets the state of cells of a cell map (New-ConsoleCellMap) in the running dashbo
 
 ### [Update-ConsoleFlow](Update-ConsoleFlow.md)
 Updates a node or edge in a live dashboard's flow strip.
+
+Posts a status change to an existing flow in a running dashboard. WidgetId selects the flow; NodeKey or EdgeKey selects its item. Cut severs an edge, Cut:$false reconnects it, and omitting Cut preserves its connection state.
 
 ### [Update-ConsoleLane](Update-ConsoleLane.md)
 Updates a lane of a running dashboard: progress, step results, status and detail.

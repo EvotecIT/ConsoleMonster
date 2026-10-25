@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a labelled connection between adjacent flow nodes.
 
+Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.
+
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,6 +19,8 @@ New-ConsoleFlowEdge -Key <string> -From <string> -To <string> [-Label <string>] 
 ## DESCRIPTION
 Creates a labelled connection between adjacent flow nodes.
 
+Builds an edge after its source and destination nodes have been added to a flow. From and To identify adjacent nodes in strip order. Label appears above the arrow; Cut severs the line with a cross, or x in ASCII mode.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -24,6 +28,7 @@ Creates a labelled connection between adjacent flow nodes.
 New-ConsoleFlowEdge -Key tls -From client -To host -Label 'TLS 1.3' -Status Pass
 ```
 
+A successful TLS connection
 
 ## PARAMETERS
 

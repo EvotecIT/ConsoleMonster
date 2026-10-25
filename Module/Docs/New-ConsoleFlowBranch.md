@@ -8,6 +8,8 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates the single side branch below a flow strip.
 
+Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.
+
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,6 +19,8 @@ New-ConsoleFlowBranch [-Label] <string> -From <string> [-To <string>] [-Status <
 ## DESCRIPTION
 Creates the single side branch below a flow strip.
 
+Builds the single side branch for New-ConsoleFlow or Add-ConsoleItem. From identifies its source node. Omit To to end below that node, or name a later node to return to the strip. Label explains the branch using literal text.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -24,6 +28,7 @@ Creates the single side branch below a flow strip.
 New-ConsoleFlowBranch -From issuer -Label 'expired 2026-09-30' -Status Fail
 ```
 
+An expiry reason below the issuer
 
 ## PARAMETERS
 

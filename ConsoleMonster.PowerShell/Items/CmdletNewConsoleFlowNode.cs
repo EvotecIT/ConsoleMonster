@@ -3,8 +3,11 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary><para type="synopsis">Creates a labelled flow node with an optional status glyph and colour.</para></summary>
-    /// <example><code>New-ConsoleFlowNode -Key client -Label 'Client' -Status Pass</code></example>
+    /// <summary>
+    /// <para type="synopsis">Creates a labelled flow node with an optional status glyph and colour.</para>
+    /// <para type="description">Builds a node for New-ConsoleFlow or Add-ConsoleItem. Key is its stable identity for live updates; Label is literal text. Status uses the shared vocabulary and remains readable through a glyph when colour is disabled.</para>
+    /// </summary>
+    /// <example><para>A client hop that has completed</para><code>New-ConsoleFlowNode -Key client -Label 'Client' -Status Pass</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleFlowNode")]
     [OutputType(typeof(FlowNode))]
     public sealed class CmdletNewConsoleFlowNode : PSCmdlet {
